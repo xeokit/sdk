@@ -5,7 +5,7 @@
   "main": "/dist/xeokit-webgpu-sdk.es.js",
   "scripts": {
     "build": "rollup --config rollup.config.js; rollup --config rollup.minified.config.js",
-    "docs": "rm -Rf ./docs/*; ./node_modules/.bin/esdoc",
+    "docs": "rm -Rf ./docs/*; typedoc --tsconfig tsconfig.json",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -51,7 +51,8 @@
     "http-server": "^0.12.3",
     "rollup": "^2.46.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-terser": "^7.0.2",
+    "typedoc": "^0.22.10"
   },
   "files": [
     "/dist"

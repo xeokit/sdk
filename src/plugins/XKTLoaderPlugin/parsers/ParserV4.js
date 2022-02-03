@@ -6,7 +6,7 @@ Parser for .XKT Format V4
 
  */
 
-import {utils} from "../../../viewer/scene/utils.js";
+import * as utils from "../../../viewer/scene/utils.js";
 import * as p from "./lib/pako.js";
 
 let pako = window.pako || p;

@@ -15,17 +15,17 @@ npm i @xeokit/xeokit-webgpu-sdk
 
 # Concepts
 
-The [Viewer](/doc/classes/Viewer.html) class is the core component of xeokit-webgpu-sdk. The Viewer has the following
+The [Viewer](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Viewer.html) class is the core component of xeokit-webgpu-sdk. The Viewer has the following
 components:
 
-- A [Scene](/doc/classes/Scene.html) containing [SceneModels](/doc/classes/SceneModel.html)
-  and [SceneObjects](/doc/classes/SceneObject.html), which define the geometry and materials of our models.
-- A [MetaScene](/doc/classes/MetaScene.html) containing [MetaModels](/doc/classes/MetaModel.html)
-  and [MetaObjects](/doc/classes/MetaObject.html), which describe the semantics and structure of our models.
-- One or more [Views](/doc/classes/View.html), that each create an independent view of the Scene. Each View has its own
-  canvas, [Camera](/doc/classes/Camera.html), and [ViewObjects](/doc/classes/ViewObject.html), which define the
+- A [Scene](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Scene.html) containing [SceneModels](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/SceneModel.html)
+  and [SceneObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/SceneObject.html), which define the geometry and materials of our models.
+- A [MetaScene](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/MetaScene.html) containing [MetaModels](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/MetaModel.html)
+  and [MetaObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/MetaObject.html), which describe the semantics and structure of our models.
+- One or more [Views](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/View.html), that each create an independent view of the Scene. Each View has its own
+  canvas, [Camera](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Camera.html), and [ViewObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/ViewObject.html), which define the
   appearance of each SceneObject in that particular View.
-- A [LocaleService](/doc/classes/LocaleService.html) that provides locale translations for UI elements.
+- A [LocaleService](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/LocaleService.html) that provides locale translations for UI elements.
 
 A key goodness of this architecture is [*separation of concerns*](https://en.wikipedia.org/wiki/Separation_of_concerns),
 where we have separate data structures for metadata, geometry and views. This decouples the metadata from the scene
@@ -42,8 +42,8 @@ that shows a 2D plan view of a selected storey, showing the location of the user
 
 ### Example 1
 
-Let's create a [Viewer](/doc/classes/Viewer.html) with a [WebIFCLoaderPlugin](/doc/classes/WebIFCLoaderPlugin.html)
-to view a IFC model in the browser. We'll configure our Viewer with two [Views](/doc/classes/View.html), and a then view
+Let's create a [Viewer](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Viewer.html) with a [WebIFCLoaderPlugin](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/WebIFCLoaderPlugin.html)
+to view a IFC model in the browser. We'll configure our Viewer with two [Views](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/View.html), and a then view
 a sample IFC model from the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Details/274).
 
 Whenever we click on the View's canvas, TODO
@@ -191,10 +191,10 @@ Whenever we click on the View's canvas, TODO
 
 ### Example 2
 
-Let's go a little deeper and build some content directly within a [Viewer](/doc/classes/Viewer.html) using its
+Let's go a little deeper and build some content directly within a [Viewer](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Viewer.html) using its
 JavaScript API.
 
-In our second example, we'll create a Viewer with two [Views](/doc/classes/View.html) like before, but this time we'll
+In our second example, we'll create a Viewer with two [Views](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/View.html) like before, but this time we'll
 create our model metadata and geometry programmatically, using builder methods within the API.
 
 ![](http://xeokit.io/img/docs/sceneGraph.png)

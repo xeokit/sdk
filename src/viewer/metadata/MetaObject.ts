@@ -2,7 +2,7 @@ import {PropertySet} from "./PropertySet";
 import {MetaModel} from "./MetaModel";
 
 /**
- *  Holds metadata about an object within a {@link Viewer}.
+ *  Metadata about an object within a {@link Viewer}.
  *
  *  ## Overview
  *

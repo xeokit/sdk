@@ -7,9 +7,9 @@ import {Camera} from "./Camera";
  *
  * ## Summary
  *
- * * Located at {@link Camera#perspective}.
- * * Implicitly sets the left, right, top, bottom frustum planes using {@link Perspective#fov}.
- * * {@link Perspective#near} and {@link Perspective#far} specify the distances to the clipping planes.
+ * * Located at {@link Camera.perspective}.
+ * * Implicitly sets the left, right, top, bottom frustum planes using {@link Perspective.fov}.
+ * * {@link Perspective.near} and {@link Perspective.far} specify the distances to the clipping planes.
  */
 class Perspective extends Component {
 
@@ -206,9 +206,9 @@ class Perspective extends Component {
     }
 
     /**
-     * Gets the inverse of {@link Perspective#matrix}.
+     * Gets the inverse of {@link Perspective.matrix}.
      *
-     * @returns  The inverse of {@link Perspective#matrix}.
+     * @returns  The inverse of {@link Perspective.matrix}.
      */
     get inverseMatrix(): math.FloatArrayType {
         if (this.dirty) {
@@ -222,7 +222,7 @@ class Perspective extends Component {
     }
 
     /**
-     * Gets the transpose of {@link Perspective#matrix}.
+     * Gets the transpose of {@link Perspective.matrix}.
      *
      * @returns  The transpose of {@link Perspective#matrix}.
      */

@@ -5,7 +5,7 @@ import {Camera} from "./Camera";
 /**
  * @desc Defines a custom projection for a {@link Camera} as a custom 4x4 matrix.
  *
- * Located at {@link Camera#customProjection}.
+ * Located at {@link Camera.customProjection}.
  */
 class CustomProjection extends Component {
 
@@ -75,9 +75,9 @@ class CustomProjection extends Component {
     }
 
     /**
-     * Gets the inverse of {@link CustomProjection#matrix}.
+     * Gets the inverse of {@link CustomProjection.matrix}.
      *
-     * @returns The inverse of {@link CustomProjection#matrix}.
+     * @returns The inverse of {@link CustomProjection.matrix}.
      */
     get inverseMatrix(): math.FloatArrayType {
         if (this.dirty) {
@@ -91,9 +91,9 @@ class CustomProjection extends Component {
     }
 
     /**
-     * Gets the transpose of {@link CustomProjection#matrix}.
+     * Gets the transpose of {@link CustomProjection.matrix}.
      *
-     * @returns The transpose of {@link CustomProjection#matrix}.
+     * @returns The transpose of {@link CustomProjection.matrix}.
      */
     get transposedMatrix(): math.FloatArrayType {
         if (this.dirty) {

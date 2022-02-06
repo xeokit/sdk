@@ -4,7 +4,7 @@ import {MetaObject} from "./MetaObject";
 import {MetaModelData} from "./MetaModelData";
 
 /**
- *  Provides metadata about a model within a {@link Viewer}.
+ *  Metadata about a model within a {@link Viewer}.
  *
  * ## Overview
  *
@@ -21,14 +21,14 @@ class MetaModel {
     public readonly metaScene: MetaScene;
 
     /**
-     * Unique ID within the MetaScene.
+     * Unique ID of this MetaModel within its MetaScene.
      *
-     * MetaModels are registered by ID in {@link MetaScene#metaModels}.
+     * MetaModels are registered by ID in {@link MetaScene.metaModels}.
      */
     public readonly id: string;
 
     /**
-     * The project ID
+     * The project ID.
      */
     public readonly projectId?: string | number;
 
@@ -73,22 +73,22 @@ class MetaModel {
     public readonly propertySets: { [key: string]: PropertySet };
 
     /**
-     * The root {@link MetaObject} in this MetaModel's composition structure hierarchy.
+     * The root {@link MetaObject} in this MetaModel's composition hierarchy.
      */
     public rootMetaObject: MetaObject;
 
     /**
-     * The {@link MetaObject}s in this MetaModel, mapped to {@link MetaObject#id}.
+     * The {@link MetaObject}s in this MetaModel, mapped to {@link MetaObject.id}.
      */
     public metaObjects: { [key: string]: MetaObject };
 
     /**
-     * The {@link MetaObject}s in this MetaModel, mapped to {@link MetaObject#type}, sub-mapped to {@link MetaObject#id}.
+     * The {@link MetaObject}s in this MetaModel, mapped to {@link MetaObject.type}, sub-mapped to {@link MetaObject.id}.
      */
     public metaObjectsByType: { [key: string]: { [key: string]: MetaObject } };
 
     /**
-     * The count of each type of {@link MetaObject} in this MetaModel, mapped to {@link MetaObject#type}.
+     * The count of each type of {@link MetaObject} in this MetaModel, mapped to {@link MetaObject.type}.
      */
     public typeCounts: { [key: string]: number };
 

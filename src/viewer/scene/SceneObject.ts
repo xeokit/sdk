@@ -4,14 +4,15 @@ import {SceneModel} from "./SceneModel";
 import {Component} from "../Component";
 
 /**
- * Geometric representation of an object within a {@link Viewer}.
+ * Defines geometry and material for an object in a {@link Viewer}.
  *
  * ## Overview
  *
  * * Belongs to a {@link SceneModel}, which belongs to a {@link Scene}
  * * Created with {@link SceneModel.createSceneObject}
  * * Registered by {@link Component.id} in {@link SceneModel.sceneObjects} and {@link Scene.sceneObjects}
- * * Automatically represented by a {@link ViewObject} in each existing {@link View}
+ * * Has a corresponding {@link ViewObject} in each of the {@link Viewer}'s {@link View}s
+ * * Can have a corresponding {@link MetaObject} in the {@link Viewer}'s {@link MetaScene}
  */
 export abstract class SceneObject extends Component {
 

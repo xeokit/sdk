@@ -5,13 +5,13 @@ import {SceneObject} from "../scene/SceneObject";
 import * as math from '../math/math';
 
 /**
- * Controls the appearance of a {@link SceneObject} within a {@link View}.
+ * A view of an object in a {@link Viewer}.
  *
  * ## Overview
  *
  * - Belongs to a {@link View}.
  * - Registered by {@link ViewObject.id} in {@link View.viewObjects}.
- * - Proxies a {@link SceneObject}, configuring how it appears in the {@link View}.
+ * - The ViewObject will also have a corresponding {@link SceneObject} in {@link Scene.sceneObjects}, and a {@link MetaObject} in {@link MetaModel.metaObjects}, all sharing the same ID.
  */
 class ViewObject {
 

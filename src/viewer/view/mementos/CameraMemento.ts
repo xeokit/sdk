@@ -123,7 +123,7 @@ class CameraMemento {
     }
 
     /**
-     * Restores a {@link View}'s {@link Camera} to the state previously captured with {@link CameraMemento#saveCamera}.
+     * Restores a {@link View}'s {@link Camera} to the state previously captured with {@link CameraMemento.saveCamera}.
      *
      * @param view The view.
      * @param {Function} [done] When this callback is given, will fly the {@link Camera} to the saved state then fire the callback. Otherwise will just jump the Camera to the saved state.

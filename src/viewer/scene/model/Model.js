@@ -210,7 +210,7 @@ class Model extends Component {
      * Note that ````positions````, ````normals```` and ````indices```` are all required together.
      *
      * @param cfg Geometry properties.
-     * @param {String|Number} cfg.id Mandatory ID for the geometry, to refer to with {@link Model#createMesh}.
+     * @param {String|Number} cfg.id Mandatory ID for the geometry, to refer to with {@link Model.createMesh}.
      * @param cfg.primitive The primitive type. Accepted values are 'points', 'lines', 'triangles', 'solid' and 'surface'.
      * @param cfg.positions Flat array of positions.
      * @param [cfg.normals] Flat array of normal vectors. Only used with 'triangles' primitives. When no normals are given, the geometry will be flat shaded using auto-generated face-aligned normals.
@@ -287,7 +287,7 @@ class Model extends Component {
      * A mesh can either share geometry with other meshes, or have its own unique geometry.
      *
      * To share a geometry with other meshes, provide the ID of a geometry created earlier
-     * with {@link Model#createGeometry}.
+     * with {@link Model.createGeometry}.
      *
      * To create unique geometry for the mesh, provide geometry data arrays.
      *

@@ -6,7 +6,7 @@ import {Viewer} from "../Viewer";
 import {MetaModelData} from "./MetaModelData";
 
 /**
- * Provides metadata about the models and objects within a {@link Viewer}.
+ * Metadata about the objects within a {@link Viewer}.
  *
  * ## Overview
  *

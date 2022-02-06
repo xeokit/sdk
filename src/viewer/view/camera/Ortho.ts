@@ -5,11 +5,11 @@ import * as math from '../../math/';
 /**
  * @desc Defines its {@link Camera}'s orthographic projection as a box-shaped view volume.
  *
- * * Located at {@link Camera#ortho}.
+ * * Located at {@link Camera.ortho}.
  * * Works like Blender's orthographic projection, where the positions of the left, right, top and bottom planes are implicitly
- * indicated with a single {@link Ortho#scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
- * contain the number of units given by {@link Ortho#scale}.
- * * {@link Ortho#near} and {@link Ortho#far} indicated the distances to the clipping planes.
+ * indicated with a single {@link Ortho.scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
+ * contain the number of units given by {@link Ortho.scale}.
+ * * {@link Ortho.near} and {@link Ortho.far} indicated the distances to the clipping planes.
  */
 class Ortho extends Component {
 
@@ -163,9 +163,9 @@ class Ortho extends Component {
     }
 
     /**
-     * Gets the inverse of {@link Ortho#matrix}.
+     * Gets the inverse of {@link Ortho.matrix}.
      *
-     * @returns  The inverse of {@link Ortho#matrix}.
+     * @returns  The inverse of {@link Ortho.matrix}.
      */
     get inverseMatrix(): math.FloatArrayType {
         if (this.dirty) {
@@ -179,7 +179,7 @@ class Ortho extends Component {
     }
 
     /**
-     * Gets the transpose of {@link Ortho#matrix}.
+     * Gets the transpose of {@link Ortho.matrix}.
      *
      * @returns  The transpose of {@link Ortho#matrix}.
      */

@@ -2,7 +2,7 @@ import {Property} from "./Property";
 import {MetaModel} from "./MetaModel";
 
 /**
- * A set of properties within a {@link MetaModel}.
+ * A set of properties of a model or object within a {@link Viewer}.
  *
  * ## Overview
  *

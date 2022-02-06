@@ -32,7 +32,7 @@ class Viewport extends Component {
     /**
      * Sets the canvas-space boundary of this Viewport, indicated as ````[min, max, width, height]````.
      *
-     * When {@link Viewport#autoBoundary} is ````true````, ignores calls to this method and automatically synchronizes with {@link Canvas#boundary}.
+     * When {@link Viewport.autoBoundary} is ````true````, ignores calls to this method and automatically synchronizes with {@link Canvas.boundary}.
      *
      * Fires a "boundary"" event on change.
      *
@@ -65,7 +65,7 @@ class Viewport extends Component {
     }
 
     /**
-     * Sets if {@link Viewport#boundary} automatically synchronizes with {@link Canvas#boundary}.
+     * Sets if {@link Viewport.boundary} automatically synchronizes with {@link Canvas.boundary}.
      *
      * Default is ````false````.
      *
@@ -92,7 +92,7 @@ class Viewport extends Component {
     }
 
     /**
-     * Gets if {@link Viewport#boundary} automatically synchronizes with {@link Canvas#boundary}.
+     * Gets if {@link Viewport.boundary} automatically synchronizes with {@link Canvas.boundary}.
      *
      * Default is ````false````.
      *

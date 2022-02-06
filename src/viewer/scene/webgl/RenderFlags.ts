@@ -1,18 +1,18 @@
 /**
  * Indicates what rendering needs to be done for the layers within a {@link WebGLSceneModel}.
  *
- * Each WebGLSceneModel has a RenderFlags in {@link WebGLSceneModel#renderFlags}.
+ * Each WebGLSceneModel has a RenderFlags in {@link WebGLSceneModel.renderFlags}.
  *
- * Before rendering each frame, {@link Renderer} will call {@link WebGLSceneModel#rebuildRenderFlags} on each {@link WebGLSceneModel}.
+ * Before rendering each frame, {@link Renderer} will call {@link WebGLSceneModel.rebuildRenderFlags} on each {@link WebGLSceneModel}.
  *
- * Then, when rendering a frame, Renderer will apply rendering passes to each WebGLSceneModel according on what flags are set in {@link WebGLSceneModel#renderFlags}.
+ * Then, when rendering a frame, Renderer will apply rendering passes to each WebGLSceneModel according on what flags are set in {@link WebGLSceneModel.renderFlags}.
  *
  * @private
  */
 class RenderFlags {
 
     /**
-     * Set by {@link WebGLSceneModel#rebuildRenderFlags} to indicate which layers are visible within the {@link WebGLSceneModel}.
+     * Set by {@link WebGLSceneModel.rebuildRenderFlags} to indicate which layers are visible within the {@link WebGLSceneModel}.
      *
      * This is a list of IDs of visible layers within the {@link WebGLSceneModel}. The IDs will be whatever the
      * {@link WebGLSceneModel} uses to identify its layers, usually integers.
@@ -20,7 +20,7 @@ class RenderFlags {
     visibleLayers: number[];
 
     /**
-     * Set by {@link WebGLSceneModel#rebuildRenderFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link WebGLSceneModel}.
+     * Set by {@link WebGLSceneModel.rebuildRenderFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link WebGLSceneModel}.
      *
      * Layout is as follows:
      *
@@ -33,7 +33,7 @@ class RenderFlags {
     sectionPlanesActivePerLayer: boolean[];
 
     /**
-     * Set by {@link WebGLSceneModel#rebuildRenderFlags} to indicate whether the {@link WebGLSceneModel} is culled.
+     * Set by {@link WebGLSceneModel.rebuildRenderFlags} to indicate whether the {@link WebGLSceneModel} is culled.
      *
      * When this is ````false````, then all of the other properties on ````RenderFlags```` will remain at their default values.
      */

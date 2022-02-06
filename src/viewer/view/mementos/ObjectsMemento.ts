@@ -7,8 +7,8 @@ const color = new Float32Array(3);
 /**
  * @desc Saves and restores a snapshot of the visual state of the {@link ViewObject}'s that represent objects within a {@link View}.
  *
- * * An ViewObject represents an object when {@link ViewObject#isObject} is ````true````.
- * * Each object-ViewObject is registered by {@link ViewObject#id} in {@link View#objects}.
+ * * An ViewObject represents an object when {@link ViewObject.isObject} is ````true````.
+ * * Each object-ViewObject is registered by {@link ViewObject.id} in {@link View.objects}.
  *
  * ## See Also
  *

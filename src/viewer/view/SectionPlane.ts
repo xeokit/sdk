@@ -7,11 +7,12 @@ import * as math from '../math/';
  *
  * ## Overview
  *
+ * * Belongs to a {@link View}.
  * * Slices portions off {@link ViewObject}s to create cross-section views or reveal interiors.
- * * Registered by {@link SectionPlane#id} in {@link View#sectionPlanes}.
- * * Indicates its World-space position in {@link SectionPlane#pos} and orientation vector in {@link SectionPlane#dir}.
- * * Discards elements from the half-space in the direction of {@link SectionPlane#dir}.
- * * Can be be enabled or disabled via {@link SectionPlane#active}.
+ * * Registered by {@link SectionPlane.id} in {@link View.sectionPlanes}.
+ * * Indicates its World-space position in {@link SectionPlane.pos} and orientation vector in {@link SectionPlane.dir}.
+ * * Discards elements from the half-space in the direction of {@link SectionPlane.dir}.
+ * * Can be be enabled or disabled via {@link SectionPlane.active}.
  *
  * ## Usage
  *
@@ -175,7 +176,7 @@ class SectionPlane extends Component {
     /**
      * Gets this SectionPlane's distance to the origin of the World-space coordinate system.
      *
-     * This is the dot product of {@link SectionPlane#pos} and {@link SectionPlane#dir} and is automatically re-calculated
+     * This is the dot product of {@link SectionPlane.pos} and {@link SectionPlane.dir} and is automatically re-calculated
      * each time either of two properties are updated.
      *
      * @returns Distance to the origin of the World-space coordinate system.
@@ -185,7 +186,7 @@ class SectionPlane extends Component {
     }
 
     /**
-     * Inverts the direction of {@link SectionPlane#dir}.
+     * Inverts the direction of {@link SectionPlane.dir}.
      */
     flipDir() {
         const dir = this.state.dir;

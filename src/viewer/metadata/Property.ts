@@ -2,7 +2,13 @@
 import {PropertySet} from "./PropertySet";
 
 /**
- * A property within a {@link PropertySet}.
+ * A property of a model or object within a {@link Viewer}.
+ *
+ * ## Overview
+ *
+ * * Belongs to a {@link PropertySet}
+ * * Registered by {@link Property.id} in {@link PropertySet.properties}
+ * * Created with {@link PropertySet.createProperty}
  */
 class Property {
 

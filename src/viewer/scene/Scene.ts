@@ -7,7 +7,7 @@ import {SceneModel} from "./SceneModel";
 import {WebGLSceneModel} from "./webgl/WebGLSceneModel";
 
 /**
- * Contains the geometric representations of the models and objects within a {@link Viewer}.
+ * Contains geometry and materials for the objects in a {@link Viewer}.
  *
  * ## Overview
  *

@@ -53,15 +53,15 @@ class CameraPath extends Component {
     }
 
     /**
-     * Gets the {@link SplineCurve} along which {@link Camera#eye} travels.
-     * @returns {SplineCurve} The SplineCurve for {@link Camera#eye}.
+     * Gets the {@link SplineCurve} along which {@link Camera.eye} travels.
+     * @returns {SplineCurve} The SplineCurve for {@link Camera.eye}.
      */
     get eyeCurve(): SplineCurve {
         return this.#eyeCurve;
     }
 
     /**
-     * Gets the {@link SplineCurve} along which {@link Camera#look} travels.
+     * Gets the {@link SplineCurve} along which {@link Camera.look} travels.
      * @returns {SplineCurve} The SplineCurve for {@link Camera#look}.
      */
     get lookCurve(): SplineCurve {

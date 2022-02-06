@@ -8,15 +8,17 @@ import * as math from "./math/math";
 import {scheduler} from "./scheduler";
 
 /**
- The core 3D viewer component within the xeokit SDK.
-
- ## Overview
-
- - Powered by WebGPU or WebGL
- - Has a {@link Scene}, which contains the geometric representation of model objects
- - Has a {@link MetaScene}, which contains metadata about the models and objects
- - Has one or more {@link View}s, each managing an independent view of the models and objects in a separate canvas
- - Add {@link Plugin}s to a Viewer to extend its functionality
+ * The viewer component at the core of the xeokit SDK.
+ *
+ * See [main docs page](https://xeokit.github.io/xeokit-webgpu-sdk/docs/index.html) for usage examples.
+ *
+ * ## Overview
+ *
+ * - Powered by WebGPU or WebGL
+ * - Has a {@link Scene}, which contains geometry and materials for model objects
+ * - Has a {@link MetaScene}, which contains metadata about models and objects
+ * - Has one or more {@link View}s, each providing an independent view of the models and objects in a separate canvas
+ * - Add {@link Plugin}s to a Viewer to extend its functionality
  */
 export class Viewer extends Component {
 

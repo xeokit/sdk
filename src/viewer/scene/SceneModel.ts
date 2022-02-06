@@ -1,10 +1,11 @@
 import {Scene} from "./Scene";
 import * as math from "../math";
+import {FloatArrayType} from "../math";
 import {SceneObject} from "./SceneObject";
 import {Component} from "../Component";
 
 /**
- * Geometric representation of a model within a {@link Viewer}.
+ * Contains geometry and materials for a model in a {@link Viewer}.
  *
  * ## Overview
  *
@@ -54,6 +55,18 @@ export abstract class SceneModel extends Component {
 
         scene.addSceneModel(this);
     }
+
+    abstract createTexture(cfg: {
+        id: string,
+        data: any
+    }): void;
+
+    abstract createMaterial(cfg: {
+        id: string,
+        type:string,
+        textureIds: string[],
+        attributes: FloatArrayType
+    }): void;
 
     /**
      * Creates a geometry within this SceneModel.

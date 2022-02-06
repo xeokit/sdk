@@ -7,7 +7,7 @@ import * as math from '../math';
  * Ordinarily, you would only use this component as a utility to help manage input events and state for your
  * own custom input handlers.
  *
- * * Located at {@link Scene#input}
+ * * Located at {@link Scene.input}
  * * Used by (at least) {@link CameraControl}
  *
  * ## Usage

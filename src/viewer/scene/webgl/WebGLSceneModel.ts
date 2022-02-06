@@ -7,6 +7,7 @@ import {FrameContext} from "./FrameContext";
 
 export class WebGLSceneModel extends SceneModel {
 
+
     readonly renderFlags: RenderFlags;
 
     numPortions:number;
@@ -25,6 +26,14 @@ export class WebGLSceneModel extends SceneModel {
     }
 
     // Build
+
+    createTexture(cfg: { id: string; data: any; }): void {
+        throw new Error("Method not implemented.");
+    }
+
+    createMaterial(cfg: { id: string; type: string; textureIds: string[]; attributes: FloatArrayType; }): void {
+        throw new Error("Method not implemented.");
+    }
 
     createGeometry(cfg: {
         id: string;

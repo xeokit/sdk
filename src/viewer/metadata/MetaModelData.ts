@@ -1,5 +1,5 @@
 /**
- *
+ * Data type from which a {@link MetaModel} is created.
  */
 export type MetaModelData = {
     projectId?: string | number,

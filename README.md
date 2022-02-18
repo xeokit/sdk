@@ -7,11 +7,9 @@
 [xeokit](http://xeokit.io) is a JavaScript software development kit from [xeolabs](http://xeolabs.com) for viewing
 high-detail, full-precision 3D engineering and BIM models in the browser.
 
-# Installing
+# Status 
 
-````bash
-npm i @xeokit/xeokit-webgpu-sdk
-````
+This project is work-in-progress and should be ready to try in the third quarter of 2022. So far, we're just releasing a preview of the API documentation to given developers an idea of what to expect.
 
 # Concepts
 

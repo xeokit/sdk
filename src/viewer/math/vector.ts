@@ -547,3 +547,34 @@ export function vecToArray(v: FloatArrayType): FloatArrayType {
 function trunc(v: number) {
     return Math.round(v * 100000) / 100000
 }
+
+
+/**
+ * Calculates the normal vector of a triangle.
+ */
+export function triangleNormal(a: FloatArrayType, b: FloatArrayType, c: FloatArrayType, normal: FloatArrayType = vec3()): FloatArrayType {
+    const p1x = b[0] - a[0];
+    const p1y = b[1] - a[1];
+    const p1z = b[2] - a[2];
+
+    const p2x = c[0] - a[0];
+    const p2y = c[1] - a[1];
+    const p2z = c[2] - a[2];
+
+    const p3x = p1y * p2z - p1z * p2y;
+    const p3y = p1z * p2x - p1x * p2z;
+    const p3z = p1x * p2y - p1y * p2x;
+
+    const mag = Math.sqrt(p3x * p3x + p3y * p3y + p3z * p3z);
+    if (mag === 0) {
+        normal[0] = 0;
+        normal[1] = 0;
+        normal[2] = 0;
+    } else {
+        normal[0] = p3x / mag;
+        normal[1] = p3y / mag;
+        normal[2] = p3z / mag;
+    }
+
+    return normal
+}

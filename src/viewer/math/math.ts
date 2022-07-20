@@ -1,4 +1,7 @@
-type FloatArrayType = (Float32Array | Float64Array | number[]);
+type FloatArrayType = (Uint8Array | Int8Array| Uint16Array | Int16Array | Float32Array | Float64Array | number[]);
+
+type IntArrayType = (Uint32Array| Uint8Array | Int8Array| Uint16Array | Int16Array | number[]);
+
 
 const doublePrecision = true;
 const FloatArrayClass = doublePrecision ? Float64Array : Float32Array;
@@ -37,7 +40,7 @@ export function clamp(value: number, min: number, max: number): number {
 /**
  *
  */
-export {FloatArrayType};
+export {FloatArrayType, IntArrayType};
 
 /**
  *

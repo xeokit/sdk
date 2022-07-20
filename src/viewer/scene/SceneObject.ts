@@ -1,25 +1,25 @@
 import {Scene} from "./Scene";
 import * as math from "../math/";
 import {SceneModel} from "./SceneModel";
-import {Component} from "../Component";
+import {ENTITY_FLAGS} from "./webgl/WebGLVBOSceneModel/lib/ENTITY_FLAGS";
 
 /**
- * Defines geometry and material for an object in a {@link Viewer}.
+ * An object in a {@link SceneModel}.
  *
  * ## Overview
  *
  * * Belongs to a {@link SceneModel}, which belongs to a {@link Scene}
  * * Created with {@link SceneModel.createSceneObject}
- * * Registered by {@link Component.id} in {@link SceneModel.sceneObjects} and {@link Scene.sceneObjects}
+ * * Registered by {@link SceneModel.id} in {@link SceneModel.sceneObjects} and {@link Scene.sceneObjects}
  * * Has a corresponding {@link ViewObject} in each of the {@link Viewer}'s {@link View}s
- * * Can have a corresponding {@link MetaObject} in the {@link Viewer}'s {@link MetaScene}
+ * * Can have a corresponding {@link DataObject} in the {@link Viewer}'s {@link Data}
  */
-export abstract class SceneObject extends Component {
+export interface SceneObject {
 
     /**
-     * The Scene that contains this SceneObject.
+     * Unique ID of this SceneObject.
      */
-    readonly scene: Scene;
+    readonly id: string | number;
 
     /**
      * The SceneModel that contains this SceneObject.
@@ -32,70 +32,33 @@ export abstract class SceneObject extends Component {
     readonly aabb: math.FloatArrayType;
 
     /**
-     * @private
+     *
+     * @param viewIndex
+     * @param visible
      */
-    protected constructor(sceneModel: SceneModel, cfg: {
-        id?: string
-    }) {
-        super(sceneModel, cfg);
-        //this.id = cfg.id || createUUID();
-        this.scene = sceneModel.scene;
-        this.aabb = math.AABB3();
-        this.scene.addSceneObject(this);
-        sceneModel.addSceneObject(this);
-    }
+    setVisible(viewIndex: number, visible: boolean): void;
 
-    /**
-     * @private
-     */
-    abstract setVisible(viewIndex: number, visible: boolean): void ;
+    setHighlighted(viewIndex: number, highlighted: boolean): void;
 
-    /**
-     * @private
-     */
-    abstract setCulled(viewIndex: number, culled: boolean): void ;
+    setXRayed(viewIndex: number, xrayed: boolean): void;
 
-    /**
-     * @private
-     */
-    abstract setHighlighted(viewIndex: number, highlighted: boolean): void;
+    setSelected(viewIndex: number, selected: boolean): void;
 
-    /**
-     * @private
-     */
-    abstract setSelected(viewIndex: number, selected: boolean): void ;
+    setEdges(viewIndex: number, edges: boolean): void;
 
-    /**
-     * @private
-     */
-    abstract setXRayed(viewIndex: number, xrayed: boolean): void;
+    setCulled(viewIndex: number, culled: boolean): void;
 
-    /**
-     * @private
-     */
-    abstract setEdges(viewIndex: number, edges: boolean): void ;
+    setClippable(viewIndex: number, clippable: boolean): void;
 
-    /**
-     * @private
-     */
-    abstract setColorize(viewIndex: number, colorize?: math.FloatArrayType): void;
+    setCollidable(viewIndex: number, collidable: boolean): void;
 
-    /**
-     * @private
-     */
-    abstract setOpacity(viewIndex: number, opacity?: number): void ;
+    setPickable(viewIndex: number, pickable: boolean): void;
 
-    /**
-     * @private
-     */
-   abstract setPickable(viewIndex: number, pickable: boolean): void;
+    setColorize(viewIndex: number, color?: math.FloatArrayType): void;
 
-    /**
-     * @private
-     */
-    destroy() {
-        this.scene.removeSceneObject(this);
-        super.destroy();
-    }
+    setOpacity(viewIndex: number, opacity?: number): void;
+
+    setOffset(viewIndex: number, offset: math.FloatArrayType): void;
+
 }
 

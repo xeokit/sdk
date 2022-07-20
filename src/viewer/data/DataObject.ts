@@ -1,28 +1,28 @@
 import {PropertySet} from "./PropertySet";
-import {MetaModel} from "./MetaModel";
+import {DataModel} from "./DataModel";
 
 /**
  *  Metadata about an object within a {@link Viewer}.
  *
  *  ## Overview
  *
- *  * Belongs to a {@link MetaModel}
- *  * Registered by {@link MetaObject.id} in {@link MetaModel.metaObjects} and {@link MetaScene.metaObjects}
+ *  * Belongs to a {@link DataModel}
+ *  * Registered by {@link DataObject.id} in {@link DataModel.dataObjects} and {@link Data.dataObjects}
  *  * Can be connected into parent-child hierarchies
- *  * Leaf MetaObjects often have corresponding {@link SceneObject}s and {@link ViewObject}s
- *  * Created with {@link MetaModel.createMetaObject} or {@link MetaObject.createMetaObject}
+ *  * Leaf dataObjects often have corresponding {@link SceneObject}s and {@link ViewObject}s
+ *  * Created with {@link DataModel.createDataObject} or {@link DataObject.createDataObject}
  */
-class MetaObject {
+class DataObject {
 
     /**
      * Model metadata.
      */
-    public readonly metaModel: MetaModel;
+    public readonly dataModel: DataModel;
 
     /**
      * Globally-unique ID.
      *
-     * MetaObject instances are registered by this ID in {@link MetaScene.metaObjects} and {@link MetaModel.metaObjects}.
+     * DataObject instances are registered by this ID in {@link Data.dataObjects} and {@link DataModel.dataObjects}.
      */
     public readonly id: string;
 
@@ -37,28 +37,28 @@ class MetaObject {
     public readonly name: string;
 
     /**
-     * MetaObject's type.
+     * DataObject's type.
      */
     public readonly type: string;
 
     /**
-     * Optional {@link PropertySet}s used by this MetaObject.
+     * Optional {@link PropertySet}s used by this DataObject.
      */
     public readonly propertySets?: PropertySet[];
 
     /**
-     * The parent MetaObject within the structure hierarchy.
+     * The parent DataObject within the structure hierarchy.
      *
      * Undefined when this is the root of its structure.
      */
-    public parent?: MetaObject;
+    public parent?: DataObject;
 
     /**
      * Child ObjectMeta instances within the structure hierarchy.
      *
      * Undefined when there are no children.
      */
-    public readonly children: MetaObject[];
+    public readonly children: DataObject[];
 
     /**
      * External application-specific metadata
@@ -71,15 +71,15 @@ class MetaObject {
      * @private
      */
     constructor(
-        metaModel: MetaModel,
+        dataModel: DataModel,
         id: string,
         originalSystemId: string,
         name: string,
         type: string,
-        parent?: MetaObject,
+        parent?: DataObject,
         propertySets?: PropertySet[]) {
 
-        this.metaModel = metaModel;
+        this.dataModel = dataModel;
         this.id = id;
         this.originalSystemId = originalSystemId;
         this.name = name;
@@ -90,39 +90,39 @@ class MetaObject {
     }
 
     /**
-     * Creates a child MetaObject.
+     * Creates a child DataObject.
      *
-     * @param cfg - MetaObject configs
-     * @param cfg.id - ID for the MetaObject, unique within the {@link MetaScene}
-     * @param cfg.type - Type for the MetaObject
-     * @param cfg.name - Human-readable name of the MetaObject
-     * @param cfg.parentId - ID of optional parent MetaObject
-     * @param cfg.propertySetIds - ID of one or more {@link PropertySet}s in {@link MetaModel.propertySets}
+     * @param cfg - DataObject configs
+     * @param cfg.id - ID for the DataObject, unique within the {@link Data}
+     * @param cfg.type - Type for the DataObject
+     * @param cfg.name - Human-readable name of the DataObject
+     * @param cfg.parentId - ID of optional parent DataObject
+     * @param cfg.propertySetIds - ID of one or more {@link PropertySet}s in {@link DataModel.propertySets}
      */
-    createMetaObject(cfg: {
+    createDataObject(cfg: {
         id: string;
         originalSystemId?: string;
         type: string;
         name: string;
         parentId?: string,
         propertySetIds?: string[]
-    }): MetaObject {
+    }): DataObject {
         cfg.parentId = this.id;
-        return this.metaModel.createMetaObject(cfg);
+        return this.dataModel.createDataObject(cfg);
     }
 
     /**
-     * Gets the {@link MetaObject.id}s of the {@link MetaObject}s within the subtree.
+     * Gets the {@link DataObject.id}s of the {@link DataObject}s within the subtree.
      */
-    getMetaObjectIdsInSubtree():(string|number)[] {
+    getDataObjectIdsInSubtree(): (string | number)[] {
         const objectIds: (string | number)[] = [];
 
-        function visit(metaObject: MetaObject) {
-            if (!metaObject) {
+        function visit(dataObject: DataObject) {
+            if (!dataObject) {
                 return;
             }
-            objectIds.push(metaObject.id);
-            const children = metaObject.children;
+            objectIds.push(dataObject.id);
+            const children = dataObject.children;
             if (children) {
                 for (let i = 0, len = children.length; i < len; i++) {
                     visit(children[i]);
@@ -135,18 +135,18 @@ class MetaObject {
     }
 
     /**
-     * Iterates over the {@link MetaObject}s within the subtree.
+     * Iterates over the {@link DataObject}s within the subtree.
      *
-     * @param callback Callback fired at each {@link MetaObject}.
+     * @param callback Callback fired at each {@link DataObject}.
      */
-    withMetaObjectsInSubtree(callback: (arg0: MetaObject) => void) :void{
+    withDataObjectsInSubtree(callback: (arg0: DataObject) => void): void {
 
-        function visit(metaObject: MetaObject) {
-            if (!metaObject) {
+        function visit(dataObject: DataObject) {
+            if (!dataObject) {
                 return;
             }
-            callback(metaObject);
-            const children = metaObject.children;
+            callback(dataObject);
+            const children = dataObject.children;
             if (children) {
                 for (var i = 0, len = children.length; i < len; i++) {
                     visit(children[i]);
@@ -158,26 +158,26 @@ class MetaObject {
     }
 
     /**
-     * Gets the {@link MetaObject.id}s of the {@link MetaObject}s within the subtree that have the given {@link MetaObject.type}s.
+     * Gets the {@link DataObject.id}s of the {@link DataObject}s within the subtree that have the given {@link DataObject.type}s.
      *
-     * @param {String[]} types {@link MetaObject.type} values.
-     * @returns {String[]} Array of {@link MetaObject.id}s.
+     * @param {String[]} types {@link DataObject.type} values.
+     * @returns {String[]} Array of {@link DataObject.id}s.
      */
-    getMetaObjectIdsInSubtreeByType(types: string[]): (string | number)[] {
+    getDataObjectIdsInSubtreeByType(types: string[]): (string | number)[] {
         const mask: { [key: string]: any; } = {};
         for (let i = 0, len = types.length; i < len; i++) {
             mask[types[i]] = types[i];
         }
         const objectIds: (string | number)[] = [];
 
-        function visit(metaObject: MetaObject) {
-            if (!metaObject) {
+        function visit(dataObject: DataObject) {
+            if (!dataObject) {
                 return;
             }
-            if (mask[metaObject.type]) {
-                objectIds.push(metaObject.id);
+            if (mask[dataObject.type]) {
+                objectIds.push(dataObject.id);
             }
-            const children = metaObject.children;
+            const children = dataObject.children;
             if (children) {
                 for (let i = 0, len = children.length; i < len; i++) {
                     visit(children[i]);
@@ -190,4 +190,4 @@ class MetaObject {
     }
 }
 
-export {MetaObject};
+export {DataObject};

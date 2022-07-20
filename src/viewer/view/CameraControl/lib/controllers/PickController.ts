@@ -152,7 +152,7 @@ class PickController {
 
                 if (this.#lastPickedEntityId !== undefined && this.#lastPickedEntityId !== null) {
                     this.#cameraControl.events.fire("hoverOut", {
-                        entity: this.#view.objects[this.#lastPickedEntityId]
+                        entity: this.#view.viewObjects[this.#lastPickedEntityId]
                     }, true);
                 }
 
@@ -171,7 +171,7 @@ class PickController {
 
             if (this.#lastPickedEntityId !== undefined && this.#lastPickedEntityId !== null) {
                 this.#cameraControl.events.fire("hoverOut", {
-                    entity: this.#view.objects[this.#lastPickedEntityId]
+                    entity: this.#view.viewObjects[this.#lastPickedEntityId]
                 }, true);
                 this.#lastPickedEntityId = undefined;
             }

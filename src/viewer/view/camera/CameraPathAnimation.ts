@@ -5,7 +5,7 @@ import {Camera} from "./Camera";
 import {View} from "../View";
 
 /**
- * @desc Animates the {@link Scene}'s's {@link Camera} along a {@link CameraPath}.
+ * Animates the {@link Scene}'s's {@link Camera} along a {@link CameraPath}.
  *
  * ## Usage
  *

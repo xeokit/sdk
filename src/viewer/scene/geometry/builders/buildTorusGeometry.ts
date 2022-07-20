@@ -2,7 +2,7 @@ import * as utils from "../../../utils";
 import * as math from '../../../math';
 
 /**
- * @desc Creates a torus-shaped {@link Geometry}.
+ * Creates a torus-shaped {@link Geometry}.
  *
  * ## Usage
  * Creating a {@link Mesh} with a torus-shaped {@link Geometry} :

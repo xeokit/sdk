@@ -3,7 +3,7 @@ import {Component} from '../../Component';
 import {Camera} from "./Camera";
 
 /**
- * Defines its {@link Camera}'s perspective projection using a field-of-view angle.
+ * Perspective projection configuration for a {@link Camera}.
  *
  * ## Summary
  *

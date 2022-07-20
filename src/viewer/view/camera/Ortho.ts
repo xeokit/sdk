@@ -3,7 +3,7 @@ import {Camera} from "./Camera";
 import * as math from '../../math/';
 
 /**
- * @desc Defines its {@link Camera}'s orthographic projection as a box-shaped view volume.
+ * Orthographic projection configuration for a {@link Camera}.
  *
  * * Located at {@link Camera.ortho}.
  * * Works like Blender's orthographic projection, where the positions of the left, right, top and bottom planes are implicitly

@@ -481,8 +481,8 @@ class ContextMenu {
             return;
         }
         this._hideAllMenus();
-        this._updateItemsTitles();
-        this._updateItemsEnabledStatus();
+        this.#updateItemsTitles();
+        this.#updateItemsEnabledStatus();
         this._showMenu(this._rootMenu.id, pageX, pageY);
         this._shown = true;
         this.events.fire("shown", {});
@@ -829,7 +829,7 @@ class ContextMenu {
     /**
      * @private
      */
-    _updateItemsTitles() { // Dynamically updates the title of each Item to the result of Item#getTitle()
+    #updateItemsTitles() { // Dynamically updates the title of each Item to the result of Item#getTitle()
         if (!this._context) {
             return;
         }
@@ -855,7 +855,7 @@ class ContextMenu {
     /**
      * @private
      */
-    _updateItemsEnabledStatus() { // Enables or disables each Item, depending on the result of Item#getEnabled()
+    #updateItemsEnabledStatus() { // Enables or disables each Item, depending on the result of Item#getEnabled()
         if (!this._context) {
             return;
         }

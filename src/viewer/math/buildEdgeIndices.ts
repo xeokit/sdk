@@ -1,4 +1,4 @@
-import {DEGTORAD, FloatArrayType} from "./math";
+import {DEGTORAD, FloatArrayType, IntArrayType} from "./math";
 import {decompressPosition} from "./compression";
 import {cross3Vec3, dotVec3, normalizeVec3, subVec3, vec3} from "./vector";
 
@@ -22,7 +22,7 @@ const ab = vec3();
 const cross = vec3();
 const normal = vec3();
 
-function weldVertices(positions: FloatArrayType, indices: FloatArrayType) {
+function weldVertices(positions: FloatArrayType, indices: IntArrayType) {
     const positionsMap = {}; // Hashmap for looking up vertices by position coordinates (and making sure they are unique)
     let vx;
     let vy;
@@ -55,13 +55,13 @@ function weldVertices(positions: FloatArrayType, indices: FloatArrayType) {
     }
 }
 
-function buildFaces(numIndices: number, positionsDecodeMatrix: FloatArrayType) {
+function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayType) {
     numFaces = 0;
     for (let i = 0, len = numIndices; i < len; i += 3) {
         const ia = ((weldedIndices[i]) * 3);
         const ib = ((weldedIndices[i + 1]) * 3);
         const ic = ((weldedIndices[i + 2]) * 3);
-        if (positionsDecodeMatrix) {
+        if (positionsDecompressMatrix) {
             compa[0] = uniquePositions[ia];
             compa[1] = uniquePositions[ia + 1];
             compa[2] = uniquePositions[ia + 2];
@@ -72,9 +72,9 @@ function buildFaces(numIndices: number, positionsDecodeMatrix: FloatArrayType) {
             compc[1] = uniquePositions[ic + 1];
             compc[2] = uniquePositions[ic + 2];
             // Decode
-            decompressPosition(compa, positionsDecodeMatrix, a);
-            decompressPosition(compb, positionsDecodeMatrix, b);
-            decompressPosition(compc, positionsDecodeMatrix, c);
+            decompressPosition(compa, positionsDecompressMatrix, a);
+            decompressPosition(compb, positionsDecompressMatrix, b);
+            decompressPosition(compc, positionsDecompressMatrix, c);
         } else {
             a[0] = uniquePositions[ia];
             a[1] = uniquePositions[ia + 1];
@@ -104,12 +104,12 @@ function buildFaces(numIndices: number, positionsDecodeMatrix: FloatArrayType) {
  */
 export function buildEdgeIndices(
     positions: FloatArrayType,
-    indices: FloatArrayType,
-    positionsDecodeMatrix: FloatArrayType,
-    edgeThreshold: number = 10): Uint32Array | Uint16Array {
+    indices: IntArrayType,
+    positionsDecompressMatrix: FloatArrayType,
+    edgeThreshold: number = 10): IntArrayType {
 
     weldVertices(positions, indices);
-    buildFaces(indices.length, positionsDecodeMatrix);
+    buildFaces(indices.length, positionsDecompressMatrix);
 
     const edgeIndices = [];
     const thresholdDot = Math.cos(DEGTORAD * edgeThreshold);

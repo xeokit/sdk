@@ -1,7 +1,7 @@
 import * as utils from '../../../utils';
 
 /**
- * @desc Creates a grid-shaped {@link Geometry}.
+ * Creates a grid-shaped {@link Geometry}.
  *
  * ## Usage
  *

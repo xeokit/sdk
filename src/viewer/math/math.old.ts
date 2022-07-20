@@ -1,11 +1,11 @@
 // Some temporary vars to help avoid garbage collection
 
 const doublePrecision = true;
-const FloatArrayType = doublePrecision ? Float64Array : Float32Array;
+const ArrayStorageType = doublePrecision ? Float64Array : Float32Array;
 
-const tempMat1 = new FloatArrayType(16);
-const tempMat2 = new FloatArrayType(16);
-const tempVec4 = new FloatArrayType(4);
+const tempMat1 = new ArrayStorageType(16);
+const tempMat2 = new ArrayStorageType(16);
+const tempVec4 = new ArrayStorageType(4);
 
 
 /**
@@ -30,13 +30,13 @@ const math = {
      */
     RADTODEG: 57.295779513,
 
-    unglobalizeObjectId(modelId, globalId) {
-        const idx = globalId.indexOf("#");
-        return (idx === modelId.length && globalId.startsWith(modelId)) ? globalId.substring(idx + 1) : globalId;
-    },
-
-    globalizeObjectId(modelId, objectId) {
-        return (modelId + "#" + objectId)
+    /**
+     * The type that's used to represent vectors.
+     * @property ArrayStorageType
+     * @type {Float32Array|Float64Array}
+     */
+    getFloatArrayType() {
+        return ArrayStorageType
     },
 
     /**
@@ -46,8 +46,8 @@ const math = {
      * @static
      * @returns {Number[]}
      */
-    vec2(values) {
-        return new FloatArrayType(values || 2);
+    vec2(values: number[]) {
+        return new ArrayStorageType(values||2);
     },
 
     /**
@@ -57,8 +57,8 @@ const math = {
      * @static
      * @returns {Number[]}
      */
-    vec3(values) {
-        return new FloatArrayType(values || 3);
+    vec3(values: number[]) {
+        return new ArrayStorageType(values || 3);
     },
 
     /**
@@ -68,8 +68,8 @@ const math = {
      * @static
      * @returns {Number[]}
      */
-    vec4(values) {
-        return new FloatArrayType(values || 4);
+    vec4(values: number[]) {
+        return new ArrayStorageType(values || 4);
     },
 
     /**
@@ -79,8 +79,8 @@ const math = {
      * @static
      * @returns {Number[]}
      */
-    mat3(values) {
-        return new FloatArrayType(values || 9);
+    mat3(values: number[]) {
+        return new ArrayStorageType(values || 9);
     },
 
     /**
@@ -91,7 +91,7 @@ const math = {
      * @static
      * @returns {Number[]}
      */
-    mat3ToMat4(mat3, mat4 = new FloatArrayType(16)) {
+    mat3ToMat4(mat3: number[], mat4: Float64Array | Float32Array = new ArrayStorageType(16)) {
         mat4[0] = mat3[0];
         mat4[1] = mat3[1];
         mat4[2] = mat3[2];
@@ -118,8 +118,9 @@ const math = {
      * @static
      * @returns {Number[]}
      */
-    mat4(values) {
-        return new FloatArrayType(values || 16);
+    mat4(values: Float64Array | Float32Array|number[]) {
+        // @ts-ignore
+        return new ArrayStorageType(values || 16);
     },
 
     /**
@@ -130,8 +131,8 @@ const math = {
      * @static
      * @returns {Number[]}
      */
-    mat4ToMat3(mat4, mat3) { // TODO
-        //return new FloatArrayType(values || 9);
+    mat4ToMat3(mat4: any, mat3: any) { // TODO
+        //return new ArrayStorageType(values || 9);
     },
 
     /**
@@ -140,8 +141,8 @@ const math = {
      * @param floatValsHigh
      * @param floatValsLow
      */
-    doublesToFloats(doubleVals, floatValsHigh, floatValsLow) {
-        const floatPair = new FloatArrayType(2);
+    doublesToFloats(doubleVals: number[], floatValsHigh: number[], floatValsLow: number[]) {
+        const floatPair = new ArrayStorageType(2);
         for (let i = 0, len = doubleVals.length; i < len; i++) {
             math.splitDouble(doubleVals[i], floatPair);
             floatValsHigh[i] = floatPair[0];
@@ -154,8 +155,8 @@ const math = {
      * @param value
      * @param floatPair
      */
-    splitDouble(value, floatPair) {
-        const hi = FloatArrayType.from([value])[0];
+    splitDouble(value: number, floatPair: number[]) {
+        const hi = ArrayStorageType.from([value])[0];
         const low = value - hi;
         floatPair[0] = hi;
         floatPair[1] = low;
@@ -168,7 +169,7 @@ const math = {
      * @return string The new UUID
      */
     createUUID: ((() => {
-        const lut = [];
+        const lut: any[] = [];
         for (let i = 0; i < 256; i++) {
             lut[i] = (i < 16 ? '0' : '') + (i).toString(16);
         }
@@ -183,12 +184,12 @@ const math = {
 
     /**
      * Clamps a value to the given range.
-     * @param {Number} value Value to clamp.
-     * @param {Number} min Lower bound.
-     * @param {Number} max Upper bound.
+     * @param value Value to clamp.
+     * @param min Lower bound.
+     * @param max Upper bound.
      * @returns {Number} Clamped result.
      */
-    clamp(value, min, max) {
+    clamp(value: number, min: number, max: number) : number{
         return Math.max(min, Math.min(max, value));
     },
 
@@ -196,11 +197,11 @@ const math = {
      * Floating-point modulus
      * @method fmod
      * @static
-     * @param {Number} a
-     * @param {Number} b
+     * @param a
+     * @param b
      * @returns {*}
      */
-    fmod(a, b) {
+    fmod(a: number, b: number) :number{
         if (a < b) {
             console.error("math.fmod : Attempting to find modulus within negative range - would be infinite loop - ignoring");
             return a;
@@ -283,7 +284,7 @@ const math = {
      * @method addVec4Scalar
      * @static
      * @param {Array(Number)} v The vector
-     * @param {Number} s The scalar
+     * @param s The scalar
      * @param  {Array(Number)} [dest] Destination vector
      * @return {Array(Number)} dest if specified, v otherwise
      */
@@ -322,7 +323,7 @@ const math = {
      * @method addVec4Scalar
      * @static
      * @param {Array(Number)} v The vector
-     * @param {Number} s The scalar
+     * @param s The scalar
      * @param  {Array(Number)} [dest] Destination vector
      * @return {Array(Number)} dest if specified, v otherwise
      */
@@ -401,7 +402,7 @@ const math = {
      * @return {Array(Number)} The geometric mean vec2
      */
     geometricMeanVec2(...vectors) {
-        const geometricMean = new FloatArrayType(vectors[0]);
+        const geometricMean = new ArrayStorageType(vectors[0]);
         for (let i = 1; i < vectors.length; i++) {
             geometricMean[0] += vectors[i][0];
             geometricMean[1] += vectors[i][1];
@@ -416,7 +417,7 @@ const math = {
      * @method subVec4Scalar
      * @static
      * @param {Array(Number)} v The vector
-     * @param {Number} s The scalar
+     * @param s The scalar
      * @param  {Array(Number)} [dest] Destination vector
      * @return {Array(Number)} dest if specified, v otherwise
      */
@@ -436,7 +437,7 @@ const math = {
      * @method subScalarVec4
      * @static
      * @param {Array(Number)} v The vector
-     * @param {Number} s The scalar
+     * @param s The scalar
      * @param  {Array(Number)} [dest] Destination vector
      * @return {Array(Number)} dest if specified, v otherwise
      */
@@ -476,7 +477,7 @@ const math = {
      * @method mulVec34calar
      * @static
      * @param {Array(Number)} v The vector
-     * @param {Number} s The scalar
+     * @param s The scalar
      * @param  {Array(Number)} [dest] Destination vector
      * @return {Array(Number)} dest if specified, v otherwise
      */
@@ -496,7 +497,7 @@ const math = {
      * @method mulVec3Scalar
      * @static
      * @param {Array(Number)} v The vector
-     * @param {Number} s The scalar
+     * @param s The scalar
      * @param  {Array(Number)} [dest] Destination vector
      * @return {Array(Number)} dest if specified, v otherwise
      */
@@ -515,7 +516,7 @@ const math = {
      * @method mulVec2Scalar
      * @static
      * @param {Array(Number)} v The vector
-     * @param {Number} s The scalar
+     * @param s The scalar
      * @param  {Array(Number)} [dest] Destination vector
      * @return {Array(Number)} dest if specified, v otherwise
      */
@@ -766,7 +767,7 @@ const math = {
     },
 
     distVec3: ((() => {
-        const vec = new FloatArrayType(3);
+        const vec = new ArrayStorageType(3);
         return (v, w) => math.lenVec3(math.subVec3(v, w, vec));
     }))(),
 
@@ -782,7 +783,7 @@ const math = {
     },
 
     distVec2: ((() => {
-        const vec = new FloatArrayType(2);
+        const vec = new ArrayStorageType(2);
         return (v, w) => math.lenVec2(math.subVec2(v, w, vec));
     }))(),
 
@@ -852,7 +853,7 @@ const math = {
      */
     vec3FromMat4Scale: ((() => {
 
-        const tempVec3 = new FloatArrayType(3);
+        const tempVec3 = new ArrayStorageType(3);
 
         return (m, dest) => {
 
@@ -979,7 +980,7 @@ const math = {
      * @static
      */
     diagonalMat4v(v) {
-        return new FloatArrayType([
+        return new ArrayStorageType([
             v[0], 0.0, 0.0, 0.0,
             0.0, v[1], 0.0, 0.0,
             0.0, 0.0, v[2], 0.0,
@@ -1010,7 +1011,7 @@ const math = {
      * @method identityMat4
      * @static
      */
-    identityMat4(mat = new FloatArrayType(16)) {
+    identityMat4(mat = new ArrayStorageType(16)) {
         mat[0] = 1.0;
         mat[1] = 0.0;
         mat[2] = 0.0;
@@ -1039,7 +1040,7 @@ const math = {
      * @method identityMat3
      * @static
      */
-    identityMat3(mat = new FloatArrayType(9)) {
+    identityMat3(mat = new ArrayStorageType(9)) {
         mat[0] = 1.0;
         mat[1] = 0.0;
         mat[2] = 0.0;
@@ -1319,7 +1320,7 @@ const math = {
      */
     mulMat3(a, b, dest) {
         if (!dest) {
-            dest = new FloatArrayType(9);
+            dest = new ArrayStorageType(9);
         }
 
         const a11 = a[0];
@@ -1622,7 +1623,7 @@ const math = {
      * @static
      */
     translationMat4c: ((() => {
-        const xyz = new FloatArrayType(3);
+        const xyz = new ArrayStorageType(3);
         return (x, y, z, dest) => {
             xyz[0] = x;
             xyz[1] = y;
@@ -1834,7 +1835,7 @@ const math = {
      * @static
      */
     scalingMat4c: ((() => {
-        const xyz = new FloatArrayType(3);
+        const xyz = new ArrayStorageType(3);
         return (x, y, z, dest) => {
             xyz[0] = x;
             xyz[1] = y;
@@ -1911,9 +1912,9 @@ const math = {
     /**
      * Creates a matrix from a quaternion rotation and vector translation
      *
-     * @param {Number[]} q Rotation quaternion
-     * @param {Number[]} v Translation vector
-     * @param {Number[]} dest Destination matrix
+     * @param q Rotation quaternion
+     * @param v Translation vector
+     * @param dest Destination matrix
      * @returns {Number[]} dest
      */
     rotationTranslationMat4(q, v, dest = math.mat4()) {
@@ -1958,9 +1959,9 @@ const math = {
     /**
      * Gets Euler angles from a 4x4 matrix.
      *
-     * @param {Number[]} mat The 4x4 matrix.
-     * @param {String} order Desired Euler angle order: "XYZ", "YXZ", "ZXY" etc.
-     * @param {Number[]} [dest] Destination Euler angles, created by default.
+     * @param mat The 4x4 matrix.
+     * @param order Desired Euler angle order: "XYZ", "YXZ", "ZXY" etc.
+     * @param [dest] Destination Euler angles, created by default.
      * @returns {Number[]} The Euler angles.
      */
     mat4ToEuler(mat, order, dest = math.vec4()) {
@@ -2066,8 +2067,8 @@ const math = {
 
     decomposeMat4: (() => {
 
-        const vec = new FloatArrayType(3);
-        const matrix = new FloatArrayType(16);
+        const vec = new ArrayStorageType(3);
+        const matrix = new ArrayStorageType(16);
 
         return function decompose(mat, position, quaternion, scale) {
 
@@ -2633,10 +2634,10 @@ const math = {
      * Rotate a 3D vector around the x-axis
      *
      * @method rotateVec3X
-     * @param {Number[]} a The vec3 point to rotate
-     * @param {Number[]} b The origin of the rotation
-     * @param {Number} c The angle of rotation
-     * @param {Number[]} dest The receiving vec3
+     * @param a The vec3 point to rotate
+     * @param b The origin of the rotation
+     * @param c The angle of rotation
+     * @param dest The receiving vec3
      * @returns {Number[]} dest
      * @static
      */
@@ -2666,10 +2667,10 @@ const math = {
      * Rotate a 3D vector around the y-axis
      *
      * @method rotateVec3Y
-     * @param {Number[]} a The vec3 point to rotate
-     * @param {Number[]} b The origin of the rotation
-     * @param {Number} c The angle of rotation
-     * @param {Number[]} dest The receiving vec3
+     * @param a The vec3 point to rotate
+     * @param b The origin of the rotation
+     * @param c The angle of rotation
+     * @param dest The receiving vec3
      * @returns {Number[]} dest
      * @static
      */
@@ -2699,10 +2700,10 @@ const math = {
      * Rotate a 3D vector around the z-axis
      *
      * @method rotateVec3Z
-     * @param {Number[]} a The vec3 point to rotate
-     * @param {Number[]} b The origin of the rotation
-     * @param {Number} c The angle of rotation
-     * @param {Number[]} dest The receiving vec3
+     * @param a The vec3 point to rotate
+     * @param b The origin of the rotation
+     * @param c The angle of rotation
+     * @param dest The receiving vec3
      * @returns {Number[]} dest
      * @static
      */
@@ -2732,8 +2733,8 @@ const math = {
      * Transforms a four-element vector by a 4x4 projection matrix.
      *
      * @method projectVec4
-     * @param {Number[]} p 3D View-space coordinate
-     * @param {Number[]} q 2D Projected coordinate
+     * @param p 3D View-space coordinate
+     * @param q 2D Projected coordinate
      * @returns {Number[]} 2D Projected coordinate
      * @static
      */
@@ -2749,15 +2750,15 @@ const math = {
      * Unprojects a three-element vector.
      *
      * @method unprojectVec3
-     * @param {Number[]} p 3D Projected coordinate
-     * @param {Number[]} viewMat View matrix
+     * @param p 3D Projected coordinate
+     * @param viewMat View matrix
      * @returns {Number[]} projMat Projection matrix
      * @static
      */
     unprojectVec3: ((() => {
-        const mat = new FloatArrayType(16);
-        const mat2 = new FloatArrayType(16);
-        const mat3 = new FloatArrayType(16);
+        const mat = new ArrayStorageType(16);
+        const mat2 = new ArrayStorageType(16);
+        const mat3 = new ArrayStorageType(16);
         return function (p, viewMat, projMat, q) {
             return this.transformVec3(this.mulMat4(this.inverseMat4(viewMat, mat), this.inverseMat4(projMat, mat2), mat3), p, q)
         };
@@ -2845,9 +2846,9 @@ const math = {
     /**
      * Initializes a quaternion from Euler angles.
      *
-     * @param {Number[]} euler The Euler angles.
-     * @param {String} order Euler angle order: "XYZ", "YXZ", "ZXY" etc.
-     * @param {Number[]} [dest] Destination quaternion, created by default.
+     * @param euler The Euler angles.
+     * @param order Euler angle order: "XYZ", "YXZ", "ZXY" etc.
+     * @param [dest] Destination quaternion, created by default.
      * @returns {Number[]} The quaternion.
      */
     eulerToQuaternion(euler, order, dest = math.vec4()) {
@@ -3016,7 +3017,7 @@ const math = {
     },
 
     quaternionToEuler: ((() => {
-        const mat = new FloatArrayType(16);
+        const mat = new ArrayStorageType(16);
         return (q, order, dest) => {
             dest = dest || math.vec3();
             math.quaternionToRotationMat4(q, mat);
@@ -3202,7 +3203,7 @@ const math = {
      * @private
      */
     AABB3(values) {
-        return new FloatArrayType(values || 6);
+        return new ArrayStorageType(values || 6);
     },
 
     /**
@@ -3211,7 +3212,7 @@ const math = {
      * @private
      */
     AABB2(values) {
-        return new FloatArrayType(values || 4);
+        return new ArrayStorageType(values || 4);
     },
 
     /**
@@ -3220,7 +3221,7 @@ const math = {
      * @private
      */
     OBB3(values) {
-        return new FloatArrayType(values || 32);
+        return new ArrayStorageType(values || 32);
     },
 
     /**
@@ -3229,12 +3230,12 @@ const math = {
      * @private
      */
     OBB2(values) {
-        return new FloatArrayType(values || 16);
+        return new ArrayStorageType(values || 16);
     },
 
     /** Returns a new 3D bounding sphere */
     Sphere3(x, y, z, r) {
-        return new FloatArrayType([x, y, z, r]);
+        return new ArrayStorageType([x, y, z, r]);
     },
 
     /**
@@ -3303,9 +3304,9 @@ const math = {
      */
     getAABB3Diag: ((() => {
 
-        const min = new FloatArrayType(3);
-        const max = new FloatArrayType(3);
-        const tempVec3 = new FloatArrayType(3);
+        const min = new ArrayStorageType(3);
+        const max = new ArrayStorageType(3);
+        const tempVec3 = new ArrayStorageType(3);
 
         return aabb => {
 
@@ -3330,9 +3331,9 @@ const math = {
      */
     getAABB3DiagPoint: ((() => {
 
-        const min = new FloatArrayType(3);
-        const max = new FloatArrayType(3);
-        const tempVec3 = new FloatArrayType(3);
+        const min = new ArrayStorageType(3);
+        const max = new ArrayStorageType(3);
+        const tempVec3 = new ArrayStorageType(3);
 
         return (aabb, p) => {
 
@@ -3476,9 +3477,9 @@ const math = {
      */
     positions3ToAABB3: ((() => {
 
-        const p = new FloatArrayType(3);
+        const p = new ArrayStorageType(3);
 
-        return (positions, aabb, positionsDecodeMatrix) => {
+        return (positions, aabb, positionsDecompressMatrix) => {
             aabb = aabb || math.AABB3();
 
             let xmin = math.MAX_DOUBLE;
@@ -3494,13 +3495,13 @@ const math = {
 
             for (let i = 0, len = positions.length; i < len; i += 3) {
 
-                if (positionsDecodeMatrix) {
+                if (positionsDecompressMatrix) {
 
                     p[0] = positions[i + 0];
                     p[1] = positions[i + 1];
                     p[2] = positions[i + 2];
 
-                    math.decompressPosition(p, positionsDecodeMatrix, p);
+                    math.decompressPosition(p, positionsDecompressMatrix, p);
 
                     x = p[0];
                     y = p[1];
@@ -3671,7 +3672,7 @@ const math = {
      */
     points3ToSphere3: ((() => {
 
-        const tempVec3 = new FloatArrayType(3);
+        const tempVec3 = new ArrayStorageType(3);
 
         return (points, sphere) => {
 
@@ -3719,8 +3720,8 @@ const math = {
      */
     positions3ToSphere3: ((() => {
 
-        const tempVec3a = new FloatArrayType(3);
-        const tempVec3b = new FloatArrayType(3);
+        const tempVec3a = new ArrayStorageType(3);
+        const tempVec3b = new ArrayStorageType(3);
 
         return (positions, sphere) => {
 
@@ -3774,8 +3775,8 @@ const math = {
      */
     OBB3ToSphere3: ((() => {
 
-        const point = new FloatArrayType(3);
-        const tempVec3 = new FloatArrayType(3);
+        const point = new ArrayStorageType(3);
+        const tempVec3 = new ArrayStorageType(3);
 
         return (points, sphere) => {
 
@@ -4259,11 +4260,11 @@ const math = {
      */
     rayTriangleIntersect: ((() => {
 
-        const tempVec3 = new FloatArrayType(3);
-        const tempVec3b = new FloatArrayType(3);
-        const tempVec3c = new FloatArrayType(3);
-        const tempVec3d = new FloatArrayType(3);
-        const tempVec3e = new FloatArrayType(3);
+        const tempVec3 = new ArrayStorageType(3);
+        const tempVec3b = new ArrayStorageType(3);
+        const tempVec3c = new ArrayStorageType(3);
+        const tempVec3d = new ArrayStorageType(3);
+        const tempVec3e = new ArrayStorageType(3);
 
         return (origin, dir, a, b, c, isect) => {
 
@@ -4308,10 +4309,10 @@ const math = {
      */
     rayPlaneIntersect: ((() => {
 
-        const tempVec3 = new FloatArrayType(3);
-        const tempVec3b = new FloatArrayType(3);
-        const tempVec3c = new FloatArrayType(3);
-        const tempVec3d = new FloatArrayType(3);
+        const tempVec3 = new ArrayStorageType(3);
+        const tempVec3b = new ArrayStorageType(3);
+        const tempVec3c = new ArrayStorageType(3);
+        const tempVec3d = new ArrayStorageType(3);
 
         return (origin, dir, a, b, c, isect) => {
 
@@ -4345,9 +4346,9 @@ const math = {
      */
     cartesianToBarycentric: ((() => {
 
-        const tempVec3 = new FloatArrayType(3);
-        const tempVec3b = new FloatArrayType(3);
-        const tempVec3c = new FloatArrayType(3);
+        const tempVec3 = new ArrayStorageType(3);
+        const tempVec3b = new ArrayStorageType(3);
+        const tempVec3c = new ArrayStorageType(3);
 
         return (cartesian, a, b, c, dest) => {
 
@@ -4492,12 +4493,12 @@ const math = {
      */
     buildNormals: ((() => {
 
-        const a = new FloatArrayType(3);
-        const b = new FloatArrayType(3);
-        const c = new FloatArrayType(3);
-        const ab = new FloatArrayType(3);
-        const ac = new FloatArrayType(3);
-        const crossVec = new FloatArrayType(3);
+        const a = new ArrayStorageType(3);
+        const b = new ArrayStorageType(3);
+        const c = new ArrayStorageType(3);
+        const ab = new ArrayStorageType(3);
+        const ac = new ArrayStorageType(3);
+        const crossVec = new ArrayStorageType(3);
 
         return (positions, indices, normals) => {
 
@@ -4585,13 +4586,13 @@ const math = {
      */
     buildTangents: ((() => {
 
-        const tempVec3 = new FloatArrayType(3);
-        const tempVec3b = new FloatArrayType(3);
-        const tempVec3c = new FloatArrayType(3);
-        const tempVec3d = new FloatArrayType(3);
-        const tempVec3e = new FloatArrayType(3);
-        const tempVec3f = new FloatArrayType(3);
-        const tempVec3g = new FloatArrayType(3);
+        const tempVec3 = new ArrayStorageType(3);
+        const tempVec3b = new ArrayStorageType(3);
+        const tempVec3c = new ArrayStorageType(3);
+        const tempVec3d = new ArrayStorageType(3);
+        const tempVec3e = new ArrayStorageType(3);
+        const tempVec3f = new ArrayStorageType(3);
+        const tempVec3g = new ArrayStorageType(3);
 
         return (positions, indices, uv) => {
 
@@ -4844,16 +4845,16 @@ const math = {
      Transforms a ray by a matrix.
      @method transformRay
      @static
-     @param {Number[]} matrix 4x4 matrix
-     @param {Number[]} rayOrigin The ray origin
-     @param {Number[]} rayDir The ray direction
-     @param {Number[]} rayOriginDest The transformed ray origin
-     @param {Number[]} rayDirDest The transformed ray direction
+     @param matrix 4x4 matrix
+     @param rayOrigin The ray origin
+     @param rayDir The ray direction
+     @param rayOriginDest The transformed ray origin
+     @param rayDirDest The transformed ray direction
      */
     transformRay: ((() => {
 
-        const tempVec4a = new FloatArrayType(4);
-        const tempVec4b = new FloatArrayType(4);
+        const tempVec4a = new ArrayStorageType(4);
+        const tempVec4b = new ArrayStorageType(4);
 
         return (matrix, rayOrigin, rayDir, rayOriginDest, rayDirDest) => {
 
@@ -4886,20 +4887,20 @@ const math = {
      Transforms a Canvas-space position into a World-space ray, in the context of a Camera.
      @method canvasPosToWorldRay
      @static
-     @param {Number[]} viewMatrix View matrix
-     @param {Number[]} projMatrix Projection matrix
-     @param {Number[]} canvasPos The Canvas-space position.
-     @param {Number[]} worldRayOrigin The World-space ray origin.
-     @param {Number[]} worldRayDir The World-space ray direction.
+     @param viewMatrix View matrix
+     @param projMatrix Projection matrix
+     @param canvasPos The Canvas-space position.
+     @param worldRayOrigin The World-space ray origin.
+     @param worldRayDir The World-space ray direction.
      */
     canvasPosToWorldRay: ((() => {
 
-        const tempMat4b = new FloatArrayType(16);
-        const tempMat4c = new FloatArrayType(16);
-        const tempVec4a = new FloatArrayType(4);
-        const tempVec4b = new FloatArrayType(4);
-        const tempVec4c = new FloatArrayType(4);
-        const tempVec4d = new FloatArrayType(4);
+        const tempMat4b = new ArrayStorageType(16);
+        const tempMat4c = new ArrayStorageType(16);
+        const tempVec4a = new ArrayStorageType(4);
+        const tempVec4b = new ArrayStorageType(4);
+        const tempVec4c = new ArrayStorageType(4);
+        const tempVec4d = new ArrayStorageType(4);
 
         return (canvas, viewMatrix, projMatrix, canvasPos, worldRayOrigin, worldRayDir) => {
 
@@ -4947,17 +4948,17 @@ const math = {
      @static
      @param {Camera} camera The Camera.
      @param {Mesh} mesh The Mesh.
-     @param {Number[]} viewMatrix View matrix
-     @param {Number[]} projMatrix Projection matrix
-     @param {Number[]} worldMatrix Modeling matrix
-     @param {Number[]} canvasPos The Canvas-space position.
-     @param {Number[]} localRayOrigin The Local-space ray origin.
-     @param {Number[]} localRayDir The Local-space ray direction.
+     @param viewMatrix View matrix
+     @param projMatrix Projection matrix
+     @param worldMatrix Modeling matrix
+     @param canvasPos The Canvas-space position.
+     @param localRayOrigin The Local-space ray origin.
+     @param localRayDir The Local-space ray direction.
      */
     canvasPosToLocalRay: ((() => {
 
-        const worldRayOrigin = new FloatArrayType(3);
-        const worldRayDir = new FloatArrayType(3);
+        const worldRayOrigin = new ArrayStorageType(3);
+        const worldRayDir = new ArrayStorageType(3);
 
         return (canvas, viewMatrix, projMatrix, worldMatrix, canvasPos, localRayOrigin, localRayDir) => {
             math.canvasPosToWorldRay(canvas, viewMatrix, projMatrix, canvasPos, worldRayOrigin, worldRayDir);
@@ -4969,17 +4970,17 @@ const math = {
      Transforms a ray from World-space to a Mesh's Local-space coordinate system.
      @method worldRayToLocalRay
      @static
-     @param {Number[]} worldMatrix The World transform matrix
-     @param {Number[]} worldRayOrigin The World-space ray origin.
-     @param {Number[]} worldRayDir The World-space ray direction.
-     @param {Number[]} localRayOrigin The Local-space ray origin.
-     @param {Number[]} localRayDir The Local-space ray direction.
+     @param worldMatrix The World transform matrix
+     @param worldRayOrigin The World-space ray origin.
+     @param worldRayDir The World-space ray direction.
+     @param localRayOrigin The Local-space ray origin.
+     @param localRayDir The Local-space ray direction.
      */
     worldRayToLocalRay: ((() => {
 
-        const tempMat4 = new FloatArrayType(16);
-        const tempVec4a = new FloatArrayType(4);
-        const tempVec4b = new FloatArrayType(4);
+        const tempMat4 = new ArrayStorageType(16);
+        const tempVec4a = new ArrayStorageType(4);
+        const tempVec4b = new ArrayStorageType(4);
 
         return (worldMatrix, worldRayOrigin, worldRayDir, localRayOrigin, localRayDir) => {
 
@@ -5008,7 +5009,7 @@ const math = {
         const dimLength = new Float32Array();
 
         function buildNode(triangles, indices, positions, depth) {
-            const aabb = new FloatArrayType(6);
+            const aabb = new ArrayStorageType(6);
 
             const node = {
                 triangles: null,
@@ -5236,13 +5237,13 @@ math.buildEdgeIndices = (function () {
         }
     }
 
-    function buildFaces(numIndices, positionsDecodeMatrix) {
+    function buildFaces(numIndices, positionsDecompressMatrix) {
         numFaces = 0;
         for (let i = 0, len = numIndices; i < len; i += 3) {
             const ia = ((weldedIndices[i]) * 3);
             const ib = ((weldedIndices[i + 1]) * 3);
             const ic = ((weldedIndices[i + 2]) * 3);
-            if (positionsDecodeMatrix) {
+            if (positionsDecompressMatrix) {
                 compa[0] = uniquePositions[ia];
                 compa[1] = uniquePositions[ia + 1];
                 compa[2] = uniquePositions[ia + 2];
@@ -5253,9 +5254,9 @@ math.buildEdgeIndices = (function () {
                 compc[1] = uniquePositions[ic + 1];
                 compc[2] = uniquePositions[ic + 2];
                 // Decode
-                math.decompressPosition(compa, positionsDecodeMatrix, a);
-                math.decompressPosition(compb, positionsDecodeMatrix, b);
-                math.decompressPosition(compc, positionsDecodeMatrix, c);
+                math.decompressPosition(compa, positionsDecompressMatrix, a);
+                math.decompressPosition(compb, positionsDecompressMatrix, b);
+                math.decompressPosition(compc, positionsDecompressMatrix, c);
             } else {
                 a[0] = uniquePositions[ia];
                 a[1] = uniquePositions[ia + 1];
@@ -5279,9 +5280,9 @@ math.buildEdgeIndices = (function () {
         }
     }
 
-    return function (positions, indices, positionsDecodeMatrix, edgeThreshold) {
+    return function (positions, indices, positionsDecompressMatrix, edgeThreshold) {
         weldVertices(positions, indices);
-        buildFaces(indices.length, positionsDecodeMatrix);
+        buildFaces(indices.length, positionsDecompressMatrix);
         const edgeIndices = [];
         const thresholdDot = Math.cos(math.DEGTORAD * edgeThreshold);
         const edges = {};
@@ -5341,4 +5342,4 @@ math.buildEdgeIndices = (function () {
 })();
 
 
-export {math};
+export * as math;

@@ -1,7 +1,7 @@
 import * as utils from '../../../utils';
 
 /**
- * @desc Creates a cylinder-shaped {@link Geometry}.
+ * Creates a cylinder-shaped {@link Geometry}.
  *
  * ## Usage
  *

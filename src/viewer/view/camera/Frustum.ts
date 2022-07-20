@@ -3,7 +3,7 @@ import {Camera} from "./Camera";
 import * as math from '../../math/';
 
 /**
- *  Defines its {@link Camera}'s perspective projection as a frustum-shaped view volume.
+ *  Perspective projection configuration for a {@link Camera}, as a frustum.
  *
  * * Located at {@link Camera#frustum}.
  * * Allows to explicitly set the positions of the left, right, top, bottom, near and far planes, which is useful for asymmetrical view volumes, such as for stereo viewing.

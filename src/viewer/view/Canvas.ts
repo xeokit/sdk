@@ -3,7 +3,7 @@ import {Component} from '../Component';
 import {View} from "./View";
 
 /**
- * @desc Manages the HTML canvas belonging to a {@link View}.
+ * Manages the HTML canvas belonging to a {@link View}.
  */
 class Canvas extends Component {
 
@@ -31,6 +31,7 @@ class Canvas extends Component {
     #onTick: number;
     #backgroundColor: math.FloatArrayType;
     #backgroundColorFromAmbientLight: boolean;
+    #resolutionScale: number;
 
     /**
      * @private
@@ -61,8 +62,6 @@ class Canvas extends Component {
             this.canvas.clientWidth, this.canvas.clientHeight
         ];
 
-        this.#initWebGPU();
-
         // Publish canvas size and position changes on each scene tick
 
         let lastWindowWidth = 0;
@@ -73,29 +72,39 @@ class Canvas extends Component {
         let lastCanvasOffsetTop = 0;
         let lastParent: HTMLElement = null;
 
+        let lastResolutionScale: number = null;
+
         this.#onTick = this.viewer.events.on("tick", () => {
             const canvas = this.canvas;
+            const newResolutionScale = (this.#resolutionScale !== lastResolutionScale);
             const newWindowSize = (window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight);
             const newCanvasSize = (canvas.clientWidth !== lastCanvasWidth || canvas.clientHeight !== lastCanvasHeight);
             const newCanvasPos = (canvas.offsetLeft !== lastCanvasOffsetLeft || canvas.offsetTop !== lastCanvasOffsetTop);
             const parent = canvas.parentElement;
             const newParent = (parent !== lastParent);
-            if (newWindowSize || newCanvasSize || newCanvasPos || newParent) {
-                if (newCanvasSize || newCanvasPos) {
+            if (newResolutionScale || newWindowSize || newCanvasSize || newCanvasPos || newParent) {
+                //   this._spinner._adjustPosition();
+                if (newResolutionScale || newCanvasSize || newCanvasPos) {
                     const newWidth = canvas.clientWidth;
                     const newHeight = canvas.clientHeight;
-                    if (newCanvasSize) {
-                        canvas.width = canvas.clientWidth;
-                        canvas.height = canvas.clientHeight;
+                    if (newResolutionScale || newCanvasSize) {
+                        canvas.width = Math.round(canvas.clientWidth * this.#resolutionScale);
+                        canvas.height = Math.round(canvas.clientHeight * this.#resolutionScale);
                     }
                     const boundary = this.boundary;
                     boundary[0] = canvas.offsetLeft;
                     boundary[1] = canvas.offsetTop;
                     boundary[2] = newWidth;
                     boundary[3] = newHeight;
-                    this.events.fire("boundary", boundary);
+                    if (!newResolutionScale || newCanvasSize) {
+                        this.events.fire("boundary", boundary);
+                    }
                     lastCanvasWidth = newWidth;
                     lastCanvasHeight = newHeight;
+                }
+
+                if (newResolutionScale) {
+                    lastResolutionScale = this.#resolutionScale;
                 }
                 if (newWindowSize) {
                     lastWindowWidth = window.innerWidth;
@@ -165,7 +174,38 @@ class Canvas extends Component {
         this.#backgroundColorFromAmbientLight = (backgroundColorFromAmbientLight !== false);
     }
 
-    #initWebGPU() {
+    /**
+     * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+     *
+     * This is a common way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
+     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+     * a performance boost.
+     *
+     * @returns  The resolution scale.
+     */
+    get resolutionScale(): number {
+        return this.#resolutionScale;
+    }
+
+    /**
+     * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+     *
+     * This is a common way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
+     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+     * a performance boost.
+     *
+     * @param resolutionScale The resolution scale.
+     */
+    set resolutionScale(resolutionScale: number) {
+        resolutionScale = resolutionScale || 1.0;
+        if (resolutionScale === this.#resolutionScale) {
+            return;
+        }
+        this.#resolutionScale = resolutionScale;
+        const canvas = this.canvas;
+        canvas.width = Math.round(canvas.clientWidth * this.#resolutionScale);
+        canvas.height = Math.round(canvas.clientHeight * this.#resolutionScale);
+        this.view.redraw();
     }
 
     /**

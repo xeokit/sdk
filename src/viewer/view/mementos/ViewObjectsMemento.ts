@@ -1,11 +1,10 @@
-
 import * as utils from "../../utils";
 import {View} from "../View";
 
 const color = new Float32Array(3);
 
 /**
- * @desc Saves and restores a snapshot of the visual state of the {@link ViewObject}'s that represent objects within a {@link View}.
+ * Saves and restores a snapshot of the visual state of the {@link ViewObject}'s that represent objects within a {@link View}.
  *
  * * An ViewObject represents an object when {@link ViewObject.isObject} is ````true````.
  * * Each object-ViewObject is registered by {@link ViewObject.id} in {@link View.objects}.
@@ -17,11 +16,11 @@ const color = new Float32Array(3);
  *
  * ## Usage
  *
- * In the example below, we'll create a {@link Viewer} and use an {@link XKTLoaderPlugin} to load an ````.xkt```` model. When the model has loaded, we'll hide a couple of {@link ViewObject}s and save a snapshot of the visual states of all the ViewObjects in an ObjectsMemento. Then we'll show all the ViewObjects
- * again, and then we'll restore the visual states of all the ViewObjects again from the ObjectsMemento, which will hide those two ViewObjects again.
+ * In the example below, we'll create a {@link Viewer} and use an {@link XKTLoaderPlugin} to load an ````.xkt```` model. When the model has loaded, we'll hide a couple of {@link ViewObject}s and save a snapshot of the visual states of all the ViewObjects in an ViewObjectsMemento. Then we'll show all the ViewObjects
+ * again, and then we'll restore the visual states of all the ViewObjects again from the ViewObjectsMemento, which will hide those two ViewObjects again.
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin, ObjectsMemento} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, ViewObjectsMemento} from "xeokit-webgpu-sdk.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"
@@ -40,19 +39,19 @@ const color = new Float32Array(3);
  *      // Model has loaded
  *
  *      // Hide a couple of objects
- *      viewer.view.objects["0u4wgLe6n0ABVaiXyikbkA"].visible = false;
- *      viewer.view.objects["3u4wgLe3n0AXVaiXyikbYO"].visible = false;
+ *      viewer.view.viewObjects["0u4wgLe6n0ABVaiXyikbkA"].visible = false;
+ *      viewer.view.viewObjects["3u4wgLe3n0AXVaiXyikbYO"].visible = false;
  *
  *      // Save memento of all object states, which includes those two hidden objects
- *      const objectsMemento = new ObjectsMemento();
+ *      const viewObjectsMemento = new ViewObjectsMemento();
  *
- *      objectsMemento.saveObjects(viewer.view);
+ *      viewObjectsMemento.saveObjects(viewer.view);
  *
  *      // Show all objects
- *      viewer.view.setObjectsVisible(viewer.view.objectIds, true);
+ *      viewer.view.set#viewObjectsVisible(viewer.view.objectIds, true);
  *
  *      // Restore the objects states again, which involves hiding those two objects again
- *      objectsMemento.restoreObjects(viewer.view);
+ *      viewObjectsMemento.restoreViewObjects(viewer.view);
  * });
  * `````
  *
@@ -63,7 +62,7 @@ const color = new Float32Array(3);
  * For example, to save and restore only the {@link ViewObject#visible} and {@link ViewObject#clippable} states:
  *
  * ````javascript
- * objectsMemento.saveObjects(viewer.view, {
+ * viewObjectsMemento.saveObjects(viewer.view, {
  *     visible: true,
  *     clippable: true
  * });
@@ -71,22 +70,24 @@ const color = new Float32Array(3);
  * //...
  *
  * // Restore the objects states again
- * objectsMemento.restoreObjects(viewer.view);
+ * viewObjectsMemento.restoreViewObjects(viewer.view);
  * ````
  */
-class ObjectsMemento {
-    private readonly objectsVisible: boolean[];
-    private readonly objectsEdges: boolean[];
-    private readonly objectsXrayed: boolean[];
-    private readonly objectsHighlighted: boolean[];
-    private readonly objectsSelected: boolean[];
-    private readonly objectsClippable: boolean[];
-    private readonly objectsPickable: boolean[];
-    private readonly objectsColorize: number[];
-    private readonly objectsHasColorize: boolean[];
-    private readonly objectsOpacity: number[];
-    private numObjects: number;
-    private _mask?: {
+class ViewObjectsMemento {
+
+    #viewObjectsVisible: boolean[];
+    #viewObjectsEdges: boolean[];
+    #viewObjectsXrayed: boolean[];
+    #viewObjectsHighlighted: boolean[];
+    #viewObjectsSelected: boolean[];
+    #viewObjectsClippable: boolean[];
+    #viewObjectsPickable: boolean[];
+    #viewObjectsColorize: number[];
+    #viewObjectsHasColorize: boolean[];
+    #viewObjectsOpacity: number[];
+    numObjects: number;
+
+    #mask?: {
         opacity: boolean;
         colorize: boolean;
         pickable: boolean;
@@ -99,19 +100,19 @@ class ObjectsMemento {
     };
 
     /**
-     * Creates an ObjectsMemento.
+     * Creates an ViewObjectsMemento.
      */
     constructor() {
-        this.objectsVisible = [];
-        this.objectsEdges = [];
-        this.objectsXrayed = [];
-        this.objectsHighlighted = [];
-        this.objectsSelected = [];
-        this.objectsClippable = [];
-        this.objectsPickable = [];
-        this.objectsColorize = [];
-        this.objectsHasColorize = [];
-        this.objectsOpacity = [];
+        this.#viewObjectsVisible = [];
+        this.#viewObjectsEdges = [];
+        this.#viewObjectsXrayed = [];
+        this.#viewObjectsHighlighted = [];
+        this.#viewObjectsSelected = [];
+        this.#viewObjectsClippable = [];
+        this.#viewObjectsPickable = [];
+        this.#viewObjectsColorize = [];
+        this.#viewObjectsHasColorize = [];
+        this.#viewObjectsOpacity = [];
         this.numObjects = 0;
     }
 
@@ -120,7 +121,6 @@ class ObjectsMemento {
      *
      * @param view The view.
      * @param {Object} [mask] Masks what state gets saved. Saves all state when not supplied.
-     * @param {boolean} [mask.visible] Saves {@link ViewObject#visible} values when ````true````.
      * @param {boolean} [mask.visible] Saves {@link ViewObject#visible} values when ````true````.
      * @param {boolean} [mask.edges] Saves {@link ViewObject#edges} values when ````true````.
      * @param {boolean} [mask.xrayed] Saves {@link ViewObject#xrayed} values when ````true````.
@@ -145,9 +145,9 @@ class ObjectsMemento {
 
         this.numObjects = 0;
 
-        this._mask = mask ? utils.apply(mask, {}) : null;
+        this.#mask = mask ? utils.apply(mask, {}) : null;
 
-        const objects = view.objects;
+        const objects = view.viewObjects;
         const visible = (!mask || mask.visible);
         const edges = (!mask || mask.edges);
         const xrayed = (!mask || mask.xrayed);
@@ -163,39 +163,39 @@ class ObjectsMemento {
                 const object = objects[objectId];
                 const i = this.numObjects;
                 if (visible) {
-                    this.objectsVisible[i] = object.visible;
+                    this.#viewObjectsVisible[i] = object.visible;
                 }
                 if (edges) {
-                    this.objectsEdges[i] = object.edges;
+                    this.#viewObjectsEdges[i] = object.edges;
                 }
                 if (xrayed) {
-                    this.objectsXrayed[i] = object.xrayed;
+                    this.#viewObjectsXrayed[i] = object.xrayed;
                 }
                 if (highlighted) {
-                    this.objectsHighlighted[i] = object.highlighted;
+                    this.#viewObjectsHighlighted[i] = object.highlighted;
                 }
                 if (selected) {
-                    this.objectsSelected[i] = object.selected;
+                    this.#viewObjectsSelected[i] = object.selected;
                 }
                 if (clippable) {
-                    this.objectsClippable[i] = object.clippable;
+                    this.#viewObjectsClippable[i] = object.clippable;
                 }
                 if (pickable) {
-                    this.objectsPickable[i] = object.pickable;
+                    this.#viewObjectsPickable[i] = object.pickable;
                 }
                 if (colorize) {
                     const objectColor = object.colorize;
                     if (objectColor) {
-                        this.objectsColorize[i * 3 + 0] = objectColor[0];
-                        this.objectsColorize[i * 3 + 1] = objectColor[1];
-                        this.objectsColorize[i * 3 + 2] = objectColor[2];
-                        this.objectsHasColorize[i] = true;
+                        this.#viewObjectsColorize[i * 3 + 0] = objectColor[0];
+                        this.#viewObjectsColorize[i * 3 + 1] = objectColor[1];
+                        this.#viewObjectsColorize[i * 3 + 2] = objectColor[2];
+                        this.#viewObjectsHasColorize[i] = true;
                     } else {
-                        this.objectsHasColorize[i] = false;
+                        this.#viewObjectsHasColorize[i] = false;
                     }
                 }
                 if (opacity) {
-                    this.objectsOpacity[i] = object.opacity;
+                    this.#viewObjectsOpacity[i] = object.opacity;
                 }
                 this.numObjects++;
             }
@@ -203,12 +203,12 @@ class ObjectsMemento {
     }
 
     /**
-     * Restores a {@link View}'s {@link ViewObject}'s to their state previously captured with {@link ObjectsMemento#saveObjects}.
+     * Restores a {@link View}'s {@link ViewObject}'s to their state previously captured with {@link ViewObjectsMemento#saveObjects}.
      * @param view The view.
      */
-    restoreObjects(view: View) {
+    restoreViewObjects(view: View) {
 
-        const mask = this._mask;
+        const mask = this.#mask;
 
         const visible = (!mask || mask.visible);
         const edges = (!mask || mask.edges);
@@ -222,44 +222,44 @@ class ObjectsMemento {
 
         let i = 0;
 
-        const objects = view.objects;
+        const objects = view.viewObjects;
 
         for (let objectId in objects) {
             if (objects.hasOwnProperty(objectId)) {
                 const object = objects[objectId];
                 if (visible) {
-                    object.visible = this.objectsVisible[i];
+                    object.visible = this.#viewObjectsVisible[i];
                 }
                 if (edges) {
-                    object.edges = this.objectsEdges[i];
+                    object.edges = this.#viewObjectsEdges[i];
                 }
                 if (xrayed) {
-                    object.xrayed = this.objectsXrayed[i];
+                    object.xrayed = this.#viewObjectsXrayed[i];
                 }
                 if (highlighted) {
-                    object.highlighted = this.objectsHighlighted[i];
+                    object.highlighted = this.#viewObjectsHighlighted[i];
                 }
                 if (selected) {
-                    object.selected = this.objectsSelected[i];
+                    object.selected = this.#viewObjectsSelected[i];
                 }
                 if (clippable) {
-                    object.clippable = this.objectsClippable[i];
+                    object.clippable = this.#viewObjectsClippable[i];
                 }
                 if (pickable) {
-                    object.pickable = this.objectsPickable[i];
+                    object.pickable = this.#viewObjectsPickable[i];
                 }
                 if (colorize) {
-                    if (this.objectsHasColorize[i]) {
-                        color[0] = this.objectsColorize[i * 3 + 0];
-                        color[1] = this.objectsColorize[i * 3 + 1];
-                        color[2] = this.objectsColorize[i * 3 + 2];
+                    if (this.#viewObjectsHasColorize[i]) {
+                        color[0] = this.#viewObjectsColorize[i * 3 + 0];
+                        color[1] = this.#viewObjectsColorize[i * 3 + 1];
+                        color[2] = this.#viewObjectsColorize[i * 3 + 2];
                         object.colorize = color;
                     } else {
                         object.colorize = null;
                     }
                 }
                 if (opacity) {
-                    object.opacity = this.objectsOpacity[i];
+                    object.opacity = this.#viewObjectsOpacity[i];
                 }
                 i++;
             }
@@ -267,4 +267,4 @@ class ObjectsMemento {
     }
 }
 
-export {ObjectsMemento};
+export {ViewObjectsMemento};

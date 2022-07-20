@@ -13,8 +13,11 @@ import {EdgeMaterial, EmphasisMaterial, PointsMaterial} from "./materials";
 import {Viewer} from "../Viewer";
 import {PickResult} from "./PickResult";
 import {Metrics} from "./Metriqs";
-import {Scene} from "../scene";
+import {Scene, SceneModel} from "../scene";
 import {PickParams} from "./PickParams";
+import {SAO} from "./SAO";
+import {LinesMaterial} from "./materials/LinesMaterial";
+import {SceneRenderer} from "../scene/SceneRenderer";
 
 /**
  * An independent view of the objects in a {@link Viewer}.
@@ -89,18 +92,18 @@ import {PickParams} from "./PickParams";
  *
  * model.events.on("loaded", ()=> {
  *
- *      const metaModel = viewer.metaScene.metaModels["myModel"];
+ *      const dataModel = viewer.sceneData.models["myModel"];
  *
  *      // View #1: show only IfcWalls
  *
- *      const ifcWallIds = Object.keys(metaModel.metaObjectsByType["IfcWall"]);
+ *      const ifcWallIds = Object.keys(dataModel.objectsByType["IfcWall"]);
  *
  *      view1.setViewObjectsVisible(view1.objectIds, false);
  *      view1.setViewObjectsVisible(ifcWallIds, true);
  *
  *      // View 2: X-ray everything except for IfcDoors
  *
- *      const ifcDoorIds = Object.keys(metaModel.metaObjectsByType["IfcDoor"]);
+ *      const ifcDoorIds = Object.keys(dataModel.objectsByType["IfcDoor"]);
  *
  *      view2.setViewObjectsXRayed(view2.objectIds, true);
  *      view2.setViewObjectsHighlighted(ifcDoorIds, true);
@@ -133,6 +136,27 @@ class View extends Component {
      * Manages the HTML canvas for this View.
      */
     public readonly canvas: Canvas;
+
+    /**
+     * Whether the logarithmic depth buffer is enabled for this View. Immutable; configured when View created.
+     */
+    public readonly logarithmicDepthBufferEnabled: boolean;
+
+
+    /**
+     * The SceneRenderer for this View.
+     */
+    public renderer: SceneRenderer;
+
+    /**
+     * @private
+     */
+    //   webglSceneRenderer: WebGLSceneRenderer;
+
+    /**
+     * Configures Scalable Ambient Obscurance (SAO) for this View.
+     */
+    public readonly sao: SAO;
 
     /**
      * Publishes input events that occur on this View's canvas.
@@ -183,6 +207,11 @@ class View extends Component {
      * Configures the appearance of point primitives belonging to {@link ViewObject}s in this View .
      */
     public readonly pointsMaterial: PointsMaterial;
+
+    /**
+     * Configures the appearance of lines belonging to {@link ViewObject}s in this View.
+     */
+    public readonly linesMaterial: LinesMaterial;
 
     /**
      * Map of all {@link ViewObject}s in this View.
@@ -262,12 +291,16 @@ class View extends Component {
     #lights: { [key: string]: (AmbientLight | PointLight | DirLight) };
     #sectionPlanes: { [key: string]: SectionPlane };
 
+    #pbrEnabled: boolean;
+    #sectionPlanesState: any;
+
     /**
      * Creates a new View within a Viewer.
      *
      * The View will then be registered by {@link View.id} in {@link Viewer.views}.
      *
-     * @param viewer The Viewer that owns this View.
+     * @private
+     * @param options.viewer The Viewer that owns this View.
      * @param options View configuration.
      * @param options.id Optional ID for this View.
      * @param options.canvasId -  ID of an existing HTML canvas for the View - either this or canvasElement is mandatory. When both values are given, the element reference is always preferred to the ID.
@@ -277,8 +310,11 @@ class View extends Component {
      * @param options.backgroundColor=[1,1,1] - Sets the canvas background color to use when ````transparent```` is false.
      * @param options.backgroundColorFromAmbientLight - When ````transparent```` is false, set this ````true````
      * to derive the canvas background color from {@link AmbientLight.color}, or ````false```` to set the canvas background to ````backgroundColor````.
+     * @param options.pbrEnabled - Whether to enable physically-based rendering for this View. This is ````true```` by default.
+     * @param options.logarithmicDepthBufferEnabled - Whether to enable logarithmic depth buffer for this View. This is ````false```` by default.
      */
-    constructor(viewer: Viewer, options: {
+    constructor(options: {
+        viewer: Viewer;
         origin?: number[];
         scale?: number;
         units?: string;
@@ -288,13 +324,15 @@ class View extends Component {
         backgroundColorFromAmbientLight?: boolean;
         premultipliedAlpha?: boolean;
         transparent?: boolean;
-    } = {}) {
+        pbrEnabled?: boolean;
+        logarithmicDepthBufferEnabled?: boolean;
+    }) {
 
-        super(viewer, options);
+        super(options.viewer, options);
 
-        this.viewer = viewer;
-
-        this.scene = viewer.scene;
+        this.viewer = options.viewer;
+        this.scene = options.viewer.scene;
+        this.renderer = this.viewer.renderer;
 
         const canvas = options.canvasElement || document.getElementById(options.canvasId);
 
@@ -317,6 +355,8 @@ class View extends Component {
         this.canvas.events.on("boundary", () => {
             this.redraw();
         });
+
+        this.sao = new SAO(this, {});
 
         this.cameraControl = new CameraControl(this, this.canvas, this.camera, {
             doublePickFlyTo: true
@@ -386,6 +426,10 @@ class View extends Component {
             maxIntensity: 1
         });
 
+        this.linesMaterial = new LinesMaterial(this, {
+            lineWidth: 1
+        });
+
         this.#lights = {};
         this.#sectionPlanes = {};
 
@@ -405,11 +449,90 @@ class View extends Component {
         this.#numColorizedViewObjects = 0;
         this.#numOpacityViewObjects = 0;
 
-        this.#initWebGPU();
+        this.#pbrEnabled = !!options.pbrEnabled;
+
+        this.logarithmicDepthBufferEnabled = !!options.logarithmicDepthBufferEnabled;
+
+        // @ts-ignore
+        this.#sectionPlanesState = new (function () {
+
+            const sectionPlanes: SectionPlane[] = [];
+
+            let hash: string = null;
+
+            this.getHash = () => {
+                if (hash) {
+                    return hash;
+                }
+                if (sectionPlanes.length === 0) {
+                    return this.hash = ";";
+                }
+                let sectionPlane;
+                const hashParts = [];
+                for (let i = 0, len = sectionPlanes.length; i < len; i++) {
+                    sectionPlane = sectionPlanes[i];
+                    hashParts.push("cp");
+                }
+                hashParts.push(";");
+                hash = hashParts.join("");
+                return hash;
+            };
+
+            this.addSectionPlane = (sectionPlane: SectionPlane) => {
+                sectionPlanes.push(sectionPlane);
+                hash = null;
+            };
+
+            this.removeSectionPlane = (sectionPlane: SectionPlane) => {
+                for (let i = 0, len = sectionPlanes.length; i < len; i++) {
+                    if (sectionPlanes[i].id === sectionPlane.id) {
+                        sectionPlanes.splice(i, 1);
+                        hash = null;
+                        return;
+                    }
+                }
+            };
+        })();
 
         this.#initViewObjects();
+    }
 
-        this.viewer.registerView(this);
+    #initViewObjects() {
+        const scene = this.viewer.scene;
+        const sceneModels = scene.sceneModels;
+        for (const id in sceneModels) {
+            const sceneModel = sceneModels[id];
+            this.#createViewObjects(sceneModel);
+        }
+        scene.events.on("sceneModelCreated", (sceneModel) => {
+            this.#createViewObjects(sceneModel);
+        });
+        scene.events.on("sceneModelDestroyed", (sceneModel) => {
+            this.#destroyViewObjects(sceneModel);
+        });
+    }
+
+    #createViewObjects(sceneModel: SceneModel) {
+        const sceneObjects = sceneModel.sceneObjects;
+        for (let id in sceneObjects) {
+            const sceneObject = sceneObjects[id];
+            const dataObject = this.viewer.data.dataObjects[sceneObject.id];
+            const viewObject = new ViewObject(this, dataObject, sceneObject, {});
+            this.viewObjects[viewObject.id] = viewObject;
+            this.#numViewObjects++;
+            this.#viewObjectIds = null; // Lazy regenerate
+        }
+    }
+
+    #destroyViewObjects(sceneModel: SceneModel) {
+        const sceneObjects = sceneModel.sceneObjects;
+        for (let id in sceneObjects) {
+            const sceneObject = sceneObjects[id];
+            const viewObject = this.viewObjects[sceneObject.id];
+            viewObject._destroy();
+            this.#numViewObjects--;
+            this.#viewObjectIds = null; // Lazy regenerate
+        }
     }
 
     /**
@@ -580,6 +703,7 @@ class View extends Component {
         delete this.#sectionPlanes[sectionPlane.id];
     }
 
+
     /**
      * @private
      */
@@ -609,6 +733,13 @@ class View extends Component {
         for (let i = 0, len = ids.length; i < len; i++) {
             this.#lights[ids[i]].destroy();
         }
+    }
+
+    /**
+     * Gets whether physically-based rendering is enabled in this View.
+     */
+    public get pbrEnabled(): boolean {
+        return this.#pbrEnabled;
     }
 
     /**
@@ -877,6 +1008,26 @@ class View extends Component {
     }
 
     /**
+     * Sets the clippability of the given {@link ViewObject}s in this View.
+     *
+     * - Updates {@link ViewObject.clippable} on the ViewObjects with the given IDs.
+     * - Enables or disables the ability to pick the given ViewObjects with {@link View.pick}.
+     *
+     * @param {String[]} ids Array of {@link ViewObject.id} values.
+     * @param clippable Whether or not to set clippable.
+     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     */
+    setViewObjectsClippable(ids: string[] | string, clippable: boolean): boolean {
+        return this.withViewObjects(ids, (viewObject: ViewObject) => {
+            const changed = (viewObject.clippable !== clippable);
+            if (changed) {
+                viewObject.clippable = clippable;
+            }
+            return changed;
+        });
+    }
+
+    /**
      * Iterates with a callback over the given {@link ViewObject}s in this View.
      *
      * @param  ids One or more {@link ViewObject.id} values.
@@ -928,14 +1079,14 @@ class View extends Component {
      *
      *     // Get metadata for the picked ViewObject
      *
-     *     const metaObject = myView.viewer.metaScene.metaObjects[viewObject.id];
+     *     const objectData = myView.viewer.sceneData.objects[viewObject.id];
      *
-     *     if (metaObject) {
+     *     if (objectData) {
      *
-     *          const name = metaObject.name;
-     *          const type = metaObject.type; // Eg. "IfcWall", "IfcBuildingStorey"
+     *          const name = objectData.name;
+     *          const type = objectData.type; // Eg. "IfcWall", "IfcBuildingStorey"
      *
-     *          for (let propertySet of metaObject.propertySets) {
+     *          for (let propertySet of objectData.propertySets) {
      *
      *              const propertySetId = propertySet.id;
      *              const propertySetName = propertySet.name;
@@ -951,14 +1102,14 @@ class View extends Component {
      *              }
      *          }
      *
-     *          const metaModel = metaObject.metaModel;
+     *          const dataModel = DataObject.dataModel;
      *
-     *          const projectId = metaModel.projectId;
-     *          const revisionId = metaModel.revisionId;
-     *          const author = metaModel.author;
-     *          const createdAt = metaModel.createdAt;
-     *          const creatingApplication = metaModel.creatingApplication;
-     *          const schema = metaModel.schema;
+     *          const projectId = dataModel.projectId;
+     *          const revisionId = dataModel.revisionId;
+     *          const author = dataModel.author;
+     *          const createdAt = dataModel.createdAt;
+     *          const creatingApplication = dataModel.creatingApplication;
+     *          const schema = dataModel.schema;
      *
      *          //...
      *     }
@@ -1058,76 +1209,13 @@ class View extends Component {
     }
 
     /**
-     * @private
+     * Destroys this View.
+     *
+     * Causes {@link Viewer} to fire a "viewDestroyed" event.
      */
     destroy() {
-        this.viewer.deregisterView(this);
         super.destroy();
     }
-
-    #initWebGPU() {
-
-        // const device = this.viewer.#renderer.device;
-        // const adapter = this.viewer._renderer.adapter;
-        // const devicePixelRatio = window.devicePixelRatio || 1;
-        // const presentationSize = [this.canvas.canvas.clientWidth * devicePixelRatio, this.canvas.canvas.clientHeight * devicePixelRatio];
-        // const presentationFormat = this._context.getPreferredFormat(adapter);
-        //
-        // this._context = this._canvas.getContext('webgpu');
-        // this._context.configure({device, format: presentationFormat, size: presentationSize});
-        // this._swapChainFormat = 'bgra8unorm';
-        // this._swapChain = this._context.configureSwapChain({device, format: this._swapChainFormat});
-    }
-
-    #initViewObjects() {
-        const scene = this.viewer.scene;
-        const sceneObjects = scene.sceneObjects;
-        for (const id in sceneObjects) {
-            this.#createViewObject(id);
-        }
-        scene.events.on("objectCreated", (sceneObject) => {
-            this.#createViewObject(sceneObject.id);
-        })
-    }
-
-    #createViewObject(id: string) {
-        const sceneObject = this.viewer.scene.sceneObjects[id];
-        if (!sceneObject) {
-            this.error(`Can't create ViewObject: SceneObject not found: ${id}`);
-            return;
-        }
-        const metaObject = this.viewer.metaScene.metaObjects[id];
-        if (!metaObject) {
-            this.error(`Can't create ViewObject: MetaObject not found: ${id}`);
-            return;
-        }
-        const viewObject = new ViewObject(this, metaObject, sceneObject, {});
-        this.registerViewObject(viewObject);
-        sceneObject.events.on("destroy", () => {
-            viewObject._destroy();
-            this.deregisterViewObject(viewObject);
-        });
-        this.redraw();
-    }
 }
-
-//
-// function getViewObjectIDMap(scene:Scene, viewViewObjectIds:string[]) {
-//     const map = {};
-//     for (let i = 0, len = viewViewObjectIds.length; i < len; i++) {
-//         const viewObjectId = viewViewObjectIds[i];
-//         const viewObject = scene.component[viewObjectId];
-//         if (!viewObject) {
-//             scene.warn("pick(): Component not found: " + viewObjectId);
-//             continue;
-//         }
-//         if (!viewObject.isViewObject) {
-//             scene.warn("pick(): Component is not a ViewObject: " + viewObjectId);
-//             continue;
-//         }
-//         map[viewObjectId] = true;
-//     }
-//     return map;
-// }
 
 export {View};

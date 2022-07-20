@@ -1,7 +1,8 @@
 /**
- * Data type from which a {@link MetaModel} is created.
+ * Data type from which a {@link DataModel} is created.
  */
-export type MetaModelData = {
+export type DataSchema = {
+    id?: string,
     projectId?: string | number,
     revisionId?: string | number,
     author?: string,
@@ -21,7 +22,7 @@ export type MetaModelData = {
             description?: string
         }[]
     }[],
-    metaObjects?: {
+    dataObjects?: {
         id: string;
         originalSystemId?: string;
         type: string;

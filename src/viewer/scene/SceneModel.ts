@@ -1,72 +1,75 @@
 import {Scene} from "./Scene";
-import * as math from "../math";
-import {FloatArrayType} from "../math";
+import {FloatArrayType, IntArrayType} from "../math";
 import {SceneObject} from "./SceneObject";
-import {Component} from "../Component";
+import {SceneTransform} from "./SceneTransform";
+import {
+    LinearFilter,
+    LinearMipmapLinearFilter,
+    NearestMipMapLinearFilter,
+    RepeatWrapping,
+    LinearEncoding,
+    sRGBEncoding,
+    NearestMipMapNearestFilter,
+    ClampToEdgeWrapping,
+    MirroredRepeatWrapping,
+    LinearMipMapNearestFilter,
+    NearestFilter
+} from "../constants";
+import {Events} from "../Events";
 
 /**
  * Contains geometry and materials for a model in a {@link Viewer}.
  *
  * ## Overview
  *
- * * Belongs to a {@link Scene}
- * * Registered by {@link Component.id} in {@link Scene.sceneModels}
- * * Contains {@link SceneObject}s
- * * Provides builder methods to populate with SceneObjects
- * * May have a {@link MetaModel} in {@link MetaScene.metaModels}
+ * * Located in {@link Scene.sceneModels}
+ * * Has {@link SceneObject}s
+ * * Can have a {@link DataModel}
  */
-export abstract class SceneModel extends Component {
+export interface SceneModel{
 
+    /** Unique ID of this SceneModel.
+     */
+    readonly id: string;
+    
     /**
      * The owner Scene.
      */
-    public readonly scene: Scene;
+    readonly scene: Scene;
 
     /**
-     * The {@link SceneObject}s in this Model.
+     * Manages events occurring on this SceneModel.
+     */
+    readonly events: Events;
+
+    /**
+     * The {@link SceneObject}s in this SceneModel.
      *
      * SceneObjects are keyed to {@link SceneObject.id}.
      */
-    public readonly sceneObjects: { [key: string]: SceneObject };
+    readonly sceneObjects: { [key: string]: SceneObject };
 
     /**
-     * List of the {@link SceneObject}s in this Model.
+     * The axis-aligned World-space 3D boundary of this SceneModel.
      */
-    public readonly sceneObjectsList: SceneObject[];
+    readonly aabb: FloatArrayType;
+
+   // constructor(cfg: {}): void;
 
     /**
-     * The number of {@link SceneObject}s in this Model.
+     * Creates a SceneTransform within this SceneModel.
+     *
+     * @param cfg Transform configuration.
+     * @param cfg.id ID for the transform, unique within this SceneModel.
+     * @param cfg.parentTransformId ID of an optional parent transform in {@link SceneModel.transforms}.
+     * @param cfg.matrix Modeling matrix for this transform.
+     * @returns The new transform.
      */
-    public numSceneObjects: number;
-
-    /**
-     * Creates a SceneModel.
-     */
-    protected constructor(scene: Scene,
-                          cfg: {
-                              id: string
-                          }) {
-
-        super(scene, cfg);
-
-        this.scene = scene;
-        this.sceneObjects = {};
-        this.sceneObjectsList = [];
-
-        scene.addSceneModel(this);
-    }
-
-    abstract createTexture(cfg: {
+    createTransform(cfg: {
         id: string,
-        data: any
-    }): void;
-
-    abstract createMaterial(cfg: {
-        id: string,
-        type:string,
-        textureIds: string[],
-        attributes: FloatArrayType
-    }): void;
+        parentTransformId?: string,
+        matrix: FloatArrayType,
+    }): SceneTransform;
 
     /**
      * Creates a geometry within this SceneModel.
@@ -80,32 +83,86 @@ export abstract class SceneModel extends Component {
      * @param cfg.origin - Optional geometry origin, relative to {@link SceneModel.origin}. When this is given, then every
      * mesh created with {@link SceneModel.createMesh} that uses this geometry will
      * be transformed relative to this origin.
-     * @param cfg.positionsCompressed - Flat array of compressed integer vertex positions. Also requires positionsDecodeMatrix.
-     * @param cfg.positionsDecodeMatrix - Matrix to decompress positionsCompressed.
+     * @param cfg.positionsCompressed - Flat array of compressed integer vertex positions. Also requires positionsDecompressMatrix.
+     * @param cfg.positionsDecompressMatrix - Matrix to decompress positionsCompressed.
      * @param cfg.normals - Flat array of floating point vertex normals.
      * @param cfg.normalsCompressed - Flat array of compressed integer vertex normals.
      * @param cfg.uvs - Flat array of floating point vertex UV coordinates.
      * @param cfg.uvsCompressed - Flat array of compressed integer vertex UV coordinates.
+     * @param {Number[]} [cfg.uvsDecompressMatrix] A 3x3 matrix for decompressing ````uvsCompressed````.
      * @param cfg.colors - Flat array of floating point RGBA vertex colors.
      * @param cfg.colorsCompressed - Flat array of compressed integer RGBA vertex colors.
      * @param cfg.indices - Flat array of vertex connectivity indices for the geometry primitive type.
      * @param cfg.edgeIndices - Flat array of edge vertex indices.
      */
-    abstract createGeometry(cfg: {
+    createGeometry(cfg: {
         id: string,
         primitive: string,
-        origin?: math.FloatArrayType,
-        positions?: math.FloatArrayType,
-        positionsCompressed?: math.FloatArrayType,
-        positionsDecodeMatrix?: math.FloatArrayType,
-        normals?: math.FloatArrayType,
-        normalsCompressed?: math.FloatArrayType,
-        uvs?: math.FloatArrayType,
-        uvsCompressed?: math.FloatArrayType,
-        colors?: math.FloatArrayType,
-        colorsCompressed?: math.FloatArrayType,
-        indices?: number[],
-        edgeIndices?: number[]
+        origin?: FloatArrayType,
+        positions?: FloatArrayType,
+        positionsCompressed?: Uint16Array,
+        positionsDecompressMatrix?: FloatArrayType,
+        normals?: FloatArrayType,
+        normalsCompressed?: Uint8Array,
+        uvs?: FloatArrayType,
+        uvsCompressed?: FloatArrayType,
+        uvsDecompressMatrix?: FloatArrayType,
+        colors?: FloatArrayType,
+        colorsCompressed?: FloatArrayType,
+        indices?: IntArrayType,
+        edgeIndices?: IntArrayType,
+        edgeThreshold: number
+    }): void;
+
+    /**
+     * Creates a texture within this SceneModel.
+     *
+     * @param cfg Texture configuration.
+     * @param cfg.id Unique ID for the texture within this SceneModel.
+     * @param cfg.src  Image file for the texture.
+     * @param cfg.buffers Transcoded texture data.
+     * @param cfg.image HTML Image object to load into this texture. Overrides ````src```` and ````buffers````.
+     * @param cfg.magFilter How the texture is sampled when a texel covers more than one pixel. Supported values are {@link LinearFilter} and {@link NearestFilter}.
+     * @param cfg.minFilter How the texture is sampled when a texel covers less than one pixel. Supported values
+     * are {@link LinearMipmapLinearFilter}, {@link LinearMipMapNearestFilter}, {@link NearestMipMapNearestFilter}, {@link NearestMipMapLinearFilter} and {@link LinearMipMapLinearFilter}.
+     * @param  cfg.wrapS Wrap parameter for texture coordinate *S*. Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     * @param cfg.wrapT Wrap parameter for texture coordinate *T*. Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}..
+     * @param cfg.flipY Flips this Texture's source data along its vertical axis when ````true````.
+     * @param  cfg.encoding Encoding format. Supported values are {@link LinearEncoding} and {@link sRGBEncoding}.
+     * @param  cfg.preloadColor RGBA color to preload the texture with.
+     */
+    createTexture(cfg: {
+        id: string,
+        src?: string,
+        buffers?: ArrayBuffer[],
+        image?: HTMLImageElement,
+        magFilter?: number,
+        minFilter?: number,
+        wrapS?: number,
+        wrapT?: number,
+        flipY?: boolean,
+        encoding?: number,
+        preloadColor?: FloatArrayType
+    }): void;
+
+    /**
+     * Creates a texture set within this SceneModel.
+     *
+     * @param cfg
+     * @param cfg.id - ID for the texture set, unique within this SceneModel.
+     * @param cfg.colorTextureId ID of *RGBA* base color texture, with color in *RGB* and alpha in *A*.
+     * @param cfg.metallicRoughnessTextureId ID of *RGBA* metal-roughness texture, with the metallic factor in *R*, and roughness factor in *G*.
+     * @param cfg.normalsTextureId ID of *RGBA* normal map texture, with normal map vectors in *RGB*.
+     * @param cfg.emissiveTextureId ID of *RGBA* emissive map texture, with emissive color in *RGB*.
+     * @param cfg.occlusionTextureId ID of *RGBA* occlusion map texture, with occlusion factor in *R*.
+     */
+    createTextureSet(cfg: {
+        id: string,
+        colorTextureId?: string,
+        metallicRoughnessTextureId?: string,
+        occlusionTextureId?: string,
+        normalsTextureId?: string,
+        emissiveTextureId?: string
     }): void;
 
     /**
@@ -120,18 +177,19 @@ export abstract class SceneModel extends Component {
      * @param cfg.geometryId - ID of a geometry to use for this mesh. Assumes that the geometry was previously created
      * with {@link SceneModel.createGeometry}. If given, the geometry takes precedence over any other geometry parameters
      * given to this function.
-     * @param cfg.materialId - ID of a material to use for this mesh. Assumes that the material was previously created
-     * with {@link SceneModel.createMaterial}.
+     * @param cfg.textureSetId - ID of a texture set to use for this mesh. Assumes that the texture set was previously created
+     * with {@link SceneModel.createTextureSet}.
      * @param cfg.primitive - Primitive type; Accepted values are 'points', 'lines', 'triangles', 'solid' and 'surface'.
      * @param cfg.positions - Flat array of uncompressed floating point vertex positions.
-     * @param cfg.positionsCompressed - Flat array of compressed integer vertex positions. Also requires positionsDecodeMatrix.
-     * @param cfg.positionsDecodeMatrix - Matrix to decompress positionsCompressed.
+     * @param cfg.positionsCompressed - Flat array of compressed integer vertex positions. Also requires positionsDecompressMatrix.
+     * @param cfg.positionsDecompressMatrix - Matrix to decompress positionsCompressed.
      * @param cfg.origin - Optional origin, relative to {@link SceneModel.origin}. When this is given,
      * then ````positions```` or ````positionsCompressed```` are assumed to be relative to this.
      * @param cfg.normals - Flat array of floating point vertex normals.
      * @param cfg.normalsCompressed - Flat array of compressed integer vertex normals.
      * @param cfg.uvs - Flat array of floating point vertex UV coordinates.
      * @param cfg.uvsCompressed - Flat array of compressed integer vertex UV coordinates.
+     * @param cfg.uvsDecompressMatrix A 3x3 matrix for decompressing ````uvsCompressed````.
      * @param cfg.colors - Flat array of floating point RGBA vertex colors.
      * @param cfg.colorsCompressed - Flat array of compressed integer RGBA vertex colors.
      * @param cfg.indices - Flat array of vertex connectivity indices for the geometry primitive type.
@@ -142,29 +200,34 @@ export abstract class SceneModel extends Component {
      * @param cfg.quaternion - Rotation of the mesh, given as a quaternion.
      * @param cfg.matrix -  Mesh modelling transform matrix. Overrides the ````position````, ````scale```` and ````rotation```` parameters.
      */
-    abstract createMesh(cfg: {
+    createMesh(cfg: {
         id?: string,
-        // nodeId?: string,
+        textureSetId?: string,
         geometryId?: string,
-        materialId?: string,
         primitive?: string,
-        origin?: math.FloatArrayType,
-        positions?: math.FloatArrayType,
-        positionsCompressed?: math.FloatArrayType,
-        positionsDecompressMatrix?: math.FloatArrayType,
-        normals?: math.FloatArrayType,
-        normalsCompressed?: math.FloatArrayType,
-        uvs?: math.FloatArrayType,
-        uvsCompressed?: math.FloatArrayType,
-        colors?: math.FloatArrayType,
-        colorsCompressed?: math.FloatArrayType,
-        indices?: number[],
-        edgeIndices?: number[],
-        position?: math.FloatArrayType,
-        scale?: math.FloatArrayType,
-        quaternion?: math.FloatArrayType,
-        rotation?: math.FloatArrayType,
-        matrix?: math.FloatArrayType
+        color?:FloatArrayType,
+        opacity?:number,
+        metallic?:number,
+        roughness?:number,
+        origin?: FloatArrayType,
+        rtcCenter?: FloatArrayType;
+        positions?: FloatArrayType,
+        positionsCompressed?: FloatArrayType,
+        positionsDecompressMatrix?: FloatArrayType,
+        normals?: FloatArrayType,
+        normalsCompressed?: FloatArrayType,
+        uvs?: FloatArrayType,
+        uvsCompressed?: FloatArrayType,
+        uvsDecompressMatrix?: FloatArrayType,
+        colors?: FloatArrayType,
+        colorsCompressed?: FloatArrayType,
+        indices?: IntArrayType,
+        edgeIndices?: IntArrayType,
+        position?: FloatArrayType,
+        scale?: FloatArrayType,
+        quaternion?: FloatArrayType,
+        rotation?: FloatArrayType,
+        matrix?: FloatArrayType
     }): void;
 
     /**
@@ -179,38 +242,23 @@ export abstract class SceneModel extends Component {
      * ID in {@link SceneModel.sceneObjects}.
      * @param cfg.meshIds - IDs of the meshes to aggregate within this SceneObject. Assumes each mesh was created previously
      * with {@link createMesh}. Also assumes that each mesh has not already been aggregated by another SceneObject.
+     * @param cfg.transformId - Optional ID of a {@link SceneTransform} created previously with {@link createTransform}.
      */
-    abstract createSceneObject(cfg: { id?: string, meshIds: string[] }): SceneObject;
-
-    /**
-     * @protected
-     */
-    addSceneObject(object: SceneObject): void {
-        if (this.sceneObjects[object.id]) {
-            return;
-        }
-        this.sceneObjects[object.id] = object;
-        this.sceneObjectsList.push(object);
-    }
-
+    createSceneObject(cfg: {
+        id?: string,
+        meshIds: string[],
+        transformId?: string
+    }): SceneObject;
+    
     /**
      * Finalizes this SceneModel and prepares it for use.
      */
-    abstract finalize(): void;
+    finalize(): void;
 
     /**
      * Destroys this SceneModel.
+     *
+     * Causes {@link Scene} to fire a "sceneModelDestroyed" event.
      */
-    destroy() {
-        if (this.destroyed) {
-            return;
-        }
-        for (let i = 0, len = this.sceneObjectsList.length; i < len; i++) {
-            const object = this.sceneObjectsList[i];
-            object.destroy();
-        }
-        this.scene.removeSceneModel(this);
-        this.scene.aabbDirty = true;
-        super.destroy();
-    }
+    destroy(): void;
 }

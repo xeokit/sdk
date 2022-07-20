@@ -3,7 +3,7 @@ import * as math from "../math";
 import {Component} from "../Component";
 
 /**
- * @desc A {@link Curve} along which a 3D position can be animated.
+ * A {@link Curve} along which a 3D position can be animated.
  *
  * * As shown in the diagram below, a SplineCurve is defined by three or more control points.
  * * You can sample a {@link SplineCurve#point} and a {@link Curve#tangent} vector on a SplineCurve for any given value of {@link SplineCurve#t} in the range ````[0..1]````.

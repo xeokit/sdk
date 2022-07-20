@@ -1,12 +1,11 @@
-
 import {apply} from "../../utils/utils";
-import {MetaModel} from "../../metadata/MetaModel";
+import {DataModel} from "../../data/DataModel";
 import {View} from "../View";
 
 const color = new Float32Array(3);
 
 /**
- * @desc Saves and restores a snapshot of the visual state of the {@link Entity}'s of a model within a {@link Scene}.
+ * Saves and restores a snapshot of the visual state of the {@link ViewObject}'s of a model within a {@link Scene}.
  *
  * ## Usage
  *
@@ -16,7 +15,7 @@ const color = new Float32Array(3);
  * ## See Also
  *
  * * {@link CameraMemento} - Saves and restores the state of a {@link Scene}'s {@link Camera}.
- * * {@link ObjectsMemento} - Saves and restores a snapshot of the visual state of the {@link Entity}'s that represent objects within a {@link Scene}.
+ * * {@link ViewObjectsMemento} - Saves and restores a snapshot of the visual state of the {@link Entity}'s that represent objects within a {@link Scene}.
  *
  * ````javascript
  * import {Viewer, XKTLoaderPlugin,  ModelMemento} from "xeokit-webgpu-sdk.es.js";
@@ -44,14 +43,14 @@ const color = new Float32Array(3);
  *      // Save memento of all object states, which includes those two hidden objects
  *      const ModelMemento = new ModelMemento();
  *
- * const metaModel = viewer.metaScene.metaModels
+ * const dataModel = viewer.data.dataModels
  *      ModelMemento.saveObjects(viewer.scene);
  *
  *      // Show all objects
  *      viewer.scene.setObjectsVisible(viewer.scene.objectIds, true);
  *
  *      // Restore the objects states again, which involves hiding those two objects again
- *      ModelMemento.restoreObjects(viewer.scene);
+ *      ModelMemento.restoreViewObjects(viewer.scene);
  * });
  * `````
  *
@@ -70,21 +69,22 @@ const color = new Float32Array(3);
  * //...
  *
  * // Restore the objects states again
- * ModelMemento.restoreObjects(viewer.scene);
+ * ModelMemento.restoreViewObjects(viewer.scene);
  * ````
  */
 class ModelMemento {
-    private objectsVisible: boolean[];
-    private objectsEdges: boolean[];
-    private objectsXrayed: boolean[];
-    private objectsHighlighted: boolean[];
-    private objectsSelected: boolean[];
-    private objectsClippable: boolean[];
-    private objectsPickable: boolean[];
-    private objectsColorize: number[];
-    private objectsOpacity: number[];
-    private numObjects: number;
-    private _mask?: {
+    #viewObjectsVisible: boolean[];
+    #viewObjectsEdges: boolean[];
+    #viewObjectsXRayed: boolean[];
+    #viewObjectsHighlighted: boolean[];
+    #viewObjectsSelected: boolean[];
+    #viewObjectsClippable: boolean[];
+    #viewObjectsPickable: boolean[];
+    #viewObjectsColorize: number[];
+    #viewObjectsOpacity: number[];
+    #numViewObjects: number;
+
+    #mask?: {
         opacity: boolean;
         colorize: boolean;
         pickable: boolean;
@@ -100,23 +100,23 @@ class ModelMemento {
      * Creates a ModelMemento.
      */
     constructor() {
-        this.objectsVisible = [];
-        this.objectsEdges = [];
-        this.objectsXrayed = [];
-        this.objectsHighlighted = [];
-        this.objectsSelected = [];
-        this.objectsClippable = [];
-        this.objectsPickable = [];
-        this.objectsColorize = [];
-        this.objectsOpacity = [];
-        this.numObjects = 0;
+        this.#viewObjectsVisible = [];
+        this.#viewObjectsEdges = [];
+        this.#viewObjectsXRayed = [];
+        this.#viewObjectsHighlighted = [];
+        this.#viewObjectsSelected = [];
+        this.#viewObjectsClippable = [];
+        this.#viewObjectsPickable = [];
+        this.#viewObjectsColorize = [];
+        this.#viewObjectsOpacity = [];
+        this.#numViewObjects = 0;
     }
 
     /**
      * Saves a snapshot of the visual state of the {@link ViewObject}'s that represent objects within a model.
      *
      * @param view The View.
-     * @param {MetaModel} metaModel Represents the model. Corresponds with an {@link ViewObject} that represents the model in the view.
+     * @param {DataModel} dataModel Represents the model. Corresponds with an {@link ViewObject} that represents the model in the view.
      * @param {Object} [mask] Masks what state gets saved. Saves all state when not supplied.
      * @param {boolean} [mask.visible] Saves {@link ViewObject#visible} values when ````true````.
      * @param {boolean} [mask.visible] Saves {@link ViewObject#visible} values when ````true````.
@@ -129,7 +129,7 @@ class ModelMemento {
      * @param {boolean} [mask.colorize] Saves {@link ViewObject#colorize} values when ````true````.
      * @param {boolean} [mask.opacity] Saves {@link ViewObject#opacity} values when ````true````.
      */
-    saveObjects(view: View, metaModel: MetaModel, mask?: {
+    saveObjects(view: View, dataModel: DataModel, mask?: {
         opacity: boolean;
         colorize: boolean;
         pickable: boolean;
@@ -141,18 +141,18 @@ class ModelMemento {
         visible: boolean;
     }) {
 
-        const rootMetaObject = metaModel.rootMetaObject;
-        if (!rootMetaObject) {
+        const rootDataObject = dataModel.rootDataObject;
+        if (!rootDataObject) {
             return;
         }
 
-        const objectIds = rootMetaObject.getMetaObjectIdsInSubtree();
+        const objectIds = rootDataObject.getDataObjectIdsInSubtree();
 
-        this.numObjects = 0;
+        this.#numViewObjects = 0;
 
-        this._mask = mask ? apply(mask, {}) : null;
+        this.#mask = mask ? apply(mask, {}) : null;
 
-        const objects = view.objects;
+        const objects = view.viewObjects;
         const visible = (!mask || mask.visible);
         const edges = (!mask || mask.edges);
         const xrayed = (!mask || mask.xrayed);
@@ -170,36 +170,36 @@ class ModelMemento {
                 continue;
             }
             if (visible) {
-                this.objectsVisible[i] = object.visible;
+                this.#viewObjectsVisible[i] = object.visible;
             }
             if (edges) {
-                this.objectsEdges[i] = object.edges;
+                this.#viewObjectsEdges[i] = object.edges;
             }
             if (xrayed) {
-                this.objectsXrayed[i] = object.xrayed;
+                this.#viewObjectsXRayed[i] = object.xrayed;
             }
             if (highlighted) {
-                this.objectsHighlighted[i] = object.highlighted;
+                this.#viewObjectsHighlighted[i] = object.highlighted;
             }
             if (selected) {
-                this.objectsSelected[i] = object.selected;
+                this.#viewObjectsSelected[i] = object.selected;
             }
             if (clippable) {
-                this.objectsClippable[i] = object.clippable;
+                this.#viewObjectsClippable[i] = object.clippable;
             }
             if (pickable) {
-                this.objectsPickable[i] = object.pickable;
+                this.#viewObjectsPickable[i] = object.pickable;
             }
             if (colorize) {
                 const objectColor = object.colorize;
-                this.objectsColorize[i * 3 + 0] = objectColor[0];
-                this.objectsColorize[i * 3 + 1] = objectColor[1];
-                this.objectsColorize[i * 3 + 2] = objectColor[2];
+                this.#viewObjectsColorize[i * 3 + 0] = objectColor[0];
+                this.#viewObjectsColorize[i * 3 + 1] = objectColor[1];
+                this.#viewObjectsColorize[i * 3 + 2] = objectColor[2];
             }
             if (opacity) {
-                this.objectsOpacity[i] = object.opacity;
+                this.#viewObjectsOpacity[i] = object.opacity;
             }
-            this.numObjects++;
+            this.#numViewObjects++;
         }
     }
 
@@ -209,18 +209,18 @@ class ModelMemento {
      * Assumes that the model has not been destroyed or modified since saving.
      *
      * @param view The View that was given to {@link ModelMemento#saveObjects}.
-     * @param {MetaModel} metaModel The metamodel that was given to {@link ModelMemento#saveObjects}.
+     * @param {DataModel} dataModel The metamodel that was given to {@link ModelMemento#saveObjects}.
      */
-    restoreObjects(view: View, metaModel: MetaModel) {
+    restoreViewObjects(view: View, dataModel: DataModel) {
 
-        const rootMetaObject = metaModel.rootMetaObject;
-        if (!rootMetaObject) {
+        const rootDataObject = dataModel.rootDataObject;
+        if (!rootDataObject) {
             return;
         }
 
-        const objectIds = rootMetaObject.getMetaObjectIdsInSubtree();
+        const objectIds = rootDataObject.getDataObjectIdsInSubtree();
 
-        const mask = this._mask;
+        const mask = this.#mask;
 
         const visible = (!mask || mask.visible);
         const edges = (!mask || mask.edges);
@@ -232,7 +232,7 @@ class ModelMemento {
         const colorize = (!mask || mask.colorize);
         const opacity = (!mask || mask.opacity);
 
-        const objects = view.objects;
+        const objects = view.viewObjects;
 
         for (var i = 0, len = objectIds.length; i < len; i++) {
             const objectId = objectIds[i];
@@ -241,34 +241,34 @@ class ModelMemento {
                 continue;
             }
             if (visible) {
-                object.visible = this.objectsVisible[i];
+                object.visible = this.#viewObjectsVisible[i];
             }
             if (edges) {
-                object.edges = this.objectsEdges[i];
+                object.edges = this.#viewObjectsEdges[i];
             }
             if (xrayed) {
-                object.xrayed = this.objectsXrayed[i];
+                object.xrayed = this.#viewObjectsXRayed[i];
             }
             if (highlighted) {
-                object.highlighted = this.objectsHighlighted[i];
+                object.highlighted = this.#viewObjectsHighlighted[i];
             }
             if (selected) {
-                object.selected = this.objectsSelected[i];
+                object.selected = this.#viewObjectsSelected[i];
             }
             if (clippable) {
-                object.clippable = this.objectsClippable[i];
+                object.clippable = this.#viewObjectsClippable[i];
             }
             if (pickable) {
-                object.pickable = this.objectsPickable[i];
+                object.pickable = this.#viewObjectsPickable[i];
             }
             if (colorize) {
-                color[0] = this.objectsColorize[i * 3 + 0];
-                color[1] = this.objectsColorize[i * 3 + 1];
-                color[2] = this.objectsColorize[i * 3 + 2];
+                color[0] = this.#viewObjectsColorize[i * 3 + 0];
+                color[1] = this.#viewObjectsColorize[i * 3 + 1];
+                color[2] = this.#viewObjectsColorize[i * 3 + 2];
                 object.colorize = color;
             }
             if (opacity) {
-                object.opacity = this.objectsOpacity[i];
+                object.opacity = this.#viewObjectsOpacity[i];
             }
         }
     }

@@ -3,7 +3,7 @@ import {Component} from '../../Component';
 import {Camera} from "./Camera";
 
 /**
- * @desc Defines a custom projection for a {@link Camera} as a custom 4x4 matrix.
+ * Custom projection configuration for a {@link Camera}.
  *
  * Located at {@link Camera.customProjection}.
  */

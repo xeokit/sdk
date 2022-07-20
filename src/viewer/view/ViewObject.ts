@@ -1,7 +1,7 @@
 import {Events} from "../Events";
-import {MetaObject} from "../metadata/MetaObject";
+import {DataObject} from "../data/";
 import {View} from "./View";
-import {SceneObject} from "../scene/SceneObject";
+import {SceneObject} from "../scene/";
 import * as math from '../math/math';
 
 /**
@@ -11,12 +11,12 @@ import * as math from '../math/math';
  *
  * - Belongs to a {@link View}.
  * - Registered by {@link ViewObject.id} in {@link View.viewObjects}.
- * - The ViewObject will also have a corresponding {@link SceneObject} in {@link Scene.sceneObjects}, and a {@link MetaObject} in {@link MetaModel.metaObjects}, all sharing the same ID.
+ * - The ViewObject will also have a corresponding {@link SceneObject} in {@link Scene.sceneObjects}, and a {@link DataObject} in {@link DataModel.dataObjects}, all sharing the same ID.
  */
 class ViewObject {
 
     /**
-     * Unique ID of this ViewObject within {@link View.objects}.
+     * Unique ID of this ViewObject within {@link View.viewObjects}.
      */
     public readonly id: string;
 
@@ -31,9 +31,9 @@ class ViewObject {
     public readonly view: View;
 
     /**
-     * The corresponding {@link MetaObject}.
+     * The corresponding {@link DataObject}.
      */
-    public readonly metaObject: MetaObject;
+    public readonly dataObject: DataObject;
 
     /**
      * The corresponding {@link SceneObject}.
@@ -61,7 +61,7 @@ class ViewObject {
     /**
      * @private
      */
-    constructor(view: View, metaObject: MetaObject, sceneObject: SceneObject, options: {
+    constructor(view: View, dataObject: DataObject, sceneObject: SceneObject, options: {
         opacity?: number;
         colorize?: number[];
         selected?: boolean;
@@ -77,9 +77,9 @@ class ViewObject {
 
         this.events = new Events();
         this.view = view;
-        this.metaObject = metaObject;
+        this.dataObject = dataObject;
         this.sceneObject = sceneObject;
-        this.id = metaObject.id;
+        this.id = dataObject.id;
 
         // Initialize properties like this so that we also
         // update their counters on the View
@@ -100,9 +100,9 @@ class ViewObject {
     /**
      * Gets if this ViewObject is visible.
      *
-     * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.visibleObjects}.
+     * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.visibleViewObjects}.
      * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link View.setObjectsVisible} to batch-update the visibility of ViewObjects.
+     * * Use {@link View.setViewObjectsVisible} to batch-update the visibility of ViewObjects.
      */
     get visible(): boolean {
         return this.state.visible;
@@ -111,9 +111,9 @@ class ViewObject {
     /**
      * Sets if this ViewObject is visible.
      *
-     * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.visibleObjects}.
+     * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.visibleViewObjects}.
      * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link View.setObjectsVisible} to batch-update the visibility of ViewObjects.
+     * * Use {@link View.setViewObjectsVisible} to batch-update the visibility of ViewObjects.
      */
     set visible(visible: boolean) {
         if (visible === this.state.visible) {
@@ -128,8 +128,8 @@ class ViewObject {
     /**
      * Gets if this ViewObject is X-rayed.
      *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.xrayedObjects}.
-     * * Use {@link View.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.xrayedViewObjects}.
+     * * Use {@link View.setViewObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     get xrayed(): boolean {
         return this.state.xrayed;
@@ -138,8 +138,8 @@ class ViewObject {
     /**
      * Sets if this ViewObject is X-rayed.
      *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.xrayedObjects}.
-     * * Use {@link View.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.xrayedViewObjects}.
+     * * Use {@link View.setViewObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     set xrayed(xrayed: boolean) {
         if (this.state.xrayed === xrayed) {
@@ -173,8 +173,8 @@ class ViewObject {
     /**
      * Gets if this ViewObject is highlighted.
      *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.highlightedObjects}.
-     * * Use {@link View.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.highlightedViewObjects}.
+     * * Use {@link View.setViewObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     get highlighted(): boolean {
         return this.state.highlighted;
@@ -183,8 +183,8 @@ class ViewObject {
     /**
      * Sets if this ViewObject is highlighted.
      *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.highlightedObjects}.
-     * * Use {@link View.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.highlightedViewObjects}.
+     * * Use {@link View.setViewObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     set highlighted(highlighted: boolean) {
         if (highlighted === this.state.highlighted) {
@@ -199,8 +199,8 @@ class ViewObject {
     /**
      * Gets if this ViewObject is selected.
      *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.selectedObjects}.
-     * * Use {@link View.setObjectsSelected} to batch-update the selected state of ViewObjects.
+     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.selectedViewObjects}.
+     * * Use {@link View.setViewObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     get selected(): boolean {
         return this.state.selected;
@@ -209,8 +209,8 @@ class ViewObject {
     /**
      * Sets if this ViewObject is selected.
      *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.selectedObjects}.
-     * * Use {@link View.setObjectsSelected} to batch-update the selected state of ViewObjects.
+     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link View.selectedViewObjects}.
+     * * Use {@link View.setViewObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     set selected(selected: boolean) {
         if (selected === this.state.selected) {
@@ -226,7 +226,7 @@ class ViewObject {
      * Gets if this ViewObject is culled.
      *
      * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link View.setObjectsCulled} to batch-update the culled state of ViewObjects.
+     * * Use {@link View.setViewObjectsCulled} to batch-update the culled state of ViewObjects.
      */
     get culled(): boolean {
         return this.state.culled;
@@ -236,7 +236,7 @@ class ViewObject {
      * Sets if this ViewObject is culled.
      *
      * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link View.setObjectsCulled} to batch-update the culled state of ViewObjects.
+     * * Use {@link View.setViewObjectsCulled} to batch-update the culled state of ViewObjects.
      */
     set culled(value: boolean) {
         if (value === this.state.culled) {
@@ -250,7 +250,7 @@ class ViewObject {
      * Gets if this ViewObject is clippable.
      *
      * * Clipping is done by the {@link SectionPlane}s in {@link View.sectionPlanes}.
-     * * Use {@link View.setObjectsClippable} to batch-update the clippable state of ViewObjects.
+     * * Use {@link View.setViewObjectsClippable} to batch-update the clippable state of ViewObjects.
      */
     get clippable(): boolean {
         return this.state.clippable;
@@ -260,7 +260,7 @@ class ViewObject {
      * Sets if this ViewObject is clippable.
      *
      * * Clipping is done by the {@link SectionPlane}s in {@link View.sectionPlanes}.
-     * * Use {@link View.setObjectsClippable} to batch-update the clippable state of ViewObjects.
+     * * Use {@link View.setViewObjectsClippable} to batch-update the clippable state of ViewObjects.
      */
     set clippable(value: boolean) {
         if (value === this.state.clippable) {
@@ -275,7 +275,7 @@ class ViewObject {
      *
      * * When ````true````, the 3D World boundaries returned by {@link View.aabb} and {@link View.getAABB} will include this ViewObject's boundary.
      * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
-     * * Use {@link View.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
+     * * Use {@link View.setViewObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
     get collidable(): boolean {
         return this.state.collidable;
@@ -286,7 +286,7 @@ class ViewObject {
      *
      * * When ````true````, the 3D World boundaries returned by {@link View.aabb} and {@link View.getAABB} will include this ViewObject's boundary.
      * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
-     * * Use {@link View.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
+     * * Use {@link View.setViewObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
     set collidable(value: boolean) {
         if (value === this.state.collidable) {
@@ -302,7 +302,7 @@ class ViewObject {
      * Gets if this ViewObject is pickable.
      *
      * * Picking is done with {@link View.pick}.
-     * * Use {@link View.setObjectsPickable} to batch-update the pickable state of ViewObjects.
+     * * Use {@link View.setViewObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
     get pickable(): boolean {
         return this.state.pickable;
@@ -312,7 +312,7 @@ class ViewObject {
      * Sets if this ViewObject is pickable.
      *
      * * Picking is done with {@link View.pick}.
-     * * Use {@link View.setObjectsPickable} to batch-update the pickable state of ViewObjects.
+     * * Use {@link View.setViewObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
     set pickable(value: boolean) {
         if (this.state.pickable === value) {
@@ -328,7 +328,7 @@ class ViewObject {
      *
      * * Multiplies by rendered fragment colors.
      * * Each element of the color is in range ````[0..1]````.
-     * * Use {@link View.setObjectsColorized} to batch-update the colorized state of ViewObjects.
+     * * Use {@link View.setViewObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
     get colorize(): Float32Array {
         return this.state.colorize;
@@ -340,7 +340,7 @@ class ViewObject {
      * * Multiplies by rendered fragment colors.
      * * Each element of the color is in range ````[0..1]````.
      * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
-     * * Use {@link View.setObjectsColorized} to batch-update the colorized state of ViewObjects.
+     * * Use {@link View.setViewObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
     set colorize(value: math.FloatArrayType | undefined | null) {
         let colorize = this.state.colorize;
@@ -362,7 +362,7 @@ class ViewObject {
      * Gets the opacity factor for this ViewObject.
      *
      * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
-     * * Use {@link View.setObjectsOpacity} to batch-update the opacities of ViewObjects.
+     * * Use {@link View.setViewObjectsOpacity} to batch-update the opacities of ViewObjects.
      */
     get opacity(): number {
         return this.state.colorize[3];
@@ -373,7 +373,7 @@ class ViewObject {
      *
      * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
      * * Set to ````null```` or ````undefined```` to reset the opacity to its default value of ````1````.
-     * * Use {@link View.setObjectsOpacity} to batch-update the opacities of ViewObjects.
+     * * Use {@link View.setViewObjectsOpacity} to batch-update the opacities of ViewObjects.
      */
     set opacity(opacity: number | undefined | null) {
         let colorize = this.state.colorize;
@@ -383,11 +383,7 @@ class ViewObject {
         this.view.redraw();
     }
 
-    /**
-     * Destroys this ViewObject.
-     * @private
-     */
-    _destroy() {
+    _destroy() { // Called by View#destroyViewObjects
         if (this.state.visible) {
             this.view.objectVisibilityUpdated(this, false, false);
         }

@@ -4,6 +4,8 @@ export * from "./matrix";
 export * from "./quaternion";
 export * from "./boundaries";
 export * from "./compression";
+export * from "./buildEdgeIndices";
 export * from "./rtc";
 export * from "./frustum";
 export * from "./curves";
+export * from "./ray";

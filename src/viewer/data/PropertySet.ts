@@ -1,27 +1,27 @@
 import {Property} from "./Property";
-import {MetaModel} from "./MetaModel";
+import {DataModel} from "./DataModel";
 
 /**
  * A set of properties of a model or object within a {@link Viewer}.
  *
  * ## Overview
  *
- * * Belongs to a {@link MetaModel}
- * * Registered by {@link PropertySet.id} in {@link MetaModel.propertySets}
- * * Created with {@link MetaScene.createPropertySet} or {@link MetaModel.createPropertySet}
+ * * Belongs to a {@link DataModel}
+ * * Registered by {@link PropertySet.id} in {@link DataModel.propertySets}
+ * * Created with {@link Data.createPropertySet} or {@link DataModel.createPropertySet}
  * * Has {@link Property} components in {@link PropertySet.properties}
  */
 class PropertySet {
 
     /**
-     * The MetaModel to which this PropertySet belongs.
+     * The DataModel to which this PropertySet belongs.
      */
-    public readonly metaModel: MetaModel;
+    public readonly dataModel: DataModel;
 
     /**
      * Unique ID.
      *
-     * PropertySet instances are registered by this ID in {@link MetaScene#propertySets} and {@link MetaModel#propertySets}.
+     * PropertySet instances are registered by this ID in {@link Data#propertySets} and {@link DataModel#propertySets}.
      */
     public readonly id: string;
 
@@ -50,7 +50,7 @@ class PropertySet {
      * @ignore
      */
     constructor(
-        metaModel: MetaModel,
+        dataModel: DataModel,
         id: string,
         originalSystemId: string,
         name: string,
@@ -62,7 +62,7 @@ class PropertySet {
             valueType?: string | number,
             description?: string
         }[]) {
-        this.metaModel = metaModel;
+        this.dataModel = dataModel;
         this.id = id;
         this.originalSystemId = originalSystemId;
         this.name = name;

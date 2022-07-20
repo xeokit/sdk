@@ -1,7 +1,7 @@
 import * as utils from '../../../utils';
 
 /**
- * @desc Creates a plane-shaped {@link Geometry}.
+ * Creates a plane-shaped {@link Geometry}.
  *
  * ## Usage
  *

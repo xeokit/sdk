@@ -1,7 +1,7 @@
 import * as utils from '../../../utils';
 
 /**
- * @desc Creates box-shaped geometry arrays.
+ * Creates box-shaped geometry arrays.
  *
  * ## Usage
  *

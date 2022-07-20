@@ -37,7 +37,7 @@ const unitsInfo = {
 };
 
 /**
- * @desc Configures its {@link Viewer}'s measurement unit and mapping between the Real-space and World-space 3D Cartesian coordinate systems.
+ * Configures its {@link Viewer}'s measurement unit and mapping between the Real-space and World-space 3D Cartesian coordinate systems.
  *
  *
  * ## Overview

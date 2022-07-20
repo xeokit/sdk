@@ -1,11 +1,14 @@
 import {LocaleService} from "./localization/LocaleService";
+//import {Scene, WebGLSceneRenderer} from "./scene";
 import {Scene} from "./scene";
-import {MetaScene} from "./metadata";
+import {Data} from "./data";
 import {View} from "./view";
 import {Plugin} from "./Plugin";
 import {Component} from "./Component";
 import * as math from "./math/math";
 import {scheduler} from "./scheduler";
+import {SceneRenderer} from "./scene/SceneRenderer";
+import {apply, createUUID} from "./utils";
 
 /**
  * The viewer component at the core of the xeokit SDK.
@@ -14,13 +17,18 @@ import {scheduler} from "./scheduler";
  *
  * ## Overview
  *
- * - Powered by WebGPU or WebGL
- * - Has a {@link Scene}, which contains geometry and materials for model objects
- * - Has a {@link MetaScene}, which contains metadata about models and objects
- * - Has one or more {@link View}s, each providing an independent view of the models and objects in a separate canvas
- * - Add {@link Plugin}s to a Viewer to extend its functionality
+ * - A browser-based 3D/2D viewer powered by WebGPU and WebGL
+ * - Has a {@link Scene} containing geometry and materials for models
+ * - Has {@link Data} containing general data about models
+ * - Has {@link View}s, which each provide an independent view of the models in a separate canvas
+ * - Extensible via {@link Plugin}s
  */
 export class Viewer extends Component {
+
+    /**
+     The maximum number of {@link View}s that can belong to this {@link Viewer}.
+     */
+    static readonly MAX_VIEWS: number = 4;
 
     /**
      The viewer's locale service.
@@ -30,47 +38,52 @@ export class Viewer extends Component {
      By default, this service will be an instance of {@link LocaleService}, which will just return
      null translations for all given strings and phrases.
      */
-    public readonly localeService: LocaleService;
+    readonly localeService: LocaleService;
 
     /**
      Metadata about the models and objects within the Viewer's {@link Scene}.
      */
-    public readonly metaScene: MetaScene;
+    readonly data: Data;
 
     /**
      The Viewer's {@link Scene}.
      */
-    public readonly scene: Scene;
+    readonly scene: Scene;
 
     /**
      The {@link View}s belonging to this Viewer, each keyed to {@link View#id}.
      */
-    public readonly views: { [key: string]: View };
+    readonly views: { [key: string]: View };
 
     /**
      List of {@link View}s belonging to this Viewer.
      */
-    public readonly viewList: View[];
+    readonly viewList: View[];
 
     /**
      The number of {@link View}s belonging to this Viewer.
      */
-    public numViews: number;
-
-    /**
-     The maximum number of {@link View}s that can belong to this {@link Viewer}.
-     */
-    public static readonly MAX_VIEWS: number = 4;
+    numViews: number;
 
     /**
      List of {@link Plugin}s installed in this Viewer.
      */
-    public readonly pluginList: Plugin[];
+    readonly pluginList: Plugin[];
 
     /**
      The time that this Viewer was created.
      */
-    public readonly startTime: number = (new Date()).getTime();
+    readonly startTime: number = (new Date()).getTime();
+
+    /**
+     * @private
+     */
+    renderer: SceneRenderer;
+
+    /**
+     * @private
+     */
+ //   webglSceneRenderer: WebGLSceneRenderer;
 
     /**
      Creates a Viewer.
@@ -93,45 +106,65 @@ export class Viewer extends Component {
         super(null, cfg);
 
         this.localeService = cfg.localeService || new LocaleService();
-        this.metaScene = new MetaScene(this);
+        this.data = new Data(this);
         this.scene = new Scene(this, {});
         this.viewList = [];
         this.numViews = 0;
         this.pluginList = [];
+        this.views = {};
 
         scheduler.registerViewer(this);
     }
 
     /**
-     @private
+     * Creates a new {@link View} within this Viewer.
+     *
+     * Fires a "viewCreated" event with the new View.
+     *
+     * To destroy the View after use, call {@link View#destroy}, which fires a "viewDestroyed" event, with the destroyed View.
+     *
+     * You must add a View to the Viewer before you can create or load content into the Viewer's Scene.
+     *
+     * @param cfg
      */
-    registerView(view: View): void {
-        if (this.views[view.id]) {
-            return;
+    createView(cfg: {
+        id?: number | string,
+        origin?: number[];
+        scale?: number;
+        units?: string;
+        canvasId?: string;
+        canvasElement?: HTMLCanvasElement;
+        backgroundColor?: any[];
+        backgroundColorFromAmbientLight?: boolean;
+        premultipliedAlpha?: boolean;
+        transparent?: boolean;
+        pbrEnabled?: boolean;
+        colorTextureEnabled?: boolean;
+    }): View {
+        let id = cfg.id || createUUID();
+        if (this.views[id]) {
+            this.error(`View with ID "${id}" already exists - will randomly-generate ID`);
+            id = createUUID();
         }
-        this.views[view.id] = view;
-        for (let viewIndex = 0; ; viewIndex++) {
-            if (!this.viewList[viewIndex]) {
-                this.viewList[viewIndex] = view;
-                // @ts-ignore
-                this.numViews++;
-                view.viewIndex = viewIndex;
-                return;
-            }
+        const canvasElement = cfg.canvasElement || document.getElementById(cfg.canvasId);
+        if (!(canvasElement instanceof HTMLCanvasElement)) {
+            throw "Mandatory View config expected: valid canvasId or canvasElement";
         }
-    }
-
-    /**
-     @private
-     */
-    deregisterView(view: View): void {
-        if (!this.views[view.id]) {
-            return;
-        }
-        delete this.views[view.id];
-        delete this.viewList[view.viewIndex];
-        // @ts-ignore
-        this.numViews--;
+        const view = new View(apply({id, viewer: this}, cfg));
+        // this.webglSceneRenderer = new WebGLSceneRenderer({
+        //     view,
+        //     canvasElement,
+        //     alphaDepthMask: true,
+        //     transparent: cfg.transparent
+        // });
+        // this.renderer = this.webglSceneRenderer;
+        this.#registerView(view);
+        view.events.on("destroyed", () => {
+            this.#deregisterView(view);
+            this.events.fire("viewDestroyed", view);
+        });
+        this.events.fire("viewCreated", view);
+        return view;
     }
 
     /**
@@ -200,10 +233,36 @@ export class Viewer extends Component {
             const plugin = pluginList[i];
             plugin.destroy();
         }
-        for (let id in this.views) {
-            this.views[id].destroy();
-        }
-        this.scene.destroy();
+        // for (let id in this.views) {
+        //     this.views[id].destroy();
+        // }
+        // this.scene.destroy();
         super.destroy();
+    }
+
+    #registerView(view: View): void {
+        if (this.views[view.id]) {
+            return;
+        }
+        this.views[view.id] = view;
+        for (let viewIndex = 0; ; viewIndex++) {
+            if (!this.viewList[viewIndex]) {
+                this.viewList[viewIndex] = view;
+                // @ts-ignore
+                this.numViews++;
+                view.viewIndex = viewIndex;
+                return;
+            }
+        }
+    }
+
+    #deregisterView(view: View): void {
+        if (!this.views[view.id]) {
+            return;
+        }
+        delete this.views[view.id];
+        delete this.viewList[view.viewIndex];
+        // @ts-ignore
+        this.numViews--;
     }
 }

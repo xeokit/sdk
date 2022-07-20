@@ -2,7 +2,7 @@ import {Component} from "../Component"
 import * as math from "../math";
 
 /**
- * @desc Abstract base class for curve classes.
+ * Abstract base class for curve classes.
  */
 abstract class Curve extends Component {
     protected _t: number;
@@ -145,7 +145,7 @@ abstract class Curve extends Component {
         return cache; // { sums: cache, sum:sum }, Sum is in the last element.
     }
 
-    _updateArcLengths() {
+    #updateArcLengths() {
         this.needsUpdate = true;
         this._getLengths();
     }

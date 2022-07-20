@@ -152,8 +152,8 @@ class MousePanRotateDollyHandler {
             // Scaling drag-rotate to canvas boundary
 
             const canvasBoundary = this.#view.canvas.boundary;
-            const canvasWidth = canvasBoundary[2] - canvasBoundary[0];
-            const canvasHeight = canvasBoundary[3] - canvasBoundary[1];
+            const canvasWidth = canvasBoundary[0];
+            const canvasHeight = canvasBoundary[1];
             const x = states.pointerCanvasPos[0];
             const y = states.pointerCanvasPos[1];
 

@@ -1577,7 +1577,7 @@ const letters = {
 };
 
 /**
- * @desc Creates wireframe vector text {@link Geometry}.
+ * Creates wireframe vector text {@link Geometry}.
  *
  * ## Usage
  *

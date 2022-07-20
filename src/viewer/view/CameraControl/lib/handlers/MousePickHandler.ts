@@ -90,7 +90,7 @@ class MousePickHandler {
                         if (this.#lastPickedEntityId !== undefined) {
 
                             cameraControl.fire("hoverOut", { // Hovered off an entity
-                                entity: this.#view.objects[this.#lastPickedEntityId]
+                                entity: this.#view.viewObjects[this.#lastPickedEntityId]
                             }, true);
                         }
 
@@ -110,7 +110,7 @@ class MousePickHandler {
                     if (this.#lastPickedEntityId !== undefined) {
 
                         cameraControl.fire("hoverOut", { // Hovered off an entity
-                            entity: this.#view.objects[this.#lastPickedEntityId]
+                            entity: this.#view.viewObjects[this.#lastPickedEntityId]
                         }, true);
 
                         this.#lastPickedEntityId = undefined;

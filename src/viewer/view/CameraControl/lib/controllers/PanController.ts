@@ -51,7 +51,7 @@ class PanController {
 
             camera.ortho.scale = camera.ortho.scale - dollyDelta;
 
-            const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec4a);
+            const unprojectedWorldPos = this.#unproject(targetCanvasPos, tempVec4a);
             const offset = math.subVec3(unprojectedWorldPos, camera.eye, tempVec4c);
             const moveVec = math.mulVec3Scalar(math.normalizeVec3(offset), -dollyDelta, []);
 
@@ -78,12 +78,12 @@ class PanController {
             // - get the vector in which we're dollying;
             // - add both vectors to camera eye and look.
 
-            const worldPos1 = this._unproject(targetCanvasPos, tempVec4a);
+            const worldPos1 = this.#unproject(targetCanvasPos, tempVec4a);
 
             camera.ortho.scale = camera.ortho.scale - dollyDelta;
             camera.ortho.clean(); // HACK
 
-            const worldPos2 = this._unproject(targetCanvasPos, tempVec4b);
+            const worldPos2 = this.#unproject(targetCanvasPos, tempVec4b);
             const offset = math.subVec3(worldPos2, worldPos1, tempVec4c);
             const eyeLookMoveVec = math.mulVec3Scalar(math.normalizeVec3(math.subVec3(camera.look, camera.eye, tempVec3a)), -dollyDelta, tempVec3b);
             const moveVec = math.addVec3(offset, eyeLookMoveVec, tempVec3c);
@@ -95,7 +95,7 @@ class PanController {
         return dolliedThroughSurface;
     }
 
-    _unproject(canvasPos: math.FloatArrayType, worldPos: math.FloatArrayType) {
+    #unproject(canvasPos: math.FloatArrayType, worldPos: math.FloatArrayType) {
 
         const camera = this.view.camera;
         const transposedProjectMat = camera.project.transposedMatrix;

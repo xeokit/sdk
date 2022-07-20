@@ -1,7 +1,7 @@
 import * as utils from '../../../utils';
 
 /**
- * @desc Creates a box-shaped lines {@link Geometry}.
+ * Creates a box-shaped lines {@link Geometry}.
  *
  * ## Usage
  *

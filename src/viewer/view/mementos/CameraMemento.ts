@@ -1,16 +1,15 @@
-
 import {View} from "../View";
-import {Frustum} from "../camera/Frustum";
-import {Ortho} from "../camera/Ortho";
-import {Perspective} from "../camera/Perspective";
+import {Frustum} from "../camera";
+import {Ortho} from "../camera";
+import {Perspective} from "../camera";
 
 /**
- * @desc Saves and restores the state of a {@link Scene}'s {@link Camera}.
+ * Saves and restores the state of a {@link View}'s {@link Camera}.
  *
  * ## See Also
  *
  * * {@link ModelMemento} - Saves and restores a snapshot of the visual state of the {@link Entity}'s of a model within a {@link Scene}.
- * * {@link ObjectsMemento} - Saves and restores a snapshot of the visual state of the {@link Entity}'s that represent objects within a {@link Scene}.
+ * * {@link ViewObjectsMemento} - Saves and restores a snapshot of the visual state of the {@link Entity}'s that represent objects within a {@link Scene}.
  *
  * ## Usage
  *
@@ -56,10 +55,10 @@ import {Perspective} from "../camera/Perspective";
  * ````
  */
 class CameraMemento {
-    private projection: any;
-    private up: Float64Array;
-    private look: Float64Array;
-    private eye: Float64Array;
+    projection: any;
+    up: Float64Array;
+    look: Float64Array;
+    eye: Float64Array;
 
     /**
      * Creates a CameraMemento.

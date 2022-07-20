@@ -1,6 +1,6 @@
-import { FloatArrayType, MAX_DOUBLE, MIN_DOUBLE, newFloatArray } from "./math";
-import { lenVec3, subVec3, vec2, vec3 } from "./vector";
-import { decompressPosition } from "./compression";
+import {FloatArrayType, MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "./math";
+import {lenVec3, subVec3, vec2, vec3} from "./vector";
+import {decompressPosition} from "./compression";
 
 /**
  * Returns a new, uninitialized 3D axis-aligned bounding box.
@@ -211,6 +211,147 @@ export function collapseAABB3(aabb: FloatArrayType = AABB3()): FloatArrayType {
 /**
  * Converts an axis-aligned 3D boundary into an oriented boundary consisting of
  * an array of eight 3D positions, one for each corner of the boundary.
+ *
+ * @private
+ */
+export function AABB3ToOBB3(aabb: FloatArrayType = AABB3(), obb = OBB3()): FloatArrayType {
+    obb[0] = aabb[0];
+    obb[1] = aabb[1];
+    obb[2] = aabb[2];
+    obb[3] = 1;
+
+    obb[4] = aabb[3];
+    obb[5] = aabb[1];
+    obb[6] = aabb[2];
+    obb[7] = 1;
+
+    obb[8] = aabb[3];
+    obb[9] = aabb[4];
+    obb[10] = aabb[2];
+    obb[11] = 1;
+
+    obb[12] = aabb[0];
+    obb[13] = aabb[4];
+    obb[14] = aabb[2];
+    obb[15] = 1;
+
+    obb[16] = aabb[0];
+    obb[17] = aabb[1];
+    obb[18] = aabb[5];
+    obb[19] = 1;
+
+    obb[20] = aabb[3];
+    obb[21] = aabb[1];
+    obb[22] = aabb[5];
+    obb[23] = 1;
+
+    obb[24] = aabb[3];
+    obb[25] = aabb[4];
+    obb[26] = aabb[5];
+    obb[27] = 1;
+
+    obb[28] = aabb[0];
+    obb[29] = aabb[4];
+    obb[30] = aabb[5];
+    obb[31] = 1;
+
+    return obb;
+}
+
+/**
+ * Expands the first axis-aligned 3D boundary to enclose the second, if required.
+ */
+export function expandAABB3(aabb1: FloatArrayType, aabb2: FloatArrayType) {
+    if (aabb1[0] > aabb2[0]) {
+        aabb1[0] = aabb2[0];
+    }
+    if (aabb1[1] > aabb2[1]) {
+        aabb1[1] = aabb2[1];
+    }
+    if (aabb1[2] > aabb2[2]) {
+        aabb1[2] = aabb2[2];
+    }
+    if (aabb1[3] < aabb2[3]) {
+        aabb1[3] = aabb2[3];
+    }
+    if (aabb1[4] < aabb2[4]) {
+        aabb1[4] = aabb2[4];
+    }
+    if (aabb1[5] < aabb2[5]) {
+        aabb1[5] = aabb2[5];
+    }
+    return aabb1;
+}
+
+
+/**
+ * Expands an axis-aligned 3D boundary to enclose the given point, if needed.
+ */
+export function expandAABB3Point3(aabb: FloatArrayType, p: FloatArrayType) {
+
+    if (aabb[0] > p[0]) {
+        aabb[0] = p[0];
+    }
+
+    if (aabb[1] > p[1]) {
+        aabb[1] = p[1];
+    }
+
+    if (aabb[2] > p[2]) {
+        aabb[2] = p[2];
+    }
+
+    if (aabb[3] < p[0]) {
+        aabb[3] = p[0];
+    }
+
+    if (aabb[4] < p[1]) {
+        aabb[4] = p[1];
+    }
+
+    if (aabb[5] < p[2]) {
+        aabb[5] = p[2];
+    }
+
+    return aabb;
+}
+
+/**
+ * Expands an axis-aligned 3D boundary to enclose the given points, if needed.
+ */
+export function expandAABB3Points3(aabb: FloatArrayType, positions: FloatArrayType): FloatArrayType {
+    var x;
+    var y;
+    var z;
+    for (var i = 0, len = positions.length; i < len; i += 3) {
+        x = positions[i];
+        y = positions[i + 1];
+        z = positions[i + 2];
+        if (aabb[0] > x) {
+            aabb[0] = x;
+        }
+        if (aabb[1] > y) {
+            aabb[1] = y;
+        }
+        if (aabb[2] > z) {
+            aabb[2] = z;
+        }
+        if (aabb[3] < x) {
+            aabb[3] = x;
+        }
+        if (aabb[4] < y) {
+            aabb[4] = y;
+        }
+        if (aabb[5] < z) {
+            aabb[5] = z;
+        }
+    }
+    return aabb;
+}
+
+/**
+ * Converts an axis-aligned 3D boundary into an oriented boundary consisting of
+ * an array of eight 3D positions, one for each corner of the boundary.
  */
 export function ABB3ToOBB3(
     aabb: FloatArrayType,
@@ -268,7 +409,7 @@ export const positions3ToAABB3 = (() => {
     return (
         positions: FloatArrayType,
         aabb: FloatArrayType,
-        positionsDecodeMatrix: FloatArrayType
+        positionsDecompressMatrix: FloatArrayType
     ): FloatArrayType => {
         aabb = aabb || AABB3();
 
@@ -284,12 +425,12 @@ export const positions3ToAABB3 = (() => {
         let z;
 
         for (let i = 0, len = positions.length; i < len; i += 3) {
-            if (positionsDecodeMatrix) {
+            if (positionsDecompressMatrix) {
                 p[0] = positions[i + 0];
                 p[1] = positions[i + 1];
                 p[2] = positions[i + 2];
 
-                decompressPosition(p, positionsDecodeMatrix, p);
+                decompressPosition(p, positionsDecompressMatrix, p);
 
                 x = p[0];
                 y = p[1];

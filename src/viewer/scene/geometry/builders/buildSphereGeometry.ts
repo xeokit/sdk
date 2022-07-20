@@ -1,7 +1,7 @@
 import * as utils from '../../../utils';
 
 /**
- * @desc Creates a sphere-shaped {@link Geometry}.
+ * Creates a sphere-shaped {@link Geometry}.
  *
  * ## Usage
  *

@@ -1,29 +1,30 @@
 import {PropertySet} from "./PropertySet";
-import {MetaScene} from "./MetaScene";
-import {MetaObject} from "./MetaObject";
-import {MetaModelData} from "./MetaModelData";
+import {Data} from "./Data";
+import {DataObject} from "./DataObject";
+import {DataSchema} from "./DataSchema";
+import {Component} from "../Component";
 
 /**
  *  Metadata about a model within a {@link Viewer}.
  *
  * ## Overview
  *
- *  * Belongs to a {@link MetaScene}
- *  * Created with {@link MetaScene.createMetaModel}
- *  * Registered by {@link MetaModel.id} in {@link MetaScene.metaModels}
- *  * Contains {@link MetaObject}s and {@link PropertySet}s
+ *  * Belongs to a {@link Data}
+ *  * Created with {@link Data.createDataModel}
+ *  * Registered by {@link DataModel.id} in {@link Data.dataModels}
+ *  * Contains {@link DataObject}s and {@link PropertySet}s
  */
-class MetaModel {
+class DataModel extends Component {
 
     /**
-     * The MetaScene to which this MetaModel belongs.
+     * The data to which this DataModel belongs.
      */
-    public readonly metaScene: MetaScene;
+    public readonly data: Data;
 
     /**
-     * Unique ID of this MetaModel within its MetaScene.
+     * Unique ID of this DataModel within its Data.
      *
-     * MetaModels are registered by ID in {@link MetaScene.metaModels}.
+     * MetaModels are registered by ID in {@link Data.dataModels}.
      */
     public readonly id: string;
 
@@ -68,27 +69,27 @@ class MetaModel {
     public readonly schema?: string;
 
     /**
-     * The {@link PropertySet}s in this MetaModel, mapped to {@link PropertySet.id}.
+     * The {@link PropertySet}s in this DataModel, mapped to {@link PropertySet.id}.
      */
     public readonly propertySets: { [key: string]: PropertySet };
 
     /**
-     * The root {@link MetaObject} in this MetaModel's composition hierarchy.
+     * The root {@link DataObject} in this DataModel's composition hierarchy.
      */
-    public rootMetaObject: MetaObject;
+    public rootDataObject: DataObject;
 
     /**
-     * The {@link MetaObject}s in this MetaModel, mapped to {@link MetaObject.id}.
+     * The {@link DataObject}s in this DataModel, mapped to {@link DataObject.id}.
      */
-    public metaObjects: { [key: string]: MetaObject };
+    public dataObjects: { [key: string]: DataObject };
 
     /**
-     * The {@link MetaObject}s in this MetaModel, mapped to {@link MetaObject.type}, sub-mapped to {@link MetaObject.id}.
+     * The {@link DataObject}s in this DataModel, mapped to {@link DataObject.type}, sub-mapped to {@link DataObject.id}.
      */
-    public metaObjectsByType: { [key: string]: { [key: string]: MetaObject } };
+    public dataObjectsByType: { [key: string]: { [key: string]: DataObject } };
 
     /**
-     * The count of each type of {@link MetaObject} in this MetaModel, mapped to {@link MetaObject.type}.
+     * The count of each type of {@link DataObject} in this DataModel, mapped to {@link DataObject.type}.
      */
     public typeCounts: { [key: string]: number };
 
@@ -98,16 +99,18 @@ class MetaModel {
      * @private
      */
     constructor(
-        metaScene: MetaScene,
+        data: Data,
         id: string,
-        cfg: MetaModelData,
+        cfg: DataSchema,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],
             globalizeObjectIds?: boolean
         }) {
 
-        this.metaScene = metaScene;
+        super(data);
+
+        this.data = data;
 
         this.id = id;
         this.projectId = cfg.projectId || "";
@@ -117,8 +120,8 @@ class MetaModel {
         this.creatingApplication = cfg.creatingApplication || "";
         this.schema = cfg.schema || "";
         this.propertySets = {};
-        this.metaObjects = {};
-        this.rootMetaObject = null;
+        this.dataObjects = {};
+        this.rootDataObject = null;
         this.#destroyed = false;
 
         if (cfg.propertySets) {
@@ -127,30 +130,30 @@ class MetaModel {
             }
         }
 
-        if (cfg.metaObjects) {
-            for (let i = 0, len = cfg.metaObjects.length; i < len; i++) {
-                const metaObjectCfg = cfg.metaObjects[i];
-                this.createMetaObject({
-                    id: metaObjectCfg.id,
-                    originalSystemId: metaObjectCfg.originalSystemId,
-                    name: metaObjectCfg.name,
-                    type: metaObjectCfg.type,
-                    propertySetIds: metaObjectCfg.propertySetIds
+        if (cfg.dataObjects) {
+            for (let i = 0, len = cfg.dataObjects.length; i < len; i++) {
+                const dataObjectCfg = cfg.dataObjects[i];
+                this.createDataObject({
+                    id: dataObjectCfg.id,
+                    originalSystemId: dataObjectCfg.originalSystemId,
+                    name: dataObjectCfg.name,
+                    type: dataObjectCfg.type,
+                    propertySetIds: dataObjectCfg.propertySetIds
                 });
             }
-            for (let i = 0, len = cfg.metaObjects.length; i < len; i++) {
-                const metaObjectCfg = cfg.metaObjects[i];
-                const metaObject = this.metaObjects[metaObjectCfg.id];
-                if (metaObject) {
-                    if (metaObjectCfg.parentId) {
-                        const parentMetaObject = this.metaObjects[metaObjectCfg.parentId];
-                        if (parentMetaObject) {
-                            metaObject.parent = parentMetaObject;
+            for (let i = 0, len = cfg.dataObjects.length; i < len; i++) {
+                const dataObjectCfg = cfg.dataObjects[i];
+                const dataObject = this.dataObjects[dataObjectCfg.id];
+                if (dataObject) {
+                    if (dataObjectCfg.parentId) {
+                        const parentDataObject = this.dataObjects[dataObjectCfg.parentId];
+                        if (parentDataObject) {
+                            dataObject.parent = parentDataObject;
                         } else {
-                            this.rootMetaObject = metaObject; // FIXME
+                            this.rootDataObject = dataObject; // FIXME
                         }
                     } else {
-                        this.rootMetaObject = metaObject; // FIXME
+                        this.rootDataObject = dataObject; // FIXME
                     }
                 }
             }
@@ -158,9 +161,9 @@ class MetaModel {
     }
 
     /**
-     * Creates a PropertySet within this MetaModel.
+     * Creates a PropertySet within this DataModel.
      *
-     * The PropertySet will be associated directly with the MetaModel, and not with any {@link MetaObject}s.
+     * The PropertySet will be associated directly with the DataModel, and not with any {@link DataObject}s.
      *
      * @param cfg
      */
@@ -186,12 +189,12 @@ class MetaModel {
     }
 
     /**
-     * Creates a MetaObject within this MetaModel.
+     * Creates a DataObject within this DataModel.
      *
      * ## Usage
      *
      * ````javascript
-     * myMetaModel.createMetaObject({
+     * myMetaModel.createDataObject({
      *    id: "foo",
      *    name: "Foo",
      *    originalSystemId?: "foo",
@@ -199,26 +202,25 @@ class MetaModel {
      *    propertySetIds: ["baz"],
      *    type: "Default"
      * });
-     ````
-
-     @param cfg
+     * ````
+     * @param cfg
      */
-    createMetaObject(cfg: {
+    createDataObject(cfg: {
         id: string;
         originalSystemId?: string;
         type: string;
         name: string;
         parentId?: string,
         propertySetIds?: string[]
-    }): MetaObject {
+    }): DataObject {
         if (this.#destroyed) {
             return;
         }
         const id = cfg.id;
         const type = cfg.type;
-        let parentMetaObject;
+        let parentDataObject;
         if (cfg.parentId) {
-            parentMetaObject = this.metaObjects[cfg.parentId];
+            parentDataObject = this.dataObjects[cfg.parentId];
         }
         const propertySets = [];
         if (cfg.propertySetIds) {
@@ -232,27 +234,26 @@ class MetaModel {
                 }
             }
         }
-        const metaObject = new MetaObject(this, id, cfg.originalSystemId, cfg.name, cfg.type, parentMetaObject, propertySets);
-        this.metaObjects[id] = metaObject;
-        if (!this.metaObjectsByType[type]) {
-            this.metaObjectsByType[type] = {};
+        const dataObject = new DataObject(this, id, cfg.originalSystemId, cfg.name, cfg.type, parentDataObject, propertySets);
+        this.dataObjects[id] = dataObject;
+        if (!this.dataObjectsByType[type]) {
+            this.dataObjectsByType[type] = {};
         }
-        this.metaObjectsByType[type][id] = metaObject;
+        this.dataObjectsByType[type][id] = dataObject;
         this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
-        return metaObject;
+        return dataObject;
     }
 
     /**
-     * Destroys this MetaModel.
+     * Destroys this DataModel.
      */
     destroy() {
         if (this.#destroyed) {
             return;
         }
-        this.metaScene.removeMetaModel(this);
         this.#destroyed = true;
     }
 }
 
 
-export {MetaModel};
+export {DataModel};

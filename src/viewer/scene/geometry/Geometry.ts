@@ -5,7 +5,7 @@ import {buildEdgeIndices} from "../../math/buildEdgeIndices.js";
 const tempAABB = math.AABB3();
 
 /**
- * @desc Defines a shape for one or more {@link Mesh}es.
+ * Defines a shape for one or more {@link Mesh}es.
  *
  * ## Usage
  *
@@ -77,7 +77,7 @@ class Geometry extends Component {
 
         super(owner, cfg);
 
-        this._state = {
+        this.#state = {
             stateSortId: this._getStateSortId(),
             compressGeometry: !!cfg.compressGeometry,
             primitive: null, //
@@ -87,8 +87,8 @@ class Geometry extends Component {
             colors: null,
             uv: null,           // Uint8Array when compressGeometry == true, else Float32Array
             indices: null,
-            positionsDecodeMatrix: null, // Set when compressGeometry == true
-            uvDecodeMatrix: null, // Set when compressGeometry == true
+            positionsDecompressMatrix: null, // Set when compressGeometry == true
+            uvsDecompressMatrix: null, // Set when compressGeometry == true
             positionsBuf: null,
             normalsBuf: null,
             colorsBuf: null,
@@ -97,7 +97,7 @@ class Geometry extends Component {
             hash: ""
         };
 
-        this._numTriangles = 0;
+        this.#numTriangles = 0;
         this._edgeThreshold = cfg.edgeThreshold || 10.0;
 
         // Lazy-generated VBOs
@@ -112,7 +112,7 @@ class Geometry extends Component {
         this._obb = null;
         this._obbDirty = true;
 
-        const state = this._state;
+        const state = this.#state;
 
         cfg.primitive = cfg.primitive || "triangles";
         switch (cfg.primitive) {
@@ -157,7 +157,7 @@ class Geometry extends Component {
                 const bounds = geometryCompressionUtils.getPositionsBounds(cfg.positions);
                 const result = geometryCompressionUtils.compressPositions(cfg.positions, bounds.min, bounds.max);
                 state.positions = result.quantized;
-                state.positionsDecodeMatrix = result.decodeMatrix;
+                state.positionsDecompressMatrix = result.decodeMatrix;
             } else {
                 state.positions = cfg.positions.constructor === Float32Array ? cfg.positions : new Float32Array(cfg.positions);
             }
@@ -188,7 +188,7 @@ class Geometry extends Component {
                 const bounds = geometryCompressionUtils.getUVBounds(cfg.uv);
                 const result = geometryCompressionUtils.compressUVs(cfg.uv, bounds.min, bounds.max);
                 state.uv = result.quantized;
-                state.uvDecodeMatrix = result.decodeMatrix;
+                state.uvsDecompressMatrix = result.decodeMatrix;
             } else {
                 state.uv = cfg.uv.constructor === Float32Array ? cfg.uv : new Float32Array(cfg.uv);
             }
@@ -205,7 +205,7 @@ class Geometry extends Component {
             state.uvBuf.unmap();
         }
         if (cfg.normals) {
-            if (this._state.compressGeometry) {
+            if (this.#state.compressGeometry) {
                 state.normals = geometryCompressionUtils.compressNormals(cfg.normals);
             } else {
                 state.normals = cfg.normals.constructor === Float32Array ? cfg.normals : new Float32Array(cfg.normals);
@@ -224,8 +224,8 @@ class Geometry extends Component {
         }
         if (cfg.indices) {
             state.indices = (cfg.indices.constructor === Uint32Array || cfg.indices.constructor === Uint16Array) ? cfg.indices : new IndexArrayType(cfg.indices);
-            if (this._state.primitiveName === "triangles") {
-                this._numTriangles = (cfg.indices.length / 3);
+            if (this.#state.primitiveName === "triangles") {
+                this.#numTriangles = (cfg.indices.length / 3);
             }
             state.indicesBuf = device.createBuffer({
                 size: state.indices.byteLength,
@@ -240,7 +240,7 @@ class Geometry extends Component {
     }
 
     _buildHash() {
-        const state = this._state;
+        const state = this.#state;
         const hash = ["/g"];
         hash.push("/" + state.primitive + ";");
         if (state.positions) {
@@ -284,17 +284,17 @@ class Geometry extends Component {
     }
 
     _buildEdgeIndices() { // FIXME: Does not adjust indices after other objects are deleted from vertex buffer!!
-        const state = this._state;
+        const state = this.#state;
         if (!state.positions || !state.indices) {
             return;
         }
         const gl = this.scene.canvas.gl;
-        const edgeIndices = buildEdgeIndices(state.positions, state.indices, state.positionsDecodeMatrix, this._edgeThreshold);
+        const edgeIndices = buildEdgeIndices(state.positions, state.indices, state.positionsDecompressMatrix, this._edgeThreshold);
         this._edgeIndicesBuf = new ArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, edgeIndices, edgeIndices.length, 1, gl.STATIC_DRAW);
     }
 
     _buildPickTriangleVBOs() { // Builds positions and indices arrays that allow each triangle to have a unique color
-        const state = this._state;
+        const state = this.#state;
         if (!state.positions || !state.indices) {
             return;
         }
@@ -316,7 +316,7 @@ class Geometry extends Component {
      @type {String}
      */
     get primitive() {
-        return this._state.primitiveName;
+        return this.#state.primitiveName;
     }
 
     /**
@@ -331,7 +331,7 @@ class Geometry extends Component {
      @final
      */
     get compressGeometry() {
-        return this._state.compressGeometry;
+        return this.#state.compressGeometry;
     }
 
     /**
@@ -342,21 +342,21 @@ class Geometry extends Component {
      @type {Number[]}
      */
     get positions() {
-        if (!this._state.positions) {
+        if (!this.#state.positions) {
             return null;
         }
-        if (!this._state.compressGeometry) {
-            return this._state.positions;
+        if (!this.#state.compressGeometry) {
+            return this.#state.positions;
         }
         if (!this._decompressedPositions) {
-            this._decompressedPositions = new Float32Array(this._state.positions.length);
-            geometryCompressionUtils.decompressPositions(this._state.positions, this._state.positionsDecodeMatrix, this._decompressedPositions);
+            this._decompressedPositions = new Float32Array(this.#state.positions.length);
+            geometryCompressionUtils.decompressPositions(this.#state.positions, this.#state.positionsDecompressMatrix, this._decompressedPositions);
         }
         return this._decompressedPositions;
     }
 
     set positions(newPositions) {
-        // const state = this._state;
+        // const state = this.#state;
         // const positions = state.positions;
         // if (!positions) {
         //     this.error("can't update geometry positions - geometry has no positions");
@@ -366,11 +366,11 @@ class Geometry extends Component {
         //     this.error("can't update geometry positions - new positions are wrong length");
         //     return;
         // }
-        // if (this._state.compressGeometry) {
+        // if (this.#state.compressGeometry) {
         //     const bounds = geometryCompressionUtils.getPositionsBounds(newPositions);
         //     const result = geometryCompressionUtils.compressPositions(newPositions, bounds.min, bounds.max);
         //     newPositions = result.quantized; // TODO: Copy in-place
-        //     state.positionsDecodeMatrix = result.decodeMatrix;
+        //     state.positionsDecompressMatrix = result.decodeMatrix;
         // }
         // positions.set(newPositions);
         // if (state.positionsBuf) {
@@ -388,27 +388,27 @@ class Geometry extends Component {
      @type {Number[]}
      */
     get normals() {
-        if (!this._state.normals) {
+        if (!this.#state.normals) {
             return;
         }
-        if (!this._state.compressGeometry) {
-            return this._state.normals;
+        if (!this.#state.compressGeometry) {
+            return this.#state.normals;
         }
         if (!this._decompressedNormals) {
-            const lenCompressed = this._state.normals.length;
+            const lenCompressed = this.#state.normals.length;
             const lenDecompressed = lenCompressed + (lenCompressed / 2); // 2 -> 3
             this._decompressedNormals = new Float32Array(lenDecompressed);
-            geometryCompressionUtils.decompressNormals(this._state.normals, this._decompressedNormals);
+            geometryCompressionUtils.decompressNormals(this.#state.normals, this._decompressedNormals);
         }
         return this._decompressedNormals;
     }
 
     set normals(newNormals) {
-        // if (this._state.compressGeometry) {
+        // if (this.#state.compressGeometry) {
         //     this.error("can't update geometry normals - quantized geometry is immutable"); // But will be eventually
         //     return;
         // }
-        // const state = this._state;
+        // const state = this.#state;
         // const normals = state.normals;
         // if (!normals) {
         //     this.error("can't update geometry normals - geometry has no normals");
@@ -433,25 +433,25 @@ class Geometry extends Component {
      @type {Number[]}
      */
     get uv() {
-        if (!this._state.uv) {
+        if (!this.#state.uv) {
             return null;
         }
-        if (!this._state.compressGeometry) {
-            return this._state.uv;
+        if (!this.#state.compressGeometry) {
+            return this.#state.uv;
         }
         if (!this._decompressedUV) {
-            this._decompressedUV = new Float32Array(this._state.uv.length);
-            geometryCompressionUtils.decompressUVs(this._state.uv, this._state.uvDecodeMatrix, this._decompressedUV);
+            this._decompressedUV = new Float32Array(this.#state.uv.length);
+            geometryCompressionUtils.decompressUVs(this.#state.uv, this.#state.uvsDecompressMatrix, this._decompressedUV);
         }
         return this._decompressedUV;
     }
 
     set uv(newUV) {
-        // if (this._state.compressGeometry) {
+        // if (this.#state.compressGeometry) {
         //     this.error("can't update geometry UVs - quantized geometry is immutable"); // But will be eventually
         //     return;
         // }
-        // const state = this._state;
+        // const state = this.#state;
         // const uv = state.uv;
         // if (!uv) {
         //     this.error("can't update geometry UVs - geometry has no UVs");
@@ -476,15 +476,15 @@ class Geometry extends Component {
      @type {Number[]}
      */
     get colors() {
-        return this._state.colors;
+        return this.#state.colors;
     }
 
     set colors(newColors) {
-        // if (this._state.compressGeometry) {
+        // if (this.#state.compressGeometry) {
         //     this.error("can't update geometry colors - quantized geometry is immutable"); // But will be eventually
         //     return;
         // }
-        // const state = this._state;
+        // const state = this.#state;
         // const colors = state.colors;
         // if (!colors) {
         //     this.error("can't update geometry colors - geometry has no colors");
@@ -513,7 +513,7 @@ class Geometry extends Component {
      @final
      */
     get indices() {
-        return this._state.indices;
+        return this.#state.indices;
     }
 
     /**
@@ -531,7 +531,7 @@ class Geometry extends Component {
             if (!this.#aabb) {
                 this.#aabb = math.AABB3();
             }
-            math.positions3ToAABB3(this._state.positions, this.#aabb, this._state.positionsDecodeMatrix);
+            math.positions3ToAABB3(this.#state.positions, this.#aabb, this.#state.positionsDecompressMatrix);
             this._aabbDirty = false;
         }
         return this.#aabb;
@@ -552,7 +552,7 @@ class Geometry extends Component {
             if (!this._obb) {
                 this._obb = math.OBB3();
             }
-            math.positions3ToAABB3(this._state.positions, tempAABB, this._state.positionsDecodeMatrix);
+            math.positions3ToAABB3(this.#state.positions, tempAABB, this.#state.positionsDecompressMatrix);
             math.AABB3ToOBB3(tempAABB, this._obb);
             this._obbDirty = false;
         }
@@ -567,7 +567,7 @@ class Geometry extends Component {
      * @type {Number}
      */
     get numTriangles() {
-        return this._numTriangles;
+        return this.#numTriangles;
     }
 
     _setAABBDirty() {
@@ -580,7 +580,7 @@ class Geometry extends Component {
     }
 
     _getState() {
-        return this._state;
+        return this.#state;
     }
 
     /**
@@ -588,7 +588,7 @@ class Geometry extends Component {
      */
     destroy() {
         super.destroy();
-        const state = this._state;
+        const state = this.#state;
         this._putStateSortId(state.stateSortId);
         //...
     }

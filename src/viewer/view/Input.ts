@@ -2,7 +2,7 @@ import {Component} from '../Component';
 import * as math from '../math';
 
 /**
- * @desc Meditates mouse, touch and keyboard events for various interaction controls.
+ * Meditates mouse, touch and keyboard events for various interaction controls.
  *
  * Ordinarily, you would only use this component as a utility to help manage input events and state for your
  * own custom input handlers.

@@ -134,7 +134,7 @@ const defaultCSS = ".sk-fading-circle {\
     }";
 
 /**
- * @desc Displays a progress animation at the center of its {@link Canvas} while things are loading or otherwise busy.
+ * Displays a progress animation at the center of its {@link Canvas} while things are loading or otherwise busy.
  *
  *
  * * Located at {@link Canvas#spinner}.

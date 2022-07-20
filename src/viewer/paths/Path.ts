@@ -6,7 +6,7 @@ import {Component} from "../Component";
 import * as math from "../math";
 
 /**
- * @desc A complex curved path constructed from various {@link Curve} subtypes.
+ * A complex curved path constructed from various {@link Curve} subtypes.
  *
  * * A Path can be constructed from these {@link Curve} subtypes: {@link SplineCurve}, {@link CubicBezierCurve} and {@link QuadraticBezierCurve}.
  * * You can sample a {@link Path#point} and a {@link Curve#tangent} vector on a Path for any given value of {@link Path#t} in the range ````[0..1]````.

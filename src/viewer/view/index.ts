@@ -4,6 +4,7 @@ export * from "./Metriqs";
 export * from "./View";
 export * from "./ViewObject";
 export * from "./SectionPlane";
+export * from "./SAO";
 export * from "./PickParams";
 export * from "./PickResult";
 export * from "./camera";

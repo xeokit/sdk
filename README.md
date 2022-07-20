@@ -6,6 +6,7 @@
 
 [xeokit](http://xeokit.io) is a JavaScript software development kit from [xeolabs](http://xeolabs.com) for viewing
 high-detail, full-precision 3D engineering and BIM models in the browser.
+<br><br>
 
 # Status 
 
@@ -18,8 +19,8 @@ components:
 
 - A [Scene](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Scene.html) containing [SceneModels](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/SceneModel.html)
   and [SceneObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/SceneObject.html), which define the geometry and materials of our models.
-- A [MetaScene](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/MetaScene.html) containing [MetaModels](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/MetaModel.html)
-  and [MetaObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/MetaObject.html), which describe the semantics and structure of our models.
+- A [Data](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/SceneData.html) containing [DataModels](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/DataModel.html)
+  and [DataObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/DataObject.html), which describe the semantics and structure of our models.
 - One or more [Views](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/View.html), that each create an independent view of the Scene. Each View has its own
   canvas, [Camera](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Camera.html), and [ViewObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/ViewObject.html), which define the
   appearance of each SceneObject in that particular View.
@@ -43,8 +44,6 @@ that shows a 2D plan view of a selected storey, showing the location of the user
 Let's create a [Viewer](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Viewer.html) with a [WebIFCLoaderPlugin](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/WebIFCLoaderPlugin.html)
 to view a IFC model in the browser. We'll configure our Viewer with two [Views](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/View.html), and a then view
 a sample IFC model from the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Details/274).
-
-Whenever we click on the View's canvas, TODO
 
 ![](https://xeokit.io/img/docs/WebIFCLoaderPlugin/WebIFCLoaderPluginBig.png)
 
@@ -86,7 +85,8 @@ Whenever we click on the View's canvas, TODO
 </body>
 <script id="source" type="module">
 
-    import {Viewer, View, WebIFCLoaderPlugin} from
+    import {Viewer, 
+      View, WebIFCLoaderPlugin} from
                 "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webgpu-sdk/dist/xeokit-webgpu-sdk.es.min.js";
 
     // Create a Viewer with two Views
@@ -111,6 +111,7 @@ Whenever we click on the View's canvas, TODO
     view2.camera.look = [4.400, 3.724, 8.899];
     view2.camera.up = [-0.018, 0.999, 0.039];
     view2.camera.projection = "ortho";
+    
     view2.cameraControl.navMode = "planView";
 
     // Load a model from IFC
@@ -146,14 +147,14 @@ Whenever we click on the View's canvas, TODO
 
             // Get metadata for the picked ViewObject
 
-            const metaObject = viewer.metaScene.metaObjects[viewObject.id];
+            const dataObject = viewer.data.dataObjects[viewObject.id];
 
-            if (metaObject) {
+            if (dataObject) {
 
-                const name = metaObject.name;
-                const type = metaObject.type; // Eg. "IfcWall", "IfcBuildingStorey"
+                const name = dataObject.name;
+                const type = dataObject.type; // Eg. "IfcWall", "IfcBuildingStorey"
 
-                for (let propertySet of metaObject.propertySets) {
+                for (let propertySet of dataObject.propertySets) {
 
                     const propertySetId = propertySet.id;
                     const propertySetName = propertySet.name;
@@ -169,14 +170,14 @@ Whenever we click on the View's canvas, TODO
                     }
                 }
 
-                const metaModel = metaObject.metaModel;
+                const dataModel = dataObject.dataModel;
 
-                const projectId = metaModel.projectId;
-                const revisionId = metaModel.revisionId;
-                const author = metaModel.author;
-                const createdAt = metaModel.createdAt;
-                const creatingApplication = metaModel.creatingApplication;
-                const schema = metaModel.schema;
+                const projectId = dataModel.projectId;
+                const revisionId = dataModel.revisionId;
+                const author = dataModel.author;
+                const createdAt = dataModel.createdAt;
+                const creatingApplication = dataModel.creatingApplication;
+                const schema = dataModel.schema;
 
                 //...
             }
@@ -266,7 +267,7 @@ create our model metadata and geometry programmatically, using builder methods w
 
     // Create model metadata
 
-    const metaModel = viewer.metaScene.createMetaModel("myTableModel", {
+    const dataModel = viewer.data.createDataModel("myTableModel", {
         projectId: "024120003",
         revisionId: "902344223",
         author: "xeolabs",
@@ -317,7 +318,7 @@ create our model metadata and geometry programmatically, using builder methods w
                     }
             }
         ],
-        metaObjects: [
+        objects: [
             {
                 id: "table",
                 originalSystemId: "table",

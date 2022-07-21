@@ -1,6 +1,6 @@
 import {Component} from "../../Component";
 import {View} from "../View";
-import * as math from '../../math/';
+import * as math from '../../math/index';
 /**
  * A directional light source within a {@link View}.
  *

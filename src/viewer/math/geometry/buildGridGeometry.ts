@@ -1,4 +1,5 @@
-import * as utils from '../../../utils';
+import * as utils from '../../utils/index';
+import {GeometryArrays} from "./GeometryArrays";
 
 /**
  * Creates a grid-shaped {@link Geometry}.
@@ -43,7 +44,7 @@ import * as utils from '../../../utils';
 function buildGridGeometry(cfg = {
     size: 1,
     divisions: 1
-}) {
+}): GeometryArrays  {
 
     let size = cfg.size || 1;
     if (size < 0) {

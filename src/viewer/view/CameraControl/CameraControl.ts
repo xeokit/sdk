@@ -13,11 +13,11 @@ import {MouseMiscHandler} from "./lib/handlers/MouseMiscHandler";
 import {TouchPanRotateAndDollyHandler} from "./lib/handlers/TouchPanRotateAndDollyHandler";
 import {TouchPickHandler} from "./lib/handlers/TouchPickHandler";
 
-import * as utils from "../../utils";
-import * as math from "../../math";
+import * as utils from "../../utils/index";
+import * as math from "../../math/index";
 import {View} from "../View";
 import {Canvas} from "../Canvas";
-import {Camera} from "../camera/";
+import {Camera} from "../camera/index";
 import {Scene} from "../../scene/Scene";
 
 /**

@@ -1,6 +1,7 @@
-import * as utils from './utils';
+import * as utils from './utils/index';
 import {stats} from './stats';
 import {Viewer} from "./Viewer";
+import {Map} from "./utils/Map";
 
 export interface TickEvent {
     viewerId: string;

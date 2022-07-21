@@ -1,4 +1,5 @@
-import * as utils from '../../../utils';
+import * as utils from '../../utils/index';
+import {GeometryArrays} from "./GeometryArrays";
 
 /**
  * Creates a plane-shaped {@link Geometry}.
@@ -51,7 +52,7 @@ function buildPlaneGeometry(cfg = {
     zSize: 0, xSegments: 1,
     center: [0, 0, 0]
 
-}) {
+}): GeometryArrays  {
 
     let xSize = cfg.xSize || 1;
     if (xSize < 0) {

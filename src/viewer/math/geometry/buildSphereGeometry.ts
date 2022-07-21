@@ -1,4 +1,5 @@
-import * as utils from '../../../utils';
+import * as utils from '../../utils/index';
+import {GeometryArrays} from "./GeometryArrays";
 
 /**
  * Creates a sphere-shaped {@link Geometry}.
@@ -54,7 +55,7 @@ function buildSphereGeometry(cfg: {
     widthSegments: 18,
     radius: 1,
     center: [0, 0, 0]
-}) {
+}) : GeometryArrays {
 
     const centerX = cfg.center ? cfg.center[0] : 0;
     const centerY = cfg.center ? cfg.center[1] : 0;

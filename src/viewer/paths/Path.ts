@@ -3,7 +3,7 @@ import {SplineCurve} from "./SplineCurve";
 import {QuadraticBezierCurve} from "./QuadraticBezierCurve";
 import {CubicBezierCurve} from "./CubicBezierCurve";
 import {Component} from "../Component";
-import * as math from "../math";
+import * as math from "../math/index";
 
 /**
  * A complex curved path constructed from various {@link Curve} subtypes.

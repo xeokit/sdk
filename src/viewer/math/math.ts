@@ -1,18 +1,24 @@
-type FloatArrayType = (Uint8Array | Int8Array| Uint16Array | Int16Array | Float32Array | Float64Array | number[]);
-
-type IntArrayType = (Uint32Array| Uint8Array | Int8Array| Uint16Array | Int16Array | number[]);
-
-
-const doublePrecision = true;
-const FloatArrayClass = doublePrecision ? Float64Array : Float32Array;
+/**
+ * An array of floating-point numbers.
+ */
+export type FloatArrayType = (Uint8Array | Int8Array| Uint16Array | Int16Array | Float32Array | Float64Array | number[]);
 
 /**
- *
+ * An array of integer numbers.
+ */
+export type IntArrayType = (Uint32Array| Uint8Array | Int8Array| Uint16Array | Int16Array | number[]);
+
+const doublePrecision = true;
+
+export const FloatArrayClass = doublePrecision ? Float64Array : Float32Array;
+
+/**
+ * Minimum safe double-precision value.
  */
 export const MIN_DOUBLE: number = -Number.MAX_SAFE_INTEGER;
 
 /**
- *
+ * Maximum safe double-precision value.
  */
 export const MAX_DOUBLE: number = Number.MAX_SAFE_INTEGER;
 
@@ -38,12 +44,7 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- *
- */
-export {FloatArrayType, IntArrayType};
-
-/**
- *
+ * Creates a new {@link FloatArrayType}.
  */
 export function newFloatArray(values?: number | FloatArrayType): FloatArrayType {
     // @ts-ignore

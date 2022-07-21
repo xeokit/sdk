@@ -5118,31 +5118,31 @@ const math = {
     }))(),
 
 
-    decompressPosition(position, decodeMatrix, dest) {
+    decompressPosition(position, decompressMatrix, dest) {
         dest = dest || position;
-        dest[0] = position[0] * decodeMatrix[0] + decodeMatrix[12];
-        dest[1] = position[1] * decodeMatrix[5] + decodeMatrix[13];
-        dest[2] = position[2] * decodeMatrix[10] + decodeMatrix[14];
+        dest[0] = position[0] * decompressMatrix[0] + decompressMatrix[12];
+        dest[1] = position[1] * decompressMatrix[5] + decompressMatrix[13];
+        dest[2] = position[2] * decompressMatrix[10] + decompressMatrix[14];
     },
 
-    decompressPositions(positions, decodeMatrix, dest = new Float32Array(positions.length)) {
+    decompressPositions(positions, decompressMatrix, dest = new Float32Array(positions.length)) {
         for (let i = 0, len = positions.length; i < len; i += 3) {
-            dest[i + 0] = positions[i + 0] * decodeMatrix[0] + decodeMatrix[12];
-            dest[i + 1] = positions[i + 1] * decodeMatrix[5] + decodeMatrix[13];
-            dest[i + 2] = positions[i + 2] * decodeMatrix[10] + decodeMatrix[14];
+            dest[i + 0] = positions[i + 0] * decompressMatrix[0] + decompressMatrix[12];
+            dest[i + 1] = positions[i + 1] * decompressMatrix[5] + decompressMatrix[13];
+            dest[i + 2] = positions[i + 2] * decompressMatrix[10] + decompressMatrix[14];
         }
         return dest;
     },
 
-    decompressUV(uv, decodeMatrix, dest) {
-        dest[0] = uv[0] * decodeMatrix[0] + decodeMatrix[6];
-        dest[1] = uv[1] * decodeMatrix[4] + decodeMatrix[7];
+    decompressUV(uv, decompressMatrix, dest) {
+        dest[0] = uv[0] * decompressMatrix[0] + decompressMatrix[6];
+        dest[1] = uv[1] * decompressMatrix[4] + decompressMatrix[7];
     },
 
-    decompressUVs(uvs, decodeMatrix, dest = new Float32Array(uvs.length)) {
+    decompressUVs(uvs, decompressMatrix, dest = new Float32Array(uvs.length)) {
         for (let i = 0, len = uvs.length; i < len; i += 3) {
-            dest[i + 0] = uvs[i + 0] * decodeMatrix[0] + decodeMatrix[6];
-            dest[i + 1] = uvs[i + 1] * decodeMatrix[4] + decodeMatrix[7];
+            dest[i + 0] = uvs[i + 0] * decompressMatrix[0] + decompressMatrix[6];
+            dest[i + 1] = uvs[i + 1] * decompressMatrix[4] + decompressMatrix[7];
         }
         return dest;
     },

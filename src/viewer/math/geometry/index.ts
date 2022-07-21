@@ -6,3 +6,5 @@ export * from "./buildPlaneGeometry";
 export * from "./buildSphereGeometry";
 export * from "./buildTorusGeometry";
 export * from "./buildVectorTextGeometry";
+export * from "./buildEdgeIndices";
+export * from "./GeometryArrays";

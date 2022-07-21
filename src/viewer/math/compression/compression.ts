@@ -2,7 +2,7 @@
  * Geometry compression and decompression utilities.
  */
 
-import {FloatArrayType} from "./math";
+import {FloatArrayType} from "../math";
 import {
     identityMat3,
     identityMat4,
@@ -11,15 +11,18 @@ import {
     mulMat3,
     mulMat4,
     scalingMat3v,
-    scalingMat4v,
+    scalingMat4v, transformVec3,
     translationMat3v,
     translationMat4v
-} from "./matrix";
-import {vec3} from "./vector";
-import * as math from "./index";
+} from "../matrix";
+import {normalizeVec3, vec3} from "../vector";
+
+const translate: FloatArrayType = mat4();
+const scale: FloatArrayType = mat4();
 
 /**
- * Gets the boundary of a flat positions array
+ * Gets the boundary of a flat positions array.
+ *
  * @param array
  * @param min
  * @param max
@@ -47,102 +50,94 @@ export function getPositionsBounds(array: FloatArrayType, min?: FloatArrayType, 
 /**
  * Creates a de-quantization matrix from a flat positions array
  */
-export const createPositionsDecodeMatrix = (function () {
-    const translate = mat4();
-    const scale = mat4();
-    return function (aabb: FloatArrayType, positionsDecompressMatrix: FloatArrayType) {
-        positionsDecompressMatrix = positionsDecompressMatrix || mat4();
-        const xmin = aabb[0];
-        const ymin = aabb[1];
-        const zmin = aabb[2];
-        const xwid = aabb[3] - xmin;
-        const ywid = aabb[4] - ymin;
-        const zwid = aabb[5] - zmin;
-        const maxInt = 65535;
-        identityMat4(translate);
-        translationMat4v(aabb, translate);
-        identityMat4(scale);
-        scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
-        mulMat4(translate, scale, positionsDecompressMatrix);
-        return positionsDecompressMatrix;
-    };
-})();
+export function createPositionsDecompressMatrix(aabb: FloatArrayType, positionsDecompressMatrix: FloatArrayType) {
+    positionsDecompressMatrix = positionsDecompressMatrix || mat4();
+    const xmin = aabb[0];
+    const ymin = aabb[1];
+    const zmin = aabb[2];
+    const xwid = aabb[3] - xmin;
+    const ywid = aabb[4] - ymin;
+    const zwid = aabb[5] - zmin;
+    const maxInt = 65535;
+    identityMat4(translate);
+    translationMat4v(aabb, translate);
+    identityMat4(scale);
+    scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
+    mulMat4(translate, scale, positionsDecompressMatrix);
+    return positionsDecompressMatrix;
+}
 
 /**
- * Quantizes a flat positions array
+ * Compresses a flat positions array
  */
-export var compressPositions = (function () { // http://cg.postech.ac.kr/research/mesh_comp_mobile/mesh_comp_mobile_conference.pdf
-    const translate = mat4();
-    const scale = mat4();
-    return function (array: FloatArrayType, min: FloatArrayType, max: FloatArrayType) {
-        const quantized = new Uint16Array(array.length);
-        var multiplier = new Float32Array([
-            max[0] !== min[0] ? 65535 / (max[0] - min[0]) : 0,
-            max[1] !== min[1] ? 65535 / (max[1] - min[1]) : 0,
-            max[2] !== min[2] ? 65535 / (max[2] - min[2]) : 0
-        ]);
-        let i;
-        for (i = 0; i < array.length; i += 3) {
-            quantized[i + 0] = Math.floor((array[i + 0] - min[0]) * multiplier[0]);
-            quantized[i + 1] = Math.floor((array[i + 1] - min[1]) * multiplier[1]);
-            quantized[i + 2] = Math.floor((array[i + 2] - min[2]) * multiplier[2]);
-        }
-        identityMat4(translate);
-        translationMat4v(min, translate);
-        identityMat4(scale);
-        scalingMat4v([
-            (max[0] - min[0]) / 65535,
-            (max[1] - min[1]) / 65535,
-            (max[2] - min[2]) / 65535
-        ], scale);
-        const decodeMat = mulMat4(translate, scale, identityMat4());
-        return {
-            quantized: quantized,
-            decodeMatrix: decodeMat
-        };
+export function compressPositions(array: FloatArrayType, min: FloatArrayType, max: FloatArrayType) {
+    const quantized = new Uint16Array(array.length);
+    var multiplier = new Float32Array([
+        max[0] !== min[0] ? 65535 / (max[0] - min[0]) : 0,
+        max[1] !== min[1] ? 65535 / (max[1] - min[1]) : 0,
+        max[2] !== min[2] ? 65535 / (max[2] - min[2]) : 0
+    ]);
+    let i;
+    for (i = 0; i < array.length; i += 3) {
+        quantized[i + 0] = Math.floor((array[i + 0] - min[0]) * multiplier[0]);
+        quantized[i + 1] = Math.floor((array[i + 1] - min[1]) * multiplier[1]);
+        quantized[i + 2] = Math.floor((array[i + 2] - min[2]) * multiplier[2]);
+    }
+    identityMat4(translate);
+    translationMat4v(min, translate);
+    identityMat4(scale);
+    scalingMat4v([
+        (max[0] - min[0]) / 65535,
+        (max[1] - min[1]) / 65535,
+        (max[2] - min[2]) / 65535
+    ], scale);
+    const decompressMatrix = mulMat4(translate, scale, identityMat4());
+    return {
+        quantized: quantized,
+        decompressMatrix: decompressMatrix
     };
-})();
+}
 
 /**
- * De-quantizes a 3D position
+ * Decompresses a 3D position
  * @param position
- * @param decodeMatrix
+ * @param decompressMatrix
  * @param dest
  */
-export function decompressPosition(position: Uint16Array | FloatArrayType, decodeMatrix: FloatArrayType, dest: FloatArrayType=position): FloatArrayType {
-    dest[0] = position[0] * decodeMatrix[0] + decodeMatrix[12];
-    dest[1] = position[1] * decodeMatrix[5] + decodeMatrix[13];
-    dest[2] = position[2] * decodeMatrix[10] + decodeMatrix[14];
+export function decompressPosition(position: FloatArrayType, decompressMatrix: FloatArrayType, dest: FloatArrayType = position): FloatArrayType {
+    dest[0] = position[0] * decompressMatrix[0] + decompressMatrix[12];
+    dest[1] = position[1] * decompressMatrix[5] + decompressMatrix[13];
+    dest[2] = position[2] * decompressMatrix[10] + decompressMatrix[14];
     return dest;
 }
 
 /**
- * De-quantizes an axis-aligned 3D boundary
+ * Decompresses an axis-aligned 3D boundary
  * @param aabb
- * @param decodeMatrix
+ * @param decompressMatrix
  * @param dest
  */
-export function decompressAABB(aabb: FloatArrayType, decodeMatrix: FloatArrayType, dest: FloatArrayType = aabb): FloatArrayType {
-    dest[0] = aabb[0] * decodeMatrix[0] + decodeMatrix[12];
-    dest[1] = aabb[1] * decodeMatrix[5] + decodeMatrix[13];
-    dest[2] = aabb[2] * decodeMatrix[10] + decodeMatrix[14];
-    dest[3] = aabb[3] * decodeMatrix[0] + decodeMatrix[12];
-    dest[4] = aabb[4] * decodeMatrix[5] + decodeMatrix[13];
-    dest[5] = aabb[5] * decodeMatrix[10] + decodeMatrix[14];
+export function decompressAABB(aabb: FloatArrayType, decompressMatrix: FloatArrayType, dest: FloatArrayType = aabb): FloatArrayType {
+    dest[0] = aabb[0] * decompressMatrix[0] + decompressMatrix[12];
+    dest[1] = aabb[1] * decompressMatrix[5] + decompressMatrix[13];
+    dest[2] = aabb[2] * decompressMatrix[10] + decompressMatrix[14];
+    dest[3] = aabb[3] * decompressMatrix[0] + decompressMatrix[12];
+    dest[4] = aabb[4] * decompressMatrix[5] + decompressMatrix[13];
+    dest[5] = aabb[5] * decompressMatrix[10] + decompressMatrix[14];
     return dest;
 }
 
 /**
- * De-quantizes a flat array of positions
+ * Decompresses a flat array of positions
  * @param positions
- * @param decodeMatrix
+ * @param decompressMatrix
  * @param dest
  */
-export function decompressPositions(positions: FloatArrayType, decodeMatrix: FloatArrayType, dest: Float32Array = new Float32Array(positions.length)): Float32Array {
+export function decompressPositions(positions: FloatArrayType, decompressMatrix: FloatArrayType, dest: Float32Array = new Float32Array(positions.length)): Float32Array {
     for (let i = 0, len = positions.length; i < len; i += 3) {
-        dest[i + 0] = positions[i + 0] * decodeMatrix[0] + decodeMatrix[12];
-        dest[i + 1] = positions[i + 1] * decodeMatrix[5] + decodeMatrix[13];
-        dest[i + 2] = positions[i + 2] * decodeMatrix[10] + decodeMatrix[14];
+        dest[i + 0] = positions[i + 0] * decompressMatrix[0] + decompressMatrix[12];
+        dest[i + 1] = positions[i + 1] * decompressMatrix[5] + decompressMatrix[13];
+        dest[i + 2] = positions[i + 2] * decompressMatrix[10] + decompressMatrix[14];
     }
     return dest;
 }
@@ -151,7 +146,7 @@ export function decompressPositions(positions: FloatArrayType, decodeMatrix: Flo
  * Gets the 2D min/max boundary of a flat array of UV coordinate
  * @param array
  */
-export function getUVBounds(array: FloatArrayType): { min: Float32Array | Float64Array, max: Float32Array | Float64Array } {
+export function getUVBounds(array: FloatArrayType): { min: FloatArrayType, max: FloatArrayType } {
     const min = new Float32Array(2);
     const max = new Float32Array(2);
     let i, j;
@@ -172,14 +167,14 @@ export function getUVBounds(array: FloatArrayType): { min: Float32Array | Float6
 }
 
 /**
- * Quantizes a flat array of UV coordinates
+ * Compresses a flat array of UV coordinates
  */
 export var compressUVs = (function () {
     const translate = mat3();
     const scale = mat3();
     return function (array: FloatArrayType, min: FloatArrayType, max: FloatArrayType): {
         quantized: Uint16Array,
-        decodeMatrix: FloatArrayType | Float64Array
+        decompressMatrix: FloatArrayType | Float64Array
     } {
         const quantized = new Uint16Array(array.length);
         const multiplier = new Float32Array([
@@ -198,10 +193,10 @@ export var compressUVs = (function () {
             (max[0] - min[0]) / 65535,
             (max[1] - min[1]) / 65535
         ], scale);
-        const decodeMat = mulMat3(translate, scale, identityMat3());
+        const decompressMatrix = mulMat3(translate, scale, identityMat3());
         return {
             quantized: quantized,
-            decodeMatrix: decodeMat
+            decompressMatrix: decompressMatrix
         };
     };
 })();
@@ -252,7 +247,7 @@ export function compressNormals(array: FloatArrayType): Int8Array { // http://jc
 
 /**
  */
-export function octEncodeNormalFromArray(array: FloatArrayType, i: number, xfunc: any, yfunc: any): Int8Array { // Oct-encode single normal vector in 2 bytes
+function octEncodeNormalFromArray(array: FloatArrayType, i: number, xfunc: any, yfunc: any): Int8Array { // Oct-encode single normal vector in 2 bytes
     let x = array[i] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
     let y = array[i + 1] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
     if (array[i + 2] < 0) {
@@ -275,18 +270,18 @@ function dot(array: FloatArrayType, i: number, vec3: FloatArrayType): number {
 
 /**
  */
-export function decompressUV(uv: FloatArrayType, decodeMatrix: FloatArrayType, dest = new Float32Array(2)) {
-    dest[0] = uv[0] * decodeMatrix[0] + decodeMatrix[6];
-    dest[1] = uv[1] * decodeMatrix[4] + decodeMatrix[7];
+export function decompressUV(uv: FloatArrayType, decompressMatrix: FloatArrayType, dest = new Float32Array(2)) {
+    dest[0] = uv[0] * decompressMatrix[0] + decompressMatrix[6];
+    dest[1] = uv[1] * decompressMatrix[4] + decompressMatrix[7];
 }
 
 /**
  *
  */
-export function decompressUVs(uvs: FloatArrayType, decodeMatrix: FloatArrayType, dest = new Float32Array(uvs.length)) {
+export function decompressUVs(uvs: FloatArrayType, decompressMatrix: FloatArrayType, dest = new Float32Array(uvs.length)) {
     for (let i = 0, len = uvs.length; i < len; i += 3) {
-        dest[i + 0] = uvs[i + 0] * decodeMatrix[0] + decodeMatrix[6];
-        dest[i + 1] = uvs[i + 1] * decodeMatrix[4] + decodeMatrix[7];
+        dest[i + 0] = uvs[i + 0] * decompressMatrix[0] + decompressMatrix[6];
+        dest[i + 1] = uvs[i + 1] * decompressMatrix[4] + decompressMatrix[7];
     }
     return dest;
 }
@@ -339,7 +334,7 @@ export function decompressNormals(octs: string | any[], result: FloatArrayType):
  * @param oct
  * @param result
  */
-export function octDecodeVec2(oct: Int8Array, result: Int8Array = vec3()): Int8Array {
+function octDecodeVec2(oct: Int8Array, result: FloatArrayType = vec3()): FloatArrayType {
     let x = oct[0];
     let y = oct[1];
     x = (2 * x + 1) / 255;
@@ -359,7 +354,7 @@ export function octDecodeVec2(oct: Int8Array, result: Int8Array = vec3()): Int8A
 /**
  *
  */
-export function octDecodeVec2s(octs: Int8Array, result: FloatArrayType): FloatArrayType {
+function octDecodeVec2s(octs: Int8Array, result: FloatArrayType): FloatArrayType {
     for (let i = 0, j = 0, len = octs.length; i < len; i += 2) {
         let x = octs[i + 0];
         let y = octs[i + 1];
@@ -378,10 +373,6 @@ export function octDecodeVec2s(octs: Int8Array, result: FloatArrayType): FloatAr
     }
     return result;
 }
-
-
-const translate = math.mat4();
-const scale = math.mat4();
 
 /**
  * @private
@@ -405,11 +396,11 @@ export function quantizePositions(positions: FloatArrayType, aabb: FloatArrayTyp
         quantizedPositions[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
         quantizedPositions[i + 2] = Math.floor(verify(positions[i + 2] - zmin) * zMultiplier);
     }
-    math.identityMat4(translate);
-    math.translationMat4v(aabb, translate);
-    math.identityMat4(scale);
-    math.scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
-    math.mulMat4(translate, scale, positionsDecompressMatrix);
+    identityMat4(translate);
+    translationMat4v(aabb, translate);
+    identityMat4(scale);
+    scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
+    mulMat4(translate, scale, positionsDecompressMatrix);
     return quantizedPositions;
 }
 
@@ -418,7 +409,7 @@ export function quantizePositions(positions: FloatArrayType, aabb: FloatArrayTyp
  */
 export function transformAndOctEncodeNormals(worldNormalMatrix: FloatArrayType, normals: FloatArrayType, lenNormals: number, compressedNormals: FloatArrayType, lenCompressedNormals: number) {
 
-    function dot(p: math.FloatArrayType, vec3: math.FloatArrayType) { // Dot product of a normal in an array against a candidate decoding
+    function dot(p: FloatArrayType, vec3: FloatArrayType) { // Dot product of a normal in an array against a candidate decoding
         return p[0] * vec3[0] + p[1] * vec3[1] + p[2] * vec3[2];
     }
 
@@ -432,8 +423,8 @@ export function transformAndOctEncodeNormals(worldNormalMatrix: FloatArrayType, 
         localNormal[1] = normals[i + 1];
         localNormal[2] = normals[i + 2];
 
-        math.transformVec3(worldNormalMatrix, localNormal, worldNormal);
-        math.normalizeVec3(worldNormal, worldNormal);
+        transformVec3(worldNormalMatrix, localNormal, worldNormal);
+        normalizeVec3(worldNormal, worldNormal);
 
         // Test various combinations of ceil and floor to minimize rounding errors
         best = oct = octEncodeVec3(worldNormal, "floor", "floor");

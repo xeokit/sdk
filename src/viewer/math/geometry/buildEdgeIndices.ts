@@ -1,6 +1,6 @@
-import {DEGTORAD, FloatArrayType, IntArrayType} from "./math";
-import {decompressPosition} from "./compression";
-import {cross3Vec3, dotVec3, normalizeVec3, subVec3, vec3} from "./vector";
+import {DEGTORAD, FloatArrayType, IntArrayType} from "../math";
+import {decompressPosition} from "../compression/index";
+import {cross3Vec3, dotVec3, normalizeVec3, subVec3, vec3} from "../vector";
 
 const uniquePositions: number[] = [];
 const indicesLookup: number[] = [];
@@ -90,6 +90,7 @@ function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayTyp
         subVec3(a, b, ab);
         cross3Vec3(cb, ab, cross);
         normalizeVec3(cross, normal);
+        // @ts-ignore
         const face = faces[numFaces] || (faces[numFaces] = {normal: vec3()});
         face.normal[0] = normal[0];
         face.normal[1] = normal[1];

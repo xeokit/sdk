@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 import {Component} from "../Component";
-import * as math from "../math";
+import * as math from "../math/index";
 import {View} from "./View";
 
 const unitsInfo = {

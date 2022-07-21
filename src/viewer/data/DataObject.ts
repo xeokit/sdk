@@ -7,9 +7,8 @@ import {DataModel} from "./DataModel";
  *  ## Overview
  *
  *  * Belongs to a {@link DataModel}
- *  * Registered by {@link DataObject.id} in {@link DataModel.dataObjects} and {@link Data.dataObjects}
- *  * Can be connected into parent-child hierarchies
- *  * Leaf dataObjects often have corresponding {@link SceneObject}s and {@link ViewObject}s
+ *  * Corresponds to a {@link SceneObject} when {@link DataObject.id} matches the {@link SceneObject.id}
+ *  * Stored by {@link SceneObject.id} in {@link DataModel.dataObjects} and {@link Data.dataObjects}
  *  * Created with {@link DataModel.createDataObject} or {@link DataObject.createDataObject}
  */
 class DataObject {

@@ -1,7 +1,7 @@
 import {Scene} from "../../scene/Scene";
 import {View} from "../View";
 import {Component} from "../../Component";
-import * as math from '../../math/';
+import * as math from '../../math/index';
 
 /**
  * An ambient light source within a {@link View}.

@@ -168,6 +168,9 @@ class LocaleService {
         messages: {},
         locale: ""
     }) {
+
+        this.events = new Events();
+
         this.messages = cfg.messages;
         this.locale = cfg.locale;
     }

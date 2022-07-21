@@ -1,4 +1,5 @@
-import * as utils from '../../../utils';
+import * as utils from '../../utils/index';
+import {GeometryArrays} from "./GeometryArrays";
 
 /**
  * Creates a cylinder-shaped {@link Geometry}.
@@ -67,7 +68,7 @@ function buildCylinderGeometry(cfg: {
     heightSegments: 0,
     openEnded: false,
     center: [0, 0, 0]
-}) {
+}): GeometryArrays  {
 
     let radiusTop = cfg.radiusTop || 1;
     if (radiusTop < 0) {

@@ -1,12 +1,11 @@
-import * as math from '../math/';
-import {FloatArrayType} from '../math/';
+import * as math from '../math/index';
 
 import {Component} from '../Component';
 import {Viewer} from "../Viewer";
 import {SceneObject} from "./SceneObject";
 import {SceneModel} from "./SceneModel";
-import {createUUID} from "../utils";
-import {View} from "../view";
+import {createUUID} from "../utils/index";
+import {View} from "../view/index";
 
 //import {WebGLSceneModel} from "./webgl/WebGLSceneModel";
 
@@ -57,7 +56,7 @@ class Scene extends Component {
         this.sceneModels = {};
         this.sceneObjects = {};
         this.#center = math.vec3();
-        this.#aabb = math.AABB3();
+        this.#aabb = math.boundaries.AABB3();
         this.#aabbDirty = true;
     }
 
@@ -150,12 +149,12 @@ class Scene extends Component {
         saoEnabled: boolean;
         id: string,
         isModel?: boolean;
-        matrix?: FloatArrayType;
-        scale?: FloatArrayType;
-        quaternion?: FloatArrayType;
-        rotation?: FloatArrayType;
-        position?: FloatArrayType;
-        origin?: FloatArrayType;
+        matrix?: math.FloatArrayType;
+        scale?: math.FloatArrayType;
+        quaternion?: math.FloatArrayType;
+        rotation?: math.FloatArrayType;
+        position?: math.FloatArrayType;
+        origin?: math.FloatArrayType;
         edgeThreshold?: number;
         textureTranscoder?: any;
         maxGeometryBatchSize?: number;

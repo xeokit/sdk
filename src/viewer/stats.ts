@@ -11,6 +11,7 @@ const stats = {
     },
     components: {
         viewers: 0,
+        views: 0,
         scenes: 0,
         models: 0,
         meshes: 0,

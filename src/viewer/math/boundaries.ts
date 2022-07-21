@@ -1,6 +1,6 @@
 import {FloatArrayType, MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "./math";
 import {lenVec3, subVec3, vec2, vec3} from "./vector";
-import {decompressPosition} from "./compression";
+import {decompressPosition} from "./compression/index";
 
 /**
  * Returns a new, uninitialized 3D axis-aligned bounding box.

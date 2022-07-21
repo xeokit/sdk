@@ -1,14 +1,14 @@
 import {LocaleService} from "./localization/LocaleService";
 //import {Scene, WebGLSceneRenderer} from "./scene";
-import {Scene} from "./scene";
-import {Data} from "./data";
-import {View} from "./view";
+import {Scene} from "./scene/index";
+import {Data} from "./data/Data";
+import {View} from "./view/View";
 import {Plugin} from "./Plugin";
 import {Component} from "./Component";
-import * as math from "./math/math";
+import * as math from "./math/index";
 import {scheduler} from "./scheduler";
 import {SceneRenderer} from "./scene/SceneRenderer";
-import {apply, createUUID} from "./utils";
+import {apply, createUUID} from "./utils/index";
 
 /**
  * The viewer component at the core of the xeokit SDK.

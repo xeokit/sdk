@@ -1,4 +1,4 @@
-import * as math from '../math';
+import * as math from '../math/index';
 import {Component} from '../Component';
 import {View} from "./View";
 
@@ -74,7 +74,7 @@ class Canvas extends Component {
 
         let lastResolutionScale: number = null;
 
-        this.#onTick = this.viewer.events.on("tick", () => {
+        this.#onTick = view.viewer.events.on("tick", () => {
             const canvas = this.canvas;
             const newResolutionScale = (this.#resolutionScale !== lastResolutionScale);
             const newWindowSize = (window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight);
@@ -212,7 +212,7 @@ class Canvas extends Component {
      * @private
      */
     destroy() {
-        this.viewer.events.off(this.#onTick);
+        this.view.viewer.events.off(this.#onTick);
         super.destroy();
     }
 }

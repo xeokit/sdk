@@ -1,5 +1,5 @@
 import {Component} from '../Component';
-import * as math from '../math';
+import * as math from '../math/index';
 
 /**
  * Meditates mouse, touch and keyboard events for various interaction controls.
@@ -685,7 +685,7 @@ class Input extends Component {
     /**
      * Current mouse position within the canvas.
      */
-    public mouseCanvasPos: number[] = math.vec2();
+    public mouseCanvasPos: math.FloatArrayType = math.vec2();
 
     #eventsBound: any;
     #keyUpListener: (e: any) => void;

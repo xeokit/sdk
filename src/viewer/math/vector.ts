@@ -1,4 +1,4 @@
-import {FloatArrayType} from "./math";
+import {FloatArrayType, FloatArrayClass} from "./math";
 
 /**
  * Returns the dot product of two three-element vectors.
@@ -10,7 +10,7 @@ export function dotVec3(u: FloatArrayType, v: FloatArrayType): number {
 /**
  * Returns a new, uninitialized two-element vector.
  */
-export function vec2(values?: FloatArrayType) {
+export function vec2(values?: FloatArrayType): FloatArrayType {
     // @ts-ignore
     return new FloatArrayClass(values || 2);
 }
@@ -18,9 +18,9 @@ export function vec2(values?: FloatArrayType) {
 /**
  * Returns a new, uninitialized three-element vector.
  */
-export function vec3(values?: FloatArrayType) {
+export function vec3(values?: FloatArrayType): FloatArrayType {
     // @ts-ignore
-    return new FloatArrayClass(values || 3);
+    return new Float64Array(values || 3);
 }
 
 /**
@@ -199,7 +199,7 @@ export function subVec2(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayT
 /**
  * Get the geometric mean of the vectors.
  */
-export function geometricMeanVec2(...vectors: any[][]) {
+export function geometricMeanVec2(...vectors: any) {
     const geometricMean = new Float32Array(vectors[0]);
     for (let i = 1; i < vectors.length; i++) {
         geometricMean[0] += vectors[i][0];

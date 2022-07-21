@@ -1,4 +1,5 @@
-import * as utils from '../../../utils';
+import * as utils from '../../utils/index';
+import {GeometryArrays} from "./GeometryArrays";
 
 /**
  * Creates a box-shaped lines {@link Geometry}.
@@ -52,7 +53,7 @@ function buildBoxLinesGeometry(cfg: {
     xSize: 1,
     ySize: 1,
     zSize: 1
-}) {
+}): GeometryArrays {
 
     let xSize = cfg.xSize || 1;
     if (xSize < 0) {

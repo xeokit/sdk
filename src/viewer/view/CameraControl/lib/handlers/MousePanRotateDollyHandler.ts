@@ -1,4 +1,4 @@
-import * as math from "../../../../math";
+import * as math from "../../../../math/index";
 import {View} from "../../../View";
 
 const canvasPos = math.vec2();
@@ -57,7 +57,7 @@ class MousePanRotateDollyHandler {
         let mouseDownRight: boolean;
 
         let mouseDownPicked = false;
-        const pickedWorldPos = math.vec3();
+        const pickedWorldPos = new Float64Array(3);
 
         let mouseMovedOnCanvasSinceLastWheel = true;
 

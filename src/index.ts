@@ -1,3 +1,3 @@
-//export * from "./extras/index";
-// export * from "./plugins/index";
+export * from "./extras/index";
+// export * as plugins from "./plugins/index";
 export * from "./viewer/index";

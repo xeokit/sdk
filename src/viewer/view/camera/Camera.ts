@@ -1,4 +1,4 @@
-import * as math from '../../math/';
+import * as math from '../../math/index';
 import {Component} from '../../Component';
 import {Perspective} from './Perspective.js';
 import {Ortho} from './Ortho.js';

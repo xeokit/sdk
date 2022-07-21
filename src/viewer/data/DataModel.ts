@@ -1,8 +1,8 @@
-import {PropertySet} from "./PropertySet";
-import {Data} from "./Data";
-import {DataObject} from "./DataObject";
-import {DataSchema} from "./DataSchema";
 import {Component} from "../Component";
+import {Data} from "./Data";
+import {PropertySet} from "./PropertySet";
+import {DataObject} from "./DataObject";
+import {DataModelSchema} from "./DataModelSchema";
 
 /**
  *  Metadata about a model within a {@link Viewer}.
@@ -101,7 +101,7 @@ class DataModel extends Component {
     constructor(
         data: Data,
         id: string,
-        cfg: DataSchema,
+        cfg: DataModelSchema,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],
@@ -254,6 +254,5 @@ class DataModel extends Component {
         this.#destroyed = true;
     }
 }
-
 
 export {DataModel};

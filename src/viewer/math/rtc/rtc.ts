@@ -1,7 +1,7 @@
-import {dotVec3, mulVec3Scalar, normalizeVec3, vec3} from "./vector";
-import {setMat4Translation, transformVec4} from "./matrix";
-import {FloatArrayType} from "./math";
-import {getPositionsCenter} from "./boundaries";
+import {dotVec3, mulVec3Scalar, normalizeVec3, vec3} from "../vector";
+import {setMat4Translation, transformVec4} from "../matrix";
+import {FloatArrayType} from "../math";
+import {getPositionsCenter} from "../boundaries";
 
 const tempVec3a = vec3();
 

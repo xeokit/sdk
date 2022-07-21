@@ -1,5 +1,5 @@
 import {Component} from "../Component"
-import * as math from "../math";
+import * as math from "../math/index";
 
 /**
  * Abstract base class for curve classes.

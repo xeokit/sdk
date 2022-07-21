@@ -1,4 +1,4 @@
-import * as utils from "../../utils";
+import * as utils from "../../utils/index";
 import {View} from "../View";
 
 const color = new Float32Array(3);

@@ -1,4 +1,4 @@
-import * as math from '../../math/';
+import * as math from '../../math/index';
 import {scheduler} from '../../scheduler';
 import {Component} from '../../Component';
 import {View} from "../View";
@@ -201,13 +201,13 @@ class CameraFlightAnimation extends Component {
             }
 
             aabb = aabb.slice();
-            const aabbCenter = math.getAABB3Center(aabb);
+            const aabbCenter = math.boundaries.getAABB3Center(aabb);
 
             this.#look2 = poi || aabbCenter;
 
             const eyeLookVec = math.subVec3(this.#eye1, this.#look1, tempVec3);
             const eyeLookVecNorm = math.normalizeVec3(eyeLookVec);
-            const diag = poi ? math.getAABB3DiagPoint(aabb, poi) : math.getAABB3Diag(aabb);
+            const diag = poi ? math.boundaries.getAABB3DiagPoint(aabb, poi) : math.boundaries.getAABB3Diag(aabb);
             const fitFOV = params.fitFOV || this.#fitFOV;
             const sca = Math.abs(diag / Math.tan(fitFOV * math.DEGTORAD));
 
@@ -329,9 +329,9 @@ class CameraFlightAnimation extends Component {
                 return;
             }
 
-            const diag = poi ? math.getAABB3DiagPoint(aabb, poi) : math.getAABB3Diag(aabb);
+            const diag = poi ? math.boundaries.getAABB3DiagPoint(aabb, poi) : math.boundaries.getAABB3Diag(aabb);
 
-            newLook = poi || math.getAABB3Center(aabb, newLook);
+            newLook = poi || math.boundaries.getAABB3Center(aabb, newLook);
 
             if (this.#trail) {
                 math.subVec3(camera.look, newLook, newLookEyeVec);

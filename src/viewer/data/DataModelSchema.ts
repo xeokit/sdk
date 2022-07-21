@@ -1,7 +1,7 @@
 /**
  * Data type from which a {@link DataModel} is created.
  */
-export type DataSchema = {
+export type DataModelSchema = {
     id?: string,
     projectId?: string | number,
     revisionId?: string | number,

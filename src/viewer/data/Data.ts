@@ -1,12 +1,12 @@
+import {Component} from "../Component";
 import {DataModel} from "./DataModel";
 import {DataObject} from "./DataObject";
 import {PropertySet} from "./PropertySet";
 import {Events} from "../Events";
 import {Viewer} from "../Viewer";
-import {DataSchema} from "./DataSchema";
-import {apply, createUUID} from "../utils";
-import {View} from "../view";
-import {Component} from "../Component";
+import {DataModelSchema} from "./DataModelSchema";
+import {createUUID} from "../utils/index";
+
 
 /**
  * Metadata about the objects within a {@link Viewer}.
@@ -84,7 +84,7 @@ class Data extends Component {
      * @returns The new DataModel.
      */
     createDataModel(
-        dataModelCfg: DataSchema,
+        dataModelCfg: DataModelSchema,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],

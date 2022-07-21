@@ -1,5 +1,5 @@
 import {ViewObject} from "./ViewObject";
-import * as math from "../math";
+import * as math from "../math/index";
 
 /**
  * Results of a pick attempted with {@link View.pick}.

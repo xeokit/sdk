@@ -1,6 +1,6 @@
 import {Component} from '../../Component';
 import {Camera} from "./Camera";
-import * as math from '../../math/';
+import * as math from '../../math/index';
 
 /**
  *  Perspective projection configuration for a {@link Camera}, as a frustum.

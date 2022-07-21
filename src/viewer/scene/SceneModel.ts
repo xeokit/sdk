@@ -1,5 +1,5 @@
 import {Scene} from "./Scene";
-import {FloatArrayType, IntArrayType} from "../math";
+import {FloatArrayType, IntArrayType} from "../math/index";
 import {SceneObject} from "./SceneObject";
 import {SceneTransform} from "./SceneTransform";
 import {
@@ -23,15 +23,15 @@ import {Events} from "../Events";
  * ## Overview
  *
  * * Located in {@link Scene.sceneModels}
- * * Has {@link SceneObject}s
- * * Can have a {@link DataModel}
+ * * Contains {@link SceneObject}s in {@link Scene.sceneObjects}
+ * * Can have a {@link DataModel} in {@link Data.dataModels}
  */
-export interface SceneModel{
+export interface SceneModel {
 
     /** Unique ID of this SceneModel.
      */
     readonly id: string;
-    
+
     /**
      * The owner Scene.
      */
@@ -54,7 +54,15 @@ export interface SceneModel{
      */
     readonly aabb: FloatArrayType;
 
-   // constructor(cfg: {}): void;
+    /**
+     True once this SceneModel has been destroyed.
+
+     Don't use this SceneModel if this is ````true````.
+     */
+    readonly destroyed: boolean;
+
+
+    // constructor(cfg: {}): void;
 
     /**
      * Creates a SceneTransform within this SceneModel.
@@ -111,7 +119,7 @@ export interface SceneModel{
         colorsCompressed?: FloatArrayType,
         indices?: IntArrayType,
         edgeIndices?: IntArrayType,
-        edgeThreshold: number
+        edgeThreshold?: number
     }): void;
 
     /**
@@ -205,10 +213,10 @@ export interface SceneModel{
         textureSetId?: string,
         geometryId?: string,
         primitive?: string,
-        color?:FloatArrayType,
-        opacity?:number,
-        metallic?:number,
-        roughness?:number,
+        color?: FloatArrayType,
+        opacity?: number,
+        metallic?: number,
+        roughness?: number,
         origin?: FloatArrayType,
         rtcCenter?: FloatArrayType;
         positions?: FloatArrayType,
@@ -223,6 +231,7 @@ export interface SceneModel{
         colorsCompressed?: FloatArrayType,
         indices?: IntArrayType,
         edgeIndices?: IntArrayType,
+        edgeThreshold?: number,
         position?: FloatArrayType,
         scale?: FloatArrayType,
         quaternion?: FloatArrayType,
@@ -249,7 +258,7 @@ export interface SceneModel{
         meshIds: string[],
         transformId?: string
     }): SceneObject;
-    
+
     /**
      * Finalizes this SceneModel and prepares it for use.
      */

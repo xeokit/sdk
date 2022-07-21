@@ -1,5 +1,5 @@
 import {Curve} from "./Curve.js"
-import * as math from "../math";
+import * as math from "../math/index";
 import {Component} from "../Component";
 
 /**

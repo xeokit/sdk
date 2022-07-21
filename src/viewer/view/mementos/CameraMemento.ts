@@ -1,7 +1,7 @@
 import {View} from "../View";
-import {Frustum} from "../camera";
-import {Ortho} from "../camera";
-import {Perspective} from "../camera";
+import {Frustum} from "../camera/index";
+import {Ortho} from "../camera/index";
+import {Perspective} from "../camera/index";
 
 /**
  * Saves and restores the state of a {@link View}'s {@link Camera}.

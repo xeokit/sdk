@@ -1,4 +1,4 @@
-import {Map} from "./utils";
+import {Map} from "./utils/index";
 
 /**
  Manages events for its owner component.
@@ -59,7 +59,7 @@ class Events {
                     sub = subs[subId];
                     this.#eventCallDepth++;
                     if (this.#eventCallDepth < 300) {
-                        sub.callback.call(sub.scope, value);
+                        sub(value);
                     } else {
                         console.error("fire: potential stack overflow from recursive event '" + event + "' - dropping this event");
                     }

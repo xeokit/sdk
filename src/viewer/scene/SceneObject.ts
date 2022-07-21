@@ -1,5 +1,5 @@
 import {Scene} from "./Scene";
-import * as math from "../math/";
+import * as math from "../math/index";
 import {SceneModel} from "./SceneModel";
 import {ENTITY_FLAGS} from "./webgl/WebGLVBOSceneModel/lib/ENTITY_FLAGS";
 
@@ -19,7 +19,7 @@ export interface SceneObject {
     /**
      * Unique ID of this SceneObject.
      */
-    readonly id: string | number;
+    readonly id: string ;
 
     /**
      * The SceneModel that contains this SceneObject.
@@ -32,33 +32,63 @@ export interface SceneObject {
     readonly aabb: math.FloatArrayType;
 
     /**
-     *
-     * @param viewIndex
-     * @param visible
+     * @private
      */
     setVisible(viewIndex: number, visible: boolean): void;
 
+    /**
+     * @private
+     */
     setHighlighted(viewIndex: number, highlighted: boolean): void;
 
+    /**
+     * @private
+     */
     setXRayed(viewIndex: number, xrayed: boolean): void;
 
+    /**
+     * @private
+     */
     setSelected(viewIndex: number, selected: boolean): void;
 
+    /**
+     * @private
+     */
     setEdges(viewIndex: number, edges: boolean): void;
 
+    /**
+     * @private
+     */
     setCulled(viewIndex: number, culled: boolean): void;
 
+    /**
+     * @private
+     */
     setClippable(viewIndex: number, clippable: boolean): void;
 
+    /**
+     * @private
+     */
     setCollidable(viewIndex: number, collidable: boolean): void;
 
+    /**
+     * @private
+     */
     setPickable(viewIndex: number, pickable: boolean): void;
 
+    /**
+     * @private
+     */
     setColorize(viewIndex: number, color?: math.FloatArrayType): void;
 
+    /**
+     * @private
+     */
     setOpacity(viewIndex: number, opacity?: number): void;
 
+    /**
+     * @private
+     */
     setOffset(viewIndex: number, offset: math.FloatArrayType): void;
-
 }
 

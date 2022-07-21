@@ -1,4 +1,4 @@
-import {apply} from "../../utils/utils";
+import {apply} from "../../utils/index";
 import {DataModel} from "../../data/DataModel";
 import {View} from "../View";
 

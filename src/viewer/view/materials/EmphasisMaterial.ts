@@ -1,6 +1,6 @@
 import {View} from "../View";
 import {Component} from "../../Component";
-import * as math from '../../math/';
+import * as math from '../../math/index';
 
 /**
  * Configures the appearance of {@link ViewObject}s when they are xrayed, highlighted or selected.

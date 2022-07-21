@@ -1,5 +1,6 @@
-import * as utils from "../../../utils";
-import * as math from '../../../math';
+import * as utils from '../../utils/index';
+import {GeometryArrays} from "./GeometryArrays";
+import {normalizeVec3, subVec3} from "../vector";
 
 /**
  * Creates a torus-shaped {@link Geometry}.
@@ -62,7 +63,7 @@ function buildTorusGeometry(cfg: {
     tubeSegments: 0,
     arc: 0,
     center: [0, 0, 0]
-}) {
+}) : GeometryArrays {
 
     let radius = cfg.radius || 1;
     if (radius < 0) {
@@ -144,7 +145,7 @@ function buildTorusGeometry(cfg: {
             uvs.push(1 - (i / radialSegments));
             uvs.push((j / tubeSegments));
 
-            vec = math.normalizeVec3(math.subVec3([x, y, z], [centerX, centerY, centerZ], []), []);
+            vec = normalizeVec3(subVec3([x, y, z], [centerX, centerY, centerZ], []), []);
 
             normals.push(vec[0]);
             normals.push(vec[1]);

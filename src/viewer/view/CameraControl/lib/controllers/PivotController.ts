@@ -1,5 +1,5 @@
-import * as math from "../../../../math";
-import {FloatArrayType} from "../../../../math";
+import * as math from "../../../../math/index";
+import {FloatArrayType} from "../../../../math/index";
 import {View} from "../../../View";
 import {CameraControl} from "../../CameraControl";
 

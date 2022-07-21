@@ -1,5 +1,5 @@
 import {Component} from '../../Component';
-import * as math from "../../math";
+import * as math from "../../math/index";
 import {buildEdgeIndices} from "../../math/buildEdgeIndices.js";
 
 const tempAABB = math.AABB3();
@@ -157,7 +157,7 @@ class Geometry extends Component {
                 const bounds = geometryCompressionUtils.getPositionsBounds(cfg.positions);
                 const result = geometryCompressionUtils.compressPositions(cfg.positions, bounds.min, bounds.max);
                 state.positions = result.quantized;
-                state.positionsDecompressMatrix = result.decodeMatrix;
+                state.positionsDecompressMatrix = result.decompressMatrix;
             } else {
                 state.positions = cfg.positions.constructor === Float32Array ? cfg.positions : new Float32Array(cfg.positions);
             }
@@ -188,7 +188,7 @@ class Geometry extends Component {
                 const bounds = geometryCompressionUtils.getUVBounds(cfg.uv);
                 const result = geometryCompressionUtils.compressUVs(cfg.uv, bounds.min, bounds.max);
                 state.uv = result.quantized;
-                state.uvsDecompressMatrix = result.decodeMatrix;
+                state.uvsDecompressMatrix = result.decompressMatrix;
             } else {
                 state.uv = cfg.uv.constructor === Float32Array ? cfg.uv : new Float32Array(cfg.uv);
             }
@@ -370,7 +370,7 @@ class Geometry extends Component {
         //     const bounds = geometryCompressionUtils.getPositionsBounds(newPositions);
         //     const result = geometryCompressionUtils.compressPositions(newPositions, bounds.min, bounds.max);
         //     newPositions = result.quantized; // TODO: Copy in-place
-        //     state.positionsDecompressMatrix = result.decodeMatrix;
+        //     state.positionsDecompressMatrix = result.decompressMatrix;
         // }
         // positions.set(newPositions);
         // if (state.positionsBuf) {

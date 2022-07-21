@@ -1,6 +1,6 @@
 import {Component} from "../../Component"
 import {SplineCurve} from "../../paths/"
-import * as math from "../../math";
+import * as math from "../../math/index";
 import {Camera} from "./Camera";
 
 const tempVec3a = math.vec3();

@@ -1,4 +1,4 @@
-import * as math from "../../../math";
+import * as math from "../../../math/index";
 import {View} from "../../View";
 
 const SCALE_DOLLY_EACH_FRAME = 1; // Recalculate dolly speed for eye->target distance on each Nth frame

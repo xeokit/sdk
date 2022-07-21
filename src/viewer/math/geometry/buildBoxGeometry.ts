@@ -1,4 +1,5 @@
-import * as utils from '../../../utils';
+import * as utils from '../../utils/index';
+import {GeometryArrays} from "./GeometryArrays";
 
 /**
  * Creates box-shaped geometry arrays.
@@ -54,7 +55,7 @@ function buildBoxGeometry(cfg: {
     xSize: 1,
     ySize: 1,
     zSize: 1
-}) {
+}): GeometryArrays {
 
     let xSize = cfg.xSize || 1;
     if (xSize < 0) {

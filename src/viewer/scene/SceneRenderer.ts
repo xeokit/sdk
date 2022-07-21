@@ -1,4 +1,4 @@
-import * as math from "../math";
+import * as math from "../math/index";
 import {SceneModel} from "./SceneModel";
 
 

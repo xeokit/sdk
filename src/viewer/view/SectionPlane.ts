@@ -1,6 +1,6 @@
 import {Component} from '../Component';
 import {View} from "./View";
-import * as math from '../math/';
+import * as math from '../math/index';
 
 /**
  *  An arbitrarily-aligned World-space clipping plane.

@@ -37,7 +37,7 @@ class Map {
         }
     }
 
-    removeItem(id:number) {
+    removeItem(id:any) {
         const item = this.#items[id];
         delete this.#items[id];
         return item;

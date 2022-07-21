@@ -60,8 +60,6 @@ export const RGBA_ASTC_10x10_Format = 37819;
 export const RGBA_ASTC_12x10_Format = 37820;
 export const RGBA_ASTC_12x12_Format = 37821;
 export const RGBA_BPTC_Format = 36492;
-export const _SRGBAFormat = 1035; // fallback for WebGL 1
-
 export const LinearEncoding = 3000;
 export const sRGBEncoding = 3001;
 export const BasicDepthPacking = 3200;

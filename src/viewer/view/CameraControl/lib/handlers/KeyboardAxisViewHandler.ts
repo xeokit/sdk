@@ -1,4 +1,4 @@
-import * as math from "../../../../math";
+import * as math from "../../../../math/index";
 
 const center = math.vec3();
 const tempVec3a = math.vec3();
@@ -7,9 +7,9 @@ const tempVec3c = math.vec3();
 const tempVec3d = math.vec3();
 
 const tempCameraTarget = {
-    eye: math.vec3(),
-    look: math.vec3(),
-    up: math.vec3(),
+    eye: new Float64Array(3),
+    look: new Float64Array(3),
+    up: new Float64Array(3),
     orthoScale: 1
 };
 
@@ -48,9 +48,9 @@ class KeyboardAxisViewHandler {
             }
 
             const aabb = view.aabb;
-            const diag = math.getAABB3Diag(aabb);
+            const diag = math.boundaries.getAABB3Diag(aabb);
 
-            math.getAABB3Center(aabb, center);
+            math.boundaries.getAABB3Center(aabb, center);
 
             const perspectiveDist = Math.abs(diag / Math.tan(controllers.cameraFlight.fitFOV * math.DEGTORAD));
             const orthoScale = diag * 1.1;

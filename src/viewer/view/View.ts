@@ -1,19 +1,19 @@
 import {Component} from '../Component';
-import {Camera} from "./camera/";
+import {Camera} from "./camera/index";
 import {Viewport} from "./Viewport.js";
 import {Canvas} from "./Canvas";
-import {CameraControl} from "./CameraControl";
+import {CameraControl} from "./CameraControl/index";
 import {Input} from "./Input.js";
-import {CameraFlightAnimation} from "./camera";
-import * as utils from "../utils/utils";
+import {CameraFlightAnimation} from "./camera/index";
+import * as utils from "../utils/index";
 import {ViewObject} from "./ViewObject";
 import {SectionPlane} from "./SectionPlane";
-import {AmbientLight, DirLight, PointLight} from "./lights";
-import {EdgeMaterial, EmphasisMaterial, PointsMaterial} from "./materials";
+import {AmbientLight, DirLight, PointLight} from "./lights/index";
+import {EdgeMaterial, EmphasisMaterial, PointsMaterial} from "./materials/index";
 import {Viewer} from "../Viewer";
 import {PickResult} from "./PickResult";
 import {Metrics} from "./Metriqs";
-import {Scene, SceneModel} from "../scene";
+import {Scene, SceneModel} from "../scene/index";
 import {PickParams} from "./PickParams";
 import {SAO} from "./SAO";
 import {LinesMaterial} from "./materials/LinesMaterial";
@@ -342,8 +342,6 @@ class View extends Component {
 
         this.viewIndex = 0;
 
-        this.camera = new Camera(this);
-
         this.canvas = new Canvas(this, {
             canvas: canvas,
             transparent: options.transparent,
@@ -355,6 +353,8 @@ class View extends Component {
         this.canvas.events.on("boundary", () => {
             this.redraw();
         });
+
+        this.camera = new Camera(this);
 
         this.sao = new SAO(this, {});
 
@@ -516,8 +516,7 @@ class View extends Component {
         const sceneObjects = sceneModel.sceneObjects;
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
-            const dataObject = this.viewer.data.dataObjects[sceneObject.id];
-            const viewObject = new ViewObject(this, dataObject, sceneObject, {});
+            const viewObject = new ViewObject(this, sceneObject, {});
             this.viewObjects[viewObject.id] = viewObject;
             this.#numViewObjects++;
             this.#viewObjectIds = null; // Lazy regenerate

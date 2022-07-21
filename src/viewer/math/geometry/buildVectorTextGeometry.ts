@@ -1,4 +1,5 @@
-import * as utils from "../../../utils";
+import * as utils from '../../utils/index';
+import {GeometryArrays} from "./GeometryArrays";
 
 
 const letters = {
@@ -1627,7 +1628,7 @@ function buildVectorTextGeometry(cfg: {
     origin: [0, 0, 0],
     size: 1,
     text: ""
-}) {
+}): GeometryArrays  {
 
     var origin = cfg.origin || [0, 0, 0];
     var xOrigin = origin[0];

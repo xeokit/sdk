@@ -1,17 +1,17 @@
 import {Events} from "../Events";
-import {DataObject} from "../data/";
 import {View} from "./View";
-import {SceneObject} from "../scene/";
-import * as math from '../math/math';
+import {SceneObject} from "../scene/index";
+import * as math from '../math/index';
 
 /**
  * A view of an object in a {@link Viewer}.
  *
  * ## Overview
  *
- * - Belongs to a {@link View}.
- * - Registered by {@link ViewObject.id} in {@link View.viewObjects}.
- * - The ViewObject will also have a corresponding {@link SceneObject} in {@link Scene.sceneObjects}, and a {@link DataObject} in {@link DataModel.dataObjects}, all sharing the same ID.
+ * - Belongs to a {@link View}
+ * - Registered by {@link ViewObject.id} in {@link View.viewObjects}
+ * - Has a corresponding {@link SceneObject} in {@link Scene.sceneObjects}
+ * - Can have a corresponding {@link DataObject} in {@link DataModel.dataObjects}
  */
 class ViewObject {
 
@@ -29,11 +29,6 @@ class ViewObject {
      * The View to which this ViewObject belongs.
      */
     public readonly view: View;
-
-    /**
-     * The corresponding {@link DataObject}.
-     */
-    public readonly dataObject: DataObject;
 
     /**
      * The corresponding {@link SceneObject}.
@@ -61,7 +56,7 @@ class ViewObject {
     /**
      * @private
      */
-    constructor(view: View, dataObject: DataObject, sceneObject: SceneObject, options: {
+    constructor(view: View, sceneObject: SceneObject, options: {
         opacity?: number;
         colorize?: number[];
         selected?: boolean;
@@ -75,11 +70,10 @@ class ViewObject {
         visible?: boolean;
     } = {}) {
 
+        this.id = sceneObject.id;
         this.events = new Events();
         this.view = view;
-        this.dataObject = dataObject;
         this.sceneObject = sceneObject;
-        this.id = dataObject.id;
 
         // Initialize properties like this so that we also
         // update their counters on the View
@@ -383,6 +377,9 @@ class ViewObject {
         this.view.redraw();
     }
 
+    /**
+     * @private
+     */
     _destroy() { // Called by View#destroyViewObjects
         if (this.state.visible) {
             this.view.objectVisibilityUpdated(this, false, false);

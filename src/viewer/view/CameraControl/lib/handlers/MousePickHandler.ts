@@ -1,4 +1,4 @@
-import * as math from "../../../../math";
+import * as math from "../../../../math/index";
 import {View} from "../../../View";
 import {PickResult} from "../../../PickResult";
 
@@ -308,7 +308,7 @@ class MousePickHandler {
                         if ((!configs.firstPerson) && configs.followPointer) {
 
                             const pickedEntityAABB = pickController.pickResult.entity.aabb;
-                            const pickedEntityCenterPos = math.getAABB3Center(pickedEntityAABB);
+                            const pickedEntityCenterPos = math.boundaries.getAABB3Center(pickedEntityAABB);
 
                             controllers.pivotController.setPivotPos(pickedEntityCenterPos);
 
@@ -331,7 +331,7 @@ class MousePickHandler {
                         if ((!configs.firstPerson) && configs.followPointer) {
 
                             const viewAABB = this.#view.scene.aabb;
-                            const viewCenterPos = math.getAABB3Center(viewAABB);
+                            const viewCenterPos = math.boundaries.getAABB3Center(viewAABB);
 
                             controllers.pivotController.setPivotPos(viewCenterPos);
 

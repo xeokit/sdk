@@ -1,4 +1,4 @@
-import * as math from "../../../../math";
+import * as math from "../../../../math/index";
 import {PickResult} from "../../../PickResult";
 
 const TAP_INTERVAL = 150;

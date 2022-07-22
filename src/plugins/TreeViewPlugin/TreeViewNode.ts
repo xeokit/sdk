@@ -1,5 +1,5 @@
 /**
- * @desc A node within a {@link TreeViewPlugin}.
+ * A node within a {@link TreeViewPlugin}.
  *
  * These are provided by {@link TreeViewPlugin#withNodeTree} and the
  * [contextmenu](https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event) event fired by
@@ -29,7 +29,7 @@ class TreeViewNode {
     }
 
     /**
-     * ID of the corresponding {@link MetaObject}.
+     * ID of the corresponding {@link DataObject}.
      *
      * This is only defined if the TreeViewNode represents an object.
      *

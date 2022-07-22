@@ -1,11 +1,11 @@
-import {Node} from "../../viewer/scene/nodes/Node.js";
+import {Node} from "../../viewer/scene/Node.js";
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.js";
+import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
 import {PhongMaterial} from "../../viewer/scene/materials/PhongMaterial.js";
 import {MetallicMaterial} from "../../viewer/scene/materials/MetallicMaterial.js";
 import {SpecularMaterial} from "../../viewer/scene/materials/SpecularMaterial.js";
 import {LambertMaterial} from "../../viewer/scene/materials/LambertMaterial.js";
-import {math} from "../../viewer/scene/math/math.js";
+import * as math from "../../viewer/math/math.js";
 
 import {zipLib} from "./zipjs/zip.js";
 import {zipExt} from "./zipjs/zip-ext.js";
@@ -50,7 +50,7 @@ class XML3DSceneGraphLoader {
         this.src = cfg.src;
         this.xrayOpacity = 0.7;
         this.displayEffect = cfg.displayEffect;
-        this.createMetaModel = cfg.createMetaModel;
+        this.createDataModel = cfg.createDataModel;
     }
 
     load(plugin, modelNode, src, options, ok, error) {
@@ -139,10 +139,10 @@ var parse3DXML = (function () {
             materials: {}
         };
 
-        if (options.createMetaModel) {
-            ctx.metaModelData = {
+        if (options.createDataModel) {
+            ctx.modelDataData = {
                 modelId: modelNode.id,
-                metaObjects: [{
+                objects: [{
                     name: modelNode.id,
                     type: "Default",
                     id: modelNode.id
@@ -152,8 +152,8 @@ var parse3DXML = (function () {
         modelNode.scene.loading++; // Disables (re)compilation
 
         parseDocument(ctx, function () {
-            if (ctx.metaModelData) {
-                plugin.viewer.metaScene.createMetaModel(modelNode.id, ctx.metaModelData);
+            if (ctx.modelDataData) {
+                plugin.viewer.sceneData.createDataModel(modelNode.id, ctx.modelDataData);
             }
             modelNode.scene.loading--; // Re-enables (re)compilation
             ok();
@@ -407,8 +407,8 @@ var parse3DXML = (function () {
                     var childGroup = new Node(ctx.modelNode, {
                         position: translate
                     });
-                    if (ctx.metaModelData) {
-                        ctx.metaModelData.metaObjects.push({
+                    if (ctx.modelDataData) {
+                        ctx.modelDataData.objects.push({
                             id: childGroup.id,
                             type: "Default",
                             name: instance3D.name,
@@ -424,8 +424,8 @@ var parse3DXML = (function () {
                     childGroup = new Node(ctx.modelNode, {
                         matrix: mat4
                     });
-                    if (ctx.metaModelData) {
-                        ctx.metaModelData.metaObjects.push({
+                    if (ctx.modelDataData) {
+                        ctx.modelDataData.objects.push({
                             id: childGroup.id,
                             type: "Default",
                             name: instance3D.name,
@@ -436,8 +436,8 @@ var parse3DXML = (function () {
                     group = childGroup;
                 } else {
                     var childGroup = new Node(ctx.modelNode, {});
-                    if (ctx.metaModelData) {
-                        ctx.metaModelData.metaObjects.push({
+                    if (ctx.modelDataData) {
+                        ctx.modelDataData.objects.push({
                             id: childGroup.id,
                             type: "Default",
                             name: instance3D.name,
@@ -476,8 +476,8 @@ var parse3DXML = (function () {
                                 colorize: colorize,
                                 backfaces: false
                             });
-                            if (ctx.metaModelData) {
-                                ctx.metaModelData.metaObjects.push({
+                            if (ctx.modelDataData) {
+                                ctx.modelDataData.objects.push({
                                     id: mesh.id,
                                     type: "Default",
                                     name: instanceRep.name,

@@ -2,8 +2,8 @@ import {Marker} from "../../viewer/scene/marker/Marker.js";
 import {Wire} from "../lib/html/Wire.js";
 import {Dot} from "../lib/html/Dot.js";
 import {Label} from "../lib/html/Label.js";
-import {math} from "../../viewer/scene/math/math.js";
-import {Component} from "../../viewer/scene/Component.js";
+import * as math from "../../viewer/math/math.js";
+import {Component} from "../../viewer/Component.ts";
 
 
 var distVec3 = math.vec3();
@@ -15,7 +15,7 @@ const lengthWire = (x1, y1, x2, y2) => {
 };
 
 /**
- * @desc Measures the distance between two 3D points.
+ * Measures the distance between two 3D points.
  *
  * See {@link DistanceMeasurementsPlugin} for more info.
  */
@@ -119,43 +119,43 @@ class DistanceMeasurement extends Component {
         this._originMarker.on("worldPos", (value) => {
             this._originWorld.set(value || [0, 0, 0]);
             this._wpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this._targetMarker.on("worldPos", (value) => {
             this._targetWorld.set(value || [0, 0, 0]);
             this._wpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this._onViewMatrix = scene.camera.on("viewMatrix", () => {
             this._vpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this._onProjMatrix = scene.camera.on("projMatrix", () => {
             this._cpDirty = true;
-            this._needUpdate();
+            this.setDirty();
         });
 
         this._onCanvasBoundary = scene.canvas.on("boundary", () => {
             this._cpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this._onMetricsUnits = scene.metrics.on("units", () => {
             this._cpDirty = true;
-            this._needUpdate();
+            this.setDirty();
         });
 
         this._onMetricsScale = scene.metrics.on("scale", () => {
             this._cpDirty = true;
-            this._needUpdate();
+            this.setDirty();
         });
 
         this._onMetricsOrigin = scene.metrics.on("origin", () => {
             this._cpDirty = true;
-            this._needUpdate();
+            this.setDirty();
         });
 
         this.approximate = cfg.approximate;
@@ -166,7 +166,7 @@ class DistanceMeasurement extends Component {
         this.axisVisible = cfg.axisVisible;
     }
 
-    _update() {
+    update() {
 
         if (!this._visible) {
             return;
@@ -339,7 +339,7 @@ class DistanceMeasurement extends Component {
         }
         this._approximate = approximate;
         this._cpDirty = true;
-        this._needUpdate(0);
+        this.setDirty();
     }
 
     /**
@@ -377,7 +377,7 @@ class DistanceMeasurement extends Component {
      * @type {Number}
      */
     get length() {
-        this._update();
+        this.update();
         const scale = this.plugin.viewer.scene.metrics.scale;
         return this._length * scale;
     }

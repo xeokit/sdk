@@ -1,3 +1,3 @@
 
-export * from "./XKTLoaderPlugin/";
-export * from "./WebIFCLoaderPlugin/";
+export * from "./XKTLoaderPlugin/index";
+

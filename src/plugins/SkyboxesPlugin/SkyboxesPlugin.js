@@ -1,4 +1,4 @@
-import {Plugin} from "../../viewer/Plugin.js";
+import {Plugin} from "../../viewer/Plugin.ts";
 import {Skybox} from "../../viewer/scene/skybox/Skybox.js"
 
 /**
@@ -77,9 +77,9 @@ class SkyboxesPlugin extends Plugin {
     /**
      Creates a skybox.
 
-     @param {String} id Unique ID to assign to the skybox.
+     @param id Unique ID to assign to the skybox.
      @param {Object} params Skybox configuration.
-     @param {Boolean} [params.active=true] Whether the skybox plane is initially active. Only skyboxes while this is true.
+     @param [params.active=true] Whether the skybox plane is initially active. Only skyboxes while this is true.
      @returns {Skybox} The new skybox.
      */
     createSkybox(id, params) {

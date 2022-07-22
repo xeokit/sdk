@@ -1,6 +1,6 @@
-import {Plugin} from "../../viewer/Plugin.js";
-import {Node} from "../../viewer/scene/nodes/Node.js";
-import {utils} from "../../viewer/scene/utils.js";
+import {Plugin} from "../../viewer/Plugin.ts";
+import {Node} from "../../viewer/scene/Node.js";
+import * as utils from "../../viewer/scene/utils.js";
 import {OBJSceneGraphLoader} from "./OBJSceneGraphLoader.js";
 
 /**
@@ -12,10 +12,10 @@ import {OBJSceneGraphLoader} from "./OBJSceneGraphLoader.js";
  *
  * ## Metadata
  *
- * OBJLoaderPlugin can also load an accompanying JSON metadata file with each model, which creates a {@link MetaModel} corresponding
- * to the model {@link Entity} and a {@link MetaObject} corresponding to each object {@link Entity}.
+ * OBJLoaderPlugin can also load an accompanying JSON metadata file with each model, which creates a {@link DataModel} corresponding
+ * to the model {@link Entity} and a {@link DataObject} corresponding to each object {@link Entity}.
  *
- * Each {@link MetaObject} has a {@link MetaObject#type}, which indicates the classification of its corresponding {@link Entity}. When loading
+ * Each {@link DataObject} has a {@link DataObject#type}, which indicates the classification of its corresponding {@link Entity}. When loading
  * metadata, we can also provide GLTFModelLoaderPlugin with a custom lookup table of initial values to set on the properties of each type of {@link Entity}. By default, OBJLoaderPlugin
  * uses its own map of standard default colors, visibilities and opacities for IFC element types.
 
@@ -25,7 +25,7 @@ import {OBJSceneGraphLoader} from "./OBJSceneGraphLoader.js";
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#loading_OBJ_SportsCar)]
  *
  * ````javascript
- * import {Viewer, OBJLoaderPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, OBJLoaderPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * // Create a xeokit Viewer and arrange the camera
  * const viewer = new Viewer({
@@ -68,7 +68,7 @@ class OBJLoaderPlugin extends Plugin {
      *
      * @param {Viewer} viewer The Viewer.
      * @param {Object} cfg Plugin configuration.
-     * @param {String} [cfg.id="OBJLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.id="OBJLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
      */
     constructor(viewer, cfg) {
 
@@ -83,15 +83,15 @@ class OBJLoaderPlugin extends Plugin {
     /**
      * Loads an OBJ model from a file into this OBJLoader's {@link Viewer}.
      *
-     * @param {*} params  Loading parameters.
-     * @param {String} params.id ID to assign to the model's root {@link Entity}, unique among all components in the Viewer's {@link Scene}.
-     * @param {String} params.src Path to an OBJ file.
-     * @param {String} [params.metaModelSrc] Path to an optional metadata file.
-     * @param {Number[]} [params.position=[0,0,0]] The model World-space 3D position.
-     * @param {Number[]} [params.scale=[1,1,1]] The model's World-space scale.
-     * @param {Number[]} [params.rotation=[0,0,0]] The model's World-space rotation, as Euler angles given in degrees, for each of the X, Y and Z axis.
-     * @param {Number[]} [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters.
-     * @param {Number} [params.edgeThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
+     * @param params  Loading parameters.
+     * @param params.id ID to assign to the model's root {@link Entity}, unique among all components in the Viewer's {@link Scene}.
+     * @param params.src Path to an OBJ file.
+     * @param [params.modelDataSrc] Path to an optional metadata file.
+     * @param [params.position=[0,0,0]] The model World-space 3D position.
+     * @param [params.scale=[1,1,1]] The model's World-space scale.
+     * @param [params.rotation=[0,0,0]] The model's World-space rotation, as Euler angles given in degrees, for each of the X, Y and Z axis.
+     * @param [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters.
+     * @param [params.edgeThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
      * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
      */
     load(params = {}) {
@@ -113,22 +113,22 @@ class OBJLoaderPlugin extends Plugin {
             return modelNode;
         }
 
-        if (params.metaModelSrc) {
-            const metaModelSrc = params.metaModelSrc;
-            utils.loadJSON(metaModelSrc,
+        if (params.modelDataSrc) {
+            const modelDataSrc = params.modelDataSrc;
+            utils.loadJSON(modelDataSrc,
                 (modelMetadata) => {
-                    this.viewer.metaScene.createMetaModel(modelId, modelMetadata);
+                    this.viewer.sceneData.createDataModel(modelId, modelMetadata);
                     this._sceneGraphLoader.load(modelNode, src, params);
                 },
                 (errMsg) => {
-                    this.error(`load(): Failed to load model modelMetadata for model '${modelId} from  '${metaModelSrc}' - ${errMsg}`);
+                    this.error(`load(): Failed to load model modelMetadata for model '${modelId} from  '${modelDataSrc}' - ${errMsg}`);
                 });
         } else {
             this._sceneGraphLoader.load(modelNode, src, params);
         }
 
         modelNode.once("destroyed", () => {
-            this.viewer.metaScene.destroyMetaModel(modelId);
+            this.viewer.sceneData.destroyModelData(modelId);
         });
 
         return modelNode;

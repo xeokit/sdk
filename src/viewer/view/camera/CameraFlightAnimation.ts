@@ -184,7 +184,7 @@ class CameraFlightAnimation extends Component {
 
         } else {
             if (!flyToProjection) {
-                aabb = this.view.scene.aabb;
+                aabb = this.viewer.scene.aabb;
             }
         }
 
@@ -318,7 +318,7 @@ class CameraFlightAnimation extends Component {
             newLook = params.look;
             newUp = params.up;
         } else {
-            aabb = this.view.scene.aabb;
+            aabb = this.viewer.scene.aabb;
         }
 
         const poi = params.poi;

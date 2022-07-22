@@ -40,7 +40,7 @@ class MousePickHandler {
             }
             const aabb = pickResult && pickResult.viewObject
                 ? pickResult.viewObject.sceneObject.aabb
-                : this.#view.scene.aabb;
+                : this.#view.viewer.scene.aabb;
             if (pos) { // Fly to look at point, don't change eye->look dist
                 const camera = this.#view.camera;
                 const diff = math.subVec3(camera.eye, camera.look, []);
@@ -68,10 +68,10 @@ class MousePickHandler {
                 return;
             }
 
-            const hoverSubs = cameraControl.hasSubs("hover");
-            const hoverOutSubs = cameraControl.hasSubs("hoverOut");
-            const hoverOffSubs = cameraControl.hasSubs("hoverOff");
-            const hoverSurfaceSubs = cameraControl.hasSubs("hoverSurface");
+            const hoverSubs = cameraControl.events.hasSubs("hover");
+            const hoverOutSubs = cameraControl.events.hasSubs("hoverOut");
+            const hoverOffSubs = cameraControl.events.hasSubs("hoverOff");
+            const hoverSurfaceSubs = cameraControl.events.hasSubs("hoverSurface");
 
             if (hoverSubs || hoverOutSubs || hoverOffSubs || hoverSurfaceSubs) {
 
@@ -205,12 +205,12 @@ class MousePickHandler {
                 return;
             }
 
-            const pickedSubs = cameraControl.hasSubs("picked");
-            const pickedNothingSubs = cameraControl.hasSubs("pickedNothing");
-            const pickedSurfaceSubs = cameraControl.hasSubs("pickedSurface");
-            const doublePickedSubs = cameraControl.hasSubs("doublePicked");
-            const doublePickedSurfaceSubs = cameraControl.hasSubs("doublePickedSurface");
-            const doublePickedNothingSubs = cameraControl.hasSubs("doublePickedNothing");
+            const pickedSubs = cameraControl.events.hasSubs("picked");
+            const pickedNothingSubs = cameraControl.events.hasSubs("pickedNothing");
+            const pickedSurfaceSubs = cameraControl.events.hasSubs("pickedSurface");
+            const doublePickedSubs = cameraControl.events.hasSubs("doublePicked");
+            const doublePickedSurfaceSubs = cameraControl.events.hasSubs("doublePickedSurface");
+            const doublePickedNothingSubs = cameraControl.events.hasSubs("doublePickedNothing");
 
             if ((!configs.doublePickFlyTo) &&
                 (!doublePickedSubs) &&
@@ -330,7 +330,7 @@ class MousePickHandler {
 
                         if ((!configs.firstPerson) && configs.followPointer) {
 
-                            const viewAABB = this.#view.scene.aabb;
+                            const viewAABB = this.#view.viewer.scene.aabb;
                             const viewCenterPos = math.boundaries.getAABB3Center(viewAABB);
 
                             controllers.pivotController.setPivotPos(viewCenterPos);

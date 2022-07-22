@@ -1,13 +1,13 @@
-import {Map} from "./../../viewer/scene/utils/Map.js";
+import {Map} from "../../viewer/utils/Map.js";
 import {
-    validateMetaModelForTreeViewContainmentHierarchy,
-    validateMetaModelForTreeViewStoreysHierarchy, validateMetaModelForTreeViewTypesHierarchy
+    validateModelDataForTreeViewContainmentHierarchy,
+    validateModelDataForTreeViewStoreysHierarchy, validateModelDataForTreeViewTypesHierarchy
 } from "./modelValidation.js";
 
 const idMap = new Map();
 
 /**
- * @desc Represents a model tree view within a {@link TreeViewPlugin}.
+ * Represents a model tree view within a {@link TreeViewPlugin}.
  *
  * * Stored in {@link treeViewPlugin#modelTreeViews}, mapped to the model ID.
  * * Created by each call to {@link TreeViewPlugin#addModel}.
@@ -23,26 +23,26 @@ class ModelTreeView {
             throw "Config expected: containerElement";
         }
 
-        const rootMetaObject = metaModel.rootMetaObject;
-        if (!rootMetaObject) {
+        const rootObjectData = metaModel.rootObjectData;
+        if (!rootObjectData) {
             return;
         }
 
         /**
-         * Contains messages for any errors found in the MetaModel for this ModelTreeView.
+         * Contains messages for any errors found in the DataModel for this ModelTreeView.
          * @type {String[]}
          */
         this.errors = [];
 
         /**
-         * True if errors were found in the MetaModel for this ModelTreeView.
+         * True if errors were found in the DataModel for this ModelTreeView.
          * @type {boolean}
          */
         this.valid = true;
 
         /**
-         * The MetaModel corresponding to this ModelTreeView.
-         * @type {MetaModel}
+         * The DataModel corresponding to this ModelTreeView.
+         * @type {DataModel}
          */
         this.metaModel = metaModel;
 
@@ -50,7 +50,7 @@ class ModelTreeView {
         this._baseId = "" + this._id;
         this._viewer = viewer;
         this._treeViewPlugin = treeViewPlugin;
-        this._rootMetaObject = rootMetaObject;
+        this._rootObjectData = rootObjectData;
         this._containerElement = cfg.containerElement;
         this._rootElement = null;
         this._muteSceneEvents = false;
@@ -227,14 +227,14 @@ class ModelTreeView {
         this.errors = [];
         switch (this._hierarchy) {
             case "storeys":
-                this.valid = validateMetaModelForTreeViewStoreysHierarchy(this.metaModel, this.errors);
+                this.valid = validateModelDataForTreeViewStoreysHierarchy(this.metaModel, this.errors);
                 break;
             case "types":
-                this.valid = validateMetaModelForTreeViewTypesHierarchy(this.metaModel, this.errors);
+                this.valid = validateModelDataForTreeViewTypesHierarchy(this.metaModel, this.errors);
                 break;
             case "containment":
             default:
-                this.valid = validateMetaModelForTreeViewContainmentHierarchy(this.metaModel, this.errors);
+                this.valid = validateModelDataForTreeViewContainmentHierarchy(this.metaModel, this.errors);
                 break;
         }
         return this.valid;
@@ -268,11 +268,11 @@ class ModelTreeView {
 
     _createDisabledNodes() {
 
-        const metaObject = this._rootMetaObject;
-        const metaObjectType = metaObject.type;
-        const metaObjectName = metaObject.name;
+        const objectData = this._rootObjectData;
+        const objectDataType = objectData.type;
+        const objectDataName = objectData.name;
 
-        const rootName = ((metaObjectName && metaObjectName !== "" && metaObjectName !== "Undefined" && metaObjectName !== "Default") ? metaObjectName : metaObjectType);
+        const rootName = ((objectDataName && objectDataName !== "" && objectDataName !== "Undefined" && objectDataName !== "Default") ? objectDataName : objectDataType);
 
         const ul = document.createElement('ul');
         const li = document.createElement('li');
@@ -292,44 +292,44 @@ class ModelTreeView {
         li.appendChild(span);
     }
 
-    _findEmptyNodes(metaObject = this._rootMetaObject, countEntities = 0) {
+    _findEmptyNodes(objectData = this._rootObjectData, countEntities = 0) {
         const viewer = this._treeViewPlugin.viewer;
         const scene = viewer.scene;
-        const children = metaObject.children;
-        const objectId = metaObject.id;
+        const children = objectData.children;
+        const objectId = objectData.id;
         const entity = scene.objects[objectId];
-        metaObject._countEntities = 0;
+        objectData._countEntities = 0;
         if (entity) {
-            metaObject._countEntities++;
+            objectData._countEntities++;
         }
         if (children) {
             for (let i = 0, len = children.length; i < len; i++) {
-                const childMetaObject = children[i];
-                childMetaObject._countEntities = this._findEmptyNodes(childMetaObject);
-                metaObject._countEntities += childMetaObject._countEntities;
+                const childObjectData = children[i];
+                childObjectData._countEntities = this._findEmptyNodes(childObjectData);
+                objectData._countEntities += childObjectData._countEntities;
             }
         }
-        return metaObject._countEntities;
+        return objectData._countEntities;
     }
 
     _createStoreysNodes(
-        metaObject = this._rootMetaObject,
+        objectData = this._rootObjectData,
         buildingNode,
         storeyNode,
         typeNodes) {
-        if (this._pruneEmptyNodes && (metaObject._countEntities === 0)) {
+        if (this._pruneEmptyNodes && (objectData._countEntities === 0)) {
             return;
         }
-        const metaObjectType = metaObject.type;
-        const metaObjectName = metaObject.name;
-        const children = metaObject.children;
-        const objectId = metaObject.id;
-        if (metaObjectType === "IfcBuilding") {
+        const objectDataType = objectData.type;
+        const objectDataName = objectData.name;
+        const children = objectData.children;
+        const objectId = objectData.id;
+        if (objectDataType === "IfcBuilding") {
             buildingNode = {
                 nodeId: this._objectToNodeID(objectId),
                 objectId: objectId,
-                title: this._rootName || ((metaObjectName && metaObjectName !== "" && metaObjectName !== "Undefined" && metaObjectName !== "Default") ? metaObjectName : metaObjectType),
-                type: metaObjectType,
+                title: this._rootName || ((objectDataName && objectDataName !== "" && objectDataName !== "Undefined" && objectDataName !== "Default") ? objectDataName : objectDataType),
+                type: objectDataType,
                 parent: null,
                 numEntities: 0,
                 numVisibleEntities: 0,
@@ -338,7 +338,7 @@ class ModelTreeView {
             };
             this._rootNodes.push(buildingNode);
             this._objectNodes[buildingNode.objectId] = buildingNode;
-        } else if (metaObjectType === "IfcBuildingStorey") {
+        } else if (objectDataType === "IfcBuildingStorey") {
             if (!buildingNode) {
                 this._treeViewPlugin.error("Failed to build storeys hierarchy for model '" + this.metaModel.id + "' - model does not have an IfcBuilding object, or is not an IFC model");
                 return;
@@ -346,8 +346,8 @@ class ModelTreeView {
             storeyNode = {
                 nodeId: this._objectToNodeID(objectId),
                 objectId: objectId,
-                title: (metaObjectName && metaObjectName !== "" && metaObjectName !== "Undefined" && metaObjectName !== "Default") ? metaObjectName : metaObjectType,
-                type: metaObjectType,
+                title: (objectDataName && objectDataName !== "" && objectDataName !== "Undefined" && objectDataName !== "Default") ? objectDataName : objectDataType,
+                type: objectDataType,
                 parent: buildingNode,
                 numEntities: 0,
                 numVisibleEntities: 0,
@@ -363,15 +363,15 @@ class ModelTreeView {
                 const object = objects[objectId];
                 if (object) {
                     typeNodes = typeNodes || {};
-                    let typeNode = typeNodes[metaObjectType];
+                    let typeNode = typeNodes[objectDataType];
                     if (!typeNode) {
-                        const typeNodeObjectId = storeyNode.objectId + "." + metaObjectType;
+                        const typeNodeObjectId = storeyNode.objectId + "." + objectDataType;
                         const typeNodeNodeId = this._objectToNodeID(typeNodeObjectId);
                         typeNode = {
                             nodeId: typeNodeNodeId,
                             objectId: typeNodeObjectId,
-                            title: metaObjectType,
-                            type: metaObjectType,
+                            title: objectDataType,
+                            type: objectDataType,
                             parent: storeyNode,
                             numEntities: 0,
                             numVisibleEntities: 0,
@@ -380,13 +380,13 @@ class ModelTreeView {
                         };
                         storeyNode.children.push(typeNode);
                         this._objectNodes[typeNodeObjectId] = typeNode;
-                        typeNodes[metaObjectType] = typeNode;
+                        typeNodes[objectDataType] = typeNode;
                     }
                     const node = {
                         nodeId: this._objectToNodeID(objectId),
                         objectId: objectId,
-                        title: (metaObjectName && metaObjectName !== "" && metaObjectName !== "Undefined" && metaObjectName !== "Default") ? metaObjectName : metaObjectType,
-                        type: metaObjectType,
+                        title: (objectDataName && objectDataName !== "" && objectDataName !== "Undefined" && objectDataName !== "Default") ? objectDataName : objectDataType,
+                        type: objectDataType,
                         parent: typeNode,
                         numEntities: 0,
                         numVisibleEntities: 0,
@@ -400,26 +400,26 @@ class ModelTreeView {
         }
         if (children) {
             for (let i = 0, len = children.length; i < len; i++) {
-                const childMetaObject = children[i];
-                this._createStoreysNodes(childMetaObject, buildingNode, storeyNode, typeNodes);
+                const childObjectData = children[i];
+                this._createStoreysNodes(childObjectData, buildingNode, storeyNode, typeNodes);
             }
         }
     }
 
-    _createTypesNodes(metaObject = this._rootMetaObject, rootNode, typeNodes) {
-        if (this._pruneEmptyNodes && (metaObject._countEntities === 0)) {
+    _createTypesNodes(objectData = this._rootObjectData, rootNode, typeNodes) {
+        if (this._pruneEmptyNodes && (objectData._countEntities === 0)) {
             return;
         }
-        const metaObjectType = metaObject.type;
-        const metaObjectName = metaObject.name;
-        const children = metaObject.children;
-        const objectId = metaObject.id;
-        if (metaObject.id === this._rootMetaObject.id) {
+        const objectDataType = objectData.type;
+        const objectDataName = objectData.name;
+        const children = objectData.children;
+        const objectId = objectData.id;
+        if (objectData.id === this._rootObjectData.id) {
             rootNode = {
                 nodeId: this._objectToNodeID(objectId),
                 objectId: objectId,
-                title: this._rootName || ((metaObjectName && metaObjectName !== "" && metaObjectName !== "Undefined" && metaObjectName !== "Default") ? metaObjectName : metaObjectType),
-                type: metaObjectType,
+                title: this._rootName || ((objectDataName && objectDataName !== "" && objectDataName !== "Undefined" && objectDataName !== "Default") ? objectDataName : objectDataType),
+                type: objectDataType,
                 parent: null,
                 numEntities: 0,
                 numVisibleEntities: 0,
@@ -434,13 +434,13 @@ class ModelTreeView {
                 const objects = this._viewer.scene.objects;
                 const object = objects[objectId];
                 if (object) {
-                    let typeNode = typeNodes[metaObjectType];
+                    let typeNode = typeNodes[objectDataType];
                     if (!typeNode) {
                         typeNode = {
-                            nodeId: this._objectToNodeID(rootNode.objectId + "." + metaObjectType),
-                            objectId: rootNode.objectId + "." + metaObjectType,
-                            title: metaObjectType,
-                            type: metaObjectType,
+                            nodeId: this._objectToNodeID(rootNode.objectId + "." + objectDataType),
+                            objectId: rootNode.objectId + "." + objectDataType,
+                            title: objectDataType,
+                            type: objectDataType,
                             parent: rootNode,
                             numEntities: 0,
                             numVisibleEntities: 0,
@@ -449,13 +449,13 @@ class ModelTreeView {
                         };
                         rootNode.children.push(typeNode);
                         this._objectNodes[typeNode.objectId] = typeNode;
-                        typeNodes[metaObjectType] = typeNode;
+                        typeNodes[objectDataType] = typeNode;
                     }
                     const node = {
                         nodeId: this._objectToNodeID(objectId),
                         objectId: objectId,
-                        title: (metaObjectName && metaObjectName !== "" && metaObjectName !== "Default") ? metaObjectName : metaObjectType,
-                        type: metaObjectType,
+                        title: (objectDataName && objectDataName !== "" && objectDataName !== "Default") ? objectDataName : objectDataType,
+                        type: objectDataType,
                         parent: typeNode,
                         numEntities: 0,
                         numVisibleEntities: 0,
@@ -469,25 +469,25 @@ class ModelTreeView {
         }
         if (children) {
             for (let i = 0, len = children.length; i < len; i++) {
-                const childMetaObject = children[i];
-                this._createTypesNodes(childMetaObject, rootNode, typeNodes);
+                const childObjectData = children[i];
+                this._createTypesNodes(childObjectData, rootNode, typeNodes);
             }
         }
     }
 
-    _createContainmentNodes(metaObject = this._rootMetaObject, parent) {
-        if (this._pruneEmptyNodes && (metaObject._countEntities === 0)) {
+    _createContainmentNodes(objectData = this._rootObjectData, parent) {
+        if (this._pruneEmptyNodes && (objectData._countEntities === 0)) {
             return;
         }
-        const metaObjectType = metaObject.type;
-        const metaObjectName = metaObject.name || metaObjectType;
-        const children = metaObject.children;
-        const objectId = metaObject.id;
+        const objectDataType = objectData.type;
+        const objectDataName = objectData.name || objectDataType;
+        const children = objectData.children;
+        const objectId = objectData.id;
         const node = {
             nodeId: this._objectToNodeID(objectId),
             objectId: objectId,
-            title: (!parent) ? (this._rootName || metaObjectName) : (metaObjectName && metaObjectName !== "" && metaObjectName !== "Undefined" && metaObjectName !== "Default") ? metaObjectName : metaObjectType,
-            type: metaObjectType,
+            title: (!parent) ? (this._rootName || objectDataName) : (objectDataName && objectDataName !== "" && objectDataName !== "Undefined" && objectDataName !== "Default") ? objectDataName : objectDataType,
+            type: objectDataType,
             parent: parent,
             numEntities: 0,
             numVisibleEntities: 0,
@@ -503,8 +503,8 @@ class ModelTreeView {
 
         if (children) {
             for (let i = 0, len = children.length; i < len; i++) {
-                const childMetaObject = children[i];
-                this._createContainmentNodes(childMetaObject, node);
+                const childObjectData = children[i];
+                this._createContainmentNodes(childObjectData, node);
             }
         }
     }
@@ -537,15 +537,15 @@ class ModelTreeView {
         const viewer = this._treeViewPlugin.viewer;
         const scene = viewer.scene;
         const camera = scene.camera;
-        const metaScene = viewer.metaScene;
+        const sceneData = viewer.sceneData;
         return this._spatialSortFunc || (this._spatialSortFunc = (node1, node2) => {
             if (!node1.aabb || !node2.aabb) {
                 // Sorting on lowest point of the AABB is likely more more robust when objects could overlap storeys
                 if (!node1.aabb) {
-                    node1.aabb = scene.getAABB(metaScene.getObjectIDsInSubtree(node1.objectId));
+                    node1.aabb = scene.getAABB(sceneData.getDataObjectIdsInSubtree(node1.objectId));
                 }
                 if (!node2.aabb) {
-                    node2.aabb = scene.getAABB(metaScene.getObjectIDsInSubtree(node2.objectId));
+                    node2.aabb = scene.getAABB(sceneData.getDataObjectIdsInSubtree(node2.objectId));
                 }
             }
             let idx = 0;
@@ -579,14 +579,14 @@ class ModelTreeView {
     }
 
     _synchNodesToEntities() {
-        const rootMetaObject = this._rootMetaObject;
-        const objectIds = rootMetaObject.getObjectIDsInSubtree();
-        const metaObjects = this._viewer.metaScene.metaObjects;
+        const rootObjectData = this._rootObjectData;
+        const objectIds = rootObjectData.getDataObjectIdsInSubtree();
+        const objects = this._viewer.sceneData.objects;
         const objects = this._viewer.scene.objects;
         for (let i = 0, len = objectIds.length; i < len; i++) {
             const objectId = objectIds[i];
-            const metaObject = metaObjects[objectId];
-            if (metaObject) {
+            const objectData = objects[objectId];
+            if (objectData) {
                 const node = this._objectNodes[objectId];
                 if (node) {
                     const entity = objects[objectId];

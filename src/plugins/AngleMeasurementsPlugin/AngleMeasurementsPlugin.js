@@ -1,4 +1,4 @@
-import {Plugin} from "../../viewer/Plugin.js";
+import {Plugin} from "../../viewer/Plugin.ts";
 import {AngleMeasurement} from "./AngleMeasurement.js";
 import {AngleMeasurementsControl} from "./AngleMeasurementsControl.js";
 
@@ -31,7 +31,7 @@ import {AngleMeasurementsControl} from "./AngleMeasurementsControl.js";
  * [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#measurements_angle_modelWithMeasurements)]
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin, AngleMeasurementsPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, AngleMeasurementsPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas",
@@ -102,7 +102,7 @@ import {AngleMeasurementsControl} from "./AngleMeasurementsControl.js";
  * [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#measurements_angle_createWithMouse)]
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin, AngleMeasurementsPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, AngleMeasurementsPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas",
@@ -130,7 +130,7 @@ class AngleMeasurementsPlugin extends Plugin {
      * @constructor
      * @param {Viewer} viewer The Viewer.
      * @param {Object} [cfg]  Plugin configuration.
-     * @param {String} [cfg.id="AngleMeasurements"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.id="AngleMeasurements"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
      * @param {HTMLElement} [cfg.container] Container DOM element for markers and labels. Defaults to ````document.body````.
     */
     constructor(viewer, cfg = {}) {
@@ -175,14 +175,14 @@ class AngleMeasurementsPlugin extends Plugin {
      * The AngleMeasurement is then registered by {@link AngleMeasurement#id} in {@link AngleMeasurementsPlugin#measurements}.
      *
      * @param {Object} params {@link AngleMeasurement} configuration.
-     * @param {String} params.id Unique ID to assign to {@link AngleMeasurement#id}. The AngleMeasurement will be registered by this in {@link AngleMeasurementsPlugin#measurements} and {@link Scene.components}. Must be unique among all components in the {@link Viewer}.
-     * @param {Number[]} params.origin.worldPos Origin World-space 3D position.
+     * @param params.id Unique ID to assign to {@link AngleMeasurement#id}. The AngleMeasurement will be registered by this in {@link AngleMeasurementsPlugin#measurements} and {@link Scene.components}. Must be unique among all components in the {@link Viewer}.
+     * @param params.origin.worldPos Origin World-space 3D position.
      * @param {Entity} params.origin.entity Origin Entity.
-     * @param {Number[]} params.corner.worldPos Corner World-space 3D position.
+     * @param params.corner.worldPos Corner World-space 3D position.
      * @param {Entity} params.corner.entity Corner Entity.
-     * @param {Number[]} params.target.worldPos Target World-space 3D position.
+     * @param params.target.worldPos Target World-space 3D position.
      * @param {Entity} params.target.entity Target Entity.
-     * @param {Boolean} [params.visible=true] Whether to initially show the {@link AngleMeasurement}.
+     * @param [params.visible=true] Whether to initially show the {@link AngleMeasurement}.
      * @returns {AngleMeasurement} The new {@link AngleMeasurement}.
      */
     createMeasurement(params = {}) {
@@ -227,7 +227,7 @@ class AngleMeasurementsPlugin extends Plugin {
     /**
      * Destroys a {@link AngleMeasurement}.
      *
-     * @param {String} id ID of AngleMeasurement to destroy.
+     * @param id ID of AngleMeasurement to destroy.
      */
     destroyMeasurement(id) {
         const measurement = this._measurements[id];

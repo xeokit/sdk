@@ -4,12 +4,12 @@
 
  */
 
-import * as utils from "../../../viewer/utils";
-import {globalizeObjectId} from "../../../viewer/utils";
+import * as utils from "../../../viewer/utils/index";
+import {globalizeObjectId} from "../../../viewer/utils/index";
 // @ts-ignore
 import * as p from "./lib/pako.js";
 import * as math from "../../../viewer/math/";
-import {createPositionsDecodeMatrix} from "../../../viewer";
+import {createPositionsDecompressMatrix} from "../../../viewer";
 import {SceneModel, Viewer} from "../../../viewer";
 
 // @ts-ignore
@@ -25,10 +25,10 @@ function extract(elements: any[]): { [key: string]: any } {
         // Vertex attributes
 
         types: elements[0],
-        eachMetaObjectId: elements[1],
-        eachMetaObjectType: elements[2],
-        eachMetaObjectName: elements[3],
-        eachMetaObjectParent: elements[4],
+        eachObjectDataId: elements[1],
+        eachObjectDataType: elements[2],
+        eachObjectDataName: elements[3],
+        eachObjectDataParent: elements[4],
 
         positions: elements[5],
         normals: elements[6],
@@ -58,7 +58,7 @@ function extract(elements: any[]): { [key: string]: any } {
 
         // Entity elements in the following arrays are grouped in runs that are shared by the same tiles
 
-        eachEntityMetaObject: elements[21],
+        eachEntityObjectData: elements[21],
         eachEntityMeshesPortion: elements[22],
 
         eachTileAABB: elements[23],
@@ -75,10 +75,10 @@ function inflate(deflatedData: { [key: string]: any }): { [key: string]: any } {
     return {
 
         types: pako.inflate(deflatedData.types, {to: 'string'}),
-        eachMetaObjectId: pako.inflate(deflatedData.eachMetaObjectId, {to: 'string'}),
-        eachMetaObjectType: new Uint32Array(inflate(deflatedData.eachMetaObjectType)),
-        eachMetaObjectName: pako.inflate(deflatedData.eachMetaObjectName, {to: 'string'}),
-        eachMetaObjectParent: new Uint32Array(inflate(deflatedData.eachMetaObjectParent)),
+        eachObjectDataId: pako.inflate(deflatedData.eachObjectDataId, {to: 'string'}),
+        eachObjectDataType: new Uint32Array(inflate(deflatedData.eachObjectDataType)),
+        eachObjectDataName: pako.inflate(deflatedData.eachObjectDataName, {to: 'string'}),
+        eachObjectDataParent: new Uint32Array(inflate(deflatedData.eachObjectDataParent)),
 
         positions: new Uint16Array(inflate(deflatedData.positions)),
         normals: new Int8Array(inflate(deflatedData.normals)),
@@ -100,7 +100,7 @@ function inflate(deflatedData: { [key: string]: any }): { [key: string]: any } {
         eachMeshMatricesPortion: new Uint32Array(inflate(deflatedData.eachMeshMatricesPortion)),
         eachMeshMaterial: new Uint8Array(inflate(deflatedData.eachMeshMaterial)),
 
-        eachEntityMetaObject: new Uint32Array(inflate(deflatedData.eachEntityMetaObject)),
+        eachEntityObjectData: new Uint32Array(inflate(deflatedData.eachEntityObjectData)),
         eachEntityMeshesPortion: new Uint32Array(inflate(deflatedData.eachEntityMeshesPortion)),
 
         eachTileAABB: new Float64Array(inflate(deflatedData.eachTileAABB)),
@@ -143,10 +143,10 @@ function load(viewer: Viewer,
               sceneModel: SceneModel) {
 
     const types = JSON.parse(inflatedData.types);
-    const eachMetaObjectId = JSON.parse(inflatedData.eachMetaObjectId);
-    const eachMetaObjectType = inflatedData.eachMetaObjectType;
-    const eachMetaObjectName = JSON.parse(inflatedData.eachMetaObjectName);
-    const eachMetaObjectParent = inflatedData.eachMetaObjectParent;
+    const eachObjectDataId = JSON.parse(inflatedData.eachObjectDataId);
+    const eachObjectDataType = inflatedData.eachObjectDataType;
+    const eachObjectDataName = JSON.parse(inflatedData.eachObjectDataName);
+    const eachObjectDataParent = inflatedData.eachObjectDataParent;
 
     const positions = inflatedData.positions;
     const normals = inflatedData.normals;
@@ -168,50 +168,50 @@ function load(viewer: Viewer,
     const eachMeshMatricesPortion = inflatedData.eachMeshMatricesPortion;
     const eachMeshMaterial = inflatedData.eachMeshMaterial;
 
-    const eachEntityMetaObject = inflatedData.eachEntityMetaObject;
+    const eachEntityObjectData = inflatedData.eachEntityObjectData;
     const eachEntityMeshesPortion = inflatedData.eachEntityMeshesPortion;
 
     const eachTileAABB = inflatedData.eachTileAABB;
     const eachTileEntitiesPortion = inflatedData.eachTileEntitiesPortion;
 
-    const numMetaObjects = eachMetaObjectId.length;
+    const numObjectDatas = eachObjectDataId.length;
     const numGeometries = eachGeometryPositionsPortion.length;
     const numMeshes = eachMeshGeometriesPortion.length;
-    const numEntities = eachEntityMetaObject.length;
+    const numEntities = eachEntityObjectData.length;
     const numTiles = eachTileEntitiesPortion.length;
 
     let nextMeshId = 0;
 
-    // Create metamodel, unless already loaded from JSON by XKTLoaderPlugin
+    // Create metaModel, unless already loaded from JSON by XKTLoaderPlugin
 
-    const metaModelId = sceneModel.id;
+    const modelDataId = sceneModel.id;
 
-    if (!viewer.metaScene.metaModels[metaModelId]) {
+    if (!viewer.sceneData.models[modelDataId]) {
 
 
-        const metaModelData = {
+        const modelDataData = {
             // @ts-ignore
-            metaObjects: []
+            objects: []
         };
 
-        for (let metaObjectIndex = 0; metaObjectIndex < numMetaObjects; metaObjectIndex++) {
+        for (let objectDataIndex = 0; objectDataIndex < numObjectDatas; objectDataIndex++) {
 
-            const metaObjectId = eachMetaObjectId[metaObjectIndex];
-            const typeIndex = eachMetaObjectType[metaObjectIndex];
-            const metaObjectType = types[typeIndex] || "default";
-            const metaObjectName = eachMetaObjectName[metaObjectIndex];
-            const metaObjectParentIndex = eachMetaObjectParent[metaObjectIndex];
-            const metaObjectParentId = (metaObjectParentIndex !== metaObjectIndex) ? eachMetaObjectId[metaObjectParentIndex] : null;
+            const objectDataId = eachObjectDataId[objectDataIndex];
+            const typeIndex = eachObjectDataType[objectDataIndex];
+            const objectDataType = types[typeIndex] || "default";
+            const objectDataName = eachObjectDataName[objectDataIndex];
+            const objectDataParentIndex = eachObjectDataParent[objectDataIndex];
+            const objectDataParentId = (objectDataParentIndex !== objectDataIndex) ? eachObjectDataId[objectDataParentIndex] : null;
 
-            metaModelData.metaObjects.push({
-                id: metaObjectId,
-                type: metaObjectType,
-                name: metaObjectName,
-                parent: metaObjectParentId
+            modelDataData.objects.push({
+                id: objectDataId,
+                type: objectDataType,
+                name: objectDataName,
+                parent: objectDataParentId
             });
         }
 
-        const metaModel = viewer.metaScene.createMetaModel(metaModelId, metaModelData, {
+        const metaModel = viewer.sceneData.createDataModel(modelDataId, modelDataData, {
             includeTypes: options.includeTypes,
             excludeTypes: options.excludeTypes,
             globalizeObjectIds: options.globalizeObjectIds
@@ -252,7 +252,7 @@ function load(viewer: Viewer,
         const tileAABBIndex = tileIndex * 6;
         const tileAABB = eachTileAABB.subarray(tileAABBIndex, tileAABBIndex + 6);
 
-        math.getAABB3Center(tileAABB, tileCenter);
+        math.boundaries.getAABB3Center(tileAABB, tileCenter);
 
         rtcAABB[0] = tileAABB[0] - tileCenter[0];
         rtcAABB[1] = tileAABB[1] - tileCenter[1];
@@ -261,7 +261,7 @@ function load(viewer: Viewer,
         rtcAABB[4] = tileAABB[4] - tileCenter[1];
         rtcAABB[5] = tileAABB[5] - tileCenter[2];
 
-        const tileDecodeMatrix = createPositionsDecodeMatrix(rtcAABB, math.mat4());
+        const tileDecodeMatrix = createPositionsDecompressMatrix(rtcAABB, math.mat4());
 
         const geometryCreated: { [key: string]: boolean } = {};
 
@@ -269,9 +269,9 @@ function load(viewer: Viewer,
 
         for (let tileEntityIndex = firstTileEntityIndex; tileEntityIndex < lastTileEntityIndex; tileEntityIndex++) {
 
-            const xktMetaObjectIndex = eachEntityMetaObject[tileEntityIndex];
-            const xktMetaObjectId = eachMetaObjectId[xktMetaObjectIndex];
-            const xktEntityId = xktMetaObjectId;
+            const xktObjectDataIndex = eachEntityObjectData[tileEntityIndex];
+            const xktObjectDataId = eachObjectDataId[xktObjectDataIndex];
+            const xktEntityId = xktObjectDataId;
 
             const entityId = options.globalizeObjectIds ? globalizeObjectId(sceneModel.id, xktEntityId) : xktEntityId;
 
@@ -282,25 +282,25 @@ function load(viewer: Viewer,
 
             const meshIds = [];
 
-            const metaObject = viewer.metaScene.metaObjects[entityId];
+            const objectData = viewer.sceneData.objects[entityId];
             const entityDefaults: { [key: string]: any } = {};
             const meshDefaults: { [key: string]: any } = {};
 
-            if (metaObject) {
+            if (objectData) {
 
                 // Mask loading of object types
 
-                if (options.excludeTypesMap && metaObject.type && options.excludeTypesMap[metaObject.type]) {
+                if (options.excludeTypesMap && objectData.type && options.excludeTypesMap[objectData.type]) {
                     continue;
                 }
 
-                if (options.includeTypesMap && metaObject.type && (!options.includeTypesMap[metaObject.type])) {
+                if (options.includeTypesMap && objectData.type && (!options.includeTypesMap[objectData.type])) {
                     continue;
                 }
 
                 // Get initial property values for object types
 
-                const props = options.objectDefaults ? options.objectDefaults[metaObject.type] || options.objectDefaults["DEFAULT"] : null;
+                const props = options.objectDefaults ? options.objectDefaults[objectData.type] || options.objectDefaults["DEFAULT"] : null;
 
                 if (props) {
                     if (props.visible === false) {
@@ -411,7 +411,7 @@ function load(viewer: Viewer,
                                 colorsCompressed: geometryColors,
                                 indices: geometryIndices,
                                 edgeIndices: geometryEdgeIndices,
-                                positionsDecodeMatrix: reusedGeometriesDecodeMatrix
+                                positionsDecompressMatrix: reusedGeometriesDecodeMatrix
                             });
 
                             geometryCreated[geometryId] = true;
@@ -489,7 +489,7 @@ function load(viewer: Viewer,
                             colorsCompressed: geometryColors,
                             indices: geometryIndices,
                             edgeIndices: geometryEdgeIndices,
-                            positionsDecodeMatrix: tileDecodeMatrix,
+                            positionsDecompressMatrix: tileDecodeMatrix,
                             color: meshColor,
                             metallic: meshMetallic,
                             roughness: meshRoughness,

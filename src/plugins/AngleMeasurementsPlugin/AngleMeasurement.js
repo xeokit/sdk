@@ -2,14 +2,14 @@ import {Marker} from "../../viewer/scene/marker/Marker.js";
 import {Wire} from "../lib/html/Wire.js";
 import {Dot} from "../lib/html/Dot.js";
 import {Label} from "../lib/html/Label.js";
-import {math} from "../../viewer/scene/math/math.js";
-import {Component} from "../../viewer/scene/Component.js";
+import * as math from "../../viewer/math/math.js";
+import {Component} from "../../viewer/Component.ts";
 
 var originVec = math.vec3();
 var targetVec = math.vec3();
 
 /**
- * @desc Measures the angle indicated by three 3D points.
+ * Measures the angle indicated by three 3D points.
  *
  * See {@link AngleMeasurementsPlugin} for more info.
  */
@@ -74,34 +74,34 @@ class AngleMeasurement extends Component {
         this._originMarker.on("worldPos", (value) => {
             this._originWorld.set(value || [0, 0, 0]);
             this._wpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this._cornerMarker.on("worldPos", (value) => {
             this._cornerWorld.set(value || [0, 0, 0]);
             this._wpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this._targetMarker.on("worldPos", (value) => {
             this._targetWorld.set(value || [0, 0, 0]);
             this._wpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this._onViewMatrix = scene.camera.on("viewMatrix", () => {
             this._vpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this._onProjMatrix = scene.camera.on("projMatrix", () => {
             this._cpDirty = true;
-            this._needUpdate();
+            this.setDirty();
         });
 
         this._onCanvasBoundary = scene.canvas.on("boundary", () => {
             this._cpDirty = true;
-            this._needUpdate(0); // No lag
+            this.setDirty(); 
         });
 
         this.approximate = cfg.approximate;
@@ -117,7 +117,7 @@ class AngleMeasurement extends Component {
         this.angleVisible = cfg.angleVisible;
     }
 
-    _update() {
+    clean() {
 
         if (!this._visible) {
             return;
@@ -257,7 +257,7 @@ class AngleMeasurement extends Component {
         }
         this._approximate = approximate;
         this._cpDirty = true;
-        this._needUpdate(0);
+        this.setDirty();
     }
 
     /**
@@ -305,7 +305,7 @@ class AngleMeasurement extends Component {
      * @type {Number}
      */
     get angle() {
-        this._update();
+        this.cleanIfDirty();
         return this._angle;
     }
 

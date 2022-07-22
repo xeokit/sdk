@@ -1,4 +1,4 @@
-import * as utils from "../../viewer/utils";
+import * as utils from "../../viewer/utils/index";
 import {XKTDataSource} from "./XKTDataSource";
 
 /**
@@ -12,14 +12,14 @@ export class XKTDefaultDataSource implements XKTDataSource {
     }
 
     /**
-     * Gets metamodel JSON.
+     * Gets metaModel JSON.
      *
-     * @param {String|Number} metaModelSrc Identifies the metamodel JSON asset.
-     * @param {{Function(*)}} ok Fired on successful loading of the metamodel JSON asset.
-     * @param {{Function(*)}} error Fired on error while loading the metamodel JSON asset.
+     * @param {String|Number} modelDataSrc Identifies the metaModel JSON asset.
+     * @param {{Function(*)}} ok Fired on successful loading of the metaModel JSON asset.
+     * @param {{Function(*)}} error Fired on error while loading the metaModel JSON asset.
      */
-    getMetaModel(metaModelSrc: string, ok: (arg0: any) => void, error: (arg0: any) => void) {
-        utils.loadJSON(metaModelSrc,
+    getModelData(modelDataSrc: string, ok: (arg0: any) => void, error: (arg0: any) => void) {
+        utils.loadJSON(modelDataSrc,
             (json) => {
                 ok(json);
             },

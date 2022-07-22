@@ -1,7 +1,7 @@
-import {Plugin} from "../../viewer/Plugin.js";
+import {Plugin} from "../../viewer/Plugin.ts";
 import {Annotation} from "./Annotation.js";
-import {utils} from "../../viewer/scene/utils.js";
-import {math} from "../../viewer/scene/math/math.js";
+import * as utils from "../../viewer/scene/utils.js";
+import * as math from "../../viewer/math/math.js";
 
 const tempVec3a = math.vec3();
 const tempVec3b = math.vec3();
@@ -49,7 +49,7 @@ const tempVec3c = math.vec3();
  * [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#annotations_clickShowLabels)]
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin,AnnotationsPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin,AnnotationsPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas",
@@ -376,12 +376,12 @@ class AnnotationsPlugin extends Plugin {
      * @constructor
      * @param {Viewer} viewer The Viewer.
      * @param {Object} cfg  Plugin configuration.
-     * @param {String} [cfg.id="Annotations"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {String} [cfg.markerHTML] HTML text template for Annotation markers. Defaults to ````<div></div>````. Ignored on {@link Annotation}s configured with a ````markerElementId````.
-     * @param {String} [cfg.labelHTML] HTML text template for Annotation labels. Defaults to ````<div></div>````.  Ignored on {@link Annotation}s configured with a ````labelElementId````.
+     * @param [cfg.id="Annotations"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.markerHTML] HTML text template for Annotation markers. Defaults to ````<div></div>````. Ignored on {@link Annotation}s configured with a ````markerElementId````.
+     * @param [cfg.labelHTML] HTML text template for Annotation labels. Defaults to ````<div></div>````.  Ignored on {@link Annotation}s configured with a ````labelElementId````.
      * @param {HTMLElement} [cfg.container] Container DOM element for markers and labels. Defaults to ````document.body````.
      * @param {{String:(String|Number)}} [cfg.values={}] Map of default values to insert into the HTML templates for the marker and label.
-     * @param {Number}  [cfg.surfaceOffset=0.3] The amount by which each {@link Annotation} is offset from the surface of
+     * @param  [cfg.surfaceOffset=0.3] The amount by which each {@link Annotation} is offset from the surface of
      * its {@link Entity} when we create the Annotation by supplying a {@link PickResult} to {@link AnnotationsPlugin#createAnnotation}.
      */
     constructor(viewer, cfg) {
@@ -421,7 +421,7 @@ class AnnotationsPlugin extends Plugin {
      *
      * This is ````0.3```` by default.
      *
-     * @param {Number} surfaceOffset The surface offset.
+     * @param surfaceOffset The surface offset.
      */
     set surfaceOffset(surfaceOffset) {
         if (surfaceOffset === undefined || surfaceOffset === null) {
@@ -449,23 +449,23 @@ class AnnotationsPlugin extends Plugin {
      * The Annotation is then registered by {@link Annotation#id} in {@link AnnotationsPlugin#annotations}.
      *
      * @param {Object} params Annotation configuration.
-     * @param {String} params.id Unique ID to assign to {@link Annotation#id}. The Annotation will be registered by this in {@link AnnotationsPlugin#annotations} and {@link Scene.components}. Must be unique among all components in the {@link Viewer}.
-     * @param {String} [params.markerElementId] ID of pre-existing DOM element to render the marker. This overrides ````markerHTML```` and does not support ````values```` (data is baked into the label DOM element).
-     * @param {String} [params.labelElementId] ID of pre-existing DOM element to render the label. This overrides ````labelHTML```` and does not support ````values```` (data is baked into the label DOM element).
-     * @param {String} [params.markerHTML] HTML text template for the Annotation marker. Defaults to the marker HTML given to the AnnotationsPlugin constructor. Ignored if you provide ````markerElementId````.
-     * @param {String} [params.labelHTML] HTML text template for the Annotation label. Defaults to the label HTML given to the AnnotationsPlugin constructor. Ignored if you provide ````labelElementId````.
-     * @param {Number[]} [params.worldPos=[0,0,0]] World-space position of the Annotation marker, assigned to {@link Annotation#worldPos}.
+     * @param params.id Unique ID to assign to {@link Annotation#id}. The Annotation will be registered by this in {@link AnnotationsPlugin#annotations} and {@link Scene.components}. Must be unique among all components in the {@link Viewer}.
+     * @param [params.markerElementId] ID of pre-existing DOM element to render the marker. This overrides ````markerHTML```` and does not support ````values```` (data is baked into the label DOM element).
+     * @param [params.labelElementId] ID of pre-existing DOM element to render the label. This overrides ````labelHTML```` and does not support ````values```` (data is baked into the label DOM element).
+     * @param [params.markerHTML] HTML text template for the Annotation marker. Defaults to the marker HTML given to the AnnotationsPlugin constructor. Ignored if you provide ````markerElementId````.
+     * @param [params.labelHTML] HTML text template for the Annotation label. Defaults to the label HTML given to the AnnotationsPlugin constructor. Ignored if you provide ````labelElementId````.
+     * @param [params.worldPos=[0,0,0]] World-space position of the Annotation marker, assigned to {@link Annotation#worldPos}.
      * @param {Entity} [params.entity] Optional {@link Entity} to associate the Annotation with. Causes {@link Annotation#visible} to be ````false```` whenever {@link Entity#visible} is also ````false````.
      * @param {PickResult} [params.pickResult] Sets the Annotation's World-space position and direction vector from the given {@link PickResult}'s {@link PickResult#worldPos} and {@link PickResult#worldNormal}, and the Annotation's Entity from {@link PickResult#entity}. Causes ````worldPos```` and ````entity```` parameters to be ignored, if they are also given.
-     * @param {Boolean} [params.occludable=false] Indicates whether or not the {@link Annotation} marker and label are hidden whenever the marker occluded by {@link Entity}s in the {@link Scene}. The
+     * @param [params.occludable=false] Indicates whether or not the {@link Annotation} marker and label are hidden whenever the marker occluded by {@link Entity}s in the {@link Scene}. The
      * {@link Scene} periodically occlusion-tests all Annotations on every 20th "tick" (which represents a rendered frame). We can adjust that frequency via property {@link Scene#ticksPerOcclusionTest}.
      * @param  {{String:(String|Number)}} [params.values={}] Map of values to insert into the HTML templates for the marker and label. These will be inserted in addition to any values given to the AnnotationsPlugin constructor.
-     * @param {Boolean} [params.markerShown=true] Whether to initially show the {@link Annotation} marker.
-     * @param {Boolean} [params.labelShown=false] Whether to initially show the {@link Annotation} label.
-     * @param {Number[]} [params.eye] Optional World-space position for {@link Camera#eye}, used when this Annotation is associated with a {@link Camera} position.
-     * @param {Number[]} [params.look] Optional World-space position for {@link Camera#look}, used when this Annotation is associated with a {@link Camera} position.
-     * @param {Number[]} [params.up] Optional World-space position for {@link Camera#up}, used when this Annotation is associated with a {@link Camera} position.
-     * @param {String} [params.projection] Optional projection type for {@link Camera#projection}, used when this Annotation is associated with a {@link Camera} position.
+     * @param [params.markerShown=true] Whether to initially show the {@link Annotation} marker.
+     * @param [params.labelShown=false] Whether to initially show the {@link Annotation} label.
+     * @param [params.eye] Optional World-space position for {@link Camera#eye}, used when this Annotation is associated with a {@link Camera} position.
+     * @param [params.look] Optional World-space position for {@link Camera#look}, used when this Annotation is associated with a {@link Camera} position.
+     * @param [params.up] Optional World-space position for {@link Camera#up}, used when this Annotation is associated with a {@link Camera} position.
+     * @param [params.projection] Optional projection type for {@link Camera#projection}, used when this Annotation is associated with a {@link Camera} position.
      * @returns {Annotation} The new {@link Annotation}.
      */
     createAnnotation(params) {
@@ -531,16 +531,16 @@ class AnnotationsPlugin extends Plugin {
         this.annotations[annotation.id] = annotation;
         annotation.on("destroyed", () => {
             delete this.annotations[annotation.id];
-            this.fire("annotationDestroyed", annotation.id);
+            this.events.fire("annotationDestroyed", annotation.id);
         });
-        this.fire("annotationCreated", annotation.id);
+        this.events.fire("annotationCreated", annotation.id);
         return annotation;
     }
 
     /**
      * Destroys an {@link Annotation}.
      *
-     * @param {String} id ID of Annotation to destroy.
+     * @param id ID of Annotation to destroy.
      */
     destroyAnnotation(id) {
         var annotation = this.annotations[id];

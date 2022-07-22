@@ -1,14 +1,14 @@
-import {Plugin} from "../../viewer/Plugin.js";
-import {Scene} from "../../viewer/scene/scene/Scene.js";
-import {AmbientLight} from "../../viewer/scene/lights/AmbientLight.js";
-import {DirLight} from "../../viewer/scene/lights/DirLight.js";
+import {Plugin} from "../../viewer/Plugin.ts";
+import {Scene} from "../../viewer/scene/Scene.ts";
+import {AmbientLight} from "../../viewer/view/lights/AmbientLight.js";
+import {DirLight} from "../../viewer/view/lights/DirLight.js";
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.js";
+import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
 import {buildCylinderGeometry} from "../../viewer/scene/geometry/builders/buildCylinderGeometry.js";
 import {buildSphereGeometry} from "../../viewer/scene/geometry/builders/buildSphereGeometry.js";
 import {buildVectorTextGeometry} from "../../viewer/scene/geometry/builders/buildVectorTextGeometry.js";
 import {PhongMaterial} from "../../viewer/scene/materials/PhongMaterial.js";
-import {math} from "../../viewer/scene/math/math.js";
+import * as math from "../../viewer/math/math.js";
 
 /**
  * {@link Viewer} plugin that shows the axii of the World-space coordinate system.
@@ -18,7 +18,7 @@ import {math} from "../../viewer/scene/math/math.js";
  * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/#gizmos_AxisGizmoPlugin)]
  *
  * ````JavaScript````
- * import {Viewer, XKTLoaderPlugin, AxisGizmoPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, AxisGizmoPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"
@@ -47,8 +47,8 @@ class AxisGizmoPlugin extends Plugin {
      * @constructor
      * @param {Viewer} viewer The Viewer.
      * @param {Object} cfg  Plugin configuration.
-     * @param {String} [cfg.id="AxisGizmo"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {String} [cfg.canvasId] ID of an existing HTML canvas to display the AxisGizmo - either this or canvasElement is mandatory. When both values are given, the element reference is always preferred to the ID.
+     * @param [cfg.id="AxisGizmo"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.canvasId] ID of an existing HTML canvas to display the AxisGizmo - either this or canvasElement is mandatory. When both values are given, the element reference is always preferred to the ID.
      * @param {HTMLCanvasElement} [cfg.canvasElement] Reference of an existing HTML canvas to display the AxisGizmo - either this or canvasId is mandatory. When both values are given, the element reference is always preferred to the ID.
      */
     constructor(viewer, cfg) {

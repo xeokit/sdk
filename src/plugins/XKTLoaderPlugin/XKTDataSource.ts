@@ -3,13 +3,13 @@
  */
 export interface XKTDataSource {
     /**
-     * Gets metamodel JSON.
+     * Gets metaModel JSON.
      *
-     * @param {String|Number} metaModelSrc Identifies the metamodel JSON asset.
-     * @param {{Function(*)}} ok Fired on successful loading of the metamodel JSON asset.
-     * @param {{Function(*)}} error Fired on error while loading the metamodel JSON asset.
+     * @param {String|Number} modelDataSrc Identifies the metaModel JSON asset.
+     * @param {{Function(*)}} ok Fired on successful loading of the metaModel JSON asset.
+     * @param {{Function(*)}} error Fired on error while loading the metaModel JSON asset.
      */
-    getMetaModel(metaModelSrc: string, ok: (arg0: any) => void, error: (arg0: any) => void): void;
+    getModelData(modelDataSrc: string, ok: (arg0: any) => void, error: (arg0: any) => void): void;
 
     /**
      * Gets the contents of the given ````.xkt```` file in an arraybuffer.

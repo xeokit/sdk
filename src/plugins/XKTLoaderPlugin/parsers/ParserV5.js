@@ -224,7 +224,7 @@ function load(viewer, options, inflatedData, performanceModel) {
 
             performanceModel.createEntity(utils.apply(entityDefaults, {
                 id: entityId,
-                isObject: true, ///////////////// TODO: If metaobject exists
+                isObject: true, ///////////////// TODO: If objectData exists
                 meshIds: meshIds
             }));
         }

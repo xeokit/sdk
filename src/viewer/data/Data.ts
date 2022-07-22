@@ -63,7 +63,7 @@ class Data extends Component {
      */
     constructor(viewer: Viewer) {
 
-        super(viewer);
+        super();
 
         this.viewer = viewer;
         this.dataModels = {};

@@ -1,11 +1,11 @@
-import {Plugin} from "../../viewer/Plugin.js";
+import {Plugin} from "../../viewer/Plugin.ts";
 import {Storey} from "./Storey.js";
 import {IFCStoreyPlanObjectStates} from "./IFCStoreyPlanObjectStates.js";
-import {math} from "../../viewer/scene/math/math.js";
-import {ObjectsMemento} from "../../viewer/scene/mementos/ObjectsMemento.js";
-import {CameraMemento} from "../../viewer/scene/mementos/CameraMemento.js";
+import * as math from "../../viewer/math/math.js";
+import {ViewObjectsMemento} from "../../viewer/view/mementos/ViewObjectsMemento.js";
+import {CameraMemento} from "../../viewer/view/mementos/CameraMemento.js";
 import {StoreyMap} from "./StoreyMap.js";
-import {utils} from "../../viewer/scene/utils.js";
+import * as utils from "../../viewer/scene/utils.js";
 
 const tempVec3a = math.vec3();
 const tempMat4 = math.mat4();
@@ -14,7 +14,7 @@ const EMPTY_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA
 
 
 /**
- * @desc A {@link Viewer} plugin that provides methods for visualizing IfcBuildingStoreys.
+ * A {@link Viewer} plugin that provides methods for visualizing IfcBuildingStoreys.
  *
  *  <a href="https://xeokit.github.io/xeokit-sdk/examples/#storeyViews_StoreyViewsPlugin_recipe2"><img src="http://xeokit.io/img/docs/StoreyViewsPlugin/minimap.gif"></a>
  *
@@ -42,7 +42,7 @@ const EMPTY_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA
  * Then we'll load a BIM building model from an  ```.xkt``` file.
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin, StoreyViewsPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, StoreyViewsPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * // Create a Viewer, arrange the camera
  *
@@ -124,11 +124,11 @@ const EMPTY_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA
  * When using this option, at some point later you'll probably want to restore all Entitys to their original visibilities and
  * appearances.
  *
- * To do that, save their visibility and appearance states in an {@link ObjectsMemento} beforehand, from
+ * To do that, save their visibility and appearance states in an {@link ViewObjectsMemento} beforehand, from
  * which you can restore them later:
  *
  * ````javascript
- * const objectsMemento = new ObjectsMemento();
+ * const objectsMemento = new ViewObjectsMemento();
  *
  * // Save all Entity visibility and appearance states
  *
@@ -143,7 +143,7 @@ const EMPTY_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA
  * //...
  *
  * // Later, restore all Entitys to their saved visibility and appearance states
- * objectsMemento.restoreObjects(viewer.scene);
+ * objectsMemento.restoreViewObjects(viewer.scene);
  * ````
  *
  * ## Arranging the Camera for Storey Plan Views
@@ -274,20 +274,20 @@ class StoreyViewsPlugin extends Plugin {
      *
      * @param {Viewer} viewer The Viewer.
      * @param {Object} cfg  Plugin configuration.
-     * @param {String} [cfg.id="StoreyViews"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.id="StoreyViews"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
      * @param {Object} [cfg.objectStates] Map of visual states for the {@link Entity}s as rendered within each {@link Storey}.  Default value is {@link IFCStoreyPlanObjectStates}.
      */
     constructor(viewer, cfg = {}) {
 
         super("StoreyViews", viewer);
 
-        this._objectsMemento = new ObjectsMemento();
+        this._objectsMemento = new ViewObjectsMemento();
         this._cameraMemento = new CameraMemento();
 
         /**
          * A {@link Storey} for each ````IfcBuildingStorey```.
          *
-         * There will be a {@link Storey} for every existing {@link MetaObject} whose {@link MetaObject#type} equals "IfcBuildingStorey".
+         * There will be a {@link Storey} for every existing {@link DataObject} whose {@link DataObject#type} equals "IfcBuildingStorey".
          *
          * These are created and destroyed automatically as models are loaded and destroyed.
          *
@@ -296,7 +296,7 @@ class StoreyViewsPlugin extends Plugin {
         this.storeys = {};
 
         /**
-         * A set of {@link Storey}s for each {@link MetaModel}.
+         * A set of {@link Storey}s for each {@link DataModel}.
          *
          * These are created and destroyed automatically as models are loaded and destroyed.
          *
@@ -308,30 +308,30 @@ class StoreyViewsPlugin extends Plugin {
 
         this._onModelLoaded = this.viewer.scene.on("modelLoaded", (modelId) => {
             this._registerModelStoreys(modelId);
-            this.fire("storeys", this.storeys);
+            this.events.fire("storeys", this.storeys);
         });
     }
 
     _registerModelStoreys(modelId) {
         const viewer = this.viewer;
         const scene = viewer.scene;
-        const metaScene = viewer.metaScene;
-        const metaModel = metaScene.metaModels[modelId];
+        const sceneData = viewer.sceneData;
+        const metaModel = sceneData.models[modelId];
         const model = scene.models[modelId];
-        if (!metaModel || !metaModel.rootMetaObject) {
+        if (!metaModel || !metaModel.rootObject) {
             return;
         }
-        const storeyIds = metaModel.rootMetaObject.getObjectIDsInSubtreeByType(["IfcBuildingStorey"]);
+        const storeyIds = metaModel.rootObject.getDataObjectIdsInSubtreeByType(["IfcBuildingStorey"]);
         for (let i = 0, len = storeyIds.length; i < len; i++) {
             const storeyId = storeyIds[i];
-            const metaObject = metaScene.metaObjects[storeyId];
-            const childObjectIds = metaObject.getObjectIDsInSubtree();
+            const objectData = sceneData.objects[storeyId];
+            const childObjectIds = objectData.getDataObjectIdsInSubtree();
             const aabb = scene.getAABB(childObjectIds);
             const numObjects = (Math.random() > 0.5) ? childObjectIds.length : 0;
             const storey = new Storey(this, aabb, modelId, storeyId, numObjects);
             storey._onModelDestroyed = model.once("destroyed", () => {
                 this._deregisterModelStoreys(modelId);
-                this.fire("storeys", this.storeys);
+                this.events.fire("storeys", this.storeys);
             });
             this.storeys[storeyId] = storey;
             if (!this.modelStoreys[modelId]) {
@@ -386,9 +386,9 @@ class StoreyViewsPlugin extends Plugin {
      *
      * See also: {@link CameraMemento}, which saves and restores the state of the {@link Scene}'s {@link Camera}
      *
-     * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
-     * @param {*} [options] Options for arranging the Camera.
-     * @param {String} [options.projection] Projection type to transition the Camera to. Accepted values are "perspective" and "ortho".
+     * @param storeyId ID of the ````IfcBuildingStorey```` object.
+     * @param [options] Options for arranging the Camera.
+     * @param [options.projection] Projection type to transition the Camera to. Accepted values are "perspective" and "ortho".
      * @param {Function} [options.done] Callback to fire when the Camera has arrived. When provided, causes an animated flight to the saved state. Otherwise jumps to the saved state.
      */
     gotoStoreyCamera(storeyId, options = {}) {
@@ -420,8 +420,8 @@ class StoreyViewsPlugin extends Plugin {
             }
             return;
         }
-        const look2 = math.getAABB3Center(aabb);
-        const diag = math.getAABB3Diag(aabb);
+        const look2 = math.boundaries.getAABB3Center(aabb);
+        const diag = math.boundaries.getAABB3Diag(aabb);
         const fitFOV = 45; // fitFOV;
         const sca = Math.abs(diag / Math.tan(fitFOV * math.DEGTORAD));
 
@@ -467,13 +467,13 @@ class StoreyViewsPlugin extends Plugin {
      * Optionally sets the visual appearance of each of the Entitys according to its IFC type. The appearance of
      * IFC types in plan views is configured by {@link StoreyViewsPlugin#objectStates}.
      *
-     * See also: {@link ObjectsMemento}, which saves and restores a memento of the visual state
+     * See also: {@link ViewObjectsMemento}, which saves and restores a memento of the visual state
      * of the {@link Entity}'s that represent objects within a {@link Scene}.
      *
-     * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
-     * @param {*} [options] Options for showing the Entitys within the storey.
-     * @param {Boolean} [options.hideOthers=false] When ````true````, hide all other {@link Entity}s.
-     * @param {Boolean} [options.useObjectStates=false] When ````true````, apply the custom visibilities and appearances configured for IFC types in {@link StoreyViewsPlugin#objectStates}.
+     * @param storeyId ID of the ````IfcBuildingStorey```` object.
+     * @param [options] Options for showing the Entitys within the storey.
+     * @param [options.hideOthers=false] When ````true````, hide all other {@link Entity}s.
+     * @param [options.useObjectStates=false] When ````true````, apply the custom visibilities and appearances configured for IFC types in {@link StoreyViewsPlugin#objectStates}.
      */
     showStoreyObjects(storeyId, options = {}) {
 
@@ -486,10 +486,10 @@ class StoreyViewsPlugin extends Plugin {
 
         const viewer = this.viewer;
         const scene = viewer.scene;
-        const metaScene = viewer.metaScene;
-        const storeyMetaObject = metaScene.metaObjects[storeyId];
+        const sceneData = viewer.sceneData;
+        const storeyObjectData = sceneData.objects[storeyId];
 
-        if (!storeyMetaObject) {
+        if (!storeyObjectData) {
             return;
         }
 
@@ -497,10 +497,10 @@ class StoreyViewsPlugin extends Plugin {
             scene.setObjectsVisible(viewer.scene.visibleObjectIds, false);
         }
 
-        this.withStoreyObjects(storeyId, (entity, metaObject) => {
+        this.withStoreyObjects(storeyId, (entity, objectData) => {
             if (entity) {
                 if (options.useObjectStates) {
-                    const props = this._objectStates[metaObject.type] || this._objectStates["DEFAULT"];
+                    const props = this._objectStates[objectData.type] || this._objectStates["DEFAULT"];
                     if (props) {
                         entity.visible = props.visible;
                         entity.edges = props.edges;
@@ -527,35 +527,35 @@ class StoreyViewsPlugin extends Plugin {
      * ## Usage
      *
      * In the example below, we'll show all the {@link Entity}s, within the given ````IfcBuildingStorey````,
-     * that have {@link MetaObject}s with type ````IfcSpace````. Note that the callback will only be given
-     * an {@link Entity} when one exists for the given {@link MetaObject}.
+     * that have {@link DataObject}s with type ````IfcSpace````. Note that the callback will only be given
+     * an {@link Entity} when one exists for the given {@link DataObject}.
      *
      * ````JavaScript
-     * myStoreyViewsPlugin.withStoreyObjects(storeyId, (entity, metaObject) => {
-     *      if (entity && metaObject && metaObject.type === "IfcSpace") {
+     * myStoreyViewsPlugin.withStoreyObjects(storeyId, (entity, objectData) => {
+     *      if (entity && objectData && objectData.type === "IfcSpace") {
      *          entity.visible = true;
      *      }
      * });
      * ````
      *
-     * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
+     * @param storeyId ID of the ````IfcBuildingStorey```` object.
      * @param {Function} callback The callback.
      */
     withStoreyObjects(storeyId, callback) {
         const viewer = this.viewer;
         const scene = viewer.scene;
-        const metaScene = viewer.metaScene;
-        const rootMetaObject = metaScene.metaObjects[storeyId];
-        if (!rootMetaObject) {
+        const sceneData = viewer.sceneData;
+        const rootObjectData = sceneData.objects[storeyId];
+        if (!rootObjectData) {
             return;
         }
-        const storeySubObjects = rootMetaObject.getObjectIDsInSubtree();
+        const storeySubObjects = rootObjectData.getDataObjectIdsInSubtree();
         for (var i = 0, len = storeySubObjects.length; i < len; i++) {
             const objectId = storeySubObjects[i];
-            const metaObject = metaScene.metaObjects[objectId];
+            const objectData = sceneData.objects[objectId];
             const entity = scene.objects[objectId];
             if (entity) {
-                callback(entity, metaObject);
+                callback(entity, objectData);
             }
         }
     }
@@ -563,11 +563,11 @@ class StoreyViewsPlugin extends Plugin {
     /**
      * Creates a 2D map of the given storey.
      *
-     * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
-     * @param {*} [options] Options for creating the image.
-     * @param {Number} [options.width=300] Image width in pixels. Height will be automatically determined from this, if not given.
-     * @param {Number} [options.height=300] Image height in pixels, as an alternative to width. Width will be automatically determined from this, if not given.
-     * @param {String} [options.format="png"] Image format. Accepted values are "png" and "jpeg".
+     * @param storeyId ID of the ````IfcBuildingStorey```` object.
+     * @param [options] Options for creating the image.
+     * @param [options.width=300] Image width in pixels. Height will be automatically determined from this, if not given.
+     * @param [options.height=300] Image height in pixels, as an alternative to width. Width will be automatically determined from this, if not given.
+     * @param [options.format="png"] Image format. Accepted values are "png" and "jpeg".
      * @returns {StoreyMap} The StoreyMap.
      */
     createStoreyMap(storeyId, options = {}) {
@@ -623,7 +623,7 @@ class StoreyViewsPlugin extends Plugin {
             format: format,
         });
 
-        this._objectsMemento.restoreObjects(scene);
+        this._objectsMemento.restoreViewObjects(scene);
         this._cameraMemento.restoreCamera(scene);
 
         viewer.endSnapshot();
@@ -636,7 +636,7 @@ class StoreyViewsPlugin extends Plugin {
         const scene = viewer.scene;
         const camera = scene.camera;
         const aabb = storey.aabb;
-        const look = math.getAABB3Center(aabb);
+        const look = math.boundaries.getAABB3Center(aabb);
         const sca = 0.5;
         const eye = tempVec3a;
         eye[0] = look[0] + (camera.worldUp[0] * sca);
@@ -661,9 +661,9 @@ class StoreyViewsPlugin extends Plugin {
      * Attempts to pick an {@link Entity} at the given pixel coordinates within a StoreyMap image.
      *
      * @param {StoreyMap} storeyMap The StoreyMap.
-     * @param {Number[]} imagePos 2D pixel coordinates within the bounds of {@link StoreyMap#imageData}.
-     * @param {*} [options] Picking options.
-     * @param {Boolean} [options.pickSurface=false] Whether to return the picked position on the surface of the Entity.
+     * @param imagePos 2D pixel coordinates within the bounds of {@link StoreyMap#imageData}.
+     * @param [options] Picking options.
+     * @param [options.pickSurface=false] Whether to return the picked position on the surface of the Entity.
      * @returns {PickResult} The pick result, if an Entity was successfully picked, else null.
      */
     pickStoreyMap(storeyMap, imagePos, options = {}) {
@@ -705,8 +705,8 @@ class StoreyViewsPlugin extends Plugin {
         });
 
         if (pickResult) {
-            const metaObject = this.viewer.metaScene.metaObjects[pickResult.entity.id];
-            const objectState = this.objectStates[metaObject.type];
+            const objectData = this.viewer.sceneData.objects[pickResult.entity.id];
+            const objectState = this.objectStates[objectData.type];
             if (!objectState || !objectState.visible) {
                 return null;
             }
@@ -718,7 +718,7 @@ class StoreyViewsPlugin extends Plugin {
     /**
      * Gets the ID of the storey that contains the given 3D World-space position.
      *.
-     * @param {Number[]} worldPos 3D World-space position.
+     * @param worldPos 3D World-space position.
      * @returns {String} ID of the storey containing the position, or null if the position falls outside all the storeys.
      */
     getStoreyContainingWorldPos(worldPos) {
@@ -737,8 +737,8 @@ class StoreyViewsPlugin extends Plugin {
      * Use {@link StoreyViewsPlugin#pickStoreyMap} to convert 2D image positions to 3D world-space.
      *
      * @param {StoreyMap} storeyMap The StoreyMap.
-     * @param {Number[]} worldPos 3D World-space position within the storey.
-     * @param {Number[]} imagePos 2D pixel position within the {@link StoreyMap#imageData}.
+     * @param worldPos 3D World-space position within the storey.
+     * @param imagePos 2D pixel position within the {@link StoreyMap#imageData}.
      * @returns {Boolean} True if ````imagePos```` is within the bounds of the {@link StoreyMap#imageData}, else ````false```` if it falls outside.
      */
     worldPosToStoreyMap(storeyMap, worldPos, imagePos) {
@@ -785,8 +785,8 @@ class StoreyViewsPlugin extends Plugin {
      * Converts a 3D World-space direction vector to a 2D vector within a StoreyMap image.
      *
      * @param {StoreyMap} storeyMap The StoreyMap.
-     * @param {Number[]} worldDir 3D World-space direction vector.
-     * @param {Number[]} imageDir Normalized 2D direction vector.
+     * @param worldDir 3D World-space direction vector.
+     * @param imageDir Normalized 2D direction vector.
      */
     worldDirToStoreyMap(storeyMap, worldDir, imageDir) {
         const camera = this.viewer.camera;

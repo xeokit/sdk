@@ -1,6 +1,6 @@
-import {Plugin} from "../../viewer/Plugin.js";
-import {math} from "../../viewer/scene/math/math.js";
-import {Frustum, frustumIntersectsAABB3, setFrustum} from "../../viewer/scene/math/Frustum.js";
+import {Plugin} from "../../viewer/Plugin.ts";
+import * as math from "../../viewer/math/math.js";
+import {Frustum, frustumIntersectsAABB3, setFrustum} from "../../viewer/math/Frustum.js";
 import {getObjectCullStates} from "../lib/culling/ObjectCullStates.js";
 
 const MAX_KD_TREE_DEPTH = 8; // Increase if greater precision needed
@@ -48,8 +48,8 @@ class ViewCullPlugin extends Plugin {
      * @constructor
      * @param {Viewer} viewer The Viewer.
      * @param {Object} cfg  Plugin configuration.
-     * @param {String} [cfg.id="ViewCull"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {Number} [cfg.maxTreeDepth=8] Maximum depth of the kd-tree.
+     * @param [cfg.id="ViewCull"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.maxTreeDepth=8] Maximum depth of the kd-tree.
      */
     constructor(viewer, cfg = {}) {
 
@@ -88,7 +88,7 @@ class ViewCullPlugin extends Plugin {
     /**
      * Sets whether view culling is enabled.
      *
-     * @param {Boolean} enabled Whether to enable view culling.
+     * @param enabled Whether to enable view culling.
      */
     set enabled(enabled) {
         this._enabled = enabled;
@@ -107,14 +107,14 @@ class ViewCullPlugin extends Plugin {
         const modelInfo = {
             model: model,
             onDestroyed: model.on("destroyed", () => {
-                this._removeModel(model);
+                this._removeSceneModel(model);
             })
         };
         this._modelInfos[model.id] = modelInfo;
         this._kdTreeDirty = true;
     }
 
-    _removeModel(model) {
+    _removeSceneModel(model) {
         const modelInfo = this._modelInfos[model.id];
         if (modelInfo) {
             modelInfo.model.off(modelInfo.onDestroyed);

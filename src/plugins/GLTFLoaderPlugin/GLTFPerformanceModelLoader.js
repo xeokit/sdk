@@ -1,7 +1,7 @@
-import {math} from "../../viewer/scene/math/math.js";
-import {utils} from "../../viewer/scene/utils.js";
-import {core} from "../../viewer/scene/core.js";
-import {buildEdgeIndices} from '../../viewer/scene/math/buildEdgeIndices.js';
+import * as math from "../../viewer/math/math.js";
+import * as utils from "../../viewer/scene/utils.js";
+import {scheduler} from "../../viewer/scene/scheduler.js";
+import {buildEdgeIndices} from '../../viewer/math/buildEdgeIndices.js';
 
 /**
  * @private
@@ -15,7 +15,7 @@ class GLTFPerformanceModelLoader {
     load(plugin, performanceModel, src, options, ok, error) {
         options = options || {};
         loadGLTF(plugin, performanceModel, src, options, function () {
-                core.scheduleTask(function () {
+                scheduler.scheduleTask(function () {
                     performanceModel.scene.fire("modelLoaded", performanceModel.id); // FIXME: Assumes listeners know order of these two events
                     performanceModel.fire("loaded", true, false);
                 });

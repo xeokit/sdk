@@ -1,5 +1,5 @@
 /**
- * @desc Information about an ````IfcBuildingStorey````.
+ * Information about an ````IfcBuildingStorey````.
  *
  * These are provided by a {@link StoreyViewsPlugin}.
  */
@@ -21,7 +21,7 @@ class Storey {
         /**
          * ID of the IfcBuildingStorey.
          *
-         * This matches IDs of the IfcBuildingStorey's {@link MetaObject} and {@link Entity}.
+         * This matches IDs of the IfcBuildingStorey's {@link DataObject} and {@link Entity}.
          *
          * @property storeyId
          * @type {String}
@@ -31,7 +31,7 @@ class Storey {
         /**
          * ID of the model.
          *
-         * This matches the ID of the {@link MetaModel} that contains the IfcBuildingStorey's {@link MetaObject}.
+         * This matches the ID of the {@link DataModel} that contains the IfcBuildingStorey's {@link DataObject}.
          *
          * @property modelId
          * @type {String|Number}

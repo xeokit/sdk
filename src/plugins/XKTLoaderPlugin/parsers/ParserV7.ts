@@ -4,14 +4,14 @@
 
  */
 
-import * as utils from "../../../viewer/utils";
-import {globalizeObjectId} from "../../../viewer/utils";
+import * as utils from "../../../viewer/utils/index";
+import {globalizeObjectId} from "../../../viewer/utils/index";
 
 // @ts-ignore
 import * as p from "./lib/pako.js";
 import * as math from "../../../viewer/math/";
 import {SceneModel, Viewer} from "../../../viewer";
-import {createPositionsDecodeMatrix} from "../../../viewer";
+import {createPositionsDecompressMatrix} from "../../../viewer";
 
 // @ts-ignore
 let pako = window.pako || p;
@@ -190,7 +190,7 @@ function load(viewer: Viewer, options: any, inflatedData: any, sceneModel: Scene
         const tileAABBIndex = tileIndex * 6;
         const tileAABB = eachTileAABB.subarray(tileAABBIndex, tileAABBIndex + 6);
 
-        math.getAABB3Center(tileAABB, tileCenter);
+        math.boundaries.getAABB3Center(tileAABB, tileCenter);
 
         rtcAABB[0] = tileAABB[0] - tileCenter[0];
         rtcAABB[1] = tileAABB[1] - tileCenter[1];
@@ -199,7 +199,7 @@ function load(viewer: Viewer, options: any, inflatedData: any, sceneModel: Scene
         rtcAABB[4] = tileAABB[4] - tileCenter[1];
         rtcAABB[5] = tileAABB[5] - tileCenter[2];
 
-        const tileDecodeMatrix = createPositionsDecodeMatrix(rtcAABB, math.mat4());
+        const tileDecodeMatrix = createPositionsDecompressMatrix(rtcAABB, math.mat4());
 
         const geometryCreated: { [key: string]: boolean } = {};
 
@@ -217,25 +217,25 @@ function load(viewer: Viewer, options: any, inflatedData: any, sceneModel: Scene
 
             const meshIds = [];
 
-            const metaObject = viewer.metaScene.metaObjects[entityId];
+            const objectData = viewer.sceneData.objects[entityId];
             const entityDefaults: { [key: string]: any } = {};
             const meshDefaults: { [key: string]: any } = {};
 
-            if (metaObject) {
+            if (objectData) {
 
                 // Mask loading of object types
 
-                if (options.excludeTypesMap && metaObject.type && options.excludeTypesMap[metaObject.type]) {
+                if (options.excludeTypesMap && objectData.type && options.excludeTypesMap[objectData.type]) {
                     continue;
                 }
 
-                if (options.includeTypesMap && metaObject.type && (!options.includeTypesMap[metaObject.type])) {
+                if (options.includeTypesMap && objectData.type && (!options.includeTypesMap[objectData.type])) {
                     continue;
                 }
 
                 // Get initial property values for object types
 
-                const props = options.objectDefaults ? options.objectDefaults[metaObject.type] || options.objectDefaults["DEFAULT"] : null;
+                const props = options.objectDefaults ? options.objectDefaults[objectData.type] || options.objectDefaults["DEFAULT"] : null;
 
                 if (props) {
                     if (props.visible === false) {
@@ -339,7 +339,7 @@ function load(viewer: Viewer, options: any, inflatedData: any, sceneModel: Scene
                             colors: geometryColors,
                             indices: geometryIndices,
                             edgeIndices: geometryEdgeIndices,
-                            positionsDecodeMatrix: reusedGeometriesDecodeMatrix
+                            positionsDecompressMatrix: reusedGeometriesDecodeMatrix
                         });
 
                         geometryCreated[geometryId] = true;
@@ -406,7 +406,7 @@ function load(viewer: Viewer, options: any, inflatedData: any, sceneModel: Scene
                         colors: geometryColors,
                         indices: geometryIndices,
                         edgeIndices: geometryEdgeIndices,
-                        positionsDecodeMatrix: tileDecodeMatrix,
+                        positionsDecompressMatrix: tileDecodeMatrix,
                         color: meshColor,
                         metallic: meshMetallic,
                         roughness: meshRoughness,

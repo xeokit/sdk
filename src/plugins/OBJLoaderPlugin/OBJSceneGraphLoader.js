@@ -1,10 +1,10 @@
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.js";
+import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
 import {PhongMaterial} from "../../viewer/scene/materials/PhongMaterial.js";
 import {Texture} from "../../viewer/scene/materials/Texture.js";
-import {core} from "../../viewer/scene/core.js";
-import {worldToRTCPositions} from "../../viewer/scene/math/rtcCoords.js";
-import {math} from "../../viewer/scene/math/math.js";
+import {scheduler} from "../../viewer/scene/scheduler.js";
+import {worldToRTCPositions} from "../../viewer/math/rtcCoords.js";
+import * as math from "../../viewer/math/math.js";
 
 const tempVec3a = math.vec3();
 
@@ -18,7 +18,7 @@ class OBJSceneGraphLoader {
      *
      * @static
      * @param {Node} modelNode Node to load into.
-     * @param {String} src Path to OBJ file.
+     * @param src Path to OBJ file.
      * @param {Object} params Loading options.
      */
     load(modelNode, src, params = {}) {
@@ -33,7 +33,7 @@ class OBJSceneGraphLoader {
 
                 spinner.processes--;
 
-                core.scheduleTask(function () {
+                scheduler.scheduleTask(function () {
                     modelNode.fire("loaded", true, false);
                 });
             });
@@ -45,9 +45,9 @@ class OBJSceneGraphLoader {
      *
      * @static
      * @param {Node} modelNode Node to load into.
-     * @param {String} objText OBJ text string.
-     * @param {String} [mtlText] MTL text string.
-     * @param {String} [basePath] Base path for external resources.
+     * @param objText OBJ text string.
+     * @param [mtlText] MTL text string.
+     * @param [basePath] Base path for external resources.
      */
     parse(modelNode, objText, mtlText, basePath) {
         if (!objText) {

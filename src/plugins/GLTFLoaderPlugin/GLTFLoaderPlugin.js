@@ -1,7 +1,7 @@
-import {utils} from "../../viewer/scene/utils.js"
+import * as utils from "../../viewer/scene/utils.js"
 import {PerformanceModel} from "../../viewer/scene/PerformanceModel/PerformanceModel.js";
-import {Node} from "../../viewer/scene/nodes/Node.js";
-import {Plugin} from "../../viewer/Plugin.js";
+import {Node} from "../../viewer/scene/Node.js";
+import {Plugin} from "../../viewer/Plugin.ts";
 import {GLTFSceneGraphLoader} from "./GLTFSceneGraphLoader.js";
 import {GLTFPerformanceModelLoader} from "./GLTFPerformanceModelLoader.js";
 import {IFCObjectDefaults} from "../../viewer/metadata/IFCObjectDefaults.js";
@@ -16,10 +16,10 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  *
  * ## Metadata
  *
- * GLTFLoaderPlugin can also load an accompanying JSON metadata file with each model, which creates a {@link MetaModel} corresponding
- * to the model {@link Entity} and a {@link MetaObject} corresponding to each object {@link Entity}.
+ * GLTFLoaderPlugin can also load an accompanying JSON metadata file with each model, which creates a {@link DataModel} corresponding
+ * to the model {@link Entity} and a {@link DataObject} corresponding to each object {@link Entity}.
  *
- * Each {@link MetaObject} has a {@link MetaObject#type}, which indicates the classification of its corresponding {@link Entity}. When loading
+ * Each {@link DataObject} has a {@link DataObject#type}, which indicates the classification of its corresponding {@link Entity}. When loading
  * metadata, we can also provide GLTFLoaderPlugin with a custom lookup table of initial values to set on the properties of each type of {@link Entity}. By default, GLTFLoaderPlugin
  * uses its own map of default colors and visibilities for IFC element types.
  *
@@ -43,9 +43,9 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  * ## Usage
  *
  * In the example below we'll load the Schependomlaan model from a [glTF file](http://xeokit.github.io/xeokit-sdk/examples/models/gltf/schependomlaan/), along
- * with an accompanying JSON [IFC metadata file](http://xeokit.github.io/xeokit-sdk/examples/metaModels/schependomlaan/).
+ * with an accompanying JSON [IFC metadata file](http://xeokit.github.io/xeokit-sdk/examples/models/schependomlaan/).
  *
- * This will create a bunch of {@link Entity}s that represents the model and its objects, along with a {@link MetaModel} and {@link MetaObject}s
+ * This will create a bunch of {@link Entity}s that represents the model and its objects, along with a {@link DataModel} and {@link DataObject}s
  * that hold their metadata.
  *
  * Since this model contains IFC types, the GLTFLoaderPlugin will set the initial colors of object {@link Entity}s according
@@ -58,7 +58,7 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#BIMOffline_glTF_OTCConferenceCenter)]
  *
  * ````javascript
- * import {Viewer, GLTFLoaderPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, GLTFLoaderPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * //------------------------------------------------------------------------------------------------------------------
  * // 1. Create a Viewer,
@@ -92,7 +92,7 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  * var model = gltfLoader.load({                                    // Returns an Entity that represents the model
  *      id: "myModel",
  *      src: "./models/gltf/OTCConferenceCenter/scene.gltf",
- *      metaModelSrc: "./models/gltf/OTCConferenceCenter/metaModel.json",     // Creates a MetaModel (see below)
+ *      modelDataSrc: "./models/gltf/OTCConferenceCenter/metaModel.json",     // Creates a DataModel (see below)
  *      edges: true,
  *      performance: true  // Load high-performance scene representation (default is false)
  * });
@@ -106,16 +106,16 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  *      //--------------------------------------------------------------------------------------------------------------
  *
  *      // 1
- *      const metaModel = viewer.metaScene.metaModels["myModel"];       // MetaModel with ID "myModel"
- *      const metaObject
- *          = viewer.metaScene.metaObjects["0u4wgLe6n0ABVaiXyikbkA"];   // MetaObject with ID "0u4wgLe6n0ABVaiXyikbkA"
+ *      const metaModel = viewer.sceneData.models["myModel"];       // DataModel with ID "myModel"
+ *      const objectData
+ *          = viewer.sceneData.objects["0u4wgLe6n0ABVaiXyikbkA"];   // DataObject with ID "0u4wgLe6n0ABVaiXyikbkA"
  *
- *      const name = metaObject.name;                                   // "01 eerste verdieping"
- *      const type = metaObject.type;                                   // "IfcBuildingStorey"
- *      const parent = metaObject.parent;                               // MetaObject with type "IfcBuilding"
- *      const children = metaObject.children;                           // Array of child MetaObjects
- *      const objectId = metaObject.id;                                 // "0u4wgLe6n0ABVaiXyikbkA"
- *      const objectIds = viewer.metaScene.getObjectIDsInSubtree(objectId);   // IDs of leaf sub-objects
+ *      const name = objectData.name;                                   // "01 eerste verdieping"
+ *      const type = objectData.type;                                   // "IfcBuildingStorey"
+ *      const parent = objectData.parent;                               // DataObject with type "IfcBuilding"
+ *      const children = objectData.children;                           // Array of child ObjectDatas
+ *      const objectId = objectData.id;                                 // "0u4wgLe6n0ABVaiXyikbkA"
+ *      const objectIds = viewer.sceneData.getDataObjectIdsInSubtree(objectId);   // IDs of leaf sub-objects
  *      const aabb = viewer.scene.getAABB(objectIds);                   // Axis-aligned boundary of the leaf sub-objects
  *
  *      // 2
@@ -146,7 +146,7 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  * ````javascript
  * const model = gltfLoader.load({
  *      src: "./models/gltf/Duplex/scene.gltf",
- *      metaModelSrc: "./models/gltf/Duplex/Duplex.json",
+ *      modelDataSrc: "./models/gltf/Duplex/Duplex.json",
  *      rotation: [90,0,0],
  *      scale: [0.5, 0.5, 0.5],
  *      position: [100, 0, 0]
@@ -164,7 +164,7 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  * const model = gltfLoader.load({
  *     id: "myModel",
  *      src: "./models/gltf/OTCConferenceCenter/scene.gltf",
- *      metaModelSrc: "./models/gltf/OTCConferenceCenter/metaModel.json",
+ *      modelDataSrc: "./models/gltf/OTCConferenceCenter/metaModel.json",
  *      includeTypes: ["IfcWallStandardCase"]
  * });
  * ````
@@ -176,7 +176,7 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  * const model = gltfLoader.load({
  *     id: "myModel",
  *      src: "./models/gltf/OTCConferenceCenter/scene.gltf",
- *      metaModelSrc: "./models/gltf/OTCConferenceCenter/metaModel.json",
+ *      modelDataSrc: "./models/gltf/OTCConferenceCenter/metaModel.json",
  *      excludeTypes: ["IfcSpace"]
  * });
  * ````
@@ -189,7 +189,7 @@ class GLTFLoaderPlugin extends Plugin {
      *
      * @param {Viewer} viewer The Viewer.
      * @param {Object} cfg  Plugin configuration.
-     * @param {String} [cfg.id="GLTFLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.id="GLTFLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
      * @param {Object} [cfg.objectDefaults] Map of initial default states for each loaded {@link Entity} that represents an object.  Default value is {@link IFCObjectDefaults}.
      * @param {Object} [cfg.dataSource] A custom data source through which the GLTFLoaderPlugin can load metadata, glTF and binary attachments. Defaults to an instance of {@link GLTFDefaultDataSource}, which loads over HTTP.
      */
@@ -258,22 +258,22 @@ class GLTFLoaderPlugin extends Plugin {
     /**
      * Loads a glTF model from a file into this GLTFLoaderPlugin's {@link Viewer}.
      *
-     * @param {*} params Loading parameters.
-     * @param {String} [params.id] ID to assign to the root {@link Entity#id}, unique among all components in the Viewer's {@link Scene}, generated automatically by default.
-     * @param {String} [params.src] Path to a glTF file, as an alternative to the ````gltf```` parameter.
-     * @param {*} [params.gltf] glTF JSON, as an alternative to the ````src```` parameter.
-     * @param {String} [params.metaModelSrc] Path to an optional metadata file, as an alternative to the ````metaModelData```` parameter.
-     * @param {*} [params.metaModelData] JSON model metadata, as an alternative to the ````metaModelSrc```` parameter.
+     * @param params Loading parameters.
+     * @param [params.id] ID to assign to the root {@link Entity#id}, unique among all components in the Viewer's {@link Scene}, generated automatically by default.
+     * @param [params.src] Path to a glTF file, as an alternative to the ````gltf```` parameter.
+     * @param [params.gltf] glTF JSON, as an alternative to the ````src```` parameter.
+     * @param [params.modelDataSrc] Path to an optional metadata file, as an alternative to the ````modelDataData```` parameter.
+     * @param [params.modelDataData] JSON model metadata, as an alternative to the ````modelDataSrc```` parameter.
      * @param {{String:Object}} [params.objectDefaults] Map of initial default states for each loaded {@link Entity} that represents an object. Default value is {@link IFCObjectDefaults}.
-     * @params {String[]} [params.includeTypes] When loading metadata, only loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
-     * @params {String[]} [params.excludeTypes] When loading metadata, never loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
-     * @param {Boolean} [params.edges=false] Whether or not xeokit renders the model with edges emphasized.
-     * @param {Number[]} [params.position=[0,0,0]] The model World-space 3D position.
-     * @param {Number[]} [params.scale=[1,1,1]] The model's World-space scale.
-     * @param {Number[]} [params.rotation=[0,0,0]] The model's World-space rotation, as Euler angles given in degrees, for each of the X, Y and Z axis.
-     * @param {Number[]} [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters.
-     * @param {Boolean} [params.backfaces=false] When true, allows visible backfaces, wherever specified in the glTF. When false, ignores backfaces.
-     * @param {Number} [params.edgeThreshold=10] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
+     * @params {String[]} [params.includeTypes] When loading metadata, only loads objects that have {@link DataObject}s with {@link DataObject#type} values in this list.
+     * @params {String[]} [params.excludeTypes] When loading metadata, never loads objects that have {@link DataObject}s with {@link DataObject#type} values in this list.
+     * @param [params.edges=false] Whether or not xeokit renders the model with edges emphasized.
+     * @param [params.position=[0,0,0]] The model World-space 3D position.
+     * @param [params.scale=[1,1,1]] The model's World-space scale.
+     * @param [params.rotation=[0,0,0]] The model's World-space rotation, as Euler angles given in degrees, for each of the X, Y and Z axis.
+     * @param [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters.
+     * @param [params.backfaces=false] When true, allows visible backfaces, wherever specified in the glTF. When false, ignores backfaces.
+     * @param [params.edgeThreshold=10] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
      * @params {Boolean} [params.performance=true] Set ````false```` to load all the materials and textures provided by the glTF file, otherwise leave ````true```` to load the default high-performance representation optimized for low memory usage and efficient rendering.
      * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
      */
@@ -310,13 +310,13 @@ class GLTFLoaderPlugin extends Plugin {
 
         const loader = performance ? this._performanceModelLoader : this._sceneGraphLoader;
 
-        if (params.metaModelSrc || params.metaModelData) {
+        if (params.modelDataSrc || params.modelDataData) {
 
             const objectDefaults = params.objectDefaults || this._objectDefaults || IFCObjectDefaults;
 
-            const processMetaModelData = (metaModelData) => {
+            const processModelDataData = (modelDataData) => {
 
-                this.viewer.metaScene.createMetaModel(modelId, metaModelData, {
+                this.viewer.sceneData.createDataModel(modelId, modelDataData, {
                     includeTypes: params.includeTypes,
                     excludeTypes: params.excludeTypes
                 });
@@ -353,8 +353,8 @@ class GLTFLoaderPlugin extends Plugin {
                     }
 
                     const nodeId = name;
-                    const metaObject = this.viewer.metaScene.metaObjects[nodeId];
-                    const type = (metaObject ? metaObject.type : "DEFAULT") || "DEFAULT";
+                    const objectData = this.viewer.sceneData.objects[nodeId];
+                    const type = (objectData ? objectData.type : "DEFAULT") || "DEFAULT";
 
                     actions.createEntity = {
                         id: nodeId,
@@ -392,26 +392,26 @@ class GLTFLoaderPlugin extends Plugin {
                 }
             };
 
-            if (params.metaModelSrc) {
+            if (params.modelDataSrc) {
 
-                const metaModelSrc = params.metaModelSrc;
+                const modelDataSrc = params.modelDataSrc;
 
                 this.viewer.scene.canvas.spinner.processes++;
 
-                this._dataSource.getMetaModel(metaModelSrc, (metaModelData) => {
+                this._dataSource.getModelData(modelDataSrc, (modelDataData) => {
 
                     this.viewer.scene.canvas.spinner.processes--;
 
-                    processMetaModelData(metaModelData);
+                    processModelDataData(modelDataData);
 
                 }, (errMsg) => {
-                    this.error(`load(): Failed to load model metadata for model '${modelId} from  '${metaModelSrc}' - ${errMsg}`);
+                    this.error(`load(): Failed to load model metadata for model '${modelId} from  '${modelDataSrc}' - ${errMsg}`);
                     this.viewer.scene.canvas.spinner.processes--;
                 });
 
-            } else if (params.metaModelData) {
+            } else if (params.modelDataData) {
 
-                processMetaModelData(params.metaModelData);
+                processModelDataData(params.modelDataData);
             }
 
         } else {
@@ -442,7 +442,7 @@ class GLTFLoaderPlugin extends Plugin {
         }
 
         model.once("destroyed", () => {
-            this.viewer.metaScene.destroyMetaModel(modelId);
+            this.viewer.sceneData.destroyModelData(modelId);
         });
 
         return model;

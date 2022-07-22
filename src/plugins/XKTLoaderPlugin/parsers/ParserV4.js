@@ -183,7 +183,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                 normals: primitiveNormals,
                 indices: primitiveIndices,
                 edgeIndices: primitiveEdgeIndices,
-                positionsDecodeMatrix: primitiveDecodeMatrix
+                positionsDecompressMatrix: primitiveDecodeMatrix
             });
 
             countGeometries++;
@@ -206,7 +206,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                 normals: primitiveNormals,
                 indices: primitiveIndices,
                 edgeIndices: primitiveEdgeIndices,
-                positionsDecodeMatrix: primitiveDecodeMatrix,
+                positionsDecompressMatrix: primitiveDecodeMatrix,
                 color: color,
                 opacity: opacity
             }));
@@ -259,7 +259,7 @@ function load(viewer, options, inflatedData, performanceModel) {
 
             performanceModel.createEntity(utils.apply(entityDefaults, {
                 id: entityId,
-                isObject: true, ///////////////// TODO: If metaobject exists
+                isObject: true, ///////////////// TODO: If objectData exists
                 meshIds: meshIds
             }));
         }

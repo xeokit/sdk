@@ -50,14 +50,14 @@ class ObjectCullStates {
         const modelInfo = {
             model: model,
             onDestroyed: model.on("destroyed", () => {
-                this._removeModel(model);
+                this._removeSceneModel(model);
             })
         };
         this._modelInfos[model.id] = modelInfo;
         this._dirty = true;
     }
 
-    _removeModel(model) {
+    _removeSceneModel(model) {
         const modelInfo = this._modelInfos[model.id];
         if (modelInfo) {
             modelInfo.model.off(modelInfo.onDestroyed);
@@ -130,7 +130,7 @@ class ObjectCullStates {
     /**
      * Updates an object's view-cull status.
      *
-     * @param {Number} objectIdx Index of the object in {@link ObjectCullStates#objects}
+     * @param objectIdx Index of the object in {@link ObjectCullStates#objects}
      * @param {boolean} culled Whether to view-cull or not.
      */
     setObjectViewCulled(objectIdx, culled) {
@@ -150,7 +150,7 @@ class ObjectCullStates {
     /**
      * Updates an object's detail-cull status.
      *
-     * @param {Number} objectIdx Index of the object in {@link ObjectCullStates#objects}
+     * @param objectIdx Index of the object in {@link ObjectCullStates#objects}
      * @param {boolean} culled Whether to detail-cull or not.
      */
     setObjectDetailCulled(objectIdx, culled) {

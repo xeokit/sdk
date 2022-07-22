@@ -1,9 +1,9 @@
-import {Plugin} from "../../viewer/Plugin.js";
-import {math} from "../../viewer/scene/math/math.js";
-import {Scene} from "../../viewer/scene/scene/Scene.js";
-import {DirLight} from "./../../viewer/scene/lights/DirLight.js";
+import {Plugin} from "../../viewer/Plugin.ts";
+import * as math from "../../viewer/math/math.js";
+import {Scene} from "../../viewer/scene/Scene.ts";
+import {DirLight} from "../../viewer/view/lights/DirLight.js";
 import {Mesh} from "./../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.js";
+import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
 import {PhongMaterial} from "../../viewer/scene/materials/PhongMaterial.js";
 import {Texture} from "../../viewer/scene/materials/Texture.js";
 import {buildCylinderGeometry} from "../../viewer/scene/geometry/builders/buildCylinderGeometry.js";
@@ -35,7 +35,7 @@ import {CubeTextureCanvas} from "./CubeTextureCanvas.js";
  * use the NavCube to look at the model along each axis or diagonal.
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin, NavCubePlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, NavCubePlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"
@@ -75,24 +75,24 @@ class NavCubePlugin extends Plugin {
      * @constructor
      * @param {Viewer} viewer The Viewer.
      * @param {Object} cfg NavCubePlugin configuration.
-     * @param {String} [cfg.id="NavCube"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {String} [cfg.canvasId] ID of an existing HTML canvas to display the NavCube - either this or canvasElement is mandatory. When both values are given, the element reference is always preferred to the ID.
+     * @param [cfg.id="NavCube"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.canvasId] ID of an existing HTML canvas to display the NavCube - either this or canvasElement is mandatory. When both values are given, the element reference is always preferred to the ID.
      * @param {HTMLCanvasElement} [cfg.canvasElement] Reference of an existing HTML canvas to display the NavCube - either this or canvasId is mandatory. When both values are given, the element reference is always preferred to the ID.
-     * @param {Boolean} [cfg.visible=true] Initial visibility.
-     * @param {String} [cfg.cameraFly=true] Whether the {@link Camera} flies or jumps to each selected axis or diagonal.
-     * @param {String} [cfg.cameraFitFOV=45] How much of the field-of-view, in degrees, that the 3D scene should fill the {@link Canvas} when the {@link Camera} moves to an axis or diagonal.
-     * @param {String} [cfg.cameraFlyDuration=0.5] When flying the {@link Camera} to each new axis or diagonal, how long, in seconds, that the Camera takes to get there.
-     * @param {String} [cfg.color="lightgrey] Custom uniform color for the faces of the NavCube.
-     * @param {String} [cfg.frontColor="#55FF55"] Custom color for the front face of the NavCube. Overrides ````color````.
-     * @param {String} [cfg.backColor="#55FF55"] Custom color for the back face of the NavCube. Overrides ````color````.
-     * @param {String} [cfg.leftColor="#FF5555"] Custom color for the left face of the NavCube. Overrides ````color````.
-     * @param {String} [cfg.rightColor="#FF5555"] Custom color for the right face of the NavCube. Overrides ````color````.
-     * @param {String} [cfg.topColor="#5555FF"] Custom color for the top face of the NavCube. Overrides ````color````.
-     * @param {String} [cfg.bottomColor="#5555FF"] Custom color for the bottom face of the NavCube. Overrides ````color````.
-     * @param {String} [cfg.hoverColor="rgba(0,0,0,0.4)"] Custom color for highlighting regions on the NavCube as we hover the pointer over them.
-     * @param {Boolean} [cfg.fitVisible=false] Sets whether the axis, corner and edge-aligned views will fit the
+     * @param [cfg.visible=true] Initial visibility.
+     * @param [cfg.cameraFly=true] Whether the {@link Camera} flies or jumps to each selected axis or diagonal.
+     * @param [cfg.cameraFitFOV=45] How much of the field-of-view, in degrees, that the 3D scene should fill the {@link Canvas} when the {@link Camera} moves to an axis or diagonal.
+     * @param [cfg.cameraFlyDuration=0.5] When flying the {@link Camera} to each new axis or diagonal, how long, in seconds, that the Camera takes to get there.
+     * @param [cfg.color="lightgrey] Custom uniform color for the faces of the NavCube.
+     * @param [cfg.frontColor="#55FF55"] Custom color for the front face of the NavCube. Overrides ````color````.
+     * @param [cfg.backColor="#55FF55"] Custom color for the back face of the NavCube. Overrides ````color````.
+     * @param [cfg.leftColor="#FF5555"] Custom color for the left face of the NavCube. Overrides ````color````.
+     * @param [cfg.rightColor="#FF5555"] Custom color for the right face of the NavCube. Overrides ````color````.
+     * @param [cfg.topColor="#5555FF"] Custom color for the top face of the NavCube. Overrides ````color````.
+     * @param [cfg.bottomColor="#5555FF"] Custom color for the bottom face of the NavCube. Overrides ````color````.
+     * @param [cfg.hoverColor="rgba(0,0,0,0.4)"] Custom color for highlighting regions on the NavCube as we hover the pointer over them.
+     * @param [cfg.fitVisible=false] Sets whether the axis, corner and edge-aligned views will fit the
      * view to the entire {@link Scene} or just to visible object-{@link Entity}s. Entitys are visible objects when {@link Entity#isObject} and {@link Entity#visible} are both ````true````.
-     * @param {Boolean} [cfg.synchProjection=false] Sets whether the NavCube switches between perspective and orthographic projections in synchrony with the {@link Camera}. When ````false````, the NavCube will always be rendered with perspective projection.
+     * @param [cfg.synchProjection=false] Sets whether the NavCube switches between perspective and orthographic projections in synchrony with the {@link Camera}. When ````false````, the NavCube will always be rendered with perspective projection.
      */
     constructor(viewer, cfg = {}) {
 
@@ -446,8 +446,8 @@ class NavCubePlugin extends Plugin {
                 var center = math.vec3();
                 return function (dir, up, ok) {
                     var aabb = self._fitVisible ? viewer.scene.getAABB(viewer.scene.visibleObjectIds) : viewer.scene.aabb;
-                    var diag = math.getAABB3Diag(aabb);
-                    math.getAABB3Center(aabb, center);
+                    var diag = math.boundaries.getAABB3Diag(aabb);
+                    math.boundaries.getAABB3Center(aabb, center);
                     var dist = Math.abs(diag / Math.tan(self._cameraFitFOV * math.DEGTORAD));
                     viewer.cameraControl.pivotPos = center;
                     if (self._cameraFly) {
@@ -503,7 +503,7 @@ class NavCubePlugin extends Plugin {
     /**
      * Sets if the NavCube is visible.
      *
-     * @param {Boolean} visible Whether or not the NavCube is visible.
+     * @param visible Whether or not the NavCube is visible.
      */
     setVisible(visible = true) {
         if (!this._navCubeCanvas) {
@@ -533,7 +533,7 @@ class NavCubePlugin extends Plugin {
      *
      * Entitys are visible objects when {@link Entity#isObject} and {@link Entity#visible} are both ````true````.
      *
-     * @param {Boolean} fitVisible Set ````true```` to fit only visible object-Entitys.
+     * @param fitVisible Set ````true```` to fit only visible object-Entitys.
      */
     setFitVisible(fitVisible = false) {
         this._fitVisible = fitVisible;
@@ -556,7 +556,7 @@ class NavCubePlugin extends Plugin {
      *
      * Default is ````true````, to fly.
      *
-     * @param {Boolean} cameraFly Set ````true```` to fly, else ````false```` to jump.
+     * @param cameraFly Set ````true```` to fly, else ````false```` to jump.
      */
     setCameraFly(cameraFly = true) {
         this._cameraFly = cameraFly;
@@ -579,7 +579,7 @@ class NavCubePlugin extends Plugin {
      *
      * Default value is ````45````.
      *
-     * @param {Number} cameraFitFOV New FOV value.
+     * @param cameraFitFOV New FOV value.
      */
     setCameraFitFOV(cameraFitFOV = 45) {
         this._cameraFitFOV = cameraFitFOV;
@@ -602,7 +602,7 @@ class NavCubePlugin extends Plugin {
      *
      * Default is ````0.5````.
      *
-     * @param {Boolean} cameraFlyDuration Camera flight duration in seconds.
+     * @param cameraFlyDuration Camera flight duration in seconds.
      */
     setCameraFlyDuration(cameraFlyDuration = 0.5) {
         this._cameraFlyDuration = cameraFlyDuration;
@@ -623,7 +623,7 @@ class NavCubePlugin extends Plugin {
      * Sets whether the NavCube switches between perspective and orthographic projections in synchrony with
      * the {@link Camera}. When ````false````, the NavCube will always be rendered with perspective projection.
      *
-     * @param {Boolean} synchProjection Set ````true```` to keep NavCube projection synchronized with {@link Camera#projection}.
+     * @param synchProjection Set ````true```` to keep NavCube projection synchronized with {@link Camera#projection}.
      */
     setSynchProjection(synchProjection = false) {
         this._synchProjection = synchProjection;

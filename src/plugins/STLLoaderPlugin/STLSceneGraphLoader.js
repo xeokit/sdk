@@ -1,9 +1,9 @@
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.js";
+import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
 import {MetallicMaterial} from "../../viewer/scene/materials/MetallicMaterial.js";
-import {math} from "../../viewer/scene/math/math.js";
-import {worldToRTCPositions} from "../../viewer/scene/math/rtcCoords.js";
-import {core} from "../../viewer/scene/core.js";
+import * as math from "../../viewer/math/math.js";
+import {worldToRTCPositions} from "../../viewer/math/rtcCoords.js";
+import {scheduler} from "../../viewer/scene/scheduler.js";
 
 const tempVec3a = math.vec3();
 
@@ -29,7 +29,7 @@ class STLSceneGraphLoader {
                         parseASCII(plugin, ensureString(data), modelNode, options);
                     }
                     spinner.processes--;
-                    core.scheduleTask(function () {
+                    scheduler.scheduleTask(function () {
                         modelNode.fire("loaded", true, false);
                     });
                     if (ok) {
@@ -65,7 +65,7 @@ class STLSceneGraphLoader {
                 parseASCII(plugin, ensureString(data), modelNode, options);
             }
             spinner.processes--;
-            core.scheduleTask(function () {
+            scheduler.scheduleTask(function () {
                 modelNode.fire("loaded", true, false);
             });
         } catch (e) {

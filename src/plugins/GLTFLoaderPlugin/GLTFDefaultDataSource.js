@@ -1,4 +1,4 @@
-import {utils} from "../../viewer/scene/utils.js";
+import * as utils from "../../viewer/scene/utils.js";
 
 /**
  * Default data access strategy for {@link GLTFLoaderPlugin}.
@@ -11,14 +11,14 @@ class GLTFDefaultDataSource {
     }
 
     /**
-     * Gets metamodel JSON.
+     * Gets metaModel JSON.
      *
-     * @param {String|Number} metaModelSrc Identifies the metamodel JSON asset.
-     * @param {{Function(*)}} ok Fired on successful loading of the metamodel JSON asset.
-     * @param {{Function(*)}} error Fired on error while loading the metamodel JSON asset.
+     * @param {String|Number} DataModelSrc Identifies the metaModel JSON asset.
+     * @param {{Function(*)}} ok Fired on successful loading of the metaModel JSON asset.
+     * @param {{Function(*)}} error Fired on error while loading the metaModel JSON asset.
      */
-    getMetaModel(metaModelSrc, ok, error) {
-        utils.loadJSON(metaModelSrc,
+    getDataModel(DataModelSrc, ok, error) {
+        utils.loadJSON(DataModelSrc,
             (json) => {
                 ok(json);
             },

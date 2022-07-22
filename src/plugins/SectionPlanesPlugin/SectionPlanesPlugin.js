@@ -1,6 +1,6 @@
-import {math} from "../../viewer/scene/math/math.js";
-import {Plugin} from "../../viewer/Plugin.js";
-import {SectionPlane} from "../../viewer/scene/sectionPlane/SectionPlane.js";
+import * as math from "../../viewer/math/math.js";
+import {Plugin} from "../../viewer/Plugin.ts";
+import {SectionPlane} from "../../viewer/view/SectionPlane.ts";
 import {Control} from "./Control.js";
 import {Overview} from "./Overview.js";
 
@@ -31,7 +31,7 @@ const tempVec3 = math.vec3();
  * reposition our second SectionPlane.
  *
  * ````JavaScript
- * import {Viewer, GLTFLoaderPlugin, SectionPlanesPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, GLTFLoaderPlugin, SectionPlanesPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * // Create a Viewer and arrange its Camera
  *
@@ -97,9 +97,9 @@ class SectionPlanesPlugin extends Plugin {
      * @constructor
      * @param {Viewer} viewer The Viewer.
      * @param {Object} cfg Plugin configuration.
-     * @param {String} [cfg.id="SectionPlanes"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {String} [cfg.overviewCanvasId] ID of a canvas element to display the overview.
-     * @param {String} [cfg.overviewVisible=true] Initial visibility of the overview canvas.
+     * @param [cfg.id="SectionPlanes"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.overviewCanvasId] ID of a canvas element to display the overview.
+     * @param [cfg.overviewVisible=true] Initial visibility of the overview canvas.
      */
     constructor(viewer, cfg = {}) {
 
@@ -140,7 +140,7 @@ class SectionPlanesPlugin extends Plugin {
                         const sectionPlane = this.sectionPlanes[id];
                         const sectionPlanePos = sectionPlane.pos;
                         tempAABB.set(this.viewer.scene.aabb);
-                        math.getAABB3Center(tempAABB, tempVec3);
+                        math.boundaries.getAABB3Center(tempAABB, tempVec3);
                         tempAABB[0] += sectionPlanePos[0] - tempVec3[0];
                         tempAABB[1] += sectionPlanePos[1] - tempVec3[1];
                         tempAABB[2] += sectionPlanePos[2] - tempVec3[2];
@@ -173,7 +173,7 @@ class SectionPlanesPlugin extends Plugin {
     /**
      * Sets if the overview canvas is visible.
      *
-     * @param {Boolean} visible Whether or not the overview canvas is visible.
+     * @param visible Whether or not the overview canvas is visible.
      */
     setOverviewVisible(visible) {
         if (this._overview) {
@@ -207,10 +207,10 @@ class SectionPlanesPlugin extends Plugin {
      * The {@link SectionPlane} will be registered by {@link SectionPlane#id} in {@link SectionPlanesPlugin#sectionPlanes}.
      *
      * @param {Object} params {@link SectionPlane} configuration.
-     * @param {String} [params.id] Unique ID to assign to the {@link SectionPlane}. Must be unique among all components in the {@link Viewer}'s {@link Scene}. Auto-generated when omitted.
-     * @param {Number[]} [params.pos=[0,0,0]] World-space position of the {@link SectionPlane}.
-     * @param {Number[]} [params.dir=[0,0,-1]] World-space vector indicating the orientation of the {@link SectionPlane}.
-     * @param {Boolean} [params.active=true] Whether the {@link SectionPlane} is initially active. Only clips while this is true.
+     * @param [params.id] Unique ID to assign to the {@link SectionPlane}. Must be unique among all components in the {@link Viewer}'s {@link Scene}. Auto-generated when omitted.
+     * @param [params.pos=[0,0,0]] World-space position of the {@link SectionPlane}.
+     * @param [params.dir=[0,0,-1]] World-space vector indicating the orientation of the {@link SectionPlane}.
+     * @param [params.active=true] Whether the {@link SectionPlane} is initially active. Only clips while this is true.
      * @returns {SectionPlane} The new {@link SectionPlane}.
      */
     createSectionPlane(params = {}) {
@@ -261,7 +261,7 @@ class SectionPlanesPlugin extends Plugin {
     /**
      * Shows the 3D editing gizmo for a {@link SectionPlane}.
      *
-     * @param {String} id ID of the {@link SectionPlane}.
+     * @param id ID of the {@link SectionPlane}.
      */
     showControl(id) {
         const control = this._controls[id];
@@ -306,7 +306,7 @@ class SectionPlanesPlugin extends Plugin {
     /**
      * Destroys a {@link SectionPlane} created by this SectionPlanesPlugin.
      *
-     * @param {String} id ID of the {@link SectionPlane}.
+     * @param id ID of the {@link SectionPlane}.
      */
     destroySectionPlane(id) {
         var sectionPlane = this.viewer.scene.sectionPlanes[id];

@@ -1,10 +1,10 @@
-import {math} from "../../viewer/scene/math/math.js";
+import * as math from "../../viewer/math/math.js";
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.js";
+import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
 import {PhongMaterial} from "../../viewer/scene/materials/PhongMaterial.js";
 import {buildBoxGeometry} from "../../viewer/scene/geometry/builders/buildBoxGeometry.js";
-import {EdgeMaterial} from "../../viewer/scene/materials/EdgeMaterial.js";
-import {EmphasisMaterial} from "../../viewer/scene/materials/EmphasisMaterial.js";
+import {EdgeMaterial} from "../../viewer/view/materials/EdgeMaterial.ts";
+import {EmphasisMaterial} from "../../viewer/view/materials/EmphasisMaterial.js";
 
 
 /**

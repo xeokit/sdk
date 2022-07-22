@@ -44,14 +44,14 @@ import {worldToRTCPositions} from "../../viewer/math/";
 
  ## Metadata
 
- When loading a model, WebIFCLoaderPlugin also creates a {@link MetaModel} that represents the model, which contains
- a {@link MetaObject} for each IFC element, plus a {@link PropertySet} for each IFC property set. Loading metadata can be very slow, so we can also optionally disable it if we
+ When loading a model, WebIFCLoaderPlugin also creates a {@link DataModel} that represents the model, which contains
+ a {@link DataObject} for each IFC element, plus a {@link PropertySet} for each IFC property set. Loading metadata can be very slow, so we can also optionally disable it if we
  don't need it.
 
  ## Usage
 
  In the example below we'll load the Duplex BIM model from
- an [IFC file](https://github.com/xeokit/xeokit-webgpu-sdk/tree/master/assets/models/ifc). Within our {@link Viewer}, this will create a bunch of {@link Entity}s that represents the model and its objects, along with a {@link MetaModel}, {@link MetaObject}s and {@link PropertySet}s
+ an [IFC file](https://github.com/xeokit/xeokit-webgpu-sdk/tree/master/assets/models/ifc). Within our {@link Viewer}, this will create a bunch of {@link Entity}s that represents the model and its objects, along with a {@link DataModel}, {@link DataObject}s and {@link PropertySet}s
  that hold their metadata.
 
  Since this model contains IFC types, the WebIFCLoaderPlugin will set the initial appearance of each object
@@ -105,16 +105,16 @@ import {worldToRTCPositions} from "../../viewer/math/";
      //--------------------------------------------------------------------------------------------------------------
 
      // 1
-     const metaModel = viewer.metaScene.metaModels["myModel"];       // MetaModel with ID "myModel"
-     const metaObject
-          = viewer.metaScene.metaObjects["1xS3BCk291UvhgP2dvNsgp"];  // MetaObject with ID "1xS3BCk291UvhgP2dvNsgp"
+     const metaModel = viewer.sceneData.models["myModel"];       // DataModel with ID "myModel"
+     const objectData
+          = viewer.sceneData.objects["1xS3BCk291UvhgP2dvNsgp"];  // DataObject with ID "1xS3BCk291UvhgP2dvNsgp"
 
-     const name = metaObject.name;                                   // "01 eerste verdieping"
-     const type = metaObject.type;                                   // "IfcBuildingStorey"
-     const parent = metaObject.parent;                               // MetaObject with type "IfcBuilding"
-     const children = metaObject.children;                           // Array of child MetaObjects
-     const objectId = metaObject.id;                                 // "1xS3BCk291UvhgP2dvNsgp"
-     const objectIds = viewer.metaScene.getObjectIDsInSubtree(objectId);   // IDs of leaf sub-objects
+     const name = objectData.name;                                   // "01 eerste verdieping"
+     const type = objectData.type;                                   // "IfcBuildingStorey"
+     const parent = objectData.parent;                               // DataObject with type "IfcBuilding"
+     const children = objectData.children;                           // Array of child ObjectDatas
+     const objectId = objectData.id;                                 // "1xS3BCk291UvhgP2dvNsgp"
+     const objectIds = viewer.sceneData.getObjectIDsInSubtree(objectId);   // IDs of leaf sub-objects
      const aabb = viewer.scene.getAABB(objectIds);                   // Axis-aligned boundary of the leaf sub-objects
 
      // 2
@@ -303,7 +303,7 @@ import {worldToRTCPositions} from "../../viewer/math/";
  });
  ````
 
- For each {@link Entity} loaded by these two calls, {@link Entity#id} and {@link MetaObject#id} will get prefixed by
+ For each {@link Entity} loaded by these two calls, {@link Entity#id} and {@link DataObject#id} will get prefixed by
  the ID of their model, in order to avoid ID clashes between the two models.
 
  An Entity belonging to the first model will get an ID like this:
@@ -362,9 +362,9 @@ export class WebIFCLoaderPlugin extends Plugin {
      * @param {String} cfg.wasmPath Path to ````web-ifc.wasm````, required by WebIFCLoaderPlugin.
      * @param {Object} [cfg.objectDefaults] Map of initial default states for each loaded {@link Entity} that represents an object.  Default value is {@link IFCObjectDefaults}.
      * @param {Object} [cfg.dataSource] A custom data source through which the WebIFCLoaderPlugin can load model and metadata files. Defaults to an instance of {@link WebIFCDefaultDataSource}, which loads over HTTP.
-     * @param {String[]} [cfg.includeTypes] When loading metadata, only loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
-     * @param {String[]} [cfg.excludeTypes] When loading metadata, never loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
-     * @param {Boolean} [cfg.excludeUnclassifiedObjects=false] When loading metadata and this is ````true````, will only load {@link Entity}s that have {@link MetaObject}s (that are not excluded). This is useful when we don't want Entitys in the Scene that are not represented within IFC navigation components, such as {@link TreeViewPlugin}.
+     * @param {String[]} [cfg.includeTypes] When loading metadata, only loads objects that have {@link DataObject}s with {@link DataObject#type} values in this list.
+     * @param {String[]} [cfg.excludeTypes] When loading metadata, never loads objects that have {@link DataObject}s with {@link DataObject#type} values in this list.
+     * @param {Boolean} [cfg.excludeUnclassifiedObjects=false] When loading metadata and this is ````true````, will only load {@link Entity}s that have {@link DataObject}s (that are not excluded). This is useful when we don't want Entitys in the Scene that are not represented within IFC navigation components, such as {@link TreeViewPlugin}.
      */
     constructor(viewer: Viewer, cfg: {
         globalizeObjectIds: boolean;
@@ -445,7 +445,7 @@ export class WebIFCLoaderPlugin extends Plugin {
      Gets the whitelist of the IFC types loaded by this WebIFCLoaderPlugin.
 
      When loading IFC models, causes this WebIFCLoaderPlugin to only load objects whose types are in this
-     list. An object's type is indicated by its {@link MetaObject}'s {@link MetaObject#type}.
+     list. An object's type is indicated by its {@link DataObject}'s {@link DataObject#type}.
 
      Default value is ````undefined````.
      */
@@ -457,7 +457,7 @@ export class WebIFCLoaderPlugin extends Plugin {
      Sets the whitelist of the IFC types loaded by this WebIFCLoaderPlugin.
 
      When loading IFC models, causes this WebIFCLoaderPlugin to only load objects whose types are in this
-     list. An object's type is indicated by its {@link MetaObject}'s {@link MetaObject#type}.
+     list. An object's type is indicated by its {@link DataObject}'s {@link DataObject#type}.
 
      Default value is ````undefined````.
      */
@@ -469,7 +469,7 @@ export class WebIFCLoaderPlugin extends Plugin {
      Gets the blacklist of IFC types that are never loaded by this WebIFCLoaderPlugin.
 
      When loading IFC models, causes this WebIFCLoaderPlugin to **not** load objects whose types are in this
-     list. An object's type is indicated by its {@link MetaObject}'s {@link MetaObject#type}.
+     list. An object's type is indicated by its {@link DataObject}'s {@link DataObject#type}.
 
      Default value is ````undefined````.
      */
@@ -481,7 +481,7 @@ export class WebIFCLoaderPlugin extends Plugin {
      Sets the blacklist of IFC types that are never loaded by this WebIFCLoaderPlugin.
 
      When IFC models, causes this WebIFCLoaderPlugin to **not** load objects whose types are in this
-     list. An object's type is indicated by its {@link MetaObject}'s {@link MetaObject#type}.
+     list. An object's type is indicated by its {@link DataObject}'s {@link DataObject#type}.
 
      Default value is ````undefined````.
      */
@@ -514,7 +514,7 @@ export class WebIFCLoaderPlugin extends Plugin {
     }
 
     /**
-     Gets whether WebIFCLoaderPlugin globalizes each {@link Entity#id} and {@link MetaObject#id} as it loads a model.
+     Gets whether WebIFCLoaderPlugin globalizes each {@link Entity#id} and {@link DataObject#id} as it loads a model.
 
      Default value is ````false````.
      */
@@ -523,15 +523,15 @@ export class WebIFCLoaderPlugin extends Plugin {
     }
 
     /**
-     Sets whether WebIFCLoaderPlugin globalizes each {@link Entity#id} and {@link MetaObject#id} as it loads a model.
+     Sets whether WebIFCLoaderPlugin globalizes each {@link Entity#id} and {@link DataObject#id} as it loads a model.
 
      Set  this ````true```` when you need to load multiple instances of the same model, to avoid ID clashes
      between the objects in the different instances.
 
-     When we load a model with this set ````true````, then each {@link Entity#id} and {@link MetaObject#id} will be
+     When we load a model with this set ````true````, then each {@link Entity#id} and {@link DataObject#id} will be
      prefixed by the ID of the model, ie. ````<modelId>#<objectId>````.
 
-     {@link Entity#originalSystemId} and {@link MetaObject#originalSystemId} will always hold the original, un-prefixed, ID values.
+     {@link Entity#originalSystemId} and {@link DataObject#originalSystemId} will always hold the original, un-prefixed, ID values.
 
      Default value is ````false````.
 
@@ -548,10 +548,10 @@ export class WebIFCLoaderPlugin extends Plugin {
      * @param {String} [params.id] ID to assign to the root {@link Entity#id}, unique among all components in the Viewer's {@link Scene}, generated automatically by default.
      * @param {String} [params.src] Path to a IFC file, as an alternative to the ````ifc```` parameter.
      * @param {ArrayBuffer} [params.ifc] The IFC file data, as an alternative to the ````src```` parameter.
-     * @param {Boolean} [params.loadMetadata=true] Whether to load IFC metadata (metaobjects and property sets).
+     * @param {Boolean} [params.loadMetadata=true] Whether to load IFC metadata (objects and property sets).
      * @param {{String:Object}} [params.objectDefaults] Map of initial default states for each loaded {@link Entity} that represents an object. Default value is {@link IFCObjectDefaults}.
-     * @param {String[]} [params.includeTypes] When loading metadata, only loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
-     * @param {String[]} [params.excludeTypes] When loading metadata, never loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
+     * @param {String[]} [params.includeTypes] When loading metadata, only loads objects that have {@link DataObject}s with {@link DataObject#type} values in this list.
+     * @param {String[]} [params.excludeTypes] When loading metadata, never loads objects that have {@link DataObject}s with {@link DataObject#type} values in this list.
      * @param {Boolean} [params.edges=false] Whether or not xeokit renders the model with edges emphasized.
      * @param {Number[]} [params.origin=[0,0,0]] The model's World-space double-precision 3D origin. Use this to position the model within xeokit's World coordinate system, using double-precision coordinates.
      * @param {Number[]} [params.position=[0,0,0]] The model single-precision 3D position, relative to the ````origin```` parameter.
@@ -562,8 +562,8 @@ export class WebIFCLoaderPlugin extends Plugin {
      * @param {Boolean} [params.saoEnabled=true] Indicates if Scalable Ambient Obscurance (SAO) will apply to the model. SAO is configured by the Scene's {@link SAO} component. Only works when {@link SAO#enabled} is also ````true````
      * @param {Boolean} [params.pbrEnabled=false] Indicates if physically-based rendering (PBR) will apply to the model. Only works when {@link Scene#pbrEnabled} is also ````true````.
      * @param {Number} [params.backfaces=false] When we set this ````true````, then we force rendering of backfaces for the model. When we leave this ````false````, then we allow the Viewer to decide when to render backfaces. In that case, the Viewer will hide backfaces on watertight meshes, show backfaces on open meshes, and always show backfaces on meshes when we slice them open with {@link SectionPlane}s.
-     * @param {Boolean} [params.excludeUnclassifiedObjects=false] When loading metadata and this is ````true````, will only load {@link Entity}s that have {@link MetaObject}s (that are not excluded). This is useful when we don't want Entitys in the Scene that are not represented within IFC navigation components, such as {@link TreeViewPlugin}.
-     * @param {Boolean} [params.globalizeObjectIds=false] Indicates whether to globalize each {@link Entity#id} and {@link MetaObject#id}, in case you need to prevent ID clashes with other models. See {@link WebIFCLoaderPlugin#globalizeObjectIds} for more info.
+     * @param {Boolean} [params.excludeUnclassifiedObjects=false] When loading metadata and this is ````true````, will only load {@link Entity}s that have {@link DataObject}s (that are not excluded). This is useful when we don't want Entitys in the Scene that are not represented within IFC navigation components, such as {@link TreeViewPlugin}.
+     * @param {Boolean} [params.globalizeObjectIds=false] Indicates whether to globalize each {@link Entity#id} and {@link DataObject#id}, in case you need to prevent ID clashes with other models. See {@link WebIFCLoaderPlugin#globalizeObjectIds} for more info.
      * @param {Object} [params.stats] Collects model statistics.
      * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}.
      */
@@ -656,7 +656,7 @@ export class WebIFCLoaderPlugin extends Plugin {
         stats.title = "";
         stats.author = "";
         stats.created = "";
-        stats.numMetaObjects = 0;
+        stats.numObjectDatas = 0;
         stats.numPropertySets = 0;
         stats.numObjects = 0;
         stats.numGeometries = 0;
@@ -682,7 +682,7 @@ export class WebIFCLoaderPlugin extends Plugin {
             createdAt: "",
             schema: "",
             creatingApplication: "",
-            metaObjects: [],
+            objects: [],
             propertySets: []
         } : null;
 
@@ -691,7 +691,7 @@ export class WebIFCLoaderPlugin extends Plugin {
             sceneModel,
             loadMetadata,
             metadata,
-            metaObjects: {},
+            objects: {},
             options,
             log: function (msg:string) {
             },
@@ -715,7 +715,7 @@ export class WebIFCLoaderPlugin extends Plugin {
                 }
             }
 
-            this.#parseMetaObjects(ctx);
+            this.#parseObjectDatas(ctx);
             this.#parsePropertySets(ctx);
         }
 
@@ -724,8 +724,8 @@ export class WebIFCLoaderPlugin extends Plugin {
         sceneModel.finalize();
 
         if (loadMetadata) {
-            const metaModelId = sceneModel.id;
-            this.viewer.metaScene.createMetaModel(metaModelId, ctx.metadata, options);
+            const modelDataId = sceneModel.id;
+            this.viewer.sceneData.createDataModel(modelDataId, ctx.metadata, options);
         }
 
         sceneModel.scene.events.once("tick", () => {
@@ -737,43 +737,43 @@ export class WebIFCLoaderPlugin extends Plugin {
         });
     }
 
-    #parseMetaObjects(ctx:any) {
+    #parseObjectDatas(ctx:any) {
         const lines = this.#ifcAPI.GetLineIDsWithType(ctx.modelID, WebIFC.IFCPROJECT);
         const ifcProjectId = lines.get(0);
         const ifcProject = this.#ifcAPI.GetLine(ctx.modelID, ifcProjectId);
         this.#parseSpatialChildren(ctx, ifcProject);
     }
 
-    #parseSpatialChildren(ctx:any, ifcElement:any, parentMetaObjectId?:any) {
-        const metaObjectType = ifcElement.__proto__.constructor.name;
-        if (ctx.includeTypes && (!ctx.includeTypes[metaObjectType])) {
+    #parseSpatialChildren(ctx:any, ifcElement:any, parentObjectDataId?:any) {
+        const objectDataType = ifcElement.__proto__.constructor.name;
+        if (ctx.includeTypes && (!ctx.includeTypes[objectDataType])) {
             return;
         }
-        if (ctx.excludeTypes && ctx.excludeTypes[metaObjectType]) {
+        if (ctx.excludeTypes && ctx.excludeTypes[objectDataType]) {
             return;
         }
-        this.#createMetaObject(ctx, ifcElement, parentMetaObjectId);
-        const metaObjectId = ifcElement.GlobalId.value;
-        this.#parseRelatedItemsOfType(ctx, ifcElement.expressID, 'RelatingObject', 'RelatedObjects', WebIFC.IFCRELAGGREGATES, metaObjectId);
-        this.#parseRelatedItemsOfType(ctx, ifcElement.expressID, 'RelatingStructure', 'RelatedElements', WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE, metaObjectId);
+        this.#createDataObject(ctx, ifcElement, parentObjectDataId);
+        const objectDataId = ifcElement.GlobalId.value;
+        this.#parseRelatedItemsOfType(ctx, ifcElement.expressID, 'RelatingObject', 'RelatedObjects', WebIFC.IFCRELAGGREGATES, objectDataId);
+        this.#parseRelatedItemsOfType(ctx, ifcElement.expressID, 'RelatingStructure', 'RelatedElements', WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE, objectDataId);
     }
 
-    #createMetaObject(ctx:any, ifcElement:any, parentMetaObjectId?:any) {
+    #createDataObject(ctx:any, ifcElement:any, parentObjectDataId?:any) {
         const id = ifcElement.GlobalId.value;
-        const metaObjectType = ifcElement.__proto__.constructor.name;
-        const metaObjectName = (ifcElement.Name && ifcElement.Name.value !== "") ? ifcElement.Name.value : metaObjectType;
-        const metaObject = {
+        const objectDataType = ifcElement.__proto__.constructor.name;
+        const objectDataName = (ifcElement.Name && ifcElement.Name.value !== "") ? ifcElement.Name.value : objectDataType;
+        const objectData = {
             id: id,
-            name: metaObjectType,
-            type: metaObjectName,
-            parent: parentMetaObjectId
+            name: objectDataType,
+            type: objectDataName,
+            parent: parentObjectDataId
         };
-        ctx.metadata.metaObjects.push(metaObject);
-        ctx.metaObjects[id] = metaObject;
-        ctx.stats.numMetaObjects++;
+        ctx.metadata.objects.push(objectData);
+        ctx.objects[id] = objectData;
+        ctx.stats.numObjectDatas++;
     }
 
-    #parseRelatedItemsOfType(ctx:any, id:any, relation:any, related:any, type:any, parentMetaObjectId:any) {
+    #parseRelatedItemsOfType(ctx:any, id:any, relation:any, related:any, type:any, parentObjectDataId:any) {
         const lines = this.#ifcAPI.GetLineIDsWithType(ctx.modelID, type);
         for (let i = 0; i < lines.size(); i++) {
             const relID = lines.get(i);
@@ -790,11 +790,11 @@ export class WebIFCLoaderPlugin extends Plugin {
                 const element = rel[related];
                 if (!Array.isArray(element)) {
                     const ifcElement = this.#ifcAPI.GetLine(ctx.modelID, element.value);
-                    this.#parseSpatialChildren(ctx, ifcElement, parentMetaObjectId);
+                    this.#parseSpatialChildren(ctx, ifcElement, parentObjectDataId);
                 } else {
                     element.forEach((element2) => {
                         const ifcElement = this.#ifcAPI.GetLine(ctx.modelID, element2.value);
-                        this.#parseSpatialChildren(ctx, ifcElement, parentMetaObjectId);
+                        this.#parseSpatialChildren(ctx, ifcElement, parentObjectDataId);
                     });
                 }
             }
@@ -850,13 +850,13 @@ export class WebIFCLoaderPlugin extends Plugin {
                     if (!relatedObjects || relatedObjects.length === 0) {
                         for (let i = 0, len = relatedObjects.length; i < len; i++) {
                             const relatedObject = relatedObjects[i];
-                            const metaObjectId = relatedObject.GlobalId.value;
-                            const metaObject = ctx.metaObjects[metaObjectId];
-                            if (metaObject) {
-                                if (!metaObject.propertySetIds) {
-                                    metaObject.propertySetIds = [];
+                            const objectDataId = relatedObject.GlobalId.value;
+                            const objectData = ctx.objects[objectDataId];
+                            if (objectData) {
+                                if (!objectData.propertySetIds) {
+                                    objectData.propertySetIds = [];
                                 }
-                                metaObject.propertySetIds.push(propertySetId);
+                                objectData.propertySetIds.push(propertySetId);
                             }
                         }
                     }
@@ -874,12 +874,12 @@ export class WebIFCLoaderPlugin extends Plugin {
             const properties = this.#ifcAPI.GetLine(ctx.modelID, flatMeshExpressID);
             const globalId = properties.GlobalId.value;
             if (ctx.loadMetadata) {
-                const metaObjectId = globalId;
-                const metaObject = ctx.metaObjects[metaObjectId];
-                if (ctx.includeTypes && (!metaObject || (!ctx.includeTypes[metaObject.type]))) {
+                const objectDataId = globalId;
+                const objectData = ctx.objects[objectDataId];
+                if (ctx.includeTypes && (!objectData || (!ctx.includeTypes[objectData.type]))) {
                     return;
                 }
-                if (ctx.excludeTypes && (!metaObject || ctx.excludeTypes[metaObject.type])) {
+                if (ctx.excludeTypes && (!objectData || ctx.excludeTypes[objectData.type])) {
                     return;
                 }
             }

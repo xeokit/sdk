@@ -113,7 +113,7 @@ class TouchPickHandler {
             const touches = e.touches;
             const changedTouches = e.changedTouches;
 
-            const pickedSurfaceSubs = cameraControl.hasSubs("pickedSurface");
+            const pickedSurfaceSubs = cameraControl.events.hasSubs("pickedSurface");
 
             if (states.longTouchTimeout !== null) {
                 clearTimeout(states.longTouchTimeout);

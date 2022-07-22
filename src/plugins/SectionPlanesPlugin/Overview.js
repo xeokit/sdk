@@ -1,10 +1,10 @@
-import {math} from "../../viewer/scene/math/math.js";
-import {Scene} from "../../viewer/scene/scene/Scene.js";
-import {DirLight} from "./../../viewer/scene/lights/DirLight.js";
+import * as math from "../../viewer/math/math.js";
+import {Scene} from "../../viewer/scene/Scene.ts";
+import {DirLight} from "../../viewer/view/lights/DirLight.js";
 import {Plane} from "./Plane.js";
 
 /**
- * @desc An interactive 3D overview for navigating the {@link SectionPlane}s created by its {@link SectionPlanesPlugin}.
+ * An interactive 3D overview for navigating the {@link SectionPlane}s created by its {@link SectionPlanesPlugin}.
  *
  * * Located at {@link SectionPlanesPlugin#overview}.
  * * Renders the overview on a separate canvas at a corner of the {@link Viewer}'s {@link Scene} {@link Canvas}.
@@ -215,7 +215,7 @@ class Overview {
     /**
      * Sets if this SectionPlanesOverview is visible.
      *
-     * @param {Boolean} visible Whether or not this SectionPlanesOverview is visible.
+     * @param visible Whether or not this SectionPlanesOverview is visible.
      */
     setVisible(visible = true) {
         this._visible = visible;

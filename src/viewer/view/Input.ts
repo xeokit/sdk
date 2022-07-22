@@ -23,19 +23,19 @@ import * as math from '../math/index';
  *
  * const input = viewer.scene.input;
  *
- * const onMouseDown = input.on("mousedown", (canvasCoords) => {
+ * const onMouseDown = input.events.on("mousedown", (canvasCoords) => {
  *       console.log("Mouse down at: x=" + canvasCoords[0] + ", y=" + coords[1]);
  * });
  *
- * const onMouseUp = input.on("mouseup", (canvasCoords) => {
+ * const onMouseUp = input.events.on("mouseup", (canvasCoords) => {
  *       console.log("Mouse up at: x=" + canvasCoords[0] + ", y=" + canvasCoords[1]);
  * });
  *
- * const onMouseClicked = input.on("mouseclicked", (canvasCoords) => {
+ * const onMouseClicked = input.events.on("mouseclicked", (canvasCoords) => {
  *      console.log("Mouse clicked at: x=" + canvasCoords[0] + ", y=" + canvasCoords[1]);
  * });
  *
- * const onDblClick = input.on("dblclick", (canvasCoords) => {
+ * const onDblClick = input.events.on("dblclick", (canvasCoords) => {
  *       console.log("Double-click at: x=" + canvasCoords[0] + ", y=" + canvasCoords[1]);
  * });
  * ````
@@ -43,7 +43,7 @@ import * as math from '../math/index';
  * Subscribing to keyboard events on the canvas:
  *
  * ````javascript
- * const onKeyDown = input.on("keydown", (keyCode) => {
+ * const onKeyDown = input.events.on("keydown", (keyCode) => {
  *      switch (keyCode) {
  *          case this.KEY_A:
  *              console.log("The 'A' key is down");
@@ -62,7 +62,7 @@ import * as math from '../math/index';
  *      }
  * });
  *
- * const onKeyUp = input.on("keyup", (keyCode) => {
+ * const onKeyUp = input.events.on("keyup", (keyCode) => {
  *      switch (keyCode) {
  *          case this.KEY_A:
  *              console.log("The 'A' key is up");

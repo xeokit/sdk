@@ -261,6 +261,8 @@ export interface SceneModel {
 
     /**
      * Finalizes this SceneModel and prepares it for use.
+     *
+     * Fires a "finalized" event.
      */
     finalize(): void;
 

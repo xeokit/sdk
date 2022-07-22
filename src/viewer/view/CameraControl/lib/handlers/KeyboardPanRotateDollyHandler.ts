@@ -11,13 +11,16 @@ class KeyboardPanRotateDollyHandler {
     #documentKeyUpHandler: (e: any) => void;
     #onTick: any;
 
-    constructor(view: any, controllers: any, configs: any, states: any, updates: any) {
+    ///////////////////
+  // >>> FIX constructor sigs
+    /////////////////////
+    constructor(components: any, controllers: any, configs: any, states: any, updates: any) {
 
-        this.#view = view;
+        this.#view = components.view;
 
-        const input = view.input;
+        const input = components.view.input;
         const keyDownMap: any[] = [];
-        const canvas = view.canvas.canvas;
+        const canvas = components.view.canvas.canvas;
 
         let mouseMovedSinceLastKeyboardDolly = true;
 
@@ -26,7 +29,7 @@ class KeyboardPanRotateDollyHandler {
         });
 
         document.addEventListener("keydown", this.#documentKeyDownHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled) || (!view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!components.view.input.keyboardEnabled)) {
                 return;
             }
             if (!states.mouseover) {
@@ -40,7 +43,7 @@ class KeyboardPanRotateDollyHandler {
         });
 
         document.addEventListener("keyup", this.#documentKeyUpHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled) || (!view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!components.view.input.keyboardEnabled)) {
                 return;
             }
             if (!states.mouseover) {
@@ -53,9 +56,9 @@ class KeyboardPanRotateDollyHandler {
             }
         });
 
-        this.#onTick = view.on("tick", (e: { deltaTime: number; }) => {
+        this.#onTick = components.view.viewer.events.on("tick", (e: { deltaTime: number; }) => {
 
-            if (!(configs.active && configs.pointerEnabled) || (!view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!components.view.input.keyboardEnabled)) {
                 return;
             }
 

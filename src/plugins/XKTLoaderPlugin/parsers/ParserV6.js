@@ -134,7 +134,7 @@ function load(viewer, options, inflatedData, performanceModel) {
         const tileAABBIndex = tileIndex * 6;
         const tileAABB = eachTileAABB.subarray(tileAABBIndex, tileAABBIndex + 6);
 
-        math.getAABB3Center(tileAABB, tileCenter);
+        math.boundaries.getAABB3Center(tileAABB, tileCenter);
 
         rtcAABB[0] = tileAABB[0] - tileCenter[0];
         rtcAABB[1] = tileAABB[1] - tileCenter[1];
@@ -143,7 +143,7 @@ function load(viewer, options, inflatedData, performanceModel) {
         rtcAABB[4] = tileAABB[4] - tileCenter[1];
         rtcAABB[5] = tileAABB[5] - tileCenter[2];
 
-        const tileDecodeMatrix = geometryCompressionUtils.createPositionsDecodeMatrix(rtcAABB);
+        const tileDecodeMatrix = geometryCompressionUtils.createPositionsDecompressMatrix(rtcAABB);
 
         const geometryCreated = {};
 
@@ -164,25 +164,25 @@ function load(viewer, options, inflatedData, performanceModel) {
 
             const meshIds = [];
 
-            const metaObject = viewer.metaScene.metaObjects[entityId];
+            const objectData = viewer.sceneData.objects[entityId];
             const entityDefaults = {};
             const meshDefaults = {};
 
-            if (metaObject) {
+            if (objectData) {
 
                 // Mask loading of object types
 
-                if (options.excludeTypesMap && metaObject.type && options.excludeTypesMap[metaObject.type]) {
+                if (options.excludeTypesMap && objectData.type && options.excludeTypesMap[objectData.type]) {
                     continue;
                 }
 
-                if (options.includeTypesMap && metaObject.type && (!options.includeTypesMap[metaObject.type])) {
+                if (options.includeTypesMap && objectData.type && (!options.includeTypesMap[objectData.type])) {
                     continue;
                 }
 
                 // Get initial property values for object types
 
-                const props = options.objectDefaults ? options.objectDefaults[metaObject.type] || options.objectDefaults["DEFAULT"] : null;
+                const props = options.objectDefaults ? options.objectDefaults[objectData.type] || options.objectDefaults["DEFAULT"] : null;
 
                 if (props) {
                     if (props.visible === false) {
@@ -241,7 +241,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                             normals: primitiveNormals,
                             indices: primitiveIndices,
                             edgeIndices: primitiveEdgeIndices,
-                            positionsDecodeMatrix: reusedPrimitivesDecodeMatrix
+                            positionsDecompressMatrix: reusedPrimitivesDecodeMatrix
                         });
 
                         geometryCreated[geometryId] = true;
@@ -267,7 +267,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                         normals: primitiveNormals,
                         indices: primitiveIndices,
                         edgeIndices: primitiveEdgeIndices,
-                        positionsDecodeMatrix: tileDecodeMatrix,
+                        positionsDecompressMatrix: tileDecodeMatrix,
                         color: color,
                         opacity: opacity
                     }));

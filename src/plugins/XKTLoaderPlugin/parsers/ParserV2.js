@@ -34,7 +34,7 @@ function extract(elements) {
         entityMeshes: elements[9],
         entityIsObjects: elements[10],
 
-        positionsDecodeMatrix: elements[11],
+        positionsDecompressMatrix: elements[11],
 
         entityMeshIds: elements[12],
         entityMatrices: elements[13],
@@ -58,7 +58,7 @@ function inflate(deflatedData) {
         entityMeshes: new Uint32Array(pako.inflate(deflatedData.entityMeshes).buffer),
         entityIsObjects: new Uint8Array(pako.inflate(deflatedData.entityIsObjects).buffer),
 
-        positionsDecodeMatrix: new Float32Array(pako.inflate(deflatedData.positionsDecodeMatrix).buffer),
+        positionsDecompressMatrix: new Float32Array(pako.inflate(deflatedData.positionsDecompressMatrix).buffer),
 
         entityMeshIds: new Uint32Array(pako.inflate(deflatedData.entityMeshIds).buffer),
         entityMatrices: new Float32Array(pako.inflate(deflatedData.entityMatrices).buffer),
@@ -105,19 +105,19 @@ function load(viewer, options, inflatedData, performanceModel) {
 
         const xktEntityId = entityIDs [i];
         const entityId = options.globalizeObjectIds ? math.globalizeObjectId(performanceModel.id, xktEntityId) : xktEntityId;
-        const metaObject = viewer.metaScene.metaObjects[entityId];
+        const objectData = viewer.sceneData.objects[entityId];
         const entityDefaults = {};
         const meshDefaults = {};
         const entityMatrix = entityMatrices.subarray((i * 16), (i * 16) + 16);
 
-        if (metaObject) {
-            if (options.excludeTypesMap && metaObject.type && options.excludeTypesMap[metaObject.type]) {
+        if (objectData) {
+            if (options.excludeTypesMap && objectData.type && options.excludeTypesMap[objectData.type]) {
                 continue;
             }
-            if (options.includeTypesMap && metaObject.type && (!options.includeTypesMap[metaObject.type])) {
+            if (options.includeTypesMap && objectData.type && (!options.includeTypesMap[objectData.type])) {
                 continue;
             }
-            const props = options.objectDefaults ? options.objectDefaults[metaObject.type] || options.objectDefaults["DEFAULT"] : null;
+            const props = options.objectDefaults ? options.objectDefaults[objectData.type] || options.objectDefaults["DEFAULT"] : null;
             if (props) {
                 if (props.visible === false) {
                     entityDefaults.visible = false;
@@ -170,7 +170,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                         indices: tmpIndices,
                         edgeIndices: tmpEdgeIndices,
                         primitive: "triangles",
-                        positionsDecodeMatrix: inflatedData.positionsDecodeMatrix,
+                        positionsDecompressMatrix: inflatedData.positionsDecompressMatrix,
                     });
 
                     alreadyCreatedGeometries [geometryId] = true;
@@ -195,7 +195,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                     normals: tmpNormals,
                     indices: tmpIndices,
                     edgeIndices: tmpEdgeIndices,
-                    positionsDecodeMatrix: inflatedData.positionsDecodeMatrix,
+                    positionsDecompressMatrix: inflatedData.positionsDecompressMatrix,
                     color: color,
                     opacity: opacity
                 }));

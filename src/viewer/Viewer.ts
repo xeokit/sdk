@@ -9,6 +9,9 @@ import * as math from "./math/index";
 import {scheduler} from "./scheduler";
 import {SceneRenderer} from "./scene/SceneRenderer";
 import {apply, createUUID} from "./utils/index";
+import {Events} from "./Events";
+import * as utils from "./utils/index";
+import {WebGLSceneRenderer} from "./scene/webgl/WebGLSceneRenderer";
 
 /**
  * The viewer component at the core of the xeokit SDK.
@@ -23,7 +26,24 @@ import {apply, createUUID} from "./utils/index";
  * - Has {@link View}s, which each provide an independent view of the models in a separate canvas
  * - Extensible via {@link Plugin}s
  */
-export class Viewer extends Component {
+export class Viewer  {
+
+    /**
+     ID of this Component, unique within the {@link Viewer}.
+     */
+    public id: string;
+
+    /**
+     True once this Component has been destroyed.
+
+     Don't use this Component if this is ````true````.
+     */
+    public destroyed: boolean;
+
+    /**
+     Manages events on this component.
+     */
+    public readonly events: Events;
 
     /**
      The maximum number of {@link View}s that can belong to this {@link Viewer}.
@@ -83,7 +103,7 @@ export class Viewer extends Component {
     /**
      * @private
      */
- //   webglSceneRenderer: WebGLSceneRenderer;
+    webglSceneRenderer: WebGLSceneRenderer;
 
     /**
      Creates a Viewer.
@@ -103,8 +123,9 @@ export class Viewer extends Component {
         localeService?: LocaleService
     } = {}) {
 
-        super(null, cfg);
-
+        this.id = cfg.id || createUUID();
+        this.destroyed = false;
+        this.events = new Events();
         this.localeService = cfg.localeService || new LocaleService();
         this.data = new Data(this);
         this.scene = new Scene(this, {});
@@ -151,13 +172,13 @@ export class Viewer extends Component {
             throw "Mandatory View config expected: valid canvasId or canvasElement";
         }
         const view = new View(apply({id, viewer: this}, cfg));
-        // this.webglSceneRenderer = new WebGLSceneRenderer({
-        //     view,
-        //     canvasElement,
-        //     alphaDepthMask: true,
-        //     transparent: cfg.transparent
-        // });
-        // this.renderer = this.webglSceneRenderer;
+        this.webglSceneRenderer = new WebGLSceneRenderer({
+            view,
+            canvasElement,
+            alphaDepthMask: true,
+            transparent: cfg.transparent
+        });
+        this.renderer = this.webglSceneRenderer;
         this.#registerView(view);
         view.events.on("destroyed", () => {
             this.#deregisterView(view);
@@ -221,6 +242,55 @@ export class Viewer extends Component {
     }
 
     /**
+     Logs a console debugging message for this Viewer.
+
+     The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
+
+     Also fires the message as a "log" event on the parent {@link Viewer}.
+
+     @param message - The message to log
+     */
+    log(message: string): void {
+        message = `[LOG] ${this.#prefixMessageWithID(message)}`;
+        window.console.log(message);
+        //   this.viewer.events.fire("log", message);
+    }
+
+    /**
+     Logs a warning for this Viewer to the JavaScript console.
+
+     The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
+
+     Also fires the message as a "warn" event on the parent {@link Viewer}.
+
+     @param message - The warning message to log
+     */
+    warn(message: string): void {
+        message = `[WARN] ${this.#prefixMessageWithID(message)}`;
+        window.console.warn(message);
+        // this.viewer.events.fire("warn", message);
+    }
+
+    /**
+     Logs an error for this Viewer to the JavaScript console.
+
+     The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
+
+     Also fires the message as an "error" event on the {@link Viewer}.
+
+     @param message The error message to log
+     */
+    error(message: string): void {
+        message = `[ERROR] ${this.#prefixMessageWithID(message)}`;
+        window.console.error(message);
+        // this.viewer.events.fire("error", message);
+    }
+
+    #prefixMessageWithID(message: string): string {
+        return ` [${this.constructor.name} "${utils.inQuotes(this.id)}"]: ${message}`;
+    }
+
+    /**
      Destroys this Viewer, along with associated Views and Plugins.
      */
     destroy(): void {
@@ -237,7 +307,6 @@ export class Viewer extends Component {
         //     this.views[id].destroy();
         // }
         // this.scene.destroy();
-        super.destroy();
     }
 
     #registerView(view: View): void {

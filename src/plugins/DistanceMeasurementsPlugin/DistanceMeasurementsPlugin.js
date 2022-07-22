@@ -1,4 +1,4 @@
-import {Plugin} from "../../viewer/Plugin.js";
+import {Plugin} from "../../viewer/Plugin.ts";
 import {DistanceMeasurement} from "./DistanceMeasurement.js";
 import {DistanceMeasurementsControl} from "./DistanceMeasurementsControl.js";
 
@@ -32,7 +32,7 @@ import {DistanceMeasurementsControl} from "./DistanceMeasurementsControl.js";
  * [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#measurements_distance_modelWithMeasurements)]
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas",
@@ -96,7 +96,7 @@ import {DistanceMeasurementsControl} from "./DistanceMeasurementsControl.js";
  * [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#measurements_distance_createWithMouse)]
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin} from "xeokit-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin} from "xeokit-webgpu-sdk.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas",
@@ -139,8 +139,8 @@ class DistanceMeasurementsPlugin extends Plugin {
      * @constructor
      * @param {Viewer} viewer The Viewer.
      * @param {Object} [cfg]  Plugin configuration.
-     * @param {String} [cfg.id="DistanceMeasurements"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {Number} [cfg.labelMinAxisLength=25] The minimum length, in pixels, of an axis wire beyond which its label is shown.
+     * @param [cfg.id="DistanceMeasurements"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+     * @param [cfg.labelMinAxisLength=25] The minimum length, in pixels, of an axis wire beyond which its label is shown.
      * @param {HTMLElement} [cfg.container] Container DOM element for markers and labels. Defaults to ````document.body````.
      */
     constructor(viewer, cfg = {}) {
@@ -214,16 +214,16 @@ class DistanceMeasurementsPlugin extends Plugin {
      * The DistanceMeasurement is then registered by {@link DistanceMeasurement#id} in {@link DistanceMeasurementsPlugin#measurements}.
      *
      * @param {Object} params {@link DistanceMeasurement} configuration.
-     * @param {String} params.id Unique ID to assign to {@link DistanceMeasurement#id}. The DistanceMeasurement will be registered by this in {@link DistanceMeasurementsPlugin#measurements} and {@link Scene.components}. Must be unique among all components in the {@link Viewer}.
-     * @param {Number[]} params.origin.worldPos Origin World-space 3D position.
+     * @param params.id Unique ID to assign to {@link DistanceMeasurement#id}. The DistanceMeasurement will be registered by this in {@link DistanceMeasurementsPlugin#measurements} and {@link Scene.components}. Must be unique among all components in the {@link Viewer}.
+     * @param params.origin.worldPos Origin World-space 3D position.
      * @param {Entity} params.origin.entity Origin Entity.
-     * @param {Number[]} params.target.worldPos Target World-space 3D position.
+     * @param params.target.worldPos Target World-space 3D position.
      * @param {Entity} params.target.entity Target Entity.
-     * @param {Boolean} [params.visible=true] Whether to initially show the {@link DistanceMeasurement}.
-     * @param {Boolean} [params.originVisible=true] Whether to initially show the {@link DistanceMeasurement} origin.
-     * @param {Boolean} [params.targetVisible=true] Whether to initially show the {@link DistanceMeasurement} target.
-     * @param {Boolean} [params.wireVisible=true] Whether to initially show the direct point-to-point wire between {@link DistanceMeasurement#origin} and {@link DistanceMeasurement#target}.
-     * @param {Boolean} [params.axisVisible=true] Whether to initially show the axis-aligned wires between {@link DistanceMeasurement#origin} and {@link DistanceMeasurement#target}.
+     * @param [params.visible=true] Whether to initially show the {@link DistanceMeasurement}.
+     * @param [params.originVisible=true] Whether to initially show the {@link DistanceMeasurement} origin.
+     * @param [params.targetVisible=true] Whether to initially show the {@link DistanceMeasurement} target.
+     * @param [params.wireVisible=true] Whether to initially show the direct point-to-point wire between {@link DistanceMeasurement#origin} and {@link DistanceMeasurement#target}.
+     * @param [params.axisVisible=true] Whether to initially show the axis-aligned wires between {@link DistanceMeasurement#origin} and {@link DistanceMeasurement#target}.
      * @returns {DistanceMeasurement} The new {@link DistanceMeasurement}.
      */
     createMeasurement(params = {}) {
@@ -260,7 +260,7 @@ class DistanceMeasurementsPlugin extends Plugin {
     /**
      * Destroys a {@link DistanceMeasurement}.
      *
-     * @param {String} id ID of DistanceMeasurement to destroy.
+     * @param id ID of DistanceMeasurement to destroy.
      */
     destroyMeasurement(id) {
         const measurement = this._measurements[id];

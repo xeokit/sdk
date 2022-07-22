@@ -118,11 +118,6 @@ class View extends Component {
     public readonly viewer: Viewer;
 
     /**
-     * The Scene that this View visualizes.
-     */
-    public readonly scene: Scene;
-
-    /**
      * The index of this View in {@link Viewer.viewList}.
      */
     public viewIndex: number;
@@ -138,20 +133,9 @@ class View extends Component {
     public readonly canvas: Canvas;
 
     /**
-     * Whether the logarithmic depth buffer is enabled for this View. Immutable; configured when View created.
+     * Whether the logarithmic depth buffer is enabled for this View.
      */
     public readonly logarithmicDepthBufferEnabled: boolean;
-
-
-    /**
-     * The SceneRenderer for this View.
-     */
-    public renderer: SceneRenderer;
-
-    /**
-     * @private
-     */
-    //   webglSceneRenderer: WebGLSceneRenderer;
 
     /**
      * Configures Scalable Ambient Obscurance (SAO) for this View.
@@ -328,11 +312,9 @@ class View extends Component {
         logarithmicDepthBufferEnabled?: boolean;
     }) {
 
-        super(options.viewer, options);
+        super(null, options);
 
         this.viewer = options.viewer;
-        this.scene = options.viewer.scene;
-        this.renderer = this.viewer.renderer;
 
         const canvas = options.canvasElement || document.getElementById(options.canvasId);
 
@@ -354,6 +336,13 @@ class View extends Component {
             this.redraw();
         });
 
+
+        this.input = new Input(this, {
+            element: this.canvas.canvas
+        });
+
+        this.viewport = new Viewport(this, {});
+
         this.camera = new Camera(this);
 
         this.sao = new SAO(this, {});
@@ -362,15 +351,10 @@ class View extends Component {
             doublePickFlyTo: true
         });
 
-        this.input = new Input(this, {
-            element: this.canvas.canvas
-        });
 
         this.cameraFlight = new CameraFlightAnimation(this, {
             duration: 0.5
         });
-
-        this.viewport = new Viewport(this, {});
 
         this.metrics = new Metrics(this, {
             units: options.units,

@@ -1,4 +1,4 @@
-import {math} from "../../viewer/scene/math/math.js";
+import * as math from "../../viewer/math/math.js";
 
 /**
  * @private

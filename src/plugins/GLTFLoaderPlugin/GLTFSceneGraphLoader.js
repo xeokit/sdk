@@ -1,14 +1,14 @@
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.js";
+import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
+import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
 import {PhongMaterial} from "../../viewer/scene/materials/PhongMaterial.js";
 import {MetallicMaterial} from "../../viewer/scene/materials/MetallicMaterial.js";
 import {SpecularMaterial} from "../../viewer/scene/materials/SpecularMaterial.js";
 import {Texture} from "../../viewer/scene/materials/Texture.js";
-import {Node} from "../../viewer/scene/nodes/Node.js";
-import {math} from "../../viewer/scene/math/math.js";
-import {utils} from "../../viewer/scene/utils.js";
-import {core} from "../../viewer/scene/core.js";
+import {Node} from "../../viewer/scene/Node.js";
+import * as math from "../../viewer/math/math.js";
+import * as utils from "../../viewer/scene/utils.js";
+import {scheduler} from "../../viewer/scene/scheduler.js";
 
 /**
  * @private
@@ -25,7 +25,7 @@ class GLTFSceneGraphLoader {
         spinner.processes++;
         loadGLTF(plugin, modelNode, src, options, function () {
                 spinner.processes--;
-                core.scheduleTask(function () {
+                scheduler.scheduleTask(function () {
                     modelNode.scene.fire("modelLoaded", modelNode.id); // FIXME: Assumes listeners know order of these two events
                     modelNode.fire("loaded", true, false);
                 });

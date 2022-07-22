@@ -1,13 +1,13 @@
 /**
- * Tests if {@link TreeViewPlugin} would be able to create a "types" hierarchy for the given {@link MetaModel}.
+ * Tests if {@link TreeViewPlugin} would be able to create a "types" hierarchy for the given {@link DataModel}.
  *
- * @param {MetaModel} metaModel The MetaModel.
+ * @param {DataModel} metaModel The DataModel.
  * @param {String[]} errors Accumulates messages for validation errors.
  * @return {boolean} Returns ````true```` if no errors found, else ````false````.
  */
-function validateMetaModelForTreeViewTypesHierarchy(metaModel, errors) {
-    const rootMetaObject = metaModel.rootMetaObject;
-    if (!rootMetaObject) {
+function validateModelDataForTreeViewTypesHierarchy(metaModel, errors) {
+    const rootObjectData = metaModel.rootObjectData;
+    if (!rootObjectData) {
         errors.push("Can't build types hierarchy: model is empty");
         return false;
     }
@@ -15,31 +15,31 @@ function validateMetaModelForTreeViewTypesHierarchy(metaModel, errors) {
 }
 
 /**
- * Tests if {@link TreeViewPlugin} would be able to create a "storeys" hierarchy for the given {@link MetaModel}.
+ * Tests if {@link TreeViewPlugin} would be able to create a "storeys" hierarchy for the given {@link DataModel}.
  *
- * @param {MetaModel} metaModel The MetaModel.
+ * @param {DataModel} metaModel The DataModel.
  * @param {String[]} errors Accumulates messages for validation errors.
  * @return {boolean} Returns ````true```` if no errors found, else ````false````.
  */
-function validateMetaModelForTreeViewStoreysHierarchy(metaModel, errors) {
-    const rootMetaObject = metaModel.rootMetaObject;
-    if (!rootMetaObject) {
+function validateModelDataForTreeViewStoreysHierarchy(metaModel, errors) {
+    const rootObjectData = metaModel.rootObjectData;
+    if (!rootObjectData) {
         errors.push("Can't build storeys hierarchy: model is empty");
         return false;
     }
-    return _validateMetaModelForStoreysHierarchy(rootMetaObject, errors);
+    return _validateModelDataForStoreysHierarchy(rootObjectData, errors);
 }
 
 /**
- * Tests if {@link TreeViewPlugin} would be able to create a "containment" hierarchy for the given {@link MetaModel}.
+ * Tests if {@link TreeViewPlugin} would be able to create a "containment" hierarchy for the given {@link DataModel}.
  *
- * @param {MetaModel} metaModel The MetaModel.
+ * @param {DataModel} metaModel The DataModel.
  * @param {String[]} errors Accumulates messages for validation errors.
  * @return {boolean} Returns ````true```` if no errors found, else ````false````.
  */
-function validateMetaModelForTreeViewContainmentHierarchy(metaModel, errors) {
-    const rootMetaObject = metaModel.rootMetaObject;
-    if (!rootMetaObject) {
+function validateModelDataForTreeViewContainmentHierarchy(metaModel, errors) {
+    const rootObjectData = metaModel.rootObjectData;
+    if (!rootObjectData) {
         errors.push("Can't build containment hierarchy: model is empty");
         return false;
     }
@@ -49,15 +49,15 @@ function validateMetaModelForTreeViewContainmentHierarchy(metaModel, errors) {
 /**
  * @private
  */
-function _validateMetaModelForStoreysHierarchy(metaObject, errors, level = 0, ctx, buildingNode) {
+function _validateModelDataForStoreysHierarchy(objectData, errors, level = 0, ctx, buildingNode) {
     ctx = ctx || {
         foundIFCBuildingStoreys: false
     };
-    const metaObjectType = metaObject.type;
-    const children = metaObject.children;
-    if (metaObjectType === "IfcBuilding") {
+    const objectDataType = objectData.type;
+    const children = objectData.children;
+    if (objectDataType === "IfcBuilding") {
         buildingNode = true;
-    } else if (metaObjectType === "IfcBuildingStorey") {
+    } else if (objectDataType === "IfcBuildingStorey") {
         if (!buildingNode) {
             errors.push("Can't build storeys hierarchy: IfcBuildingStorey found without parent IfcBuilding");
             return false;
@@ -66,8 +66,8 @@ function _validateMetaModelForStoreysHierarchy(metaObject, errors, level = 0, ct
     }
     if (children) {
         for (let i = 0, len = children.length; i < len; i++) {
-            const childMetaObject = children[i];
-            if (!_validateMetaModelForStoreysHierarchy(childMetaObject, errors, level + 1, ctx, buildingNode)) {
+            const childObjectData = children[i];
+            if (!_validateModelDataForStoreysHierarchy(childObjectData, errors, level + 1, ctx, buildingNode)) {
                 return false;
             }
         }
@@ -81,7 +81,7 @@ function _validateMetaModelForStoreysHierarchy(metaObject, errors, level = 0, ct
 }
 
 export {
-    validateMetaModelForTreeViewTypesHierarchy,
-    validateMetaModelForTreeViewStoreysHierarchy,
-    validateMetaModelForTreeViewContainmentHierarchy
+    validateModelDataForTreeViewTypesHierarchy,
+    validateModelDataForTreeViewStoreysHierarchy,
+    validateModelDataForTreeViewContainmentHierarchy
 };

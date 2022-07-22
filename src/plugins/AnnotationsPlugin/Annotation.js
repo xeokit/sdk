@@ -1,5 +1,5 @@
 import {Marker} from "../../viewer/scene/marker/Marker.js";
-import {utils} from "../../viewer/scene/utils.js";
+import * as utils from "../../viewer/scene/utils.js";
 
 /**
  * A {@link Marker} with an HTML label attached to it, managed by an {@link AnnotationsPlugin}.
@@ -79,7 +79,7 @@ class Annotation extends Marker {
             }
             if (this._layoutDirty || this._visibilityDirty) {
                 if (this._markerShown || this._labelShown) {
-                    this._updatePosition();
+                    this.#updatePosition();
                     this._layoutDirty = false;
                 }
             }
@@ -186,7 +186,7 @@ class Annotation extends Marker {
     /**
      * @private
      */
-    _updatePosition() {
+    #updatePosition() {
         const boundary = this.scene.canvas.boundary;
         const left = boundary[0];
         const top = boundary[1];
@@ -223,7 +223,7 @@ class Annotation extends Marker {
      *
      * See {@link AnnotationsPlugin} for more info.
      *
-     * @param {Boolean} shown Whether to show the marker.
+     * @param shown Whether to show the marker.
      */
     setMarkerShown(shown) {
         shown = !!shown;
@@ -256,7 +256,7 @@ class Annotation extends Marker {
      *
      * See {@link AnnotationsPlugin} for more info.
      *
-     * @param {Boolean} shown Whether to show the label.
+     * @param shown Whether to show the label.
      */
     setLabelShown(shown) {
         shown = !!shown;
@@ -285,8 +285,8 @@ class Annotation extends Marker {
      *
      * See {@link AnnotationsPlugin} for more info.
      *
-     * @param {String} key Identifies the field.
-     * @param {String} value The field's value.
+     * @param key Identifies the field.
+     * @param value The field's value.
      */
     setField(key, value) {
         this._values[key] = value || "";
@@ -298,7 +298,7 @@ class Annotation extends Marker {
      *
      * See {@link AnnotationsPlugin} for more info.
      *
-     * @param {String} key Identifies the field.
+     * @param key Identifies the field.
      * @returns {String} The field's value.
      */
     getField(key) {

@@ -1,5 +1,5 @@
-import {Component} from "../../viewer/scene/Component.js";
-import {math} from "../../viewer/scene/math/math.js";
+import {Component} from "../../viewer/Component.ts";
+import * as math from "../../viewer/math/math.js";
 
 const HOVERING = 0;
 const FINDING_ORIGIN = 1;

@@ -1,5 +1,5 @@
 import * as utils from "../../viewer/utils/utils"
-import {MetaModelData, Plugin, SceneModel, Viewer} from "../../viewer";
+import {DataModelSchema, Plugin, SceneModel, Viewer} from "../../viewer";
 import {XKTDataSource} from "./XKTDataSource";
 import {XKTDefaultDataSource} from "./XKTDefaultDataSource";
 import {IFCObjectDefaults} from "./IFCObjectDefaults";
@@ -9,8 +9,8 @@ import {IFCObjectDefaults} from "./IFCObjectDefaults";
 // import {ParserV4} from "./parsers/ParserV4.js";
 // import {ParserV5} from "./parsers/ParserV5.js";
 // import {ParserV6} from "./parsers/ParserV6.js";
-import {ParserV7} from "./parsers/ParserV7";
-import {ParserV8} from "./parsers/ParserV8";
+// import {ParserV7} from "./parsers/ParserV7";
+// import {ParserV8} from "./parsers/ParserV8";
 import {ParserV9} from "./parsers/ParserV9";
 
 
@@ -22,8 +22,8 @@ const parsers: { [key: string]: any } = {};
 // parsers[ParserV4.version] = ParserV4;
 // parsers[ParserV5.version] = ParserV5;
 // parsers[ParserV6.version] = ParserV6;
-parsers[ParserV7.version] = ParserV7;
-parsers[ParserV8.version] = ParserV8;
+// parsers[ParserV7.version] = ParserV7;
+// parsers[ParserV8.version] = ParserV8;
 parsers[ParserV9.version] = ParserV9;
 
 /**
@@ -32,7 +32,7 @@ parsers[ParserV9.version] = ParserV9;
  ## Overview
 
  - XKTLoaderPlugin is the most efficient way to load high-detail models into xeokit
- - An *````.XKT````* file is a single BLOB containing a model, compressed using geometry quantization and [pako](https://nodeca.github.io/pako/)
+ - An *````.XKT````* file is a single BLOB containing a model
  - Supports double-precision coordinates
  - Position, scale and rotate each model as you load it
  - Filter which IFC types get loaded
@@ -48,7 +48,7 @@ class XKTLoaderPlugin extends Plugin {
 
      When loading models with metadata, causes this XKTLoaderPlugin to only load objects whose types are in this list.
 
-     An object's type is indicated by {@link MetaObject.type}.
+     An object's type is indicated by {@link DataObject.type}.
 
      Default value is ````null````.
      */
@@ -59,7 +59,7 @@ class XKTLoaderPlugin extends Plugin {
 
      When loading models with metadata, causes this XKTLoaderPlugin to not load objects whose types are in this list.
 
-     An object's type is indicated by {@link MetaObject.type}.
+     An object's type is indicated by {@link DataObject.type}.
 
      Default value is ````null````.
      */
@@ -94,10 +94,10 @@ class XKTLoaderPlugin extends Plugin {
      Set  this ````true```` when you need to load multiple instances of the same model, to avoid ID clashes
      between the objects in the different instances.
 
-     When we load a model with this set ````true````, then each {@link SceneObject.id} and {@link MetaObject.id} will be
+     When we load a model with this set ````true````, then each {@link SceneObject.id} and {@link DataObject.id} will be
      prefixed by the ID of the model, ie. ````<modelId>#<objectId>````.
 
-     {@link MetaObject.originalSystemId} will always hold the original, un-prefixed, ID values.
+     {@link DataObject.originalSystemId} will always hold the original, un-prefixed, ID values.
 
      Default value is ````false````.
      */
@@ -146,11 +146,11 @@ class XKTLoaderPlugin extends Plugin {
      @param params.id - ID to assign to the root {@link Entity.id}, unique among all components in the Viewer's {@link Scene}, generated automatically by default.
      @param params.src - Path to a *````.xkt````* file, as an alternative to the ````xkt```` parameter.
      @param params.xkt - The *````.xkt````* file data, as an alternative to the ````src```` parameter.
-     @param params.metaModelSrc - Path to an optional metadata file, as an alternative to the ````metaModelData```` parameter.
-     @param params.metaModelData - JSON model metadata, as an alternative to the ````metaModelSrc```` parameter.
+     @param params.modelDataSrc - Path to an optional metadata file, as an alternative to the ````modelDataData```` parameter.
+     @param params.modelDataData - JSON model metadata, as an alternative to the ````modelDataSrc```` parameter.
      @param params.objectDefaults - Map of initial default states for each loaded {@link Entity} that represents an object. Default value is {@link IFCObjectDefaults}.
-     @param params.includeTypes - When loading metadata, only loads objects that have {@link MetaObject}s with {@link MetaObject.type} values in this list.
-     @param params.excludeTypes - When loading metadata, never loads objects that have {@link MetaObject}s with {@link MetaObject.type} values in this list.
+     @param params.includeTypes - When loading metadata, only loads objects that have {@link DataObject}s with {@link DataObject.type} values in this list.
+     @param params.excludeTypes - When loading metadata, never loads objects that have {@link DataObject}s with {@link DataObject.type} values in this list.
      @param params.edges - Whether or not xeokit renders the model with edges emphasized. Default is ````false````.
      @param params.position - The model World-space 3D position.
      @param params.scale - The model's World-space scale.
@@ -162,14 +162,14 @@ class XKTLoaderPlugin extends Plugin {
      @param params.backfaces - When we set this ````true````, then we force rendering of backfaces for the model. When we leave this ````false````, then we allow the Viewer to decide when to render backfaces. In that case, the Viewer will hide backfaces on watertight meshes, show backfaces on open meshes, and always show backfaces on meshes when we slice them open with {@link SectionPlane}s.  Default is ````false````.
      @param params.excludeUnclassifiedObjects - When loading metadata and this is ````true````, will only load objects that have types (that are not excluded).  Default is ````false````.
      @param params.globalizeObjectIds - Indicates whether to globalize object IDs, in case you need to prevent ID clashes with other models. Default is ````false````.
-     @returns {SceneModel} - SceneModel representing the model, which will be registered by {@link SceneModel.id} in {@link MetaScene.sceneModels}.
+     @returns {SceneModel} - SceneModel representing the model, which will be registered by {@link SceneModel.id} in {@link SceneData.sceneModels}.
      */
     load(params: {
         objectDefaults?: { [key: string]: any };
         excludeUnclassifiedObjects?: boolean;
         globalizeObjectIds?: boolean;
-        metaModelData?: MetaModelData;
-        metaModelSrc?: string;
+        dataModelData?: DataModelSchema;
+        dataModelSrc?: string;
         id: string,
         src?: string,
         xkt?: ArrayBuffer,
@@ -217,15 +217,16 @@ class XKTLoaderPlugin extends Plugin {
         options.excludeUnclassifiedObjects = (params.excludeUnclassifiedObjects !== undefined) ? (!!params.excludeUnclassifiedObjects) : this.excludeUnclassifiedObjects;
         options.globalizeObjectIds = (params.globalizeObjectIds !== undefined) ? (!!params.globalizeObjectIds) : this.globalizeObjectIds;
 
-        if (params.metaModelSrc || params.metaModelData) {
+        if (params.dataModelSrc || params.dataModelData) {
 
-            const processMetaModelData = (metaModelData: any) => {
-                const metaModel = this.viewer.metaScene.createMetaModel(modelId, metaModelData, {
+            const processModelDataData = (dataModelData: any) => {
+                dataModelData.id = modelId;
+                const dataModel = this.viewer.data.createDataModel(dataModelData, {
                     includeTypes: includeTypes,
                     excludeTypes: excludeTypes,
                     globalizeObjectIds: this.globalizeObjectIds
                 });
-                if (!metaModel) {
+                if (!dataModel) {
                     return false;
                 }
                 if (params.src) {
@@ -234,34 +235,34 @@ class XKTLoaderPlugin extends Plugin {
                     this.#parseModel(params.xkt, params, options, sceneModel);
                 }
                 sceneModel.events.once("destroyed", () => {
-                    const metaModel = this.viewer.metaScene.metaModels[sceneModel.id];
-                    if (metaModel) {
-                        metaModel.destroy();
+                    const dataModel = this.viewer.data.dataModels[sceneModel.id];
+                    if (dataModel) {
+                        dataModel.destroy();
                     }
                 });
                 return true;
             };
 
-            if (params.metaModelSrc) {
-                const metaModelSrc = params.metaModelSrc;
+            if (params.dataModelSrc) {
+                const dataModelSrc = params.dataModelSrc;
                 //   this.viewer.scene.canvas.spinner.processes++;
-                this.dataSource.getMetaModel(metaModelSrc, (metaModelData: any) => {
+                this.dataSource.getModelData(dataModelSrc, (dataModelData: any) => {
                     if (sceneModel.destroyed) {
                         return;
                     }
-                    if (!processMetaModelData(metaModelData)) {
-                        this.error(`load(): Failed to load model metadata for model '${modelId} from '${metaModelSrc}' - metadata not valid`);
+                    if (!processModelDataData(dataModelData)) {
+                        this.error(`load(): Failed to load model metadata for model '${modelId} from '${dataModelSrc}' - metadata not valid`);
                         sceneModel.events.fire("error", "Metadata not valid");
                     }
                     //      this.viewer.scene.canvas.spinner.processes--;
                 }, (errMsg: string) => {
-                    this.error(`load(): Failed to load model metadata for model '${modelId} from  '${metaModelSrc}' - ${errMsg}`);
-                    sceneModel.events.fire("error", `Failed to load model metadata from  '${metaModelSrc}' - ${errMsg}`);
+                    this.error(`load(): Failed to load model metadata for model '${modelId} from  '${dataModelSrc}' - ${errMsg}`);
+                    sceneModel.events.fire("error", `Failed to load model metadata from  '${dataModelSrc}' - ${errMsg}`);
                     //     this.viewer.scene.canvas.spinner.processes--;
                 });
-            } else if (params.metaModelData) {
-                if (!processMetaModelData(params.metaModelData)) {
-                    this.error(`load(): Failed to load model metadata for model '${modelId} from '${params.metaModelSrc}' - metadata not valid`);
+            } else if (params.dataModelData) {
+                if (!processModelDataData(params.dataModelData)) {
+                    this.error(`load(): Failed to load model metadata for model '${modelId} from '${params.dataModelSrc}' - metadata not valid`);
                     sceneModel.events.fire("error", "Metadata not valid");
                 }
             }
@@ -313,9 +314,9 @@ class XKTLoaderPlugin extends Plugin {
         }
         parser.parse(this.viewer, options, elements, sceneModel);
         sceneModel.finalize();
-        this.#createDefaultMetaModelIfNeeded(sceneModel, params, options);
+        this.#createDefaultModelDataIfNeeded(sceneModel, params, options);
         sceneModel.scene.events.once("tick", () => {
-            if (sceneModel.destroyed) {
+            if (sceneModel.events.destroyed) {
                 return;
             }
             sceneModel.scene.events.fire("modelLoaded", sceneModel.id); // FIXME: Assumes listeners know order of these two events
@@ -323,39 +324,40 @@ class XKTLoaderPlugin extends Plugin {
         });
     }
 
-    #createDefaultMetaModelIfNeeded(sceneModel: SceneModel, params: {}, options: {
+    #createDefaultModelDataIfNeeded(sceneModel: SceneModel, params: {}, options: {
         globalizeObjectIds?: boolean;
         excludeTypes?: string[];
         includeTypes?: string[];
     }) {
-        const metaModelId = sceneModel.id;
-        if (!this.viewer.metaScene.metaModels[metaModelId]) {
-            const metaModelData: MetaModelData = {
-                metaObjects: []
+        const modelDataId = sceneModel.id;
+        if (!this.viewer.data.dataModels[modelDataId]) {
+            const dataModelData: DataModelSchema = {
+                id: sceneModel.id,
+                dataObjects: []
             };
-            metaModelData.metaObjects.push({
-                id: metaModelId,
+            dataModelData.dataObjects.push({
+                id: modelDataId,
                 type: "default",
-                name: metaModelId,
+                name: modelDataId,
                 parentId: null
             });
-            const entityList = sceneModel.sceneObjectsList;
-            for (let i = 0, len = entityList.length; i < len; i++) {
-                const entity = entityList[i];
-                metaModelData.metaObjects.push({
-                    id: entity.id,
+            const sceneObjects = sceneModel.sceneObjects;
+            for (let id in sceneObjects) {
+                const sceneObject = sceneObjects[id];
+                dataModelData.dataObjects.push({
+                    id: "" + sceneObject.id,
                     type: "default",
-                    name: entity.id,
-                    parentId: metaModelId
+                    name: "" + sceneObject.id,
+                    parentId: modelDataId
                 });
             }
-            const metaModel = this.viewer.metaScene.createMetaModel(metaModelId, metaModelData, {
+            const dataModel = this.viewer.data.createDataModel(dataModelData, {
                 includeTypes: options.includeTypes,
                 excludeTypes: options.excludeTypes,
                 globalizeObjectIds: options.globalizeObjectIds
             });
             sceneModel.events.once("destroyed", () => {
-                metaModel.destroy();
+                dataModel.destroy();
             });
         }
     }

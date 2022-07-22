@@ -96,22 +96,22 @@ function load(viewer, options, inflatedData, performanceModel) {
 
         const xktEntityId = entityIDs [i];
         const entityId = options.globalizeObjectIds ? math.globalizeObjectId(performanceModel.id, xktEntityId) : xktEntityId;
-        const metaObject = viewer.metaScene.metaObjects[entityId];
+        const objectData = viewer.sceneData.objects[entityId];
         const entityDefaults = {};
         const meshDefaults = {};
         const entityMatrix = entityMatrices.subarray((i * 16), (i * 16) + 16);
 
-        if (metaObject) {
+        if (objectData) {
 
-            if (options.excludeTypesMap && metaObject.type && options.excludeTypesMap[metaObject.type]) {
+            if (options.excludeTypesMap && objectData.type && options.excludeTypesMap[objectData.type]) {
                 continue;
             }
 
-            if (options.includeTypesMap && metaObject.type && (!options.includeTypesMap[metaObject.type])) {
+            if (options.includeTypesMap && objectData.type && (!options.includeTypesMap[objectData.type])) {
                 continue;
             }
 
-            const props = options.objectDefaults ? options.objectDefaults[metaObject.type] || options.objectDefaults["DEFAULT"] : null;
+            const props = options.objectDefaults ? options.objectDefaults[objectData.type] || options.objectDefaults["DEFAULT"] : null;
 
             if (props) {
                 if (props.visible === false) {
@@ -163,7 +163,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                         indices: tmpIndices,
                         edgeIndices: tmpEdgeIndices,
                         primitive: "triangles",
-                        positionsDecodeMatrix: inflatedData.instancedPositionsDecodeMatrix
+                        positionsDecompressMatrix: inflatedData.instancedPositionsDecodeMatrix
                     });
 
                     _alreadyCreatedGeometries [geometryId] = true;
@@ -188,7 +188,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                     normals: tmpNormals,
                     indices: tmpIndices,
                     edgeIndices: tmpEdgeIndices,
-                    positionsDecodeMatrix: inflatedData.batchedPositionsDecodeMatrix,
+                    positionsDecompressMatrix: inflatedData.batchedPositionsDecodeMatrix,
                     color: color,
                     opacity: opacity
                 }));

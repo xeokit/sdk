@@ -75,7 +75,7 @@ class ViewObject {
         this.view = view;
         this.sceneObject = sceneObject;
 
-        // Initialize properties like this so that we also
+        // Initialize properties like below so that we also
         // update their counters on the View
 
         this.visible = options.visible !== false;

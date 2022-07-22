@@ -40,7 +40,7 @@ function extract(elements) {
         entityIDs: elements[8],
         entityMeshes: elements[9],
         entityIsObjects: elements[10],
-        positionsDecodeMatrix: elements[11]
+        positionsDecompressMatrix: elements[11]
     };
 }
 
@@ -57,7 +57,7 @@ function inflate(deflatedData) {
         entityIDs: pako.inflate(deflatedData.entityIDs, {to: 'string'}),
         entityMeshes: new Uint32Array(pako.inflate(deflatedData.entityMeshes).buffer),
         entityIsObjects: new Uint8Array(pako.inflate(deflatedData.entityIsObjects).buffer),
-        positionsDecodeMatrix: new Float32Array(pako.inflate(deflatedData.positionsDecodeMatrix).buffer)
+        positionsDecompressMatrix: new Float32Array(pako.inflate(deflatedData.positionsDecompressMatrix).buffer)
     };
 }
 
@@ -84,21 +84,21 @@ function load(viewer, options, inflatedData, performanceModel) {
 
         const xktEntityId = entityIDs [i];
         const entityId = options.globalizeObjectIds ? math.globalizeObjectId(performanceModel.id, xktEntityId) : xktEntityId;
-        const metaObject = viewer.metaScene.metaObjects[entityId];
+        const objectData = viewer.sceneData.objects[entityId];
         const entityDefaults = {};
         const meshDefaults = {};
 
-        if (metaObject) {
+        if (objectData) {
 
-            if (options.excludeTypesMap && metaObject.type && options.excludeTypesMap[metaObject.type]) {
+            if (options.excludeTypesMap && objectData.type && options.excludeTypesMap[objectData.type]) {
                 continue;
             }
 
-            if (options.includeTypesMap && metaObject.type && (!options.includeTypesMap[metaObject.type])) {
+            if (options.includeTypesMap && objectData.type && (!options.includeTypesMap[objectData.type])) {
                 continue;
             }
 
-            const props = options.objectDefaults ? options.objectDefaults[metaObject.type] || options.objectDefaults["DEFAULT"] : null;
+            const props = options.objectDefaults ? options.objectDefaults[objectData.type] || options.objectDefaults["DEFAULT"] : null;
 
             if (props) {
                 if (props.visible === false) {
@@ -138,7 +138,7 @@ function load(viewer, options, inflatedData, performanceModel) {
                 normals: normals.subarray(meshPositions [j], lastMesh ? positions.length : meshPositions [j + 1]),
                 indices: indices.subarray(meshIndices [j], lastMesh ? indices.length : meshIndices [j + 1]),
                 edgeIndices: edgeIndices.subarray(meshEdgesIndices [j], lastMesh ? edgeIndices.length : meshEdgesIndices [j + 1]),
-                positionsDecodeMatrix: inflatedData.positionsDecodeMatrix,
+                positionsDecompressMatrix: inflatedData.positionsDecompressMatrix,
                 color: color,
                 opacity: opacity
             }));

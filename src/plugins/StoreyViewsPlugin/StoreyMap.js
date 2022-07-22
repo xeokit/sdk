@@ -1,5 +1,5 @@
 /**
- * @desc A 2D plan view image of an ````IfcBuildingStorey````.
+ * A 2D plan view image of an ````IfcBuildingStorey````.
  *
  * These are created by a {@link StoreyViewsPlugin}.
  */
@@ -13,7 +13,7 @@ class StoreyMap {
         /**
          * ID of the IfcBuildingStorey.
          *
-         * This matches IDs of the IfcBuildingStorey's {@link MetaObject} and {@link Entity}.
+         * This matches IDs of the IfcBuildingStorey's {@link DataObject} and {@link Entity}.
          *
          * @property storeyId
          * @type {String}

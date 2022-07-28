@@ -1,10 +1,10 @@
 import {ArrayBuf} from "./ArrayBuf";
 
 export class Attribute {
-    gl: WebGLRenderingContext;
+    gl: WebGL2RenderingContext;
     location: number;
 
-    constructor(gl: WebGLRenderingContext, location: number) {
+    constructor(gl: WebGL2RenderingContext, location: number) {
         this.gl = gl;
         this.location = location;
     }

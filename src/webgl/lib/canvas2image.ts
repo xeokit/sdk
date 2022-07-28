@@ -10,7 +10,7 @@
 /**
  * @private
  */
-const Canvas2Image = (function () {
+export const Canvas2Image = (function () {
     // check if we have canvas support
     const oCanvas = document.createElement("canvas"), sc = String.fromCharCode, strDownloadMime = "image/octet-stream",
         bReplaceDownloadMime = false;
@@ -31,15 +31,15 @@ const Canvas2Image = (function () {
         bHasBase64 = !!(window.btoa);
 
     // ok, we're good
-    const readCanvasData = function (oCanvas) {
+    const readCanvasData = function (oCanvas: HTMLCanvasElement) {
+        // @ts-ignore
         const iWidth = parseInt(oCanvas.width), iHeight = parseInt(oCanvas.height);
         return oCanvas.getContext("2d").getImageData(0, 0, iWidth, iHeight);
     };
 
     // base64 encodes either a string or an array of charcodes
-    const encodeData = function (data) {
-        let i, aData, strData = "";
-
+    const encodeData = function (data: any) {
+        let i: any, aData: any, strData: any = "";
         if (typeof data == "string") {
             strData = data;
         } else {
@@ -52,7 +52,7 @@ const Canvas2Image = (function () {
     };
 
     // creates a base64 encoded string containing BMP data takes an imagedata object as argument
-    const createBMP = function (oData) {
+    const createBMP = function (oData: ImageData) {
         let strHeader = '';
         const iWidth = oData.width;
         const iHeight = oData.height;
@@ -131,24 +131,24 @@ const Canvas2Image = (function () {
     };
 
     // sends the generated file to the client
-    const saveFile = function (strData) {
+    const saveFile = function (strData: string) {
         if (!window.open(strData)) {
             document.location.href = strData;
         }
     };
 
-    const makeDataURI = function (strData, strMime) {
+    const makeDataURI = function (strData: string, strMime: string) {
         return "data:" + strMime + ";base64," + strData;
     };
 
     // generates a <img> object containing the imagedata
-    const makeImageObject = function (strSource) {
+    const makeImageObject = function (strSource: any) {
         const oImgElement = document.createElement("img");
         oImgElement.src = strSource;
         return oImgElement;
     };
 
-    const scaleCanvas = function (oCanvas, iWidth, iHeight, flipy) {
+    const scaleCanvas = function (oCanvas: HTMLCanvasElement, iWidth: number, iHeight: number, flipy: boolean) {
         if (iWidth && iHeight) {
             const oSaveCanvas = document.createElement("canvas");
             oSaveCanvas.width = iWidth;
@@ -172,7 +172,7 @@ const Canvas2Image = (function () {
     };
 
     return {
-        saveAsPNG: function (oCanvas, bReturnImg, iWidth, iHeight, flipy) {
+        saveAsPNG: function (oCanvas: HTMLCanvasElement, bReturnImg: boolean, iWidth: number, iHeight: number, flipy: boolean): boolean | HTMLImageElement {
             if (!bHasDataURL) return false;
             const oScaledCanvas = scaleCanvas(oCanvas, iWidth, iHeight, flipy);
             const strMime = "image/png";
@@ -185,7 +185,7 @@ const Canvas2Image = (function () {
             return true;
         },
 
-        saveAsJPEG: function (oCanvas, bReturnImg, iWidth, iHeight, flipy) {
+        saveAsJPEG: function (oCanvas: HTMLCanvasElement, bReturnImg: boolean, iWidth: number, iHeight: number, flipy: boolean): boolean | HTMLImageElement {
             if (!bHasDataURL) return false;
             const oScaledCanvas = scaleCanvas(oCanvas, iWidth, iHeight, flipy);
             const strMime = "image/jpeg";
@@ -200,7 +200,7 @@ const Canvas2Image = (function () {
             return true;
         },
 
-        saveAsBMP: function (oCanvas, bReturnImg, iWidth, iHeight, flipy) {
+        saveAsBMP: function (oCanvas: HTMLCanvasElement, bReturnImg: boolean, iWidth: number, iHeight: number, flipy: boolean): boolean | HTMLImageElement {
             if (!(bHasDataURL && bHasImageData && bHasBase64)) return false;
             const oScaledCanvas = scaleCanvas(oCanvas, iWidth, iHeight, flipy);
             const strMime = "image/bmp";
@@ -214,5 +214,3 @@ const Canvas2Image = (function () {
         }
     };
 })();
-
-export {Canvas2Image};

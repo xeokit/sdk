@@ -1,4 +1,5 @@
 import {PropertySet} from "./PropertySet";
+import {PropertyParams} from "./PropertyParams";
 
 /**
  * A property of a model or object within a {@link Viewer}.
@@ -47,17 +48,13 @@ class Property {
      */
     constructor(
         propertySet: PropertySet,
-        name: string,
-        value: any,
-        type: (string | number),
-        valueType: (string | number),
-        description: string) {
+        propertyParams: PropertyParams) {
         this.propertySet = propertySet;
-        this.name = name;
-        this.type = type
-        this.value = value
-        this.valueType = valueType;
-        this.description = description;
+        this.name = propertyParams.name;
+        this.type = propertyParams.type
+        this.value = propertyParams.value
+        this.valueType = propertyParams.valueType;
+        this.description = propertyParams.description;
     }
 }
 

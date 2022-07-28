@@ -11,10 +11,10 @@ import {SceneRenderer} from "./scene/SceneRenderer";
 import {apply, createUUID} from "./utils/index";
 import {Events} from "./Events";
 import * as utils from "./utils/index";
-import {WebGLSceneRenderer} from "./scene/webgl/WebGLSceneRenderer";
+//import {WebGLSceneRenderer} from "../webgl/WebGLSceneRenderer";
 
 /**
- * The viewer component at the core of the xeokit SDK.
+ * The viewer at the core of the xeokit SDK.
  *
  * See [main docs page](https://xeokit.github.io/xeokit-webgpu-sdk/docs/index.html) for usage examples.
  *
@@ -26,7 +26,7 @@ import {WebGLSceneRenderer} from "./scene/webgl/WebGLSceneRenderer";
  * - Has {@link View}s, which each provide an independent view of the models in a separate canvas
  * - Extensible via {@link Plugin}s
  */
-export class Viewer  {
+export class Viewer {
 
     /**
      ID of this Component, unique within the {@link Viewer}.
@@ -103,7 +103,13 @@ export class Viewer  {
     /**
      * @private
      */
-    webglSceneRenderer: WebGLSceneRenderer;
+  //  webglSceneRenderer: WebGLSceneRenderer;
+
+
+    /**
+     * True if WebGPU-based rendering is enabled.
+     */
+    readonly webgpuEnabled: boolean;
 
     /**
      Creates a Viewer.
@@ -172,13 +178,18 @@ export class Viewer  {
             throw "Mandatory View config expected: valid canvasId or canvasElement";
         }
         const view = new View(apply({id, viewer: this}, cfg));
-        this.webglSceneRenderer = new WebGLSceneRenderer({
-            view,
-            canvasElement,
-            alphaDepthMask: true,
-            transparent: cfg.transparent
-        });
-        this.renderer = this.webglSceneRenderer;
+        if (this.webgpuEnabled) {
+            throw "WebGPU is not yet supported";
+        } else {
+            if (!this.renderer) {
+                // this.renderer = new WebGLSceneRenderer({
+                //     view,
+                //     canvasElement,
+                //     alphaDepthMask: true,
+                //     transparent: cfg.transparent
+                // });
+            }
+        }
         this.#registerView(view);
         view.events.on("destroyed", () => {
             this.#deregisterView(view);

@@ -5,7 +5,7 @@ export class Shader {
     compiled: boolean;
     handle: WebGLShader;
 
-    constructor(gl: WebGLRenderingContext, type: number, source: string) {
+    constructor(gl: WebGL2RenderingContext, type: number, source: string) {
         this.allocated = false;
         this.compiled = false;
         this.handle = gl.createShader(type);

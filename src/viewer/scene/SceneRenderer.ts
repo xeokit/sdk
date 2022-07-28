@@ -1,5 +1,7 @@
 import * as math from "../math/index";
 import {SceneModel} from "./SceneModel";
+import {SceneObject} from "./SceneObject";
+import {FloatArrayType} from "../math/math";
 
 
 export interface SceneRenderer {
@@ -13,44 +15,82 @@ export interface SceneRenderer {
         pvrtcSupported: boolean;
         etc2Supported: boolean;
         dxtSupported: boolean;
-        bptcSupported: boolean
+        bptcSupported: boolean;
     };
 
     /**
-     * Creates a {@link SceneModel} that can be rendered by this SceneRenderer.
+     * Creates a {@link SceneModel} within this SceneRenderer.
+     *
+     * The SceneModel is removed from the SceneRenderer when we call {@link SceneModel#destroy}.
+     *
      * @param cfg
      */
-    createSceneModel(cfg: { id?: string | number, [key: string]: any }): SceneModel;
+    createSceneModel(cfg: {
+        id?: string;
+        pbrEnabled?: boolean;
+        saoEnabled?: boolean;
+        matrix?: FloatArrayType;
+        scale?: FloatArrayType;
+        quaternion?: FloatArrayType;
+        rotation?: FloatArrayType;
+        position?: FloatArrayType;
+        origin?: FloatArrayType;
+    }): SceneModel;
 
-    set transparentEnabled(enabled: boolean);
+    /**
+     *
+     * @param viewIndex
+     * @param enabled
+     */
+    setTransparentEnabled(viewIndex: number, enabled: boolean): void;
 
-    set edgesEnabled(enabled: boolean);
+    /**
+     *
+     * @param viewIndex
+     * @param enabled
+     */
+    setEdgesEnabled(viewIndex: number, enabled: boolean): void;
 
     get saoSupported(): boolean;
 
-    set saoEnabled(enabled: boolean);
+    /**
+     * Sets whether Scalable Ambient Obscurance (SAO) is enabled.
+     * @param viewIndex
+     * @param enabled
+     */
+    setSAOEnabled(viewIndex: number, enabled: boolean): void;
 
-    set pbrEnabled(enabled: boolean);
+    /**
+     *
+     * @param viewIndex
+     * @param enabled
+     */
+    setPBREnabled(viewIndex: number, enabled: boolean): void;
 
-    set backgroundColor(color: math.FloatArrayType)
+    /**
+     *
+     * @param viewIndex
+     * @param color
+     */
+    setBackgroundColor(viewIndex: number, color: math.FloatArrayType): void;
 
-    needStateSort(): void;
-
+    /**
+     * Indicates that the renderer needs to render a new frame.
+     */
     imageDirty(): void;
-    //
-    // addDrawable(id: string | number, drawable: WebGLSceneRendererDrawable): void;
-    //
-    // removeDrawable(id: string | number): void;
-    //
-    // getPickID(pickable: WebGLSceneRendererPickable): number;
-    //
-    // putPickID(pickId: number): void;
-    //
-    // clear(params: { pass?: number; }): void;
 
-    needsRender(): boolean;
+    /**
+     * Renders a new frame.
+     * @param viewIndex
+     * @param params
+     * @param [params.force=false]
+     */
+    render(viewIndex: number, params: { force?: boolean; }): void;
 
-    render(params: { force?: boolean; }): void;
-
-   // pick(): SceneObject;
+    /**
+     * Picks a SceneObject.
+     * @param viewIndex
+     * @param params
+     */
+    pick(viewIndex: number, params: {}): SceneObject;
 }

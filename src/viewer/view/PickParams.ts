@@ -1,6 +1,6 @@
 import * as math from "../math/math";
 
-export type PickParams = {
+export interface PickParams {
     rayPick?: boolean;
     pickSurface?: boolean;
     pickSurfaceNormal?: boolean;

@@ -2,7 +2,9 @@ import {Component} from "../Component";
 import {Data} from "./Data";
 import {PropertySet} from "./PropertySet";
 import {DataObject} from "./DataObject";
-import {DataModelSchema} from "./DataModelSchema";
+import {DataModelParams} from "./DataModelParams";
+import {DataObjectParams} from "./DataObjectParams";
+import {PropertySetParams} from "./PropertySetParams";
 
 /**
  *  Metadata about a model within a {@link Viewer}.
@@ -22,14 +24,14 @@ class DataModel extends Component {
     public readonly data: Data;
 
     /**
-     * Unique ID of this DataModel within its Data.
+     * Unique ID of this DataModel.
      *
      * MetaModels are registered by ID in {@link Data.dataModels}.
      */
     public readonly id: string;
 
     /**
-     * The project ID.
+     * The project ID, if available.
      */
     public readonly projectId?: string | number;
 
@@ -101,7 +103,7 @@ class DataModel extends Component {
     constructor(
         data: Data,
         id: string,
-        cfg: DataModelSchema,
+        cfg: DataModelParams,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],
@@ -132,14 +134,7 @@ class DataModel extends Component {
 
         if (cfg.dataObjects) {
             for (let i = 0, len = cfg.dataObjects.length; i < len; i++) {
-                const dataObjectCfg = cfg.dataObjects[i];
-                this.createDataObject({
-                    id: dataObjectCfg.id,
-                    originalSystemId: dataObjectCfg.originalSystemId,
-                    name: dataObjectCfg.name,
-                    type: dataObjectCfg.type,
-                    propertySetIds: dataObjectCfg.propertySetIds
-                });
+                this.createDataObject(cfg.dataObjects[i]);
             }
             for (let i = 0, len = cfg.dataObjects.length; i < len; i++) {
                 const dataObjectCfg = cfg.dataObjects[i];
@@ -161,58 +156,25 @@ class DataModel extends Component {
     }
 
     /**
-     * Creates a PropertySet within this DataModel.
-     *
-     * The PropertySet will be associated directly with the DataModel, and not with any {@link DataObject}s.
+     * Creates a {@link PropertySet} within this DataModel.
      *
      * @param cfg
      */
-    createPropertySet(cfg: {
-        id: string;
-        originalSystemId?: string;
-        name: string;
-        type: string;
-        properties?: {
-            name: string,
-            value: any,
-            type?: string,
-            valueType?: string | number,
-            description?: string
-        }[]
-    }): PropertySet {
+    createPropertySet(cfg: PropertySetParams): PropertySet {
         if (this.#destroyed) {
             return;
         }
-        const propertySet = new PropertySet(this, cfg.id, cfg.originalSystemId, cfg.name, cfg.type, cfg.properties);
+        const propertySet = new PropertySet(this, cfg);
         this.propertySets[cfg.id] = propertySet;
         return propertySet;
     }
 
     /**
-     * Creates a DataObject within this DataModel.
+     * Creates a {@link DataObject} within this DataModel.
      *
-     * ## Usage
-     *
-     * ````javascript
-     * myMetaModel.createDataObject({
-     *    id: "foo",
-     *    name: "Foo",
-     *    originalSystemId?: "foo",
-     *    parentId:"bar",
-     *    propertySetIds: ["baz"],
-     *    type: "Default"
-     * });
-     * ````
      * @param cfg
      */
-    createDataObject(cfg: {
-        id: string;
-        originalSystemId?: string;
-        type: string;
-        name: string;
-        parentId?: string,
-        propertySetIds?: string[]
-    }): DataObject {
+    createDataObject(cfg: DataObjectParams): DataObject {
         if (this.#destroyed) {
             return;
         }

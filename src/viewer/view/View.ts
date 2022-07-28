@@ -84,28 +84,28 @@ import {SceneRenderer} from "../scene/SceneRenderer";
  *   wasmPath: "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webgpu-sdk/dist/"
  * });
  *
- * const model = webIFCLoader.load({
+ * const sceneModel = webIFCLoader.load({
  *   id: "myModel",
  *   src: "Duplex.ifc",
  *   edges: true
  * });
  *
- * model.events.on("loaded", ()=> {
+ * sceneModel.events.on("loaded", ()=> {
  *
- *      const dataModel = viewer.sceneData.models["myModel"];
+ *      const dataModel = viewer.data.dataModels["myModel"];
  *
  *      // View #1: show only IfcWalls
  *
- *      const ifcWallIds = Object.keys(dataModel.objectsByType["IfcWall"]);
+ *      const ifcWallIds = Object.keys(dataModel.dataObjectsByType["IfcWall"]);
  *
- *      view1.setViewObjectsVisible(view1.objectIds, false);
+ *      view1.setViewObjectsVisible(view1.viewObjectIds, false);
  *      view1.setViewObjectsVisible(ifcWallIds, true);
  *
  *      // View 2: X-ray everything except for IfcDoors
  *
- *      const ifcDoorIds = Object.keys(dataModel.objectsByType["IfcDoor"]);
+ *      const ifcDoorIds = Object.keys(dataModel.dataObjectsByType["IfcDoor"]);
  *
- *      view2.setViewObjectsXRayed(view2.objectIds, true);
+ *      view2.setViewObjectsXRayed(view2.viewObjectIds, true);
  *      view2.setViewObjectsHighlighted(ifcDoorIds, true);
  * });
  ````
@@ -718,6 +718,18 @@ class View extends Component {
         }
     }
 
+    /**
+     * Sets whether physically-based rendering is enabled in this View.
+     */
+    set pbrEnabled(pbrEnabled: boolean) {
+        if (pbrEnabled === this.#pbrEnabled) {
+            return;
+        }
+        this.#pbrEnabled = pbrEnabled;
+        this.viewer.renderer.setPBREnabled(this.viewIndex, pbrEnabled);
+        this.redraw();
+    }
+    
     /**
      * Gets whether physically-based rendering is enabled in this View.
      */

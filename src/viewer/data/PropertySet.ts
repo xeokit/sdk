@@ -1,5 +1,7 @@
 import {Property} from "./Property";
 import {DataModel} from "./DataModel";
+import {PropertyParams} from "./PropertyParams";
+import {PropertySetParams} from "./PropertySetParams";
 
 /**
  * A set of properties of a model or object within a {@link Viewer}.
@@ -51,42 +53,26 @@ class PropertySet {
      */
     constructor(
         dataModel: DataModel,
-        id: string,
-        originalSystemId: string,
-        name: string,
-        type: string,
-        properties?: {
-            name: string,
-            value: any,
-            type?: string |number,
-            valueType?: string | number,
-            description?: string
-        }[]) {
+        propertySetCfg: PropertySetParams) {
         this.dataModel = dataModel;
-        this.id = id;
-        this.originalSystemId = originalSystemId;
-        this.name = name;
-        this.type = type;
+        this.id = propertySetCfg.id;
+        this.originalSystemId = propertySetCfg.originalSystemId;
+        this.name = propertySetCfg.name;
+        this.type = propertySetCfg.type;
         this.properties = [];
-        if (properties) {
-            for (let i = 0, len = properties.length; i < len; i++) {
-                this.createProperty(properties[i]);
-             }
+        if (propertySetCfg.properties) {
+            for (let i = 0, len = propertySetCfg.properties.length; i < len; i++) {
+                this.createProperty(propertySetCfg.properties[i]);
+            }
         }
     }
 
     /**
      * Creates a Property within this PropertySet.
-     * @param cfg
+     * @param propertyCfg
      */
-    createProperty(cfg: {
-        name: string;
-        value: any,
-        type?: string |number,
-        valueType?: string |number,
-        description?: string
-    }): Property {
-        const property = new Property(this, cfg.name, cfg.value, cfg.type, cfg.valueType, cfg.description);
+    createProperty(propertyCfg: PropertyParams): Property {
+        const property = new Property(this, propertyCfg);
         this.properties.push(property);
         return property;
     }

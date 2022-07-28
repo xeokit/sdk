@@ -2,7 +2,7 @@ export class ArrayBuf {
 
      itemType: GLenum;
      itemByteSize: number;
-     gl: WebGLRenderingContext;
+     gl: WebGL2RenderingContext;
      type: any;
      allocated: boolean;
      usage: GLenum;
@@ -16,15 +16,15 @@ export class ArrayBuf {
      handle: WebGLBuffer;
 
     constructor(
-        gl: WebGLRenderingContext,
+        gl: WebGL2RenderingContext,
         type: any,
         data: any,
         numItems: number,
         itemSize: number,
         usage: GLenum,
-        normalized: boolean,
-        stride: number,
-        offset: number) {
+        normalized?: boolean,
+        stride?: number,
+        offset?: number) {
 
         this.gl = gl;
         this.type = type;

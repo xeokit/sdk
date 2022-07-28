@@ -1,9 +1,10 @@
-import * as math from "../../math/";
-import {createRTCViewMat, FloatArrayType} from "../../math";
-import {Viewer} from "../../Viewer";
+import * as math from "../../../math/index";
+import {createRTCViewMat, FloatArrayType} from "../../../math/index";
+import {View} from "../../../view";
+import {Texture} from "./Texture";
 
 /**
- * @desc Provides rendering context to {@link Drawable"}s as xeokit renders them for a frame.
+ * Provides rendering context for a frame.
  *
  * Also creates RTC viewing and picking matrices, caching and reusing matrices within each frame.
  *
@@ -11,12 +12,15 @@ import {Viewer} from "../../Viewer";
  */
 class FrameContext {
 
-    public viewer: Viewer;
+    /**
+     * The View we are rendering.
+     */
+    public view: View;
 
     /**
      * The WebGL rendering context.
      */
-    public gl: WebGLRenderingContext;
+    public gl: WebGL2RenderingContext;
 
     /**
      * Whether to render a quality representation for triangle surfaces.
@@ -134,22 +138,30 @@ class FrameContext {
     /**
      * ID of the last {@link WebGLProgram} that was bound during the current frame.
      */
-    public lastProgramId: null;
+    public lastProgramId: number;
+
+    /**
+     * The occlusion rendering texture.
+     */
+    public occlusionTexture : Texture;
+
+    /**
+     * True when color textures are enabled.
+     */
+    colorTextureEnabled: boolean;
 
     #matPool: any[];
     #matPoolNextFreeIndex: number;
     #rtcViewMats: { [key: string]: FloatArrayType };
     #rtcPickViewMats: { [key: string]: FloatArrayType };
 
-    constructor(viewer: Viewer) {
-
-        this.viewer = viewer;
-
+    constructor(view: View, gl: WebGL2RenderingContext) {
+        this.view = view;
+        this.gl = gl;
         this.#matPool = [];
         this.#matPoolNextFreeIndex = 0;
         this.#rtcViewMats = {};
         this.#rtcPickViewMats = {};
-
         this.reset();
     }
 
@@ -160,8 +172,6 @@ class FrameContext {
         this.#matPoolNextFreeIndex = 0;
         this.#rtcViewMats = {};
         this.#rtcPickViewMats = {};
-      //  this.gl = this.viewer.viewList[0].canvas.gl;
-        this.gl = null;
         this.lastProgramId = null;
         this.pbrEnabled = false;
         this.withSAO = false;
@@ -182,6 +192,7 @@ class FrameContext {
         this.pickZFar = 5000;
         this.pickInvisible = false;
         this.lineWidth = 1;
+        this.occlusionTexture = null;
     }
 
     /**
@@ -191,7 +202,7 @@ class FrameContext {
         let rtcViewMat = this.#rtcViewMats[originHash];
         if (!rtcViewMat) {
             rtcViewMat = this.#getNewMat();
-            createRTCViewMat(this.viewer.viewList[0].camera.viewMatrix, origin, rtcViewMat);
+            createRTCViewMat(this.view.camera.viewMatrix, origin, rtcViewMat);
             this.#rtcViewMats[originHash] = rtcViewMat;
         }
         return rtcViewMat;
@@ -204,7 +215,7 @@ class FrameContext {
         let rtcPickViewMat = this.#rtcPickViewMats[originHash];
         if (!rtcPickViewMat) {
             rtcPickViewMat = this.#getNewMat();
-            const pickViewMat = this.pickViewMatrix || this.viewer.viewList[0].camera.viewMatrix;
+            const pickViewMat = this.pickViewMatrix || this.view.camera.viewMatrix;
             createRTCViewMat(pickViewMat, origin, rtcPickViewMat);
             this.#rtcPickViewMats[originHash] = rtcPickViewMat;
         }

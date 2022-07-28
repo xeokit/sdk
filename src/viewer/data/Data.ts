@@ -4,12 +4,12 @@ import {DataObject} from "./DataObject";
 import {PropertySet} from "./PropertySet";
 import {Events} from "../Events";
 import {Viewer} from "../Viewer";
-import {DataModelSchema} from "./DataModelSchema";
+import {DataModelParams} from "./DataModelParams";
 import {createUUID} from "../utils/index";
 
 
 /**
- * Metadata about the objects within a {@link Viewer}.
+ * Data about the models and objects within a {@link Viewer}.
  *
  * ## Overview
  *
@@ -76,7 +76,7 @@ class Data extends Component {
     /**
      * Creates a {@link DataModel} in this Data.
      *
-     * @param  dataModelCfg Data for the {@link DataModel}.
+     * @param  dataModelParams Data for the {@link DataModel}.
      * @param [options] Options for creating the {@link DataModel}.
      * @param [options.includeTypes] When provided, only create {@link DataObject}s with types in this list.
      * @param  [options.excludeTypes] When provided, never create {@link DataObject}s with types in this list.
@@ -84,19 +84,19 @@ class Data extends Component {
      * @returns The new DataModel.
      */
     createDataModel(
-        dataModelCfg: DataModelSchema,
+        dataModelParams: DataModelParams,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],
             globalizeObjectIds?: boolean
         }
     ): DataModel {
-        let id = dataModelCfg.id || createUUID();
+        let id = dataModelParams.id || createUUID();
         if (this.dataModels[id]) {
             this.error(`DataModel with ID "${id}" already exists - will randomly-generate ID`);
             id = createUUID();
         }
-        const dataModel = new DataModel(this, id, dataModelCfg, options);
+        const dataModel = new DataModel(this, id, dataModelParams, options);
         this.#registerDataModel(dataModel);
         dataModel.events.on("destroyed", () => { // DataModel#destroy() called
             this.#deregisterDataModel(dataModel);

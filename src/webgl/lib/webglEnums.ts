@@ -54,7 +54,7 @@ export const webglEnums: { [key: string]: string } = {
 }
 
 
-export function getGLEnum(gl: WebGLRenderingContext, name: string, defaultVal?: any): any {
+export function getGLEnum(gl: WebGL2RenderingContext, name: string, defaultVal?: any): any {
     if (name === undefined) {
         return defaultVal;
     }

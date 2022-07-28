@@ -1,11 +1,14 @@
-import {Map} from "../../../utils/";
+import {Map} from "../../../utils/index";
 import {Shader} from "./Shader";
 import {Sampler} from "./Sampler";
 import {Attribute} from "./Attribute";
-import {Texture2D} from "./Texture2D";
+import {Texture} from "./Texture";
 
 const ids = new Map({}, "");
 
+/**
+ * @private
+ */
 export class Program {
 
     id: number;
@@ -19,11 +22,11 @@ export class Program {
     linked: boolean;
     compiled: boolean;
     allocated: boolean;
-    gl: WebGLRenderingContext;
+    gl: WebGL2RenderingContext;
     source: any;
     handle: WebGLProgram;
 
-    constructor(gl: WebGLRenderingContext, shaderSource: any) {
+    constructor(gl: WebGL2RenderingContext, shaderSource: any) {
 
         // @ts-ignore
         this.id = ids.addItem({});
@@ -147,7 +150,7 @@ export class Program {
         return this.attributes[name];
     }
 
-    bindTexture(name: string, texture: Texture2D, unit: number): boolean {
+    bindTexture(name: string, texture: Texture, unit: number): boolean {
         if (!this.allocated) {
             return false;
         }

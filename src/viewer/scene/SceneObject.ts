@@ -1,10 +1,9 @@
 import {Scene} from "./Scene";
-import * as math from "../math/index";
 import {SceneModel} from "./SceneModel";
-import {ENTITY_FLAGS} from "./webgl/WebGLVBOSceneModel/lib/ENTITY_FLAGS";
+import {FloatArrayType} from "../math/math";
 
 /**
- * An object in a {@link SceneModel}.
+ * An object within a {@link SceneModel}.
  *
  * ## Overview
  *
@@ -34,7 +33,7 @@ export interface SceneObject {
     /**
      * The axis-aligned World-space 3D boundary of this SceneObject.
      */
-    readonly aabb: math.FloatArrayType;
+    readonly aabb: FloatArrayType;
 
     /**
      * @private
@@ -84,7 +83,7 @@ export interface SceneObject {
     /**
      * @private
      */
-    setColorize(viewIndex: number, color?: math.FloatArrayType): void;
+    setColorize(viewIndex: number, color?: FloatArrayType): void;
 
     /**
      * @private
@@ -94,6 +93,6 @@ export interface SceneObject {
     /**
      * @private
      */
-    setOffset(viewIndex: number, offset: math.FloatArrayType): void;
+    setOffset(viewIndex: number, offset: FloatArrayType): void;
 }
 

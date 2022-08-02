@@ -11,25 +11,27 @@ export interface GeometryCfg {
     id: string;
 
     /**
-     * Primitive type; Accepted values are 'points', 'lines', 'triangles', 'solid' and 'surface'.
+     * Primitive type.
+     *
+     * Accepted values are {@link SolidPrimitive}, {@link SurfacePrimitive}, {@link LinesPrimitive}, {@link PointsPrimitive} and {@link TrianglesPrimitive}.
      */
-    primitive: string;
+    primitive?: number;
 
     /**
-     * Optional 3D geometry RTC origin. When given, the coordinates in {@link GeometryCfg.positions} or
-     * {@link GeometryCfg.positionsCompressed} will be relative to this origin.
-     */
-    origin?: FloatArrayType;
-
-    /**
-     * Flat array of uncompressed floating point 3D vertex positions. Alternative to {@link GeometryCfg.positionsCompressed}.
+     * Flat array of uncompressed floating point 3D vertex positions.
+     *
+     * Alternative to {@link GeometryCfg.positionsCompressed}.
      */
     positions?: FloatArrayType;
 
     /**
-     * Flat array of compressed integer 3D vertex positions. Alternative to {@link GeometryCfg.positions}. Requires {@link GeometryCfg.positionsDecompressMatrix}.
+     * Flat array of compressed integer 3D vertex positions.
+     *
+     * Alternative to {@link GeometryCfg.positions}.
+     *
+     * Requires {@link GeometryCfg.positionsDecompressMatrix}.
      */
-    positionsCompressed?: Uint16Array;
+    positionsCompressed?: FloatArrayType;
 
     /**
      * Matrix to dequantize {@link GeometryCfg.positionsCompressed}.
@@ -37,29 +39,71 @@ export interface GeometryCfg {
     positionsDecompressMatrix?: FloatArrayType;
 
     /**
-     * Flat array of uncompressed floating-point 3D vertex normals. Alternative to {@link GeometryCfg.normalsCompressed}.
+     * Flat array of uncompressed floating-point 3D vertex normals.
+     *
+     * Alternative to {@link GeometryCfg.normalsCompressed}.
      */
     normals?: FloatArrayType;
 
     /**
-     * Flat array of compressed integer 3D vertex normals. Alternative to {@link GeometryCfg.normals}.
+     * Flat array of compressed integer 3D vertex normals.
+     *
+     * Alternative to {@link GeometryCfg.normals}.
      */
-    normalsCompressed?: Uint8Array;
+    normalsCompressed?: FloatArrayType;
 
     /*
-    * Flat array of uncompressed floating-point vertex UV coordinates. Alternative to {@link GeometryCfg.uvsCompressed}.
+    * Flat array of uncompressed floating-point vertex UV coordinates.
+    *
+    * Alternative to {@link GeometryCfg.uvsCompressed}.
     */
     uvs?: FloatArrayType;
 
     /*
-    * Flat array of compressed integer vertex UV coordinates. Alternative to {@link GeometryCfg.uvs}. Requires {@link GeometryCfg.uvsDecompressMatrix}.
+    * Flat array of compressed integer vertex UV coordinates.
+    *
+    * Alternative to {@link GeometryCfg.uvs}.
+    *
+    * Requires {@link GeometryCfg.uvsDecompressMatrix}.
     */
     uvsCompressed?: FloatArrayType;
 
+    /**
+     * Matrix to dequantize {@link GeometryCfg.uvsCompressed}.
+     */
     uvsDecompressMatrix?: FloatArrayType;
+
+    /**
+     * Flat array of uncompressed floating-point vertex colors.
+     *
+     * Alternative to {@link GeometryCfg.colorsCompressed}.
+     */
     colors?: FloatArrayType;
+
+    /**
+     * Flat array of compressed integer vertex colors.
+     *
+     * Alternative to {@link GeometryCfg.colorsCompressed}.
+     *
+     * Ignored when {@link GeometryCfg.geometryId} is defined.
+     */
     colorsCompressed?: FloatArrayType;
+
+    /**
+     * Flat array of primitive connectivity indices.
+     */
     indices?: IntArrayType;
+
+    /**
+     * Flat array of edge connectivity indices.
+     */
     edgeIndices?: IntArrayType;
+
+    /**
+     * The threshold normal deviation between adjacent faces above which an edge is generated between them.
+     *
+     * Ignored when {@link GeometryCfg.edgeIndices} is defined.
+     */
     edgeThreshold?: number;
+
 }

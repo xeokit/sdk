@@ -364,3 +364,17 @@ export const JPEGMediaType = 10001;
  * Media type for PNG images.
  */
 export const PNGMediaType = 10002;
+
+/**
+ * Points primitive type.
+ */
+export const PointsPrimitive = 20000;
+
+/**
+ * Line segments primitive type.
+ */
+export const LinesPrimitive = 20001;
+export const TrianglesPrimitive = 20002;
+export const SolidPrimitive = 20003;
+export const SurfacePrimitive = 20004;
+

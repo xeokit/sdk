@@ -130,19 +130,26 @@ export interface MeshCfg {
     edgeIndices?: IntArrayType;
 
     /**
-     * The threshold normal deviation between adjacent faces above which an edge is generated between them.
+     * The threshold angle, in degrees, beyond which the deviation in normal directions of each pair of adjacent faces
+     * results in an edge being automatically generated between them.
      *
      * Ignored when {@link MeshCfg.edgeIndices} or {@link MeshCfg.geometryId} is defined.
+     *
+     * Default is 10.
      */
     edgeThreshold?: number;
 
     /**
      * RGB base color of the mesh.
+     *
+     * Default is ````[1,1,1]````.
      */
     color?: FloatArrayType;
 
     /**
      * Opacity of the mesh.
+     *
+     * Default is 1.
      */
     opacity?: number;
 
@@ -150,6 +157,8 @@ export interface MeshCfg {
      * The metallic-ness of the mesh.
      *
      * This is a continuous factor in the range ````[0,1]````, where 0 is fully non-metallic and 1 is fully metallic.
+     *
+     * Default is 0.
      */
     metallic?: number;
 
@@ -157,6 +166,8 @@ export interface MeshCfg {
      * The roughness of the mesh.
      *
      * This is a continuous factor in the range ````[0,1]````, where 0 is fully rough and 1 is perfectly smooth.
+     *
+     * Default is 1.
      */
     roughness?: number;
 

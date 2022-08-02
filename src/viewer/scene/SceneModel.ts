@@ -87,10 +87,6 @@ export interface SceneModel {
     /**
      * Creates a mesh within this SceneModel.
      *
-     * * A mesh can either define its own geometry, or reuse a geometry created previously with {@link SceneModel.createGeometry}.
-     * * A mesh can also be configured with modeling transforms to apply to the geometry.
-     * * Each mesh can be aggregated into a {@link SceneObject} by {@link SceneModel.createSceneObject}. Each SceneMesh can belong to a maximum of one SceneObject.
-     *
      * @param cfg Mesh configuration.
      */
     createMesh(cfg: MeshCfg): void;
@@ -98,11 +94,8 @@ export interface SceneModel {
     /**
      * Creates a {@link SceneObject} within this SceneModel.
      *
-     * * The SceneObject will aggregate meshes created previously with {@link SceneModel.createMesh}.
-     * * The SceneObject will be registered by {@link SceneObject.id} in {@link SceneModel.sceneObjects}.
-     * * Automagically gets a {@link ViewObject} in each {@link View} of the {@link Viewer}. The {@link ViewObject}s will also get destroyed automagically when this SceneObject is destroyed.
-     *
      * @param cfg SceneObject configuration.
+     * @returns The new SceneObject
      */
     createSceneObject(cfg: SceneObjectCfg): SceneObject;
 

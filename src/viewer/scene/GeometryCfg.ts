@@ -100,10 +100,12 @@ export interface GeometryCfg {
     edgeIndices?: IntArrayType;
 
     /**
-     * The threshold normal deviation between adjacent faces above which an edge is generated between them.
+     * The threshold angle, in degrees, beyond which the deviation in normal directions of each pair of adjacent faces
+     * results in an edge being automatically generated between them.
+     *
+     * Default is 10.
      *
      * Ignored when {@link GeometryCfg.edgeIndices} is defined.
      */
     edgeThreshold?: number;
-
 }

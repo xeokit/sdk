@@ -374,7 +374,28 @@ export const PointsPrimitive = 20000;
  * Line segments primitive type.
  */
 export const LinesPrimitive = 20001;
+
+/**
+ * Non-closed triangle mesh primitive type.
+ *
+ * > Since we are able to look inside non-closed surfaces and see their backfaces, these primitive types are always
+ * rendered with backfaces enabled.
+ */
 export const TrianglesPrimitive = 20002;
+
+/**
+ * Closed triangle mesh primitive type.
+ *
+ * Since we normally can't see the backfaces inside closed surfaces, these primitive types are normally rendered
+ * with backfaces disabled, for extra performance.
+ */
 export const SolidPrimitive = 20003;
+
+/**
+ * Non-closed triangle mesh primitive type.
+ *
+ * Since we are able to look inside non-closed surfaces and see their backfaces, these primitive types are always
+ * rendered with backfaces enabled.
+ */
 export const SurfacePrimitive = 20004;
 

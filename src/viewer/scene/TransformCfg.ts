@@ -3,15 +3,15 @@ import {FloatArrayType} from "../math/math";
 /**
  * Transform creation parameters for {@link SceneModel.createTransform}.
  */
-export interface SceneTransformCfg {
+export interface TransformCfg {
 
     /**
-     * ID for the {@link SceneTransform}.
+     * ID for the {@link Transform}.
      */
     id: string,
 
     /**
-     * ID of the parent {@link SceneTransform}.
+     * ID of the parent {@link Transform}.
      */
     parentTransformId?: string,
 

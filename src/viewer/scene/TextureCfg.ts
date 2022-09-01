@@ -58,6 +58,14 @@ export interface TextureCfg {
     wrapT?: number;
 
     /**
+     * Wrap parameter for texture coordinate *R*.
+     *
+     * Supported values are {@link ClampToEdgeWrapping},
+     * {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     */
+    wrapR?: number;
+
+    /**
      * Flips this Texture's source data along its vertical axis when ````true````.
      */
     flipY?: boolean;

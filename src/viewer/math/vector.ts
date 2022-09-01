@@ -383,7 +383,6 @@ export function cross3Vec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArr
     return dest;
 }
 
-
 export function sqLenVec4(v: FloatArrayType) { // TODO
     return dotVec4(v, v);
 }

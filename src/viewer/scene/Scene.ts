@@ -7,6 +7,7 @@ import {SceneModel} from "./SceneModel";
 import {createUUID} from "../utils/index";
 import {FloatArrayType} from "../math/math";
 import {SceneModelCfg} from "./SceneModelCfg";
+import {Tiles} from "./Tiles";
 
 /**
  * Geometry for models and objects within a {@link Viewer}.
@@ -24,6 +25,11 @@ class Scene extends Component {
      * The {@link Viewer} this Scene belongs to.
      */
     readonly viewer: Viewer;
+
+    /**
+     * The {@link Tiles} in this Scene.
+     */
+    readonly tiles: Tiles;
 
     /**
      * The {@link SceneModel}s in this Scene.
@@ -49,6 +55,7 @@ class Scene extends Component {
         this.viewer = viewer;
         this.sceneModels = {};
         this.sceneObjects = {};
+        this.tiles = new Tiles(this);
 
         this.#center = math.vec3();
         this.#aabb = math.boundaries.AABB3();

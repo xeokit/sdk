@@ -14,7 +14,7 @@ export interface SceneObjectCfg {
     meshIds: string[];
 
     /**
-     * Optional ID of a {@link SceneTransform} previously created with {@link SceneModel.createTransform}.
+     * Optional ID of a {@link Transform} previously created with {@link SceneModel.createTransform}.
      */
     transformId?: string;
 }

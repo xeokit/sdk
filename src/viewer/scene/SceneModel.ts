@@ -1,13 +1,13 @@
 import {Scene} from "./Scene";
 import {FloatArrayType} from "../math/math";
 import {SceneObject} from "./SceneObject";
-import {SceneTransform} from "./SceneTransform";
+import {Transform} from "./Transform";
 import {Events} from "../Events";
 import {SceneObjectCfg} from "./SceneObjectCfg";
 import {MeshCfg} from "./MeshCfg";
 import {TextureSetCfg} from "./TextureSetCfg";
 import {TextureCfg} from "./TextureCfg";
-import {SceneTransformCfg} from "./SceneTransformCfg";
+import {TransformCfg} from "./TransformCfg";
 import {GeometryCfg} from "./GeometryCfg";
 
 /**
@@ -56,12 +56,12 @@ export interface SceneModel {
     readonly destroyed: boolean;
 
     /**
-     * Creates a SceneTransform within this SceneModel.
+     * Creates a Transform within this SceneModel.
      *
      * @param cfg Transform configuration.
      * @returns The new transform.
      */
-    createTransform(cfg: SceneTransformCfg): SceneTransform;
+    createTransform(cfg: TransformCfg): Transform;
 
     /**
      * Creates a geometry within this SceneModel.

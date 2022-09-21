@@ -149,8 +149,8 @@ export const RGBAFormat = 1023;
 export const LuminanceFormat = 1024;
 
 /**
-* Texture sampling mode that reads each of the ````RGBA```` texture components as a luminance/alpha value, converted to a float and clamped to ````[0,1]````.
-*/
+ * Texture sampling mode that reads each of the ````RGBA```` texture components as a luminance/alpha value, converted to a float and clamped to ````[0,1]````.
+ */
 export const LuminanceAlphaFormat = 1025;
 
 /**

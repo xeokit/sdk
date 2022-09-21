@@ -2,9 +2,9 @@ import {Component} from "../Component";
 import {Data} from "./Data";
 import {PropertySet} from "./PropertySet";
 import {DataObject} from "./DataObject";
-import {DataModelParams} from "./DataModelParams";
-import {DataObjectParams} from "./DataObjectParams";
-import {PropertySetParams} from "./PropertySetParams";
+import {DataModelCfg} from "./DataModelCfg";
+import {DataObjectCfg} from "./DataObjectCfg";
+import {PropertySetCfg} from "./PropertySetCfg";
 
 /**
  *  Metadata about a model within a {@link Viewer}.
@@ -103,7 +103,7 @@ class DataModel extends Component {
     constructor(
         data: Data,
         id: string,
-        cfg: DataModelParams,
+        dataModelCfg: DataModelCfg,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],
@@ -115,29 +115,29 @@ class DataModel extends Component {
         this.data = data;
 
         this.id = id;
-        this.projectId = cfg.projectId || "";
-        this.revisionId = cfg.revisionId || "";
-        this.author = cfg.author || "";
-        this.createdAt = cfg.createdAt || "";
-        this.creatingApplication = cfg.creatingApplication || "";
-        this.schema = cfg.schema || "";
+        this.projectId = dataModelCfg.projectId || "";
+        this.revisionId = dataModelCfg.revisionId || "";
+        this.author = dataModelCfg.author || "";
+        this.createdAt = dataModelCfg.createdAt || "";
+        this.creatingApplication = dataModelCfg.creatingApplication || "";
+        this.schema = dataModelCfg.schema || "";
         this.propertySets = {};
         this.dataObjects = {};
         this.rootDataObject = null;
         this.#destroyed = false;
 
-        if (cfg.propertySets) {
-            for (let i = 0, len = cfg.propertySets.length; i < len; i++) {
-                this.createPropertySet(cfg.propertySets[i]);
+        if (dataModelCfg.propertySets) {
+            for (let i = 0, len = dataModelCfg.propertySets.length; i < len; i++) {
+                this.createPropertySet(dataModelCfg.propertySets[i]);
             }
         }
 
-        if (cfg.dataObjects) {
-            for (let i = 0, len = cfg.dataObjects.length; i < len; i++) {
-                this.createDataObject(cfg.dataObjects[i]);
+        if (dataModelCfg.dataObjects) {
+            for (let i = 0, len = dataModelCfg.dataObjects.length; i < len; i++) {
+                this.createDataObject(dataModelCfg.dataObjects[i]);
             }
-            for (let i = 0, len = cfg.dataObjects.length; i < len; i++) {
-                const dataObjectCfg = cfg.dataObjects[i];
+            for (let i = 0, len = dataModelCfg.dataObjects.length; i < len; i++) {
+                const dataObjectCfg = dataModelCfg.dataObjects[i];
                 const dataObject = this.dataObjects[dataObjectCfg.id];
                 if (dataObject) {
                     if (dataObjectCfg.parentId) {
@@ -158,36 +158,36 @@ class DataModel extends Component {
     /**
      * Creates a {@link PropertySet} within this DataModel.
      *
-     * @param cfg
+     * @param propertySetCfg
      */
-    createPropertySet(cfg: PropertySetParams): PropertySet {
+    createPropertySet(propertySetCfg: PropertySetCfg): PropertySet {
         if (this.#destroyed) {
             return;
         }
-        const propertySet = new PropertySet(this, cfg);
-        this.propertySets[cfg.id] = propertySet;
+        const propertySet = new PropertySet(this, propertySetCfg);
+        this.propertySets[propertySetCfg.id] = propertySet;
         return propertySet;
     }
 
     /**
      * Creates a {@link DataObject} within this DataModel.
      *
-     * @param cfg
+     * @param dataObjectCfg
      */
-    createDataObject(cfg: DataObjectParams): DataObject {
+    createDataObject(dataObjectCfg: DataObjectCfg): DataObject {
         if (this.#destroyed) {
             return;
         }
-        const id = cfg.id;
-        const type = cfg.type;
+        const id = dataObjectCfg.id;
+        const type = dataObjectCfg.type;
         let parentDataObject;
-        if (cfg.parentId) {
-            parentDataObject = this.dataObjects[cfg.parentId];
+        if (dataObjectCfg.parentId) {
+            parentDataObject = this.dataObjects[dataObjectCfg.parentId];
         }
         const propertySets = [];
-        if (cfg.propertySetIds) {
-            for (let i = 0, len = cfg.propertySetIds.length; i < len; i++) {
-                const propertySetId = cfg.propertySetIds[i];
+        if (dataObjectCfg.propertySetIds) {
+            for (let i = 0, len = dataObjectCfg.propertySetIds.length; i < len; i++) {
+                const propertySetId = dataObjectCfg.propertySetIds[i];
                 const propertySet = this.propertySets[propertySetId];
                 if (!propertySet) {
                     console.error(`PropertySet not found: "${propertySetId}"`);
@@ -196,7 +196,7 @@ class DataModel extends Component {
                 }
             }
         }
-        const dataObject = new DataObject(this, id, cfg.originalSystemId, cfg.name, cfg.type, parentDataObject, propertySets);
+        const dataObject = new DataObject(this, id, dataObjectCfg.originalSystemId, dataObjectCfg.name, dataObjectCfg.type, parentDataObject, propertySets);
         this.dataObjects[id] = dataObject;
         if (!this.dataObjectsByType[type]) {
             this.dataObjectsByType[type] = {};

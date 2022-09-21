@@ -19,7 +19,7 @@ class Viewport extends Component {
     /**
      @private
      */
-    constructor(view:View, cfg: any) {
+    constructor(view: View, cfg: any) {
         super(view, cfg);
         this.view = view;
         this.#state = {
@@ -27,6 +27,15 @@ class Viewport extends Component {
         };
         this.boundary = [0, 0, 100, 100];
         this.autoBoundary = true;
+    }
+
+    /**
+     * Gets the canvas-space boundary of this Viewport, indicated as ````[min, max, width, height]````.
+     *
+     * @returns {Number[]} The Viewport extents.
+     */
+    get boundary(): number[] {
+        return this.#state.boundary;
     }
 
     /**
@@ -56,12 +65,14 @@ class Viewport extends Component {
     }
 
     /**
-     * Gets the canvas-space boundary of this Viewport, indicated as ````[min, max, width, height]````.
+     * Gets if {@link Viewport.boundary} automatically synchronizes with {@link Canvas.boundary}.
      *
-     * @returns {Number[]} The Viewport extents.
+     * Default is ````false````.
+     *
+     * @returns {Boolean} Returns ````true```` when automatically sycnhronizing.
      */
-    get boundary(): number[] {
-        return this.#state.boundary;
+    get autoBoundary(): boolean {
+        return this.#autoBoundary;
     }
 
     /**
@@ -89,17 +100,6 @@ class Viewport extends Component {
             this.view.canvas.events.off(this.#onCanvasSize);
             this.#onCanvasSize = null;
         }
-    }
-
-    /**
-     * Gets if {@link Viewport.boundary} automatically synchronizes with {@link Canvas.boundary}.
-     *
-     * Default is ````false````.
-     *
-     * @returns {Boolean} Returns ````true```` when automatically sycnhronizing.
-     */
-    get autoBoundary(): boolean {
-        return this.#autoBoundary;
     }
 
     /**

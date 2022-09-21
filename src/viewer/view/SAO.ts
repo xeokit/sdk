@@ -54,7 +54,7 @@ export class SAO extends Component {
      * Even when enabled, SAO will only work if supported.
      */
     get supported() :boolean{
-        return this.viewer.renderer.saoSupported;
+        return this.viewer.renderer.getSAOSupported();
     }
 
     /**

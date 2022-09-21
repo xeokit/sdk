@@ -4,15 +4,19 @@ export * from "./data/index";
 export * from "./Plugin";
 export * from "./Component";
 export * from "./Viewer";
+export * from "./ViewerCapabilities";
 export * from "./view/index";
 export * from "./Events";
 
 /**
- * Math utilities.
+ * Core viewer math utilities.
  *
- * * Geometry compression/decompression
- * * Geometry builders
- * * RTC coordinate system utilities
+ * ## Overview
+ *
+ * * Core 3D and 2D math library
+ * * Geometry de/compression functions
+ * * Primitive generation functions (cube, torus, sphere..)
+ * * RTC coordinate functions
  */
 export * as math from "./math/index"
 

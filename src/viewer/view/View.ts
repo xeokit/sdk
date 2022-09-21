@@ -741,7 +741,7 @@ class View extends Component {
      * @private
      */
     redraw() {
-
+        this.viewer.renderer.imageDirty(this.viewIndex);
     }
 
     /**
@@ -1177,14 +1177,14 @@ class View extends Component {
             this.warn("picking without canvasPos, matrix, or ray origin and direction");
         }
 
-        const includeEntities = params.includeEntities; // Backwards compat
-        if (includeEntities) {
-            //   params.includeViewViewObjectIds = getViewObjectIDMap(this.viewer.scene, includeEntities);
+        const includeViewObjectIds = params.includeViewObjectIds; // Backwards compat
+        if (includeViewObjectIds) {
+            //   params.includeViewViewObjectIds = getViewObjectIDMap(this.viewer.scene, includeViewObjectIds);
         }
 
-        const excludeEntities = params.excludeEntities; // Backwards compat
-        if (excludeEntities) {
-            //  params.excludeViewViewObjectIds = getViewObjectIDMap(this.viewer.scene, excludeEntities);
+        const excludeViewObjectIds = params.excludeViewObjectIds; // Backwards compat
+        if (excludeViewObjectIds) {
+            //  params.excludeViewViewObjectIds = getViewObjectIDMap(this.viewer.scene, excludeViewObjectIds);
         }
 
         // if (this._needRecompile) {

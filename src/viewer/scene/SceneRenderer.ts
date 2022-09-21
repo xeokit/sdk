@@ -2,21 +2,34 @@ import * as math from "../math/index";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
 import {FloatArrayType} from "../math/math";
+import {View} from "../view/View";
+import {ViewerCapabilities} from "../ViewerCapabilities";
 
-
+/**
+ * The renderer within a {@link Viewer}.
+ */
 export interface SceneRenderer {
 
     /**
      * The capabilities supported by this SceneRenderer.
      */
-    readonly capabilities: {
-        astcSupported: boolean;
-        etc1Supported: boolean;
-        pvrtcSupported: boolean;
-        etc2Supported: boolean;
-        dxtSupported: boolean;
-        bptcSupported: boolean;
-    };
+    readonly capabilities: ViewerCapabilities;
+
+    /**
+     * Adds a {@link View} to this SceneRenderer.
+     *
+     * Returns the index of the View within this SceneRenderer.
+     *
+     * @param view
+     */
+    registerView(view: View) : number;
+
+    /**
+     * Deregisters the {@link View} at the given index.
+     *
+     * @param viewIndex
+     */
+    deregisterView(viewIndex: number) : void;
 
     /**
      * Creates a {@link SceneModel} within this SceneRenderer.
@@ -38,46 +51,54 @@ export interface SceneRenderer {
     }): SceneModel;
 
     /**
+     * Gets whether this SceneRenderer supports SAO.
+     */
+    getSAOSupported(): boolean;
+
+    /**
+     * Enable/disable rendering of transparent objects for the given View.
      *
-     * @param viewIndex
-     * @param enabled
+     * @param viewIndex Index of the View.
+     * @param enabled Whether to enable or disable transparent objects for the View.
      */
     setTransparentEnabled(viewIndex: number, enabled: boolean): void;
 
     /**
+     * Enable/disable edge enhancement for the given View.
      *
-     * @param viewIndex
-     * @param enabled
+     * @param viewIndex Index of the View.
+     * @param enabled Whether to enable or disable edges for the View.
      */
     setEdgesEnabled(viewIndex: number, enabled: boolean): void;
 
-    get saoSupported(): boolean;
-
     /**
-     * Sets whether Scalable Ambient Obscurance (SAO) is enabled.
-     * @param viewIndex
-     * @param enabled
+     * Enable/disable SAO for the given View.
+     *
+     * @param viewIndex Index of the View.
+     * @param enabled Whether to enable or disable SAO for the View.
      */
     setSAOEnabled(viewIndex: number, enabled: boolean): void;
 
     /**
+     * Enable/disable PBR for the given View.
      *
-     * @param viewIndex
-     * @param enabled
+     * @param viewIndex Index of the View.
+     * @param enabled Whether to enable or disable PBR for the View.
      */
     setPBREnabled(viewIndex: number, enabled: boolean): void;
 
     /**
+     * Set background color for the given View.
      *
-     * @param viewIndex
-     * @param color
+     * @param viewIndex Index of the View.
+     * @param color RGB background color.
      */
     setBackgroundColor(viewIndex: number, color: math.FloatArrayType): void;
 
     /**
-     * Indicates that the renderer needs to render a new frame.
+     * Indicates that the renderer needs to render a new frame for the given View.
      */
-    imageDirty(): void;
+    imageDirty(viewIndex: number): void;
 
     /**
      * Renders a new frame.
@@ -89,6 +110,7 @@ export interface SceneRenderer {
 
     /**
      * Picks a SceneObject.
+     *
      * @param viewIndex
      * @param params
      */

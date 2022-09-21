@@ -7,7 +7,6 @@ import * as math from "../math/index";
 class PickResult {
 
     #viewObject: ViewObject;
-    #pickSurfacePrecision: boolean;
     #gotCanvasPos: boolean;
     #gotOrigin: boolean;
     #gotDirection: boolean;
@@ -30,7 +29,6 @@ class PickResult {
     constructor() {
 
         this.#viewObject = null;
-        this.#pickSurfacePrecision = false;
         this.#canvasPos = new Int16Array([0, 0]);
         this.#origin = new Float64Array([0, 0, 0]);
         this.#direction = new Float64Array([0, 0, 0]);
@@ -256,7 +254,6 @@ class PickResult {
      */
     reset() {
         this.#viewObject = null;
-        this.#pickSurfacePrecision = false;
         this.#gotCanvasPos = false;
         this.#gotOrigin = false;
         this.#gotDirection = false;

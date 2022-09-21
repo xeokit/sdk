@@ -5,17 +5,16 @@ import {Map} from "./utils/index";
  */
 class Events {
 
+    /**
+     Indicates if this Events has been destroyed.
+     */
+    destroyed: boolean;
     #subIdMap: Map;// Subscription subId pool
     #subIdEvents: { [key: string]: any };// Subscription subIds mapped to event names
     #eventSubs: { [key: string]: any };// Event names mapped to subscribers
     #eventSubsNum: { [key: string]: number };
     #events: { [key: string]: any };// Maps names to events
     #eventCallDepth: number;// Helps us catch stack overflows from recursive events
-
-    /**
-     Indicates if this Events has been destroyed.
-     */
-    destroyed: boolean;
 
     /**
      @private

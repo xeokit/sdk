@@ -1,5 +1,5 @@
 /**
- * Core math libraries.
+ * Core math utility functions.
  */
 export * from "./math";
 export * from "./vector";
@@ -7,31 +7,31 @@ export * from "./frustum";
 export * from "./matrix";
 
 /**
- * Ray intersection functions.
+ * Utility functions for working with 3D rays.
  */
 export * as rays from "./ray";
 
 /**
- * RTC coordinate system utilities.
+ * Utility functions for working with relative-to-center (RTC) coordinates.
  */
 export * as rtc from "./rtc/index";
 
 /**
- * Geometry compression/decompression utilities.
+ * Utility functions for geometry and coordinate de/compression.
  */
 export * as compression from "./compression/index";
 
 /**
- * Geometry compression/decompression utilities.
+ * Utility functions for generating geometry.
  */
 export * as geometry from "./geometry/index";
 
 /**
- * Boundary utilities.
+ * Utility functions for working with 3D and 2D boundaries.
  */
 export * as boundaries from "./boundaries";
 
 /**
- * Math functions for working with curves.
+ * Utility functions for working with spline curves.
  */
 export * as curves from "./curves";

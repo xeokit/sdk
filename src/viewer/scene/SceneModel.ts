@@ -15,7 +15,8 @@ import {GeometryCfg} from "./GeometryCfg";
  *
  * ## Overview
  *
- * * Located in {@link Scene.sceneModels}
+ * * Created by {@link Scene.createSceneModel}
+ * * Stored in {@link Scene.sceneModels}
  * * Contains {@link SceneObject}s in {@link Scene.sceneObjects}
  * * Can have a {@link DataModel} in {@link Data.dataModels}
  */

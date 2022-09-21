@@ -98,6 +98,17 @@ class SectionPlane extends Component {
     }
 
     /**
+     * Gets if this SectionPlane is active or not.
+     *
+     * Default value is ````true````.
+     *
+     * @returns Returns ````true```` if active.
+     */
+    get active(): boolean {
+        return this.state.active;
+    }
+
+    /**
      * Sets if this SectionPlane is active or not.
      *
      * Default value is ````true````.
@@ -114,14 +125,14 @@ class SectionPlane extends Component {
     }
 
     /**
-     * Gets if this SectionPlane is active or not.
+     * Gets the World-space position of this SectionPlane's plane.
      *
-     * Default value is ````true````.
+     * Default value is ````[0, 0, 0]````.
      *
-     * @returns Returns ````true```` if active.
+     * @returns  Current position.
      */
-    get active(): boolean {
-        return this.state.active;
+    get pos(): Float64Array {
+        return this.state.pos;
     }
 
     /**
@@ -138,14 +149,14 @@ class SectionPlane extends Component {
     }
 
     /**
-     * Gets the World-space position of this SectionPlane's plane.
+     * Gets the direction of this SectionPlane's plane.
      *
-     * Default value is ````[0, 0, 0]````.
+     * Default value is ````[0, 0, -1]````.
      *
-     * @returns  Current position.
+     * @returns value Current direction.
      */
-    get pos(): Float64Array {
-        return this.state.pos;
+    get dir(): Float32Array {
+        return this.state.dir;
     }
 
     /**
@@ -160,17 +171,6 @@ class SectionPlane extends Component {
         this.state.dist = (-math.dotVec3(this.state.pos, this.state.dir));
         this.view.redraw();
         this.events.fire("dir", this.state.dir);
-    }
-
-    /**
-     * Gets the direction of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, -1]````.
-     *
-     * @returns value Current direction.
-     */
-    get dir(): Float32Array {
-        return this.state.dir;
     }
 
     /**

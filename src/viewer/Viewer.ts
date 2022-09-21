@@ -1,17 +1,16 @@
 import {LocaleService} from "./localization/LocaleService";
-//import {Scene, WebGLSceneRenderer} from "./scene";
 import {Scene} from "./scene/index";
 import {Data} from "./data/Data";
 import {View} from "./view/View";
 import {Plugin} from "./Plugin";
-import {Component} from "./Component";
 import * as math from "./math/index";
 import {scheduler} from "./scheduler";
 import {SceneRenderer} from "./scene/SceneRenderer";
+import * as utils from "./utils/index";
 import {apply, createUUID} from "./utils/index";
 import {Events} from "./Events";
-import * as utils from "./utils/index";
-//import {WebGLSceneRenderer} from "../webgl/WebGLSceneRenderer";
+// import {WebGLSceneRenderer} from "webgl/WebGLSceneRenderer";
+import {ViewerCapabilities} from "./ViewerCapabilities";
 
 /**
  * The viewer at the core of the xeokit SDK.
@@ -29,26 +28,26 @@ import * as utils from "./utils/index";
 export class Viewer {
 
     /**
-     ID of this Component, unique within the {@link Viewer}.
+     The maximum number of {@link View}s that can belong to this {@link Viewer}.
+     */
+    static readonly MAX_VIEWS: number = 1; // More with WebGPU later
+
+    /**
+     ID of this Viewer.
      */
     public id: string;
 
     /**
-     True once this Component has been destroyed.
+     True once this Viewer has been destroyed.
 
      Don't use this Component if this is ````true````.
      */
     public destroyed: boolean;
 
     /**
-     Manages events on this component.
+     Manages events on this Viewer.
      */
     public readonly events: Events;
-
-    /**
-     The maximum number of {@link View}s that can belong to this {@link Viewer}.
-     */
-    static readonly MAX_VIEWS: number = 4;
 
     /**
      The viewer's locale service.
@@ -101,12 +100,6 @@ export class Viewer {
     renderer: SceneRenderer;
 
     /**
-     * @private
-     */
-  //  webglSceneRenderer: WebGLSceneRenderer;
-
-
-    /**
      * True if WebGPU-based rendering is enabled.
      */
     readonly webgpuEnabled: boolean;
@@ -141,6 +134,13 @@ export class Viewer {
         this.views = {};
 
         scheduler.registerViewer(this);
+    }
+
+    /**
+     * Gets the capabilities of this Viewer.
+     */
+    get capabilities(): ViewerCapabilities {
+        return this.renderer.capabilities;
     }
 
     /**
@@ -297,10 +297,6 @@ export class Viewer {
         // this.viewer.events.fire("error", message);
     }
 
-    #prefixMessageWithID(message: string): string {
-        return ` [${this.constructor.name} "${utils.inQuotes(this.id)}"]: ${message}`;
-    }
-
     /**
      Destroys this Viewer, along with associated Views and Plugins.
      */
@@ -318,6 +314,10 @@ export class Viewer {
         //     this.views[id].destroy();
         // }
         // this.scene.destroy();
+    }
+
+    #prefixMessageWithID(message: string): string {
+        return ` [${this.constructor.name} "${utils.inQuotes(this.id)}"]: ${message}`;
     }
 
     #registerView(view: View): void {

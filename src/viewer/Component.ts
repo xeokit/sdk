@@ -85,7 +85,7 @@ class Component {
     log(message: string): void {
         message = `[LOG] ${this.#prefixMessageWithID(message)}`;
         window.console.log(message);
-           this.viewer.events.fire("log", message);
+        this.viewer.events.fire("log", message);
     }
 
     /**
@@ -134,30 +134,6 @@ class Component {
     clean(): void {
     }
 
-    protected setDirty(): void {
-        if (this.dirty) {
-            return;
-        }
-        scheduler.scheduleTask(this.cleanIfDirty, this);
-        this.dirty = true;
-    }
-
-    #prefixMessageWithID(message: string): string {
-        return ` [${this.constructor.name} "${utils.inQuotes(this.id)}"]: ${message}`;
-    }
-
-    #own(component: Component) {
-        if (!this.#ownedComponents) {
-            this.#ownedComponents = {};
-        }
-        if (!this.#ownedComponents[component.id]) {
-            this.#ownedComponents[component.id] = component;
-        }
-        component.events.once("destroyed", () => {
-            delete this.#ownedComponents[component.id];
-        });
-    }
-
     /**
      Destroys this component.
 
@@ -182,6 +158,30 @@ class Component {
         }
         this.#ownedComponents = null;
         this.dirty = false;
+    }
+
+    protected setDirty(): void {
+        if (this.dirty) {
+            return;
+        }
+        scheduler.scheduleTask(this.cleanIfDirty, this);
+        this.dirty = true;
+    }
+
+    #prefixMessageWithID(message: string): string {
+        return ` [${this.constructor.name} "${utils.inQuotes(this.id)}"]: ${message}`;
+    }
+
+    #own(component: Component) {
+        if (!this.#ownedComponents) {
+            this.#ownedComponents = {};
+        }
+        if (!this.#ownedComponents[component.id]) {
+            this.#ownedComponents[component.id] = component;
+        }
+        component.events.once("destroyed", () => {
+            delete this.#ownedComponents[component.id];
+        });
     }
 }
 

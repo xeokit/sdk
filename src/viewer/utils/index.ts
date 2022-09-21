@@ -7,3 +7,4 @@ export * from "./Loader";
 export * from "./LoadingManager";
 export * from "./WorkerPool";
 export * from "./Cache";
+export * from "./FileLoader";

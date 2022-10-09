@@ -21,11 +21,6 @@ export interface SceneObject {
     readonly id: string ;
 
     /**
-     * Original system ID of this SceneObject.
-     */
-    readonly originalSystemId: string;
-
-    /**
      * The SceneModel that contains this SceneObject.
      */
     readonly sceneModel: SceneModel;

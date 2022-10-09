@@ -1,19 +1,21 @@
 import * as math from "../math/index";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
-import {FloatArrayType} from "../math/math";
 import {View} from "../view/View";
 import {ViewerCapabilities} from "../ViewerCapabilities";
+import {SceneModelParams} from "./SceneModelParams";
 
 /**
- * The renderer within a {@link Viewer}.
+ * Scene rendering strategy for a {@link Viewer}.
+ *
+ * This is responsible for creating {@link SceneModel}s and rendering them.
  */
 export interface SceneRenderer {
 
     /**
-     * The capabilities supported by this SceneRenderer.
+     * Returns the capabilities of this SceneRenderer.
      */
-    readonly capabilities: ViewerCapabilities;
+    getCapabilities(): ViewerCapabilities;
 
     /**
      * Adds a {@link View} to this SceneRenderer.
@@ -22,33 +24,23 @@ export interface SceneRenderer {
      *
      * @param view
      */
-    registerView(view: View) : number;
+    registerView(view: View): number;
 
     /**
      * Deregisters the {@link View} at the given index.
      *
      * @param viewIndex
      */
-    deregisterView(viewIndex: number) : void;
+    deregisterView(viewIndex: number): void;
 
     /**
      * Creates a {@link SceneModel} within this SceneRenderer.
      *
-     * The SceneModel is removed from the SceneRenderer when we call {@link SceneModel#destroy}.
+     * The SceneModel is removed from the SceneRenderer when we call {@link SceneModel.destroy}.
      *
-     * @param cfg
+     * @param cfg SceneModel params.
      */
-    createSceneModel(cfg: {
-        id?: string;
-        pbrEnabled?: boolean;
-        saoEnabled?: boolean;
-        matrix?: FloatArrayType;
-        scale?: FloatArrayType;
-        quaternion?: FloatArrayType;
-        rotation?: FloatArrayType;
-        position?: FloatArrayType;
-        origin?: FloatArrayType;
-    }): SceneModel;
+    createSceneModel(cfg: SceneModelParams): SceneModel;
 
     /**
      * Gets whether this SceneRenderer supports SAO.
@@ -98,21 +90,22 @@ export interface SceneRenderer {
     /**
      * Indicates that the renderer needs to render a new frame for the given View.
      */
-    imageDirty(viewIndex: number): void;
+    setImageDirty(viewIndex?: number): void;
 
     /**
-     * Renders a new frame.
-     * @param viewIndex
-     * @param params
-     * @param [params.force=false]
+     * Renders a frame for a View.
+     *
+     * @param viewIndex Index of the View to render for.
+     * @param params Rendering params.
+     * @param [params.force=false] True to force a render, else only render if needed.
      */
     render(viewIndex: number, params: { force?: boolean; }): void;
 
     /**
-     * Picks a SceneObject.
+     * Picks a SceneObject within a View.
      *
-     * @param viewIndex
-     * @param params
+     * @param viewIndex Index of the View to render for.
+     * @param params Picking params.
      */
-    pick(viewIndex: number, params: {}): SceneObject;
+    pickSceneObject(viewIndex: number, params: {}): SceneObject;
 }

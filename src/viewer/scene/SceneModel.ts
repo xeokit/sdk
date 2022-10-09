@@ -3,12 +3,12 @@ import {FloatArrayType} from "../math/math";
 import {SceneObject} from "./SceneObject";
 import {Transform} from "./Transform";
 import {Events} from "../Events";
-import {SceneObjectCfg} from "./SceneObjectCfg";
-import {MeshCfg} from "./MeshCfg";
-import {TextureSetCfg} from "./TextureSetCfg";
-import {TextureCfg} from "./TextureCfg";
-import {TransformCfg} from "./TransformCfg";
-import {GeometryCfg} from "./GeometryCfg";
+import {SceneObjectParams} from "./SceneObjectParams";
+import {MeshParams} from "./MeshParams";
+import {TextureSetParams} from "./TextureSetParams";
+import {TextureParams} from "./TextureParams";
+import {TransformParams} from "./TransformParams";
+import {GeometryParams} from "./GeometryParams";
 
 /**
  * A model within a {@link Scene}.
@@ -52,6 +52,16 @@ export interface SceneModel {
     readonly origin: FloatArrayType;
 
     /**
+     * The 3D World-space transform matrix of this SceneModel.
+     */
+    readonly worldMatrix: FloatArrayType;
+
+    /**
+     * The 3D World-space normal transform matrix of this SceneModel.
+     */
+    readonly worldNormalMatrix: FloatArrayType;
+
+    /**
      * True once this SceneModel has been destroyed.
      */
     readonly destroyed: boolean;
@@ -62,35 +72,35 @@ export interface SceneModel {
      * @param cfg Transform configuration.
      * @returns The new transform.
      */
-    createTransform(cfg: TransformCfg): Transform;
+    createTransform(cfg: TransformParams): Transform;
 
     /**
      * Creates a geometry within this SceneModel.
      *
      * @param cfg Geometry configuration.
      */
-    createGeometry(cfg: GeometryCfg): void;
+    createGeometry(cfg: GeometryParams): void;
 
     /**
      * Creates a texture within this SceneModel.
      *
      * @param cfg Texture configuration.
      */
-    createTexture(cfg: TextureCfg): void;
+    createTexture(cfg: TextureParams): void;
 
     /**
      * Creates a texture set within this SceneModel.
      *
      * @param cfg Texture set configuration.
      */
-    createTextureSet(cfg: TextureSetCfg): void;
+    createTextureSet(cfg: TextureSetParams): void;
 
     /**
      * Creates a mesh within this SceneModel.
      *
      * @param cfg Mesh configuration.
      */
-    createMesh(cfg: MeshCfg): void;
+    createMesh(cfg: MeshParams): void;
 
     /**
      * Creates a {@link SceneObject} within this SceneModel.
@@ -98,7 +108,7 @@ export interface SceneModel {
      * @param cfg SceneObject configuration.
      * @returns The new SceneObject
      */
-    createSceneObject(cfg: SceneObjectCfg): SceneObject;
+    createSceneObject(cfg: SceneObjectParams): SceneObject;
 
     /**
      * Finalizes this SceneModel and prepares it for use.

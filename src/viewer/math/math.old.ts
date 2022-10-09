@@ -3426,7 +3426,7 @@ const math = {
      *
      * @private
      */
-    AABB3ToOBB3(aabb, obb = math.OBB3()) {
+    AABB3ToOBB3(aabb, obb = math.boundaries.OBB3()) {
         obb[0] = aabb[0];
         obb[1] = aabb[1];
         obb[2] = aabb[2];

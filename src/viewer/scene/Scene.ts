@@ -6,7 +6,7 @@ import {SceneObject} from "./SceneObject";
 import {SceneModel} from "./SceneModel";
 import {createUUID} from "../utils/index";
 import {FloatArrayType} from "../math/math";
-import {SceneModelCfg} from "./SceneModelCfg";
+import {SceneModelParams} from "./SceneModelParams";
 import {Tiles} from "./Tiles";
 
 /**
@@ -145,7 +145,10 @@ class Scene extends Component {
      *
      * @param cfg SceneModel configuration
      */
-    createSceneModel(cfg: SceneModelCfg): SceneModel {
+    createSceneModel(cfg: SceneModelParams): SceneModel {
+        if (this.viewer.viewList.length === 0) {
+            throw "Please create a View with Viewer.createView() before creating a SceneModel";
+        }
         cfg.id = cfg.id || createUUID();
         if (this.sceneModels[cfg.id]) {
             this.error(`SceneModel with this ID already exists, or is under construction: "${cfg.id}"`);

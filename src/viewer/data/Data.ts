@@ -7,7 +7,6 @@ import {Viewer} from "../Viewer";
 import {DataModelCfg} from "./DataModelCfg";
 import {createUUID} from "../utils/index";
 
-
 /**
  * Data about the models and objects within a {@link Viewer}.
  *
@@ -106,61 +105,6 @@ class Data extends Component {
         return dataModel;
     }
 
-    #registerDataModel(dataModel: DataModel) {
-        const dataObjects = this.dataObjects;
-        const dataObjectsByType = this.dataObjectsByType;
-        let visit = (dataObject: DataObject) => {
-            dataObjects[dataObject.id] = dataObject;
-            const types = (dataObjectsByType[dataObject.type] || (dataObjectsByType[dataObject.type] = {}));
-            if (!types[dataObject.id]) {
-                types[dataObject.id] = dataObject;
-                this.typeCounts[dataObject.type]++;
-            }
-            const children = dataObject.children;
-            if (children) {
-                for (let i = 0, len = children.length; i < len; i++) {
-                    const childDataObject = children[i];
-                    visit(childDataObject);
-                }
-            }
-        };
-        visit(dataModel.rootDataObject);
-        for (let propertySetId in dataModel.propertySets) {
-            if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
-                this.propertySets[propertySetId] = dataModel.propertySets[propertySetId];
-            }
-        }
-        this.dataModels[dataModel.id] = dataModel;
-    }
-
-    #deregisterDataModel(dataModel: DataModel) {
-        let visit = (dataObject: DataObject) => {
-            delete this.dataObjects[dataObject.id];
-            const types = this.dataObjectsByType[dataObject.type];
-            if (types && types[dataObject.id]) {
-                delete types[dataObject.id];
-                if (--this.typeCounts[dataObject.type] === 0) {
-                    delete this.typeCounts[dataObject.type];
-                    delete this.dataObjectsByType[dataObject.type];
-                }
-            }
-            const children = dataObject.children;
-            if (children) {
-                for (let i = 0, len = children.length; i < len; i++) {
-                    const childDataObject = children[i];
-                    visit(childDataObject);
-                }
-            }
-        };
-        visit(dataModel.rootDataObject);
-        for (let propertySetId in dataModel.propertySets) {
-            if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
-                delete this.propertySets[propertySetId];
-            }
-        }
-        delete this.dataModels[dataModel.id];
-    }
-
     /**
      * Gets the {@link DataObject.id}s of the {@link DataObject}s that have the given {@link DataObject.type}.
      *
@@ -227,6 +171,61 @@ class Data extends Component {
             return;
         }
         dataObject.withDataObjectsInSubtree(callback);
+    }
+
+    #registerDataModel(dataModel: DataModel) {
+        const dataObjects = this.dataObjects;
+        const dataObjectsByType = this.dataObjectsByType;
+        let visit = (dataObject: DataObject) => {
+            dataObjects[dataObject.id] = dataObject;
+            const types = (dataObjectsByType[dataObject.type] || (dataObjectsByType[dataObject.type] = {}));
+            if (!types[dataObject.id]) {
+                types[dataObject.id] = dataObject;
+                this.typeCounts[dataObject.type]++;
+            }
+            const children = dataObject.children;
+            if (children) {
+                for (let i = 0, len = children.length; i < len; i++) {
+                    const childDataObject = children[i];
+                    visit(childDataObject);
+                }
+            }
+        };
+        visit(dataModel.rootDataObject);
+        for (let propertySetId in dataModel.propertySets) {
+            if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
+                this.propertySets[propertySetId] = dataModel.propertySets[propertySetId];
+            }
+        }
+        this.dataModels[dataModel.id] = dataModel;
+    }
+
+    #deregisterDataModel(dataModel: DataModel) {
+        let visit = (dataObject: DataObject) => {
+            delete this.dataObjects[dataObject.id];
+            const types = this.dataObjectsByType[dataObject.type];
+            if (types && types[dataObject.id]) {
+                delete types[dataObject.id];
+                if (--this.typeCounts[dataObject.type] === 0) {
+                    delete this.typeCounts[dataObject.type];
+                    delete this.dataObjectsByType[dataObject.type];
+                }
+            }
+            const children = dataObject.children;
+            if (children) {
+                for (let i = 0, len = children.length; i < len; i++) {
+                    const childDataObject = children[i];
+                    visit(childDataObject);
+                }
+            }
+        };
+        visit(dataModel.rootDataObject);
+        for (let propertySetId in dataModel.propertySets) {
+            if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
+                delete this.propertySets[propertySetId];
+            }
+        }
+        delete this.dataModels[dataModel.id];
     }
 }
 

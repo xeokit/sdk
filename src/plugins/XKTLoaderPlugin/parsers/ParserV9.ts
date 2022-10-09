@@ -8,9 +8,7 @@ import * as utils from "../../../viewer/utils/index";
 import {globalizeObjectId} from "../../../viewer/utils/index";
 // @ts-ignore
 import * as p from "./lib/pako.js";
-import * as math from "../../../viewer/math/";
-
-import {SceneModel, Viewer} from "../../../viewer";
+import {SceneModel, Viewer} from "../../../viewer/index";
 
 // @ts-ignore
 let pako = window.pako || p;
@@ -336,7 +334,7 @@ function load(viewer: Viewer,
                                 geometryValid = (geometryPositions.length > 0 && geometryIndices.length > 0);
                                 break;
                             case 2:
-                                primitiveName = "points";
+                                primitiveName = PointsPrimitive;
                                 geometryPositions = positions.subarray(eachGeometryPositionsPortion [geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion [geometryIndex + 1]);
                                 geometryColors = colors.subarray(eachGeometryColorsPortion [geometryIndex], atLastGeometry ? colors.length : eachGeometryColorsPortion [geometryIndex + 1]);
                                 geometryValid = (geometryPositions.length > 0);
@@ -416,7 +414,7 @@ function load(viewer: Viewer,
                             break;
 
                         case 2:
-                            primitiveName = "points";
+                            primitiveName = PointsPrimitive;
                             geometryPositions = positions.subarray(eachGeometryPositionsPortion [geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion [geometryIndex + 1]);
                             geometryColors = colors.subarray(eachGeometryColorsPortion [geometryIndex], atLastGeometry ? colors.length : eachGeometryColorsPortion [geometryIndex + 1]);
                             geometryValid = (geometryPositions.length > 0);

@@ -9,8 +9,9 @@ import {SceneRenderer} from "./scene/SceneRenderer";
 import * as utils from "./utils/index";
 import {apply, createUUID} from "./utils/index";
 import {Events} from "./Events";
-// import {WebGLSceneRenderer} from "webgl/WebGLSceneRenderer";
+// import {webgl} from "webgl/webgl";
 import {ViewerCapabilities} from "./ViewerCapabilities";
+import {WebGLSceneRenderer} from "./scene/webgl/WebGLSceneRenderer";
 
 /**
  * The viewer at the core of the xeokit SDK.
@@ -40,7 +41,7 @@ export class Viewer {
     /**
      True once this Viewer has been destroyed.
 
-     Don't use this Component if this is ````true````.
+     Don't use this Viewer if this is ````true````.
      */
     public destroyed: boolean;
 
@@ -139,16 +140,16 @@ export class Viewer {
     /**
      * Gets the capabilities of this Viewer.
      */
-    get capabilities(): ViewerCapabilities {
-        return this.renderer.capabilities;
+    getCapabilities(): ViewerCapabilities {
+        return this.renderer.getCapabilities();
     }
 
     /**
      * Creates a new {@link View} within this Viewer.
      *
-     * Fires a "viewCreated" event with the new View.
+     * Fires a "viewCreated" event on this Viewer.
      *
-     * To destroy the View after use, call {@link View#destroy}, which fires a "viewDestroyed" event, with the destroyed View.
+     * To destroy the View after use, call {@link View#destroy}, which fires a "viewDestroyed" event on this Viewer.
      *
      * You must add a View to the Viewer before you can create or load content into the Viewer's Scene.
      *
@@ -182,12 +183,12 @@ export class Viewer {
             throw "WebGPU is not yet supported";
         } else {
             if (!this.renderer) {
-                // this.renderer = new WebGLSceneRenderer({
-                //     view,
-                //     canvasElement,
-                //     alphaDepthMask: true,
-                //     transparent: cfg.transparent
-                // });
+                this.renderer = new WebGLSceneRenderer({
+                    view,
+                    canvasElement,
+                    alphaDepthMask: true,
+                    transparent: cfg.transparent
+                });
             }
         }
         this.#registerView(view);

@@ -385,7 +385,7 @@ function load(viewer: Viewer,
                                 geometryValid = (geometryPositions.length > 0 && geometryIndices.length > 0);
                                 break;
                             case 2:
-                                primitiveName = "points";
+                                primitiveName = PointsPrimitive;
                                 geometryPositions = positions.subarray(eachGeometryPositionsPortion [geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion [geometryIndex + 1]);
                                 geometryColors = convertColorsRGBToRGBA(colors.subarray(eachGeometryColorsPortion [geometryIndex], atLastGeometry ? colors.length : eachGeometryColorsPortion [geometryIndex + 1]));
                                 geometryValid = (geometryPositions.length > 0);
@@ -463,7 +463,7 @@ function load(viewer: Viewer,
                             geometryValid = (geometryPositions.length > 0 && geometryIndices.length > 0);
                             break;
                         case 2:
-                            primitiveName = "points";
+                            primitiveName = PointsPrimitive;
                             geometryPositions = positions.subarray(eachGeometryPositionsPortion [geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion [geometryIndex + 1]);
                             geometryColors = convertColorsRGBToRGBA(colors.subarray(eachGeometryColorsPortion [geometryIndex], atLastGeometry ? colors.length : eachGeometryColorsPortion [geometryIndex + 1]));
                             geometryValid = (geometryPositions.length > 0);

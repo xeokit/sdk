@@ -1,10 +1,9 @@
 import {Component} from '../Component';
-import {Camera} from "./camera/index";
+import {Camera, CameraFlightAnimation} from "./camera/index";
 import {Viewport} from "./Viewport.js";
 import {Canvas} from "./Canvas";
 import {CameraControl} from "./CameraControl/index";
 import {Input} from "./Input.js";
-import {CameraFlightAnimation} from "./camera/index";
 import * as utils from "../utils/index";
 import {ViewObject} from "./ViewObject";
 import {SectionPlane} from "./SectionPlane";
@@ -17,7 +16,7 @@ import {Scene, SceneModel} from "../scene/index";
 import {PickParams} from "./PickParams";
 import {SAO} from "./SAO";
 import {LinesMaterial} from "./materials/LinesMaterial";
-import {SceneRenderer} from "../scene/SceneRenderer";
+import * as math from "../math/index";
 
 /**
  * An independent view of the objects in a {@link Viewer}.
@@ -257,6 +256,26 @@ class View extends Component {
      */
     public readonly opacityViewObjects: { [key: string]: ViewObject };
 
+    /**
+     * Map of {@link SectionPlane}s in this View.
+     *
+     * Each {@link SectionPlane} is mapped here by {@link SectionPlane.id}.
+     */
+    public readonly sectionPlanes: { [key: string]: SectionPlane };
+
+    /**
+     * List of {@link SectionPlane}s in this View.
+     */
+    public sectionPlanesList: SectionPlane[] = [];
+    /**
+     * Map of light sources in this View.
+     */
+    public readonly lights: { [key: string]: (AmbientLight | PointLight | DirLight) };
+    /**
+     * List of light sources in this View.
+     */
+    public lightsList: (AmbientLight | PointLight | DirLight)[] = [];
+    #sectionPlanesHash: string | null = null;
     #numViewObjects: number;
     #viewObjectIds: string[] | null;
     #numVisibleViewObjects: number;
@@ -271,12 +290,9 @@ class View extends Component {
     #colorizedViewObjectIds: string[] | null;
     #numOpacityViewObjects: number;
     #opacityViewObjectIds: string[] | null;
-
-    #lights: { [key: string]: (AmbientLight | PointLight | DirLight) };
-    #sectionPlanes: { [key: string]: SectionPlane };
+    #lightsHash: string | null = null;
 
     #pbrEnabled: boolean;
-    #sectionPlanesState: any;
 
     /**
      * Creates a new View within a Viewer.
@@ -336,7 +352,6 @@ class View extends Component {
             this.redraw();
         });
 
-
         this.input = new Input(this, {
             element: this.canvas.canvas
         });
@@ -350,7 +365,6 @@ class View extends Component {
         this.cameraControl = new CameraControl(this, this.canvas, this.camera, {
             doublePickFlyTo: true
         });
-
 
         this.cameraFlight = new CameraFlightAnimation(this, {
             duration: 0.5
@@ -414,8 +428,7 @@ class View extends Component {
             lineWidth: 1
         });
 
-        this.#lights = {};
-        this.#sectionPlanes = {};
+        this.lights = {};
 
         this.viewObjects = {};
         this.visibleViewObjects = {};
@@ -437,85 +450,14 @@ class View extends Component {
 
         this.logarithmicDepthBufferEnabled = !!options.logarithmicDepthBufferEnabled;
 
-        // @ts-ignore
-        this.#sectionPlanesState = new (function () {
-
-            const sectionPlanes: SectionPlane[] = [];
-
-            let hash: string = null;
-
-            this.getHash = () => {
-                if (hash) {
-                    return hash;
-                }
-                if (sectionPlanes.length === 0) {
-                    return this.hash = ";";
-                }
-                let sectionPlane;
-                const hashParts = [];
-                for (let i = 0, len = sectionPlanes.length; i < len; i++) {
-                    sectionPlane = sectionPlanes[i];
-                    hashParts.push("cp");
-                }
-                hashParts.push(";");
-                hash = hashParts.join("");
-                return hash;
-            };
-
-            this.addSectionPlane = (sectionPlane: SectionPlane) => {
-                sectionPlanes.push(sectionPlane);
-                hash = null;
-            };
-
-            this.removeSectionPlane = (sectionPlane: SectionPlane) => {
-                for (let i = 0, len = sectionPlanes.length; i < len; i++) {
-                    if (sectionPlanes[i].id === sectionPlane.id) {
-                        sectionPlanes.splice(i, 1);
-                        hash = null;
-                        return;
-                    }
-                }
-            };
-        })();
-
         this.#initViewObjects();
     }
 
-    #initViewObjects() {
-        const scene = this.viewer.scene;
-        const sceneModels = scene.sceneModels;
-        for (const id in sceneModels) {
-            const sceneModel = sceneModels[id];
-            this.#createViewObjects(sceneModel);
-        }
-        scene.events.on("sceneModelCreated", (sceneModel) => {
-            this.#createViewObjects(sceneModel);
-        });
-        scene.events.on("sceneModelDestroyed", (sceneModel) => {
-            this.#destroyViewObjects(sceneModel);
-        });
-    }
-
-    #createViewObjects(sceneModel: SceneModel) {
-        const sceneObjects = sceneModel.sceneObjects;
-        for (let id in sceneObjects) {
-            const sceneObject = sceneObjects[id];
-            const viewObject = new ViewObject(this, sceneObject, {});
-            this.viewObjects[viewObject.id] = viewObject;
-            this.#numViewObjects++;
-            this.#viewObjectIds = null; // Lazy regenerate
-        }
-    }
-
-    #destroyViewObjects(sceneModel: SceneModel) {
-        const sceneObjects = sceneModel.sceneObjects;
-        for (let id in sceneObjects) {
-            const sceneObject = sceneObjects[id];
-            const viewObject = this.viewObjects[sceneObject.id];
-            viewObject._destroy();
-            this.#numViewObjects--;
-            this.#viewObjectIds = null; // Lazy regenerate
-        }
+    /**
+     * Gets the gamma factor.
+     */
+    get gammaFactor() { // TODO
+        return 1.0;
     }
 
     /**
@@ -638,6 +580,32 @@ class View extends Component {
     }
 
     /**
+     * Gets whether physically-based rendering is enabled in this View.
+     */
+    public get pbrEnabled(): boolean {
+        return this.#pbrEnabled;
+    }
+
+    /**
+     * Sets whether physically-based rendering is enabled in this View.
+     */
+    set pbrEnabled(pbrEnabled: boolean) {
+        if (pbrEnabled === this.#pbrEnabled) {
+            return;
+        }
+        this.#pbrEnabled = pbrEnabled;
+        this.viewer.renderer.setPBREnabled(this.viewIndex, pbrEnabled);
+        this.redraw();
+    }
+
+    /**
+     * Gets the ambient light color and intensity.
+     */
+    getAmbientColorAndIntensity(): math.FloatArrayType { // TODO
+        return new Float32Array([0.3, 0.3, 0.3, 1.0]);
+    }
+
+    /**
      * @private
      */
     registerViewObject(viewObject: ViewObject) {
@@ -656,99 +624,144 @@ class View extends Component {
     }
 
     /**
-     * Gets the {@link SectionPlane}s in this View.
+     * @private
      */
-    public get sectionPlanes(): { [key: string]: SectionPlane } {
-        return this.#sectionPlanes;
-    }
+    public getSectionPlanesHash() {
+        if (this.#sectionPlanesHash) {
+            return this.#sectionPlanesHash;
+        }
+        if (this.sectionPlanesList.length === 0) {
+            return this.#sectionPlanesHash = ";";
+        }
+        let sectionPlane;
+        const hashParts = [];
+        for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
+            sectionPlane = this.sectionPlanesList[i];
+            hashParts.push("cp");
+        }
+        hashParts.push(";");
+        this.#sectionPlanesHash = hashParts.join("");
+        return this.#sectionPlanesHash;
+    };
 
     /**
      * Destroys the {@link SectionPlane}s in this View.
      */
     public clearSectionPlanes(): void {
-        const ids = Object.keys(this.#sectionPlanes);
+        const ids = Object.keys(this.sectionPlanes);
         for (let i = 0, len = ids.length; i < len; i++) {
-            this.#sectionPlanes[ids[i]].destroy();
+            this.sectionPlanes[ids[i]].destroy();
         }
+        this.sectionPlanesList.length = 0;
+        this.#sectionPlanesHash = null;
     }
 
     /**
      * @private
      */
     registerSectionPlane(sectionPlane: SectionPlane) {
-        this.#sectionPlanes[sectionPlane.id] = sectionPlane;
+        this.sectionPlanesList.push(sectionPlane);
+        this.sectionPlanes[sectionPlane.id] = sectionPlane;
+        this.#sectionPlanesHash = null;
+        this.recompile();
     }
 
     /**
      * @private
      */
     deregisterSectionPlane(sectionPlane: SectionPlane) {
-        delete this.#sectionPlanes[sectionPlane.id];
+        for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
+            if (this.sectionPlanesList[i].id === sectionPlane.id) {
+                this.sectionPlanesList.splice(i, 1);
+                this.#sectionPlanesHash = null;
+                delete this.sectionPlanes[sectionPlane.id];
+                this.recompile();
+                return;
+            }
+        }
     }
-
 
     /**
      * @private
      */
     registerLight(light: PointLight | DirLight | AmbientLight) {
-        this.#lights[light.id] = light;
+        this.lightsList.push(light);
+        this.lights[light.id] = light;
+        this.#lightsHash = null;
+        this.recompile();
     }
 
     /**
      * @private
      */
     deregisterLight(light: PointLight | DirLight | AmbientLight) {
-        delete this.#lights[light.id];
-    }
-
-    /**
-     * Gets the light sources in this View.
-     */
-    public get lights(): { [key: string]: (AmbientLight | PointLight | DirLight) } {
-        return this.#lights;
+        for (let i = 0, len = this.lightsList.length; i < len; i++) {
+            if (this.lightsList[i].id === light.id) {
+                this.lightsList.splice(i, 1);
+                this.#lightsHash = null;
+                delete this.lights[light.id];
+                this.recompile();
+                return;
+            }
+        }
     }
 
     /**
      * Destroys the light sources in this View.
      */
     public clearLights(): void {
-        const ids = Object.keys(this.#lights);
+        const ids = Object.keys(this.lights);
         for (let i = 0, len = ids.length; i < len; i++) {
-            this.#lights[ids[i]].destroy();
+            this.lights[ids[i]].destroy();
         }
-    }
-
-    /**
-     * Sets whether physically-based rendering is enabled in this View.
-     */
-    set pbrEnabled(pbrEnabled: boolean) {
-        if (pbrEnabled === this.#pbrEnabled) {
-            return;
-        }
-        this.#pbrEnabled = pbrEnabled;
-        this.viewer.renderer.setPBREnabled(this.viewIndex, pbrEnabled);
-        this.redraw();
-    }
-    
-    /**
-     * Gets whether physically-based rendering is enabled in this View.
-     */
-    public get pbrEnabled(): boolean {
-        return this.#pbrEnabled;
     }
 
     /**
      * @private
      */
+    public getLightsHash() {
+        if (this.#lightsHash) {
+            return this.#lightsHash;
+        }
+        if (this.lightsList.length === 0) {
+            return this.#lightsHash = ";";
+        }
+        const hashParts = [];
+        const lights = this.lightsList;
+        for (let i = 0, len = lights.length; i < len; i++) {
+            const light: any = lights[i];
+            hashParts.push("/");
+            hashParts.push(light.type);
+            hashParts.push((light.space === "world") ? "w" : "v");
+            if (light.castsShadow) {
+                hashParts.push("sh");
+            }
+        }
+        // if (this.lightMaps.length > 0) {
+        //     hashParts.push("/lm");
+        // }
+        // if (this.reflectionMaps.length > 0) {
+        //     hashParts.push("/rm");
+        // }
+        hashParts.push(";");
+        this.#lightsHash = hashParts.join("");
+        return this.#lightsHash;
+    };
+
+    /**
+     * @private
+     */
     redraw() {
-        this.viewer.renderer.imageDirty(this.viewIndex);
+        this.viewer.renderer.setImageDirty(this.viewIndex);
     }
 
     /**
      * @private
      */
     recompile() {
-
+        this.viewer.events.once("tick", () => {
+            this.events.fire("compile", this);
+        });
     }
 
     /**
@@ -1189,7 +1202,7 @@ class View extends Component {
 
         // if (this._needRecompile) {
         //     this._recompile();
-        //     this._renderer.imageDirty();
+        //     this._renderer.setImageDirty();
         //     this._needRecompile = false;
         // }
         //
@@ -1210,6 +1223,43 @@ class View extends Component {
      */
     destroy() {
         super.destroy();
+    }
+
+    #initViewObjects() {
+        const scene = this.viewer.scene;
+        const sceneModels = scene.sceneModels;
+        for (const id in sceneModels) {
+            const sceneModel = sceneModels[id];
+            this.#createViewObjects(sceneModel);
+        }
+        scene.events.on("sceneModelCreated", (sceneModel) => {
+            this.#createViewObjects(sceneModel);
+        });
+        scene.events.on("sceneModelDestroyed", (sceneModel) => {
+            this.#destroyViewObjects(sceneModel);
+        });
+    }
+
+    #createViewObjects(sceneModel: SceneModel) {
+        const sceneObjects = sceneModel.sceneObjects;
+        for (let id in sceneObjects) {
+            const sceneObject = sceneObjects[id];
+            const viewObject = new ViewObject(this, sceneObject, {});
+            this.viewObjects[viewObject.id] = viewObject;
+            this.#numViewObjects++;
+            this.#viewObjectIds = null; // Lazy regenerate
+        }
+    }
+
+    #destroyViewObjects(sceneModel: SceneModel) {
+        const sceneObjects = sceneModel.sceneObjects;
+        for (let id in sceneObjects) {
+            const sceneObject = sceneObjects[id];
+            const viewObject = this.viewObjects[sceneObject.id];
+            viewObject._destroy();
+            this.#numViewObjects--;
+            this.#viewObjectIds = null; // Lazy regenerate
+        }
     }
 }
 

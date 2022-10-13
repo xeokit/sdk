@@ -1,7 +1,15 @@
 /**
  * The capabilities of a {@link Viewer}.
+ *
+ * * Located at {@link Viewer.capabilities}
+ *
  */
 export interface ViewerCapabilities {
+
+    /**
+     * The number of {@link View}s we are allowed to create with {@link Viewer.createView}.
+     */
+    maxViews: number;
 
     /**
      * Flag set ````true```` if the {@link Viewer} supports ASTC texture compression.

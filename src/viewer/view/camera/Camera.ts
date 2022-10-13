@@ -20,7 +20,7 @@ const eyeLookOffset = math.vec3();
 const offsetEye = math.vec3();
 
 /**
- * Controls the viewpoint and projection for a {@link View}.
+ * Controls the  viewpoint and projection for a {@link View}.
  *
  * ## Overview
  *
@@ -220,6 +220,9 @@ class Camera extends Component {
      */
     public readonly view: View;
 
+    /**
+     * @private
+     */
     public readonly state: {
         deviceMatrix: math.FloatArrayType,
         normalMatrix: math.FloatArrayType,
@@ -885,7 +888,7 @@ class Camera extends Component {
     }
 
     /**
-     * Destroys this Camera.
+     * @private
      */
     destroy() {
         super.destroy();

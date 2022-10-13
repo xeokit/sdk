@@ -34,10 +34,10 @@ export class Tiles extends Component {
 
     /**
      * Creates a {@link Tile} with the given 3D World-space boundary, if not already existing.
-     * @param cfg
+     * @param params
      */
-    createTile(cfg: { aabb: FloatArrayType }): Tile {
-        const tile = new Tile(this, {aabb: cfg.aabb});
+    createTile(params: { aabb: FloatArrayType }): Tile {
+        const tile = new Tile(this, {aabb: params.aabb});
         return tile;
     }
 

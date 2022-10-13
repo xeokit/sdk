@@ -28,23 +28,23 @@ export class SAO extends Component {
     }
 
     /** @private */
-    constructor(view: View, cfg: any) {
+    constructor(view: View, params: any) {
 
-        super(view, cfg);
+        super(view, params);
 
         this.view = view;
 
         this.state = {
-            enabled: cfg.enabled !== false,
-            kernelRadius: cfg.kernelRadius || 100.0,
-            intensity: (cfg.intensity!== undefined) ? cfg.intensity : 0.15,
-            bias:  (cfg.bias!== undefined) ? cfg.bias : 0.5,
-            scale:  (cfg.scale!== undefined) ? cfg.scale : 1.0,
-            minResolution:  (cfg.minResolution!== undefined) ? cfg.minResolution : 0.0,
-            numSamples:  (cfg.numSamples!== undefined) ? cfg.numSamples : 10,
-            blur: !!(cfg.blur),
-            blendCutoff:  (cfg.blendCutff!== undefined) ? cfg.blendCutoff : 0.3,
-            blendFactor:  (cfg.blendFactor!== undefined) ? cfg.blendFactor : 1.0
+            enabled: params.enabled !== false,
+            kernelRadius: params.kernelRadius || 100.0,
+            intensity: (params.intensity!== undefined) ? params.intensity : 0.15,
+            bias:  (params.bias!== undefined) ? params.bias : 0.5,
+            scale:  (params.scale!== undefined) ? params.scale : 1.0,
+            minResolution:  (params.minResolution!== undefined) ? params.minResolution : 0.0,
+            numSamples:  (params.numSamples!== undefined) ? params.numSamples : 10,
+            blur: !!(params.blur),
+            blendCutoff:  (params.blendCutff!== undefined) ? params.blendCutoff : 0.3,
+            blendFactor:  (params.blendFactor!== undefined) ? params.blendFactor : 1.0
         };
     }
 
@@ -54,7 +54,7 @@ export class SAO extends Component {
      * Even when enabled, SAO will only work if supported.
      */
     get supported() :boolean{
-        return this.viewer.renderer.getSAOSupported();
+        return this.viewer.sceneRenderer.getSAOSupported();
     }
 
     /**
@@ -86,7 +86,7 @@ export class SAO extends Component {
 
     /**
      * Returns true if SAO is currently possible, where it is supported, enabled, and the current view state is compatible.
-     * Called internally by renderer logic.
+     * Called internally by sceneRenderer logic.
      * @private
      */
     get possible():boolean {
@@ -340,7 +340,6 @@ export class SAO extends Component {
     }
 
     /**
-     * Destroys this component.
      * @private
      */
     destroy() {

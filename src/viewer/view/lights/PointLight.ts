@@ -19,6 +19,11 @@ import * as math from '../../math/index';
 class PointLight extends Component {
 
     /**
+     ID of this PointLight, unique within the {@link View}.
+     */
+    declare public id: string;
+
+    /**
      * The View to which this PointLight belongs.
      */
     public readonly view: View;

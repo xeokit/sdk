@@ -1,7 +1,7 @@
 import {Property} from "./Property";
 import {DataModel} from "./DataModel";
-import {PropertyCfg} from "./PropertyCfg";
-import {PropertySetCfg} from "./PropertySetCfg";
+import {PropertyParams} from "./PropertyParams";
+import {PropertySetParams} from "./PropertySetParams";
 
 /**
  * A set of properties of a model or object within a {@link Viewer}.
@@ -53,7 +53,7 @@ class PropertySet {
      */
     constructor(
         dataModel: DataModel,
-        propertySetCfg: PropertySetCfg) {
+        propertySetCfg: PropertySetParams) {
         this.dataModel = dataModel;
         this.id = propertySetCfg.id;
         this.originalSystemId = propertySetCfg.originalSystemId;
@@ -71,7 +71,7 @@ class PropertySet {
      * Creates a Property within this PropertySet.
      * @param propertyCfg
      */
-    createProperty(propertyCfg: PropertyCfg): Property {
+    createProperty(propertyCfg: PropertyParams): Property {
         const property = new Property(this, propertyCfg);
         this.properties.push(property);
         return property;

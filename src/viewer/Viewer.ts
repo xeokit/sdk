@@ -9,46 +9,119 @@ import {SceneRenderer} from "./scene/SceneRenderer";
 import * as utils from "./utils/index";
 import {apply, createUUID} from "./utils/index";
 import {Events} from "./Events";
-// import {webgl} from "webgl/webgl";
 import {ViewerCapabilities} from "./ViewerCapabilities";
-import {WebGLSceneRenderer} from "./scene/webgl/WebGLSceneRenderer";
+import {WebGL2SceneRenderer} from "../webgl/WebGL2SceneRenderer";
+import {ViewParams} from "./ViewParams";
+
 
 /**
- * The viewer at the core of the xeokit SDK.
- *
- * See [main docs page](https://xeokit.github.io/xeokit-webgpu-sdk/docs/index.html) for usage examples.
+ * The browser-based viewer at the core of ````@xeokit/xeokit-viewer````.
  *
  * ## Overview
  *
- * - A browser-based 3D/2D viewer powered by WebGPU and WebGL
- * - Has a {@link Scene} containing geometry and materials for models
- * - Has {@link Data} containing general data about models
- * - Has {@link View}s, which each provide an independent view of the models in a separate canvas
- * - Extensible via {@link Plugin}s
+ * A ````Viewer```` has three main components:
+ *
+ * * {@link Scene} - Contains geometry and materials for models.
+ * * {@link Data} - Contains optional semantic information about the models.
+ * * {@link View}s - One or more independently-configurable views of the models, each with its own canvas.
+ *
+ * A ````Viewer```` also has these two strategies, which you can replace with your own implementations:
+ *
+ * * {@link LocaleService} - Provides string translations for various locales.
+ * * {@link SceneRenderer} - Strategy used internally to allocate and render geometry and materials on top of an available
+ * Browser graphics API. By default, this is a {@link WebGL2SceneRenderer}, which uses [WebGL2](https://en.wikipedia.org/wiki/WebGL). You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer.
+ *
+ * ## Usage
+ *
+ * Create a viewer:
+ *
+ * ````javascript
+ * const myViewer = new Viewer({
+ *     id: "myViewer"
+ * });
+ * ````
+ *
+ * Create model geometry and materials:
+ *
+ * ````javascript
+ * const mySceneModel = myViewer.scene.createSceneModel({
+ *     id: "myModel"
+ * });
+ *
+ * mySceneModel.createMesh({
+ *     id: "myMesh",
+ *     primitive: SolidPrimitive,
+ *     positions: [...],
+ *     indices: [...]
+ *     //...
+ * });
+ *
+ * mySceneModel.createObject({
+ *     id: "myObject",
+ *     meshIds: ["myMesh}]
+ *     //...
+ * });
+ *
+ * myModel.finalize();
+ * ````
+ *
+ * Define optional semantic information for the model:
+ *
+ * ````javascript
+ * const myDataModel = myViewer.data.createDataModel({
+ *     id: "myModel"
+ * });
+ *
+ * myDataModel.createDataObject({
+ *     id: "myObject",
+ *     name: "Some object",
+ *     type: "MyType"
+ * });
+ * ````
+ *
+ * Create a view of the model:
+ *
+ * ````javascript
+ * const view1 = myViewer.createView({
+ *     id: "myView",
+ *     canvasId: "myCanvas1"
+ * });
+ *
+ * view1.camera.eye = [-3.933, 2.855, 27.018];
+ * view1.camera.look = [4.400, 3.724, 8.899];
+ * view1.camera.up = [-0.018, 0.999, 0.039];
+ * view1.camera.projection = "perspective";
+ * view1.cameraControl.navMode = "orbit";
+ * ````
+ * Customize the view:
+ *
+ * ````javascript
+ * view1.viewObjects["myObject"].highlighted = true;
+ * ````
  */
 export class Viewer {
 
     /**
-     The maximum number of {@link View}s that can belong to this {@link Viewer}.
-     */
-    static readonly MAX_VIEWS: number = 1; // More with WebGPU later
-
-    /**
      ID of this Viewer.
      */
-    public id: string;
+    readonly id: string;
 
     /**
      True once this Viewer has been destroyed.
 
      Don't use this Viewer if this is ````true````.
      */
-    public destroyed: boolean;
+    destroyed: boolean;
+
+    /**
+     * Indicates the capabilities of this Viewer.
+     */
+    readonly capabilities: ViewerCapabilities;
 
     /**
      Manages events on this Viewer.
      */
-    public readonly events: Events;
+    readonly events: Events;
 
     /**
      The viewer's locale service.
@@ -87,6 +160,7 @@ export class Viewer {
 
     /**
      List of {@link Plugin}s installed in this Viewer.
+     @private
      */
     readonly pluginList: Plugin[];
 
@@ -96,14 +170,10 @@ export class Viewer {
     readonly startTime: number = (new Date()).getTime();
 
     /**
-     * @private
+     The scene renderer.
+     @private
      */
-    renderer: SceneRenderer;
-
-    /**
-     * True if WebGPU-based rendering is enabled.
-     */
-    readonly webgpuEnabled: boolean;
+    readonly sceneRenderer: SceneRenderer;
 
     /**
      Creates a Viewer.
@@ -114,14 +184,28 @@ export class Viewer {
      @param cfg.scale - The number of Real-space units in each World-space coordinate system unit.
      @param cfg.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
      @param cfg.localeService - Locale-based translation service.
+     @param cfg.sceneRenderer - Configurable 3D renderer class. Will be a  {@link WebGL2SceneRenderer} by default.
      */
     constructor(cfg: {
         id?: string,
         units?: string,
         scale?: number,
         origin?: math.FloatArrayType,
-        localeService?: LocaleService
+        localeService?: LocaleService,
+        sceneRenderer?: SceneRenderer
     } = {}) {
+
+        this.capabilities = {
+            maxViews: 0,
+            astcSupported: false,
+            etc1Supported: false,
+            etc2Supported: false,
+            dxtSupported: false,
+            bptcSupported: false,
+            pvrtcSupported: false
+        };
+
+        this.sceneRenderer.getCapabilities(this.capabilities);
 
         this.id = cfg.id || createUUID();
         this.destroyed = false;
@@ -134,41 +218,43 @@ export class Viewer {
         this.pluginList = [];
         this.views = {};
 
-        scheduler.registerViewer(this);
-    }
+        this.sceneRenderer = cfg.sceneRenderer ? cfg.sceneRenderer : new WebGL2SceneRenderer();
 
-    /**
-     * Gets the capabilities of this Viewer.
-     */
-    getCapabilities(): ViewerCapabilities {
-        return this.renderer.getCapabilities();
+        this.sceneRenderer.init(this);
+
+        scheduler.registerViewer(this);
     }
 
     /**
      * Creates a new {@link View} within this Viewer.
      *
-     * Fires a "viewCreated" event on this Viewer.
+     * * Fires a "viewCreated" event on this Viewer.
+     * * To destroy the View after use, call {@link View.destroy}, which fires a "viewDestroyed" event on this Viewer.
+     * * You must add a View to the Viewer before you can create or load content into the Viewer's Scene.
+     * * The maximum number of views you're allowed to create is provided in {@link ViewerCapabilities.maxViews}.
      *
-     * To destroy the View after use, call {@link View#destroy}, which fires a "viewDestroyed" event on this Viewer.
+     * ### Usage
      *
-     * You must add a View to the Viewer before you can create or load content into the Viewer's Scene.
+     * ````javascript
+     * const view1 = myViewer.createView({
+     *      id: "myView",
+     *      canvasId: "myCanvas1"
+     *  });
+     *
+     * view1.camera.eye = [-3.933, 2.855, 27.018];
+     * view1.camera.look = [4.400, 3.724, 8.899];
+     * view1.camera.up = [-0.018, 0.999, 0.039];
+     *
+     * //...
+     * ````
      *
      * @param cfg
      */
-    createView(cfg: {
-        id?: number | string,
-        origin?: number[];
-        scale?: number;
-        units?: string;
-        canvasId?: string;
-        canvasElement?: HTMLCanvasElement;
-        backgroundColor?: any[];
-        backgroundColorFromAmbientLight?: boolean;
-        premultipliedAlpha?: boolean;
-        transparent?: boolean;
-        pbrEnabled?: boolean;
-        colorTextureEnabled?: boolean;
-    }): View {
+    createView(cfg: ViewParams): View {
+        if (this.viewList.length >= this.capabilities.maxViews) {
+            this.error(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
+            return null;
+        }
         let id = cfg.id || createUUID();
         if (this.views[id]) {
             this.error(`View with ID "${id}" already exists - will randomly-generate ID`);
@@ -179,18 +265,6 @@ export class Viewer {
             throw "Mandatory View config expected: valid canvasId or canvasElement";
         }
         const view = new View(apply({id, viewer: this}, cfg));
-        if (this.webgpuEnabled) {
-            throw "WebGPU is not yet supported";
-        } else {
-            if (!this.renderer) {
-                this.renderer = new WebGLSceneRenderer({
-                    view,
-                    canvasElement,
-                    alphaDepthMask: true,
-                    transparent: cfg.transparent
-                });
-            }
-        }
         this.#registerView(view);
         view.events.on("destroyed", () => {
             this.#deregisterView(view);
@@ -260,6 +334,7 @@ export class Viewer {
 
      Also fires the message as a "log" event on the parent {@link Viewer}.
 
+     @private
      @param message - The message to log
      */
     log(message: string): void {
@@ -275,6 +350,7 @@ export class Viewer {
 
      Also fires the message as a "warn" event on the parent {@link Viewer}.
 
+     @private
      @param message - The warning message to log
      */
     warn(message: string): void {
@@ -290,6 +366,7 @@ export class Viewer {
 
      Also fires the message as an "error" event on the {@link Viewer}.
 
+     @private
      @param message The error message to log
      */
     error(message: string): void {
@@ -299,7 +376,7 @@ export class Viewer {
     }
 
     /**
-     Destroys this Viewer, along with associated Views and Plugins.
+     Destroys this Viewer and all {@link View}s, {@link SceneModel}s, {@link DataModel}s and {@link Plugin}s we've created within it.
      */
     destroy(): void {
         if (this.destroyed) {
@@ -347,3 +424,4 @@ export class Viewer {
         this.numViews--;
     }
 }
+

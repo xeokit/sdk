@@ -19,105 +19,23 @@ import {LinesMaterial} from "./materials/LinesMaterial";
 import * as math from "../math/index";
 
 /**
- * An independent view of the objects in a {@link Viewer}.
- *
- * ## Overview
- *
- * - Belongs to a {@link Viewer}.
- * - Registered by {@link View.id} in {@link Viewer.views}.
- * - Multiple Views can be created of the same {@link Scene}.
- * - Has own {@link Canvas}, {@link Camera}, {@link CameraControl}, {@link SectionPlane}s and light sources.
- * - Has own {@link ViewObject}s which configure how the {@link SceneObject}s appear in the View.
- *
- * ## Remarks
- *
- * A View is an independently configurable view of its Viewer's Scene, with its own {@link Canvas},
- *  {@link Camera}, {@link SectionPlane}s, light sources, and object visual states.
- *
- * A View contains {@link ViewObject}s, each of which is a proxy for a {@link SceneObject} in the {@link Scene}. Through each ViewObject,
- * we can independently configure the way the SceneObject appears within the View, such as its visibility, transparency,
- * highlight and selection state, etc.
- *
- * This enables us to create multiple, independent views of our models. For example, we could have one View with a large
- * canvas that shows a 3D perspective View, accompanied by three more Views with smaller canvases, each showing
- * a 2D orthographic elevation along a separate axis.
- *
- * ## Usage
- *
- * In the example below we'll create a Viewer with two Views and a {@link WebIFCLoaderPlugin}.
- *
- * Each View gets its own HTML canvas. The first View shows a perspective 3D projection and allows us to orbit the model
- * with touch and mouse input. The second view shows an orthographic 2D plan view and only allows us to pan the model, not rotate.
- *
- * In the first View, we'll show only the IfcWalls. In the second View we'll X-ray everything and highlight the IfcDoors.
- *
- * ````javascript
- * import {Viewer, View, WebIFCLoaderPlugin} from
- * "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webgpu-sdk/dist/xeokit-webgpu-sdk.es.min.js";
- *
- * const viewer = new Viewer();
- *
- * const view = new View(viewer, {
- *     canvasId: "myCanvas",
- *     transparent: true
- * });
- *
- * view.camera.eye = [-3.933, 2.855, 27.018];
- * view.camera.look = [4.400, 3.724, 8.899];
- * view.camera.up = [-0.018, 0.999, 0.039];
- * view.camera.projection = "perspective";
- * view.cameraControl.navMode = "orbit";
- *
- * const view2 = new View(viewer, {
- *     canvasId: "myCanvas2",
- *     transparent: true
- * });
- *
- * view2.camera.eye = [-3.933, 2.855, 27.018];
- * view2.camera.look = [4.400, 3.724, 8.899];
- * view2.camera.up = [-0.018, 0.999, 0.039];
- * view2.camera.projection = "ortho";
- * view2.cameraControl.navMode = "planView";
- *
- * const webIFCLoader = new WebIFCLoaderPlugin(viewer, {
- *   wasmPath: "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webgpu-sdk/dist/"
- * });
- *
- * const sceneModel = webIFCLoader.load({
- *   id: "myModel",
- *   src: "Duplex.ifc",
- *   edges: true
- * });
- *
- * sceneModel.events.on("loaded", ()=> {
- *
- *      const dataModel = viewer.data.dataModels["myModel"];
- *
- *      // View #1: show only IfcWalls
- *
- *      const ifcWallIds = Object.keys(dataModel.dataObjectsByType["IfcWall"]);
- *
- *      view1.setViewObjectsVisible(view1.viewObjectIds, false);
- *      view1.setViewObjectsVisible(ifcWallIds, true);
- *
- *      // View 2: X-ray everything except for IfcDoors
- *
- *      const ifcDoorIds = Object.keys(dataModel.dataObjectsByType["IfcDoor"]);
- *
- *      view2.setViewObjectsXRayed(view2.viewObjectIds, true);
- *      view2.setViewObjectsHighlighted(ifcDoorIds, true);
- * });
- ````
+ * An independently-configurable view of the models within a {@link Viewer}.
  */
 class View extends Component {
 
     /**
+     ID of this View, unique within the {@link Viewer}.
+     */
+    declare public id: string;
+
+    /**
      * The Viewer to which this View belongs.
      */
-    public readonly viewer: Viewer;
+    declare public readonly viewer: Viewer;
 
     /**
      * The index of this View in {@link Viewer.viewList}.
+     * @private
      */
     public viewIndex: number;
 
@@ -197,7 +115,7 @@ class View extends Component {
     public readonly linesMaterial: LinesMaterial;
 
     /**
-     * Map of all {@link ViewObject}s in this View.
+     * Map of the all {@link ViewObject}s in this View.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
@@ -207,7 +125,7 @@ class View extends Component {
     public readonly viewObjects: { [key: string]: ViewObject };
 
     /**
-     * Map of currently visible {@link ViewObject}s in this View.
+     * Map of the currently visible {@link ViewObject}s in this View.
      *
      * A ViewObject is visible when {@link ViewObject.visible} is true.
      *
@@ -594,7 +512,7 @@ class View extends Component {
             return;
         }
         this.#pbrEnabled = pbrEnabled;
-        this.viewer.renderer.setPBREnabled(this.viewIndex, pbrEnabled);
+        this.viewer.sceneRenderer.setPBREnabled(this.viewIndex, pbrEnabled);
         this.redraw();
     }
 
@@ -752,7 +670,7 @@ class View extends Component {
      * @private
      */
     redraw() {
-        this.viewer.renderer.setImageDirty(this.viewIndex);
+        this.viewer.sceneRenderer.setImageDirty(this.viewIndex);
     }
 
     /**

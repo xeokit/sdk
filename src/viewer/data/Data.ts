@@ -4,11 +4,11 @@ import {DataObject} from "./DataObject";
 import {PropertySet} from "./PropertySet";
 import {Events} from "../Events";
 import {Viewer} from "../Viewer";
-import {DataModelCfg} from "./DataModelCfg";
+import {DataModelParams} from "./DataModelParams";
 import {createUUID} from "../utils/index";
 
 /**
- * Data about the models and objects within a {@link Viewer}.
+ * Contains semantic data about the models within a {@link Viewer}.
  *
  * ## Overview
  *
@@ -25,12 +25,12 @@ class Data extends Component {
      *
      * The Data is located at {@link Viewer.data}.
      */
-    public readonly viewer: Viewer;
+    declare public readonly viewer: Viewer;
 
     /**
      * Manages events on this Data.
      */
-    public readonly events: Events;
+    declare public readonly events: Events;
 
     /**
      * The {@link DataModel}s belonging to this Data, each keyed to its {@link DataModel.id}.
@@ -81,9 +81,10 @@ class Data extends Component {
      * @param  [options.excludeTypes] When provided, never create {@link DataObject}s with types in this list.
      * @param [options.globalizeObjectIds=false] Whether to globalize each {@link DataObject.id}. Set this ````true```` when you need to load multiple instances of the same meta model, to avoid ID clashes between the meta objects in the different instances.
      * @returns The new DataModel.
+     * @see {@link Scene.createSceneModel}
      */
     createDataModel(
-        dataModelCfg: DataModelCfg,
+        dataModelCfg: DataModelParams,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],

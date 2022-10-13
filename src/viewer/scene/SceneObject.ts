@@ -3,7 +3,7 @@ import {SceneModel} from "./SceneModel";
 import {FloatArrayType} from "../math/math";
 
 /**
- * An object within a {@link SceneModel}.
+ * Geometry and material for an object within a {@link Viewer}.
  *
  * ## Overview
  *
@@ -16,14 +16,14 @@ import {FloatArrayType} from "../math/math";
 export interface SceneObject {
 
     /**
-     * Unique ID of this SceneObject.
-     */
-    readonly id: string ;
-
-    /**
      * The SceneModel that contains this SceneObject.
      */
     readonly sceneModel: SceneModel;
+
+    /**
+     * Unique ID of this SceneObject.
+     */
+    readonly id: string ;
 
     /**
      * The axis-aligned World-space 3D boundary of this SceneObject.

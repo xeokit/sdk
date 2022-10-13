@@ -1,9 +1,9 @@
 import {PropertySet} from "./PropertySet";
 import {DataModel} from "./DataModel";
-import {DataObjectCfg} from "./DataObjectCfg";
+import {DataObjectParams} from "./DataObjectParams";
 
 /**
- *  Metadata about an object within a {@link Viewer}.
+ *  Semantic data about an object within a {@link Viewer}.
  *
  *  ## Overview
  *
@@ -99,7 +99,7 @@ class DataObject {
      * @param cfg.parentId - ID of optional parent DataObject
      * @param cfg.propertySetIds - ID of one or more {@link PropertySet}s in {@link DataModel.propertySets}
      */
-    createDataObject(cfg: DataObjectCfg): DataObject {
+    createDataObject(cfg: DataObjectParams): DataObject {
         cfg.parentId = this.id;
         return this.dataModel.createDataObject(cfg);
     }

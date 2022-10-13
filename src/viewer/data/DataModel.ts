@@ -2,12 +2,12 @@ import {Component} from "../Component";
 import {Data} from "./Data";
 import {PropertySet} from "./PropertySet";
 import {DataObject} from "./DataObject";
-import {DataModelCfg} from "./DataModelCfg";
-import {DataObjectCfg} from "./DataObjectCfg";
-import {PropertySetCfg} from "./PropertySetCfg";
+import {DataModelParams} from "./DataModelParams";
+import {DataObjectParams} from "./DataObjectParams";
+import {PropertySetParams} from "./PropertySetParams";
 
 /**
- *  Metadata about a model within a {@link Viewer}.
+ *  Semantic data about a model within a {@link Viewer}.
  *
  * ## Overview
  *
@@ -28,7 +28,7 @@ class DataModel extends Component {
      *
      * MetaModels are registered by ID in {@link Data.dataModels}.
      */
-    public readonly id: string;
+    declare public readonly id: string;
 
     /**
      * The project ID, if available.
@@ -103,7 +103,7 @@ class DataModel extends Component {
     constructor(
         data: Data,
         id: string,
-        dataModelCfg: DataModelCfg,
+        dataModelCfg: DataModelParams,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],
@@ -160,7 +160,7 @@ class DataModel extends Component {
      *
      * @param propertySetCfg
      */
-    createPropertySet(propertySetCfg: PropertySetCfg): PropertySet {
+    createPropertySet(propertySetCfg: PropertySetParams): PropertySet {
         if (this.#destroyed) {
             return;
         }
@@ -173,8 +173,9 @@ class DataModel extends Component {
      * Creates a {@link DataObject} within this DataModel.
      *
      * @param dataObjectCfg
+     * @see {@link SceneModel.createSceneObject}
      */
-    createDataObject(dataObjectCfg: DataObjectCfg): DataObject {
+    createDataObject(dataObjectCfg: DataObjectParams): DataObject {
         if (this.#destroyed) {
             return;
         }

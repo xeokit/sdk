@@ -1,5 +1,5 @@
 import {PropertySet} from "./PropertySet";
-import {PropertyCfg} from "./PropertyCfg";
+import {PropertyParams} from "./PropertyParams";
 
 /**
  * A property of a model or object within a {@link Viewer}.
@@ -48,7 +48,7 @@ class Property {
      */
     constructor(
         propertySet: PropertySet,
-        propertyCfg: PropertyCfg) {
+        propertyCfg: PropertyParams) {
         this.propertySet = propertySet;
         this.name = propertyCfg.name;
         this.type = propertyCfg.type

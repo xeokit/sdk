@@ -18,6 +18,9 @@ class Perspective extends Component {
      */
     public readonly camera: Camera;
 
+    /**
+     * @private
+     */
     public readonly state: {
         transposedMatrix: math.FloatArrayType;
         far: number;
@@ -237,6 +240,9 @@ class Perspective extends Component {
         return this.state.transposedMatrix;
     }
 
+    /**
+     * @private
+     */
     clean() {
         const WIDTH_INDEX = 2;
         const HEIGHT_INDEX = 3;

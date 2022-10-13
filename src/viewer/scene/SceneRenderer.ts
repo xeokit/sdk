@@ -4,43 +4,65 @@ import {SceneObject} from "./SceneObject";
 import {View} from "../view/View";
 import {ViewerCapabilities} from "../ViewerCapabilities";
 import {SceneModelParams} from "./SceneModelParams";
+import {Viewer} from "../Viewer";
 
 /**
- * Scene rendering strategy for a {@link Viewer}.
+ * Strategy used internally by a {@link Viewer} to allocate and render geometry and materials on top of a
+ * given underlying Browser graphics API.
  *
- * This is responsible for creating {@link SceneModel}s and rendering them.
+ * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer.
+ *
+ * ## Usage
+ *
+ * ````javascript
+ * const myViewer = new Viewer({
+ *     id: "myViewer,
+ *     sceneRenderer: new MySceneRenderer({ ... })
+ * });
+ * ````
  */
 export interface SceneRenderer {
 
     /**
-     * Returns the capabilities of this SceneRenderer.
+     * Initializes this SceneRenderer.
+     *
+     * @param viewer
      */
-    getCapabilities(): ViewerCapabilities;
+    init(viewer:Viewer): void;
 
     /**
-     * Adds a {@link View} to this SceneRenderer.
+     * Gets the capabilities of this SceneRenderer.
+     */
+    getCapabilities(capabilities: ViewerCapabilities) :void;
+
+    /**
+     * Registers a {@link View} with this SceneRenderer.
      *
-     * Returns the index of the View within this SceneRenderer.
+     * The SceneRenderer will then begin rendering each {@link SceneModel} created with {@link SceneModel.createSceneModel} for the new View.
      *
-     * @param view
+     * @param view The View.
+     * @returns A handle for the View within this SceneRenderer.
      */
     registerView(view: View): number;
 
     /**
-     * Deregisters the {@link View} at the given index.
+     * Deregisters the {@link View} with the given handle.
+     *
+     * The SceneRenderer will then cease rendering for that View.
      *
      * @param viewIndex
      */
     deregisterView(viewIndex: number): void;
 
     /**
-     * Creates a {@link SceneModel} within this SceneRenderer.
+     * Returns a new {@link SceneModel} that will be rendered by this SceneRenderer.
      *
-     * The SceneModel is removed from the SceneRenderer when we call {@link SceneModel.destroy}.
+     * Once we've built the SceneModel and called {@link SceneModel.finalize}, the SceneRenderer will begin rendering
+     * it for each of the {@link View}s that we've registered previously with {@link SceneRenderer.registerView}.
      *
-     * @param cfg SceneModel params.
+     * @param params SceneModel params
      */
-    createSceneModel(cfg: SceneModelParams): SceneModel;
+    createSceneModel(params: SceneModelParams): SceneModel;
 
     /**
      * Gets whether this SceneRenderer supports SAO.
@@ -91,6 +113,17 @@ export interface SceneRenderer {
      * Indicates that the renderer needs to render a new frame for the given View.
      */
     setImageDirty(viewIndex?: number): void;
+
+    /**
+     * Clears this renderer,
+     * @param viewIndex
+     */
+    clear(viewIndex: number): any;
+
+    /**
+     * Gets if a new frame needs to be rendered for the given View.
+     */
+    needsRender(viewIndex: number): boolean;
 
     /**
      * Renders a frame for a View.

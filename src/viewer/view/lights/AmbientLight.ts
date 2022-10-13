@@ -14,6 +14,11 @@ import * as math from '../../math/index';
 class AmbientLight extends Component {
 
     /**
+     ID of this AmbientLight, unique within the {@link View}.
+     */
+    declare public id: string;
+
+    /**
      * The View to which this AmbientLight belongs.
      */
     public readonly view: View;

@@ -234,7 +234,7 @@ class ModelMemento {
 
         const objects = view.viewObjects;
 
-        for (var i = 0, len = objectIds.length; i < len; i++) {
+        for (let i = 0, len = objectIds.length; i < len; i++) {
             const objectId = objectIds[i];
             const object = objects[objectId];
             if (!object) {

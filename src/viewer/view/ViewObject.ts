@@ -4,14 +4,13 @@ import {SceneObject} from "../scene/index";
 import * as math from '../math/index';
 
 /**
- * A view of an object in a {@link Viewer}.
+ * Represents the visual state of a model object within a {@link View}.
  *
- * ## Overview
+ * ## Summary
  *
- * - Belongs to a {@link View}
  * - Registered by {@link ViewObject.id} in {@link View.viewObjects}
  * - Has a corresponding {@link SceneObject} in {@link Scene.sceneObjects}
- * - Can have a corresponding {@link DataObject} in {@link DataModel.dataObjects}
+ * - May have a corresponding {@link DataObject} in {@link DataModel.dataObjects}
  */
 class ViewObject {
 

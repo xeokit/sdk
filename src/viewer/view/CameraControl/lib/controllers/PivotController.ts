@@ -194,7 +194,7 @@ class PivotController {
             return;
         }
         const camera = this.#view.camera;
-        var dx = -yawInc;
+        let dx = -yawInc;
         const dy = -pitchInc;
         if (camera.worldUp[2] === 1) {
             dx = -dx;

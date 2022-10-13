@@ -3,7 +3,7 @@ import * as math from "../math/math";
 /**
  * Parameters for {@link View.pick}.
  */
-export interface PickParams {
+export interface PickParams  {
 
     /**
      * Set this ````true```` to perform a ray-pick; leave ````false```` to pick at canvas coordinates.

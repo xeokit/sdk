@@ -16,6 +16,11 @@ import * as math from '../../math/index';
 class DirLight extends Component {
 
     /**
+     ID of this DirLight, unique within the {@link View}.
+     */
+    declare public id: string;
+
+    /**
      * The View to which this DirLight belongs.
      */
     public readonly view: View;

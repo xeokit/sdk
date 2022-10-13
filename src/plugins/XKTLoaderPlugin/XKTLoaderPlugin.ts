@@ -1,5 +1,5 @@
 import * as utils from "../../viewer/utils/utils"
-import {DataModelCfg, Plugin, SceneModel, Viewer} from "../../viewer";
+import {DataModelParams, Plugin, SceneModel, Viewer} from "../../viewer";
 import {XKTDataSource} from "./XKTDataSource";
 import {XKTDefaultDataSource} from "./XKTDefaultDataSource";
 import {IFCObjectDefaults} from "./IFCObjectDefaults";
@@ -168,7 +168,7 @@ class XKTLoaderPlugin extends Plugin {
         objectDefaults?: { [key: string]: any };
         excludeUnclassifiedObjects?: boolean;
         globalizeObjectIds?: boolean;
-        dataModelData?: DataModelCfg;
+        dataModelData?: DataModelParams;
         dataModelSrc?: string;
         id: string,
         src?: string,
@@ -331,7 +331,7 @@ class XKTLoaderPlugin extends Plugin {
     }) {
         const modelDataId = sceneModel.id;
         if (!this.viewer.data.dataModels[modelDataId]) {
-            const dataModelData: DataModelCfg = {
+            const dataModelData: DataModelParams = {
                 id: sceneModel.id,
                 dataObjects: []
             };

@@ -16,6 +16,9 @@ class Frustum extends Component {
      */
     public readonly camera: Camera;
 
+    /**
+     * @private
+     */
     public readonly state: {
         transposedMatrix: math.FloatArrayType;
         far: number;
@@ -233,6 +236,9 @@ class Frustum extends Component {
         return this.state.transposedMatrix;
     }
 
+    /**
+     * @private
+     */
     clean() {
         math.frustumMat4(this.state.left, this.state.right, this.state.bottom, this.state.top, this.state.near, this.state.far, this.state.matrix);
         this.#inverseMatrixDirty = true;

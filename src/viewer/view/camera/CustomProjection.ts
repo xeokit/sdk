@@ -14,6 +14,9 @@ class CustomProjection extends Component {
      */
     public readonly camera: Camera;
 
+    /**
+     * @private
+     */
     public readonly state: {
         matrix: math.FloatArrayType;
         transposedMatrix: math.FloatArrayType;

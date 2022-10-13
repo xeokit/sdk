@@ -22,17 +22,18 @@ class Component {
     /**
      ID of this Component, unique within the {@link Viewer}.
      */
-    public id: string;
+    protected id: string;
 
     /**
      True once this Component has been destroyed.
 
      Don't use this Component if this is ````true````.
      */
-    public destroyed: boolean;
+    protected destroyed: boolean;
 
     /**
      Manages events on this component.
+     @eventProperty
      */
     public readonly events: Events;
 
@@ -81,6 +82,7 @@ class Component {
      Also fires the message as a "log" event on the parent {@link Viewer}.
 
      @param message - The message to log
+     @private
      */
     log(message: string): void {
         message = `[LOG] ${this.#prefixMessageWithID(message)}`;
@@ -96,6 +98,7 @@ class Component {
      Also fires the message as a "warn" event on the parent {@link Viewer}.
 
      @param message - The warning message to log
+     @private
      */
     warn(message: string): void {
         message = `[WARN] ${this.#prefixMessageWithID(message)}`;
@@ -111,6 +114,7 @@ class Component {
      Also fires the message as an "error" event on the {@link Viewer}.
 
      @param message The error message to log
+     @private
      */
     error(message: string): void {
         message = `[ERROR] ${this.#prefixMessageWithID(message)}`;
@@ -140,6 +144,9 @@ class Component {
      Also destroys any components owned by this one.
 
      Sets {@link Component.destroyed} ````true````.
+
+    @private
+
      */
     destroy(): void {
         if (this.destroyed) {

@@ -25,3 +25,4 @@ export * as math from "./math/index"
  */
 export * as constants from "./constants";
 
+export * from "./ViewParams";

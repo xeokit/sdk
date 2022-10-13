@@ -1,24 +1,22 @@
 import {Scene} from "./Scene";
 import {FloatArrayType} from "../math/math";
 import {SceneObject} from "./SceneObject";
-import {Transform} from "./Transform";
+import {Transform} from "../../webgl/Transform";
 import {Events} from "../Events";
 import {SceneObjectParams} from "./SceneObjectParams";
 import {MeshParams} from "./MeshParams";
 import {TextureSetParams} from "./TextureSetParams";
 import {TextureParams} from "./TextureParams";
-import {TransformParams} from "./TransformParams";
+import {TransformParams} from "../../webgl/TransformParams";
 import {GeometryParams} from "./GeometryParams";
 
 /**
- * A model within a {@link Scene}.
+ * Contains geometry and materials for a model within a {@link Viewer}.
  *
- * ## Overview
- *
+ * * Contains {@link SceneObject}s
  * * Created by {@link Scene.createSceneModel}
  * * Stored in {@link Scene.sceneModels}
- * * Contains {@link SceneObject}s in {@link Scene.sceneObjects}
- * * Can have a {@link DataModel} in {@link Data.dataModels}
+ * * May have a corresponding {@link DataModel}
  */
 export interface SceneModel {
 
@@ -42,6 +40,11 @@ export interface SceneModel {
     readonly sceneObjects: { [key: string]: SceneObject };
 
     /**
+     * List of the {@link SceneObject}s in this SceneModel.
+     */
+    readonly sceneObjectList: SceneObject[];
+
+    /**
      * The axis-aligned World-space 3D boundary of this SceneModel.
      */
     readonly aabb: FloatArrayType;
@@ -62,6 +65,17 @@ export interface SceneModel {
     readonly worldNormalMatrix: FloatArrayType;
 
     /**
+     *
+     */
+    readonly saoEnabled: boolean;
+
+    /**
+     *
+     */
+    readonly pbrEnabled: boolean;
+
+
+    /**
      * True once this SceneModel has been destroyed.
      */
     readonly destroyed: boolean;
@@ -69,46 +83,47 @@ export interface SceneModel {
     /**
      * Creates a Transform within this SceneModel.
      *
-     * @param cfg Transform configuration.
+     * @param params Transform configuration.
      * @returns The new transform.
      */
-    createTransform(cfg: TransformParams): Transform;
+    createTransform(params: TransformParams): Transform;
 
     /**
      * Creates a geometry within this SceneModel.
      *
-     * @param cfg Geometry configuration.
+     * @param params Geometry configuration.
      */
-    createGeometry(cfg: GeometryParams): void;
+    createGeometry(params: GeometryParams): void;
 
     /**
      * Creates a texture within this SceneModel.
      *
-     * @param cfg Texture configuration.
+     * @param params Texture configuration.
      */
-    createTexture(cfg: TextureParams): void;
+    createTexture(params: TextureParams): void;
 
     /**
      * Creates a texture set within this SceneModel.
      *
-     * @param cfg Texture set configuration.
+     * @param params Texture set configuration.
      */
-    createTextureSet(cfg: TextureSetParams): void;
+    createTextureSet(params: TextureSetParams): void;
 
     /**
      * Creates a mesh within this SceneModel.
      *
-     * @param cfg Mesh configuration.
+     * @param params Mesh configuration.
      */
-    createMesh(cfg: MeshParams): void;
+    createMesh(params: MeshParams): void;
 
     /**
      * Creates a {@link SceneObject} within this SceneModel.
      *
-     * @param cfg SceneObject configuration.
+     * @param params SceneObject configuration.
      * @returns The new SceneObject
+     * @see {@link DataModel.createDataObject}
      */
-    createSceneObject(cfg: SceneObjectParams): SceneObject;
+    createSceneObject(params: SceneObjectParams): SceneObject;
 
     /**
      * Finalizes this SceneModel and prepares it for use.

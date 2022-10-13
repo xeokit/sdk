@@ -282,7 +282,7 @@ class MousePanRotateDollyHandler {
                 return;
             }
             const secsNow = performance.now() / 1000.0;
-            var secsElapsed = (secsNowLast !== null) ? (secsNow - secsNowLast) : 0;
+            let secsElapsed = (secsNowLast !== null) ? (secsNow - secsNowLast) : 0;
             secsNowLast = secsNow;
             if (secsElapsed > maxElapsed) {
                 secsElapsed = maxElapsed;

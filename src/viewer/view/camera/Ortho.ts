@@ -18,6 +18,9 @@ class Ortho extends Component {
      */
     public readonly camera: Camera;
 
+    /**
+     * @private
+     */
     public readonly state: {
         transposedMatrix: math.FloatArrayType;
         far: number;
@@ -194,6 +197,9 @@ class Ortho extends Component {
         return this.state.transposedMatrix;
     }
 
+    /**
+     * @private
+     */
     clean() {
 
         const WIDTH_INDEX = 2;

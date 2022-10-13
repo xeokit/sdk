@@ -135,6 +135,7 @@ class Scheduler {
             }
         } else { // Auto-generated ID
             // @ts-ignore
+            // noinspection JSConstantReassignment
             viewer.id = this.#viewerIDMap.addItem({});
         }
         this.viewers[viewer.id] = viewer;

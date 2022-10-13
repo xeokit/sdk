@@ -3,8 +3,8 @@ export * from "./DataModel";
 export * from "./DataObject";
 export * from "./Property";
 export * from "./PropertySet";
-export * from "./DataModelCfg";
-export * from "./DataObjectCfg";
-export * from "./PropertyCfg";
-export * from "./PropertySetCfg";
+export * from "./DataModelParams";
+export * from "./DataObjectParams";
+export * from "./PropertyParams";
+export * from "./PropertySetParams";
 

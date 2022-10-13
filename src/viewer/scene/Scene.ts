@@ -10,21 +10,17 @@ import {SceneModelParams} from "./SceneModelParams";
 import {Tiles} from "./Tiles";
 
 /**
- * Geometry for models and objects within a {@link Viewer}.
+ * Contains geometry and materials for the models within a {@link Viewer}.
  *
- * ## Overview
- *
- * * Belongs to a {@link Viewer}
  * * Located at {@link Viewer.scene}
  * * Contains {@link SceneModel}s and {@link SceneObject}s
- * * May have a {@link DataModel} in {@link Viewer.data}
  */
-class Scene extends Component {
+export class Scene extends Component {
 
     /**
      * The {@link Viewer} this Scene belongs to.
      */
-    readonly viewer: Viewer;
+    declare readonly viewer: Viewer;
 
     /**
      * The {@link Tiles} in this Scene.
@@ -48,9 +44,9 @@ class Scene extends Component {
     /**
      * @private
      */
-    constructor(viewer: Viewer, cfg = {}) {
+    constructor(viewer: Viewer, params = {}) {
 
-        super(null, cfg);
+        super(null, params);
 
         this.viewer = viewer;
         this.sceneModels = {};
@@ -78,9 +74,10 @@ class Scene extends Component {
     /**
      * Gets the World-space axis-aligned 3D boundary (AABB) of this Scene.
      *
-     * The AABB is represented by a six-element Float64Array containing the min/max extents of the axis-aligned volume, ie. ````[xmin, ymin,zmin,xmax,ymax, zmax]````.
+     * The AABB encompases the boundaries of all {@link SceneModels} currently in {@link Scene.sceneModels}, and  is
+     * represented by a six-element Float64Array containing the min/max extents of the axis-aligned volume, ie. ````[xmin, ymin,zmin,xmax,ymax, zmax]````.
      *
-     * When the Scene has no content, will be ````[-100,-100,-100,100,100,100]````.
+     * When the Scene has no content, the boundary will be an inverted shape, ie. ````[-100,-100,-100,100,100,100]````.
      */
     get aabb() {
         if (this.#aabbDirty) {
@@ -143,18 +140,24 @@ class Scene extends Component {
     /**
      * Creates a new {@link SceneModel} within this Scene.
      *
-     * @param cfg SceneModel configuration
+     * Each {@link View} (either already existing or about to be created) will automatically get a {@link ViewObject}
+     * for each  {@link SceneObject} subsequently create within our SceneModel.
+     *
+     * When finished with the SceneModel, destroy it using {@link SceneModel.destroy}.
+     *
+     * @param params SceneModel configuration
+     * @see {@link Data.createDataModel}
      */
-    createSceneModel(cfg: SceneModelParams): SceneModel {
+    createSceneModel(params: SceneModelParams): SceneModel {
         if (this.viewer.viewList.length === 0) {
             throw "Please create a View with Viewer.createView() before creating a SceneModel";
         }
-        cfg.id = cfg.id || createUUID();
-        if (this.sceneModels[cfg.id]) {
-            this.error(`SceneModel with this ID already exists, or is under construction: "${cfg.id}"`);
+        params.id = params.id || createUUID();
+        if (this.sceneModels[params.id]) {
+            this.error(`SceneModel with this ID already exists, or is under construction: "${params.id}"`);
             return;
         }
-        const sceneModel = this.viewer.renderer.createSceneModel(cfg);
+        const sceneModel = this.viewer.sceneRenderer.createSceneModel(params);
         this.sceneModels[sceneModel.id] = sceneModel;
         sceneModel.events.on("finalized", () => {
             this.#registerSceneObjects(sceneModel);
@@ -169,6 +172,17 @@ class Scene extends Component {
     }
 
     /**
+     * Destroys all {@link SceneModel}s in this Scene.
+     *
+     * This invalidates all SceneModels created previously with {@link Scene.createSceneModel}.
+     */
+    clear() {
+        for (let id in this.sceneModels) {
+            this.sceneModels[id].destroy();
+        }
+    }
+
+    /**
      * @private
      */
     setAABBDirty() {
@@ -176,19 +190,6 @@ class Scene extends Component {
             this.#aabbDirty = true;
             this.events.fire("aabb", true);
         }
-    }
-
-    /**
-     * @private
-     */
-    destroy() {
-        for (const modelId in this.sceneModels) {
-            if (this.sceneModels.hasOwnProperty(modelId)) {
-                const sceneModel = this.sceneModels[modelId];
-                sceneModel.destroy();
-            }
-        }
-        super.destroy();
     }
 
     #registerSceneObjects(sceneModel: SceneModel) {
@@ -208,6 +209,19 @@ class Scene extends Component {
         }
         this.#aabbDirty = true;
     }
+
+    /**
+     * @private
+     */
+    destroy() {
+        for (const modelId in this.sceneModels) {
+            if (this.sceneModels.hasOwnProperty(modelId)) {
+                const sceneModel = this.sceneModels[modelId];
+                sceneModel.destroy();
+            }
+        }
+        super.destroy();
+    }
 }
 
-export {Scene};
+

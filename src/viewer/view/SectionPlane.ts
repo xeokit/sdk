@@ -53,6 +53,11 @@ import * as math from '../math/index';
 class SectionPlane extends Component {
 
     /**
+     ID of this SectionPlane, unique within the {@link View}.
+     */
+    declare public id: string;
+
+    /**
      * The View to which this DirLight belongs.
      *
      * @property view

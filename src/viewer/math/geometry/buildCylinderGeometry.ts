@@ -12,7 +12,7 @@ import {GeometryArrays} from "./GeometryArrays";
  *
  * ````javascript
  *
- * import {Viewer, Mesh, buildCylinderGeometry, Geometry, PhongMaterial, Texture} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, Mesh, buildCylinderGeometry, Geometry, PhongMaterial, Texture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas"

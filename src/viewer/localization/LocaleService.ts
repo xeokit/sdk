@@ -44,7 +44,7 @@ import {Events} from "../Events";
  [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#localization_NavCubePlugin)]
 
  ````javascript
- import {Viewer, LocaleService, NavCubePlugin, WebIFCLoaderPlugin} from "xeokit-webgpu-sdk.es.js";
+ import {Viewer, LocaleService, NavCubePlugin, WebIFCLoaderPlugin} from "xeokit-viewer.es.js";
 
  const viewer = new Viewer({
       localeService: new LocaleService({

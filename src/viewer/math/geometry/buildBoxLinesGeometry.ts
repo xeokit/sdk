@@ -11,7 +11,7 @@ import {GeometryArrays} from "./GeometryArrays";
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildBoxLinesGeometry)]
  *
  * ````javascript
- * import {Viewer, Mesh, buildBoxLinesGeometry, ReadableGeometry, PhongMaterial} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, Mesh, buildBoxLinesGeometry, ReadableGeometry, PhongMaterial} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *         canvasId: "myCanvas"

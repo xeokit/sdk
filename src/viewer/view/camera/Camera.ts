@@ -39,7 +39,7 @@ const offsetEye = math.vec3();
  * Let's create a {@link Viewer} with a single {@link View}, from which we'll get a Camera:
  *
  * ````javascript
- * import {Viewer} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer();
  *

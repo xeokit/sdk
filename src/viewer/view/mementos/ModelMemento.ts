@@ -18,7 +18,7 @@ const color = new Float32Array(3);
  * * {@link ViewObjectsMemento} - Saves and restores a snapshot of the visual state of the {@link Entity}'s that represent objects within a {@link Scene}.
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin,  ModelMemento} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin,  ModelMemento} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"

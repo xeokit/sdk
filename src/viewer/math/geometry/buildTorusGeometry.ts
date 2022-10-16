@@ -11,7 +11,7 @@ import {normalizeVec3, subVec3} from "../vector";
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildTorusGeometry)]
  *
  * ````javascript
- * import {Viewer, Mesh, buildTorusGeometry, Geometry, PhongMaterial, Texture} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, Mesh, buildTorusGeometry, Geometry, PhongMaterial, Texture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas"

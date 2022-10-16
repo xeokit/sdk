@@ -1588,7 +1588,7 @@ const letters = {
  *
  * ````javascript
  *
- * import {Viewer, Mesh, buildVectorTextGeometry, ReadableGeometry, PhongMaterial} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, Mesh, buildVectorTextGeometry, ReadableGeometry, PhongMaterial} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas"

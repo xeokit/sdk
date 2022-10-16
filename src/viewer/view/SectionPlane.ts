@@ -20,7 +20,7 @@ import * as math from '../math/index';
  * using a {@link SectionPlanesPlugin}.
  *
  * ````javascript
- * import {Viewer, GLTFLoaderPlugin, SectionPlane} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, GLTFLoaderPlugin, SectionPlane} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas"

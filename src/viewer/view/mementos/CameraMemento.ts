@@ -16,7 +16,7 @@ import {Perspective} from "../camera/index";
  * In the example below, we'll create a {@link Viewer} and use an {@link XKTLoaderPlugin} to load an ````.xkt```` model. When the model has loaded, we'll save a snapshot of the {@link Camera} state in an CameraMemento. Then we'll move the Camera, and then we'll restore its original state again from the CameraMemento.
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin, CameraMemento} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, CameraMemento} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"

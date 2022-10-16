@@ -20,7 +20,7 @@ const color = new Float32Array(3);
  * again, and then we'll restore the visual states of all the ViewObjects again from the ViewObjectsMemento, which will hide those two ViewObjects again.
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin, ViewObjectsMemento} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, ViewObjectsMemento} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"

@@ -110,7 +110,7 @@ export class WebGL2SceneRenderer implements SceneRenderer {
         }
     }
 
-    registerView(view: View): number {  // NOP
+    registerView(view: View): number {
         this.#view = view;
         const WEBGL_CONTEXT_NAMES = ["webgl2"];
         const canvasElement = view.canvas.canvas;
@@ -134,7 +134,7 @@ export class WebGL2SceneRenderer implements SceneRenderer {
         return 0;
     }
 
-    deregisterView(viewIndex: number): void {  // NOP
+    deregisterView(viewIndex: number): void {
     }
 
     createSceneModel(params: SceneModelParams): SceneModel {

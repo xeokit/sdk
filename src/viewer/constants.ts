@@ -399,3 +399,12 @@ export const SolidPrimitive = 20003;
  */
 export const SurfacePrimitive = 20004;
 
+/**
+ * Quality rendering mode.
+ */
+export const QualityRender = 30000;
+
+/**
+ * Fast rendering mode.
+ */
+export const FastRender = 300001;

@@ -13,18 +13,11 @@ export interface SceneModelParams {
     id?: string;
 
     /**
-     * Set ````true```` to enable physically-based rendering (PBR) for the SceneModel.
+     * Whether quality rendering is enabled for the SceneModel.
      *
      * Default is ````true````.
      */
-    pbrEnabled?: boolean;
-
-    /**
-     * Set ````true```` to enable ambient shadows (SAO) for the SceneModel.
-     *
-     * Default is ````true````.
-     */
-    saoEnabled?: boolean;
+    qualityRender: boolean;
 
     /**
      * 4x4 transform matrix.
@@ -32,7 +25,7 @@ export interface SceneModelParams {
     matrix?: FloatArrayType;
 
     /**
-     * Scale of this SceneModel.
+     * Scale of the SceneModel.
      *
      * Default is ````[1,1,1]````.
      */

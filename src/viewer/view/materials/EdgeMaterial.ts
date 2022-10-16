@@ -1,6 +1,7 @@
 import {View} from "../View";
 import {Component} from "../../Component";
 import * as math from '../../math/index';
+import {QualityRender} from "../../constants";
 
 /**
  * Configures the appearance of {@link ViewObject}s when their edges are emphasised.
@@ -25,6 +26,7 @@ class EdgeMaterial extends Component {
         edgeWidth: number;
         edgeAlpha: number;
         edges: boolean;
+        renderModes: number[];
     };
 
     /**
@@ -34,7 +36,8 @@ class EdgeMaterial extends Component {
         edgeColor?: math.FloatArrayType;
         edgeWidth?: number;
         edgeAlpha?: number;
-        edges?: boolean
+        edges?: boolean;
+        renderModes?: number[];
     } = {}) {
 
         super(view, options);
@@ -42,11 +45,35 @@ class EdgeMaterial extends Component {
         this.view = view;
 
         this.state = {
+            renderModes: options.renderModes || [QualityRender],
             edges: options.edges !== false,
             edgeColor: new Float32Array(options.edgeColor || [0.2, 0.2, 0.2]),
             edgeAlpha: (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5,
             edgeWidth: (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1
         };
+    }
+
+    /**
+     * Sets which rendering modes in which to render edges.
+     *
+     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     *
+     * Default value is [{@link QualityRender}].
+     */
+    set renderModes(value: number[]) {
+        this.state.renderModes = value;
+        this.view.redraw();
+    }
+
+    /**
+     * Gets which rendering modes in which to render edges.
+     *
+     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     *
+     * Default value is [{@link QualityRender}].
+     */
+    get renderModes(): number[] {
+        return this.state.renderModes;
     }
 
     /**

@@ -36,6 +36,11 @@ export interface SceneRenderer {
     getCapabilities(capabilities: ViewerCapabilities) :void;
 
     /**
+     * Gets whether this SceneRenderer supports SAO.
+     */
+    getSAOSupported(): boolean;
+
+    /**
      * Registers a {@link View} with this SceneRenderer.
      *
      * The SceneRenderer will then begin rendering each {@link SceneModel} created with {@link SceneModel.createSceneModel} for the new View.
@@ -63,11 +68,6 @@ export interface SceneRenderer {
      * @param params SceneModel params
      */
     createSceneModel(params: SceneModelParams): SceneModel;
-
-    /**
-     * Gets whether this SceneRenderer supports SAO.
-     */
-    getSAOSupported(): boolean;
 
     /**
      * Enable/disable rendering of transparent objects for the given View.

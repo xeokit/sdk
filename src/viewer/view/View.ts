@@ -17,6 +17,7 @@ import {PickParams} from "./PickParams";
 import {SAO} from "./SAO";
 import {LinesMaterial} from "./materials/LinesMaterial";
 import * as math from "../math/index";
+import {FastRender, QualityRender} from "../constants";
 
 /**
  * An independently-configurable view of the models within a {@link Viewer}.
@@ -184,7 +185,7 @@ class View extends Component {
     /**
      * List of {@link SectionPlane}s in this View.
      */
-    public sectionPlanesList: SectionPlane[] = [];
+    public readonly sectionPlanesList: SectionPlane[] = [];
     /**
      * Map of light sources in this View.
      */
@@ -192,7 +193,7 @@ class View extends Component {
     /**
      * List of light sources in this View.
      */
-    public lightsList: (AmbientLight | PointLight | DirLight)[] = [];
+    public readonly lightsList: (AmbientLight | PointLight | DirLight)[] = [];
     #sectionPlanesHash: string | null = null;
     #numViewObjects: number;
     #viewObjectIds: string[] | null;
@@ -210,7 +211,7 @@ class View extends Component {
     #opacityViewObjectIds: string[] | null;
     #lightsHash: string | null = null;
 
-    #pbrEnabled: boolean;
+    #qualityRender: boolean;
 
     /**
      * Creates a new View within a Viewer.
@@ -228,7 +229,7 @@ class View extends Component {
      * @param options.backgroundColor=[1,1,1] - Sets the canvas background color to use when ````transparent```` is false.
      * @param options.backgroundColorFromAmbientLight - When ````transparent```` is false, set this ````true````
      * to derive the canvas background color from {@link AmbientLight.color}, or ````false```` to set the canvas background to ````backgroundColor````.
-     * @param options.pbrEnabled - Whether to enable physically-based rendering for this View. This is ````true```` by default.
+     * @param options.qualityRender - Whether or not quality rendering is enabled for this View. Default is ````false````.
      * @param options.logarithmicDepthBufferEnabled - Whether to enable logarithmic depth buffer for this View. This is ````false```` by default.
      */
     constructor(options: {
@@ -242,7 +243,7 @@ class View extends Component {
         backgroundColorFromAmbientLight?: boolean;
         premultipliedAlpha?: boolean;
         transparent?: boolean;
-        pbrEnabled?: boolean;
+        qualityRender?: boolean;
         logarithmicDepthBufferEnabled?: boolean;
     }) {
 
@@ -328,7 +329,8 @@ class View extends Component {
             edgeColor: [0.0, 0.0, 0.0],
             edgeAlpha: 1.0,
             edgeWidth: 1,
-            edges: true
+            edges: true,
+            renderModes: [QualityRender]
         });
 
         this.pointsMaterial = new PointsMaterial(this, {
@@ -364,7 +366,7 @@ class View extends Component {
         this.#numColorizedViewObjects = 0;
         this.#numOpacityViewObjects = 0;
 
-        this.#pbrEnabled = !!options.pbrEnabled;
+        this.#qualityRender = !!options.qualityRender ;
 
         this.logarithmicDepthBufferEnabled = !!options.logarithmicDepthBufferEnabled;
 
@@ -376,6 +378,28 @@ class View extends Component {
      */
     get gammaFactor() { // TODO
         return 1.0;
+    }
+
+    /**
+     * Sets whether quality rendering is enabled for this View.
+     *
+     * Default is ````false````.
+     */
+    set qualityRender(value: boolean) {
+        if (this.#qualityRender === value) {
+            return;
+        }
+        this.#qualityRender = value;
+        this.redraw();
+    }
+
+    /**
+     * Gets whether quality rendering is enabled for this View.
+     *
+     * Default is ````false````.
+     */
+    get qualityRender(): boolean {
+        return this.#qualityRender;
     }
 
     /**
@@ -495,25 +519,6 @@ class View extends Component {
      */
     get numOpacityViewObjects(): number {
         return this.#numOpacityViewObjects;
-    }
-
-    /**
-     * Gets whether physically-based rendering is enabled in this View.
-     */
-    public get pbrEnabled(): boolean {
-        return this.#pbrEnabled;
-    }
-
-    /**
-     * Sets whether physically-based rendering is enabled in this View.
-     */
-    set pbrEnabled(pbrEnabled: boolean) {
-        if (pbrEnabled === this.#pbrEnabled) {
-            return;
-        }
-        this.#pbrEnabled = pbrEnabled;
-        this.viewer.sceneRenderer.setPBREnabled(this.viewIndex, pbrEnabled);
-        this.redraw();
     }
 
     /**

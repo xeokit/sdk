@@ -5,7 +5,6 @@ export * from "../../webgl/Transform";
 export * from "./SceneRenderer";
 export * from "./Tiles";
 export * from "./Tile";
-export * from "../../webgl";
 export {SceneObjectParams} from "./SceneObjectParams";
 export {MeshParams} from "./MeshParams";
 export {TextureSetParams} from "./TextureSetParams";

@@ -10,7 +10,6 @@ import * as utils from "./utils/index";
 import {apply, createUUID} from "./utils/index";
 import {Events} from "./Events";
 import {ViewerCapabilities} from "./ViewerCapabilities";
-import {WebGL2SceneRenderer} from "../webgl/WebGL2SceneRenderer";
 import {ViewParams} from "./ViewParams";
 
 
@@ -218,7 +217,7 @@ export class Viewer {
         this.pluginList = [];
         this.views = {};
 
-        this.sceneRenderer = cfg.sceneRenderer ? cfg.sceneRenderer : new WebGL2SceneRenderer();
+        this.sceneRenderer = cfg.sceneRenderer;
 
         this.sceneRenderer.init(this);
 

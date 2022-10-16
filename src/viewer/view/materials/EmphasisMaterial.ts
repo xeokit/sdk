@@ -44,7 +44,7 @@ class EmphasisMaterial extends Component {
         edgeAlpha?: number;
         edges?: boolean;
         fillAlpha?: number;
-        fill?: boolean
+        fill?: boolean;
     } = {}) {
 
         super(view, options);

@@ -3,7 +3,7 @@ import * as math from "../../viewer/math";
 import {Mesh} from './lib/Mesh';
 
 import {
-    ClampToEdgeWrapping,
+    ClampToEdgeWrapping, FastRender,
     LinearEncoding,
     LinearFilter,
     LinearMipmapLinearFilter,
@@ -78,6 +78,8 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     #gl: WebGL2RenderingContext;
     #webgl2SceneRenderer: WebGL2SceneRenderer;
 
+    renderMode?: number;
+
     declare readonly id: string;
     readonly view: View;
     readonly scene: Scene;
@@ -93,9 +95,6 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     #worldNormalMatrix: FloatArrayType;
     #viewMatrix: FloatArrayType;
     #viewNormalMatrix: FloatArrayType;
-
-    readonly saoEnabled: boolean;
-    readonly pbrEnabled: boolean;
 
     #colorTextureEnabled: boolean;
     #backfaces: boolean;
@@ -164,8 +163,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         edgeThreshold?: number;
         textureTranscoder?: any;
         maxGeometryBatchSize?: number;
-        pbrEnabled?: boolean;
-        saoEnabled?: boolean;
+        renderMode?: number;
     }) {
 
         super(params.view);
@@ -244,10 +242,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             this.#worldMatrixNonIdentity = true;
         }
 
-        this.saoEnabled = (params.saoEnabled !== false);
-        this.pbrEnabled = (params.pbrEnabled !== false);
-
-        this.#colorTextureEnabled = true;
+        this.renderMode = params.renderMode || FastRender;
 
         this.#onCameraViewMatrix = this.view.camera.events.on("matrix", () => {
             this.#viewMatrixDirty = true;

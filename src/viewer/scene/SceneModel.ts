@@ -65,15 +65,11 @@ export interface SceneModel {
     readonly worldNormalMatrix: FloatArrayType;
 
     /**
+     * Whether quality rendering is enabled for this SceneModel.
      *
+     * Default is ````true````.
      */
-    readonly saoEnabled: boolean;
-
-    /**
-     *
-     */
-    readonly pbrEnabled: boolean;
-
+    qualityRender: boolean;
 
     /**
      * True once this SceneModel has been destroyed.

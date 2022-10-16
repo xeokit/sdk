@@ -1,5 +1,6 @@
 import {Component} from '../Component.js';
 import {View} from "./View";
+import {QualityRender} from "../constants";
 
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link View}.
@@ -15,6 +16,7 @@ export class SAO extends Component {
      * @private
      */
     public readonly state: {
+        renderModes: number[];
         intensity: number;
         minResolution: number;
         blendFactor: number;
@@ -24,7 +26,7 @@ export class SAO extends Component {
         blur: boolean;
         blendCutoff: number;
         enabled: boolean;
-        kernelRadius: number
+        kernelRadius: number;
     }
 
     /** @private */
@@ -35,6 +37,7 @@ export class SAO extends Component {
         this.view = view;
 
         this.state = {
+            renderModes: [QualityRender],
             enabled: params.enabled !== false,
             kernelRadius: params.kernelRadius || 100.0,
             intensity: (params.intensity!== undefined) ? params.intensity : 0.15,
@@ -46,6 +49,29 @@ export class SAO extends Component {
             blendCutoff:  (params.blendCutff!== undefined) ? params.blendCutoff : 0.3,
             blendFactor:  (params.blendFactor!== undefined) ? params.blendFactor : 1.0
         };
+    }
+
+    /**
+     * Sets which rendering modes in which to render SAO.
+     *
+     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     *
+     * Default value is [{@link QualityRender}].
+     */
+    set renderModes(value: number[]) {
+        this.state.renderModes = value;
+        this.view.redraw();
+    }
+
+    /**
+     * Gets which rendering modes in which to render SAO.
+     *
+     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     *
+     * Default value is [{@link QualityRender}].
+     */
+    get renderModes(): number[] {
+        return this.state.renderModes;
     }
 
     /**

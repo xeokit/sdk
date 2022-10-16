@@ -1,16 +1,18 @@
 {
-  "name": "@xeokit/xeokit-webgpu-sdk",
-  "version": "3.0.0",
+  "name": "@xeokit/xeokit-viewer",
+  "version": "0.0.1",
   "description": "Web Programming Toolkit for 3D/2D BIM and AEC Graphics",
-  "main": "/dist/xeokit-webgpu-sdk.es.js",
+  "main": "dist/xeokit-viewer.js",
+  "module": "dist/xeokit-viewer.mjs",
+  "typings": "dist/xeokit-viewer.d.ts",
   "scripts": {
-    "build": "rollup --config rollup.config.js; rollup --config rollup.minified.config.js",
+    "build": "rollup --config rollup.config.js",
     "docs": "rm -Rf ./docs/*; typedoc --tsconfig tsconfig.json",
     "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeokit/xeokit-webgpu-sdk.git"
+    "url": "git+https://github.com/xeokit/xeokit-viewer.git"
   },
   "keywords": [
     "webgpu",
@@ -38,7 +40,7 @@
   "author": "Lindsay Kay",
   "license": "See LICENSE.txt",
   "bugs": {
-    "url": "https://github.com/xeokit/xeokit-webgpu-sdk/issues"
+    "url": "https://github.com/xeokit/xeokit-viewer/issues"
   },
   "homepage": "https://xeokit.io",
   "devDependencies": {
@@ -56,5 +58,9 @@
   },
   "files": [
     "/dist"
-  ]
+  ],
+  "dependencies": {
+    "rollup-plugin-dts": "^4.2.3",
+    "rollup-plugin-esbuild": "^4.10.1"
+  }
 }

@@ -1,8 +1,8 @@
-# xeokit-webgpu-sdk
+# xeokit-viewer
 
-[![This project is using Percy.io for visual regression testing.](https://percy.io/static/images/percy-badge.svg)](https://percy.io/73524691/xeokit-webgpu-sdk)
+[![This project is using Percy.io for visual regression testing.](https://percy.io/static/images/percy-badge.svg)](https://percy.io/73524691/xeokit-viewer)
 [![npm version](https://badge.fury.io/js/%40xeokit%2Fxeokit-webgpu-sdk.svg)](https://badge.fury.io/js/%40xeokit%2Fxeokit-webgpu-sdk)
-[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-webgpu-sdk/badge)](https://www.jsdelivr.com/package/npm/@xeokit/xeokit-webgpu-sdk)
+[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-viewer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/xeokit-viewer)
 
 [xeokit](http://xeokit.io) is a JavaScript software development kit from [xeolabs](http://xeolabs.com) for viewing
 high-detail, full-precision 3D engineering and BIM models in the browser.
@@ -14,17 +14,17 @@ This project is work-in-progress and should be ready to try in the third quarter
 
 # Concepts
 
-The [Viewer](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Viewer.html) class is the core component of xeokit-webgpu-sdk. The Viewer has the following
+The [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) class is the core component of xeokit-viewer. The Viewer has the following
 components:
 
-- A [Scene](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Scene.html) containing [SceneModels](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/SceneModel.html)
-  and [SceneObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/SceneObject.html), which define the geometry and materials of our models.
-- A [Data](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/SceneData.html) containing [DataModels](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/DataModel.html)
-  and [DataObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/DataObject.html), which describe the semantics and structure of our models.
-- One or more [Views](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/View.html), that each create an independent view of the Scene. Each View has its own
-  canvas, [Camera](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Camera.html), and [ViewObjects](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/ViewObject.html), which define the
+- A [Scene](https://xeokit.github.io/xeokit-viewer/docs/classes/Scene.html) containing [SceneModels](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneModel.html)
+  and [SceneObjects](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneObject.html), which define the geometry and materials of our models.
+- A [Data](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneData.html) containing [DataModels](https://xeokit.github.io/xeokit-viewer/docs/classes/DataModel.html)
+  and [DataObjects](https://xeokit.github.io/xeokit-viewer/docs/classes/DataObject.html), which describe the semantics and structure of our models.
+- One or more [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html), that each create an independent view of the Scene. Each View has its own
+  canvas, [Camera](https://xeokit.github.io/xeokit-viewer/docs/classes/Camera.html), and [ViewObjects](https://xeokit.github.io/xeokit-viewer/docs/classes/ViewObject.html), which define the
   appearance of each SceneObject in that particular View.
-- A [LocaleService](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/LocaleService.html) that provides locale translations for UI elements.
+- A [LocaleService](https://xeokit.github.io/xeokit-viewer/docs/classes/LocaleService.html) that provides locale translations for UI elements.
 
 A key goodness of this architecture is [*separation of concerns*](https://en.wikipedia.org/wiki/Separation_of_concerns),
 where we have separate data structures for metadata, geometry and views. This decouples the metadata from the scene
@@ -41,8 +41,8 @@ that shows a 2D plan view of a selected storey, showing the location of the user
 
 ### Example 1
 
-Let's create a [Viewer](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Viewer.html) with a [WebIFCLoaderPlugin](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/WebIFCLoaderPlugin.html)
-to view a IFC model in the browser. We'll configure our Viewer with two [Views](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/View.html), and a then view
+Let's create a [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) with a [WebIFCLoaderPlugin](https://xeokit.github.io/xeokit-viewer/docs/classes/WebIFCLoaderPlugin.html)
+to view a IFC model in the browser. We'll configure our Viewer with two [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html), and a then view
 a sample IFC model from the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Details/274).
 
 ![](https://xeokit.io/img/docs/WebIFCLoaderPlugin/WebIFCLoaderPluginBig.png)
@@ -87,7 +87,7 @@ a sample IFC model from the [Open IFC Model Database](http://openifcmodel.cs.auc
 
     import {Viewer, 
       View, WebIFCLoaderPlugin} from
-                "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webgpu-sdk/dist/xeokit-webgpu-sdk.es.min.js";
+                "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
 
     // Create a Viewer with two Views
     
@@ -117,7 +117,7 @@ a sample IFC model from the [Open IFC Model Database](http://openifcmodel.cs.auc
     // Load a model from IFC
     
     const webIFCLoader = new WebIFCLoaderPlugin(viewer, {
-        wasmPath: "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webgpu-sdk/dist/"
+        wasmPath: "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/"
     });
 
     const sceneModel = webIFCLoader.load({
@@ -190,10 +190,10 @@ a sample IFC model from the [Open IFC Model Database](http://openifcmodel.cs.auc
 
 ### Example 2
 
-Let's go a little deeper and build some content directly within a [Viewer](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/Viewer.html) using its
+Let's go a little deeper and build some content directly within a [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) using its
 JavaScript API.
 
-In our second example, we'll create a Viewer with two [Views](https://xeokit.github.io/xeokit-webgpu-sdk/docs/classes/View.html) like before, but this time we'll
+In our second example, we'll create a Viewer with two [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html) like before, but this time we'll
 create our model metadata and geometry programmatically, using builder methods within the API.
 
 ![](http://xeokit.io/img/docs/sceneGraph.png)
@@ -237,7 +237,7 @@ create our model metadata and geometry programmatically, using builder methods w
 <script id="source" type="module">
 
     import {Viewer, View} from
-                "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webgpu-sdk/dist/xeokit-webgpu-sdk.es.min.js";
+                "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
 
     const viewer = new Viewer();
 
@@ -487,10 +487,10 @@ create our model metadata and geometry programmatically, using builder methods w
 ## Resources
 
 * [xeokit.io](https://xeokit.io/)
-* [Examples](http://xeokit.github.io/xeokit-webgpu-sdk/examples/)
+* [Examples](http://xeokit.github.io/xeokit-viewer/examples/)
 * [Guides](https://www.notion.so/xeokit/xeokit-Documentation-4598591fcedb4889bf8896750651f74e)
-* [API Docs](https://xeokit.github.io/xeokit-webgpu-sdk/docs/)
-* [Changelog](https://xeokit.github.io/xeokit-webgpu-sdk/CHANGE_LOG)
+* [API Docs](https://xeokit.github.io/xeokit-viewer/docs/)
+* [Changelog](https://xeokit.github.io/xeokit-viewer/CHANGE_LOG)
 * [Features](https://xeokit.io/index.html?foo=1#features)
 * [FAQ](https://xeokit.io/index.html?foo=1#faq)
 * [Blog](https://xeokit.io/blog.html)

@@ -143,12 +143,13 @@ export class Scene extends Component {
      * The SceneModel provides an interface through which we can then build geometry and materials within
      * it.
      *
-     * When we've finished building our SceneModel, we then call {@link SceneModel.finalize}, which causes the SceneModel to
-     * immediately begin rendering within all {@link View}s created previously with {@link Viewer.createView}. When this happens,
-     * each {@link View} automatically gets a {@link ViewObject} for each of the SceneModel's {@link SceneObject}s, to
+     * When we've finished building our SceneModel, we then call {@link SceneModel.finalize}, which causes it to
+     * immediately begin rendering within all {@link View}s we created previously with {@link Viewer.createView}.
+     *
+     * As that happens, each {@link View} automatically gets a {@link ViewObject} for each of the SceneModel's {@link SceneObject}s, to
      * independently represent that SceneObject's visual state in that View.
      *
-     * When we've finished with the SceneModel, destroy it using {@link SceneModel.destroy}. This will automatically remove its
+     * When we've finished with the SceneModel, we destroy it using {@link SceneModel.destroy}. That will automatically remove its
      * ViewObjects from all our existing Views.
      *
      * @param params SceneModel configuration

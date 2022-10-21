@@ -24,18 +24,19 @@ import {ViewParams} from "./ViewParams";
  * * {@link Data} - Contains optional semantic information about the models.
  * * {@link View}s - One or more independently-configurable views of the models, each with its own canvas.
  *
- * A ````Viewer```` also has these two strategies, which you can replace with your own implementations:
+ * A ````Viewer```` also has the following strategies, which you can replace with custom implementations if necessary:
  *
+ * * {@link SceneRenderer} - Allocates and renders geometry and materials on top of a Browser graphics API (eg WebGL, WebGPU).
  * * {@link LocaleService} - Provides string translations for various locales.
- * * {@link SceneRenderer} - Strategy used internally to allocate and render geometry and materials on top of an available Browser graphics API.
  *
  * ## Usage
  *
- * Create a viewer:
+ * Create a viewer with a WebGL2-based scene renderer:
  *
  * ````javascript
  * const myViewer = new Viewer({
- *     id: "myViewer"
+ *     id: "myViewer",
+ *     sceneRenderer: new WebGL2SceneRenderer({ })
  * });
  * ````
  *

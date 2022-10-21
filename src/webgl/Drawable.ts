@@ -2,7 +2,7 @@ import {DrawFlags} from "./WebGL2SceneModel/lib/DrawFlags";
 import {FrameContext} from "./lib/FrameContext";
 
 /**
- * A drawable that can be drawn by {@link Webgl2SceneRenderer}.
+ * A drawable that can be drawn by {@link Webgl2Renderer}.
  */
 export interface Drawable {
 

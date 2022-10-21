@@ -309,7 +309,7 @@ export class VBOBatchingLayer {
 
         const state = this.state;
         // @ts-ignore
-        const gl = this.sceneModel.viewer.sceneRenderer.gl;
+        const gl = this.sceneModel.viewer.renderer.gl;
         const buffer = this.#buffer;
 
         if (buffer.positions.length > 0) {

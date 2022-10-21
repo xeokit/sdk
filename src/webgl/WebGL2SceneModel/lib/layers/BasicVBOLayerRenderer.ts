@@ -90,7 +90,7 @@ export abstract class BasicVBOLayerRenderer {
 
         const view = this.view;
         // @ts-ignore
-        const gl = view.viewer.sceneRenderer.gl;
+        const gl = view.viewer.renderer.gl;
         const sceneModel = layer.sceneModel;
         const state = layer.state;
         const camera = view.camera;
@@ -369,7 +369,7 @@ export abstract class BasicVBOLayerRenderer {
         const view = this.view;
 
         // @ts-ignore
-        const gl = view.viewer.sceneRenderer.gl;
+        const gl = view.viewer.renderer.gl;
 
         this.#program = new Program(gl, this.#buildShader());
 
@@ -475,7 +475,7 @@ export abstract class BasicVBOLayerRenderer {
     #bind(frameContext: FrameContext) {
         const view = this.view;
         // @ts-ignore
-        const gl = view.viewer.sceneRenderer.gl;
+        const gl = view.viewer.renderer.gl;
         const lights = view.lightsList;
         const project = view.camera.project;
         this.#program.bind();

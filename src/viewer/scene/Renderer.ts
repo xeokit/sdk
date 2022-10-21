@@ -7,64 +7,62 @@ import {SceneModelParams} from "./SceneModelParams";
 import {Viewer} from "../Viewer";
 
 /**
- * Pluggable graphics kernel for a {@link Viewer}.
+ * Creates and renders geometry and materials for a {@link Viewer}, using Browser's 3D graphics API.
  *
- * * Wraps an underlying Browser graphics API (eg. WebGL, WebGPU)
- * * Stores and renders geometry and materials
- * * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer
+ * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer
  *
  * ## Usage
  *
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer,
- *     sceneRenderer: new MySceneRenderer({ ... })
+ *     renderer: new MySceneRenderer({ ... })
  * });
  * ````
  */
-export interface SceneRenderer {
+export interface Renderer {
 
     /**
-     * Initializes this SceneRenderer.
+     * Initializes this Renderer.
      *
      * @param viewer
      */
     init(viewer:Viewer): void;
 
     /**
-     * Gets the capabilities of this SceneRenderer.
+     * Gets the capabilities of this Renderer.
      */
     getCapabilities(capabilities: ViewerCapabilities) :void;
 
     /**
-     * Gets whether this SceneRenderer supports SAO.
+     * Gets whether this Renderer supports SAO.
      */
     getSAOSupported(): boolean;
 
     /**
-     * Registers a {@link View} with this SceneRenderer.
+     * Registers a {@link View} with this Renderer.
      *
-     * The SceneRenderer will then begin rendering each {@link SceneModel} created with {@link SceneModel.createSceneModel} for the new View.
+     * The Renderer will then begin rendering each {@link SceneModel} created with {@link SceneModel.createSceneModel} for the new View.
      *
      * @param view The View.
-     * @returns A handle for the View within this SceneRenderer.
+     * @returns A handle for the View within this Renderer.
      */
     registerView(view: View): number;
 
     /**
      * Deregisters the {@link View} with the given handle.
      *
-     * The SceneRenderer will then cease rendering for that View.
+     * The Renderer will then cease rendering for that View.
      *
      * @param viewIndex
      */
     deregisterView(viewIndex: number): void;
 
     /**
-     * Returns a new {@link SceneModel} that will be rendered by this SceneRenderer.
+     * Returns a new {@link SceneModel} that will be rendered by this Renderer.
      *
-     * Once we've built the SceneModel and called {@link SceneModel.finalize}, the SceneRenderer will begin rendering
-     * it for each of the {@link View}s that we've registered previously with {@link SceneRenderer.registerView}.
+     * Once we've built the SceneModel and called {@link SceneModel.finalize}, the Renderer will begin rendering
+     * it for each of the {@link View}s that we've registered previously with {@link Renderer.registerView}.
      *
      * @param params SceneModel params
      */

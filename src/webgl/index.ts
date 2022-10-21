@@ -1,1 +1,1 @@
-export * from "./WebGL2SceneRenderer";
+export * from "./WebGL2Renderer";

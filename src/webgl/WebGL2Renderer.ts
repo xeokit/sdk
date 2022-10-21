@@ -8,7 +8,7 @@ import {WebGL2SceneModel} from "./WebGL2SceneModel/index";
 import {getExtension} from "./lib/getExtension";
 
 import {Pickable} from "./Pickable";
-import {SceneRenderer} from "../viewer/scene/SceneRenderer";
+import {Renderer} from "../viewer/scene/Renderer";
 import {Viewer} from "../viewer/Viewer";
 import {View} from "../viewer/view/View";
 import {FloatArrayType} from "../viewer/math/math";
@@ -26,13 +26,11 @@ const isSafari = (ua && ua[1].toLowerCase() === "safari");
 
 
 /**
- * Pluggable [WebGL2](https://en.wikipedia.org/wiki/WebGL)-based graphics kernel for a {@link Viewer}.
+ * Creates and renders geometry and materials for a {@link Viewer}, using Browser's [WebGL2](https://en.wikipedia.org/wiki/WebGL) 3D graphics API.
  *
- * Wraps WebGL2
- * Stores and renders geometry and materials
  * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer
  */
-export class WebGL2SceneRenderer implements SceneRenderer {
+export class WebGL2Renderer implements Renderer {
 
     gl: WebGL2RenderingContext;
 
@@ -142,7 +140,7 @@ export class WebGL2SceneRenderer implements SceneRenderer {
         const webglSceneModel = new WebGL2SceneModel(apply({
             view: this.#view,
             scene: this.#viewer.scene,
-            webgl2SceneRenderer: this,
+            webgl2Renderer: this,
         }, params));
         webglSceneModel.events.on("finalized", () => {
             this.#drawables[webglSceneModel.id] = webglSceneModel;

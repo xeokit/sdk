@@ -3,7 +3,7 @@
  */
 import {Pickable} from "../../Pickable";
 import {WebGLSceneObject} from "./WebGLSceneObject";
-import {WebGL2SceneRenderer} from "../../WebGL2SceneRenderer";
+import {WebGL2Renderer} from "../../WebGL2Renderer";
 import {FloatArrayType} from "../../../viewer/math/math";
 import {AABB3} from "../../../viewer/math/boundaries";
 import {DrawFlags} from "./DrawFlags";
@@ -16,7 +16,7 @@ class Mesh implements Pickable {
     sceneObject: WebGLSceneObject;
     aabb: FloatArrayType;
     numTriangles: number;
-    webgl2SceneRenderer: WebGL2SceneRenderer;
+    webgl2Renderer: WebGL2Renderer;
     layer: any;
     portionId: any;
     color: FloatArrayType;
@@ -27,14 +27,14 @@ class Mesh implements Pickable {
 
     constructor(params: {
         id: string,
-        webgl2SceneRenderer: WebGL2SceneRenderer,
+        webgl2Renderer: WebGL2Renderer,
         color: FloatArrayType,
         opacity: number
     }) {
-        this.webgl2SceneRenderer = params.webgl2SceneRenderer;
+        this.webgl2Renderer = params.webgl2Renderer;
         this.sceneObject = null;
         this.id = params.id;
-        this.pickId = this.webgl2SceneRenderer.registerPickable(this);
+        this.pickId = this.webgl2Renderer.registerPickable(this);
         this.color = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
         this.colorize = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
         this.colorizing = false;
@@ -178,7 +178,7 @@ class Mesh implements Pickable {
     }
 
     destroy() {
-        this.webgl2SceneRenderer.deregisterPickable(this.pickId);
+        this.webgl2Renderer.deregisterPickable(this.pickId);
     }
 }
 

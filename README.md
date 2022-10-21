@@ -11,7 +11,7 @@ high-detail, full-precision 3D engineering and BIM models in the browser.
 # Concepts
 
 The [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) class is the core component of
-xeokit-viewer. The Viewer has the following components:
+xeokit-viewer. The Viewer has the following main components:
 
 - A [Scene](https://xeokit.github.io/xeokit-viewer/docs/classes/Scene.html)
   containing [SceneModels](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneModel.html)
@@ -90,13 +90,13 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
 </body>
 <script id="source" type="module">
 
-    import {Viewer, WebGL2SceneRenderer} from
+    import {Viewer, WebGL2Renderer} from
                 "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
 
     // Create a Viewer with two Views
 
     const viewer = new Viewer({
-        sceneRenderer: new WebGL2SceneRenderer({})
+        renderer: new WebGL2Renderer({})
     });
 
     const view1 = viewer.createView({
@@ -245,11 +245,11 @@ model metadata and geometry programmatically, using builder methods within the A
 </body>
 <script id="source" type="module">
 
-    import {Viewer, WebGL2SceneRenderer} from
+    import {Viewer, WebGL2Renderer} from
                 "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
 
     const viewer = new Viewer({
-        sceneRenderer: new WebGL2SceneRenderer({})
+        renderer: new WebGL2Renderer({})
     });
 
     // Create a couple of independent views

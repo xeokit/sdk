@@ -22,7 +22,7 @@ import {
 } from "../../viewer/constants";
 
 import {FrameContext} from "../lib/FrameContext";
-import {WebGL2SceneRenderer} from "../WebGL2SceneRenderer";
+import {WebGL2Renderer} from "../WebGL2Renderer";
 import {Scene} from "../../viewer/scene/Scene";
 import {View} from "../../viewer/view/View";
 import {Geometry} from "./lib/Geometry";
@@ -44,7 +44,7 @@ import {
     GeometryParams,
     MeshParams,
     SceneObjectParams,
-    SceneRenderer,
+    Renderer,
     TextureParams,
     TextureSetParams
 } from "../../viewer/index";
@@ -78,9 +78,9 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
      */
    readonly qualityRender: boolean;
 
-    #sceneRenderer: SceneRenderer;
+    #renderer: Renderer;
     #gl: WebGL2RenderingContext;
-    #webgl2SceneRenderer: WebGL2SceneRenderer;
+    #webgl2Renderer: WebGL2Renderer;
 
     renderMode?: number;
 
@@ -159,7 +159,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
         scale?: math.FloatArrayType;
         view: View;
         scene: Scene;
-        webgl2SceneRenderer: WebGL2SceneRenderer;
+        webgl2Renderer: WebGL2Renderer;
         quaternion?: math.FloatArrayType;
         rotation?: math.FloatArrayType;
         position?:math. FloatArrayType;
@@ -179,8 +179,8 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
         this.view = params.view;
         this.sceneObjectList = [];
 
-        this.#webgl2SceneRenderer = params.webgl2SceneRenderer;
-        this.#sceneRenderer = params.webgl2SceneRenderer;
+        this.#webgl2Renderer = params.webgl2Renderer;
+        this.#renderer = params.webgl2Renderer;
         this.#textureTranscoder = params.textureTranscoder || getKTX2TextureTranscoder(this.viewer);
         this.#maxGeometryBatchSize = params.maxGeometryBatchSize;
         this.#aabb = collapseAABB3();
@@ -320,7 +320,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
     set backfaces(backfaces: boolean) {
         backfaces = !!backfaces;
         this.#backfaces = backfaces;
-        this.#sceneRenderer.setImageDirty();
+        this.#renderer.setImageDirty();
     }
 
     get matrix(): math.FloatArrayType {
@@ -350,35 +350,35 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
         const defaultColorTexture = new Texture({
             id: defaultColorTextureId,
             texture: new Texture2D({
-                gl: this.#webgl2SceneRenderer.gl,
+                gl: this.#webgl2Renderer.gl,
                 preloadColor: [1, 1, 1, 1] // [r, g, b, a]})
             })
         });
         const defaultMetalRoughTexture = new Texture({
             id: defaultMetalRoughTextureId,
             texture: new Texture2D({
-                gl: this.#webgl2SceneRenderer.gl,
+                gl: this.#webgl2Renderer.gl,
                 preloadColor: [0, 1, 1, 1] // [unused, roughness, metalness, unused]
             })
         });
         const defaultNormalsTexture = new Texture({
             id: defaultNormalsTextureId,
             texture: new Texture2D({
-                gl: this.#webgl2SceneRenderer.gl,
+                gl: this.#webgl2Renderer.gl,
                 preloadColor: [0, 0, 0, 0] // [x, y, z, unused] - these must be zeros
             })
         });
         const defaultEmissiveTexture = new Texture({
             id: defaultEmissiveTextureId,
             texture: new Texture2D({
-                gl: this.#webgl2SceneRenderer.gl,
+                gl: this.#webgl2Renderer.gl,
                 preloadColor: [0, 0, 0, 1] // [x, y, z, unused]
             })
         });
         const defaultOcclusionTexture = new Texture({
             id: defaultOcclusionTextureId,
             texture: new Texture2D({
-                gl: this.#webgl2SceneRenderer.gl,
+                gl: this.#webgl2Renderer.gl,
                 preloadColor: [1, 1, 1, 1] // [x, y, z, unused]
             })
         });
@@ -401,49 +401,49 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
         for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
             this.sceneObjectList[i].setVisible(viewIndex, visible);
         }
-        this.#sceneRenderer.setImageDirty(viewIndex);
+        this.#renderer.setImageDirty(viewIndex);
     }
 
     setXRayed(viewIndex: number, xrayed: boolean) {
         for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
             this.sceneObjectList[i].setXRayed(viewIndex, xrayed);
         }
-        this.#sceneRenderer.setImageDirty(viewIndex);
+        this.#renderer.setImageDirty(viewIndex);
     }
 
     setHighlighted(viewIndex: number, highlighted: boolean) {
         for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
             this.sceneObjectList[i].setHighlighted(viewIndex, highlighted);
         }
-        this.#sceneRenderer.setImageDirty(viewIndex);
+        this.#renderer.setImageDirty(viewIndex);
     }
 
     setSelected(viewIndex: number, selected: boolean) {
         for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
             this.sceneObjectList[i].setSelected(viewIndex, selected);
         }
-        this.#sceneRenderer.setImageDirty(viewIndex);
+        this.#renderer.setImageDirty(viewIndex);
     }
 
     setEdges(viewIndex: number, edges: boolean) {
         for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
             this.sceneObjectList[i].setEdges(viewIndex, edges);
         }
-        this.#sceneRenderer.setImageDirty(viewIndex);
+        this.#renderer.setImageDirty(viewIndex);
     }
 
     setCulled(viewIndex: number, culled: boolean) {
         for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
             this.sceneObjectList[i].setCulled(viewIndex, culled);
         }
-        this.#sceneRenderer.setImageDirty(viewIndex);
+        this.#renderer.setImageDirty(viewIndex);
     }
 
     setClippable(viewIndex: number, clippable: boolean) {
         for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
             this.sceneObjectList[i].setClippable(viewIndex, clippable);
         }
-        this.#sceneRenderer.setImageDirty(viewIndex);
+        this.#renderer.setImageDirty(viewIndex);
     }
 
     setCollidable(viewIndex: number, collidable: boolean) {
@@ -474,7 +474,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
         // castsShadow = (castsShadow !== false);
         // if (castsShadow !== this.#castsShadow) {
         //     this.#castsShadow = castsShadow;
-        //     this.#sceneRenderer.setImageDirty(viewIndex);
+        //     this.#renderer.setImageDirty(viewIndex);
         // }
     }
 
@@ -482,7 +482,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
         // receivesShadow = (receivesShadow !== false);
         // if (receivesShadow !== this.#receivesShadow) {
         //     this.#receivesShadow = receivesShadow;
-        //     this.#sceneRenderer.setImageDirty(viewIndex);
+        //     this.#renderer.setImageDirty(viewIndex);
         // }
     }
 
@@ -536,7 +536,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
             this.scene.error(`Param expected: indices (required for primitive type)`);
             return null;
         }
-        const geometry = new Geometry(this.#webgl2SceneRenderer.gl, params);
+        const geometry = new Geometry(this.#webgl2Renderer.gl, params);
         this.#geometries[geometryId] = geometry;
         if (primitive === TrianglesPrimitive || primitive === SolidPrimitive || primitive !== SurfacePrimitive) {
             this.#numTriangles += (params.indices ? Math.round(params.indices.length / 3) : 0);
@@ -594,7 +594,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
             this.scene.error("[createTexture] Unsupported value for 'encoding' - supported values are LinearEncoding and sRGBEncoding. Defaulting to LinearEncoding.");
             encoding = LinearEncoding;
         }
-        const texture = new Texture2D({gl: this.#webgl2SceneRenderer.gl});
+        const texture = new Texture2D({gl: this.#webgl2Renderer.gl});
         if (params.preloadColor) {
             texture.setPreloadColor(params.preloadColor);
         }
@@ -634,7 +634,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
                                     return;
                                 }
                                 this.#textureTranscoder.transcode([arrayBuffer], texture).then(() => {
-                                    this.#sceneRenderer.setImageDirty();
+                                    this.#renderer.setImageDirty();
                                 });
                             },
                             (errMsg: string) => {
@@ -648,7 +648,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
                 this.scene.error(`Can't create texture from 'buffers' - VBOSceneModel needs to be configured with a TextureTranscoder for this option`);
             } else {
                 this.#textureTranscoder.transcode(params.buffers, texture).then(() => {
-                    this.#sceneRenderer.setImageDirty();
+                    this.#renderer.setImageDirty();
                 });
             }
         }
@@ -762,7 +762,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
         const roughness = (params.roughness !== undefined && params.roughness !== null) ? Math.floor(params.roughness * 255) : 255;
 
         const mesh = new Mesh({
-            webgl2SceneRenderer: this.#webgl2SceneRenderer,
+            webgl2Renderer: this.#webgl2Renderer,
             id,
             color,
             opacity
@@ -1280,7 +1280,7 @@ export class WebGL2SceneModel extends Component implements SceneModel, Drawable 
         this.#instancingGeometries = {};
         this.#preparedInstancingGeometries = {};
 
-        this.#sceneRenderer.setImageDirty();
+        this.#renderer.setImageDirty();
 
         this.scene.setAABBDirty();
 

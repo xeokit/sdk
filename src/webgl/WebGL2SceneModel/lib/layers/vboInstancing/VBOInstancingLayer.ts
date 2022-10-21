@@ -210,7 +210,7 @@ export class VBOInstancingLayer {
         const geometry = state.geometry;
         const textureSet = state.textureSet;
         // @ts-ignore
-        const gl = this.sceneModel.viewer.sceneRenderer.gl;
+        const gl = this.sceneModel.viewer.renderer.gl;
         if (this.#pickColors.length > 0) {
             const flagsLength = this.#pickColors.length;
             this.state.flagsBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, new Uint8Array(flagsLength), flagsLength, 4, gl.DYNAMIC_DRAW, false);

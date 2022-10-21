@@ -256,7 +256,7 @@ export class LinesBatchingLayer {
 
         const state = this.state;
         // @ts-ignore
-        const gl = this.sceneModel.viewer.sceneRenderer.gl;
+        const gl = this.sceneModel.viewer.renderer.gl;
         const buffer = this.#buffer;
         if (buffer.positions.length > 0) {
             if (this.#preCompressedPositionsExpected) {

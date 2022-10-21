@@ -157,7 +157,7 @@ export class Scene extends Component {
             this.error(`SceneModel with this ID already exists, or is under construction: "${params.id}"`);
             return;
         }
-        const sceneModel = this.viewer.sceneRenderer.createSceneModel(params);
+        const sceneModel = this.viewer.renderer.createSceneModel(params);
         this.sceneModels[sceneModel.id] = sceneModel;
         sceneModel.events.on("finalized", () => {
             this.#registerSceneObjects(sceneModel);

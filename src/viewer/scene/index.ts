@@ -2,7 +2,7 @@ export * from "./Scene";
 export * from "./SceneModel";
 export * from "./SceneObject";
 export * from "../../webgl/Transform";
-export * from "./SceneRenderer";
+export * from "./Renderer";
 export * from "./Tiles";
 export * from "./Tile";
 export {SceneObjectParams} from "./SceneObjectParams";

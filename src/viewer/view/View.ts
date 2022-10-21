@@ -675,7 +675,7 @@ class View extends Component {
      * @private
      */
     redraw() {
-        this.viewer.sceneRenderer.setImageDirty(this.viewIndex);
+        this.viewer.renderer.setImageDirty(this.viewIndex);
     }
 
     /**

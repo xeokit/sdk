@@ -140,7 +140,7 @@ export class PointsInstancingPickMeshRenderer extends BasicVBOLayerRenderer {
 
     drawElements(layer: any) {
         // @ts-ignore
-        const gl = this.view.viewer.sceneRenderer.gl;
+        const gl = this.view.viewer.renderer.gl;
         gl.drawArraysInstanced(gl.POINTS, 0, layer.geometry.positionsBuf.numItems, layer.numInstances);
     }
 }

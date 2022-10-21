@@ -5,7 +5,7 @@ import {WebGLSceneObject} from "./WebGL2SceneModel/lib/WebGLSceneObject";
 import {FloatArrayType} from "../viewer/math";
 
 /**
- * Meshes that can be picked by {@link Webgl2SceneRenderer}.
+ * Meshes that can be picked by {@link Webgl2Renderer}.
  *
  * @private
  */

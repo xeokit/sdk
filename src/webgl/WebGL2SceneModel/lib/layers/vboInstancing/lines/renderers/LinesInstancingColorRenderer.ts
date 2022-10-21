@@ -136,7 +136,7 @@ export class LinesInstancingColorRenderer extends BasicVBOLayerRenderer {
 
     drawElements(layer: any) {
         // @ts-ignore
-        const gl = this.view.viewer.sceneRenderer.gl;
+        const gl = this.view.viewer.renderer.gl;
         gl.lineWidth(this.view.linesMaterial.lineWidth);
         gl.drawElementsInstanced(gl.LINES,
             layer.geometry.indicesBuf.numItems, layer.geometry.indicesBuf.itemType, 0, layer.state.numInstances);

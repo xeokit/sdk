@@ -5,7 +5,7 @@ import {View} from "./view/View";
 import {Plugin} from "./Plugin";
 import * as math from "./math/index";
 import {scheduler} from "./scheduler";
-import {SceneRenderer} from "./scene/SceneRenderer";
+import {Renderer} from "./scene/Renderer";
 import * as utils from "./utils/index";
 import {apply, createUUID} from "./utils/index";
 import {Events} from "./Events";
@@ -26,7 +26,7 @@ import {ViewParams} from "./ViewParams";
  *
  * A ````Viewer```` also has the following strategies, which you can replace with custom implementations if necessary:
  *
- * * {@link SceneRenderer} - Allocates and renders geometry and materials on top of a Browser graphics API (eg WebGL, WebGPU).
+ * * {@link Renderer} - Creates and renders geometry and materials on top of the Browser's 3D graphics API.
  * * {@link LocaleService} - Provides string translations for various locales.
  *
  * ## Usage
@@ -36,7 +36,7 @@ import {ViewParams} from "./ViewParams";
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     sceneRenderer: new WebGL2SceneRenderer({ })
+ *     renderer: new WebGL2Renderer({ })
  * });
  * ````
  *
@@ -169,10 +169,10 @@ export class Viewer {
     readonly startTime: number = (new Date()).getTime();
 
     /**
-     The scene renderer.
+     The renderer.
      @private
      */
-    readonly sceneRenderer: SceneRenderer;
+    readonly renderer: Renderer;
 
     /**
      Creates a Viewer.
@@ -183,7 +183,7 @@ export class Viewer {
      @param cfg.scale - The number of Real-space units in each World-space coordinate system unit.
      @param cfg.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
      @param cfg.localeService - Locale-based translation service.
-     @param cfg.sceneRenderer - Configurable 3D renderer class. Will be a  {@link WebGL2SceneRenderer} by default.
+     @param cfg.renderer - Configurable 3D renderer class. Will be a  {@link WebGL2Renderer} by default.
      */
     constructor(cfg: {
         id?: string,
@@ -191,7 +191,7 @@ export class Viewer {
         scale?: number,
         origin?: math.FloatArrayType,
         localeService?: LocaleService,
-        sceneRenderer?: SceneRenderer
+        renderer?: Renderer
     } = {}) {
 
         this.capabilities = {
@@ -204,7 +204,7 @@ export class Viewer {
             pvrtcSupported: false
         };
 
-        this.sceneRenderer.getCapabilities(this.capabilities);
+        this.renderer.getCapabilities(this.capabilities);
 
         this.id = cfg.id || createUUID();
         this.destroyed = false;
@@ -217,9 +217,9 @@ export class Viewer {
         this.pluginList = [];
         this.views = {};
 
-        this.sceneRenderer = cfg.sceneRenderer;
+        this.renderer = cfg.renderer;
 
-        this.sceneRenderer.init(this);
+        this.renderer.init(this);
 
         scheduler.registerViewer(this);
     }

@@ -116,7 +116,7 @@ class LinesBatchingSilhouetteRenderer extends BasicVBOLayerRenderer {
 
     drawElements(layer: any) {
         // @ts-ignore
-        const gl = this.view.viewer.sceneRenderer.gl;
+        const gl = this.view.viewer.renderer.gl;
         gl.lineWidth(this.view.linesMaterial.lineWidth);
         gl.drawElements(gl.LINES, layer.state.indicesBuf.numItems, layer.state.indicesBuf.itemType, 0);
     }

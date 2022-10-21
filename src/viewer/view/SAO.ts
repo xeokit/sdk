@@ -80,7 +80,7 @@ export class SAO extends Component {
      * Even when enabled, SAO will only work if supported.
      */
     get supported() :boolean{
-        return this.viewer.sceneRenderer.getSAOSupported();
+        return this.viewer.renderer.getSAOSupported();
     }
 
     /**
@@ -112,7 +112,7 @@ export class SAO extends Component {
 
     /**
      * Returns true if SAO is currently possible, where it is supported, enabled, and the current view state is compatible.
-     * Called internally by sceneRenderer logic.
+     * Called internally by renderer logic.
      * @private
      */
     get possible():boolean {

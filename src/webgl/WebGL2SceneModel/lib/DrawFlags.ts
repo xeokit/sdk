@@ -3,9 +3,9 @@
  *
  * Each WebGL2SceneModel has a DrawFlags in {@link WebGL2SceneModel.drawFlags}.
  *
- * Before rendering each frame, {@link WebGL2SceneRenderer} will call {@link WebGL2SceneModel.rebuildDrawFlags} on each {@link WebGL2SceneModel}.
+ * Before rendering each frame, {@link WebGL2Renderer} will call {@link WebGL2SceneModel.rebuildDrawFlags} on each {@link WebGL2SceneModel}.
  *
- * Then, when rendering a frame, SceneRenderer will apply rendering passes to each WebGL2SceneModel according on what flags are set in {@link WebGL2SceneModel.drawFlags}.
+ * Then, when rendering a frame, Renderer will apply rendering passes to each WebGL2SceneModel according on what flags are set in {@link WebGL2SceneModel.drawFlags}.
  *
  * @private
  */

@@ -25,11 +25,20 @@ import {ViewParams} from "./ViewParams";
  *
  * A ````Viewer```` can also be configured with a custom {@link Renderer} strategy, in case we need to customize the way the Viewer renders 3D scenes.
  *
+ * ## Quality vs Fast Rendering Modes
+ *
+ * A ````Viewer```` can be dynamically switched between two rendering modes:
+ *
+ * * {@link FastRender} - Uses simple rendering techniques to navigate our large models extra-responsively.
+ * * {@link QualityRender} - Renders models with more visual quality, using Physically-Based Rendering (PBR), ambient shadows (SAO), edge enhancement etc.
+ *
  * ## Usage
  *
  * Create a viewer with a WebGL2-based scene renderer:
  *
  * ````javascript
+ * import {Viewer, FastRender, WebGL2Renderer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     renderer: new WebGL2Renderer({ })
@@ -87,6 +96,8 @@ import {ViewParams} from "./ViewParams";
  * view1.camera.up = [-0.018, 0.999, 0.039];
  * view1.camera.projection = "perspective";
  * view1.cameraControl.navMode = "orbit";
+ *
+ * view1.renderMode = FastRender;
  * ````
  * Customize the view:
  *

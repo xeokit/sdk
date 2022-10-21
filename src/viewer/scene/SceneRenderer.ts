@@ -7,10 +7,11 @@ import {SceneModelParams} from "./SceneModelParams";
 import {Viewer} from "../Viewer";
 
 /**
- * Strategy used internally by a {@link Viewer} to allocate and render geometry and materials on top of a
- * given underlying Browser graphics API.
+ * Pluggable graphics kernel for a {@link Viewer}.
  *
- * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer.
+ * * Wraps an underlying Browser graphics API (eg. WebGL, WebGPU)
+ * * Stores and renders geometry and materials
+ * * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer
  *
  * ## Usage
  *

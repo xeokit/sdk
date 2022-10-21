@@ -4,7 +4,7 @@ import {RenderBufferManager} from "./lib/RenderBufferManager";
 import {RenderBuffer} from "./lib/RenderBuffer";
 import {SAOOcclusionRenderer} from "./lib/sao/SAOOcclusionRenderer";
 import {SAODepthLimitedBlurRenderer} from "./lib/sao/SAODepthLimitedBlurRenderer";
-import {WebGLSceneModel} from "./WebGLSceneModel";
+import {WebGL2SceneModel} from "./WebGL2SceneModel/index";
 import {getExtension} from "./lib/getExtension";
 
 import {Pickable} from "./Pickable";
@@ -20,16 +20,17 @@ import {apply} from "../viewer/utils/utils";
 import {Map} from "../viewer/utils/Map";
 import {Drawable} from "./Drawable";
 import {SceneModelParams} from "../viewer/scene/SceneModelParams";
-import {RENDER_PASSES} from "./WebGLSceneModel/lib/RENDER_PASSES";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
 
 
 /**
- * Strategy used internally by a {@link Viewer} to allocate and render its geometry and materials using the underlying [WebGL2](https://en.wikipedia.org/wiki/WebGL) Browser graphics API.
+ * Pluggable [WebGL2](https://en.wikipedia.org/wiki/WebGL)-based graphics kernel for a {@link Viewer}.
  *
- * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer.
+ * Wraps WebGL2
+ * Stores and renders geometry and materials
+ * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer
  */
 export class WebGL2SceneRenderer implements SceneRenderer {
 
@@ -138,7 +139,7 @@ export class WebGL2SceneRenderer implements SceneRenderer {
     }
 
     createSceneModel(params: SceneModelParams): SceneModel {
-        const webglSceneModel = new WebGLSceneModel(apply({
+        const webglSceneModel = new WebGL2SceneModel(apply({
             view: this.#view,
             scene: this.#viewer.scene,
             webgl2SceneRenderer: this,
@@ -388,7 +389,7 @@ export class WebGL2SceneRenderer implements SceneRenderer {
 
         frameContext.reset();
         frameContext.withSAO = false;
-        frameContext.pbrEnabled = this.#pbrEnabled && !!view.pbrEnabled;
+        frameContext.pbrEnabled = this.#pbrEnabled && !!view.qualityRender;
 
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
@@ -446,11 +447,11 @@ export class WebGL2SceneRenderer implements SceneRenderer {
             // }
             const drawFlags = drawable.drawFlags;
             if (drawFlags.colorOpaque) {
-                // if (this.#saoEnabled && saoPossible && drawable.saoEnabled) {
-                //     normalDrawSAOBin[normalDrawSAOBinLen++] = drawable;
-                // } else {
+                if (this.#saoEnabled && saoPossible && drawable.qualityRender) {
+                    normalDrawSAOBin[normalDrawSAOBinLen++] = drawable;
+                } else {
                 drawable.drawColorOpaque(frameContext);
-                //    }
+                   }
             }
             if (this.#transparentEnabled) {
                 if (drawFlags.colorTransparent) {

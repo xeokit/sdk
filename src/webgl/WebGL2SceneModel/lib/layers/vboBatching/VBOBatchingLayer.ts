@@ -1,12 +1,13 @@
-import {ENTITY_FLAGS} from '../../../ENTITY_FLAGS';
-import {RENDER_PASSES} from '../../../RENDER_PASSES';
-import * as math from "../../../../../../viewer/math"
-import {BatchingBuffer} from "../BatchingBuffer";
-import {WebGLSceneModel} from "../../../../WebGLSceneModel";
-import {ArrayBuf} from "../../../../../lib/ArrayBuf";
-import {DrawFlags} from "../../../DrawFlags";
-import {FrameContext} from "../../../../../lib/FrameContext";
-import {getPointsBatchingRenderers} from "./PointsBatchingRenderers";
+import {ENTITY_FLAGS} from '../../ENTITY_FLAGS';
+import {RENDER_PASSES} from '../../RENDER_PASSES';
+import * as math from "../../../../../viewer/math"
+import {BatchingBuffer} from "./BatchingBuffer";
+import {WebGL2SceneModel} from "../../../WebGL2SceneModel";
+import {RenderState} from "../../../../../viewer/utils/RenderState";
+import {ArrayBuf} from "../../../../lib/ArrayBuf";
+import {DrawFlags} from "../../DrawFlags";
+import {FrameContext} from "../../../../lib/FrameContext";
+import {BatchingLayerParams} from "./BatchingLayerParams";
 
 const tempVec3a = math.vec4();
 const tempVec3b = math.vec4();
@@ -18,10 +19,10 @@ const tempOBB3 = math.boundaries.OBB3();
 /**
  * @private
  */
-export class PointsBatchingLayer {
+export class VBOBatchingLayer {
     layerIndex: number;
-    sceneModel: WebGLSceneModel;
-    state: { [key: string]: any; };
+    sceneModel: WebGL2SceneModel;
+    state: any;
     aabb: math.FloatArrayType;
     #batchingRenderers: any;
     #buffer: BatchingBuffer;
@@ -40,35 +41,33 @@ export class PointsBatchingLayer {
     #finalized: boolean;
     #preCompressedPositionsExpected: boolean;
     private sortId: string;
-    #pointsBatchingRenderers: any;
+    #renderers: any;
+    #preCompressedNormalsExpected: boolean;
 
-    constructor(params: {
-        layerIndex: number;
-        sceneModel: WebGLSceneModel;
-        maxGeometryBatchSize: number;
-        scratchMemory: any;
-        positionsDecompressMatrix: math.FloatArrayType;
-        origin:  math.FloatArrayType;
-    }) {
+    constructor(params: BatchingLayerParams, renderers: any) {
 
-        this.sceneModel = params.sceneModel;
-        this.sortId = "PointsBatchingLayer";
-        this.layerIndex = params.layerIndex;
+        this.#renderers = renderers;
         this.#buffer = new BatchingBuffer(params.maxGeometryBatchSize);
         this.#scratchMemory = params.scratchMemory;
-        this.#pointsBatchingRenderers = getPointsBatchingRenderers(params.sceneModel.view);
 
-        this.state = {
+        this.layerIndex = params.layerIndex;
+        this.sceneModel = params.sceneModel;
+        this.sortId = "VBOBatchingLayer";
+
+        this.state = new RenderState({
             positionsBuf: null,
+            uvsBuf: null,
+            normalsBuf: null,
+            indicesBuf: null,
+            edgeIndicesBuf: null,
             offsetsBuf: null,
             colorsBuf: null,
             flagsBuf: null,
             flags2Buf: null,
             positionsDecompressMatrix: math.mat4(),
             origin: null
-        };
+        });
 
-        // These counts are used to avoid unnecessary render passes
         this.#numPortions = 0;
         this.#numVisibleLayerPortions = 0;
         this.#numTransparentLayerPortions = 0;
@@ -88,6 +87,13 @@ export class PointsBatchingLayer {
             this.#preCompressedPositionsExpected = true;
         } else {
             this.#preCompressedPositionsExpected = false;
+        }
+
+        if (params.uvsDecompressMatrix) {
+            this.state.uvsDecompressMatrix = math.mat3(params.uvsDecompressMatrix);
+            this.#preCompressedNormalsExpected = true;
+        } else {
+            this.#preCompressedNormalsExpected = false;
         }
 
         if (params.origin) {
@@ -116,7 +122,7 @@ export class PointsBatchingLayer {
         worldMatrix: math.FloatArrayType;
         worldAABB: math.FloatArrayType;
         pickColor: math.FloatArrayType;
-    }) : number {
+    }) {
 
         if (this.#finalized) {
             throw "Already finalized";
@@ -125,12 +131,13 @@ export class PointsBatchingLayer {
         const positions = params.positions;
         const positionsCompressed = params.positionsCompressed;
         const color = params.color;
-        const colorsCompressed = params.colorsCompressed;
         const colors = params.colors;
+        const colorsCompressed = params.colorsCompressed;
         const meshMatrix = params.meshMatrix;
         const worldMatrix = params.worldMatrix;
         const worldAABB = params.worldAABB;
         const pickColor = params.pickColor;
+
         const buffer = this.#buffer;
         const positionsIndex = buffer.positions.length;
         const vertsIndex = positionsIndex / 3;
@@ -288,6 +295,7 @@ export class PointsBatchingLayer {
         this.#portions.push(numVerts);
 
         this.#numPortions++;
+        this.sceneModel.numPortions++;
 
         return portionId;
     }
@@ -315,6 +323,12 @@ export class PointsBatchingLayer {
             }
         }
 
+        if (buffer.normals.length > 0) {
+            const normals = new Int8Array(buffer.normals);
+            let normalized = true; // For oct encoded UInts
+            state.normalsBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, normals, buffer.normals.length, 3, gl.STATIC_DRAW, normalized);
+        }
+
         if (buffer.colors.length > 0) {
             const colors = new Uint8Array(buffer.colors);
             let normalized = false;
@@ -337,12 +351,55 @@ export class PointsBatchingLayer {
             state.pickColorsBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, pickColors, buffer.pickColors.length, 4, gl.STATIC_DRAW, normalized);
         }
 
+        if (buffer.uv.length > 0) {
+            if (!state.uvsDecompressMatrix) {
+                const bounds = math.compression.getUVBounds(buffer.uv);
+                const result = math.compression.compressUVs(buffer.uv, bounds.min, bounds.max);
+                const uv = result.quantized;
+                let notNormalized = false;
+                state.uvsDecompressMatrix = math.mat3(result.decompressMatrix);
+                state.uvBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW, notNormalized);
+            } else {
+                let notNormalized = false;
+                state.uvBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, buffer.uv, buffer.uv.length, 2, gl.STATIC_DRAW, notNormalized);
+            }
+        }
+
+        if (buffer.metallicRoughness.length > 0) {
+            const metallicRoughness = new Uint8Array(buffer.metallicRoughness);
+            let normalized = false;
+            state.metallicRoughnessBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, metallicRoughness, buffer.metallicRoughness.length, 2, gl.STATIC_DRAW, normalized);
+        }
+
         // if (this.sceneModel.scene.entityOffsetsEnabled) {
         //     if (buffer.offsets.length > 0) {
         //         const offsets = new Float32Array(buffer.offsets);
         //         state.offsetsBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, offsets, buffer.offsets.length, 3, gl.DYNAMIC_DRAW);
         //     }
         // }
+
+        if (buffer.indices.length > 0) {
+            const indices = new Uint32Array(buffer.indices);
+            state.indicesBuf = new ArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, buffer.indices.length, 1, gl.STATIC_DRAW);
+        }
+
+        if (buffer.edgeIndices.length > 0) {
+            const edgeIndices = new Uint32Array(buffer.edgeIndices);
+            state.edgeIndicesBuf = new ArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, edgeIndices, buffer.edgeIndices.length, 1, gl.STATIC_DRAW);
+        }
+
+        this.state.pbrSupported
+            = !!state.metallicRoughnessBuf
+            && !!state.uvBuf
+            && !!state.normalsBuf
+            && !!state.textureSet
+            && !!state.textureSet.colorTexture
+            && !!state.textureSet.metallicRoughnessTexture;
+
+        this.state.colorTextureSupported
+            = !!state.uvBuf
+            && !!state.textureSet
+            && !!state.textureSet.colorTexture;
 
         this.#buffer = null;
         this.#finalized = true;
@@ -381,8 +438,8 @@ export class PointsBatchingLayer {
             this.#numTransparentLayerPortions++;
             this.sceneModel.numTransparentLayerPortions++;
         }
-        this.#setFlags(portionId, flags, meshTransparent);
-        this.#setFlags2(portionId, flags);
+        this._setFlags(portionId, flags, meshTransparent);
+        this._setFlags2(portionId, flags);
     }
 
     setVisible(portionId: number, flags: number, meshTransparent: boolean) {
@@ -396,7 +453,7 @@ export class PointsBatchingLayer {
             this.#numVisibleLayerPortions--;
             this.sceneModel.numVisibleLayerPortions--;
         }
-        this.#setFlags(portionId, flags, meshTransparent);
+        this._setFlags(portionId, flags, meshTransparent);
     }
 
     setHighlighted(portionId: number, flags: number, meshTransparent: boolean) {
@@ -410,7 +467,7 @@ export class PointsBatchingLayer {
             this.#numHighlightedLayerPortions--;
             this.sceneModel.numHighlightedLayerPortions--;
         }
-        this.#setFlags(portionId, flags, meshTransparent);
+        this._setFlags(portionId, flags, meshTransparent);
     }
 
     setXRayed(portionId: number, flags: number, meshTransparent: boolean) {
@@ -424,7 +481,7 @@ export class PointsBatchingLayer {
             this.#numXRayedLayerPortions--;
             this.sceneModel.numXRayedLayerPortions--;
         }
-        this.#setFlags(portionId, flags, meshTransparent);
+        this._setFlags(portionId, flags, meshTransparent);
     }
 
     setSelected(portionId: number, flags: number, meshTransparent: boolean) {
@@ -438,7 +495,7 @@ export class PointsBatchingLayer {
             this.#numSelectedLayerPortions--;
             this.sceneModel.numSelectedLayerPortions--;
         }
-        this.#setFlags(portionId, flags, meshTransparent);
+        this._setFlags(portionId, flags, meshTransparent);
     }
 
     setEdges(portionId: number, flags: number, meshTransparent: boolean) {
@@ -459,7 +516,7 @@ export class PointsBatchingLayer {
             this.#numClippableLayerPortions--;
             this.sceneModel.numClippableLayerPortions--;
         }
-        this.#setFlags2(portionId, flags);
+        this._setFlags2(portionId, flags);
     }
 
     setCulled(portionId: number, flags: number, meshTransparent: boolean) {
@@ -473,7 +530,7 @@ export class PointsBatchingLayer {
             this.#numCulledLayerPortions--;
             this.sceneModel.numCulledLayerPortions--;
         }
-        this.#setFlags(portionId, flags, meshTransparent);
+        this._setFlags(portionId, flags, meshTransparent);
     }
 
     setCollidable(portionId: number, flags: number) {
@@ -493,7 +550,7 @@ export class PointsBatchingLayer {
             this.#numPickableLayerPortions--;
             this.sceneModel.numPickableLayerPortions--;
         }
-        this.#setFlags(portionId, flags, meshTransparent);
+        this._setFlags(portionId, flags, meshTransparent);
     }
 
     setColor(portionId: number, color: math.FloatArrayType) {
@@ -525,10 +582,10 @@ export class PointsBatchingLayer {
             this.#numTransparentLayerPortions--;
             this.sceneModel.numTransparentLayerPortions--;
         }
-        this.#setFlags(portionId, flags, meshTransparent);
+        this._setFlags(portionId, flags, meshTransparent);
     }
 
-    #setFlags(portionId: number, flags: number, meshTransparent: boolean) {
+    _setFlags(portionId: number, flags: number, meshTransparent: boolean) {
 
         if (!this.#finalized) {
             throw "Not finalized";
@@ -590,7 +647,7 @@ export class PointsBatchingLayer {
         this.state.flagsBuf.setData(tempArray, firstFlag, lenFlags);
     }
 
-    #setFlags2(portionId: number, flags: number) {
+    _setFlags2(portionId: number, flags: number) {
 
         if (!this.#finalized) {
             throw "Not finalized";
@@ -639,12 +696,21 @@ export class PointsBatchingLayer {
 
     //-- NORMAL RENDERING ----------------------------------------------------------------------------------------------
 
+    draw(rendererType: number, drawFlags: DrawFlags, frameContext: FrameContext): void {
+        if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0 || this.#numTransparentLayerPortions === this.#numPortions || this.#numXRayedLayerPortions === this.#numPortions) {
+            return;
+        }
+        if (this.#renderers[rendererType]) {
+            this.#renderers[rendererType].drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
+        }
+    }
+
     drawColorOpaque(drawFlags: DrawFlags, frameContext: FrameContext): void {
         if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0 || this.#numTransparentLayerPortions === this.#numPortions || this.#numXRayedLayerPortions === this.#numPortions) {
             return;
         }
-        if (this.#pointsBatchingRenderers.colorRenderer) {
-            this.#pointsBatchingRenderers.colorRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
+        if (this.#renderers.colorRenderer) {
+            this.#renderers.colorRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
         }
     }
 
@@ -652,8 +718,8 @@ export class PointsBatchingLayer {
         if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0 || this.#numTransparentLayerPortions === 0 || this.#numXRayedLayerPortions === this.#numPortions) {
             return;
         }
-        if (this.#pointsBatchingRenderers.colorRenderer) {
-            this.#pointsBatchingRenderers.colorRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_TRANSPARENT);
+        if (this.#renderers.colorRenderer) {
+            this.#renderers.colorRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_TRANSPARENT);
         }
     }
 
@@ -671,8 +737,8 @@ export class PointsBatchingLayer {
         if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0 || this.#numXRayedLayerPortions === 0) {
             return;
         }
-        if (this.#pointsBatchingRenderers.silhouetteRenderer) {
-            this.#pointsBatchingRenderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_XRAYED);
+        if (this.#renderers.silhouetteRenderer) {
+            this.#renderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_XRAYED);
         }
     }
 
@@ -680,8 +746,8 @@ export class PointsBatchingLayer {
         if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0 || this.#numHighlightedLayerPortions === 0) {
             return;
         }
-        if (this.#pointsBatchingRenderers.silhouetteRenderer) {
-            this.#pointsBatchingRenderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
+        if (this.#renderers.silhouetteRenderer) {
+            this.#renderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
         }
     }
 
@@ -689,8 +755,8 @@ export class PointsBatchingLayer {
         if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0 || this.#numSelectedLayerPortions === 0) {
             return;
         }
-        if (this.#pointsBatchingRenderers.silhouetteRenderer) {
-            this.#pointsBatchingRenderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_SELECTED);
+        if (this.#renderers.silhouetteRenderer) {
+            this.#renderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_SELECTED);
         }
     }
 
@@ -717,8 +783,8 @@ export class PointsBatchingLayer {
         if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0) {
             return;
         }
-        if (this.#pointsBatchingRenderers.pickMeshRenderer) {
-            this.#pointsBatchingRenderers.pickMeshRenderer.drawLayer(frameContext, this, RENDER_PASSES.PICK);
+        if (this.#renderers.pickMeshRenderer) {
+            this.#renderers.pickMeshRenderer.drawLayer(frameContext, this, RENDER_PASSES.PICK);
         }
     }
 
@@ -726,8 +792,8 @@ export class PointsBatchingLayer {
         if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0) {
             return;
         }
-        if (this.#pointsBatchingRenderers.pickDepthRenderer) {
-            this.#pointsBatchingRenderers.pickDepthRenderer.drawLayer(frameContext, this, RENDER_PASSES.PICK);
+        if (this.#renderers.pickDepthRenderer) {
+            this.#renderers.pickDepthRenderer.drawLayer(frameContext, this, RENDER_PASSES.PICK);
         }
     }
 
@@ -740,8 +806,8 @@ export class PointsBatchingLayer {
         if (this.#numCulledLayerPortions === this.#numPortions || this.#numVisibleLayerPortions === 0) {
             return;
         }
-        if (this.#pointsBatchingRenderers.occlusionRenderer) {
-            this.#pointsBatchingRenderers.occlusionRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
+        if (this.#renderers.occlusionRenderer) {
+            this.#renderers.occlusionRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
         }
     }
 
@@ -760,9 +826,21 @@ export class PointsBatchingLayer {
             state.offsetsBuf.destroy();
             state.offsetsBuf = null;
         }
+        if (state.normalsBuf) {
+            state.normalsBuf.destroy();
+            state.normalsBuf = null;
+        }
+        if (state.uvBuf) {
+            state.uvBuf.destroy();
+            state.uvBuf = null;
+        }
         if (state.colorsBuf) {
             state.colorsBuf.destroy();
             state.colorsBuf = null;
+        }
+        if (state.metallicRoughnessBuf) {
+            state.metallicRoughnessBuf.destroy();
+            state.metallicRoughnessBuf = null;
         }
         if (state.flagsBuf) {
             state.flagsBuf.destroy();
@@ -775,6 +853,14 @@ export class PointsBatchingLayer {
         if (state.pickColorsBuf) {
             state.pickColorsBuf.destroy();
             state.pickColorsBuf = null;
+        }
+        if (state.indicesBuf) {
+            state.indicesBuf.destroy();
+            state.indicessBuf = null;
+        }
+        if (state.edgeIndicesBuf) {
+            state.edgeIndicesBuf.destroy();
+            state.edgeIndicessBuf = null;
         }
         state.destroy();
     }

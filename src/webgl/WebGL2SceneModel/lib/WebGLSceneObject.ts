@@ -2,7 +2,7 @@ import {ENTITY_FLAGS} from './ENTITY_FLAGS';
 import {SceneObject} from "../../../viewer/scene/SceneObject";
 import {SceneModel} from "../../../viewer/scene/SceneModel";
 import {Mesh} from "./Mesh";
-import {WebGLSceneModel} from "../WebGLSceneModel";
+import {WebGL2SceneModel} from "../WebGL2SceneModel";
 import {FloatArrayType} from "../../../viewer/math/math";
 import {AABB3} from "../../../viewer/math/boundaries";
 import {vec3} from "../../../viewer/math/vector";
@@ -29,7 +29,7 @@ class WebGLSceneObject implements SceneObject {
 
     constructor(params: {
         id: string,
-        sceneModel: WebGLSceneModel,
+        sceneModel: WebGL2SceneModel,
         meshes: Mesh[],
         aabb: any
     }) {
@@ -267,7 +267,7 @@ class WebGLSceneObject implements SceneObject {
         }
     }
 
-    destroy() { // Called by WebGLSceneModel
+    destroy() { // Called by WebGL2SceneModel
         for (let i = 0, len = this.meshes.length; i < len; i++) {
             this.meshes[i].destroy();
         }

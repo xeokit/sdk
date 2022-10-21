@@ -47,7 +47,7 @@ class Mesh implements Pickable {
     }
 
     /**
-     * Called by WebGLSceneModel#createObject / WebGLSceneObject
+     * Called by WebGL2SceneModel#createObject / WebGLSceneObject
      * @param sceneObject
      * @private
      */

@@ -1,5 +1,5 @@
 import {Component} from "../../viewer/Component";
-import * as math from "../../viewer/math";
+import * as math from "../../viewer/math/index";
 import {Mesh} from './lib/Mesh';
 
 import {
@@ -25,8 +25,6 @@ import {FrameContext} from "../lib/FrameContext";
 import {WebGL2SceneRenderer} from "../WebGL2SceneRenderer";
 import {Scene} from "../../viewer/scene/Scene";
 import {View} from "../../viewer/view/View";
-import {FloatArrayType} from "../../viewer/math/math";
-import {worldToRTCPositions} from "../../viewer/math/rtc";
 import {Geometry} from "./lib/Geometry";
 import {SceneModel} from "../../viewer/scene/SceneModel";
 import {DrawFlags} from "./lib/DrawFlags";
@@ -36,13 +34,12 @@ import {Texture} from "./lib/Texture";
 import {Texture2D} from "../lib/Texture2D";
 import {Events} from "../../viewer/Events";
 import {Transform} from "../Transform";
-import {createUUID, loadArraybuffer} from "../../viewer/utils";
+import {createUUID, loadArraybuffer} from "../../viewer/utils/index";
 import {WebGLSceneObject} from "./lib/WebGLSceneObject";
 import {TrianglesBatchingLayer} from "./lib/layers/vboBatching/triangles/TrianglesBatchingLayer";
 import {LinesBatchingLayer} from "./lib/layers/vboBatching/lines/LinesBatchingLayer";
 import {Drawable} from "../Drawable";
 import {collapseAABB3, expandAABB3} from "../../viewer/math/boundaries";
-import {buildEdgeIndices} from "../../viewer/math/geometry";
 import {
     GeometryParams,
     MeshParams,
@@ -50,7 +47,7 @@ import {
     SceneRenderer,
     TextureParams,
     TextureSetParams
-} from "../../viewer";
+} from "../../viewer/index";
 import {getKTX2TextureTranscoder} from "../textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder";
 import {LinesInstancingLayer} from "./lib/layers/vboInstancing/lines/LinesInstancingLayer";
 import {PointsBatchingLayer} from "./lib/layers/vboBatching/points/PointsBatchingLayer";
@@ -72,7 +69,14 @@ const defaultEmissiveTextureId = "defaultEmissiveTexture";
 const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
 
-export class WebGLSceneModel extends Component implements SceneModel, Drawable {
+export class WebGL2SceneModel extends Component implements SceneModel, Drawable {
+
+    /**
+     * Whether quality rendering is enabled for this WebGL2SceneModel.
+     *
+     * Default is ````true````.
+     */
+   readonly qualityRender: boolean;
 
     #sceneRenderer: SceneRenderer;
     #gl: WebGL2RenderingContext;
@@ -86,15 +90,15 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     declare readonly events: Events;
     declare readonly destroyed: boolean;
 
-    #origin: FloatArrayType;
-    #position: FloatArrayType;
-    #rotation: FloatArrayType;
-    #quaternion: FloatArrayType;
-    #scale: FloatArrayType;
-    #worldMatrix: FloatArrayType;
-    #worldNormalMatrix: FloatArrayType;
-    #viewMatrix: FloatArrayType;
-    #viewNormalMatrix: FloatArrayType;
+    #origin: math.FloatArrayType;
+    #position: math.FloatArrayType;
+    #rotation: math.FloatArrayType;
+    #quaternion: math.FloatArrayType;
+    #scale: math.FloatArrayType;
+    #worldMatrix: math.FloatArrayType;
+    #worldNormalMatrix: math.FloatArrayType;
+    #viewMatrix: math.FloatArrayType;
+    #viewNormalMatrix: math.FloatArrayType;
 
     #colorTextureEnabled: boolean;
     #backfaces: boolean;
@@ -129,8 +133,8 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     #textureTranscoder: any;
     #maxGeometryBatchSize: number;
     #aabbDirty: boolean;
-    #lastOrigin: FloatArrayType;
-    #lastPositionsDecompressMatrix: FloatArrayType;
+    #lastOrigin: math.FloatArrayType;
+    #lastPositionsDecompressMatrix: math.FloatArrayType;
     #edgeThreshold: number;
     #instancingLayers: { [key: string]: any };
     #lastPortionHadNormals: boolean;
@@ -138,32 +142,32 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     #currentDataTextureLayers: { [key: string]: any };
     #scratchMemory: ScratchMemory;
 
-    #aabb: FloatArrayType;
+    #aabb: math.FloatArrayType;
 
     #viewMatrixDirty: boolean;
     #worldMatrixNonIdentity: boolean;
     #onCameraViewMatrix: number;
     #isModel: any;
-    #lastuvsDecompressMatrix: FloatArrayType;
+    #lastuvsDecompressMatrix: math.FloatArrayType;
     #lastTextureSetId: String;
     #instancingGeometries: {};
     #preparedInstancingGeometries: {};
 
     constructor(params: {
         id: string;
-        matrix?: FloatArrayType;
-        scale?: FloatArrayType;
+        matrix?: math.FloatArrayType;
+        scale?: math.FloatArrayType;
         view: View;
         scene: Scene;
         webgl2SceneRenderer: WebGL2SceneRenderer;
-        quaternion?: FloatArrayType;
-        rotation?: FloatArrayType;
-        position?: FloatArrayType;
-        origin?: FloatArrayType;
+        quaternion?: math.FloatArrayType;
+        rotation?: math.FloatArrayType;
+        position?:math. FloatArrayType;
+        origin?: math.FloatArrayType;
         edgeThreshold?: number;
         textureTranscoder?: any;
         maxGeometryBatchSize?: number;
-        renderMode?: number;
+        qualityRender?: boolean;
     }) {
 
         super(params.view);
@@ -242,7 +246,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             this.#worldMatrixNonIdentity = true;
         }
 
-        this.renderMode = params.renderMode || FastRender;
+        this.qualityRender = (params.qualityRender !== false);
 
         this.#onCameraViewMatrix = this.view.camera.events.on("matrix", () => {
             this.#viewMatrixDirty = true;
@@ -251,35 +255,35 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         this.#createDefaultTextureSet();
     }
 
-    get origin(): FloatArrayType {
+    get origin(): math.FloatArrayType {
         return this.#origin;
     }
 
-    get position(): FloatArrayType {
+    get position(): math.FloatArrayType {
         return this.#position;
     }
 
-    get rotation(): FloatArrayType {
+    get rotation(): math.FloatArrayType {
         return this.#rotation;
     }
 
-    get quaternion(): FloatArrayType {
+    get quaternion(): math.FloatArrayType {
         return this.#quaternion;
     }
 
-    get scale(): FloatArrayType {
+    get scale():math. FloatArrayType {
         return this.#scale;
     }
 
-    get worldMatrix(): FloatArrayType {
+    get worldMatrix(): math.FloatArrayType {
         return this.#worldMatrix;
     }
 
-    get worldNormalMatrix(): FloatArrayType {
+    get worldNormalMatrix(): math.FloatArrayType {
         return this.#worldNormalMatrix;
     }
 
-    get viewMatrix(): FloatArrayType {
+    get viewMatrix(): math.FloatArrayType {
         if (!this.#viewMatrix) {
             return this.view.camera.viewMatrix;
         }
@@ -292,7 +296,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         return this.#viewMatrix;
     }
 
-    get viewNormalMatrix(): FloatArrayType {
+    get viewNormalMatrix(): math.FloatArrayType {
         if (!this.#viewNormalMatrix) {
             return this.view.camera.viewNormalMatrix;
         }
@@ -319,11 +323,11 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         this.#sceneRenderer.setImageDirty();
     }
 
-    get matrix(): FloatArrayType {
+    get matrix(): math.FloatArrayType {
         return this.#worldMatrix;
     }
 
-    get aabb(): FloatArrayType {
+    get aabb(): math.FloatArrayType {
         if (this.#aabbDirty) {
             this.#rebuildAABB();
         }
@@ -454,7 +458,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         }
     }
 
-    setColorize(viewIndex: number, colorize: FloatArrayType) {
+    setColorize(viewIndex: number, colorize: math.FloatArrayType) {
         for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
             this.sceneObjectList[i].setColorize(viewIndex, colorize);
         }
@@ -482,7 +486,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         // }
     }
 
-    getPickViewMatrix(pickViewMatrix: FloatArrayType) {
+    getPickViewMatrix(pickViewMatrix: math.FloatArrayType) {
         if (!this.#viewMatrix) {
             return pickViewMatrix;
         }
@@ -492,7 +496,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     createTransform(params: {
         id: string,
         parentTransformId?: string,
-        matrix: FloatArrayType,
+        matrix: math.FloatArrayType,
     }): Transform {
         return null;
     }
@@ -858,7 +862,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             if (positions) {
                 const rtcCenter = math.vec3();
                 const rtcPositions: number[] = [];
-                const rtcNeeded = worldToRTCPositions(positions, rtcPositions, rtcCenter);
+                const rtcNeeded = math.rtc.worldToRTCPositions(positions, rtcPositions, rtcCenter);
                 if (rtcNeeded) {
                     positions = rtcPositions;
                     origin = math.addVec3(origin, rtcCenter, rtcCenter);
@@ -980,7 +984,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                         this.#currentBatchingLayers[primitive] = layer;
                     }
                     if (!edgeIndices) {
-                        edgeIndices = buildEdgeIndices(positions || params.positionsCompressed, indices, null, this.#edgeThreshold);
+                        edgeIndices = math.geometry.buildEdgeIndices(positions || params.positionsCompressed, indices, null, this.#edgeThreshold);
                     }
                     portionId = layer.createPortion({
                         positions: positions,
@@ -1100,7 +1104,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         this.#meshes[id] = mesh;
     }
 
-    #getInstancingLayer(origin: FloatArrayType, textureSetId: string, geometryId: string) {
+    #getInstancingLayer(origin: math.FloatArrayType, textureSetId: string, geometryId: string) {
         const layerId = `${origin[0]}.${origin[1]}.${origin[2]}.${textureSetId}.${geometryId}`;
         let instancingLayer = this.#instancingLayers[layerId];
         if (instancingLayer) {

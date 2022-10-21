@@ -2,7 +2,7 @@ import {ENTITY_FLAGS} from '../../ENTITY_FLAGS';
 import {RENDER_PASSES} from '../../RENDER_PASSES';
 import * as math from "../../../../../viewer/math"
 import {BatchingBuffer} from "../vboBatching/BatchingBuffer";
-import {WebGLSceneModel} from "../../../WebGLSceneModel";
+import {WebGL2SceneModel} from "../../../WebGL2SceneModel";
 import {RenderState} from "../../../../../viewer/utils/RenderState";
 import {ArrayBuf} from "../../../../lib/ArrayBuf";
 import {DrawFlags} from "../../DrawFlags";
@@ -58,7 +58,7 @@ let _numberOfLayers = 0;
 
 export class DataTextureLayer {
     layerIndex: number;
-    sceneModel: WebGLSceneModel;
+    sceneModel: WebGL2SceneModel;
     state: any;
     aabb: math.FloatArrayType;
     #batchingRenderers: any;

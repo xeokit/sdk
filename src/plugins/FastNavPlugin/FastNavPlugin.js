@@ -15,7 +15,7 @@ import {Plugin} from "../../viewer/Plugin.ts";
  * * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/#performance_FastNavPlugin)]
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin, FastNavPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, FastNavPlugin} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas",

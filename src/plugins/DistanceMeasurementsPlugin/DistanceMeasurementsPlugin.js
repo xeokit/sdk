@@ -32,7 +32,7 @@ import {DistanceMeasurementsControl} from "./DistanceMeasurementsControl.js";
  * [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#measurements_distance_modelWithMeasurements)]
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas",
@@ -96,7 +96,7 @@ import {DistanceMeasurementsControl} from "./DistanceMeasurementsControl.js";
  * [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#measurements_distance_createWithMouse)]
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas",

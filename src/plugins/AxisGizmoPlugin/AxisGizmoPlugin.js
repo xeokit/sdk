@@ -18,7 +18,7 @@ import * as math from "../../viewer/math/math.js";
  * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/#gizmos_AxisGizmoPlugin)]
  *
  * ````JavaScript````
- * import {Viewer, XKTLoaderPlugin, AxisGizmoPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, AxisGizmoPlugin} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"

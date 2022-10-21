@@ -1,9 +1,9 @@
-import {WebGLSceneModel} from "../../../WebGLSceneModel";
+import {WebGL2SceneModel} from "../../../WebGL2SceneModel";
 
 export interface BatchingLayerParams {
     uvsDecompressMatrix: any;
     layerIndex: number;
-    sceneModel: WebGLSceneModel;
+    sceneModel: WebGL2SceneModel;
     maxGeometryBatchSize: number;
     scratchMemory: any;
     positionsDecompressMatrix: any;

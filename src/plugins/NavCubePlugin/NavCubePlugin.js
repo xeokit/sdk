@@ -35,7 +35,7 @@ import {CubeTextureCanvas} from "./CubeTextureCanvas.js";
  * use the NavCube to look at the model along each axis or diagonal.
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin, NavCubePlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, NavCubePlugin} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"

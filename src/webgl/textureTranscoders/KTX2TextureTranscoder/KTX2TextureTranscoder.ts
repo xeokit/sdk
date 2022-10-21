@@ -1,4 +1,4 @@
-import {FileLoader, WorkerPool} from "../../../viewer/utils";
+import {FileLoader, WorkerPool} from "../../../viewer/utils/index";
 import {
     LinearEncoding,
     LinearFilter,

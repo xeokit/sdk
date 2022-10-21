@@ -27,8 +27,7 @@ import {ViewParams} from "./ViewParams";
  * A ````Viewer```` also has these two strategies, which you can replace with your own implementations:
  *
  * * {@link LocaleService} - Provides string translations for various locales.
- * * {@link SceneRenderer} - Strategy used internally to allocate and render geometry and materials on top of an available
- * Browser graphics API. By default, this is a {@link WebGL2SceneRenderer}, which uses [WebGL2](https://en.wikipedia.org/wiki/WebGL). You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer.
+ * * {@link SceneRenderer} - Strategy used internally to allocate and render geometry and materials on top of an available Browser graphics API.
  *
  * ## Usage
  *

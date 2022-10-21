@@ -1,7 +1,7 @@
 import {ENTITY_FLAGS} from '../../ENTITY_FLAGS';
 import {RENDER_PASSES} from '../../RENDER_PASSES';
 import * as math from "../../../../../viewer/math"
-import {WebGLSceneModel} from "../../../WebGLSceneModel";
+import {WebGL2SceneModel} from "../../../WebGL2SceneModel";
 import {RenderState} from "../../../../../viewer/utils/RenderState";
 import {ArrayBuf} from "../../../../lib/ArrayBuf";
 import {DrawFlags} from "../../DrawFlags";
@@ -18,7 +18,7 @@ const tempVec3fa = new Float32Array(3);
 
 export interface VBOInstancingLayerCfg {
     layerIndex: number;
-    sceneModel: WebGLSceneModel;
+    sceneModel: WebGL2SceneModel;
     textureSet?: TextureSet;
     geometry: Geometry;
     origin?: any;
@@ -33,7 +33,7 @@ export interface VBOInstancingLayerCfg {
 export class VBOInstancingLayer {
 
     layerIndex: number;
-    sceneModel: WebGLSceneModel;
+    sceneModel: WebGL2SceneModel;
     geometry: Geometry;
     material: any;
     sortId: string;

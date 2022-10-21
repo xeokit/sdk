@@ -1,7 +1,7 @@
-import {DrawFlags} from "./WebGLSceneModel/lib/DrawFlags";
+import {DrawFlags} from "./WebGL2SceneModel/lib/DrawFlags";
 import {FrameContext} from "./lib/FrameContext";
 import {PickResult} from "../viewer/view";
-import {WebGLSceneObject} from "./WebGLSceneModel/lib/WebGLSceneObject";
+import {WebGLSceneObject} from "./WebGL2SceneModel/lib/WebGLSceneObject";
 import {FloatArrayType} from "../viewer/math";
 
 /**

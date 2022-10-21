@@ -1,4 +1,4 @@
-import * as math from "../../../../viewer/math";
+import * as math from "../../../../viewer/math/index";
 import {FrameContext} from "../../../lib/FrameContext";
 import {Attribute} from "../../../lib/Attribute";
 import {RENDER_PASSES} from "../RENDER_PASSES";

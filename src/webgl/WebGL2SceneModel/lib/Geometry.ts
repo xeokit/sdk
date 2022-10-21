@@ -1,7 +1,7 @@
 
-import {FloatArrayType, IntArrayType, mat4} from "../../../viewer/math";
+import {FloatArrayType, IntArrayType, mat4} from "../../../viewer/math/index";
 import {ArrayBuf} from "../../lib/ArrayBuf";
-import {WebGLSceneModel} from "../WebGLSceneModel";
+import {WebGL2SceneModel} from "../WebGL2SceneModel";
 import {
     compressUVs,
     decompressAABB,
@@ -11,8 +11,9 @@ import {
 } from "../../../viewer/math/compression/compression";
 import {buildEdgeIndices} from "../../../viewer/math/geometry/buildEdgeIndices";
 import {AABB3ToOBB3, collapseAABB3, expandAABB3Points3, OBB3} from "../../../viewer/math/boundaries";
-import {GeometryParams} from "../../../viewer/scene";
+
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../../viewer/constants";
+import {GeometryParams} from "../../../viewer/index";
 
 
 /**

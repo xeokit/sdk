@@ -11,9 +11,9 @@ import {worldToRTCPositions} from "../../viewer/math/";
 /**
  {@link Viewer} plugin that uses [web-ifc](https://github.com/tomvandig/web-ifc) to load BIM models directly from IFC files.
 
- <a href="https://xeokit.github.io/xeokit-webgpu-sdk/examples/#BIMOffline_WebIFCLoaderPlugin_Duplex"><img src="https://xeokit.io/img/docs/WebIFCLoaderPlugin/WebIFCLoaderPlugin.png"></a>
+ <a href="https://xeokit.github.io/xeokit-viewer/examples/#BIMOffline_WebIFCLoaderPlugin_Duplex"><img src="https://xeokit.io/img/docs/WebIFCLoaderPlugin/WebIFCLoaderPlugin.png"></a>
 
- [[Run this example](https://xeokit.github.io/xeokit-webgpu-sdk/examples/#BIMOffline_WebIFCLoaderPlugin_Duplex)]
+ [[Run this example](https://xeokit.github.io/xeokit-viewer/examples/#BIMOffline_WebIFCLoaderPlugin_Duplex)]
 
  ## Overview
 
@@ -51,16 +51,16 @@ import {worldToRTCPositions} from "../../viewer/math/";
  ## Usage
 
  In the example below we'll load the Duplex BIM model from
- an [IFC file](https://github.com/xeokit/xeokit-webgpu-sdk/tree/master/assets/models/ifc). Within our {@link Viewer}, this will create a bunch of {@link Entity}s that represents the model and its objects, along with a {@link DataModel}, {@link DataObject}s and {@link PropertySet}s
+ an [IFC file](https://github.com/xeokit/xeokit-viewer/tree/master/assets/models/ifc). Within our {@link Viewer}, this will create a bunch of {@link Entity}s that represents the model and its objects, along with a {@link DataModel}, {@link DataObject}s and {@link PropertySet}s
  that hold their metadata.
 
  Since this model contains IFC types, the WebIFCLoaderPlugin will set the initial appearance of each object
  {@link Entity} according to its IFC type in {@link WebIFCLoaderPlugin#objectDefaults}.
 
- [[Run example](https://xeokit.github.io/xeokit-webgpu-sdk/examples/#BIMOffline_WebIFCLoaderPlugin_isolateStorey)]
+ [[Run example](https://xeokit.github.io/xeokit-viewer/examples/#BIMOffline_WebIFCLoaderPlugin_isolateStorey)]
 
  ````javascript
- import {Viewer, WebIFCLoaderPlugin} from "xeokit-webgpu-sdk.es.js";
+ import {Viewer, WebIFCLoaderPlugin} from "xeokit-viewer.es.js";
 
  //------------------------------------------------------------------------------------------------------------------
  // 1. Create a Viewer,
@@ -252,7 +252,7 @@ import {worldToRTCPositions} from "../../viewer/math/";
  object. For simplicity, our custom data source example also uses HTTP, using a couple of xeokit utility functions.
 
  ````javascript
- import * as utils from "xeokit-webgpu-sdk.es.js";
+ import * as utils from "xeokit-viewer.es.js";
 
  class MyDataSource {
 

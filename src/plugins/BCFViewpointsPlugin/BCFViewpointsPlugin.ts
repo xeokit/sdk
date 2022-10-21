@@ -22,7 +22,7 @@ const tempVec3 = math.vec3();
  * * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#BCF_SaveViewpoint)]
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin, SectionPlanesPlugin, BCFViewpointsPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, SectionPlanesPlugin, BCFViewpointsPlugin} from "xeokit-viewer.es.js";
  *
  * // Create a Viewer
  * const viewer = new Viewer({

@@ -49,7 +49,7 @@ const tempVec3c = math.vec3();
  * [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#annotations_clickShowLabels)]
  *
  * ````JavaScript
- * import {Viewer, XKTLoaderPlugin,AnnotationsPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin,AnnotationsPlugin} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas",

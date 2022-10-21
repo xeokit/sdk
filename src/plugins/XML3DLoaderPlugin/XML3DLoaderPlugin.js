@@ -101,7 +101,7 @@ import {XML3DSceneGraphLoader} from "./XML3DSceneGraphLoader.js";
  * Now we can use {@link TreeViewPlugin} to create a tree view to navigate our model's objects:
  *
  * ````javascript
- * import {TreeViewPlugin} from "xeokit-webgpu-sdk.es.js""xeokit-webgpu-sdk.es.js";
+ * import {TreeViewPlugin} from "xeokit-viewer.es.js""xeokit-viewer.es.js";
  *
  * const treeView = new TreeViewPlugin(viewer, {
  *     containerElement: document.getElementById("myTreeViewContainer")

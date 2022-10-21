@@ -42,7 +42,7 @@ const EMPTY_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA
  * Then we'll load a BIM building model from an  ```.xkt``` file.
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin, StoreyViewsPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, StoreyViewsPlugin} from "xeokit-viewer.es.js";
  *
  * // Create a Viewer, arrange the camera
  *

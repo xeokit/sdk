@@ -25,7 +25,7 @@ import {OBJSceneGraphLoader} from "./OBJSceneGraphLoader.js";
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#loading_OBJ_SportsCar)]
  *
  * ````javascript
- * import {Viewer, OBJLoaderPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, OBJLoaderPlugin} from "xeokit-viewer.es.js";
  *
  * // Create a xeokit Viewer and arrange the camera
  * const viewer = new Viewer({

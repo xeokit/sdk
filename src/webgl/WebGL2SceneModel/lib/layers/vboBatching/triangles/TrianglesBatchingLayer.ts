@@ -10,7 +10,7 @@ import {BatchingBuffer} from "../BatchingBuffer";
 import {TextureSet} from "../../../TextureSet";
 
 import {FrameContext} from "../../../../../lib/FrameContext";
-import {WebGLSceneModel} from "../../../../WebGLSceneModel";
+import {WebGL2SceneModel} from "../../../../WebGL2SceneModel";
 import {DrawFlags} from "../../../DrawFlags";
 
 const tempVec3a = math.vec3();
@@ -70,7 +70,7 @@ class TrianglesBatchingLayer {
         textureSet: TextureSet;
         autoNormals: boolean;
         solid: boolean;
-        sceneModel: WebGLSceneModel;
+        sceneModel: WebGL2SceneModel;
     }) {
         this.sceneModel = params.sceneModel;
         this.sortId = "TrianglesBatchingLayer"

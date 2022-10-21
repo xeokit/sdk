@@ -37,7 +37,7 @@ import {TreeViewNode} from "./TreeViewNode";
  * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/.BIMOffline_XKT_Schependomlaan)]
  *
  * ````javascript
- * import {Viewer, XKTLoaderPlugin, TreeViewPlugin} from "xeokit-webgpu-sdk.es.js";
+ * import {Viewer, XKTLoaderPlugin, TreeViewPlugin} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas",

@@ -69,7 +69,7 @@ export interface SceneModel {
      *
      * Default is ````true````.
      */
-    qualityRender: boolean;
+     qualityRender: boolean;
 
     /**
      * True once this SceneModel has been destroyed.

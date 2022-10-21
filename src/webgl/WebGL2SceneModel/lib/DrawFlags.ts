@@ -1,26 +1,26 @@
 /**
- * Indicates what rendering needs to be done for the layers within a {@link WebGLSceneModel}.
+ * Indicates what rendering needs to be done for the layers within a {@link WebGL2SceneModel}.
  *
- * Each WebGLSceneModel has a DrawFlags in {@link WebGLSceneModel.drawFlags}.
+ * Each WebGL2SceneModel has a DrawFlags in {@link WebGL2SceneModel.drawFlags}.
  *
- * Before rendering each frame, {@link WebGL2SceneRenderer} will call {@link WebGLSceneModel.rebuildDrawFlags} on each {@link WebGLSceneModel}.
+ * Before rendering each frame, {@link WebGL2SceneRenderer} will call {@link WebGL2SceneModel.rebuildDrawFlags} on each {@link WebGL2SceneModel}.
  *
- * Then, when rendering a frame, SceneRenderer will apply rendering passes to each WebGLSceneModel according on what flags are set in {@link WebGLSceneModel.drawFlags}.
+ * Then, when rendering a frame, SceneRenderer will apply rendering passes to each WebGL2SceneModel according on what flags are set in {@link WebGL2SceneModel.drawFlags}.
  *
  * @private
  */
 class DrawFlags {
 
     /**
-     * Set by {@link WebGLSceneModel.rebuildDrawFlags} to indicate which layers are visible within the {@link WebGLSceneModel}.
+     * Set by {@link WebGL2SceneModel.rebuildDrawFlags} to indicate which layers are visible within the {@link WebGL2SceneModel}.
      *
-     * This is a list of IDs of visible layers within the {@link WebGLSceneModel}. The IDs will be whatever the
-     * {@link WebGLSceneModel} uses to identify its layers, usually integers.
+     * This is a list of IDs of visible layers within the {@link WebGL2SceneModel}. The IDs will be whatever the
+     * {@link WebGL2SceneModel} uses to identify its layers, usually integers.
      */
     visibleLayers: number[];
 
     /**
-     * Set by {@link WebGLSceneModel.rebuildDrawFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link WebGLSceneModel}.
+     * Set by {@link WebGL2SceneModel.rebuildDrawFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link WebGL2SceneModel}.
      *
      * Layout is as follows:
      *
@@ -33,25 +33,25 @@ class DrawFlags {
     sectionPlanesActivePerLayer: boolean[];
 
     /**
-     * Set by {@link WebGLSceneModel.rebuildDrawFlags} to indicate whether the {@link WebGLSceneModel} is culled.
+     * Set by {@link WebGL2SceneModel.rebuildDrawFlags} to indicate whether the {@link WebGL2SceneModel} is culled.
      *
      * When this is ````false````, then all of the other properties on ````DrawFlags```` will remain at their default values.
      */
     culled: boolean;
 
     /**
-     * Set by {@link Drawable#rebuildDrawFlags} to indicate whether the {@link WebGLSceneModel} is sliced by any {@link SectionPlane}s.
+     * Set by {@link Drawable#rebuildDrawFlags} to indicate whether the {@link WebGL2SceneModel} is sliced by any {@link SectionPlane}s.
      */
 
     sectioned: boolean;
 
     /**
-     * Set by {@link Drawable#rebuildDrawFlags} to indicate the number of layers within the {@link WebGLSceneModel}.
+     * Set by {@link Drawable#rebuildDrawFlags} to indicate the number of layers within the {@link WebGL2SceneModel}.
      */
     numLayers: number;
 
     /**
-     * Set by {@link Drawable#rebuildDrawFlags} to indicate the number of visible layers within the {@link WebGLSceneModel}.
+     * Set by {@link Drawable#rebuildDrawFlags} to indicate the number of visible layers within the {@link WebGL2SceneModel}.
      */
     numVisibleLayers: number;
 

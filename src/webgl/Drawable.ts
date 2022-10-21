@@ -1,4 +1,4 @@
-import {DrawFlags} from "./WebGLSceneModel/lib/DrawFlags";
+import {DrawFlags} from "./WebGL2SceneModel/lib/DrawFlags";
 import {FrameContext} from "./lib/FrameContext";
 
 /**
@@ -11,9 +11,11 @@ export interface Drawable {
     // get culled(): boolean;
 
     /**
-     * Gets if SAO is enabled for this Drawable.
+     * Whether quality rendering is enabled for this Drawable.
+     *
+     * Default is ````true````.
      */
-    // get saoEnabled() : boolean;
+    qualityRender: boolean;
 
     /**
      * Called by xeokit when about to render this Drawable, to generate {@link Drawable.drawFlags}.

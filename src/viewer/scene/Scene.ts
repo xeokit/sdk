@@ -140,8 +140,8 @@ export class Scene extends Component {
     /**
      * Creates a new {@link SceneModel} within this Scene.
      *
-     * The SceneModel provides an interface through which we can then build geometry and materials within
-     * it.
+     * The SceneModel represents a new model within the Scene and provides an interface through which
+     * we can then build geometry and materials within it.
      *
      * When we've finished building our SceneModel, we then call {@link SceneModel.finalize}, which causes it to
      * immediately begin rendering within all the {@link View}s we created previously with {@link Viewer.createView}.

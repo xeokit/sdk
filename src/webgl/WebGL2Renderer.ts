@@ -24,9 +24,8 @@ import {SceneModelParams} from "../viewer/scene/SceneModelParams";
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
 
-
 /**
- * Creates and renders geometry and materials for a {@link Viewer}, using Browser's [WebGL2](https://en.wikipedia.org/wiki/WebGL) 3D graphics API.
+ * Creates and renders geometry and materials for a {@link Viewer} using [WebGL2](https://en.wikipedia.org/wiki/WebGL).
  *
  * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer
  */

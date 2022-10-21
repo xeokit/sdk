@@ -7,7 +7,9 @@ import {SceneModelParams} from "./SceneModelParams";
 import {Viewer} from "../Viewer";
 
 /**
- * Creates and renders geometry and materials for a {@link Viewer}, using Browser's 3D graphics API.
+ * Creates and renders geometry and materials for a {@link Viewer}.
+ *
+ * A Viewer has a single implementation of this type, which wraps an available browser 3D graphics API, such as WebGL or WebGPU.
  *
  * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer
  *
@@ -16,7 +18,7 @@ import {Viewer} from "../Viewer";
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer,
- *     renderer: new MySceneRenderer({ ... })
+ *     renderer: new MyRenderer({ ... })
  * });
  * ````
  */

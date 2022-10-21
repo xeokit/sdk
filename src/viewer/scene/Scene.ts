@@ -144,7 +144,7 @@ export class Scene extends Component {
      * it.
      *
      * When we've finished building our SceneModel, we then call {@link SceneModel.finalize}, which causes it to
-     * immediately begin rendering within all {@link View}s we created previously with {@link Viewer.createView}.
+     * immediately begin rendering within all the {@link View}s we created previously with {@link Viewer.createView}.
      *
      * As that happens, each {@link View} automatically gets a {@link ViewObject} for each of the SceneModel's {@link SceneObject}s, to
      * independently represent that SceneObject's visual state in that View.
@@ -153,7 +153,7 @@ export class Scene extends Component {
      * ViewObjects from all our existing Views.
      *
      * @param params SceneModel configuration
-     * @see {@link Data.createDataModel}
+     * @seealso {@link Data.createDataModel}
      */
     createSceneModel(params: SceneModelParams): SceneModel {
         if (this.viewer.viewList.length === 0) {

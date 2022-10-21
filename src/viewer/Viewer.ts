@@ -12,7 +12,6 @@ import {Events} from "./Events";
 import {ViewerCapabilities} from "./ViewerCapabilities";
 import {ViewParams} from "./ViewParams";
 
-
 /**
  * The browser-based viewer at the core of ````@xeokit/xeokit-viewer````.
  *
@@ -24,10 +23,7 @@ import {ViewParams} from "./ViewParams";
  * * {@link Data} - Contains optional semantic information about the models.
  * * {@link View}s - One or more independently-configurable views of the models, each with its own canvas.
  *
- * A ````Viewer```` also has the following strategies, which you can replace with custom implementations if necessary:
- *
- * * {@link Renderer} - Creates and renders geometry and materials on top of the Browser's 3D graphics API.
- * * {@link LocaleService} - Provides string translations for various locales.
+ * A ````Viewer```` can also be configured with a custom {@link Renderer} strategy, in case we need to customize the way the Viewer renders 3D scenes.
  *
  * ## Usage
  *

@@ -61,12 +61,15 @@ export interface Renderer {
     deregisterView(viewIndex: number): void;
 
     /**
-     * Returns a new {@link SceneModel} that will be rendered by this Renderer.
+     * Returns a new {@link SceneModel} that will be stored and rendered by this Renderer.
      *
-     * Once we've built the SceneModel and called {@link SceneModel.finalize}, the Renderer will begin rendering
-     * it for each of the {@link View}s that we've registered previously with {@link Renderer.registerView}.
+     * The SceneModel provides an interface through which we can then build geometry and materials within
+     * it. Once we've built the SceneModel and called {@link SceneModel.finalize}, the Renderer will immediately begin
+     * rendering it all {@link View}s that we registered previously with {@link Renderer.registerView}.
      *
-     * @param params SceneModel params
+     * When we've finished with the SceneModel, we then call {@link SceneModel.destroy} to destroy it.
+     *
+     * @param params SceneModel creation params
      */
     createSceneModel(params: SceneModelParams): SceneModel;
 

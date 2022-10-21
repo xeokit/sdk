@@ -140,10 +140,16 @@ export class Scene extends Component {
     /**
      * Creates a new {@link SceneModel} within this Scene.
      *
-     * Each {@link View} (either already existing or about to be created) will automatically get a {@link ViewObject}
-     * for each  {@link SceneObject} subsequently create within our SceneModel.
+     * The SceneModel provides an interface through which we can then build geometry and materials within
+     * it.
      *
-     * When finished with the SceneModel, destroy it using {@link SceneModel.destroy}.
+     * When we've finished building our SceneModel, we then call {@link SceneModel.finalize}, which causes the SceneModel to
+     * immediately begin rendering within all {@link View}s created previously with {@link Viewer.createView}. When this happens,
+     * each {@link View} automatically gets a {@link ViewObject} for each of the SceneModel's {@link SceneObject}s, to
+     * independently represent that SceneObject's visual state in that View.
+     *
+     * When we've finished with the SceneModel, destroy it using {@link SceneModel.destroy}. This will automatically remove its
+     * ViewObjects from all our existing Views.
      *
      * @param params SceneModel configuration
      * @see {@link Data.createDataModel}

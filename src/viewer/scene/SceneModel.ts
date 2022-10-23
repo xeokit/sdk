@@ -1,13 +1,13 @@
 import {Scene} from "./Scene";
 import {FloatArrayType} from "../math/math";
 import {SceneObject} from "./SceneObject";
-import {Transform} from "../../webgl/Transform";
+import {Transform} from "../../webgl2/WebGL2SceneModel/lib/Transform";
 import {Events} from "../Events";
 import {SceneObjectParams} from "./SceneObjectParams";
 import {MeshParams} from "./MeshParams";
 import {TextureSetParams} from "./TextureSetParams";
 import {TextureParams} from "./TextureParams";
-import {TransformParams} from "../../webgl/TransformParams";
+import {TransformParams} from "../../webgl2/WebGL2SceneModel/lib/TransformParams";
 import {GeometryParams} from "./GeometryParams";
 
 /**

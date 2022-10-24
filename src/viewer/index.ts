@@ -20,6 +20,8 @@ export * from "./Events";
  */
 export * as math from "./math/index"
 
+export * as utils from "./utils/index"
+
 /**
  * Viewer constants.
  */

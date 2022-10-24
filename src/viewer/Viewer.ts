@@ -25,23 +25,16 @@ import {ViewParams} from "./ViewParams";
  *
  * A ````Viewer```` can also be configured with a custom {@link Renderer} strategy, in case we need to customize the way the Viewer renders 3D scenes.
  *
- * ## Quality vs Fast Rendering Modes
- *
- * A ````Viewer```` can be dynamically switched between two rendering modes:
- *
- * * {@link FastRender} - Uses simple rendering techniques to navigate our large models extra-responsively.
- * * {@link QualityRender} - Renders models with more visual quality, using Physically-Based Rendering (PBR), ambient shadows (SAO), edge enhancement etc.
- *
  * ## Usage
  *
- * Create a viewer with a WebGL2-based scene renderer:
+ * Create a viewer with a WebGL-based scene renderer:
  *
  * ````javascript
- * import {Viewer, FastRender, WebGL2Renderer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ * import {Viewer, FastRender, WebGLRenderer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGL2Renderer({ })
+ *     renderer: new WebGLRenderer({ })
  * });
  * ````
  *
@@ -190,7 +183,7 @@ export class Viewer {
      @param cfg.scale - The number of Real-space units in each World-space coordinate system unit.
      @param cfg.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
      @param cfg.localeService - Locale-based translation service.
-     @param cfg.renderer - Configurable 3D renderer class. Will be a  {@link WebGL2Renderer} by default.
+     @param cfg.renderer - Configurable 3D renderer class. Will be a  {@link WebGLRenderer} by default.
      */
     constructor(cfg: {
         id?: string,

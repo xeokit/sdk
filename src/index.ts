@@ -1,2 +1,2 @@
- export * as webgl2 from "./webgl2/index";
+export * as webgl from "./webgl/index";
 export * as viewer from "./viewer/index";

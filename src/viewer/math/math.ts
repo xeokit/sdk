@@ -1,7 +1,7 @@
 /**
  * An array of floating-point numbers.
  */
-export type FloatArrayType = (Uint8Array | Int8Array| Uint16Array | Int16Array | Float32Array | Float64Array | number[]);
+export type FloatArrayType = (Uint8Array | Int8Array| Uint16Array | Uint32Array | Int16Array | Float32Array | Float64Array | number[]);
 
 /**
  * An array of integer numbers.

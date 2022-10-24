@@ -212,6 +212,7 @@ class View extends Component {
     #lightsHash: string | null = null;
 
     #qualityRender: boolean;
+    gammaOutput: boolean;
 
     /**
      * Creates a new View within a Viewer.

@@ -1,7 +1,7 @@
 import {FloatArrayType} from "../math/math";
 
 /**
- * {@link SceneModel} creation parameters for {@link Scene.createSceneModel}.
+ * {@link SceneModel} creation parameters for {@link Scene.createModel}.
  */
 export interface SceneModelParams {
 

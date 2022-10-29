@@ -18,12 +18,17 @@ export interface SceneObject {
     /**
      * The SceneModel that contains this SceneObject.
      */
-    readonly sceneModel: SceneModel;
+    readonly model: SceneModel;
 
     /**
      * Unique ID of this SceneObject.
      */
     readonly id: string ;
+
+    /**
+     * Which {@link ViewLayer} this SceneObject belongs to.
+     */
+    readonly viewLayer: string ;
 
     /**
      * The axis-aligned World-space 3D boundary of this SceneObject.

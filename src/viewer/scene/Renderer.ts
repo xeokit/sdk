@@ -44,7 +44,7 @@ export interface Renderer {
     /**
      * Registers a {@link View} with this Renderer.
      *
-     * The Renderer will then begin rendering each {@link SceneModel} created with {@link SceneModel.createSceneModel} for the new View.
+     * The Renderer will then begin rendering each {@link SceneModel} created with {@link SceneModel.createModel} for the new View.
      *
      * @param view The View.
      * @returns A handle for the View within this Renderer.
@@ -71,7 +71,7 @@ export interface Renderer {
      *
      * @param params SceneModel creation params
      */
-    createSceneModel(params: SceneModelParams): SceneModel;
+    createModel(params: SceneModelParams): SceneModel;
 
     /**
      * Enable/disable rendering of transparent objects for the given View.

@@ -1,20 +1,20 @@
 import {Scene} from "./Scene";
 import {FloatArrayType} from "../math/math";
 import {SceneObject} from "./SceneObject";
-import {Transform} from "../../webgl/WebGLSceneModel/lib/Transform";
+import {Transform} from "../../webgl2/_WebGLSceneModel/lib/Transform";
 import {Events} from "../Events";
 import {SceneObjectParams} from "./SceneObjectParams";
 import {MeshParams} from "./MeshParams";
 import {TextureSetParams} from "./TextureSetParams";
 import {TextureParams} from "./TextureParams";
-import {TransformParams} from "../../webgl/WebGLSceneModel/lib/TransformParams";
+import {TransformParams} from "../../webgl2/_WebGLSceneModel/lib/TransformParams";
 import {GeometryParams} from "./GeometryParams";
 
 /**
  * Contains geometry and materials for a model within a {@link Viewer}.
  *
  * * Contains {@link SceneObject}s
- * * Created by {@link Scene.createSceneModel}
+ * * Created by {@link Scene.createModel}
  * * Stored in {@link Scene.sceneModels}
  * * May have a corresponding {@link DataModel}
  */
@@ -37,12 +37,12 @@ export interface SceneModel {
     /**
      * The {@link SceneObject}s in this SceneModel.
      */
-    readonly sceneObjects: { [key: string]: SceneObject };
+    readonly objects: { [key: string]: SceneObject };
 
     /**
      * List of the {@link SceneObject}s in this SceneModel.
      */
-    readonly sceneObjectList: SceneObject[];
+    readonly objectList: SceneObject[];
 
     /**
      * The axis-aligned World-space 3D boundary of this SceneModel.
@@ -117,9 +117,9 @@ export interface SceneModel {
      *
      * @param params SceneObject configuration.
      * @returns The new SceneObject
-     * @see {@link DataModel.createDataObject}
+     * @see {@link DataModel.createObject}
      */
-    createSceneObject(params: SceneObjectParams): SceneObject;
+    createObject(params: SceneObjectParams): SceneObject;
 
     /**
      * Finalizes this SceneModel and prepares it for use.

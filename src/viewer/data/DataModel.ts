@@ -12,7 +12,7 @@ import {PropertySetParams} from "./PropertySetParams";
  * ## Overview
  *
  *  * Belongs to a {@link Data}
- *  * Created with {@link Data.createDataModel}
+ *  * Created with {@link Data.createModel}
  *  * Registered by {@link DataModel.id} in {@link Data.dataModels}
  *  * Contains {@link DataObject}s and {@link PropertySet}s
  */
@@ -83,12 +83,12 @@ class DataModel extends Component {
     /**
      * The {@link DataObject}s in this DataModel, mapped to {@link DataObject.id}.
      */
-    public dataObjects: { [key: string]: DataObject };
+    public objects: { [key: string]: DataObject };
 
     /**
      * The {@link DataObject}s in this DataModel, mapped to {@link DataObject.type}, sub-mapped to {@link DataObject.id}.
      */
-    public dataObjectsByType: { [key: string]: { [key: string]: DataObject } };
+    public objectsByType: { [key: string]: { [key: string]: DataObject } };
 
     /**
      * The count of each type of {@link DataObject} in this DataModel, mapped to {@link DataObject.type}.
@@ -122,7 +122,7 @@ class DataModel extends Component {
         this.creatingApplication = dataModelCfg.creatingApplication || "";
         this.schema = dataModelCfg.schema || "";
         this.propertySets = {};
-        this.dataObjects = {};
+        this.objects = {};
         this.rootDataObject = null;
         this.#destroyed = false;
 
@@ -132,16 +132,16 @@ class DataModel extends Component {
             }
         }
 
-        if (dataModelCfg.dataObjects) {
-            for (let i = 0, len = dataModelCfg.dataObjects.length; i < len; i++) {
-                this.createDataObject(dataModelCfg.dataObjects[i]);
+        if (dataModelCfg.objects) {
+            for (let i = 0, len = dataModelCfg.objects.length; i < len; i++) {
+                this.createObject(dataModelCfg.objects[i]);
             }
-            for (let i = 0, len = dataModelCfg.dataObjects.length; i < len; i++) {
-                const dataObjectCfg = dataModelCfg.dataObjects[i];
-                const dataObject = this.dataObjects[dataObjectCfg.id];
+            for (let i = 0, len = dataModelCfg.objects.length; i < len; i++) {
+                const dataObjectCfg = dataModelCfg.objects[i];
+                const dataObject = this.objects[dataObjectCfg.id];
                 if (dataObject) {
                     if (dataObjectCfg.parentId) {
-                        const parentDataObject = this.dataObjects[dataObjectCfg.parentId];
+                        const parentDataObject = this.objects[dataObjectCfg.parentId];
                         if (parentDataObject) {
                             dataObject.parent = parentDataObject;
                         } else {
@@ -175,7 +175,7 @@ class DataModel extends Component {
      * @param dataObjectCfg
      * @see {@link SceneModel.createSceneObject}
      */
-    createDataObject(dataObjectCfg: DataObjectParams): DataObject {
+    createObject(dataObjectCfg: DataObjectParams): DataObject {
         if (this.#destroyed) {
             return;
         }
@@ -183,7 +183,7 @@ class DataModel extends Component {
         const type = dataObjectCfg.type;
         let parentDataObject;
         if (dataObjectCfg.parentId) {
-            parentDataObject = this.dataObjects[dataObjectCfg.parentId];
+            parentDataObject = this.objects[dataObjectCfg.parentId];
         }
         const propertySets = [];
         if (dataObjectCfg.propertySetIds) {
@@ -198,11 +198,11 @@ class DataModel extends Component {
             }
         }
         const dataObject = new DataObject(this, id, dataObjectCfg.originalSystemId, dataObjectCfg.name, dataObjectCfg.type, parentDataObject, propertySets);
-        this.dataObjects[id] = dataObject;
-        if (!this.dataObjectsByType[type]) {
-            this.dataObjectsByType[type] = {};
+        this.objects[id] = dataObject;
+        if (!this.objectsByType[type]) {
+            this.objectsByType[type] = {};
         }
-        this.dataObjectsByType[type][id] = dataObject;
+        this.objectsByType[type][id] = dataObject;
         this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
         return dataObject;
     }

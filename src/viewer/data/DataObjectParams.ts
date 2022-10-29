@@ -1,12 +1,12 @@
 /**
- * Parameters for creating a {@link DataObject} with {@link DataModel.createDataObject}.
+ * Parameters for creating a {@link DataObject} with {@link DataModel.createObject}.
  */
 export interface DataObjectParams {
 
     /**
      * Unique ID for the new {@link DataObject}.
      *
-     * DataObject instances are registered by this ID in {@link Data.dataObjects} and {@link DataModel.dataObjects}.
+     * DataObject instances are registered by this ID in {@link Data.objects} and {@link DataModel.objects}.
      */
     id: string;
 

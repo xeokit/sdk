@@ -5,7 +5,7 @@ import {PropertySetParams} from "./PropertySetParams";
 import {DataObjectParams} from "./DataObjectParams";
 
 /**
- * Parameters for creating a {@link DataModel} with {@link Data.createDataModel}.
+ * Parameters for creating a {@link DataModel} with {@link Data.createModel}.
  */
 export interface DataModelParams {
 
@@ -52,5 +52,5 @@ export interface DataModelParams {
     /**
      * The {@link DataObject}s in the DataModel.
      */
-    dataObjects?: DataObjectParams[]
+    objects?: DataObjectParams[]
 }

@@ -30,7 +30,7 @@ export class Scene extends Component {
     /**
      * The {@link SceneModel}s in this Scene.
      */
-    readonly sceneModels: { [key: string]: SceneModel };
+    readonly models: { [key: string]: SceneModel };
 
     /**
      * The {@link SceneObject}s in this Scene.
@@ -49,7 +49,7 @@ export class Scene extends Component {
         super(null, params);
 
         this.viewer = viewer;
-        this.sceneModels = {};
+        this.models = {};
         this.sceneObjects = {};
         this.tiles = new Tiles(this);
 
@@ -74,7 +74,7 @@ export class Scene extends Component {
     /**
      * Gets the World-space axis-aligned 3D boundary (AABB) of this Scene.
      *
-     * The AABB encompases the boundaries of all {@link SceneModels} currently in {@link Scene.sceneModels}, and  is
+     * The AABB encompases the boundaries of all {@link SceneModels} currently in {@link Scene.models}, and  is
      * represented by a six-element Float64Array containing the min/max extents of the axis-aligned volume, ie. ````[xmin, ymin,zmin,xmax,ymax, zmax]````.
      *
      * When the Scene has no content, the boundary will be an inverted shape, ie. ````[-100,-100,-100,100,100,100]````.
@@ -150,28 +150,28 @@ export class Scene extends Component {
      * independently represent that SceneObject's visual state in that View.
      *
      * When we've finished with the SceneModel, we destroy it using {@link SceneModel.destroy}. That will automatically remove its
-     * ViewObjects from all our existing Views.
+     * Objects from all our existing Views.
      *
      * @param params SceneModel configuration
-     * @seealso {@link Data.createDataModel}
+     * @seealso {@link Data.createModel}
      */
-    createSceneModel(params: SceneModelParams): SceneModel {
+    createModel(params: SceneModelParams): SceneModel {
         if (this.viewer.viewList.length === 0) {
             throw "Please create a View with Viewer.createView() before creating a SceneModel";
         }
         params.id = params.id || createUUID();
-        if (this.sceneModels[params.id]) {
+        if (this.models[params.id]) {
             this.error(`SceneModel with this ID already exists, or is under construction: "${params.id}"`);
             return;
         }
-        const sceneModel = this.viewer.renderer.createSceneModel(params);
-        this.sceneModels[sceneModel.id] = sceneModel;
+        const sceneModel = this.viewer.renderer.createModel(params);
+        this.models[sceneModel.id] = sceneModel;
         sceneModel.events.on("finalized", () => {
             this.#registerSceneObjects(sceneModel);
             this.events.fire("sceneModelCreated", sceneModel);
         });
         sceneModel.events.on("destroyed", () => {
-            delete this.sceneModels[sceneModel.id];
+            delete this.models[sceneModel.id];
             this.#deregisterSceneObjects(sceneModel);
             this.events.fire("sceneModelDestroyed", sceneModel);
         });
@@ -181,11 +181,11 @@ export class Scene extends Component {
     /**
      * Destroys all {@link SceneModel}s in this Scene.
      *
-     * This invalidates all SceneModels created previously with {@link Scene.createSceneModel}.
+     * This invalidates all SceneModels created previously with {@link Scene.createModel}.
      */
     clear() {
-        for (let id in this.sceneModels) {
-            this.sceneModels[id].destroy();
+        for (let id in this.models) {
+            this.models[id].destroy();
         }
     }
 
@@ -200,7 +200,7 @@ export class Scene extends Component {
     }
 
     #registerSceneObjects(sceneModel: SceneModel) {
-        const sceneObjects = sceneModel.sceneObjects;
+        const sceneObjects = sceneModel.objects;
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
             this.sceneObjects[sceneObject.id] = sceneObject;
@@ -209,7 +209,7 @@ export class Scene extends Component {
     }
 
     #deregisterSceneObjects(sceneModel: SceneModel) {
-        const sceneObjects = sceneModel.sceneObjects;
+        const sceneObjects = sceneModel.objects;
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
             delete this.sceneObjects[sceneObject.id];
@@ -221,9 +221,9 @@ export class Scene extends Component {
      * @private
      */
     destroy() {
-        for (const modelId in this.sceneModels) {
-            if (this.sceneModels.hasOwnProperty(modelId)) {
-                const sceneModel = this.sceneModels[modelId];
+        for (const modelId in this.models) {
+            if (this.models.hasOwnProperty(modelId)) {
+                const sceneModel = this.models[modelId];
                 sceneModel.destroy();
             }
         }

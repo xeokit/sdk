@@ -9,8 +9,8 @@ import {DataObjectParams} from "./DataObjectParams";
  *
  *  * Belongs to a {@link DataModel}
  *  * Corresponds to a {@link SceneObject} when {@link DataObject.id} matches the {@link SceneObject.id}
- *  * Stored by {@link SceneObject.id} in {@link DataModel.dataObjects} and {@link Data.dataObjects}
- *  * Created with {@link DataModel.createDataObject} or {@link DataObject.createDataObject}
+ *  * Stored by {@link SceneObject.id} in {@link DataModel.objects} and {@link Data.objects}
+ *  * Created with {@link DataModel.createObject} or {@link DataObject.createObject}
  */
 class DataObject {
 
@@ -22,7 +22,7 @@ class DataObject {
     /**
      * Globally-unique ID.
      *
-     * DataObject instances are registered by this ID in {@link Data.dataObjects} and {@link DataModel.dataObjects}.
+     * DataObject instances are registered by this ID in {@link Data.objects} and {@link DataModel.objects}.
      */
     public readonly id: string;
 
@@ -99,15 +99,15 @@ class DataObject {
      * @param cfg.parentId - ID of optional parent DataObject
      * @param cfg.propertySetIds - ID of one or more {@link PropertySet}s in {@link DataModel.propertySets}
      */
-    createDataObject(cfg: DataObjectParams): DataObject {
+    createObject(cfg: DataObjectParams): DataObject {
         cfg.parentId = this.id;
-        return this.dataModel.createDataObject(cfg);
+        return this.dataModel.createObject(cfg);
     }
 
     /**
      * Gets the {@link DataObject.id}s of the {@link DataObject}s within the subtree.
      */
-    getDataObjectIdsInSubtree(): (string | number)[] {
+    getObjectIdsInSubtree(): (string | number)[] {
         const objectIds: (string | number)[] = [];
 
         function visit(dataObject: DataObject) {
@@ -132,7 +132,7 @@ class DataObject {
      *
      * @param callback Callback fired at each {@link DataObject}.
      */
-    withDataObjectsInSubtree(callback: (arg0: DataObject) => void): void {
+    withObjectsInSubtree(callback: (arg0: DataObject) => void): void {
 
         function visit(dataObject: DataObject) {
             if (!dataObject) {

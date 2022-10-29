@@ -10,13 +10,13 @@ import {
     ViewerCapabilities
 } from "../../viewer/index";
 
-import {WEBGL_INFO} from "../lib/webglInfo";
+import {WEBGL_INFO} from "../../lib/webgl/webglInfo";
 import {FrameContext} from "./FrameContext";
-import {RenderBufferManager} from "../lib/RenderBufferManager";
-import {RenderBuffer} from "../lib/RenderBuffer";
+import {RenderBufferManager} from "../../lib/webgl/RenderBufferManager";
+import {RenderBuffer} from "../../lib/webgl/RenderBuffer";
 import {SAOOcclusionRenderer} from "./lib/sao/SAOOcclusionRenderer";
 import {SAODepthLimitedBlurRenderer} from "./lib/sao/SAODepthLimitedBlurRenderer";
-import {getExtension} from "../lib/getExtension";
+import {getExtension} from "../../lib/webgl/getExtension";
 import {Pickable} from "./Pickable";
 import {Drawable} from "./Drawable";
 import {WebGLSceneModel} from "../WebGLSceneModel/WebGLSceneModel";
@@ -135,7 +135,7 @@ export class WebGLRenderer implements Renderer {
     deregisterView(viewIndex: number): void {
     }
 
-    createSceneModel(params: SceneModelParams): SceneModel {
+    createModel(params: SceneModelParams): SceneModel {
         const webglSceneModel = new WebGLSceneModel(utils.apply({
             view: this.#view,
             scene: this.#viewer.scene,

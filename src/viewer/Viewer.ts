@@ -41,7 +41,7 @@ import {ViewParams} from "./ViewParams";
  * Create model geometry and materials:
  *
  * ````javascript
- * const mySceneModel = myViewer.scene.createSceneModel({
+ * const mySceneModel = myViewer.scene.createModel({
  *     id: "myModel"
  * });
  *
@@ -55,7 +55,8 @@ import {ViewParams} from "./ViewParams";
  *
  * mySceneModel.createObject({
  *     id: "myObject",
- *     meshIds: ["myMesh}]
+ *     meshIds: ["myMesh}],
+ *     viewLayer: "main"
  *     //...
  * });
  *
@@ -65,11 +66,11 @@ import {ViewParams} from "./ViewParams";
  * Define optional semantic information for the model:
  *
  * ````javascript
- * const myDataModel = myViewer.data.createDataModel({
+ * const myDataModel = myViewer.data.createModel({
  *     id: "myModel"
  * });
  *
- * myDataModel.createDataObject({
+ * myDataModel.createObject({
  *     id: "myObject",
  *     name: "Some object",
  *     type: "MyType"
@@ -133,7 +134,7 @@ export class Viewer {
     readonly localeService: LocaleService;
 
     /**
-     Metadata about the models and objects within the Viewer's {@link Scene}.
+     Metadata about models and objects.
      */
     readonly data: Data;
 

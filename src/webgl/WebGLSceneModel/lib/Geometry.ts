@@ -1,5 +1,5 @@
 import {constants, GeometryParams, math} from "../../../viewer/index";
-import {ArrayBuf} from "../../lib/ArrayBuf";
+import {ArrayBuf} from "../../../lib/webgl/ArrayBuf";
 
 
 /**

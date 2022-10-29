@@ -1,34 +1,31 @@
-/**
- * @private
- */
+import * as math from "../../../viewer/math/index";
 import {Pickable} from "../../WebGLRenderer/Pickable";
 import {WebGLSceneObject} from "./WebGLSceneObject";
 import {WebGLRenderer} from "../../WebGLRenderer/WebGLRenderer";
-import {FloatArrayType} from "../../../viewer/math/math";
-import {AABB3} from "../../../viewer/math/boundaries";
 import {DrawFlags} from "../../WebGLRenderer/DrawFlags";
 import {FrameContext} from "../../WebGLRenderer/FrameContext";
+import {Layer} from "../layer/Layer";
 
 class Mesh implements Pickable {
 
     id: string;
     pickId: number;
     sceneObject: WebGLSceneObject;
-    aabb: FloatArrayType;
+    aabb: math.FloatArrayType;
     numTriangles: number;
     webglRenderer: WebGLRenderer;
-    layer: any;
-    portionId: any;
-    color: FloatArrayType;
-    colorize: FloatArrayType;
+    layer: Layer;
+    meshId: any;
+    color: math.FloatArrayType;
+    colorize: math.FloatArrayType;
     colorizing: boolean;
     transparent: boolean;
-    origin: FloatArrayType;
+    origin: math.FloatArrayType;
 
     constructor(params: {
         id: string,
         webglRenderer: WebGLRenderer,
-        color: FloatArrayType,
+        color: math.FloatArrayType,
         opacity: number
     }) {
         this.webglRenderer = params.webglRenderer;
@@ -43,7 +40,7 @@ class Mesh implements Pickable {
         this.origin = null;
         this.sceneObject = null;
         this.layer = null;
-        this.aabb = AABB3();
+        this.aabb = math.boundaries.AABB3();
     }
 
     /**
@@ -55,8 +52,8 @@ class Mesh implements Pickable {
         this.sceneObject = sceneObject;
     }
 
-    finalize(entityFlags: any) {
-        this.layer.initFlags(this.portionId, entityFlags, this.transparent);
+    finalize(flags: number) {
+        this.layer.initFlags(this.meshId, flags, this.transparent);
     }
 
     finalize2() {
@@ -65,34 +62,34 @@ class Mesh implements Pickable {
         }
     }
 
-    setVisible(entityFlags: any) {
-        this.layer.setVisible(this.portionId, entityFlags, this.transparent);
+    setVisible(flags: any) {
+        this.layer.setMeshVisible(this.meshId, flags, this.transparent);
     }
 
-    setColor(color: FloatArrayType) {
+    setColor(color: math.FloatArrayType) {
         this.color[0] = color[0];
         this.color[1] = color[1];
         this.color[2] = color[2];
         if (!this.colorizing) {
-            this.layer.setColor(this.portionId, this.color, false);
+            this.layer.setMeshColor(this.meshId, this.color);
         }
     }
 
-    setColorize(colorize: FloatArrayType) {
+    setColorize(colorize: math.FloatArrayType) {
         const setOpacity = false;
         if (colorize) {
             this.colorize[0] = colorize[0];
             this.colorize[1] = colorize[1];
             this.colorize[2] = colorize[2];
-            this.layer.setColor(this.portionId, this.colorize, setOpacity);
+            this.layer.setMeshColor(this.meshId, this.colorize, setOpacity);
             this.colorizing = true;
         } else {
-            this.layer.setColor(this.portionId, this.color, setOpacity);
+            this.layer.setMeshColor(this.meshId, this.color, setOpacity);
             this.colorizing = false;
         }
     }
 
-    setOpacity(opacity: number, entityFlags: number) {
+    setOpacity(opacity: number, flags: number) {
         const newTransparent = (opacity < 255);
         const lastTransparent = this.transparent;
         const changingTransparency = (lastTransparent !== newTransparent);
@@ -100,49 +97,49 @@ class Mesh implements Pickable {
         this.colorize[3] = opacity;
         this.transparent = newTransparent;
         if (this.colorizing) {
-            this.layer.setColor(this.portionId, this.colorize);
+            this.layer.setMeshColor(this.meshId, this.colorize);
         } else {
-            this.layer.setColor(this.portionId, this.color);
+            this.layer.setMeshColor(this.meshId, this.color);
         }
         if (changingTransparency) {
-            this.layer.setTransparent(this.portionId, entityFlags, newTransparent);
+            this.layer.setMeshTransparent(this.meshId, flags, newTransparent);
         }
     }
 
-    setOffset(offset: FloatArrayType) {
-        this.layer.setOffset(this.portionId, offset);
+    setOffset(offset: math.FloatArrayType) {
+        this.layer.setMeshOffset(this.meshId, offset);
     }
 
-    setHighlighted(entityFlags: number) {
-        this.layer.setHighlighted(this.portionId, entityFlags, this.transparent);
+    setHighlighted(flags: number) {
+        this.layer.setMeshHighlighted(this.meshId, flags, this.transparent);
     }
 
-    setXRayed(entityFlags: number) {
-        this.layer.setXRayed(this.portionId, entityFlags, this.transparent);
+    setXRayed(flags: number) {
+        this.layer.setMeshXRayed(this.meshId, flags, this.transparent);
     }
 
-    setSelected(entityFlags: number) {
-        this.layer.setSelected(this.portionId, entityFlags, this.transparent);
+    setSelected(flags: number) {
+        this.layer.setMeshSelected(this.meshId, flags, this.transparent);
     }
 
-    setEdges(entityFlags: number) {
-        this.layer.setEdges(this.portionId, entityFlags, this.transparent);
+    setEdges(flags: number) {
+        this.layer.setMeshEdges(this.meshId, flags, this.transparent);
     }
 
-    setClippable(entityFlags: number) {
-        this.layer.setClippable(this.portionId, entityFlags, this.transparent);
+    setClippable(flags: number) {
+        this.layer.setMeshClippable(this.meshId, flags);
     }
 
-    setCollidable(entityFlags: number) {
-        this.layer.setCollidable(this.portionId, entityFlags);
+    setCollidable(flags: number) {
+        this.layer.setMeshCollidable(this.meshId, flags);
     }
 
     setPickable(flags: number) {
-        this.layer.setPickable(this.portionId, flags, this.transparent);
+        this.layer.setMeshPickable(this.meshId, flags, this.transparent);
     }
 
     setCulled(flags: number) {
-        this.layer.setCulled(this.portionId, flags, this.transparent);
+        this.layer.setMeshCulled(this.meshId, flags, this.transparent);
     }
 
     canPickTriangle() {
@@ -158,7 +155,7 @@ class Mesh implements Pickable {
     }
 
     precisionRayPickSurface(worldRayOrigin: any, worldRayDir: any, worldSurfacePos: any, worldSurfaceNormal: any) {
-        return this.layer.precisionRayPickSurface ? this.layer.precisionRayPickSurface(this.portionId, worldRayOrigin, worldRayDir, worldSurfacePos, worldSurfaceNormal) : false;
+        return this.layer.precisionRayPickSurface ? this.layer.precisionRayPickSurface(this.meshId, worldRayOrigin, worldRayDir, worldSurfacePos, worldSurfaceNormal) : false;
     }
 
     canPickWorldPos() {

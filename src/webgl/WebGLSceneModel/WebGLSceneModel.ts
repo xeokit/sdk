@@ -1,39 +1,33 @@
-import {Component} from "../../viewer/Component";
-import * as math from "../../viewer/math/index";
-import {Mesh} from './lib/Mesh';
-import {FrameContext} from "../WebGLRenderer/FrameContext";
-import {WebGLRenderer} from "../WebGLRenderer/WebGLRenderer";
-import {Scene} from "../../viewer/scene/Scene";
-import {View} from "../../viewer/view/View";
-import {Geometry} from "./lib/Geometry";
-import {SceneModel} from "../../viewer/scene/SceneModel";
-import {DrawFlags} from "../WebGLRenderer/DrawFlags";
-import {TextureSet} from "./lib/TextureSet";
-import {getScratchMemory, putScratchMemory, ScratchMemory} from "./lib/ScratchMemory";
-import {Texture} from "./lib/Texture";
-import {Texture2D} from "../lib/Texture2D";
-import {Events} from "../../viewer/Events";
-import {Transform} from "./lib/Transform";
-import {createUUID, loadArraybuffer} from "../../viewer/utils/index";
-import {WebGLSceneObject} from "./lib/WebGLSceneObject";
-import {TrianglesBatchingLayer} from "./lib/layers/vboBatching/triangles/TrianglesBatchingLayer";
-import {LinesBatchingLayer} from "./lib/layers/vboBatching/lines/LinesBatchingLayer";
-import {Drawable} from "../WebGLRenderer/Drawable";
-import {collapseAABB3, expandAABB3} from "../../viewer/math/boundaries";
-import {getKTX2TextureTranscoder} from "../textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder";
-import {LinesInstancingLayer} from "./lib/layers/vboInstancing/lines/LinesInstancingLayer";
-import {PointsBatchingLayer} from "./lib/layers/vboBatching/points/PointsBatchingLayer";
-import {PointsInstancingLayer} from "./lib/layers/vboInstancing/points/PointsInstancingLayer";
-import {TrianglesInstancingLayer} from "./lib/layers/vboInstancing/triangles/TrianglesInstancingLayer";
-
 import {
+    Component,
+    Scene,
+    View,
+    SceneModel,
+    Events,
+    utils,
+    math,
     GeometryParams,
     MeshParams,
     Renderer,
     SceneObjectParams,
     TextureParams,
-    TextureSetParams
+    TextureSetParams, SceneObject
 } from "../../viewer/index";
+
+import {getKTX2TextureTranscoder} from "../textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder";
+
+import {FrameContext} from "../WebGLRenderer/FrameContext";
+import {WebGLRenderer} from "../WebGLRenderer/WebGLRenderer";
+import {DrawFlags} from "../WebGLRenderer/DrawFlags";
+import {Drawable} from "../WebGLRenderer/Drawable";
+
+import {Mesh} from './lib/Mesh';
+import {Geometry} from "./lib/Geometry";
+import {TextureSet} from "./lib/TextureSet";
+import {Texture} from "./lib/Texture";
+import {Texture2D} from "../../lib/webgl/Texture2D";
+import {Transform} from "./lib/Transform";
+import {WebGLSceneObject} from "./lib/WebGLSceneObject";
 
 import {
     ClampToEdgeWrapping,
@@ -54,6 +48,12 @@ import {
     TrianglesPrimitive
 } from "../../viewer/constants";
 
+// @ts-ignore
+import {uniquifyPositions} from "./layer/calculateUniquePositions";
+// @ts-ignore
+import {rebucketPositions} from "./layer/rebucketPositions";
+import {MeshCounts} from "./layer/MeshCounts";
+
 const tempVec3a = math.vec3();
 const tempMat4 = math.mat4();
 
@@ -69,7 +69,7 @@ const defaultEmissiveTextureId = "defaultEmissiveTexture";
 const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
 
-export class WebGLSceneModel extends Component implements SceneModel, Drawable {
+export class WebGLSceneModel extends Component implements SceneModel, Drawable, MeshCounts {
 
     /**
      * Whether quality rendering is enabled for this WebGLSceneModel.
@@ -83,18 +83,18 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     readonly scene: Scene;
     declare readonly events: Events;
     declare readonly destroyed: boolean;
-    sceneObjects: { [key: string]: WebGLSceneObject };
-    sceneObjectList: WebGLSceneObject[];
-    numPortions: number;
-    numVisibleLayerPortions: number;
-    numEdgesLayerPortions: number;
-    numCulledLayerPortions: number;
-    numTransparentLayerPortions: number;
-    numHighlightedLayerPortions: number;
-    numClippableLayerPortions: number;
-    numXRayedLayerPortions: number;
-    numSelectedLayerPortions: number;
-    numPickableLayerPortions: number;
+    objects: { [key: string]: WebGLSceneObject };
+    objectList: WebGLSceneObject[];
+    numMeshes: number;
+     numVisibleMeshes: number;
+    numEdgesMeshes: number;
+    numCulledMeshes: number;
+    numTransparentMeshes: number;
+    numHighlightedMeshes: number;
+    numClippableMeshes: number;
+    numXRayedMeshes: number;
+    numSelectedMeshes: number;
+    numPickableMeshes: number;
     drawFlags: DrawFlags;
     #renderer: Renderer;
     #gl: WebGL2RenderingContext;
@@ -126,11 +126,8 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     #lastOrigin: math.FloatArrayType;
     #lastPositionsDecompressMatrix: math.FloatArrayType;
     #edgeThreshold: number;
-    #instancingLayers: { [key: string]: any };
-    #lastPortionHadNormals: boolean;
-    #currentBatchingLayers: { [key: string]: any };
-    #currentDataTextureLayers: { [key: string]: any };
-    #scratchMemory: ScratchMemory;
+    #lastmeshHadNormals: boolean;
+    #currentLayers: { [key: string]: any };
 
     #aabb: math.FloatArrayType;
 
@@ -142,6 +139,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     #lastTextureSetId: String;
     #instancingGeometries: {};
     #preparedInstancingGeometries: {};
+
 
     constructor(params: {
         id: string;
@@ -167,23 +165,20 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         this.id = params.id;
         this.scene = params.scene;
         this.view = params.view;
-        this.sceneObjectList = [];
+        this.objectList = [];
         this.drawFlags = new DrawFlags();
 
         this.#webglRenderer = params.webglRenderer;
         this.#renderer = params.webglRenderer;
         this.#textureTranscoder = params.textureTranscoder || getKTX2TextureTranscoder(this.viewer);
         this.#maxGeometryBatchSize = params.maxGeometryBatchSize;
-        this.#aabb = collapseAABB3();
+        this.#aabb = math.boundaries.collapseAABB3();
         this.#aabbDirty = false;
         this.#layerList = []; // For GL state efficiency when drawing, InstancingLayers are in first part, BatchingLayers are in second
         this.#lastOrigin = null;
         this.#lastPositionsDecompressMatrix = null;
-        this.#lastPortionHadNormals = null;
-        this.#instancingLayers = {};
-        this.#currentBatchingLayers = {};
-        this.#currentDataTextureLayers = {};
-        this.#scratchMemory = getScratchMemory();
+        this.#lastmeshHadNormals = null;
+        this.#currentLayers = {};
         this.#geometries = {};
         this.#textures = {};
         this.#textureSets = {};
@@ -193,16 +188,16 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         // These counts are used to avoid unnecessary render passes
         // They are incremented or decremented exclusively by BatchingLayer and InstancingLayer
 
-        this.numPortions = 0;
-        this.numVisibleLayerPortions = 0;
-        this.numTransparentLayerPortions = 0;
-        this.numXRayedLayerPortions = 0;
-        this.numHighlightedLayerPortions = 0;
-        this.numSelectedLayerPortions = 0;
-        this.numEdgesLayerPortions = 0;
-        this.numPickableLayerPortions = 0;
-        this.numClippableLayerPortions = 0;
-        this.numCulledLayerPortions = 0;
+        this.numMeshes = 0;
+        this.numVisibleMeshes = 0;
+        this.numTransparentMeshes = 0;
+        this.numXRayedMeshes = 0;
+        this.numHighlightedMeshes = 0;
+        this.numSelectedMeshes = 0;
+        this.numEdgesMeshes = 0;
+        this.numPickableMeshes = 0;
+        this.numClippableMeshes = 0;
+        this.numCulledMeshes = 0;
 
         this.#numSceneObjects = 0;
 
@@ -334,100 +329,77 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         return this.#numPoints;
     }
 
-    setVisible(viewIndex: number, visible: boolean) :void{
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setVisible(viewIndex, visible);
+    setVisible(viewIndex: number, visible: boolean): void {
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setVisible(viewIndex, visible);
         }
         this.#renderer.setImageDirty(viewIndex);
     }
 
-    setXRayed(viewIndex: number, xrayed: boolean) :void{
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setXRayed(viewIndex, xrayed);
+    setXRayed(viewIndex: number, xrayed: boolean): void {
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setXRayed(viewIndex, xrayed);
         }
         this.#renderer.setImageDirty(viewIndex);
     }
 
-    setHighlighted(viewIndex: number, highlighted: boolean) :void{
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setHighlighted(viewIndex, highlighted);
+    setHighlighted(viewIndex: number, highlighted: boolean): void {
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setHighlighted(viewIndex, highlighted);
         }
         this.#renderer.setImageDirty(viewIndex);
     }
 
-    setSelected(viewIndex: number, selected: boolean) :void{
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setSelected(viewIndex, selected);
+    setSelected(viewIndex: number, selected: boolean): void {
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setSelected(viewIndex, selected);
         }
         this.#renderer.setImageDirty(viewIndex);
     }
 
-    setEdges(viewIndex: number, edges: boolean) :void{
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setEdges(viewIndex, edges);
+    setEdges(viewIndex: number, edges: boolean): void {
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setEdges(viewIndex, edges);
         }
         this.#renderer.setImageDirty(viewIndex);
     }
 
-    setCulled(viewIndex: number, culled: boolean) :void{
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setCulled(viewIndex, culled);
+    setCulled(viewIndex: number, culled: boolean): void {
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setCulled(viewIndex, culled);
         }
         this.#renderer.setImageDirty(viewIndex);
     }
 
     setClippable(viewIndex: number, clippable: boolean) {
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setClippable(viewIndex, clippable);
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setClippable(viewIndex, clippable);
         }
         this.#renderer.setImageDirty(viewIndex);
     }
 
     setCollidable(viewIndex: number, collidable: boolean) {
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setCollidable(viewIndex, collidable);
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setCollidable(viewIndex, collidable);
         }
     }
 
     setPickable(viewIndex: number, pickable: boolean) {
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setPickable(viewIndex, pickable);
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setPickable(viewIndex, pickable);
         }
     }
 
     setColorize(viewIndex: number, colorize: math.FloatArrayType) {
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setColorize(viewIndex, colorize);
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setColorize(viewIndex, colorize);
         }
     }
 
     setOpacity(viewIndex: number, opacity: number) {
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].setOpacity(viewIndex, opacity);
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].setOpacity(viewIndex, opacity);
         }
-    }
-
-    setCastsShadow(viewIndex: number, castsShadow: boolean) {
-        // castsShadow = (castsShadow !== false);
-        // if (castsShadow !== this.#castsShadow) {
-        //     this.#castsShadow = castsShadow;
-        //     this.#renderer.setImageDirty(viewIndex);
-        // }
-    }
-
-    setReceivesShadow(viewIndex: number, receivesShadow: number) {
-        // receivesShadow = (receivesShadow !== false);
-        // if (receivesShadow !== this.#receivesShadow) {
-        //     this.#receivesShadow = receivesShadow;
-        //     this.#renderer.setImageDirty(viewIndex);
-        // }
-    }
-
-    getPickViewMatrix(pickViewMatrix: math.FloatArrayType) {
-        if (!this.#viewMatrix) {
-            return pickViewMatrix;
-        }
-        return this.#viewMatrix;
     }
 
     createTransform(params: {
@@ -563,9 +535,9 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                     break;
                 default: // Assume other file types need transcoding
                     if (!this.#textureTranscoder) {
-                        this.scene.error(`Can't create texture from 'src' - VBOSceneModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);
+                        this.scene.error(`Can't create texture from 'src' - SceneModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);
                     } else {
-                        loadArraybuffer(params.src, (arrayBuffer: ArrayBuffer) => {
+                        utils.loadArraybuffer(params.src, (arrayBuffer: ArrayBuffer) => {
                                 if (!arrayBuffer.byteLength) {
                                     this.scene.error(`Can't create texture from 'src': file data is zero length`);
                                     return;
@@ -582,7 +554,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             }
         } else if (params.buffers) { // Buffers implicitly require transcoding
             if (!this.#textureTranscoder) {
-                this.scene.error(`Can't create texture from 'buffers' - VBOSceneModel needs to be configured with a TextureTranscoder for this option`);
+                this.scene.error(`Can't create texture from 'buffers' - SceneModel needs to be configured with a TextureTranscoder for this option`);
             } else {
                 this.#textureTranscoder.transcode(params.buffers, texture).then(() => {
                     this.#renderer.setImageDirty();
@@ -672,26 +644,26 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         }
 
         if (this.#meshes[id]) {
-            this.error(`VBOSceneModel already has a mesh with this ID: ${id}`);
+            this.error(`SceneModel already has a mesh with this ID: ${id}`);
             return;
         }
 
         const geometryId = params.geometryId;
-        const sharingGeometry = (params.geometryId !== undefined);
-        if (sharingGeometry && !this.#geometries[params.geometryId]) {
-            this.error(`Geometry not found: ${params.geometryId} - ensure that you create it first with createGeometry()`);
+        const instancingGeometry = (params.geometryId !== undefined);
+        if (instancingGeometry && !this.#geometries[params.geometryId]) {
+            this.error(`Geometry not found: ${params.geometryId} - ensure that you create it first with SceneModel.createGeometry()`);
             return;
         }
 
         const textureSetId = params.textureSetId || defaultTextureSetId;
         if (textureSetId) {
             if (!this.#textureSets[textureSetId]) {
-                this.error(`Texture set not found: ${textureSetId} - ensure that you create it first with createTextureSet()`);
+                this.error(`Texture set not found: ${textureSetId} - ensure that you create it first with SceneModel.createTextureSet()`);
                 return;
             }
         }
 
-        let portionId;
+        let meshId;
 
         const color = (params.color) ? new Uint8Array([Math.floor(params.color[0] * 255), Math.floor(params.color[1] * 255), Math.floor(params.color[2] * 255)]) : [255, 255, 255];
         const opacity = (params.opacity !== undefined && params.opacity !== null) ? Math.floor(params.opacity * 255) : 255;
@@ -714,11 +686,11 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
 
         const pickColor = new Uint8Array([r, g, b, a]); // Quantized pick color
 
-        collapseAABB3(mesh.aabb);
+        math.boundaries.collapseAABB3(mesh.aabb);
 
         let layer;
 
-        if (sharingGeometry) {
+        if (instancingGeometry) {
 
             let meshMatrix;
             let worldMatrix = this.#worldMatrixNonIdentity ? this.#worldMatrix : null;
@@ -734,27 +706,30 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             }
 
             const origin = (params.origin) ? math.addVec3(this.#origin, params.origin, tempVec3a) : this.#origin;
-            const instancingLayer = this.#getInstancingLayer(origin, textureSetId, geometryId);
 
-            layer = instancingLayer;
 
-            portionId = instancingLayer.createPortion({
-                color: color,
-                metallic: metallic,
-                roughness: roughness,
-                opacity: opacity,
-                meshMatrix: meshMatrix,
-                worldMatrix: worldMatrix,
-                aabb: mesh.aabb,
-                pickColor: pickColor
-            });
-            this.numPortions++;
+            // const instancingLayer = this.#getInstancingLayer(origin, textureSetId, geometryId);
+            //
+            // layer = instancingLayer;
+            //
+            // meshId = instancingLayer.createmesh({
+            //     color: color,
+            //     metallic: metallic,
+            //     roughness: roughness,
+            //     opacity: opacity,
+            //     meshMatrix: meshMatrix,
+            //     worldMatrix: worldMatrix,
+            //     aabb: mesh.aabb,
+            //     pickColor: pickColor
+            // });
 
-            const numTriangles = Math.round(instancingLayer.numIndices / 3);
-            this.#numTriangles += numTriangles;
-            mesh.numTriangles = numTriangles;
-
-            mesh.origin = origin;
+            // this.numMeshes++;
+            //
+            // const numTriangles = Math.round(instancingLayer.numIndices / 3);
+            // this.#numTriangles += numTriangles;
+            // mesh.numTriangles = numTriangles;
+            //
+            // mesh.origin = origin;
 
         } else { // Batching
 
@@ -851,25 +826,25 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                 }
             }
             if (needNewBatchingLayers) {
-                for (let prim in this.#currentBatchingLayers) {
-                    if (this.#currentBatchingLayers.hasOwnProperty(prim)) {
-                        this.#currentBatchingLayers[prim].finalize();
+                for (let prim in this.#currentLayers) {
+                    if (this.#currentLayers.hasOwnProperty(prim)) {
+                        this.#currentLayers[prim].finalize();
                     }
                 }
-                this.#currentBatchingLayers = {};
+                this.#currentLayers = {};
             }
 
             const normalsProvided = (!!params.normals && params.normals.length > 0);
             if (primitive === TrianglesPrimitive || primitive === SolidPrimitive || primitive === SurfacePrimitive) {
-                if (this.#lastPortionHadNormals !== null && normalsProvided !== this.#lastPortionHadNormals) {
+                if (this.#lastmeshHadNormals !== null && normalsProvided !== this.#lastmeshHadNormals) {
                     [TrianglesPrimitive, SolidPrimitive, SurfacePrimitive].map(primitiveId => {
-                        if (this.#currentBatchingLayers[primitiveId]) {
-                            this.#currentBatchingLayers[primitiveId].finalize();
-                            delete this.#currentBatchingLayers[primitiveId];
+                        if (this.#currentLayers[primitiveId]) {
+                            this.#currentLayers[primitiveId].finalize();
+                            delete this.#currentLayers[primitiveId];
                         }
                     });
                 }
-                this.#lastPortionHadNormals = normalsProvided;
+                this.#lastmeshHadNormals = normalsProvided;
             }
 
             const worldMatrix = this.#worldMatrixNonIdentity ? this.#worldMatrix : null;
@@ -889,7 +864,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
 
             const textureSet = textureSetId ? this.#textureSets[textureSetId] : null;
 
-            layer = this.#currentBatchingLayers[primitive];
+            layer = this.#currentLayers[primitive];
 
             const lenPositions = (positions || params.positionsCompressed).length;
 
@@ -898,9 +873,9 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                 case SolidPrimitive:
                 case SurfacePrimitive:
                     if (layer) {
-                        if (!layer.canCreatePortion(lenPositions, indices.length)) {
+                        if (!layer.canCreatemesh(lenPositions, indices.length)) {
                             layer.finalize();
-                            delete this.#currentBatchingLayers[primitive];
+                            delete this.#currentLayers[primitive];
                             layer = null;
                         }
                     }
@@ -909,7 +884,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                             sceneModel: this,
                             textureSet: textureSet,
                             layerIndex: 0, // This is set in #finalize()
-                            scratchMemory: this.#scratchMemory,
+
                             positionsDecompressMatrix: params.positionsDecompressMatrix,  // Can be undefined
                             uvsDecompressMatrix: params.uvsDecompressMatrix, // Can be undefined
                             origin,
@@ -918,12 +893,12 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                             autoNormals: (!normalsProvided)
                         });
                         this.#layerList.push(layer);
-                        this.#currentBatchingLayers[primitive] = layer;
+                        this.#currentLayers[primitive] = layer;
                     }
                     if (!edgeIndices) {
                         edgeIndices = math.geometry.buildEdgeIndices(positions || params.positionsCompressed, indices, null, this.#edgeThreshold);
                     }
-                    portionId = layer.createPortion({
+                    meshId = layer.createmesh({
                         positions: positions,
                         positionsCompressed: params.positionsCompressed,
                         normals: params.normals,
@@ -943,7 +918,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                         worldAABB: mesh.aabb,
                         pickColor: pickColor
                     });
-                    this.numPortions++;
+                    this.numMeshes++;
                     const numTriangles = Math.round(indices.length / 3);
                     this.#numTriangles += numTriangles;
                     mesh.numTriangles = numTriangles;
@@ -951,9 +926,9 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
 
                 case LinesPrimitive:
                     if (layer) {
-                        if (!layer.canCreatePortion(lenPositions, indices.length)) {
+                        if (!layer.canCreatemesh(lenPositions, indices.length)) {
                             layer.finalize();
-                            delete this.#currentBatchingLayers[primitive];
+                            delete this.#currentLayers[primitive];
                             layer = null;
                         }
                     }
@@ -961,15 +936,15 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                         layer = new LinesBatchingLayer({
                             sceneModel: this,
                             layerIndex: 0, // This is set in #finalize()
-                            scratchMemory: this.#scratchMemory,
+
                             positionsDecompressMatrix: params.positionsDecompressMatrix,  // Can be undefined
                             origin,
                             maxGeometryBatchSize: this.#maxGeometryBatchSize
                         });
                         this.#layerList.push(layer);
-                        this.#currentBatchingLayers[primitive] = layer;
+                        this.#currentLayers[primitive] = layer;
                     }
-                    portionId = layer.createPortion({
+                    meshId = layer.createmesh({
                         positions: positions,
                         positionsCompressed: params.positionsCompressed,
                         indices: indices,
@@ -982,15 +957,15 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                         worldAABB: mesh.aabb,
                         pickColor: pickColor
                     });
-                    this.numPortions++;
+                    this.numMeshes++;
                     this.#numLines += Math.round(indices.length / 2);
                     break;
 
                 case PointsPrimitive:
                     if (layer) {
-                        if (!layer.canCreatePortion(lenPositions)) {
+                        if (!layer.canCreatemesh(lenPositions)) {
                             layer.finalize();
-                            delete this.#currentBatchingLayers[primitive];
+                            delete this.#currentLayers[primitive];
                             layer = null;
                         }
                     }
@@ -998,15 +973,15 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                         layer = new PointsBatchingLayer({
                             sceneModel: this,
                             layerIndex: 0, // This is set in #finalize()
-                            scratchMemory: this.#scratchMemory,
+
                             positionsDecompressMatrix: params.positionsDecompressMatrix,  // Can be undefined
                             origin,
                             maxGeometryBatchSize: this.#maxGeometryBatchSize
                         });
                         this.#layerList.push(layer);
-                        this.#currentBatchingLayers[primitive] = layer;
+                        this.#currentLayers[primitive] = layer;
                     }
-                    portionId = layer.createPortion({
+                    meshId = layer.createmesh({
                         positions: positions,
                         positionsCompressed: params.positionsCompressed,
                         colors: params.colors,
@@ -1018,7 +993,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                         worldAABB: mesh.aabb,
                         pickColor: pickColor
                     });
-                    this.numPortions++;
+                    this.numMeshes++;
                     this.#numPoints += Math.round(lenPositions / 3);
                     break;
             }
@@ -1032,22 +1007,74 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         //         // Data textures
         //     }
 
-        expandAABB3(this.#aabb, mesh.aabb);
+        math.boundaries.expandAABB3(this.#aabb, mesh.aabb);
 
         mesh.sceneObject = null; // Will be set within PerformanceModelNode constructor
         mesh.layer = layer;
-        mesh.portionId = portionId;
+        mesh.meshId = meshId;
 
         this.#meshes[id] = mesh;
     }
 
-    createSceneObject(params: SceneObjectParams) {
+    /**
+     * This function applies two steps to the provided mesh geometry data:
+     *
+     * - 1st, it reduces its `.positions` to unique positions, thus removing duplicate vertices. It will adjust the `.indices` and `.edgeIndices` array accordingly to the unique `.positions`.
+     *
+     * - 2nd, it tries to do an optimization called `index rebucketting`
+     *
+     *   _Rebucketting minimizes the amount of RAM usage for a given mesh geometry by trying do demote its needed index bitness._
+     *
+     *   - _for 32 bit indices, will try to demote them to 16 bit indices_
+     *   - _for 16 bit indices, will try to demote them to 8 bits indices_
+     *   - _8 bits indices are kept as-is_
+     *
+     *   The fact that 32/16/8 bits are needed for indices, depends on the number of maximumm indexable vertices within the mesh geometry: this is, the number of vertices in the mesh geometry.
+     *
+     * The function returns the same provided input `geometryCfg`, enrichened with the additional key `.preparedBukets`.
+     *
+     * @param {object} geometryCfg The mesh information containing `.positions`, `.indices`, `.edgeIndices` arrays.
+     *
+     * @returns {object} The mesh information enrichened with `.geometries` key.
+     */
+    #prepareMeshGeometry(geometryCfg: any) {
+        let uniquePositions, uniqueIndices, uniqueEdgeIndices;
+        [
+            uniquePositions,
+            uniqueIndices,
+            uniqueEdgeIndices,
+        ] = uniquifyPositions({
+            positions: geometryCfg.positions,
+            indices: geometryCfg.indices,
+            edgeIndices: geometryCfg.edgeIndices
+        });
+        const numUniquePositions = uniquePositions.length / 3;
+        const buckets = rebucketPositions(
+            {
+                positions: uniquePositions,
+                indices: uniqueIndices,
+                edgeIndices: uniqueEdgeIndices,
+            },
+            (numUniquePositions > (1 << 16)) ? 16 : 8,
+            // true
+        );
+        geometryCfg.geometries = buckets;
+        // chipmunk
+        // geometryCfg.geometries = [{
+        //     positions: uniquePositions,
+        //     indices: uniqueIndices,
+        //     edgeIndices: uniqueEdgeIndices,
+        // }];
+        return geometryCfg;
+    }
+
+    createObject(params: SceneObjectParams) {
         let id = params.id;
         if (id === undefined) {
-            id = createUUID();
-        } else if (this.sceneObjects[id]) {
+            id = utils.createUUID();
+        } else if (this.objects[id]) {
             this.error("SceneModel already has a SceneObject with this ID: " + id + " - will assign random ID");
-            id = createUUID();
+            id = utils.createUUID();
         }
         const meshIds = params.meshIds;
         if (meshIds === undefined) {
@@ -1072,81 +1099,58 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         if (meshes.length === 1) {
             aabb = meshes[0].aabb;
         } else {
-            aabb = collapseAABB3();
+            aabb = math.boundaries.collapseAABB3();
             for (let i = 0, len = meshes.length; i < len; i++) {
-                expandAABB3(aabb, meshes[i].aabb);
+                math.boundaries.expandAABB3(aabb, meshes[i].aabb);
             }
         }
-        const sceneObject = new WebGLSceneObject({
+        const sceneObject:SceneObject = new WebGLSceneObject({
             id,
             sceneModel: this,
             meshes,
             aabb
         });
-        this.sceneObjectList.push(sceneObject);
-        this.sceneObjects[id] = sceneObject;
+        this.objectList.push(sceneObject);
+        this.objects[id] = sceneObject;
         this.#numSceneObjects++;
         return sceneObject;
     }
 
     finalize() {
-
         if (this.destroyed) {
             return;
         }
-
-        for (const layerId in this.#instancingLayers) {
-            if (this.#instancingLayers.hasOwnProperty(layerId)) {
-                this.#instancingLayers[layerId].finalize();
+        for (let layerId in this.#currentLayers) {
+            if (this.#currentLayers.hasOwnProperty(layerId)) {
+                this.#currentLayers[layerId].finalize();
             }
         }
-
-        for (let layerId in this.#currentBatchingLayers) {
-            if (this.#currentBatchingLayers.hasOwnProperty(layerId)) {
-                this.#currentBatchingLayers[layerId].finalize();
-            }
-        }
-        this.#currentBatchingLayers = {};
-
-        for (let layerId in this.#currentDataTextureLayers) {
-            if (this.#currentDataTextureLayers.hasOwnProperty(layerId)) {
-                this.#currentDataTextureLayers[layerId].finalize();
-            }
-        }
-        this.#currentDataTextureLayers = {};
-
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            const sceneObject = this.sceneObjectList[i];
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            const sceneObject = this.objectList[i];
             sceneObject.finalize();
         }
-
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            const sceneObject = this.sceneObjectList[i];
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            const sceneObject = this.objectList[i];
             sceneObject.finalize2();
         }
-
-        this.#layerList.sort((a, b) => {
-            if (a.sortId < b.sortId) {
-                return -1;
-            }
-            if (a.sortId > b.sortId) {
-                return 1;
-            }
-            return 0;
-        });
-
+        // this.#layerList.sort((a, b) => {
+        //     if (a.sortId < b.sortId) {
+        //         return -1;
+        //     }
+        //     if (a.sortId > b.sortId) {
+        //         return 1;
+        //     }
+        //     return 0;
+        // });
         for (let i = 0, len = this.#layerList.length; i < len; i++) {
             const layer = this.#layerList[i];
             layer.layerIndex = i;
         }
-
+        this.#currentLayers = {};
         this.#instancingGeometries = {};
         this.#preparedInstancingGeometries = {};
-
         this.#renderer.setImageDirty();
-
         this.scene.setAABBDirty();
-
         this.events.fire("finalized", {});
     }
 
@@ -1161,7 +1165,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawColorOpaque(frameContext: FrameContext): void {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1172,7 +1176,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawColorTransparent(frameContext: FrameContext): void {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1183,7 +1187,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawDepth(frameContext: FrameContext): void { // Dedicated to SAO because it skips transparent objects
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1194,7 +1198,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawNormals(frameContext: FrameContext): void { // Dedicated to SAO because it skips transparent objects
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1205,7 +1209,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawSilhouetteXRayed(frameContext: FrameContext): void {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1216,7 +1220,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawSilhouetteHighlighted(frameContext: FrameContext): void {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1227,7 +1231,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawSilhouetteSelected(frameContext: FrameContext): void {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1238,7 +1242,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawEdgesColorOpaque(frameContext: FrameContext): void {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1249,7 +1253,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawEdgesColorTransparent(frameContext: FrameContext): void {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1260,7 +1264,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawEdgesXRayed(frameContext: FrameContext): void {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1271,7 +1275,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawEdgesHighlighted(frameContext: FrameContext) {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1282,7 +1286,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawEdgesSelected(frameContext: FrameContext) {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1293,7 +1297,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawOcclusion(frameContext: FrameContext) {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1304,7 +1308,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawShadow(frameContext: FrameContext) {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1315,7 +1319,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawPickMesh(frameContext: FrameContext) {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1326,7 +1330,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawPickDepths(frameContext: FrameContext) {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1337,7 +1341,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     drawPickNormals(frameContext: FrameContext) {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
@@ -1353,9 +1357,9 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
 
         this.view.camera.events.off(this.#onCameraViewMatrix);
 
-        for (let layerId in this.#currentBatchingLayers) {
-            if (this.#currentBatchingLayers.hasOwnProperty(layerId)) {
-                this.#currentBatchingLayers[layerId].destroy();
+        for (let layerId in this.#currentLayers) {
+            if (this.#currentLayers.hasOwnProperty(layerId)) {
+                this.#currentLayers[layerId].destroy();
             }
         }
 
@@ -1369,25 +1373,23 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             this.#layerList[i].destroy();
         }
 
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            this.sceneObjectList[i].destroy();
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            this.objectList[i].destroy();
         }
 
         Object.entries(this.#geometries).forEach(([key, geometry]) => {
             geometry.destroy();
         });
 
-        this.#currentBatchingLayers = {};
+        this.#currentLayers = {};
         this.#currentDataTextureLayers = {};
         this.#geometries = {};
         this.#textures = {};
         this.#textureSets = {};
         this.#meshes = {};
-        this.sceneObjects = {};
+        this.objects = {};
 
         this.scene.setAABBDirty();
-
-        putScratchMemory();
 
         super.destroy();
     }
@@ -1518,10 +1520,10 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     #rebuildAABB() {
-        collapseAABB3(this.#aabb);
-        for (let i = 0, len = this.sceneObjectList.length; i < len; i++) {
-            const sceneObject = this.sceneObjectList[i];
-            expandAABB3(this.#aabb, sceneObject.aabb);
+        math.boundaries.collapseAABB3(this.#aabb);
+        for (let i = 0, len = this.objectList.length; i < len; i++) {
+            const sceneObject = this.objectList[i];
+            math.boundaries.expandAABB3(this.#aabb, sceneObject.aabb);
         }
         this.#aabbDirty = false;
     }
@@ -1560,18 +1562,18 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     #updateDrawFlags() {
-        if (this.numVisibleLayerPortions === 0) {
+        if (this.numVisibleMeshes === 0) {
             return;
         }
-        if (this.numCulledLayerPortions === this.numPortions) {
+        if (this.numCulledMeshes === this.numMeshes) {
             return;
         }
         const drawFlags = this.drawFlags;
-        drawFlags.colorOpaque = (this.numTransparentLayerPortions < this.numPortions);
-        if (this.numTransparentLayerPortions > 0) {
+        drawFlags.colorOpaque = (this.numTransparentMeshes < this.numMeshes);
+        if (this.numTransparentMeshes > 0) {
             drawFlags.colorTransparent = true;
         }
-        if (this.numXRayedLayerPortions > 0) {
+        if (this.numXRayedMeshes > 0) {
             const xrayMaterial = this.view.xrayMaterial.state;
             if (xrayMaterial.fill) {
                 if (xrayMaterial.fillAlpha < 1.0) {
@@ -1588,16 +1590,16 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                 }
             }
         }
-        if (this.numEdgesLayerPortions > 0) {
+        if (this.numEdgesMeshes > 0) {
             const edgeMaterial = this.view.edgeMaterial.state;
             if (edgeMaterial.edges) {
-                drawFlags.edgesOpaque = (this.numTransparentLayerPortions < this.numPortions);
-                if (this.numTransparentLayerPortions > 0) {
+                drawFlags.edgesOpaque = (this.numTransparentMeshes < this.numMeshes);
+                if (this.numTransparentMeshes > 0) {
                     drawFlags.edgesTransparent = true;
                 }
             }
         }
-        if (this.numSelectedLayerPortions > 0) {
+        if (this.numSelectedMeshes > 0) {
             const selectedMaterial = this.view.selectedMaterial.state;
             if (selectedMaterial.fill) {
                 if (selectedMaterial.fillAlpha < 1.0) {
@@ -1614,7 +1616,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                 }
             }
         }
-        if (this.numHighlightedLayerPortions > 0) {
+        if (this.numHighlightedMeshes > 0) {
             const highlightMaterial = this.view.highlightMaterial.state;
             if (highlightMaterial.fill) {
                 if (highlightMaterial.fillAlpha < 1.0) {

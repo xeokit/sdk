@@ -1,213 +1,172 @@
-import {ENTITY_FLAGS} from './ENTITY_FLAGS';
-import {SceneObject} from "../../../viewer/scene/SceneObject";
-import {SceneModel} from "../../../viewer/scene/SceneModel";
+import {SceneObject, SceneModel, math} from "../../../viewer/index";
+import {SceneObjectFlags} from '../layer/SceneObjectFlags';
 import {Mesh} from "./Mesh";
-import {WebGLSceneModel} from "../WebGLSceneModel";
-import {FloatArrayType} from "../../../viewer/math/math";
-import {AABB3} from "../../../viewer/math/boundaries";
-import {vec3} from "../../../viewer/math/vector";
-import {unglobalizeObjectId} from "../../../viewer/utils/globalizeIDs";
 
-const tempFloatRGB = new Float32Array([0, 0, 0]);
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
 class WebGLSceneObject implements SceneObject {
 
+    /**
+     * Unique ID of this SceneObject.
+     */
     readonly id: string;
-    readonly originalSystemId: string;
-    readonly sceneModel: SceneModel;
 
-    readonly meshes: Mesh[];
+    /**
+     * The SceneModel that contains this SceneObject.
+     */
+    readonly model: SceneModel;
 
-    #numTriangles: number;
+    /**
+     * Which {@link ViewLayer} this SceneObject belongs to.
+     */
+    readonly viewLayer: string ;
+
+    #meshes: Mesh[];
     #flags: number;
-    #aabb: FloatArrayType;
-    #offsetAABB: FloatArrayType;
-    #offset: FloatArrayType;
+    #aabb: math.FloatArrayType;
+    #offsetAABB: math.FloatArrayType;
+    #offset: math.FloatArrayType;
     #colorizeUpdated: boolean;
     #opacityUpdated: boolean;
 
     constructor(params: {
         id: string,
-        sceneModel: WebGLSceneModel,
+        sceneModel: SceneModel,
         meshes: Mesh[],
         aabb: any
     }) {
         this.id = params.id;
-        this.originalSystemId = unglobalizeObjectId(params.sceneModel.id, params.id);
-
-        // @ts-ignore
-        this.sceneModel = params.sceneModel;
-        this.meshes = params.meshes || [];
-
-        this.#numTriangles = 0;
+        this.model = params.sceneModel;
+        this.#meshes = params.meshes || [];
         this.#flags = 0;
         this.#aabb = params.aabb;
-        this.#offsetAABB = AABB3(params.aabb);
-
-        this.#offset = vec3();
+        this.#offsetAABB = math.boundaries.AABB3(params.aabb);
+        this.#offset = math.vec3();
         this.#colorizeUpdated = false;
         this.#opacityUpdated = false;
 
-        for (let i = 0, len = this.meshes.length; i < len; i++) {  // TODO: tidier way? Refactor?
-            const mesh = this.meshes[i];
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {  // TODO: tidier way? Refactor?
+            const mesh = this.#meshes[i];
             mesh.setSceneObject(this);
-            this.#numTriangles += mesh.numTriangles;
         }
     }
 
-    get aabb() {
+    get aabb(): math.FloatArrayType {
         return this.#offsetAABB;
     }
 
     setVisible(viewIndex: number, visible: boolean): void {
-        if (!!(this.#flags & ENTITY_FLAGS.VISIBLE) === visible) {
-            return; // Redundant update
+        if (!!(this.#flags & SceneObjectFlags.VISIBLE) === visible) {
+            return;
         }
-        if (visible) {
-            this.#flags = this.#flags | ENTITY_FLAGS.VISIBLE;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.VISIBLE;
-        }
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setVisible(this.#flags);
+        this.#flags = visible ? this.#flags | SceneObjectFlags.VISIBLE : this.#flags & ~SceneObjectFlags.VISIBLE;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setVisible(this.#flags);
         }
     }
 
     setHighlighted(viewIndex: number, highlighted: boolean): void {
-        if (!!(this.#flags & ENTITY_FLAGS.HIGHLIGHTED) === highlighted) {
-            return; // Redundant update
+        if (!!(this.#flags & SceneObjectFlags.HIGHLIGHTED) === highlighted) {
+            return;
         }
-        if (highlighted) {
-            this.#flags = this.#flags | ENTITY_FLAGS.HIGHLIGHTED;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.HIGHLIGHTED;
-        }
-        for (var i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setHighlighted(this.#flags);
+        this.#flags = highlighted ? this.#flags | SceneObjectFlags.HIGHLIGHTED : this.#flags & ~SceneObjectFlags.HIGHLIGHTED;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setHighlighted(this.#flags);
         }
     }
 
     setXRayed(viewIndex: number, xrayed: boolean): void {
-        if (!!(this.#flags & ENTITY_FLAGS.XRAYED) === xrayed) {
-            return; // Redundant update
+        if (!!(this.#flags & SceneObjectFlags.XRAYED) === xrayed) {
+            return;
         }
-        if (xrayed) {
-            this.#flags = this.#flags | ENTITY_FLAGS.XRAYED;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.XRAYED;
-        }
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setXRayed(this.#flags);
+        this.#flags = xrayed ? this.#flags | SceneObjectFlags.XRAYED : this.#flags & ~SceneObjectFlags.XRAYED;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setXRayed(this.#flags);
         }
     }
 
     setSelected(viewIndex: number, selected: boolean): void {
-        if (!!(this.#flags & ENTITY_FLAGS.SELECTED) === selected) {
-            return; // Redundant update
+        if (!!(this.#flags & SceneObjectFlags.SELECTED) === selected) {
+            return;
         }
-        if (selected) {
-            this.#flags = this.#flags | ENTITY_FLAGS.SELECTED;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.SELECTED;
-        }
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setSelected(this.#flags);
+        this.#flags = selected ? this.#flags | SceneObjectFlags.SELECTED : this.#flags & ~SceneObjectFlags.SELECTED;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setSelected(this.#flags);
         }
     }
 
     setEdges(viewIndex: number, edges: boolean): void {
-        if (!!(this.#flags & ENTITY_FLAGS.EDGES) === edges) {
-            return; // Redundant update
+        if (!!(this.#flags & SceneObjectFlags.EDGES) === edges) {
+            return;
         }
-        if (edges) {
-            this.#flags = this.#flags | ENTITY_FLAGS.EDGES;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.EDGES;
-        }
-        for (var i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setEdges(this.#flags);
+        this.#flags = edges ? this.#flags | SceneObjectFlags.EDGES : this.#flags & ~SceneObjectFlags.EDGES;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setEdges(this.#flags);
         }
     }
 
     setCulled(viewIndex: number, culled: boolean): void {
-        if (!!(this.#flags & ENTITY_FLAGS.CULLED) === culled) {
-            return; // Redundant update
+        if (!!(this.#flags & SceneObjectFlags.CULLED) === culled) {
+            return;
         }
-        if (culled) {
-            this.#flags = this.#flags | ENTITY_FLAGS.CULLED;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.CULLED;
-        }
-        for (var i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setCulled(this.#flags);
+        this.#flags = culled ? this.#flags | SceneObjectFlags.CULLED : this.#flags & ~SceneObjectFlags.CULLED;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setCulled(this.#flags);
         }
     }
 
     setClippable(viewIndex: number, clippable: boolean): void {
-        if ((!!(this.#flags & ENTITY_FLAGS.CLIPPABLE)) === clippable) {
-            return; // Redundant update
+        if ((!!(this.#flags & SceneObjectFlags.CLIPPABLE)) === clippable) {
+            return;
         }
-        if (clippable) {
-            this.#flags = this.#flags | ENTITY_FLAGS.CLIPPABLE;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.CLIPPABLE;
-        }
-        for (var i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setClippable(this.#flags);
+        this.#flags = clippable ? this.#flags | SceneObjectFlags.CLIPPABLE : this.#flags & ~SceneObjectFlags.CLIPPABLE;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setClippable(this.#flags);
         }
     }
 
     setCollidable(viewIndex: number, collidable: boolean): void {
-        if (!!(this.#flags & ENTITY_FLAGS.COLLIDABLE) === collidable) {
-            return; // Redundant update
+        if (!!(this.#flags & SceneObjectFlags.COLLIDABLE) === collidable) {
+            return;
         }
-        if (collidable) {
-            this.#flags = this.#flags | ENTITY_FLAGS.COLLIDABLE;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.COLLIDABLE;
-        }
-        for (var i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setCollidable(this.#flags);
+        this.#flags = collidable ? this.#flags | SceneObjectFlags.COLLIDABLE : this.#flags & ~SceneObjectFlags.COLLIDABLE;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setCollidable(this.#flags);
         }
     }
 
     setPickable(viewIndex: number, pickable: boolean): void {
-        if (!!(this.#flags & ENTITY_FLAGS.PICKABLE) === pickable) {
-            return; // Redundant update
+        if (!!(this.#flags & SceneObjectFlags.PICKABLE) === pickable) {
+            return;
         }
-        if (pickable) {
-            this.#flags = this.#flags | ENTITY_FLAGS.PICKABLE;
-        } else {
-            this.#flags = this.#flags & ~ENTITY_FLAGS.PICKABLE;
-        }
-        for (var i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setPickable(this.#flags);
+        this.#flags = pickable ? this.#flags | SceneObjectFlags.PICKABLE : this.#flags & ~SceneObjectFlags.PICKABLE;
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setPickable(this.#flags);
         }
     }
 
-    setColorize(viewIndex: number, color?: FloatArrayType): void { // [0..1, 0..1, 0..1]
+    setColorize(viewIndex: number, color?: math.FloatArrayType): void { // [0..1, 0..1, 0..1]
         if (color) {
             tempIntRGB[0] = Math.floor(color[0] * 255.0); // Quantize
             tempIntRGB[1] = Math.floor(color[1] * 255.0);
             tempIntRGB[2] = Math.floor(color[2] * 255.0);
-            for (let i = 0, len = this.meshes.length; i < len; i++) {
-                this.meshes[i].setColorize(tempIntRGB);
+            for (let i = 0, len = this.#meshes.length; i < len; i++) {
+                this.#meshes[i].setColorize(tempIntRGB);
             }
         } else {
-            for (let i = 0, len = this.meshes.length; i < len; i++) {
-                this.meshes[i].setColorize(null);
+            for (let i = 0, len = this.#meshes.length; i < len; i++) {
+                this.#meshes[i].setColorize(null);
             }
         }
     }
 
     setOpacity(viewIndex: number, opacity?: number): void {
-        if (this.meshes.length === 0) {
+        if (this.#meshes.length === 0) {
             return;
         }
         const opacityUpdated = (opacity !== null && opacity !== undefined);
         // @ts-ignore
-        const lastOpacityQuantized = this.meshes[0].#colorize[3];
+        const lastOpacityQuantized = this.#meshes[0].#colorize[3];
         let opacityQuantized = 255;
         if (opacityUpdated) {
             if (opacity < 0) {
@@ -225,12 +184,12 @@ class WebGLSceneObject implements SceneObject {
                 return;
             }
         }
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setOpacity(opacityQuantized, this.#flags);
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setOpacity(opacityQuantized, this.#flags);
         }
     }
 
-    setOffset(viewIndex: number, offset: FloatArrayType) {
+    setOffset(viewIndex: number, offset: math.FloatArrayType): void {
         if (offset) {
             this.#offset[0] = offset[0];
             this.#offset[1] = offset[1];
@@ -240,8 +199,8 @@ class WebGLSceneObject implements SceneObject {
             this.#offset[1] = 0;
             this.#offset[2] = 0;
         }
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].setOffset(this.#offset);
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].setOffset(this.#offset);
         }
         this.#offsetAABB[0] = this.#aabb[0] + this.#offset[0];
         this.#offsetAABB[1] = this.#aabb[1] + this.#offset[1];
@@ -255,21 +214,21 @@ class WebGLSceneObject implements SceneObject {
         // this.sceneModel.glRedraw();
     }
 
-    finalize() {
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].finalize(this.#flags);
+    finalize(): void {
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].finalize(this.#flags);
         }
     }
 
-    finalize2() {
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].finalize2();
+    finalize2(): void {
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].finalize2();
         }
     }
 
-    destroy() { // Called by WebGLSceneModel
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            this.meshes[i].destroy();
+    destroy(): void { // Called by WebGLSceneModel
+        for (let i = 0, len = this.#meshes.length; i < len; i++) {
+            this.#meshes[i].destroy();
         }
     }
 }

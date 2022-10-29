@@ -1,4 +1,4 @@
-import {Texture2D} from "../../lib/Texture2D";
+import {Texture2D} from "../../../lib/webgl/Texture2D";
 
 /**
  * Instantiated by VBOSceneModel#createTexture
@@ -6,8 +6,8 @@ import {Texture2D} from "../../lib/Texture2D";
  * @private
  */
 export class Texture {
-    private id: any;
-    private texture: Texture2D;
+    id: any;
+    texture: Texture2D;
 
     constructor(params: { id: any; texture: Texture2D; }) {
         this.id = params.id;

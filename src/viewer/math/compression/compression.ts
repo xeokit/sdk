@@ -16,9 +16,68 @@ import {
     translationMat4v
 } from "../matrix";
 import {normalizeVec3, vec3} from "../vector";
+import {GeometryParams, GeometryParamsCompressed} from "../../../viewer/index";
+// @ts-ignore
+import {uniquifyPositions} from "./lib/calculateUniquePositions.js";
+// @ts-ignore
+import {rebucketPositions} from "./lib/rebucketPositions";
 
 const translate: FloatArrayType = mat4();
 const scale: FloatArrayType = mat4();
+
+/**
+ * This function applies two steps to the provided mesh geometry data:
+ *
+ * - 1st, it reduces its `.positions` to unique positions, thus removing duplicate vertices. It will adjust the `.indices`
+ * and `.edgeIndices` array accordingly to the unique `.positions`.
+ *
+ * - 2nd, it tries to do an optimization called `index rebucketting`
+ *
+ *   _Rebucketting minimizes the amount of RAM usage for a given mesh geometry by trying do demote its needed index bitness._
+ *
+ *   - _for 32 bit indices, will try to demote them to 16 bit indices_
+ *   - _for 16 bit indices, will try to demote them to 8 bits indices_
+ *   - _8 bits indices are kept as-is_
+ *
+ *   The fact that 32/16/8 bits are needed for indices, depends on the number of maximumm indexable vertices within the
+ *   mesh geometry: this is, the number of vertices in the mesh geometry.
+ *
+ * The function returns the same provided input `geometryParams`, enriched with the additional key `.preparedBuckets`.
+ *
+ * @param {object} geometryParams The mesh information containing `.positions`, `.indices`, `.edgeIndices` arrays.
+ *
+ * @returns {object} The mesh information enrichened with `.geometries` key.
+ */
+export function compressGeometryParams(geometryParams: GeometryParams): GeometryParamsCompressed {
+    let uniquePositions, uniqueIndices, uniqueEdgeIndices;
+    [
+        uniquePositions,
+        uniqueIndices,
+        uniqueEdgeIndices,
+    ] = uniquifyPositions({
+        positions: geometryParams.positions,
+        indices: geometryParams.indices,
+        edgeIndices: geometryParams.edgeIndices
+    });
+    const numUniquePositions = uniquePositions.length / 3;
+    const buckets = rebucketPositions(
+        {
+            positions: uniquePositions,
+            indices: uniqueIndices,
+            edgeIndices: uniqueEdgeIndices,
+        },
+        (numUniquePositions > (1 << 16)) ? 16 : 8,
+        // true
+    );
+    return {
+        origin: geometryParams.origin,
+        positionsDecompressMatrix: undefined,
+        uvsDecompressMatrix: undefined,
+        id: geometryParams.id,
+        primitive: geometryParams.primitive,
+        geometryBuckets: buckets
+    };
+}
 
 /**
  * Gets the boundary of a flat positions array.

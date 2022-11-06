@@ -1,4 +1,4 @@
-import {Canvas2Image} from "../WebGLRenderer/lib/canvas2image";
+import {Canvas2Image} from "../../WebGLRenderer/lib/canvas2image";
 import {Texture} from "./Texture";
 
 /**

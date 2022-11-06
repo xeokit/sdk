@@ -1,14 +1,11 @@
-import * as math from "../../../../viewer/math";
-import {FrameContext} from "../../../../webgl/WebGLRenderer/FrameContext";
-import {Attribute} from "../../../../lib/webgl/Attribute";
-import {RENDER_PASSES} from "../RENDER_PASSES";
-import {View} from "../../../../viewer/view/View";
-import {Program} from "../../../../lib/webgl/Program";
-import {Sampler} from "../../../../lib/webgl/Sampler";
-import {Perspective} from "../../../../viewer/view/camera/Perspective";
+import {SceneObject, SceneModel, math} from "../../../viewer";
+import {FrameContext} from "../FrameContext";
 
-import {WEBGL_INFO} from "../../../../../webglInfo.js";
-import {Layer} from "../layer/Layer";
+import {RENDER_PASSES} from "./RENDER_PASSES";
+import {Program} from "../../lib/webgl/Program";
+import {Sampler} from "../../lib/webgl/Sampler";
+import {WEBGL_INFO} from "../../lib/webgl/webglInfo";
+import {Layer} from "./Layer";
 
 const tempVec4 = math.vec4();
 const tempVec3a = math.vec3();
@@ -344,17 +341,17 @@ export abstract class LayerRenderer {
 
         this.#uCameraMatricesDataTexture = "uCameraMatricesDataTexture";
 
-        this.#uTexturePerObjectIdPositionsDecodeMatrix = "uTexturePerObjectIdPositionsDecodeMatrix"; // chipmunk
-        this.#uTexturePerObjectIdColorsAndFlags = "uTexturePerObjectIdColorsAndFlags"; // chipmunk
-        this.#uTexturePerVertexIdCoordinates = "uTexturePerVertexIdCoordinates"; // chipmunk
-        this.#uTexturePerPolygonIdNormals = "uTexturePerPolygonIdNormals"; // chipmunk
-        this.#uTexturePerPolygonIdIndices = "uTexturePerPolygonIdIndices"; // chipmunk
-        this.#uTexturePerPolygonIdPortionIds = "uTexturePerPolygonIdPortionIds"; // chipmunk
-
-
-        this.#uEachMeshMatricesDataTexture = "uEachMeshMatricesDataTexture";
-
-        this.#uTexturePerObjectIdOffsets = "uTexturePerObjectIdOffsets"; // chipmunk
+        // this.#uTexturePerObjectIdPositionsDecodeMatrix = "uTexturePerObjectIdPositionsDecodeMatrix"; // chipmunk
+        // this.#uTexturePerObjectIdColorsAndFlags = "uTexturePerObjectIdColorsAndFlags"; // chipmunk
+        // this.#uTexturePerVertexIdCoordinates = "uTexturePerVertexIdCoordinates"; // chipmunk
+        // this.#uTexturePerPolygonIdNormals = "uTexturePerPolygonIdNormals"; // chipmunk
+        // this.#uTexturePerPolygonIdIndices = "uTexturePerPolygonIdIndices"; // chipmunk
+        // this.#uTexturePerPolygonIdPortionIds = "uTexturePerPolygonIdPortionIds"; // chipmunk
+        //
+        //
+        // this.#uEachMeshMatricesDataTexture = "uEachMeshMatricesDataTexture";
+        //
+        // this.#uTexturePerObjectIdOffsets = "uTexturePerObjectIdOffsets"; // chipmunk
 
         // Material textures
 

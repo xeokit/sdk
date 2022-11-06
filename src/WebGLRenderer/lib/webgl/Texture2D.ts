@@ -1,4 +1,7 @@
-import * as utils from '../../viewer/utils/index';
+
+import * as math from "../../../viewer/math/index";
+import * as utils from "../../../viewer/utils/index";
+
 import {convertConstant} from "./convertConstant";
 import {
     NearestFilter,
@@ -8,9 +11,8 @@ import {
     RGBAFormat,
     sRGBEncoding,
     UnsignedByteType
-} from "../../viewer/constants";
+} from "../../../viewer/constants";
 import {getExtension} from "./getExtension";
-import * as math from "../../viewer/math/index";
 
 const color = new Uint8Array([0, 0, 0, 1]);
 

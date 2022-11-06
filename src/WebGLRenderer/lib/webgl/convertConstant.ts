@@ -1,4 +1,4 @@
-import {constants} from '../../viewer/index';
+import {constants} from '../../../viewer/index';
 import {getExtension} from "./getExtension";
 
 const {

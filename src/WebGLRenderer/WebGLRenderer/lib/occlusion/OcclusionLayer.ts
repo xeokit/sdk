@@ -1,5 +1,5 @@
 //
-// import {ArrayBuf} from "../../../lib/ArrayBuf";
+// import {ArrayBuf} from "../../../WebGLRenderer/ArrayBuf";
 // import {math, Scene} from "../../../../viewer/index";
 //
 // class OcclusionLayer {

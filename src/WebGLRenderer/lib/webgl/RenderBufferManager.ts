@@ -1,5 +1,5 @@
 import {RenderBuffer} from "./RenderBuffer";
-import {View} from "../../viewer/view/View";
+import {View} from "../../../viewer/view/View";
 
 
 /**

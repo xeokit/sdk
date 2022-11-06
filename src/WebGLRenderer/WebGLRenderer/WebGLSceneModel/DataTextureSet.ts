@@ -1,5 +1,5 @@
 import {DataTexture} from "./DataTexture";
-import {Program} from "../../../lib/webgl/Program";
+import {Program} from "../../lib/webgl/Program";
 
 export class DataTextureSet {
 

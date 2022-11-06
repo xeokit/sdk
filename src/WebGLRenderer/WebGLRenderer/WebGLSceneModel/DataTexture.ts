@@ -1,4 +1,4 @@
-import {Program} from "../../../lib/webgl/Program";
+import {Program} from "../../lib/webgl/Program";
 
 /**
  * A WebGL2 texture that holds geometry data.

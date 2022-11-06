@@ -1,5 +1,5 @@
 import {SceneObject, SceneModel, math} from "../../../viewer/index";
-import {SceneObjectFlags} from '../layer/SceneObjectFlags';
+import {SceneObjectFlags} from './SceneObjectFlags';
 import {Mesh} from "./Mesh";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);

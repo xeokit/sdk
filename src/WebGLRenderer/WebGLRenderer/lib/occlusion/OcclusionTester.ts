@@ -1,4 +1,4 @@
-// import {Program} from "../../../lib/Program";
+// import {Program} from "../../../WebGLRenderer/Program";
 // import {OcclusionLayer} from "./OcclusionLayer";
 //
 //

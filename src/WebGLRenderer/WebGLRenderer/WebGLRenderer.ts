@@ -10,16 +10,16 @@ import {
     ViewerCapabilities
 } from "../../viewer/index";
 
-import {WEBGL_INFO} from "../../lib/webgl/webglInfo";
+import {WEBGL_INFO} from "../lib/webgl/webglInfo";
 import {FrameContext} from "./FrameContext";
-import {RenderBufferManager} from "../../lib/webgl/RenderBufferManager";
-import {RenderBuffer} from "../../lib/webgl/RenderBuffer";
+import {RenderBufferManager} from "../lib/webgl/RenderBufferManager";
+import {RenderBuffer} from "../lib/webgl/RenderBuffer";
 import {SAOOcclusionRenderer} from "./lib/sao/SAOOcclusionRenderer";
 import {SAODepthLimitedBlurRenderer} from "./lib/sao/SAODepthLimitedBlurRenderer";
-import {getExtension} from "../../lib/webgl/getExtension";
+import {getExtension} from "../lib/webgl/getExtension";
 import {Pickable} from "./Pickable";
 import {Drawable} from "./Drawable";
-import {WebGLSceneModel} from "../WebGLSceneModel/WebGLSceneModel";
+import {WebGLSceneModel} from "./WebGLSceneModel/WebGLSceneModel";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
@@ -110,7 +110,7 @@ export class WebGLRenderer implements Renderer {
 
     registerView(view: View): number {
         this.#view = view;
-        const WEBGL_CONTEXT_NAMES = ["webgl"];
+        const WEBGL_CONTEXT_NAMES = ["WebGLRenderer"];
         const canvasElement = view.canvas.canvas;
         for (let i = 0; !this.gl && i < WEBGL_CONTEXT_NAMES.length; i++) {
             try {

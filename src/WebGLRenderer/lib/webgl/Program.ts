@@ -1,10 +1,10 @@
-import {Map} from "../../viewer/utils/index";
+import {utils} from "../../../viewer/index";
 import {Shader} from "./Shader";
 import {Sampler} from "./Sampler";
 import {Attribute} from "./Attribute";
 import {Texture} from "./Texture";
 
-const ids = new Map({}, "");
+const ids = new utils.Map({}, "");
 
 /**
  * @private

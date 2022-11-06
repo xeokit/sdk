@@ -1,10 +1,9 @@
-import * as math from "../../../viewer/math/index";
-import {Pickable} from "../../WebGLRenderer/Pickable";
+import {math} from "../../../viewer/index";
+import {Pickable} from "../Pickable";
 import {WebGLSceneObject} from "./WebGLSceneObject";
-import {WebGLRenderer} from "../../WebGLRenderer/WebGLRenderer";
-import {DrawFlags} from "../../WebGLRenderer/DrawFlags";
-import {FrameContext} from "../../WebGLRenderer/FrameContext";
-import {Layer} from "../layer/Layer";
+import {DrawFlags} from "../DrawFlags";
+import {FrameContext} from "../FrameContext";
+import {Layer} from "./Layer";
 
 class Mesh implements Pickable {
 
@@ -13,7 +12,6 @@ class Mesh implements Pickable {
     sceneObject: WebGLSceneObject;
     aabb: math.FloatArrayType;
     numTriangles: number;
-    webglRenderer: WebGLRenderer;
     layer: Layer;
     meshId: any;
     color: math.FloatArrayType;
@@ -24,14 +22,12 @@ class Mesh implements Pickable {
 
     constructor(params: {
         id: string,
-        webglRenderer: WebGLRenderer,
         color: math.FloatArrayType,
         opacity: number
     }) {
-        this.webglRenderer = params.webglRenderer;
         this.sceneObject = null;
         this.id = params.id;
-        this.pickId = this.webglRenderer.registerPickable(this);
+        this.pickId = 0;
         this.color = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
         this.colorize = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
         this.colorizing = false;
@@ -43,11 +39,6 @@ class Mesh implements Pickable {
         this.aabb = math.boundaries.AABB3();
     }
 
-    /**
-     * Called by WebGLSceneModel#createObject / WebGLSceneObject
-     * @param sceneObject
-     * @private
-     */
     setSceneObject(sceneObject: WebGLSceneObject) {
         this.sceneObject = sceneObject;
     }
@@ -175,7 +166,6 @@ class Mesh implements Pickable {
     }
 
     destroy() {
-        this.webglRenderer.deregisterPickable(this.pickId);
     }
 }
 

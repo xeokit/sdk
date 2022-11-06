@@ -1,93 +1,145 @@
-import {DataTextureBuffer} from "./DataTextureBuffer";
+import {WebGLSceneModel} from "./WebGLSceneModel";
 import {DataTextureSet} from "./DataTextureSet";
 import {DataTextureFactory} from "./DataTextureFactory";
-import {FrameContext} from "../../WebGLRenderer/FrameContext";
-import {DrawFlags} from "../../WebGLRenderer/DrawFlags";
-
-import {LayerParams} from "./LayerParams";
-import {MeshParams} from "./MeshParams";
-import {GeometryParams} from "./GeometryParams";
-
-import {Geometry} from "./Geometry";
-
-import {MeshPart} from "./MeshPart";
-
-// @ts-ignore
-import {uniquifyPositions} from "./calculateUniquePositions.js";
-// @ts-ignore
-import {rebucketPositions} from "./rebucketPositions.js";
-
-import {SceneObjectFlags} from './SceneObjectFlags';
-import {RENDER_PASSES} from '../lib/RENDER_PASSES';
-
-import {
-    Component,
-    Scene,
-    View,
-    SceneModel,
-    Events,
-    utils,
-    math,
-    Renderer,
-    SceneObjectParams,
-    TextureParams,
-    TextureSetParams,
-    constants
-} from "../../../viewer/index";
-
+import {FrameContext} from "../FrameContext";
+import {DrawFlags} from "../DrawFlags";
 import {MeshCounts} from "./MeshCounts";
-import {WebGLSceneModel} from "../WebGLSceneModel";
 
-/**
- * 12-bits allowed for object ids.
- *
- * Limits the per-object texture height in the layer.
- */
-const MAX_MESH_PARTS = (1 << 12);
+// @ts-ignore
+import {uniquifyPositions} from "../../../viewer/math/compression/lib/calculateUniquePositions.js";
+// @ts-ignore
+import {rebucketPositions} from "../../../viewer/math/compression/lib/rebucketPositions.js";
+import {SceneObjectFlags} from './SceneObjectFlags';
+import {RENDER_PASSES} from './RENDER_PASSES';
+import {GeometryCompressedParams, GeometryBucketParams, math, MeshParams} from "../../../viewer";
 
-/**
- * 2048 is max data texture height
- *
- * Limits the aggregated geometry texture height in the layer.
- */
-const MAX_DATATEXTURE_HEIGHT = (1 << 11);
-
-/**
- * Align `indices` and `edgeIndices` memory layout to 8 elements.
- *
- * Used as an optimization for the `...meshIds...` texture, so it
- * can just be stored 1 out of 8 `meshIds` corresponding to a given
- * `triangle-index` or `edge-index`.
- */
+const MAX_MESH_PARTS = (1 << 12); // 12 bits 
+const MAX_DATATEXTURE_HEIGHT = (1 << 11); // 2048
 const INDICES_EDGE_INDICES_ALIGNMENT_SIZE = 8;
 
 const identityMatrix = math.identityMat4();
-
 const tempMat4 = math.mat4();
 const tempMat4b = math.mat4();
 const tempVec4a = math.vec4([0, 0, 0, 1]);
 const tempVec4b = math.vec4([0, 0, 0, 1]);
 const tempVec4c = math.vec4([0, 0, 0, 1]);
 const tempOBB3 = math.boundaries.OBB3();
-
 const tempUint8Array4 = new Uint8Array(4);
 const tempFloat32Array3 = new Float32Array(3);
 
+export interface LayerParams {
+    gl: WebGL2RenderingContext;
+    sceneModel: WebGLSceneModel;
+    meshCounts: MeshCounts;
+    primitive: number;
+    origin: math.FloatArrayType;
+    layerIndex: number;
+}
+
+interface GeometryBucketHandle {
+    vertexBase: number;
+    numVertices: number;
+    numTriangles: number;
+    numEdges: number;
+    indicesBase: number;
+    edgeIndicesBase: number
+}
+
+interface GeometryHandle {
+    aabb: math.FloatArrayType;
+    positionsDecompressMatrix: math.FloatArrayType;
+    geometryBucketHandles: GeometryBucketHandle[]
+}
+
+interface MeshPartParams {
+    aabb: math.FloatArrayType;
+}
+
+interface MeshPartHandle {
+    vertsBase: number;
+    numVerts: number;
+}
+
+export interface LayerRenderState {
+    dataTextureSet: DataTextureSet;
+    primitive: number;
+    origin: math.FloatArrayType;
+    numIndices8Bits: number;
+    numIndices16Bits: number;
+    numIndices32Bits: number;
+    numEdgeIndices8Bits: number;
+    numEdgeIndices16Bits: number;
+    numEdgeIndices32Bits: number;
+    numVertices: number;
+}
+
+class DataTextureBuffer {
+
+    positions: number[];
+    indices_8Bits: number[];
+    indices_16Bits: number[];
+    indices_32Bits: number[];
+    edgeIndices_8Bits: number[];
+    edgeIndices_16Bits: number[];
+    edgeIndices_32Bits: number[];
+    eachMeshVertexPortionBase: number[];
+    eachMeshVertexPortionOffset: number[];
+    eachMeshEdgeIndicesOffset: number[];
+    eachMeshColor: any[];
+    eachMeshPickColor: any[];
+    eachMeshMatrices: any[];
+    eachMeshNormalMatrix: any[];
+    eachMeshPositionsDecompressMatrix: any[];
+    eachTriangleMesh_32Bits: number[];
+    eachTriangleMesh_16Bits: number[];
+    eachTriangleMesh_8Bits: number[];
+    eachEdgeMesh_32Bits: number[];
+    eachEdgeMesh_16Bits: number[];
+    eachEdgeMesh_8Bits: number[];
+    eachEdgeOffset: any[];
+    eachMeshParts: number[];
+
+    constructor() {
+        this.positions = [];
+        this.indices_8Bits = [];
+        this.indices_16Bits = [];
+        this.indices_32Bits = [];
+        this.edgeIndices_8Bits = [];
+        this.edgeIndices_16Bits = [];
+        this.edgeIndices_32Bits = [];
+        this.eachMeshVertexPortionBase = [];
+        this.eachMeshVertexPortionOffset = [];
+        this.eachMeshEdgeIndicesOffset = [];
+        this.eachMeshColor = [];
+        this.eachMeshPickColor = [];
+        this.eachMeshMatrices = [];
+        this.eachMeshNormalMatrix = [];
+        this.eachMeshPositionsDecompressMatrix = [];
+        this.eachTriangleMesh_32Bits = [];
+        this.eachTriangleMesh_16Bits = [];
+        this.eachTriangleMesh_8Bits = [];
+        this.eachEdgeMesh_32Bits = [];
+        this.eachEdgeMesh_16Bits = [];
+        this.eachEdgeMesh_8Bits = [];
+        this.eachEdgeOffset = [];
+        this.eachMeshParts = [];
+    }
+}
+
 export class Layer {
 
-    #meshCounts: MeshCounts;
-
+    sceneModel: WebGLSceneModel;
     primitive: number;
     layerIndex: number;
-    sceneModel: WebGLSceneModel;
-    state: any;
     aabb: math.FloatArrayType;
+    state: LayerRenderState;
 
     #gl: WebGL2RenderingContext;
+    #meshCounts: MeshCounts;
     #dataTextureBuffer: DataTextureBuffer;
     #renderers: any;
-    #instancedGeometries: { [key: number | string]: any };
-    #meshParts: MeshPart[];
+    #geometryHandles: { [key: number | string]: any };
+    #meshPartHandles: MeshPartHandle[];
     #numMeshParts: number;
     #eachMeshParts: number[][];
     #numMeshes: number;
@@ -104,7 +156,6 @@ export class Layer {
     sortId: string;
     #deferredSetFlagsActive: boolean;
     #deferredSetFlagsDirty: boolean;
-
     #finalized: boolean;
 
     constructor(layerParams: LayerParams, renderers: any) {
@@ -115,11 +166,7 @@ export class Layer {
         this.layerIndex = layerParams.layerIndex;
         this.sceneModel = layerParams.sceneModel;
 
-        this.#gl = layerParams.gl;
-        this.#dataTextureBuffer = new DataTextureBuffer();
-        this.#renderers = renderers;
-
-        this.state = {
+        this.state = <LayerRenderState>{
             primitive: layerParams.primitive,
             dataTextureSet: new DataTextureSet(),
             origin: math.vec3(),
@@ -132,6 +179,9 @@ export class Layer {
             numVertices: 0
         };
 
+        this.#gl = layerParams.gl;
+        this.#dataTextureBuffer = new DataTextureBuffer();
+        this.#renderers = renderers;
         this.#numMeshes = 0;
         this.#numMeshParts = 0;
         this.#numVisibleMeshes = 0;
@@ -143,132 +193,89 @@ export class Layer {
         this.#numPickableMeshes = 0;
         this.#numCulledMeshes = 0;
         this.#modelAABB = math.boundaries.collapseAABB3();
-        this.#instancedGeometries = {};
-        this.#meshParts = [];
+        this.#geometryHandles = {};
+        this.#meshPartHandles = [];
         this.#eachMeshParts = [];
-
-        if (layerParams.origin) {
-            this.state.origin = math.vec3(layerParams.origin);
-        }
-
         this.aabb = math.boundaries.collapseAABB3();
-
+        if (layerParams.origin) {
+            this.state.origin.set(layerParams.origin);
+        }
         this.#finalized = false;
     }
 
-    canCreateMesh(params: {
-        geometryId?: any;
-        geometries?: GeometryParams[];
-        indices?: math.IntArrayType[];
-    }): boolean {
+    get hash() {
+        return `layer-${this.state.primitive}-${this.state.origin[0]}-${this.state.origin[1]}-${this.state.origin[2]}`;
+    }
+
+    // canCreateMesh(params: {
+    //     geometryId?: any;
+    //     // geometries?: LayerGeometryParams[];
+    //     // indices?: math.IntArrayType[];
+    // }): boolean {
+    //     if (this.#finalized) {
+    //         throw "Already finalized";
+    //     }
+    //     // const state = this.state;
+    //     // const numNewMeshParts = params.geometries.length;
+    //     // if ((this.#numMeshParts + numNewMeshParts) > MAX_MESH_PARTS) {
+    //     //     //  dataTextureRamStats.cannotCreateMesh.because10BitsObjectId++;
+    //     // }
+    //     // let canCreate = (this.#numMeshParts + numNewMeshParts) <= MAX_MESH_PARTS;
+    //     // const geometryFound = params.geometryId !== null && (params.geometryId + "#0") in this.#geometryHandles;
+    //     // if (!geometryFound) {
+    //     //     const primVerts = (this.primitive === constants.PointsPrimitive) ? 1 : (this.primitive == constants.LinesPrimitive ? 2 : 3);
+    //     //     const maxIndicesOfAnyBits = Math.max(state.numIndices8Bits, state.numIndices16Bits, state.numIndices32Bits);
+    //     //     let numVertices = 0;
+    //     //     let numIndices = params.indices.length / 3;
+    //     //     params.geometries.forEach((geometryParams: LayerGeometryParams) => {
+    //     //         numVertices += geometryParams.positions.length / primVerts;
+    //     //     });
+    //     //     canCreate &&= (state.numVertices + numVertices) <= MAX_DATATEXTURE_HEIGHT * 1024 && (maxIndicesOfAnyBits + numIndices) <= MAX_DATATEXTURE_HEIGHT * 1024;
+    //     // }
+    //     // return canCreate;
+    // }
+
+    createGeometry(geometryCompressedParams: GeometryCompressedParams) {
         if (this.#finalized) {
             throw "Already finalized";
         }
-        const state = this.state;
-        const numNewMeshParts = params.geometries.length;
-        if ((this.#numMeshParts + numNewMeshParts) > MAX_MESH_PARTS) {
-            //  dataTextureRamStats.cannotCreateMesh.because10BitsObjectId++;
+        const geometryBucketHandles = [];
+        for (let i = 0, len = geometryCompressedParams.geometryBuckets.length; i < len; i++) {
+            geometryBucketHandles.push(this.#createGeometryBucket(geometryCompressedParams.geometryBuckets[i]));
         }
-        let canCreate = (this.#numMeshParts + numNewMeshParts) <= MAX_MESH_PARTS;
-        const geometryFound = params.geometryId !== null && (params.geometryId + "#0") in this.#instancedGeometries;
-        if (!geometryFound) {
-            const primVerts = (this.primitive === constants.PointsPrimitive) ? 1 : (this.primitive == constants.LinesPrimitive ? 2 : 3);
-            const maxIndicesOfAnyBits = Math.max(state.numIndices8Bits, state.numIndices16Bits, state.numIndices32Bits);
-            let numVertices = 0;
-            let numIndices = params.indices.length / 3;
-            params.geometries.forEach((geometryParams: GeometryParams) => {
-                numVertices += geometryParams.positions.length / primVerts;
-            });
-            canCreate &&= (state.numVertices + numVertices) <= MAX_DATATEXTURE_HEIGHT * 1024 && (maxIndicesOfAnyBits + numIndices) <= MAX_DATATEXTURE_HEIGHT * 1024;
-        }
-        return canCreate;
+        this.#geometryHandles[geometryCompressedParams.id] = <GeometryHandle>{
+            id: geometryCompressedParams.id,
+            aabb: geometryCompressedParams.aabb,
+            positionsDecompressMatrix: geometryCompressedParams.positionsDecompressMatrix,
+            geometryBucketHandles
+        };
     }
 
-    createMesh(meshParams: MeshParams, objectCfg: any = null): number {
-        if (this.#finalized) {
-            throw "Already finalized";
-        }
-        const instancing = objectCfg !== null;
-        const meshId = this.#numMeshes;
-        const meshAABB = instancing ? objectCfg.aabb : meshParams.aabb;
-        const meshPartIds: number[] = [];
-        this.#eachMeshParts.push(meshPartIds);
-        meshParams.geometries.forEach(
-            (geometryParams: GeometryParams, geometryIndex: number) => {
-                let geometry;
-                if (instancing) {
-                    const geometryId = `${meshParams.id}#${geometryIndex}`;
-                    if (!(geometryId in this.#instancedGeometries)) {
-                        this.#instancedGeometries[geometryId] = this.#createGeometry(geometryParams);
-                    }
-                    geometry = this.#instancedGeometries[geometryId];
-                } else {
-                    geometry = this.#createGeometry(geometryParams);
-                }
-                const aabb = math.boundaries.collapseAABB3();
-                math.boundaries.expandAABB3(meshAABB, aabb);
-                const meshPartId = this.#createMeshPart(
-                    instancing ? objectCfg : meshParams, // TODO: Tidy up
-                    geometry,
-                    geometry.positions,
-                    meshParams.positionsDecodeMatrix,
-                    meshParams.origin,
-                    aabb,
-                    instancing
-                );
-                meshPartIds.push(meshPartId);
-            });
-        this.#meshCounts.numMeshes++;
-        this.#numMeshes++;
-        return meshId;
-    }
-
-    #createGeometry(geometryParams: GeometryParams): Geometry {
-
+    #createGeometryBucket(geometryBucket: GeometryBucketParams): GeometryBucketHandle {
         const state = this.state;
-
-        // Indices alignment;
-        // This will make every mesh consume a multiple of INDICES_EDGE_INDICES_ALIGNMENT_SIZE
-        // array items for storing the triangles of the mesh, and it supports:
-        // - a memory optimization of factor INDICES_EDGE_INDICES_ALIGNMENT_SIZE
-        // - in exchange for a small RAM overhead
-        //   (by adding some padding until a size that is multiple of INDICES_EDGE_INDICES_ALIGNMENT_SIZE)
-
-        if (geometryParams.indices) {
-            const alignedIndicesLen = Math.ceil((geometryParams.indices.length / 3) / INDICES_EDGE_INDICES_ALIGNMENT_SIZE) * INDICES_EDGE_INDICES_ALIGNMENT_SIZE * 3;
+        if (geometryBucket.indices) {  // Align indices to INDICES_EDGE_INDICES_ALIGNMENT_SIZE
+            const alignedIndicesLen = Math.ceil((geometryBucket.indices.length / 3) / INDICES_EDGE_INDICES_ALIGNMENT_SIZE) * INDICES_EDGE_INDICES_ALIGNMENT_SIZE * 3;
             const alignedIndices = new Uint32Array(alignedIndicesLen);
             alignedIndices.fill(0);
-            alignedIndices.set(geometryParams.indices);
-            geometryParams.indices = alignedIndices;
+            alignedIndices.set(geometryBucket.indices);
+            geometryBucket.indices = alignedIndices;
         }
-
-        // EdgeIndices alignment;
-        // This will make every mesh consume a multiple of INDICES_EDGE_INDICES_ALIGNMENT_SIZE
-        // array items for storing the edges of the mesh, and it supports:
-        // - a memory optimization of factor INDICES_EDGE_INDICES_ALIGNMENT_SIZE
-        // - in exchange for a small RAM overhead
-        //   (by adding some padding until a size that is multiple of INDICES_EDGE_INDICES_ALIGNMENT_SIZE)
-
-        if (geometryParams.edgeIndices) {
-            const alignedEdgeIndicesLen = Math.ceil((geometryParams.edgeIndices.length / 2) / INDICES_EDGE_INDICES_ALIGNMENT_SIZE) * INDICES_EDGE_INDICES_ALIGNMENT_SIZE * 2;
+        if (geometryBucket.edgeIndices) {  // Align edge indices to INDICES_EDGE_INDICES_ALIGNMENT_SIZE
+            const alignedEdgeIndicesLen = Math.ceil((geometryBucket.edgeIndices.length / 2) / INDICES_EDGE_INDICES_ALIGNMENT_SIZE) * INDICES_EDGE_INDICES_ALIGNMENT_SIZE * 2;
             const alignedEdgeIndices = new Uint32Array(alignedEdgeIndicesLen);
             alignedEdgeIndices.fill(0);
-            alignedEdgeIndices.set(geometryParams.edgeIndices);
-            geometryParams.edgeIndices = alignedEdgeIndices;
+            alignedEdgeIndices.set(geometryBucket.edgeIndices);
+            geometryBucket.edgeIndices = alignedEdgeIndices;
         }
-
-        const positions = geometryParams.positions;
-        const indices = geometryParams.indices;
-        const edgeIndices = geometryParams.edgeIndices;
-
         const dataTextureBuffer = this.#dataTextureBuffer;
+        const positionsCompressed = geometryBucket.positionsCompressed;
+        const indices = geometryBucket.indices;
+        const edgeIndices = geometryBucket.edgeIndices;
         const vertexBase = dataTextureBuffer.positions.length / 3;
-        const numVertices = positions.length / 3;
-
-        for (let i = 0, len = positions.length; i < len; i++) {
-            dataTextureBuffer.positions.push(positions[i]);
+        const numVertices = positionsCompressed.length / 3;
+        for (let i = 0, len = positionsCompressed.length; i < len; i++) {
+            dataTextureBuffer.positions.push(positionsCompressed[i]);
         }
-
         let indicesBase;
         let numTriangles = 0;
         if (indices) {
@@ -286,7 +293,6 @@ export class Layer {
                 indicesBuffer.push(indices[i]);
             }
         }
-
         let edgeIndicesBase;
         let numEdges = 0;
         if (edgeIndices) {
@@ -305,10 +311,9 @@ export class Layer {
             }
         }
         state.numVertices += numVertices;
-
-        return { // Geometry
+        return <GeometryBucketHandle>{
             vertexBase,
-            numVertices: numVertices,
+            numVertices,
             numTriangles,
             numEdges,
             indicesBase,
@@ -316,251 +321,172 @@ export class Layer {
         };
     }
 
-    #createMeshPart(params: {
-                        color: math.FloatArrayType;
-                        metallic: number;
-                        roughness: number;
-                        colors: math.FloatArrayType;
-                        opacity: number;
-                        meshMatrix: math.FloatArrayType;
-                        worldMatrix: math.FloatArrayType;
-                        pickColor: math.FloatArrayType;
-                    },
-                    geometry: Geometry,
-                    positionsCompressed: math.FloatArrayType,
-                    positionsDecodeMatrix: math.FloatArrayType,
-                    origin: math.FloatArrayType,
-                    worldAABB: math.FloatArrayType,
-                    instancing: boolean
-    ) {
+    createMesh(meshParams: MeshParams): number {
+        if (this.#finalized) {
+            throw "Already finalized";
+        }
+        // if (origin) {
+        //     this.state.origin = origin;
+        //     worldAABB[0] += origin[0];
+        //     worldAABB[1] += origin[1];
+        //     worldAABB[2] += origin[2];
+        //     worldAABB[3] += origin[0];
+        //     worldAABB[4] += origin[1];
+        //     worldAABB[5] += origin[2];
+        // }
+        // math.boundaries.expandAABB3(this.aabb, worldAABB);
+        const meshId = this.#numMeshes;
+        const meshPartIds: number[] = [];
+        this.#eachMeshParts.push(meshPartIds);
+        if (!meshParams.geometryId) {
+            throw "geometryId expected";
+        }
+        const geometryHandle = this.#geometryHandles[meshParams.geometryId];
+        if (!geometryHandle) {
+            throw "Geometry not found";
+        }
+        geometryHandle.geometryBucketHandles.forEach((geometryBucketHandle: GeometryBucketHandle) => {
+            const meshPartParams = <MeshPartParams>{
+                aabb: geometryHandle.aabb
+            };
+            const meshPartId = this.#createMeshPart(meshParams, geometryHandle, geometryBucketHandle, meshPartParams);
+            meshPartIds.push(meshPartId);
+        });
+        const worldAABB = math.boundaries.collapseAABB3();
+        const geometryOBB = math.boundaries.AABB3ToOBB3(geometryHandle.aabb);
+        for (let i = 0, len = geometryOBB.length; i < len; i += 4) {
+            tempVec4a[0] = geometryOBB[i + 0];
+            tempVec4a[1] = geometryOBB[i + 1];
+            tempVec4a[2] = geometryOBB[i + 2];
+            math.transformPoint4(meshParams.matrix, tempVec4a, tempVec4b);
+            // if (worldMatrix) {
+            //     math.transformPoint4(worldMatrix, tempVec4b, tempVec4c);
+            //     math.boundaries.expandAABB3Point3(worldAABB, tempVec4c);
+            // } else {
+            math.boundaries.expandAABB3Point3(worldAABB, tempVec4b);
+            //}
+        }
+        this.#meshCounts.numMeshes++;
+        this.#numMeshes++;
+        return meshId;
+    }
 
-        const color = params.color;
-        const metallic = params.metallic;
-        const roughness = params.roughness;
-        const colors = params.colors;
-        const opacity = params.opacity;
-        const meshMatrix = params.meshMatrix;
-        const worldMatrix = params.worldMatrix;
-        const pickColor = params.pickColor;
-        const scene = this.sceneModel.scene;
+    #createMeshPart(meshParams: MeshParams, geometryHandle: GeometryHandle, geometryBucketHandle: GeometryBucketHandle, meshPartParams: MeshPartParams): number {
+
         const dataTextureBuffer = this.#dataTextureBuffer;
+
+        const scene = this.sceneModel.scene;
         const state = this.state;
 
-        dataTextureBuffer.eachMeshPositionsDecompressMatrix.push(positionsDecodeMatrix);
+        const matrix = meshParams.matrix || identityMatrix;
+        const color = meshParams.color || [255, 255, 255];
+        const opacity = meshParams.opacity;
+        const metallic = meshParams.metallic;
+        const roughness = meshParams.roughness;
 
-        if (instancing) {
-
-            let transposedMat = math.transposeMat4(meshMatrix, math.mat4()); // TODO: Use cached matrix
-            let normalMatrix = math.inverseMat4(transposedMat);
-
-            dataTextureBuffer.eachMeshMatrices.push(meshMatrix);
-            dataTextureBuffer.eachMeshNormalMatrix.push(normalMatrix);
-
-        } else {
-
-            dataTextureBuffer.eachMeshMatrices.push(identityMatrix);
-            dataTextureBuffer.eachMeshNormalMatrix.push(identityMatrix);
-        }
-
-        //const positionsCompressed = params.positions;
         const positionsIndex = dataTextureBuffer.positions.length;
         const vertsIndex = positionsIndex / 3;
 
-        // Expand the world AABB with the concrete location of the object
-        if (instancing) {
-            const localAABB = math.boundaries.collapseAABB3();
-            math.boundaries.expandAABB3Points3(localAABB, positionsCompressed);
-            math.compression.decompressAABB(localAABB, positionsDecodeMatrix);
-            const geometryOBB = math.boundaries.AABB3ToOBB3(localAABB);
+        // Positions decompression matrix
 
-            for (let i = 0, len = geometryOBB.length; i < len; i += 4) {
-                tempVec4a[0] = geometryOBB[i + 0];
-                tempVec4a[1] = geometryOBB[i + 1];
-                tempVec4a[2] = geometryOBB[i + 2];
+        dataTextureBuffer.eachMeshPositionsDecompressMatrix.push(geometryHandle.positionsDecompressMatrix);
 
-                math.transformPoint4(meshMatrix, tempVec4a, tempVec4b);
+        // Modeling matrix
 
-                if (worldMatrix) {
-                    math.transformPoint4(worldMatrix, tempVec4b, tempVec4c);
-                    math.boundaries.expandAABB3Point3(worldAABB, tempVec4c);
-                } else {
-                    math.boundaries.expandAABB3Point3(worldAABB, tempVec4b);
-                }
-            }
-        } else if (positionsDecodeMatrix) {
+        dataTextureBuffer.eachMeshMatrices.push(matrix);
 
-            const bounds = math.compression.getPositionsBounds(positionsCompressed);
+        // Color
 
-            const min = math.compression.decompressPosition(bounds.min, positionsDecodeMatrix, []);
-            const max = math.compression.decompressPosition(bounds.max, positionsDecodeMatrix, []);
-
-            worldAABB[0] = min[0];
-            worldAABB[1] = min[1];
-            worldAABB[2] = min[2];
-            worldAABB[3] = max[0];
-            worldAABB[4] = max[1];
-            worldAABB[5] = max[2];
-
-            if (worldMatrix) {
-                math.boundaries.AABB3ToOBB3(worldAABB, tempOBB3);
-                math.boundaries.transformOBB3(worldMatrix, tempOBB3);
-                math.boundaries.OBB3ToAABB3(tempOBB3, worldAABB);
-            }
-
-        } else {
-            if (meshMatrix) {
-                for (let i = 0, len = positionsCompressed.length; i < len; i += 3) {
-
-                    tempVec4a[0] = positionsCompressed[i + 0];
-                    tempVec4a[1] = positionsCompressed[i + 1];
-                    tempVec4a[2] = positionsCompressed[i + 2];
-
-                    math.transformPoint4(meshMatrix, tempVec4a, tempVec4b);
-
-                    positionsCompressed[i + 0] = tempVec4b[0];
-                    positionsCompressed[i + 1] = tempVec4b[1];
-                    positionsCompressed[i + 2] = tempVec4b[2];
-
-                    math.boundaries.expandAABB3Point3(this.#modelAABB, tempVec4b);
-
-                    if (worldMatrix) {
-                        math.transformPoint4(worldMatrix, tempVec4b, tempVec4c);
-                        math.boundaries.expandAABB3Point3(worldAABB, tempVec4c);
-                    } else {
-                        math.boundaries.expandAABB3Point3(worldAABB, tempVec4b);
-                    }
-                }
-            } else {
-                for (let i = 0, len = positionsCompressed.length; i < len; i += 3) {
-
-                    tempVec4a[0] = positionsCompressed[i + 0];
-                    tempVec4a[1] = positionsCompressed[i + 1];
-                    tempVec4a[2] = positionsCompressed[i + 2];
-
-                    math.boundaries.expandAABB3Point3(this.#modelAABB, tempVec4a);
-
-                    if (worldMatrix) {
-                        math.transformPoint4(worldMatrix, tempVec4a, tempVec4b);
-                        math.boundaries.expandAABB3Point3(worldAABB, tempVec4b);
-                    } else {
-                        math.boundaries.expandAABB3Point3(worldAABB, tempVec4a);
-                    }
-                }
-            }
-        }
-
-        if (origin) {
-            this.state.origin = origin;
-            worldAABB[0] += origin[0];
-            worldAABB[1] += origin[1];
-            worldAABB[2] += origin[2];
-            worldAABB[3] += origin[0];
-            worldAABB[4] += origin[1];
-            worldAABB[5] += origin[2];
-        }
-
-        math.boundaries.expandAABB3(this.aabb, worldAABB);
-
-        // Colors
-
-        if (colors) {
-            dataTextureBuffer.eachMeshColor.push([colors[0] * 255, colors[1] * 255, colors[2] * 255, 255]);
-        } else if (color) {
-            dataTextureBuffer.eachMeshColor.push([color[0], color[1], color[2], opacity]);
-        }
+        dataTextureBuffer.eachMeshColor.push([color[0], color[1], color[2], 255]);
 
         // Pick color
 
-        dataTextureBuffer.eachMeshPickColor.push(pickColor);
-        dataTextureBuffer.eachMeshVertexPortionBase.push(geometry.vertexBase);
+        dataTextureBuffer.eachMeshPickColor.push(meshParams.pickColor);
 
-        // Indices
+        // Vertex portion
 
         let currentNumIndices;
-        if (geometry.numVertices <= (1 << 8)) {
+        if (geometryBucketHandle.numVertices <= (1 << 8)) {
             currentNumIndices = state.numIndices8Bits;
-        } else if (geometry.numVertices <= (1 << 16)) {
+        } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
             currentNumIndices = state.numIndices16Bits;
         } else {
             currentNumIndices = state.numIndices32Bits;
         }
-        dataTextureBuffer.eachMeshVertexPortionOffset.push(currentNumIndices / 3 - geometry.indicesBase);
+        dataTextureBuffer.eachMeshVertexPortionBase.push(geometryBucketHandle.vertexBase);
+        dataTextureBuffer.eachMeshVertexPortionOffset.push(currentNumIndices / 3 - geometryBucketHandle.indicesBase);
 
         // Edge indices
 
         let currentNumEdgeIndices;
-        if (geometry.numVertices <= (1 << 8)) {
+        if (geometryBucketHandle.numVertices <= (1 << 8)) {
             currentNumEdgeIndices = state.numEdgeIndices8Bits;
-        } else if (geometry.numVertices <= (1 << 16)) {
+        } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
             currentNumEdgeIndices = state.numEdgeIndices16Bits;
         } else {
             currentNumEdgeIndices = state.numEdgeIndices32Bits;
         }
-        dataTextureBuffer.eachMeshEdgeIndicesOffset.push(currentNumEdgeIndices / 2 - geometry.edgeIndicesBase);
+        dataTextureBuffer.eachMeshEdgeIndicesOffset.push(currentNumEdgeIndices / 2 - geometryBucketHandle.edgeIndicesBase);
 
-        const meshPartId = this.#meshParts.length;
+        // Index -> mesh lookup
 
-        if (geometry.numTriangles > 0) {
-            let numIndices = geometry.numTriangles * 3;
+        const meshPartId = this.#meshPartHandles.length;
+
+        if (geometryBucketHandle.numTriangles > 0) {
+            const numIndices = geometryBucketHandle.numTriangles * 3;
             let indicesMeshIdBuffer;
-            if (geometry.numVertices <= (1 << 8)) {
+            if (geometryBucketHandle.numVertices <= (1 << 8)) {
                 indicesMeshIdBuffer = dataTextureBuffer.eachTriangleMesh_8Bits;
                 state.numIndices8Bits += numIndices;
-            } else if (geometry.numVertices <= (1 << 16)) {
+            } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
                 indicesMeshIdBuffer = dataTextureBuffer.eachTriangleMesh_16Bits;
                 state.numIndices16Bits += numIndices;
             } else {
                 indicesMeshIdBuffer = dataTextureBuffer.eachTriangleMesh_32Bits;
                 state.numIndices32Bits += numIndices;
             }
-            for (let i = 0; i < geometry.numTriangles; i += INDICES_EDGE_INDICES_ALIGNMENT_SIZE) {
+            for (let i = 0; i < geometryBucketHandle.numTriangles; i += INDICES_EDGE_INDICES_ALIGNMENT_SIZE) {
                 indicesMeshIdBuffer.push(meshPartId);
             }
         }
 
-        if (geometry.numEdges > 0) {
-            let numEdgeIndices = geometry.numEdges * 2;
+        // Edge index -> mesh lookup
+
+        if (geometryBucketHandle.numEdges > 0) {
+            let numEdgeIndices = geometryBucketHandle.numEdges * 2;
             let edgeIndicesMeshIdBuffer;
-            if (geometry.numVertices <= (1 << 8)) {
+            if (geometryBucketHandle.numVertices <= (1 << 8)) {
                 edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_8Bits;
                 state.numEdgeIndices8Bits += numEdgeIndices;
-            } else if (geometry.numVertices <= (1 << 16)) {
+            } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
                 edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_16Bits;
                 state.numEdgeIndices16Bits += numEdgeIndices;
             } else {
                 edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_32Bits;
                 state.numEdgeIndices32Bits += numEdgeIndices;
             }
-            for (let i = 0; i < geometry.numEdges; i += INDICES_EDGE_INDICES_ALIGNMENT_SIZE) {
+            for (let i = 0; i < geometryBucketHandle.numEdges; i += INDICES_EDGE_INDICES_ALIGNMENT_SIZE) {
                 edgeIndicesMeshIdBuffer.push(meshPartId);
             }
         }
-
         dataTextureBuffer.eachEdgeOffset.push([0, 0, 0]);
 
-        this.#meshParts.push({ // MeshPart
+        this.#meshPartHandles.push(<MeshPartHandle>{
             vertsBase: vertsIndex,
-            numVerts: geometry.numTriangles
+            numVerts: geometryBucketHandle.numTriangles
         });
-
         this.#numMeshParts++;
-
         return meshPartId;
     }
 
     finalize() {
-
         if (this.#finalized) {
             throw "Already finalized";
-            return;
         }
-
         const gl = this.#gl;
-
-        const dataTextureBuffer = this.#dataTextureBuffer;
         const dataTextureFactory = new DataTextureFactory();
+        const dataTextureBuffer = this.#dataTextureBuffer;
         const dataTextureSet = this.state.dataTextureSet;
-
         dataTextureSet.cameraMatrices = dataTextureFactory.createCameraMatricesDataTexture(gl, this.sceneModel.scene.viewer.viewList[0].camera, /* HACK */this.state.origin.slice());
         dataTextureSet.sceneModelMatrices = dataTextureFactory.createSceneModelMatricesDataTexture(gl, this.sceneModel);
         dataTextureSet.positions = dataTextureFactory.createPositionsDataTexture(gl, dataTextureBuffer.positions);
@@ -587,11 +513,11 @@ export class Layer {
         dataTextureSet.eachEdgeMesh16BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_16Bits);
         dataTextureSet.eachEdgeMesh32BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_32Bits);
         dataTextureSet.eachEdgeOffset = dataTextureFactory.createEachEdgeOffsetDataTexture(gl, dataTextureBuffer.eachEdgeOffset);
-
         dataTextureSet.finalize();
-
         this.#dataTextureBuffer = null;
-        this.#instancedGeometries = null;
+        this.#geometryHandles = {};
+        this.#meshPartHandles = [];
+        this.#eachMeshParts = [];
         this.#finalized = true;
     }
 

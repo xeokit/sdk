@@ -1,8 +1,8 @@
-import {Program} from "../../../lib/Program";
-import {ArrayBuf} from "../../../lib/ArrayBuf";
-import {WEBGL_INFO} from "../../../lib/webglInfo";
-import {RenderBuffer} from "../../../lib/RenderBuffer";
-import {Attribute} from "../../../lib/Attribute";
+import {Program} from "../../../lib/webgl/Program";
+import {ArrayBuf} from "../../../lib/webgl/ArrayBuf";
+import {WEBGL_INFO} from "../../../lib/webgl/webglInfo";
+import {RenderBuffer} from "../../../lib/webgl/RenderBuffer";
+import {Attribute} from "../../../lib/webgl/Attribute";
 
 import {View, CustomProjection, math} from "../../../../viewer/index";
 

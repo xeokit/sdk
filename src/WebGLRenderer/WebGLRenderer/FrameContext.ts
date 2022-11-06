@@ -1,4 +1,4 @@
-import {Texture} from "../lib/Texture";
+import {Texture} from "../lib/webgl/Texture";
 import {View, math} from "../../viewer/index";
 
 /**

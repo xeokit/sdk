@@ -1,4 +1,4 @@
-import {Texture2D} from "../../../lib/webgl/Texture2D";
+import {Texture2D} from "../../lib/webgl/Texture2D";
 
 /**
  * Instantiated by VBOSceneModel#createTexture

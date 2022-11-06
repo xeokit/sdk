@@ -1,9 +1,19 @@
 import {FloatArrayType, IntArrayType} from "../math/math";
 
 /**
- * Geometry creation parameters for {@link SceneModel.createGeometry}.
+ * Non-compressed geometry parameter type for {@link SceneModel.createGeometry}.
+ *
+ * There are two ways we can use this parameter type:
+ *
+ * 1. Create geometry using {@link SceneModel.createGeometry}, which will compress the geometry internally for us using {@link compressGeometryParams}
+ * 2. Use {@link compressGeometryParams} ourselves, to convert to {@link GeometryParamsCompressed}, then create the geometry using {@link SceneModel.createGeometryCompressed}.
  */
 export interface GeometryParams {
+
+    /**
+     * RTC origin for the geometry.
+     */
+    origin: FloatArrayType;
 
     /**
      * ID for the geometry.
@@ -15,63 +25,21 @@ export interface GeometryParams {
      *
      * Accepted values are {@link SolidPrimitive}, {@link SurfacePrimitive}, {@link LinesPrimitive}, {@link PointsPrimitive} and {@link TrianglesPrimitive}.
      */
-    primitive?: number;
+    primitive: number;
 
     /**
      * Flat array of uncompressed floating point 3D vertex positions.
      *
      * Alternative to {@link GeometryParams.positionsCompressed}.
      */
-    positions?: FloatArrayType;
-
-    /**
-     * Flat array of compressed integer 3D vertex positions.
-     *
-     * Alternative to {@link GeometryParams.positions}.
-     *
-     * Requires {@link GeometryParams.positionsDecompressMatrix}.
-     */
-    positionsCompressed?: FloatArrayType;
-
-    /**
-     * Matrix to dequantize {@link GeometryParams.positionsCompressed}.
-     */
-    positionsDecompressMatrix?: FloatArrayType;
-
-    /**
-     * Flat array of uncompressed floating-point 3D vertex normals.
-     *
-     * Alternative to {@link GeometryParams.normalsCompressed}.
-     */
-    normals?: FloatArrayType;
-
-    /**
-     * Flat array of compressed integer 3D vertex normals.
-     *
-     * Alternative to {@link GeometryParams.normals}.
-     */
-    normalsCompressed?: FloatArrayType;
+    positions: FloatArrayType;
 
     /*
     * Flat array of uncompressed floating-point vertex UV coordinates.
     *
-    * Alternative to {@link GeometryParams.uvsCompressed}.
+    * Alternative to {@link LayerGeometryParams.uvsCompressed}.
     */
     uvs?: FloatArrayType;
-
-    /*
-    * Flat array of compressed integer vertex UV coordinates.
-    *
-    * Alternative to {@link GeometryParams.uvs}.
-    *
-    * Requires {@link GeometryParams.uvsDecompressMatrix}.
-    */
-    uvsCompressed?: FloatArrayType;
-
-    /**
-     * Matrix to dequantize {@link GeometryParams.uvsCompressed}.
-     */
-    uvsDecompressMatrix?: FloatArrayType;
 
     /**
      * Flat array of uncompressed floating-point vertex colors.
@@ -81,27 +49,18 @@ export interface GeometryParams {
     colors?: FloatArrayType;
 
     /**
-     * Flat array of compressed integer vertex colors.
-     *
-     * Alternative to {@link GeometryParams.colorsCompressed}.
-     *
-     * Ignored when {@link GeometryParams.geometryId} is defined.
-     */
-    colorsCompressed?: FloatArrayType;
-
-    /**
      * Flat array of primitive connectivity indices.
      *
      * Ignored for primitive type {@link PointsPrimitive}, which does not need indices.
      */
     indices?: IntArrayType;
 
-    /**
-     * Flat array of edge connectivity indices.
-     *
-     * Optionally provided for primitive types {@link SurfacePrimitive}, {@link SolidPrimitive} and {@link TrianglesPrimitive}.
-     */
-    edgeIndices?: IntArrayType;
+    // /**
+    //  * Flat array of edge connectivity indices.
+    //  *
+    //  * Optionally provided for primitive types {@link SurfacePrimitive}, {@link SolidPrimitive} and {@link TrianglesPrimitive}.
+    //  */
+    // edgeIndices?: IntArrayType;
 
     /**
      * The threshold angle, in degrees, beyond which the deviation in normal directions of each pair of adjacent faces

@@ -1,14 +1,15 @@
 import {Scene} from "./Scene";
 import {FloatArrayType} from "../math/math";
 import {SceneObject} from "./SceneObject";
-import {Transform} from "../../webgl2/_WebGLSceneModel/lib/Transform";
+import {Transform} from "./Transform";
 import {Events} from "../Events";
 import {SceneObjectParams} from "./SceneObjectParams";
 import {MeshParams} from "./MeshParams";
 import {TextureSetParams} from "./TextureSetParams";
 import {TextureParams} from "./TextureParams";
-import {TransformParams} from "../../webgl2/_WebGLSceneModel/lib/TransformParams";
+import {TransformParams} from "./TransformParams";
 import {GeometryParams} from "./GeometryParams";
+import {GeometryCompressedParams} from "./GeometryCompressedParams";
 
 /**
  * Contains geometry and materials for a model within a {@link Viewer}.
@@ -85,11 +86,20 @@ export interface SceneModel {
     createTransform(params: TransformParams): Transform;
 
     /**
-     * Creates a geometry within this SceneModel.
+     * Creates a geometry within this SceneModel, from non-compressed geometry parameters.
      *
-     * @param params Geometry configuration.
+     * @param params Non-compressed geometry parameters.
      */
     createGeometry(params: GeometryParams): void;
+
+    /**
+     * Creates a geometry within this SceneModel, from pre-compressed geometry parameters.
+     *
+     * Use {@link compressGeometryParams} to convert {@link GeometryParams} to {@link GeometryCompressedParams}.
+     *
+     * @param params Pre-compressed geometry parameters.
+     */
+    createGeometryCompressed(params: GeometryCompressedParams): void;
 
     /**
      * Creates a texture within this SceneModel.

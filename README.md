@@ -1,12 +1,22 @@
 # xeokit-viewer
 
-[![This project is using Percy.io for visual regression testing.](https://percy.io/static/images/percy-badge.svg)](https://percy.io/73524691/xeokit-viewer)
 [![npm version](https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer.svg)](https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer)
 [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-viewer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/xeokit-viewer)
 
-[xeokit](http://xeokit.io) is a JavaScript software development kit from [xeolabs](http://xeolabs.com) for viewing
+[xeokit-viewer](https://xeokit.github.io/xeokit-viewer/docs/index.html) is a viewer library from [xeolabs](http://xeolabs.com) for viewing
 high-detail, full-precision 3D engineering and BIM models in the browser.
 <br><br>
+
+# Features
+
+* A next generation browser-based viewer from @xeolabs
+* Designed for BIM & AEC applications
+* Compact model memory footprint
+* Super fast rendering
+* Multiple canvases
+* Semantic data model 
+* Pluggable graphics engine (WebGL, WebGPU..)
+* Written in TypeScript
 
 # Concepts
 
@@ -15,11 +25,11 @@ xeokit-viewer. The Viewer has the following main components:
 
 - A [Scene](https://xeokit.github.io/xeokit-viewer/docs/classes/Scene.html)
   containing [SceneModels](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneModel.html)
-  and [SceneObjects](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneObject.html), which define the geometry
+  and [objects](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneObject.html), which define the geometry
   and materials of our models.
 - A [Data](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneData.html)
   containing [DataModels](https://xeokit.github.io/xeokit-viewer/docs/classes/DataModel.html)
-  and [DataObjects](https://xeokit.github.io/xeokit-viewer/docs/classes/DataObject.html), which describe the semantics
+  and [objects](https://xeokit.github.io/xeokit-viewer/docs/classes/DataObject.html), which describe the semantics
   and structure of our models.
 - One or more [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html), that each create an independent
   view of the Scene. Each View has its own
@@ -32,14 +42,6 @@ xeokit-viewer. The Viewer has the following main components:
 A key goodness of this architecture is [*separation of concerns*](https://en.wikipedia.org/wiki/Separation_of_concerns),
 where we have separate data structures for metadata, geometry and views. This decouples the metadata from the scene
 representation, allowing the possibility to have more types of metadata structure in the future.
-
-## Multiple Views
-
-Another goodness is the decoupling of scene content from presentation, which allows us to define multiple, independent
-views of the scene, without duplicating scene content. Each view can be completely unique; one view could have a main
-canvas that shows a 3D perspective view for a first-person walk-through, while another view could have a small canvas
-that shows a 2D plan view of a selected storey, showing the location of the user's viewpoint in the main view.
-
 ## Usage
 
 ### Example 1
@@ -149,13 +151,13 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
 
             // Get geometry of the picked ViewObject
 
-            const sceneObject = viewer.scene.sceneObjects[viewObject.id];
+            const sceneObject = viewer.scene.objects[viewObject.id];
             const aabb = sceneObject.aabb; // 3D axis-aligned boundary
             const center = sceneObject.center; // 3D center
 
             // Get metadata for the picked ViewObject
 
-            const dataObject = viewer.data.dataObjects[viewObject.id];
+            const dataObject = viewer.data.objects[viewObject.id];
 
             if (dataObject) {
 
@@ -245,7 +247,7 @@ model metadata and geometry programmatically, using builder methods within the A
 </body>
 <script id="source" type="module">
 
-    import {Viewer, WebGL2Renderer} from
+    import {Viewer, WebGL2Renderer, constants} from
                 "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
 
     const viewer = new Viewer({
@@ -280,7 +282,7 @@ model metadata and geometry programmatically, using builder methods within the A
 
     // Create model metadata
 
-    const dataModel = viewer.data.createDataModel("myTableModel", {
+    const dataModel = viewer.data.createModel("myTableModel", {
         projectId: "024120003",
         revisionId: "902344223",
         author: "xeolabs",
@@ -379,7 +381,7 @@ model metadata and geometry programmatically, using builder methods within the A
 
     // Create model scene representation
 
-    const sceneModel = viewer.scene.createSceneModel({
+    const sceneModel = viewer.scene.createModel({
         id: "myTable",
         position: [0, 0, 0],
         scale: [1, 1, 1],
@@ -388,7 +390,7 @@ model metadata and geometry programmatically, using builder methods within the A
 
     sceneModel.createGeometry({
         id: "myBoxGeometry",
-        primitive: "triangles", // "points", "lines" or "triangles"
+        primitive: constants.TrianglesPrimitive,
         positions: [
             1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
             1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, // v0-v3-v4-v1 right
@@ -396,14 +398,6 @@ model metadata and geometry programmatically, using builder methods within the A
             -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, // v1-v6-v7-v2 left
             -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1,// v7-v4-v3-v2 bottom
             1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1 // v4-v7-v6-v1 back
-        ],
-        normals: [
-            0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,// v0-v1-v2-v3 front
-            1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,// v0-v3-v4-v5 right
-            0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,// v0-v5-v6-v1 top
-            -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0,// v1-v6-v7-v2 left
-            0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,// v7-v4-v3-v2 bottom
-            0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1// v4-v7-v6-v5 back
         ],
         indices: [
             0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
@@ -422,7 +416,7 @@ model metadata and geometry programmatically, using builder methods within the A
         color: [1, 0.3, 0.3]
     });
 
-    sceneModel.createSceneObject({
+    sceneModel.createObject({
         id: "redLeg",
         meshIds: ["redLegMesh"]
     });
@@ -438,7 +432,7 @@ model metadata and geometry programmatically, using builder methods within the A
         color: [0.3, 1.0, 0.3]
     });
 
-    sceneModel.createSceneObject({
+    sceneModel.createObject({
         id: "greenLeg",
         meshIds: ["greenLegMesh"]
     });
@@ -454,7 +448,7 @@ model metadata and geometry programmatically, using builder methods within the A
         color: [0.3, 0.3, 1.0]
     });
 
-    sceneModel.createSceneObject({
+    sceneModel.createObject({
         id: "blueLeg",
         meshIds: ["blueLegMesh"]
     });
@@ -470,7 +464,7 @@ model metadata and geometry programmatically, using builder methods within the A
         color: [1.0, 1.0, 0.0]
     });
 
-    sceneModel.createSceneObject({
+    sceneModel.createObject({
         id: "yellowLeg",
         meshIds: ["yellowLegMesh"]
     });
@@ -486,7 +480,7 @@ model metadata and geometry programmatically, using builder methods within the A
         color: [1.0, 0.3, 1.0]
     });
 
-    sceneModel.createSceneObject({ // Create object
+    sceneModel.createObject({ // Create object
         id: "tableTop",
         meshIds: ["tableTopMesh"]
     });

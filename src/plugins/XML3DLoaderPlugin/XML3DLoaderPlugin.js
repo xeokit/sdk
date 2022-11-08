@@ -88,7 +88,7 @@ import {XML3DSceneGraphLoader} from "./XML3DSceneGraphLoader.js";
  *     translate: [100,0,0],
  *     edges: true,
  *
- *     createDataModel: true // <<-------- Create a DataModel
+ *     createModel: true // <<-------- Create a DataModel
  * });
  * ````
  *
@@ -164,7 +164,7 @@ class XML3DLoaderPlugin extends Plugin {
      * bundled [zip.js](https://gildas-lormeau.github.io/zip.js/) archive, which is a dependency of this plugin. This directory
      * contains the script that is used by zip.js to instantiate Web workers, which assist with unzipping the 3DXML, which is a ZIP archive.
      * @param [cfg.materialType="PhongMaterial"] What type of materials to create while loading: "MetallicMaterial" to create {@link MetallicMaterial}s, "SpecularMaterial" to create {@link SpecularMaterial}s or "PhongMaterial" to create {@link PhongMaterial}s. As it loads XML3D's Phong materials, the XMLLoaderPlugin will do its best approximate conversion of those to the specified workflow.
-     * @param [cfg.createDataModel=false] When true, will create a {@link DataModel} for the model in {@link SceneData#models}.
+     * @param [cfg.createModel=false] When true, will create a {@link DataModel} for the model in {@link SceneData#models}.
      */
     constructor(viewer, cfg = {}) {
 
@@ -206,7 +206,7 @@ class XML3DLoaderPlugin extends Plugin {
      * @param [params.backfaces=false] When true, allows visible backfaces, wherever specified in the 3DXML. When false, ignores backfaces.
      * @param [params.edgeThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
      * @param [params.materialType="PhongMaterial"] What type of materials to create while loading: "MetallicMaterial" to create {@link MetallicMaterial}s, "SpecularMaterial" to create {@link SpecularMaterial}s or "PhongMaterial" to create {@link PhongMaterial}s. As it loads XML3D's Phong materials, the XMLLoaderPlugin will do its best approximate conversion of those to the specified workflow.
-     * @param [params.createDataModel=false] When true, will create a {@link DataModel} for the model in {@link SceneData#models}.
+     * @param [params.createModel=false] When true, will create a {@link DataModel} for the model in {@link SceneData#models}.
      * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
      */
     load(params = {}) {

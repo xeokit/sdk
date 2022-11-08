@@ -8,7 +8,7 @@ import {FloatArrayType} from "../math/math";
  * ## Overview
  *
  * * Belongs to a {@link SceneModel}, which belongs to a {@link Scene}
- * * Created with {@link SceneModel.createSceneObject}
+ * * Created with {@link SceneModel.createObject}
  * * Registered by {@link SceneModel.id} in {@link SceneModel.sceneObjects} and {@link Scene.sceneObjects}
  * * Has a corresponding {@link ViewObject} in each of the {@link Viewer}'s {@link View}s
  * * Can have a corresponding {@link DataObject} in the {@link Viewer}'s {@link Data}

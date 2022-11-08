@@ -839,6 +839,10 @@ class View extends Component {
             }
         }
     }
+
+    getAmbientColorAndIntensity(): math.FloatArrayType {
+        return [0, 0, 0, 1];
+    }
 }
 
 export {View};

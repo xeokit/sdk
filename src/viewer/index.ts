@@ -14,7 +14,7 @@ export * from "./Events";
  * ## Overview
  *
  * * Core 3D and 2D math library
- * * Geometry de/compression functions
+ * * GeometryBucketHandle de/compression functions
  * * Primitive generation functions (cube, torus, sphere..)
  * * RTC coordinate functions
  */

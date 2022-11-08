@@ -2,7 +2,7 @@ import * as utils from '../../utils/index';
 import {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a grid-shaped {@link Geometry}.
+ * Creates a grid-shaped {@link GeometryBucketHandle}.
  *
  * ## Usage
  *
@@ -11,7 +11,7 @@ import {GeometryArrays} from "./GeometryArrays";
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildGridGeometry)]
  *
  * ````javascript
- * import {Viewer, Mesh, buildGridGeometry, Geometry, PhongMaterial, Texture} from "xeokit-viewer.es.js";
+ * import {Viewer, Mesh, buildGridGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas"
@@ -22,7 +22,7 @@ import {GeometryArrays} from "./GeometryArrays";
  * viewer.camera.up = [0, 1, 0];
  *
  * new Mesh(viewer.scene, {
- *      geometry: new Geometry(viewer.scene, buildGridGeometry({
+ *      geometry: new GeometryBucketHandle(viewer.scene, buildGridGeometry({
  *          size: 1000,
  *          divisions: 500
  *      })),
@@ -36,10 +36,10 @@ import {GeometryArrays} from "./GeometryArrays";
  *
  * @function buildGridGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link Geometry}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
  * @param [cfg.size=1] Dimension on the X and Z-axis.
  * @param [cfg.divisions=1] Number of divisions on X and Z axis..
- * @returns {Object} Configuration for a {@link Geometry} subtype.
+ * @returns {Object} Configuration for a {@link GeometryBucketHandle} subtype.
  */
 function buildGridGeometry(cfg = {
     size: 1,

@@ -2,16 +2,16 @@ import * as utils from '../../utils/index';
 import {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a sphere-shaped {@link Geometry}.
+ * Creates a sphere-shaped {@link GeometryBucketHandle}.
  *
  * ## Usage
  *
- * Creating a {@link Mesh} with a sphere-shaped {@link Geometry} :
+ * Creating a {@link Mesh} with a sphere-shaped {@link GeometryBucketHandle} :
  *
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildSphereGeometry)]
  *
  * ````javascript
- * import {Viewer, Mesh, buildSphereGeometry, Geometry, PhongMaterial, Texture} from "xeokit-viewer.es.js";
+ * import {Viewer, Mesh, buildSphereGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myCanvas"
@@ -22,7 +22,7 @@ import {GeometryArrays} from "./GeometryArrays";
  * viewer.camera.up = [0, 1, 0];
  *
  * new Mesh(viewer.scene, {
- *      geometry: new Geometry(viewer.scene, buildSphereGeometry({
+ *      geometry: new GeometryBucketHandle(viewer.scene, buildSphereGeometry({
  *          center: [0,0,0],
  *          radius: 1.5,
  *          heightSegments: 60,
@@ -38,12 +38,12 @@ import {GeometryArrays} from "./GeometryArrays";
  *
  * @function buildSphereGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link Geometry}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.radius=1]  Radius.
  * @param [cfg.heightSegments=24] Number of latitudinal bands.
  * @param  {Number} [cfg.widthSegments=18] Number of longitudinal bands.
- * @returns {Object} Configuration for a {@link Geometry} subtype.
+ * @returns {Object} Configuration for a {@link GeometryBucketHandle} subtype.
  */
 function buildSphereGeometry(cfg: {
     center: number[];

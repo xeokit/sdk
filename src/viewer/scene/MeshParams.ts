@@ -21,11 +21,23 @@ export interface MeshParams {
     geometryId?: string;
 
     /**
+     * Optional ID of a {@link Transform} previously created with {@link SceneModel.createTransform}.
+     */
+    transformId?: string;
+
+    /**
      * RGB base color of the mesh.
      *
      * Default is ````[1,1,1]````.
      */
     color?: FloatArrayType;
+
+    /**
+     * RGB pick color of the mesh.
+     *
+     * This is used internally within {@link SceneModel}.
+     */
+    pickColor?: FloatArrayType;
 
     /**
      * Opacity of the mesh.

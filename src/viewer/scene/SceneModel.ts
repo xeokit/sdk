@@ -16,7 +16,7 @@ import {GeometryCompressedParams} from "./GeometryCompressedParams";
  *
  * * Contains {@link SceneObject}s
  * * Created by {@link Scene.createModel}
- * * Stored in {@link Scene.sceneModels}
+ * * Stored in {@link Scene.models}
  * * May have a corresponding {@link DataModel}
  */
 export interface SceneModel {

@@ -325,7 +325,7 @@ class StoreyViewsPlugin extends Plugin {
         for (let i = 0, len = storeyIds.length; i < len; i++) {
             const storeyId = storeyIds[i];
             const objectData = sceneData.objects[storeyId];
-            const childObjectIds = objectData.getDataObjectIdsInSubtree();
+            const childObjectIds = objectData.getObjectIdsInSubtree();
             const aabb = scene.getAABB(childObjectIds);
             const numObjects = (Math.random() > 0.5) ? childObjectIds.length : 0;
             const storey = new Storey(this, aabb, modelId, storeyId, numObjects);
@@ -549,7 +549,7 @@ class StoreyViewsPlugin extends Plugin {
         if (!rootObjectData) {
             return;
         }
-        const storeySubObjects = rootObjectData.getDataObjectIdsInSubtree();
+        const storeySubObjects = rootObjectData.getObjectIdsInSubtree();
         for (var i = 0, len = storeySubObjects.length; i < len; i++) {
             const objectId = storeySubObjects[i];
             const objectData = sceneData.objects[objectId];

@@ -1,7 +1,7 @@
 import {Plugin} from "../../viewer/Plugin";
 import {SectionPlane} from "../../viewer/view/SectionPlane";
 import * as math from "../../viewer/math/";
-import {View, Viewer} from "../../viewer";
+import {View, Viewer} from "../../viewer/index";
 import {globalizeObjectId} from "../../viewer/utils/index";
 import {BCFViewpointData} from "./BCFViewpointData";
 
@@ -729,7 +729,7 @@ class BCFViewpointsPlugin extends Plugin {
             if (options.updateCompositeObjects) {
                 const objectData = viewer.sceneData.objects[id];
                 if (objectData) {
-                    view.withObjects(viewer.sceneData.getDataObjectIdsInSubtree(id), callback);
+                    view.withObjects(viewer.sceneData.getObjectIdsInSubtree(id), callback);
                     return;
                 }
             }
@@ -748,7 +748,7 @@ class BCFViewpointsPlugin extends Plugin {
             if (options.updateCompositeObjects) {
                 const objectData = viewer.sceneData.objects[originalSystemId];
                 if (objectData) {
-                    view.withObjects(viewer.sceneData.getDataObjectIdsInSubtree(originalSystemId), callback);
+                    view.withObjects(viewer.sceneData.getObjectIdsInSubtree(originalSystemId), callback);
                     return;
                 }
             }
@@ -766,7 +766,7 @@ class BCFViewpointsPlugin extends Plugin {
                 if (options.updateCompositeObjects) {
                     const objectData = viewer.sceneData.objects[id];
                     if (objectData) {
-                        scene.withObjects(viewer.sceneData.getDataObjectIdsInSubtree(id), callback);
+                        scene.withObjects(viewer.sceneData.getObjectIdsInSubtree(id), callback);
                         return;
                     }
                 }

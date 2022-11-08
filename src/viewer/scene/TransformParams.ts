@@ -1,9 +1,8 @@
+import * as math from "../math/index";
+
 /**
  * Transform creation parameters for {@link SceneModel.createTransform}.
  */
-import * as math from "../math/index";
-
-
 export interface TransformParams {
 
     /**

@@ -1,5 +1,5 @@
 import * as utils from "../../viewer/utils/utils"
-import {DataModelParams, Plugin, SceneModel, Viewer} from "../../viewer";
+import {DataModelParams, Plugin, SceneModel, Viewer} from "../../viewer/index";
 import {XKTDataSource} from "./XKTDataSource";
 import {XKTDefaultDataSource} from "./XKTDefaultDataSource";
 import {IFCObjectDefaults} from "./IFCObjectDefaults";
@@ -182,7 +182,7 @@ class XKTLoaderPlugin extends Plugin {
             delete params.id;
         }
 
-        const sceneModel = this.viewer.scene.createSceneModel(utils.apply(params, {}));
+        const sceneModel = this.viewer.scene.createModel(utils.apply(params, {}));
 
         const modelId = sceneModel.id;  // In case ID was auto-generated
 
@@ -221,7 +221,7 @@ class XKTLoaderPlugin extends Plugin {
 
             const processModelDataData = (dataModelData: any) => {
                 dataModelData.id = modelId;
-                const dataModel = this.viewer.data.createDataModel(dataModelData, {
+                const dataModel = this.viewer.data.createModel(dataModelData, {
                     includeTypes: includeTypes,
                     excludeTypes: excludeTypes,
                     globalizeObjectIds: this.globalizeObjectIds
@@ -235,7 +235,7 @@ class XKTLoaderPlugin extends Plugin {
                     this.#parseModel(params.xkt, params, options, sceneModel);
                 }
                 sceneModel.events.once("destroyed", () => {
-                    const dataModel = this.viewer.data.dataModels[sceneModel.id];
+                    const dataModel = this.viewer.data.models[sceneModel.id];
                     if (dataModel) {
                         dataModel.destroy();
                     }
@@ -330,12 +330,12 @@ class XKTLoaderPlugin extends Plugin {
         includeTypes?: string[];
     }) {
         const modelDataId = sceneModel.id;
-        if (!this.viewer.data.dataModels[modelDataId]) {
+        if (!this.viewer.data.models[modelDataId]) {
             const dataModelData: DataModelParams = {
                 id: sceneModel.id,
-                dataObjects: []
+                objects: []
             };
-            dataModelData.dataObjects.push({
+            dataModelData.objects.push({
                 id: modelDataId,
                 type: "default",
                 name: modelDataId,
@@ -344,14 +344,14 @@ class XKTLoaderPlugin extends Plugin {
             const sceneObjects = sceneModel.sceneObjects;
             for (let id in sceneObjects) {
                 const sceneObject = sceneObjects[id];
-                dataModelData.dataObjects.push({
+                dataModelData.objects.push({
                     id: "" + sceneObject.id,
                     type: "default",
                     name: "" + sceneObject.id,
                     parentId: modelDataId
                 });
             }
-            const dataModel = this.viewer.data.createDataModel(dataModelData, {
+            const dataModel = this.viewer.data.createModel(dataModelData, {
                 includeTypes: options.includeTypes,
                 excludeTypes: options.excludeTypes,
                 globalizeObjectIds: options.globalizeObjectIds

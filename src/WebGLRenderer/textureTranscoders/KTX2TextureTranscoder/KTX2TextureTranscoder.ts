@@ -1,5 +1,5 @@
 import {constants, utils, Viewer} from "../../../viewer/index";
-import {Texture2D} from "../../lib/webgl/Texture2D";
+import {Texture2D} from "../../lib/Texture2D";
 
 
 const KTX2TransferSRGB = 2;

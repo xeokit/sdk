@@ -55,13 +55,6 @@ export interface GeometryParams {
      */
     indices?: IntArrayType;
 
-    // /**
-    //  * Flat array of edge connectivity indices.
-    //  *
-    //  * Optionally provided for primitive types {@link SurfacePrimitive}, {@link SolidPrimitive} and {@link TrianglesPrimitive}.
-    //  */
-    // edgeIndices?: IntArrayType;
-
     /**
      * The threshold angle, in degrees, beyond which the deviation in normal directions of each pair of adjacent faces
      * results in an edge being automatically generated between them.

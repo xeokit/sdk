@@ -4,8 +4,8 @@ import * as utils from "../../viewer/utils"
 import {Plugin} from "../../viewer/Plugin";
 import {WebIFCDefaultDataSource} from "./WebIFCDefaultDataSource";
 import {IFCObjectDefaults} from "../../viewer/metadata/IFCObjectDefaults";
-import * as math from "../../viewer";
-import {SceneModel, Viewer} from "../../viewer";
+import * as math from "../../viewer/index";
+import {SceneModel, Viewer} from "../../viewer/index";
 import {worldToRTCPositions} from "../../viewer/math/";
 
 /**
@@ -584,7 +584,7 @@ export class WebIFCLoaderPlugin extends Plugin {
             delete params.id;
         }
 
-        const sceneModel = this.viewer.scene.createSceneModel(params));
+        const sceneModel = this.viewer.scene.createModel(params));
 
         if (!params.src && !params.ifc) {
             this.error("load() param expected: src or IFC");
@@ -725,7 +725,7 @@ export class WebIFCLoaderPlugin extends Plugin {
 
         if (loadMetadata) {
             const modelDataId = sceneModel.id;
-            this.viewer.sceneData.createDataModel(modelDataId, ctx.metadata, options);
+            this.viewer.sceneData.createModel(modelDataId, ctx.metadata, options);
         }
 
         sceneModel.scene.events.once("tick", () => {

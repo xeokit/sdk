@@ -17,7 +17,7 @@ class DataObject {
     /**
      * Model metadata.
      */
-    public readonly dataModel: DataModel;
+    public readonly model: DataModel;
 
     /**
      * Globally-unique ID.
@@ -71,7 +71,7 @@ class DataObject {
      * @private
      */
     constructor(
-        dataModel: DataModel,
+        model: DataModel,
         id: string,
         originalSystemId: string,
         name: string,
@@ -79,7 +79,7 @@ class DataObject {
         parent?: DataObject,
         propertySets?: PropertySet[]) {
 
-        this.dataModel = dataModel;
+        this.model = model;
         this.id = id;
         this.originalSystemId = originalSystemId;
         this.name = name;
@@ -101,7 +101,7 @@ class DataObject {
      */
     createObject(cfg: DataObjectParams): DataObject {
         cfg.parentId = this.id;
-        return this.dataModel.createObject(cfg);
+        return this.model.createObject(cfg);
     }
 
     /**

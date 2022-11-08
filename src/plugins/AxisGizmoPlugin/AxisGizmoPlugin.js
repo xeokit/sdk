@@ -3,7 +3,7 @@ import {Scene} from "../../viewer/scene/Scene.ts";
 import {AmbientLight} from "../../viewer/view/lights/AmbientLight.js";
 import {DirLight} from "../../viewer/view/lights/DirLight.js";
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
+import {Geometry} from "../../viewer/scene/geometry/GeometryBucketHandle.ts";
 import {buildCylinderGeometry} from "../../viewer/scene/geometry/builders/buildCylinderGeometry.js";
 import {buildSphereGeometry} from "../../viewer/scene/geometry/builders/buildSphereGeometry.js";
 import {buildVectorTextGeometry} from "../../viewer/scene/geometry/builders/buildVectorTextGeometry.js";

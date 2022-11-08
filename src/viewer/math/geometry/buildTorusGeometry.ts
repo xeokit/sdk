@@ -3,15 +3,15 @@ import {GeometryArrays} from "./GeometryArrays";
 import {normalizeVec3, subVec3} from "../vector";
 
 /**
- * Creates a torus-shaped {@link Geometry}.
+ * Creates a torus-shaped {@link GeometryBucketHandle}.
  *
  * ## Usage
- * Creating a {@link Mesh} with a torus-shaped {@link Geometry} :
+ * Creating a {@link Mesh} with a torus-shaped {@link GeometryBucketHandle} :
  *
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildTorusGeometry)]
  *
  * ````javascript
- * import {Viewer, Mesh, buildTorusGeometry, Geometry, PhongMaterial, Texture} from "xeokit-viewer.es.js";
+ * import {Viewer, Mesh, buildTorusGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas"
@@ -22,7 +22,7 @@ import {normalizeVec3, subVec3} from "../vector";
  * viewer.camera.up = [0, 1, 0];
  *
  * new Mesh(viewer.scene, {
- *      geometry: new Geometry(viewer.scene, buildTorusGeometry({
+ *      geometry: new GeometryBucketHandle(viewer.scene, buildTorusGeometry({
  *          center: [0,0,0],
  *          radius: 1.0,
  *          tube: 0.5,
@@ -40,14 +40,14 @@ import {normalizeVec3, subVec3} from "../vector";
  *
  * @function buildTorusGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link Geometry}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
  * @param [cfg.center] 3D point indicating the center position.
  * @param [cfg.radius=1] The overall radius.
  * @param [cfg.tube=0.3] The tube radius.
  * @param [cfg.radialSegments=32] The number of radial segments.
  * @param [cfg.tubeSegments=24] The number of tubular segments.
  * @param [cfg.arc=Math.PI*0.5] The length of the arc in radians, where Math.PI*2 is a closed torus.
- * @returns {Object} Configuration for a {@link Geometry} subtype.
+ * @returns {Object} Configuration for a {@link GeometryBucketHandle} subtype.
  */
 function buildTorusGeometry(cfg: {
     tube?: number;

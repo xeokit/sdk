@@ -1,8 +1,8 @@
 /*
- * Geometry compression and decompression utilities.
+ * GeometryBucketHandle compression and decompression utilities.
  */
 
-import {FloatArrayType} from "../math";
+import {FloatArrayType, IntArrayType} from "../math";
 import {
     identityMat3,
     identityMat4,
@@ -16,11 +16,12 @@ import {
     translationMat4v
 } from "../matrix";
 import {normalizeVec3, vec3} from "../vector";
-import {GeometryParams, GeometryParamsCompressed} from "../../../viewer/index";
+import {GeometryParams, GeometryCompressedParams, math} from "../../../viewer/index";
 // @ts-ignore
 import {uniquifyPositions} from "./lib/calculateUniquePositions.js";
 // @ts-ignore
 import {rebucketPositions} from "./lib/rebucketPositions";
+import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../constants";
 
 const translate: FloatArrayType = mat4();
 const scale: FloatArrayType = mat4();
@@ -48,34 +49,45 @@ const scale: FloatArrayType = mat4();
  *
  * @returns {object} The mesh information enrichened with `.geometries` key.
  */
-export function compressGeometryParams(geometryParams: GeometryParams): GeometryParamsCompressed {
-    let uniquePositions, uniqueIndices, uniqueEdgeIndices;
+export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
+    const aabb = math.boundaries.collapseAABB3();
+    math.boundaries.expandAABB3Points3(aabb, geometryParams.positions);
+    //math.boundaries.AABB3ToOBB3(aabb, this.obb);
+    const positionsDecompressMatrix = math.mat4();
+    const quantizedPositions = math.compression.quantizePositions(geometryParams.positions, aabb, positionsDecompressMatrix);
+    const edgeIndices =
+        (geometryParams.primitive === SolidPrimitive ||
+            geometryParams.primitive === SurfacePrimitive ||
+            geometryParams.primitive === TrianglesPrimitive) ?
+            math.geometry.buildEdgeIndices(quantizedPositions, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold)
+            : null;
+    let uniqueQuantizedPositions, uniqueIndices, uniqueEdgeIndices;
     [
-        uniquePositions,
+        uniqueQuantizedPositions,
         uniqueIndices,
         uniqueEdgeIndices,
     ] = uniquifyPositions({
-        positions: geometryParams.positions,
+        positions: quantizedPositions,
+        uvs: geometryParams.uvs,
         indices: geometryParams.indices,
-        edgeIndices: geometryParams.edgeIndices
+        edgeIndices: edgeIndices
     });
-    const numUniquePositions = uniquePositions.length / 3;
-    const buckets = rebucketPositions(
-        {
-            positions: uniquePositions,
+    const numUniquePositions = uniqueQuantizedPositions.length / 3;
+    const geometryBuckets = rebucketPositions({
+            positions: uniqueQuantizedPositions,
             indices: uniqueIndices,
             edgeIndices: uniqueEdgeIndices,
         },
-        (numUniquePositions > (1 << 16)) ? 16 : 8,
-        // true
+        (numUniquePositions > (1 << 16)) ? 16 : 8
     );
     return {
-        origin: geometryParams.origin,
-        positionsDecompressMatrix: undefined,
-        uvsDecompressMatrix: undefined,
         id: geometryParams.id,
         primitive: geometryParams.primitive,
-        geometryBuckets: buckets
+        origin: geometryParams.origin,
+        aabb,
+        positionsDecompressMatrix,
+        uvsDecompressMatrix: undefined,
+        geometryBuckets
     };
 }
 

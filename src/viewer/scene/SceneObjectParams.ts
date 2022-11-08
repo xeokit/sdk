@@ -1,5 +1,5 @@
 /**
- * {@link SceneObject} creation parameters for {@link SceneModel.createSceneObject}.
+ * {@link SceneObject} creation parameters for {@link SceneModel.createObject}.
  */
 export interface SceneObjectParams {
 
@@ -12,9 +12,4 @@ export interface SceneObjectParams {
      * IDs of meshes previously created with {@link SceneModel.createMesh}.
      */
     meshIds: string[];
-
-    /**
-     * Optional ID of a {@link Transform} previously created with {@link SceneModel.createTransform}.
-     */
-    transformId?: string;
 }

@@ -39,8 +39,8 @@ const color = new Float32Array(3);
  *      // Model has loaded
  *
  *      // Hide a couple of objects
- *      viewer.view.viewObjects["0u4wgLe6n0ABVaiXyikbkA"].visible = false;
- *      viewer.view.viewObjects["3u4wgLe3n0AXVaiXyikbYO"].visible = false;
+ *      viewer.view.objects["0u4wgLe6n0ABVaiXyikbkA"].visible = false;
+ *      viewer.view.objects["3u4wgLe3n0AXVaiXyikbYO"].visible = false;
  *
  *      // Save memento of all object states, which includes those two hidden objects
  *      const viewObjectsMemento = new ViewObjectsMemento();
@@ -147,7 +147,7 @@ class ViewObjectsMemento {
 
         this.#mask = mask ? utils.apply(mask, {}) : null;
 
-        const objects = view.viewObjects;
+        const objects = view.objects;
         const visible = (!mask || mask.visible);
         const edges = (!mask || mask.edges);
         const xrayed = (!mask || mask.xrayed);
@@ -222,7 +222,7 @@ class ViewObjectsMemento {
 
         let i = 0;
 
-        const objects = view.viewObjects;
+        const objects = view.objects;
 
         for (let objectId in objects) {
             if (objects.hasOwnProperty(objectId)) {

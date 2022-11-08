@@ -1,5 +1,5 @@
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
+import {Geometry} from "../../viewer/scene/geometry/GeometryBucketHandle.ts";
 import {MetallicMaterial} from "../../viewer/scene/materials/MetallicMaterial.js";
 import * as math from "../../viewer/math/math.js";
 import {worldToRTCPositions} from "../../viewer/math/rtcCoords.js";

@@ -160,9 +160,9 @@ function load(viewer: Viewer,
 
     const modelDataId = sceneModel.id;
 
-    if (!viewer.data.dataModels[modelDataId]) {
+    if (!viewer.data.models[modelDataId]) {
         dataModelCfg.id = modelDataId;
-        const dataModel = viewer.data.createDataModel(
+        const dataModel = viewer.data.createModel(
             dataModelCfg, {
                 includeTypes: options.includeTypes,
                 excludeTypes: options.excludeTypes,
@@ -231,7 +231,7 @@ function load(viewer: Viewer,
 
             const meshIds = [];
 
-            const objectData = viewer.data.dataObjects[entityId];
+            const objectData = viewer.data.objects[entityId];
             const entityDefaults: any = {};
             const meshDefaults: any = {};
 
@@ -456,7 +456,7 @@ function load(viewer: Viewer,
 
             if (meshIds.length > 0) {
 
-                sceneModel.createSceneObject(utils.apply(entityDefaults, {
+                sceneModel.createObject(utils.apply(entityDefaults, {
                     id: entityId,
                     meshIds: meshIds
                 }));

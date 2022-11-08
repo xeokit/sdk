@@ -1,5 +1,8 @@
 import * as math from "../math/math";
 
+/**
+ * A geometry bucket within {@link GeometryCompressedParams.geometryBuckets}.
+ */
 export interface GeometryBucketParams {
 
     /**
@@ -36,4 +39,4 @@ export interface GeometryBucketParams {
      * This is either an array of 8-bit, 16-bit or 32-bit values.
      */
     edgeIndices?: math.IntArrayType
-};
+}

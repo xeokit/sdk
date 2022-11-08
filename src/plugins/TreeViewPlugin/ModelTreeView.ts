@@ -542,10 +542,10 @@ class ModelTreeView {
             if (!node1.aabb || !node2.aabb) {
                 // Sorting on lowest point of the AABB is likely more more robust when objects could overlap storeys
                 if (!node1.aabb) {
-                    node1.aabb = scene.getAABB(sceneData.getDataObjectIdsInSubtree(node1.objectId));
+                    node1.aabb = scene.getAABB(sceneData.getObjectIdsInSubtree(node1.objectId));
                 }
                 if (!node2.aabb) {
-                    node2.aabb = scene.getAABB(sceneData.getDataObjectIdsInSubtree(node2.objectId));
+                    node2.aabb = scene.getAABB(sceneData.getObjectIdsInSubtree(node2.objectId));
                 }
             }
             let idx = 0;
@@ -580,7 +580,7 @@ class ModelTreeView {
 
     _synchNodesToEntities() {
         const rootObjectData = this._rootObjectData;
-        const objectIds = rootObjectData.getDataObjectIdsInSubtree();
+        const objectIds = rootObjectData.getObjectIdsInSubtree();
         const objects = this._viewer.sceneData.objects;
         const objects = this._viewer.scene.objects;
         for (let i = 0, len = objectIds.length; i < len; i++) {

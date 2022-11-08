@@ -35,7 +35,7 @@ export interface GeometryCompressedParams {
     /**
      * 4x4 matrix to de-quantize the geometry's 3D vertex positions.
      */
-    positionsDecompressMatrix?: math.FloatArrayType;
+    positionsDecompressMatrix: math.FloatArrayType;
 
     /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.

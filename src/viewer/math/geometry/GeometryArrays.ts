@@ -2,7 +2,7 @@
 import {FloatArrayType, IntArrayType} from "../../math/index";
 
 /**
- * Geometry data arrays.
+ * GeometryBucketHandle data arrays.
  */
 export type GeometryArrays = {
     primitive?: string,

@@ -10,8 +10,8 @@ import {globalizeObjectId} from "../../../viewer/utils/index";
 // @ts-ignore
 import * as p from "./lib/pako.js";
 import * as math from "../../../viewer/math/";
-import {SceneModel, Viewer} from "../../../viewer";
-import {createPositionsDecompressMatrix} from "../../../viewer";
+import {SceneModel, Viewer} from "../../../viewer/index";
+import {createPositionsDecompressMatrix} from "../../../viewer/index";
 
 // @ts-ignore
 let pako = window.pako || p;
@@ -419,7 +419,7 @@ function load(viewer: Viewer, options: any, inflatedData: any, sceneModel: Scene
 
             if (meshIds.length > 0) {
 
-                sceneModel.createSceneObject(utils.apply(entityDefaults, {
+                sceneModel.createObject(utils.apply(entityDefaults, {
                     id: entityId,
                     meshIds: meshIds
                 }));

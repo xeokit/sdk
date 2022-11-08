@@ -2,17 +2,17 @@ import * as utils from '../../utils/index';
 import {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a cylinder-shaped {@link Geometry}.
+ * Creates a cylinder-shaped {@link GeometryBucketHandle}.
  *
  * ## Usage
  *
- * Creating a {@link Mesh} with a cylinder-shaped {@link Geometry} :
+ * Creating a {@link Mesh} with a cylinder-shaped {@link GeometryBucketHandle} :
  *
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildCylinderGeometry)]
  *
  * ````javascript
  *
- * import {Viewer, Mesh, buildCylinderGeometry, Geometry, PhongMaterial, Texture} from "xeokit-viewer.es.js";
+ * import {Viewer, Mesh, buildCylinderGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myCanvas"
@@ -42,7 +42,7 @@ import {GeometryArrays} from "./GeometryArrays";
  *
  * @function buildCylinderGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link Geometry}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.radiusTop=1]  Radius of top.
  * @param [cfg.radiusBottom=1]  Radius of bottom.
@@ -50,7 +50,7 @@ import {GeometryArrays} from "./GeometryArrays";
  * @param [cfg.radialSegments=60]  Number of horizontal segments.
  * @param [cfg.heightSegments=1]  Number of vertical segments.
  * @param [cfg.openEnded=false]  Whether or not the cylinder has solid caps on the ends.
- * @returns {Object} Configuration for a {@link Geometry} subtype.
+ * @returns {Object} Configuration for a {@link GeometryBucketHandle} subtype.
  */
 function buildCylinderGeometry(cfg: {
     radiusBottom: number;

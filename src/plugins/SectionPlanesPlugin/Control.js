@@ -3,7 +3,7 @@ import * as math from "../../viewer/math/math.js";
 import {buildCylinderGeometry} from "../../viewer/scene/geometry/builders/buildCylinderGeometry.js";
 import {buildTorusGeometry} from "../../viewer/scene/geometry/builders/buildTorusGeometry.js";
 
-import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
+import {Geometry} from "../../viewer/scene/geometry/GeometryBucketHandle.ts";
 import {PhongMaterial} from "../../viewer/scene/materials/PhongMaterial.js";
 import {EmphasisMaterial} from "../../viewer/view/materials/EmphasisMaterial.js";
 import {Node} from "../../viewer/scene/Node.js";

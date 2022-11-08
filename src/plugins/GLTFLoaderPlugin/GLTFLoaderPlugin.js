@@ -115,7 +115,7 @@ import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
  *      const parent = objectData.parent;                               // DataObject with type "IfcBuilding"
  *      const children = objectData.children;                           // Array of child ObjectDatas
  *      const objectId = objectData.id;                                 // "0u4wgLe6n0ABVaiXyikbkA"
- *      const objectIds = viewer.sceneData.getDataObjectIdsInSubtree(objectId);   // IDs of leaf sub-objects
+ *      const objectIds = viewer.sceneData.getObjectIdsInSubtree(objectId);   // IDs of leaf sub-objects
  *      const aabb = viewer.scene.getAABB(objectIds);                   // Axis-aligned boundary of the leaf sub-objects
  *
  *      // 2
@@ -316,7 +316,7 @@ class GLTFLoaderPlugin extends Plugin {
 
             const processModelDataData = (modelDataData) => {
 
-                this.viewer.sceneData.createDataModel(modelId, modelDataData, {
+                this.viewer.sceneData.createModel(modelId, modelDataData, {
                     includeTypes: params.includeTypes,
                     excludeTypes: params.excludeTypes
                 });

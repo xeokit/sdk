@@ -1,2 +1,2 @@
-export * from "./WebGLRenderer/WebGLRenderer";
+export * from "./WebGLRenderer";
 export * from "./textureTranscoders/index";

@@ -82,7 +82,7 @@ class Component {
      Also fires the message as a "log" event on the parent {@link Viewer}.
 
      @param message - The message to log
-     @private
+     @protected
      */
     log(message: string): void {
         message = `[LOG] ${this.#prefixMessageWithID(message)}`;
@@ -98,7 +98,7 @@ class Component {
      Also fires the message as a "warn" event on the parent {@link Viewer}.
 
      @param message - The warning message to log
-     @private
+     @protected
      */
     warn(message: string): void {
         message = `[WARN] ${this.#prefixMessageWithID(message)}`;
@@ -114,7 +114,7 @@ class Component {
      Also fires the message as an "error" event on the {@link Viewer}.
 
      @param message The error message to log
-     @private
+     @protected
      */
     error(message: string): void {
         message = `[ERROR] ${this.#prefixMessageWithID(message)}`;

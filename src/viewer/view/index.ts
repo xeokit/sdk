@@ -2,6 +2,7 @@ export * from "./Canvas";
 export * from "./Input";
 export * from "./Metriqs";
 export * from "./View";
+export * from "./ViewLayer";
 export * from "./ViewObject";
 export * from "./SectionPlane";
 export * from "./SAO";

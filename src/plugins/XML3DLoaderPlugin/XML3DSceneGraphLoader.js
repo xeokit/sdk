@@ -1,6 +1,6 @@
 import {Node} from "../../viewer/scene/Node.js";
 import {Mesh} from "../../viewer/scene/mesh/Mesh.js";
-import {Geometry} from "../../viewer/scene/geometry/Geometry.ts";
+import {Geometry} from "../../viewer/scene/geometry/GeometryBucketHandle.ts";
 import {PhongMaterial} from "../../viewer/scene/materials/PhongMaterial.js";
 import {MetallicMaterial} from "../../viewer/scene/materials/MetallicMaterial.js";
 import {SpecularMaterial} from "../../viewer/scene/materials/SpecularMaterial.js";
@@ -50,7 +50,7 @@ class XML3DSceneGraphLoader {
         this.src = cfg.src;
         this.xrayOpacity = 0.7;
         this.displayEffect = cfg.displayEffect;
-        this.createDataModel = cfg.createDataModel;
+        this.createModel = cfg.createModel;
     }
 
     load(plugin, modelNode, src, options, ok, error) {
@@ -139,7 +139,7 @@ var parse3DXML = (function () {
             materials: {}
         };
 
-        if (options.createDataModel) {
+        if (options.createModel) {
             ctx.modelDataData = {
                 modelId: modelNode.id,
                 objects: [{
@@ -153,7 +153,7 @@ var parse3DXML = (function () {
 
         parseDocument(ctx, function () {
             if (ctx.modelDataData) {
-                plugin.viewer.sceneData.createDataModel(modelNode.id, ctx.modelDataData);
+                plugin.viewer.sceneData.createModel(modelNode.id, ctx.modelDataData);
             }
             modelNode.scene.loading--; // Re-enables (re)compilation
             ok();

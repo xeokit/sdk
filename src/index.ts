@@ -1,2 +1,3 @@
-export * as webgl from "./webgl/index";
-export * as viewer from "./viewer/index";
+//export * as WebGLRenderer from "./WebGLRenderer/index";
+export * from "./viewer/index";
+export * from "./WebGLRenderer/index";

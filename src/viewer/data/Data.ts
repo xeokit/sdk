@@ -35,7 +35,7 @@ class Data extends Component {
     /**
      * The {@link DataModel}s belonging to this Data, each keyed to its {@link DataModel.id}.
      */
-    public readonly dataModels: { [key: string]: DataModel };
+    public readonly models: { [key: string]: DataModel };
 
     /**
      * The {@link PropertySet}s belonging to this Data, each keyed to its {@link PropertySet.id}.
@@ -65,7 +65,7 @@ class Data extends Component {
         super();
 
         this.viewer = viewer;
-        this.dataModels = {};
+        this.models = {};
         this.propertySets = {};
         this.objects = {};
         this.objectsByType = {};
@@ -92,7 +92,7 @@ class Data extends Component {
         }
     ): DataModel {
         let id = dataModelCfg.id || createUUID();
-        if (this.dataModels[id]) {
+        if (this.models[id]) {
             this.error(`DataModel with ID "${id}" already exists - will randomly-generate ID`);
             id = createUUID();
         }
@@ -198,7 +198,7 @@ class Data extends Component {
                 this.propertySets[propertySetId] = dataModel.propertySets[propertySetId];
             }
         }
-        this.dataModels[dataModel.id] = dataModel;
+        this.models[dataModel.id] = dataModel;
     }
 
     #deregisterDataModel(dataModel: DataModel) {
@@ -226,7 +226,7 @@ class Data extends Component {
                 delete this.propertySets[propertySetId];
             }
         }
-        delete this.dataModels[dataModel.id];
+        delete this.models[dataModel.id];
     }
 }
 

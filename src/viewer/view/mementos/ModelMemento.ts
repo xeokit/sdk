@@ -43,7 +43,7 @@ const color = new Float32Array(3);
  *      // Save memento of all object states, which includes those two hidden objects
  *      const ModelMemento = new ModelMemento();
  *
- * const dataModel = viewer.data.dataModels
+ * const dataModel = viewer.data.models
  *      ModelMemento.saveObjects(viewer.scene);
  *
  *      // Show all objects
@@ -146,13 +146,13 @@ class ModelMemento {
             return;
         }
 
-        const objectIds = rootDataObject.getDataObjectIdsInSubtree();
+        const objectIds = rootDataObject.getObjectIdsInSubtree();
 
         this.#numViewObjects = 0;
 
         this.#mask = mask ? apply(mask, {}) : null;
 
-        const objects = view.viewObjects;
+        const objects = view.objects;
         const visible = (!mask || mask.visible);
         const edges = (!mask || mask.edges);
         const xrayed = (!mask || mask.xrayed);
@@ -218,7 +218,7 @@ class ModelMemento {
             return;
         }
 
-        const objectIds = rootDataObject.getDataObjectIdsInSubtree();
+        const objectIds = rootDataObject.getObjectIdsInSubtree();
 
         const mask = this.#mask;
 
@@ -232,7 +232,7 @@ class ModelMemento {
         const colorize = (!mask || mask.colorize);
         const opacity = (!mask || mask.opacity);
 
-        const objects = view.viewObjects;
+        const objects = view.objects;
 
         for (let i = 0, len = objectIds.length; i < len; i++) {
             const objectId = objectIds[i];

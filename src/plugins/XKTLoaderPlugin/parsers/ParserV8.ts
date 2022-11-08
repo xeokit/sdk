@@ -9,8 +9,8 @@ import {globalizeObjectId} from "../../../viewer/utils/index";
 // @ts-ignore
 import * as p from "./lib/pako.js";
 import * as math from "../../../viewer/math/";
-import {createPositionsDecompressMatrix} from "../../../viewer";
-import {SceneModel, Viewer} from "../../../viewer";
+import {createPositionsDecompressMatrix} from "../../../viewer/index";
+import {SceneModel, Viewer} from "../../../viewer/index";
 
 // @ts-ignore
 let pako = window.pako || p;
@@ -211,7 +211,7 @@ function load(viewer: Viewer,
             });
         }
 
-        const metaModel = viewer.sceneData.createDataModel(modelDataId, modelDataData, {
+        const metaModel = viewer.sceneData.createModel(modelDataId, modelDataData, {
             includeTypes: options.includeTypes,
             excludeTypes: options.excludeTypes,
             globalizeObjectIds: options.globalizeObjectIds
@@ -503,7 +503,7 @@ function load(viewer: Viewer,
 
             if (meshIds.length > 0) {
 
-                sceneModel.createSceneObject(utils.apply(entityDefaults, {
+                sceneModel.createObject(utils.apply(entityDefaults, {
                     id: entityId,
                     meshIds: meshIds
                 }));

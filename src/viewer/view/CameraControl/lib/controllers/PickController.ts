@@ -107,32 +107,32 @@ class PickController {
             }
         }
 
-        if (this.schedulePickSurface) {
-
-            this.pickResult = this.#view.pick({
-                pickSurface: true,
-                pickSurfaceNormal: false,
-                canvasPos: this.pickCursorPos
-            });
-
-            if (this.pickResult) {
-                this.picked = true;
-                this.pickedSurface = true;
-                this.#needFireEvents = true;
-            }
-
-        } else { // schedulePickEntity == true
-
-            this.pickResult = this.#view.pick({
-                canvasPos: this.pickCursorPos
-            });
-
-            if (this.pickResult) {
-                this.picked = true;
-                this.pickedSurface = false;
-                this.#needFireEvents = true;
-            }
-        }
+        // if (this.schedulePickSurface) {
+        //
+        //     this.pickResult = this.#view.pick({
+        //         pickSurface: true,
+        //         pickSurfaceNormal: false,
+        //         canvasPos: this.pickCursorPos
+        //     });
+        //
+        //     if (this.pickResult) {
+        //         this.picked = true;
+        //         this.pickedSurface = true;
+        //         this.#needFireEvents = true;
+        //     }
+        //
+        // } else { // schedulePickEntity == true
+        //
+        //     this.pickResult = this.#view.pick({
+        //         canvasPos: this.pickCursorPos
+        //     });
+        //
+        //     if (this.pickResult) {
+        //         this.picked = true;
+        //         this.pickedSurface = false;
+        //         this.#needFireEvents = true;
+        //     }
+        // }
 
         this.schedulePickEntity = false;
         this.schedulePickSurface = false;
@@ -152,7 +152,7 @@ class PickController {
 
                 if (this.#lastPickedEntityId !== undefined && this.#lastPickedEntityId !== null) {
                     this.#cameraControl.events.fire("hoverOut", {
-                        entity: this.#view.viewObjects[this.#lastPickedEntityId]
+                        entity: this.#view.objects[this.#lastPickedEntityId]
                     }, true);
                 }
 
@@ -171,7 +171,7 @@ class PickController {
 
             if (this.#lastPickedEntityId !== undefined && this.#lastPickedEntityId !== null) {
                 this.#cameraControl.events.fire("hoverOut", {
-                    entity: this.#view.viewObjects[this.#lastPickedEntityId]
+                    entity: this.#view.objects[this.#lastPickedEntityId]
                 }, true);
                 this.#lastPickedEntityId = undefined;
             }

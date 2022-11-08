@@ -13,7 +13,7 @@ import {PropertySetParams} from "./PropertySetParams";
  *
  *  * Belongs to a {@link Data}
  *  * Created with {@link Data.createModel}
- *  * Registered by {@link DataModel.id} in {@link Data.dataModels}
+ *  * Registered by {@link DataModel.id} in {@link Data.models}
  *  * Contains {@link DataObject}s and {@link PropertySet}s
  */
 class DataModel extends Component {
@@ -26,7 +26,7 @@ class DataModel extends Component {
     /**
      * Unique ID of this DataModel.
      *
-     * MetaModels are registered by ID in {@link Data.dataModels}.
+     * MetaModels are registered by ID in {@link Data.models}.
      */
     declare public readonly id: string;
 
@@ -173,7 +173,7 @@ class DataModel extends Component {
      * Creates a {@link DataObject} within this DataModel.
      *
      * @param dataObjectCfg
-     * @see {@link SceneModel.createSceneObject}
+     * @see {@link SceneModel.createObject}
      */
     createObject(dataObjectCfg: DataObjectParams): DataObject {
         if (this.#destroyed) {

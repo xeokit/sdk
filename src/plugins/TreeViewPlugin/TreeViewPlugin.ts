@@ -1,6 +1,6 @@
 import {ModelTreeView} from "./ModelTreeView";
 import {Plugin} from "../../viewer/Plugin";
-import {DataObject, Viewer} from "../../viewer";
+import {DataObject, Viewer} from "../../viewer/index";
 import {TreeViewNode} from "./TreeViewNode";
 
 /**

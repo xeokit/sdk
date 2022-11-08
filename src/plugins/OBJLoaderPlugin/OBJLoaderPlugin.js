@@ -117,7 +117,7 @@ class OBJLoaderPlugin extends Plugin {
             const modelDataSrc = params.modelDataSrc;
             utils.loadJSON(modelDataSrc,
                 (modelMetadata) => {
-                    this.viewer.sceneData.createDataModel(modelId, modelMetadata);
+                    this.viewer.sceneData.createModel(modelId, modelMetadata);
                     this._sceneGraphLoader.load(modelNode, src, params);
                 },
                 (errMsg) => {

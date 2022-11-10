@@ -15,7 +15,6 @@ export class Attribute {
         }
         arrayBuf.bind();
         this.gl.enableVertexAttribArray(this.location);
-        this.gl.vertexAttribPointer(this.location,
-            arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
+        this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
     }
 }

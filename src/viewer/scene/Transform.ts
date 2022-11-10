@@ -8,11 +8,6 @@ import {SceneModel} from "./SceneModel";
  */
 export class Transform extends Component {
 
-    /**
-     * @private
-     * @param scene
-     * @param options
-     */
     constructor(params: { sceneModel: SceneModel, parent?: Transform }) {
         super();
     }

@@ -1,4 +1,5 @@
 import {Program} from "../lib/Program";
+import {Sampler} from "../lib/Sampler";
 
 /**
  * A WebGL2 texture that holds geometry data.
@@ -28,11 +29,11 @@ export class DataTexture {
         this.#onDestroyed = params.onDestroyed;
     }
 
-    bindTexture(glProgram: Program, samplerName: string, glTextureUnit: number) {
+    bindTexture(glProgram: Program, sampler: Sampler, unit: number) {
         if (!this.gl) {
             return;
         }
-        return glProgram.bindTexture(samplerName, this, glTextureUnit);
+        sampler.bindTexture(this, unit);
     }
 
     bind(unit: number) {

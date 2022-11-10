@@ -18,16 +18,12 @@ const MAX_DATATEXTURE_HEIGHT = (1 << 11); // 2048
 const INDICES_EDGE_INDICES_ALIGNMENT_SIZE = 8;
 
 const identityMatrix = math.identityMat4();
-const tempMat4 = math.mat4();
-const tempMat4b = math.mat4();
 const tempVec4a = math.vec4([0, 0, 0, 1]);
 const tempVec4b = math.vec4([0, 0, 0, 1]);
-const tempVec4c = math.vec4([0, 0, 0, 1]);
-const tempOBB3 = math.boundaries.OBB3();
 const tempUint8Array4 = new Uint8Array(4);
 const tempFloat32Array3 = new Float32Array(3);
 
-export interface LayerParams {
+export interface LayerParams { // Params for Layer constructor
     gl: WebGL2RenderingContext;
     sceneModel: WebGLSceneModel;
     modelMeshCounts: MeshCounts;
@@ -37,7 +33,7 @@ export interface LayerParams {
     textureSet?: TextureSet;
 }
 
-interface GeometryBucketHandle {
+interface GeometryBucketHandle { // Storage handle for a geometry bucket within a Layer
     vertexBase: number;
     numVertices: number;
     numTriangles: number;
@@ -46,7 +42,7 @@ interface GeometryBucketHandle {
     edgeIndicesBase: number
 }
 
-interface GeometryHandle {
+interface GeometryHandle { // Storage handle for a geometry within a Layer
     aabb: math.FloatArrayType;
     positionsDecompressMatrix: math.FloatArrayType;
     geometryBucketHandles: GeometryBucketHandle[]
@@ -61,7 +57,8 @@ interface MeshPartHandle {
     numVerts: number;
 }
 
-export interface LayerRenderState {
+export interface LayerRenderState { // What a LayerRenderer needs to render this Layer
+    materialTextureSet: TextureSet;
     dataTextureSet: DataTextureSet;
     primitive: number;
     origin: math.FloatArrayType;
@@ -74,8 +71,7 @@ export interface LayerRenderState {
     numVertices: number;
 }
 
-class DataTextureBuffer {
-
+class DataTextureBuffer { // Buffers data as we build a Layer; is converted into data textures once the Layer is built
     positions: number[];
     indices_8Bits: number[];
     indices_16Bits: number[];
@@ -127,7 +123,7 @@ class DataTextureBuffer {
     }
 }
 
-export class Layer {
+export class Layer { // A container of meshes within a WebGLSceneModel
 
     sceneModel: WebGLSceneModel;
     primitive: number;
@@ -136,10 +132,10 @@ export class Layer {
     state: LayerRenderState;
 
     #gl: WebGL2RenderingContext;
-    #modelMeshCounts: MeshCounts;
-    #layerMeshCounts: MeshCounts;
+    #modelMeshCounts: MeshCounts; // Shared with all Layers in same WebGLSceneModel
+    #layerMeshCounts: MeshCounts; // Local to this Layer
     #dataTextureBuffer: DataTextureBuffer;
-    #renderers: any;
+    #renderers: LayerRenderers;
     #geometryHandles: { [key: number | string]: any };
     #meshPartHandles: MeshPartHandle[];
     #numMeshParts: number;
@@ -799,8 +795,8 @@ export class Layer {
         tempUint8Array4 [1] = f1;
         tempUint8Array4 [2] = f2;
         tempUint8Array4 [3] = f3;
-        dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshId * 28 + 8);
         if (this.#deferredSetFlagsActive) {
+            dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshId * 28 + 8);
             this.#deferredSetFlagsDirty = true;
             return;
         }
@@ -820,8 +816,9 @@ export class Layer {
         tempUint8Array4 [1] = 0;
         tempUint8Array4 [2] = 1;
         tempUint8Array4 [3] = 2;
-        dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshId * 28 + 12); // Flags
+
         if (this.#deferredSetFlagsActive) {
+            dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshId * 28 + 12); // Flags
             this.#deferredSetFlagsDirty = true;
             return;
         }

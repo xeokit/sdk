@@ -40,6 +40,7 @@ export class Program {
         this.uniforms = {};
         this.samplers = {};
         this.attributes = {};
+
         this.vertexShader = new Shader(gl, gl.VERTEX_SHADER, joinSansComments(this.source.vertex));
         this.fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, joinSansComments(this.source.fragment));
 
@@ -83,7 +84,7 @@ export class Program {
 
         this.linked = gl.getProgramParameter(this.handle, gl.LINK_STATUS);
 
-        // HACK: Disable validation temporarily: https://github.com/xeolabs/xeokit/issues/5
+        // HACK: Disable validation temporarily: https://github.com/xeolabs/xeokit-sdk/issues/5
         // Perhaps we should defer validation until render-time, when the program has values set for all inputs?
 
         this.validated = true;
@@ -187,11 +188,10 @@ export class Program {
 
 function joinSansComments(srcLines: string[]) {
     const src = [];
-    let line;
-    let n;
+    let line;``
     for (let i = 0, len = srcLines.length; i < len; i++) {
-        line = srcLines[i];
-        n = line.indexOf("/");
+         line = srcLines[i];
+        const n = line.indexOf("/");
         if (n > 0) {
             if (line.charAt(n + 1) === "/") {
                 line = line.substring(0, n);

@@ -1,7 +1,7 @@
-import {LayerRenderer} from "./LayerRenderer";
+import {LayerPrimitiveRenderer} from "./LayerPrimitiveRenderer";
 import {View} from "../../viewer/index";
 
-export class ColorTrianglesLayerRenderer extends LayerRenderer {
+export class QualityColorTrianglesRenderer extends LayerPrimitiveRenderer {
 
     constructor(view: View, gl: WebGL2RenderingContext) {
         super(view, gl);
@@ -98,7 +98,7 @@ export class ColorTrianglesLayerRenderer extends LayerRenderer {
                 in int          meshFlags2;        
                 uniform float   logDepthBufFC;                        
     
-                ${this.fragSectionPlaneUniforms}                  
+                ${this.fragSectionPlaneDefs}                  
                 ${this.fragLightSourceUniforms}                                                             
     
                 out vec4 outColor;        
@@ -112,7 +112,7 @@ export class ColorTrianglesLayerRenderer extends LayerRenderer {
                 // 
                 //  vec3 viewNormal = normalize( cross( xTangent, yTangent ) );        
     
-                    ${this.fragSectionPlaneSlicing}                                    
+                    ${this.fragSectionPlanesSlice}                                    
                     ${this.fragFlatShading}     
           
                     outColor = meshColor;                   
@@ -120,26 +120,26 @@ export class ColorTrianglesLayerRenderer extends LayerRenderer {
                 }`;
     }
 
-    get lambertianLighting() : string{
-        const src = [];
-        src.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);");
-        src.push("vec3 viewLightDir = vec3(0.0, 0.0, -1.0);");
-        src.push("float lambertian = 1.0;");
-        for (let i = 0, len = this.#view.lightsList.length; i < len; i++) {
-            const light = this.#view.lightsList[i];
-            if (light.type === "ambient") {
-                continue;
-            }
-            if (light.type === "dir") {
-                src.push("viewLightDir = normalize((viewMatrix * vec4(lightDir" + i + ", 0.0)).xyz);");
-            } else {
-                continue;
-            }
-            src.push("lambertian = max(dot(-viewNormal, viewLightDir), 0.0);");
-            src.push("reflectedColor += lambertian * (lightColor" + i + ".rgb * lightColor" + i + ".a);");
-        }
-        return src.join("\n");
-    }
+    // get lambertianLighting() : string{
+    //     const src = [];
+    //     src.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);");
+    //     src.push("vec3 viewLightDir = vec3(0.0, 0.0, -1.0);");
+    //     src.push("float lambertian = 1.0;");
+    //     for (let i = 0, len = this.view.lightsList.length; i < len; i++) {
+    //         const light = this.view.lightsList[i];
+    //         if (light.type === "ambient") {
+    //             continue;
+    //         }
+    //         if (light.type === "dir") {
+    //             src.push("viewLightDir = normalize((viewMatrix * vec4(lightDir" + i + ", 0.0)).xyz);");
+    //         } else {
+    //             continue;
+    //         }
+    //         src.push("lambertian = max(dot(-viewNormal, viewLightDir), 0.0);");
+    //         src.push("reflectedColor += lambertian * (lightColor" + i + ".rgb * lightColor" + i + ".a);");
+    //     }
+    //     return src.join("\n");
+    // }
     getHash(): string {
         return "";
     }

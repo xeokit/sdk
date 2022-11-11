@@ -1,7 +1,7 @@
-import {LayerRenderer} from "./LayerRenderer";
-import {View} from "../../viewer";
+import {LayerPrimitiveRenderer} from "./LayerPrimitiveRenderer";
+import {View} from "../../viewer/index";
 
-export class ColorPointsLayerRenderer extends LayerRenderer {
+export class ColorEdgesRenderer extends LayerPrimitiveRenderer {
 
     constructor(view: View, gl: WebGL2RenderingContext) {
         super(view, gl);

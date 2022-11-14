@@ -1,7 +1,6 @@
 import {PickResult, SceneObject, math} from "../viewer/index";
 
-import {DrawFlags} from "./DrawFlags";
-import {FrameContext} from "./FrameContext";
+import {RenderContext} from "./RenderContext";
 
 /**
  * Meshes that can be picked by a WebGLRenderer.
@@ -18,7 +17,7 @@ export interface Pickable {
     /**
      * Picks a triangle on this Pickable.
      */
-    drawPickTriangles(drawFlags: DrawFlags, frameContext: FrameContext): void;
+    //drawPickTriangles(drawFlags: DrawFlags, renderContext: RenderContext): void;
 
     /**
      * Given a {@link PickResult} that contains a {@link PickResult#primIndex}, which indicates that a primitive was picked on the Pickable, then add more information to the PickResult about the picked position on the surface of the Pickable.
@@ -39,7 +38,7 @@ export interface Pickable {
      */
     canPickWorldPos(): boolean;
 
-    drawPickDepths(drawFlags: DrawFlags, frameContext: FrameContext): void;
+   // drawPickDepths(drawFlags: DrawFlags, renderContext: RenderContext): void;
 
     delegatePickedEntity(): SceneObject;
 

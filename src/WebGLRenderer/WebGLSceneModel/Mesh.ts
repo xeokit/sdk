@@ -1,8 +1,7 @@
 import {math} from "../../viewer/index";
 import {Pickable} from "../Pickable";
 import {WebGLSceneObject} from "./WebGLSceneObject";
-import {DrawFlags} from "../DrawFlags";
-import {FrameContext} from "../FrameContext";
+import {RenderContext} from "../RenderContext";
 import {Layer} from "./Layer";
 
 class Mesh implements Pickable {
@@ -11,7 +10,6 @@ class Mesh implements Pickable {
     pickId: number;
     sceneObject: WebGLSceneObject;
     aabb: math.FloatArrayType;
-    numTriangles: number;
     layer: Layer;
     meshId: any;
     color: math.FloatArrayType;
@@ -32,7 +30,6 @@ class Mesh implements Pickable {
         this.colorize = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
         this.colorizing = false;
         this.transparent = (params.opacity < 255);
-        this.numTriangles = 0;
         this.origin = null;
         this.sceneObject = null;
         this.layer = null;
@@ -137,7 +134,7 @@ class Mesh implements Pickable {
         return false;
     }
 
-    drawPickTriangles(drawFlags: any, frameContext: any) {
+    drawPickTriangles(drawFlags: any, renderContext: any) {
         // NOP
     }
 
@@ -145,20 +142,12 @@ class Mesh implements Pickable {
         // NOP
     }
 
-    precisionRayPickSurface(worldRayOrigin: any, worldRayDir: any, worldSurfacePos: any, worldSurfaceNormal: any) {
-        return this.layer.precisionRayPickSurface ? this.layer.precisionRayPickSurface(this.meshId, worldRayOrigin, worldRayDir, worldSurfacePos, worldSurfaceNormal) : false;
-    }
-
     canPickWorldPos() {
         return true;
     }
 
-    drawPickDepths(drawFlags: DrawFlags, frameContext: FrameContext) {
-        // this.sceneObject.sceneModel.drawPickDepths(frameContext);
-    }
-
-    drawPickNormals(frameContext: FrameContext) {
-        //this.sceneObject.sceneModel.drawPickNormals(frameContext);
+    drawPickNormals(renderContext: RenderContext) {
+        //this.sceneObject.sceneModel.drawPickNormals(renderContext);
     }
 
     delegatePickedEntity(): WebGLSceneObject {

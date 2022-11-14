@@ -11,17 +11,16 @@ import {
     Renderer,
     SceneObjectParams,
     TextureParams,
-    TextureSetParams, SceneObject, Transform, GeometryCompressedParams
+    TextureSetParams,
+    SceneObject,
+    Transform,
+    GeometryCompressedParams
 } from "../../viewer/index";
 
 import {getKTX2TextureTranscoder} from "../textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder";
 
 import {Texture2D} from "../lib/Texture2D";
-
-import {FrameContext} from "../FrameContext";
 import {WebGLRenderer} from "../WebGLRenderer";
-import {DrawFlags} from "../DrawFlags";
-import {Drawable} from "../Drawable";
 import {Layer, LayerParams} from "./Layer";
 import {Mesh} from './Mesh';
 import {TextureSet} from "./TextureSet";
@@ -67,10 +66,9 @@ const defaultEmissiveTextureId = "defaultEmissiveTexture";
 const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
 
-export class WebGLSceneModel extends Component implements SceneModel, Drawable {
+export class WebGLSceneModel extends Component implements SceneModel {
 
     readonly qualityRender: boolean;
-    renderMode?: number;
     declare readonly id: string;
     readonly view: View;
     readonly scene: Scene;
@@ -78,37 +76,34 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     declare readonly destroyed: boolean;
     objects: { [key: string]: WebGLSceneObject };
     objectList: WebGLSceneObject[];
-    meshCounts: MeshCounts;
 
-    drawFlags: DrawFlags;
 
     #renderer: Renderer;
-    #gl: WebGL2RenderingContext;
     #webglRenderer: WebGLRenderer;
+
     #origin: math.FloatArrayType;
     #position: math.FloatArrayType;
     #rotation: math.FloatArrayType;
     #quaternion: math.FloatArrayType;
     #scale: math.FloatArrayType;
     #worldMatrix: math.FloatArrayType;
-    #worldNormalMatrix: math.FloatArrayType;
     #viewMatrix: math.FloatArrayType;
-    #viewNormalMatrix: math.FloatArrayType;
+
     #colorTextureEnabled: boolean;
     #backfaces: boolean;
     #geometries: { [key: string]: GeometryCompressedParams };
     #textures: { [key: string]: Texture };
     #textureSets: { [key: string]: TextureSet };
     #meshes: { [key: string]: Mesh };
-    #layerList: Layer[];
+    layerList: Layer[];
     #layers: { [key: string]: Layer };
+
     #numGeometries: number;
     #numTriangles: number;
     #numLines: number;
     #numPoints: number;
     #numSceneObjects: number;
     #textureTranscoder: any;
-    #maxGeometryBatchSize: number;
     #aabbDirty: boolean;
     #lastOrigin: math.FloatArrayType;
     #lastPositionsDecompressMatrix: math.FloatArrayType;
@@ -119,11 +114,6 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     #viewMatrixDirty: boolean;
     #worldMatrixNonIdentity: boolean;
     #onCameraViewMatrix: number;
-    #isModel: any;
-    #lastuvsDecompressMatrix: math.FloatArrayType;
-    #lastTextureSetId: String;
-    #instancingGeometries: {};
-    #preparedInstancingGeometries: {};
     #finalized: boolean;
 
     constructor(params: {
@@ -139,7 +129,6 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         origin?: math.FloatArrayType;
         edgeThreshold?: number;
         textureTranscoder?: TextureTranscoder;
-        maxGeometryBatchSize?: number;
         qualityRender?: boolean;
     }) {
 
@@ -152,17 +141,12 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         this.view = params.view;
         this.objectList = [];
 
-        this.drawFlags = new DrawFlags();
-
-        this.meshCounts = new MeshCounts();
-
         this.#webglRenderer = params.webglRenderer;
         this.#renderer = params.webglRenderer;
         this.#textureTranscoder = params.textureTranscoder || getKTX2TextureTranscoder(this.scene.viewer);
-        this.#maxGeometryBatchSize = params.maxGeometryBatchSize;
         this.#aabb = math.boundaries.collapseAABB3();
         this.#aabbDirty = false;
-        this.#layerList = [];
+        this.layerList = [];
         this.#lastOrigin = null;
         this.#lastPositionsDecompressMatrix = null;
         this.#lastmeshHadNormals = null;
@@ -193,13 +177,9 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         this.#scale = math.vec3(params.scale || [1, 1, 1]);
         this.#worldMatrix = math.mat4();
         math.composeMat4(this.#position, this.#quaternion, this.#scale, this.#worldMatrix);
-        this.#worldNormalMatrix = math.mat4();
-        math.inverseMat4(this.#worldMatrix, this.#worldNormalMatrix);
-        math.transposeMat4(this.#worldNormalMatrix);
 
         if (params.matrix || params.position || params.rotation || params.scale || params.quaternion) {
             this.#viewMatrix = math.mat4();
-            this.#viewNormalMatrix = math.mat4();
             this.#viewMatrixDirty = true;
             this.#worldMatrixNonIdentity = true;
         }
@@ -237,34 +217,15 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         return this.#worldMatrix;
     }
 
-    get worldNormalMatrix(): math.FloatArrayType {
-        return this.#worldNormalMatrix;
-    }
-
     get viewMatrix(): math.FloatArrayType {
         if (!this.#viewMatrix) {
             return this.view.camera.viewMatrix;
         }
         if (this.#viewMatrixDirty) {
             math.mulMat4(this.view.camera.viewMatrix, this.#worldMatrix, this.#viewMatrix);
-            math.inverseMat4(this.#viewMatrix, this.#viewNormalMatrix);
-            math.transposeMat4(this.#viewNormalMatrix);
             this.#viewMatrixDirty = false;
         }
         return this.#viewMatrix;
-    }
-
-    get viewNormalMatrix(): math.FloatArrayType {
-        if (!this.#viewNormalMatrix) {
-            return this.view.camera.viewNormalMatrix;
-        }
-        if (this.#viewMatrixDirty) {
-            math.mulMat4(this.view.camera.viewMatrix, this.#worldMatrix, this.#viewMatrix);
-            math.inverseMat4(this.#viewMatrix, this.#viewNormalMatrix);
-            math.transposeMat4(this.#viewNormalMatrix);
-            this.#viewMatrixDirty = false;
-        }
-        return this.#viewNormalMatrix;
     }
 
     get colorTextureEnabled() {
@@ -669,7 +630,6 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             //    aabb: mesh.aabb,
             pickColor
         });
-        this.meshCounts.numMeshes++;
         mesh.origin = origin;
         this.#numGeometries++;
         math.boundaries.expandAABB3(this.#aabb, mesh.aabb);
@@ -747,7 +707,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             const sceneObject = this.objectList[i];
             sceneObject.finalize2();
         }
-        // this.#layerList.sort((a, b) => {
+        // this.layerList.sort((a, b) => {
         //     if (a.sortId < b.sortId) {
         //         return -1;
         //     }
@@ -756,18 +716,17 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         //     }
         //     return 0;
         // });
-        for (let i = 0, len = this.#layerList.length; i < len; i++) {
-            const layer = this.#layerList[i];
+        for (let i = 0, len = this.layerList.length; i < len; i++) {
+            const layer = this.layerList[i];
             layer.layerIndex = i;
         }
         this.#currentLayers = {};
-        this.#instancingGeometries = {};
-        this.#preparedInstancingGeometries = {};
         this.#renderer.setImageDirty();
         this.scene.setAABBDirty();
         this.events.fire("finalized", {});
     }
 
+    /*
     rebuildDrawFlags() {
         this.drawFlags.reset();
         this.#updateDrawFlagsVisibleLayers();
@@ -778,193 +737,193 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         this.#updateDrawFlags();
     }
 
-    drawColorOpaque(frameContext: FrameContext): void {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawColorOpaque(renderContext: RenderContext): void {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawColorOpaque(drawFlags, frameContext);
+            this.layerList[layerIndex].drawColorOpaque(drawFlags, renderContext);
         }
     }
 
-    drawColorTransparent(frameContext: FrameContext): void {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawColorTransparent(renderContext: RenderContext): void {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawColorTransparent(drawFlags, frameContext);
+            this.layerList[layerIndex].drawColorTransparent(drawFlags, renderContext);
         }
     }
 
-    drawDepth(frameContext: FrameContext): void { // Dedicated to SAO because it skips transparent objects
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawDepth(renderContext: RenderContext): void { // Dedicated to SAO because it skips transparent objects
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawDepth(drawFlags, frameContext);
+            this.layerList[layerIndex].drawDepth(drawFlags, renderContext);
         }
     }
 
-    drawNormals(frameContext: FrameContext): void { // Dedicated to SAO because it skips transparent objects
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawNormals(renderContext: RenderContext): void { // Dedicated to SAO because it skips transparent objects
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawNormals(drawFlags, frameContext);
+            this.layerList[layerIndex].drawNormals(drawFlags, renderContext);
         }
     }
 
-    drawSilhouetteXRayed(frameContext: FrameContext): void {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawSilhouetteXRayed(renderContext: RenderContext): void {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawSilhouetteXRayed(drawFlags, frameContext);
+            this.layerList[layerIndex].drawSilhouetteXRayed(drawFlags, renderContext);
         }
     }
 
-    drawSilhouetteHighlighted(frameContext: FrameContext): void {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawSilhouetteHighlighted(renderContext: RenderContext): void {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawSilhouetteHighlighted(drawFlags, frameContext);
+            this.layerList[layerIndex].drawSilhouetteHighlighted(drawFlags, renderContext);
         }
     }
 
-    drawSilhouetteSelected(frameContext: FrameContext): void {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawSilhouetteSelected(renderContext: RenderContext): void {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawSilhouetteSelected(drawFlags, frameContext);
+            this.layerList[layerIndex].drawSilhouetteSelected(drawFlags, renderContext);
         }
     }
 
-    drawEdgesColorOpaque(frameContext: FrameContext): void {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawEdgesColorOpaque(renderContext: RenderContext): void {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawEdgesColorOpaque(drawFlags, frameContext);
+            this.layerList[layerIndex].drawEdgesColorOpaque(drawFlags, renderContext);
         }
     }
 
-    drawEdgesColorTransparent(frameContext: FrameContext): void {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawEdgesColorTransparent(renderContext: RenderContext): void {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawEdgesColorTransparent(drawFlags, frameContext);
+            this.layerList[layerIndex].drawEdgesColorTransparent(drawFlags, renderContext);
         }
     }
 
-    drawEdgesXRayed(frameContext: FrameContext): void {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawEdgesXRayed(renderContext: RenderContext): void {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawEdgesXRayed(drawFlags, frameContext);
+            this.layerList[layerIndex].drawEdgesXRayed(drawFlags, renderContext);
         }
     }
 
-    drawEdgesHighlighted(frameContext: FrameContext) {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawEdgesHighlighted(renderContext: RenderContext) {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawEdgesHighlighted(drawFlags, frameContext);
+            this.layerList[layerIndex].drawEdgesHighlighted(drawFlags, renderContext);
         }
     }
 
-    drawEdgesSelected(frameContext: FrameContext) {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawEdgesSelected(renderContext: RenderContext) {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawEdgesSelected(drawFlags, frameContext);
+            this.layerList[layerIndex].drawEdgesSelected(drawFlags, renderContext);
         }
     }
 
-    drawOcclusion(frameContext: FrameContext) {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawOcclusion(renderContext: RenderContext) {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawOcclusion(drawFlags, frameContext);
+            this.layerList[layerIndex].drawOcclusion(drawFlags, renderContext);
         }
     }
 
-    drawShadow(frameContext: FrameContext) {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawShadow(renderContext: RenderContext) {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawShadow(drawFlags, frameContext);
+            this.layerList[layerIndex].drawShadow(drawFlags, renderContext);
         }
     }
 
-    drawPickMesh(frameContext: FrameContext) {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawPickMesh(renderContext: RenderContext) {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawPickMesh(drawFlags, frameContext);
+            this.layerList[layerIndex].drawPickMesh(drawFlags, renderContext);
         }
     }
 
-    drawPickDepths(frameContext: FrameContext) {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawPickDepths(renderContext: RenderContext) {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawPickDepths(drawFlags, frameContext);
+            this.layerList[layerIndex].drawPickDepths(drawFlags, renderContext);
         }
     }
 
-    drawPickNormals(frameContext: FrameContext) {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+    drawPickNormals(renderContext: RenderContext) {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.#layerList[layerIndex].drawPickNormals(drawFlags, frameContext);
+            this.layerList[layerIndex].drawPickNormals(drawFlags, renderContext);
         }
     }
-
+*/
     destroy() {
         if (this.destroyed) {
             return;
@@ -976,8 +935,8 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                 this.#currentLayers[layerId].destroy();
             }
         }
-        for (let i = 0, len = this.#layerList.length; i < len; i++) {
-            this.#layerList[i].destroy();
+        for (let i = 0, len = this.layerList.length; i < len; i++) {
+            this.layerList[i].destroy();
         }
         for (let i = 0, len = this.objectList.length; i < len; i++) {
             this.objectList[i].destroy();
@@ -987,7 +946,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         }
         this.#currentLayers = {};
         this.#layers = {};
-        this.#layerList = [];
+        this.layerList = [];
         this.#geometries = {};
         this.#textures = {};
         this.#textureSets = {};
@@ -1069,15 +1028,15 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         }
         layer = new Layer(<LayerParams>{
             gl: this.#webglRenderer.gl,
+            view:this.view,
             sceneModel: this,
-            modelMeshCounts: this.meshCounts,
             primitive: geometryCompressedParams.primitive,
             origin,
             textureSet,
             layerIndex: 0
         });
         this.#layers[layerId] = layer;
-        this.#layerList.push(layer);
+        this.layerList.push(layer);
         this.#currentLayers[layerId] = layer;
         return layer;
     }
@@ -1090,7 +1049,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
         }
         this.#aabbDirty = false;
     }
-
+/*
     #getActiveSectionPlanesForLayer(layer: any) {
         const drawFlags = this.drawFlags;
         const sectionPlanes = this.view.sectionPlanesList;
@@ -1113,10 +1072,10 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
 
     #updateDrawFlagsVisibleLayers() {
         const drawFlags = this.drawFlags;
-        drawFlags.numLayers = this.#layerList.length;
+        drawFlags.numLayers = this.layerList.length;
         drawFlags.numVisibleLayers = 0;
-        for (let layerIndex = 0, len = this.#layerList.length; layerIndex < len; layerIndex++) {
-            const layer = this.#layerList[layerIndex];
+        for (let layerIndex = 0, len = this.layerList.length; layerIndex < len; layerIndex++) {
+            const layer = this.layerList[layerIndex];
             const layerVisible = this.#getActiveSectionPlanesForLayer(layer);
             if (layerVisible) {
                 drawFlags.visibleLayers[drawFlags.numVisibleLayers++] = layerIndex;
@@ -1125,18 +1084,18 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
     }
 
     #updateDrawFlags() {
-        if (this.meshCounts.numVisibleMeshes === 0) {
+        if (this.meshCounts.numVisible === 0) {
             return;
         }
-        if (this.meshCounts.numCulledMeshes === this.meshCounts.numMeshes) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes) {
             return;
         }
         const drawFlags = this.drawFlags;
-        drawFlags.colorOpaque = (this.meshCounts.numTransparentMeshes < this.meshCounts.numMeshes);
-        if (this.meshCounts.numTransparentMeshes > 0) {
+        drawFlags.colorOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
+        if (this.meshCounts.numTransparent > 0) {
             drawFlags.colorTransparent = true;
         }
-        if (this.meshCounts.numXRayedMeshes > 0) {
+        if (this.meshCounts.numXRayed > 0) {
             const xrayMaterial = this.view.xrayMaterial.state;
             if (xrayMaterial.fill) {
                 if (xrayMaterial.fillAlpha < 1.0) {
@@ -1153,16 +1112,16 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                 }
             }
         }
-        if (this.meshCounts.numEdgesMeshes > 0) {
+        if (this.meshCounts.numEdges > 0) {
             const edgeMaterial = this.view.edgeMaterial.state;
             if (edgeMaterial.edges) {
-                drawFlags.edgesOpaque = (this.meshCounts.numTransparentMeshes < this.meshCounts.numMeshes);
-                if (this.meshCounts.numTransparentMeshes > 0) {
+                drawFlags.edgesOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
+                if (this.meshCounts.numTransparent > 0) {
                     drawFlags.edgesTransparent = true;
                 }
             }
         }
-        if (this.meshCounts.numSelectedMeshes > 0) {
+        if (this.meshCounts.numSelected > 0) {
             const selectedMaterial = this.view.selectedMaterial.state;
             if (selectedMaterial.fill) {
                 if (selectedMaterial.fillAlpha < 1.0) {
@@ -1179,7 +1138,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
                 }
             }
         }
-        if (this.meshCounts.numHighlightedMeshes > 0) {
+        if (this.meshCounts.numHighlighted > 0) {
             const highlightMaterial = this.view.highlightMaterial.state;
             if (highlightMaterial.fill) {
                 if (highlightMaterial.fillAlpha < 1.0) {
@@ -1197,5 +1156,7 @@ export class WebGLSceneModel extends Component implements SceneModel, Drawable {
             }
         }
     }
+
+ */
 }
 

@@ -61,11 +61,6 @@ export interface SceneModel {
     readonly worldMatrix: FloatArrayType;
 
     /**
-     * The 3D World-space normal transform matrix of this SceneModel.
-     */
-    readonly worldNormalMatrix: FloatArrayType;
-
-    /**
      * Whether quality rendering is enabled for this SceneModel.
      *
      * Default is ````true````.

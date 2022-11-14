@@ -1,5 +1,6 @@
 import {LayerPrimitiveRenderer} from "./LayerPrimitiveRenderer";
-import {View} from "../../viewer/index";
+
+import {RenderContext} from "../RenderContext";
 
 /**
  * Renders triangles in a Layer as a flat, uniformly-colored silhouette.
@@ -7,8 +8,8 @@ import {View} from "../../viewer/index";
  */
 export class SilhouetteTrianglesRenderer extends LayerPrimitiveRenderer {
 
-    constructor(view: View, gl: WebGL2RenderingContext) {
-        super(view, gl);
+    constructor(renderContext: RenderContext) {
+        super(renderContext);
     }
 
     getHash(): string {

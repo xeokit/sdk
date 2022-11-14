@@ -1,16 +1,15 @@
 import {LayerPrimitiveRenderer} from "./LayerPrimitiveRenderer";
-import {View} from "../../viewer/index";
 
-
+import {RenderContext} from "../RenderContext";
 
 export class ColorLinesRenderer extends LayerPrimitiveRenderer {
 
-    constructor(view: View, gl: WebGL2RenderingContext) {
-        super(view, gl);
+    constructor(renderContext: RenderContext) {
+        super(renderContext);
     }
 
     getHash(): string {
-        return this.view.getSectionPlanesHash();
+        return this.renderContext.view.getSectionPlanesHash();
     }
 
     buildVertexShader(): string {

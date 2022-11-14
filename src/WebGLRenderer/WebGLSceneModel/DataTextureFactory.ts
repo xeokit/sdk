@@ -39,11 +39,8 @@ export class DataTextureFactory {
             }
             cameraDirty = false;
             gl.bindTexture(gl.TEXTURE_2D, cameraMatrices.texture);
-            // Camera's "view matrix"
             gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0,  /* 1st matrix: camera view matrix */ 4, 1, gl.RGBA, gl.FLOAT, new Float32Array((origin) ? math.rtc.createRTCViewMat(camera.viewMatrix, origin) : camera.viewMatrix));
-            // Camera's "view normal matrix"
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 1, /* 2nd matrix: camera view normal matrix */4, 1, gl.RGBA, gl.FLOAT, new Float32Array(camera.viewNormalMatrix));
-            // Camera's "project matrix"
+         //   gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 1, /* 2nd matrix: camera view normal matrix */4, 1, gl.RGBA, gl.FLOAT, new Float32Array(camera.viewNormalMatrix));
             gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 2, /* 3rd matrix: camera project matrix */4, 1, gl.RGBA, gl.FLOAT, new Float32Array(camera.project.matrix));
         };
         camera.events.on("matrix", () => cameraDirty = true);
@@ -70,17 +67,17 @@ export class DataTextureFactory {
             gl.FLOAT,
             new Float32Array(sceneModel.worldMatrix)
         );
-        gl.texSubImage2D(
-            gl.TEXTURE_2D,
-            0,
-            0, // x-offset
-            1, // y-offset (sceneModel normal matrix)
-            4, // data width (4x4 values)
-            1, // data height (1 matrix)
-            gl.RGBA,
-            gl.FLOAT,
-            new Float32Array(sceneModel.worldNormalMatrix)
-        );
+        // gl.texSubImage2D(
+        //     gl.TEXTURE_2D,
+        //     0,
+        //     0, // x-offset
+        //     1, // y-offset (sceneModel normal matrix)
+        //     4, // data width (4x4 values)
+        //     1, // data height (1 matrix)
+        //     gl.RGBA,
+        //     gl.FLOAT,
+        //     new Float32Array(sceneModel.worldNormalMatrix)
+      //  );
         this.disableFilteringForBoundTexture(gl);
         gl.bindTexture(gl.TEXTURE_2D, null);
         return new DataTexture({gl, texture, textureWidth, textureHeight});
@@ -400,6 +397,7 @@ export class DataTextureFactory {
 
     /**
      * Creates a DataTexture containing the given mesh IDs.
+     * This type of texture is used for a lookup table, of mesh IDs for given keys.
      *
      * @param gl
      * @param meshIds

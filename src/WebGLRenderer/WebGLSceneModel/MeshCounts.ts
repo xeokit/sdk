@@ -1,15 +1,15 @@
 export class MeshCounts {
 
     numMeshes: number;
-    numVisibleMeshes: number;
-    numTransparentMeshes: number;
-    numEdgesMeshes: number;
-    numXRayedMeshes: number;
-    numSelectedMeshes: number;
-    numHighlightedMeshes: number;
-    numClippableMeshes: number;
-    numPickableMeshes: number;
-    numCulledMeshes: number;
+    numVisible: number;
+    numTransparent: number;
+    numEdges: number;
+    numXRayed: number;
+    numSelected: number;
+    numHighlighted: number;
+    numClippable: number;
+    numPickable: number;
+    numCulled: number;
 
     constructor() {
         this.reset();
@@ -17,15 +17,14 @@ export class MeshCounts {
 
     reset() {
         this.numMeshes = 0;
-        this.numVisibleMeshes = 0;
-        this.numTransparentMeshes = 0;
-        this.numEdgesMeshes = 0;
-        this.numXRayedMeshes = 0;
-        this.numSelectedMeshes = 0;
-        this.numHighlightedMeshes = 0;
-        this.numClippableMeshes = 0;
-        this.numPickableMeshes = 0;
-        this.numCulledMeshes = 0;
-
+        this.numVisible = 0;
+        this.numTransparent = 0;
+        this.numEdges = 0;
+        this.numXRayed = 0;
+        this.numSelected = 0;
+        this.numHighlighted = 0;
+        this.numClippable = 0;
+        this.numPickable = 0;
+        this.numCulled = 0;
     }
 }

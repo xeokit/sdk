@@ -1,17 +1,13 @@
 import {WebGLSceneModel} from "./WebGLSceneModel";
 import {DataTextureSet} from "./DataTextureSet";
 import {DataTextureFactory} from "./DataTextureFactory";
-import {FrameContext} from "../FrameContext";
-import {DrawFlags} from "../DrawFlags";
-import {MeshCounts} from "./MeshCounts";
-
-import {GeometryCompressedParams, GeometryBucketParams, math, constants, MeshParams} from "../../viewer/index";
-
+import {constants, GeometryBucketParams, GeometryCompressedParams, math, MeshParams, View} from "../../viewer/index";
 
 import {SceneObjectFlags} from './SceneObjectFlags';
 import {RENDER_PASSES} from './RENDER_PASSES';
 
 import {TextureSet} from "./TextureSet";
+import {MeshCounts} from "./MeshCounts";
 
 const MAX_MESH_PARTS = (1 << 12); // 12 bits 
 const MAX_DATATEXTURE_HEIGHT = (1 << 11); // 2048
@@ -25,8 +21,8 @@ const tempFloat32Array3 = new Float32Array(3);
 
 export interface LayerParams { // Params for Layer constructor
     gl: WebGL2RenderingContext;
+    view: View;
     sceneModel: WebGLSceneModel;
-    modelMeshCounts: MeshCounts;
     primitive: number;
     origin: math.FloatArrayType;
     layerIndex: number;
@@ -130,26 +126,14 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     layerIndex: number;
     aabb: math.FloatArrayType;
     state: LayerRenderState;
+    meshCounts: MeshCounts;
 
     #gl: WebGL2RenderingContext;
-    #modelMeshCounts: MeshCounts; // Shared with all Layers in same WebGLSceneModel
-    #layerMeshCounts: MeshCounts; // Local to this Layer
+    #view: View;
     #dataTextureBuffer: DataTextureBuffer;
-    #renderers: LayerRenderers;
-    #geometryHandles: { [key: number | string]: any };
+    #geometryHandles: { [key: string]: any };
     #meshPartHandles: MeshPartHandle[];
     #numMeshParts: number;
-    #eachMeshParts: number[][];
-    #numMeshes: number;
-    #numVisibleMeshes: number;
-    #numTransparentMeshes: number;
-    #numEdgesMeshes: number;
-    #numXRayedMeshes: number;
-    #numSelectedMeshes: number;
-    #numHighlightedMeshes: number;
-    #numClippableMeshes: number;
-    #numPickableMeshes: number;
-    #numCulledMeshes: number;
     #modelAABB: math.FloatArrayType;
     sortId: string;
     #deferredSetFlagsActive: boolean;
@@ -158,9 +142,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
 
     constructor(layerParams: LayerParams, renderers?: any) {
 
-        this.#modelMeshCounts = layerParams.modelMeshCounts;
-        this.#layerMeshCounts = new MeshCounts();
-
+        this.meshCounts = new MeshCounts();
         this.primitive = layerParams.primitive;
         this.layerIndex = layerParams.layerIndex;
         this.sceneModel = layerParams.sceneModel;
@@ -179,23 +161,15 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         };
 
         this.#gl = layerParams.gl;
+        this.#view = layerParams.view;
         this.#dataTextureBuffer = new DataTextureBuffer();
-        this.#renderers = renderers;
-        this.#numMeshes = 0;
         this.#numMeshParts = 0;
-        this.#numVisibleMeshes = 0;
-        this.#numTransparentMeshes = 0;
-        this.#numXRayedMeshes = 0;
-        this.#numSelectedMeshes = 0;
-        this.#numHighlightedMeshes = 0;
-        this.#numClippableMeshes = 0;
-        this.#numPickableMeshes = 0;
-        this.#numCulledMeshes = 0;
         this.#modelAABB = math.boundaries.collapseAABB3();
         this.#geometryHandles = {};
         this.#meshPartHandles = [];
-        this.#eachMeshParts = [];
+
         this.aabb = math.boundaries.collapseAABB3();
+
         if (layerParams.origin) {
             // @ts-ignore
             this.state.origin.set(layerParams.origin);
@@ -334,9 +308,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         //     worldAABB[5] += origin[2];
         // }
         // math.boundaries.expandAABB3(this.aabb, worldAABB);
-        const meshId = this.#numMeshes;
+        const meshId = this.meshCounts.numMeshes;
         const meshPartIds: number[] = [];
-        this.#eachMeshParts.push(meshPartIds);
         if (!meshParams.geometryId) {
             throw "geometryId expected";
         }
@@ -345,10 +318,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Geometry not found";
         }
         geometryHandle.geometryBucketHandles.forEach((geometryBucketHandle: GeometryBucketHandle) => {
-            const meshPartParams = <MeshPartParams>{
-                aabb: geometryHandle.aabb
-            };
-            const meshPartId = this.#createMeshPart(meshParams, geometryHandle, geometryBucketHandle, meshPartParams);
+            const meshPartId = this.#createMeshPart(meshParams, geometryHandle, geometryBucketHandle);
             meshPartIds.push(meshPartId);
         });
         const worldAABB = math.boundaries.collapseAABB3();
@@ -365,16 +335,14 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             math.boundaries.expandAABB3Point3(worldAABB, tempVec4b);
             //}
         }
-        this.#modelMeshCounts.numMeshes++;
-        this.#numMeshes++;
+        this.meshCounts.numMeshes++;
         return meshId;
     }
 
-    #createMeshPart(meshParams: MeshParams, geometryHandle: GeometryHandle, geometryBucketHandle: GeometryBucketHandle, meshPartParams: MeshPartParams): number {
+    #createMeshPart(meshParams: MeshParams, geometryHandle: GeometryHandle, geometryBucketHandle: GeometryBucketHandle): number {
 
         const dataTextureBuffer = this.#dataTextureBuffer;
 
-        const scene = this.sceneModel.scene;
         const state = this.state;
 
         const matrix = meshParams.matrix || identityMatrix;
@@ -386,23 +354,10 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         const positionsIndex = dataTextureBuffer.positions.length;
         const vertsIndex = positionsIndex / 3;
 
-        // Positions decompression matrix
-
         dataTextureBuffer.eachMeshPositionsDecompressMatrix.push(geometryHandle.positionsDecompressMatrix);
-
-        // Modeling matrix
-
         dataTextureBuffer.eachMeshMatrices.push(matrix);
-
-        // Color
-
         dataTextureBuffer.eachMeshColor.push([color[0], color[1], color[2], 255]);
-
-        // Pick color
-
         dataTextureBuffer.eachMeshPickColor.push(meshParams.pickColor);
-
-        // Vertex portion
 
         let currentNumIndices;
         if (geometryBucketHandle.numVertices <= (1 << 8)) {
@@ -472,7 +427,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
 
         this.#meshPartHandles.push(<MeshPartHandle>{
             vertsBase: vertsIndex,
-            numVerts: geometryBucketHandle.numTriangles
+            numVerts: geometryBucketHandle.numTriangles //////////////////// TODO
         });
         this.#numMeshParts++;
         return meshPartId;
@@ -513,50 +468,40 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         this.#dataTextureBuffer = null;
         this.#geometryHandles = {};
         this.#meshPartHandles = [];
-        this.#eachMeshParts = [];
         this.#finalized = true;
     }
 
     isEmpty() {
-        return this.#numMeshes == 0;
+        return this.meshCounts.numMeshes == 0;
     }
 
     initFlags(meshId: number, flags: number, meshTransparent: boolean) {
         if (flags & SceneObjectFlags.VISIBLE) {
-            this.#numVisibleMeshes++;
-            this.#modelMeshCounts.numVisibleMeshes++;
+            this.meshCounts.numVisible++;
         }
         if (flags & SceneObjectFlags.HIGHLIGHTED) {
-            this.#numHighlightedMeshes++;
-            this.#modelMeshCounts.numHighlightedMeshes++;
+            this.meshCounts.numHighlighted++;
         }
         if (flags & SceneObjectFlags.XRAYED) {
-            this.#numXRayedMeshes++;
-            this.#modelMeshCounts.numXRayedMeshes++;
+            this.meshCounts.numXRayed++;
         }
         if (flags & SceneObjectFlags.SELECTED) {
-            this.#numSelectedMeshes++;
-            this.#modelMeshCounts.numSelectedMeshes++;
+            this.meshCounts.numSelected++;
         }
         if (flags & SceneObjectFlags.CLIPPABLE) {
-            this.#numClippableMeshes++;
-            this.#modelMeshCounts.numClippableMeshes++;
+            this.meshCounts.numClippable++;
         }
         if (flags & SceneObjectFlags.EDGES) {
-            this.#numEdgesMeshes++;
-            this.#modelMeshCounts.numEdgesMeshes++;
+            this.meshCounts.numEdges++;
         }
         if (flags & SceneObjectFlags.PICKABLE) {
-            this.#numPickableMeshes++;
-            this.#modelMeshCounts.numPickableMeshes++;
+            this.meshCounts.numPickable++;
         }
         if (flags & SceneObjectFlags.CULLED) {
-            this.#numCulledMeshes++;
-            this.#modelMeshCounts.numCulledMeshes++;
+            this.meshCounts.numCulled++;
         }
         if (meshTransparent) {
-            this.#numTransparentMeshes++;
-            this.#modelMeshCounts.numTransparentMeshes++;
+            this.meshCounts.numTransparent++;
         }
         this.#setMeshFlags(meshId, flags, meshTransparent);
         this.#setMeshFlags2(meshId, flags);
@@ -589,11 +534,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SceneObjectFlags.VISIBLE) {
-            this.#numVisibleMeshes++;
-            this.#modelMeshCounts.numVisibleMeshes++;
+            this.meshCounts.numVisible++;
         } else {
-            this.#numVisibleMeshes--;
-            this.#modelMeshCounts.numVisibleMeshes--;
+            this.meshCounts.numVisible--;
         }
         this.#setMeshFlags(meshId, flags, transparent);
     }
@@ -603,11 +546,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SceneObjectFlags.HIGHLIGHTED) {
-            this.#numHighlightedMeshes++;
-            this.#modelMeshCounts.numHighlightedMeshes++;
+            this.meshCounts.numHighlighted++;
         } else {
-            this.#numHighlightedMeshes--;
-            this.#modelMeshCounts.numHighlightedMeshes--;
+            this.meshCounts.numHighlighted--;
         }
         this.#setMeshFlags(meshId, flags, transparent);
     }
@@ -617,11 +558,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SceneObjectFlags.XRAYED) {
-            this.#numXRayedMeshes++;
-            this.#modelMeshCounts.numXRayedMeshes++;
+            this.meshCounts.numXRayed++;
         } else {
-            this.#numXRayedMeshes--;
-            this.#modelMeshCounts.numXRayedMeshes--;
+            this.meshCounts.numXRayed--;
         }
         this.#setMeshFlags(meshId, flags, transparent);
     }
@@ -631,11 +570,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SceneObjectFlags.SELECTED) {
-            this.#numSelectedMeshes++;
-            this.#modelMeshCounts.numSelectedMeshes++;
+            this.meshCounts.numSelected++;
         } else {
-            this.#numSelectedMeshes--;
-            this.#modelMeshCounts.numSelectedMeshes--;
+            this.meshCounts.numSelected--;
         }
         this.#setMeshFlags(meshId, flags, transparent);
     }
@@ -645,11 +582,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SceneObjectFlags.EDGES) {
-            this.#numEdgesMeshes++;
-            this.#modelMeshCounts.numEdgesMeshes++;
+            this.meshCounts.numEdges++;
         } else {
-            this.#numEdgesMeshes--;
-            this.#modelMeshCounts.numEdgesMeshes--;
+            this.meshCounts.numEdges--;
         }
         this.#setMeshFlags(meshId, flags, transparent);
     }
@@ -659,11 +594,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SceneObjectFlags.CLIPPABLE) {
-            this.#numClippableMeshes++;
-            this.#modelMeshCounts.numClippableMeshes++;
+            this.meshCounts.numClippable++;
         } else {
-            this.#numClippableMeshes--;
-            this.#modelMeshCounts.numClippableMeshes--;
+            this.meshCounts.numClippable--;
         }
         this.#setMeshFlags2(meshId, flags);
     }
@@ -673,11 +606,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SceneObjectFlags.CULLED) {
-            this.#numCulledMeshes += this.#eachMeshParts[meshId].length;
-            this.#modelMeshCounts.numCulledMeshes++;
+            this.meshCounts.numCulled++;
         } else {
-            this.#numCulledMeshes -= this.#eachMeshParts[meshId].length;
-            this.#modelMeshCounts.numCulledMeshes--;
+            this.meshCounts.numCulled--;
         }
         this.#setMeshFlags(meshId, flags, transparent);
     }
@@ -693,11 +624,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SceneObjectFlags.PICKABLE) {
-            this.#numPickableMeshes++;
-            this.#modelMeshCounts.numPickableMeshes++;
+            this.meshCounts.numPickable++;
         } else {
-            this.#numPickableMeshes--;
-            this.#modelMeshCounts.numPickableMeshes--;
+            this.meshCounts.numPickable--;
         }
         this.#setMeshFlags(meshId, flags, transparent);
     }
@@ -724,11 +653,11 @@ export class Layer { // A container of meshes within a WebGLSceneModel
 
     setMeshTransparent(meshId: number, flags: number, transparent: boolean) {
         if (transparent) {
-            this.#numTransparentMeshes++;
-            this.#modelMeshCounts.numTransparentMeshes++;
+            this.meshCounts.numTransparent++;
+            this.meshCounts.numTransparent++;
         } else {
-            this.#numTransparentMeshes--;
-            this.#modelMeshCounts.numTransparentMeshes--;
+            this.meshCounts.numTransparent--;
+            this.meshCounts.numTransparent--;
         }
         this.#setMeshFlags(meshId, flags, transparent);
     }
@@ -816,7 +745,6 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         tempUint8Array4 [1] = 0;
         tempUint8Array4 [2] = 1;
         tempUint8Array4 [3] = 2;
-
         if (this.#deferredSetFlagsActive) {
             dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshId * 28 + 12); // Flags
             this.#deferredSetFlagsDirty = true;
@@ -836,7 +764,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         tempFloat32Array3 [0] = offset[0];
         tempFloat32Array3 [1] = offset[1];
         tempFloat32Array3 [2] = offset[2];
-       // dataTextureSet.eachMeshOffset.textureData.set(tempFloat32Array3, meshId * 3);
+        // dataTextureSet.eachMeshOffset.textureData.set(tempFloat32Array3, meshId * 3);
         if (this.#deferredSetFlagsActive) {
             this.#deferredSetFlagsDirty = true;
             return;
@@ -846,226 +774,80 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    // ---------------------- COLOR RENDERING -----------------------------------
 
-    drawColorOpaque(drawFlags: DrawFlags, frameContext: FrameContext): void {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numTransparentMeshes === this.#numMeshes || this.#numXRayedMeshes === this.#numMeshes) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (frameContext.withSAO && this.sceneModel.qualityRender) {
-            if (frameContext.pbrEnabled && this.sceneModel.qualityRender) {
-                if (this.#renderers.colorQualityRendererWithSAO) {
-                    this.#renderers.colorQualityRendererWithSAO.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
-                }
-            } else {
-                if (this.#renderers.colorRendererWithSAO) {
-                    this.#renderers.colorRendererWithSAO.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
-                }
-            }
-        } else {
-            if (frameContext.pbrEnabled && this.sceneModel.qualityRender) {
-                if (this.#renderers.qualityColorRenderer) {
-                    this.#renderers.qualityColorRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
-                }
-            } else {
-                if (this.#renderers.fastColorRenderer) {
-                    this.#renderers.fastColorRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
-                }
-            }
-        }
-    }
-
-    #updateBackfaceCull(drawFlags: DrawFlags, frameContext: FrameContext) {
-        // const backfaces = this.sceneModel.backfaces || (!this.solid) || drawFlags.sectioned;
-        // if (frameContext.backfaces !== backfaces) {
-        //     const gl = frameContext.gl;
-        //     if (backfaces) {
-        //         gl.disable(gl.CULL_FACE);
-        //     } else {
-        //         gl.enable(gl.CULL_FACE);
-        //     }
-        //     frameContext.backfaces = backfaces;
-        // }
-    }
-
-    drawColorTransparent(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numTransparentMeshes === 0 || this.#numXRayedMeshes === this.#numMeshes) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (frameContext.pbrEnabled && this.sceneModel.qualityRender) {
-            if (this.#renderers.qualityColorRenderer) {
-                this.#renderers.qualityColorRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_TRANSPARENT);
-            }
-        } else {
-            if (this.#renderers.fastColorRenderer) {
-                this.#renderers.fastColorRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_TRANSPARENT);
-            }
-        }
-    }
-
-    // ---------------------- RENDERING SAO POST EFFECT TARGETS --------------
-
-    drawDepth(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numTransparentMeshes === this.#numMeshes || this.#numXRayedMeshes === this.#numMeshes) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.depthRenderer) {
-            this.#renderers.depthRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
-        }
-    }
-
-    drawNormals(drawFlags: DrawFlags, frameContext: FrameContext): void {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numTransparentMeshes === this.#numMeshes || this.#numXRayedMeshes === this.#numMeshes) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.normalsRenderer) {
-            this.#renderers.normalsRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
-        }
-    }
-
-    // ---------------------- SILHOUETTE RENDERING -----------------------------------
-
-    drawSilhouetteXRayed(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numXRayedMeshes === 0) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.silhouetteRenderer) {
-            this.#renderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_XRAYED);
-        }
-    }
-
-    drawSilhouetteHighlighted(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numHighlightedMeshes === 0) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.silhouetteRenderer) {
-            this.#renderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
-        }
-    }
-
-    drawSilhouetteSelected(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numSelectedMeshes === 0) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.silhouetteRenderer) {
-            this.#renderers.silhouetteRenderer.drawLayer(frameContext, this, RENDER_PASSES.SILHOUETTE_SELECTED);
-        }
-    }
-
-    // ---------------------- EDGES RENDERING -----------------------------------
-
-    drawEdgesColorOpaque(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numEdgesMeshes === 0) {
-            return;
-        }
-        if (this.#renderers.edgesColorRenderer) {
-            this.#renderers.edgesColorRenderer.drawLayer(frameContext, this, RENDER_PASSES.EDGES_COLOR_OPAQUE);
-        }
-    }
-
-    drawEdgesColorTransparent(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numEdgesMeshes === 0 || this.#numTransparentMeshes === 0) {
-            return;
-        }
-        if (this.#renderers.edgesColorRenderer) {
-            this.#renderers.edgesColorRenderer.drawLayer(frameContext, this, RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
-        }
-    }
-
-    drawEdgesHighlighted(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numHighlightedMeshes === 0) {
-            return;
-        }
-        if (this.#renderers.edgesRenderer) {
-            this.#renderers.edgesRenderer.drawLayer(frameContext, this, RENDER_PASSES.EDGES_HIGHLIGHTED);
-        }
-    }
-
-    drawEdgesSelected(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numSelectedMeshes === 0) {
-            return;
-        }
-        if (this.#renderers.edgesRenderer) {
-            this.#renderers.edgesRenderer.drawLayer(frameContext, this, RENDER_PASSES.EDGES_SELECTED);
-        }
-    }
-
-    drawEdgesXRayed(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0 || this.#numXRayedMeshes === 0) {
-            return;
-        }
-        if (this.#renderers.edgesRenderer) {
-            this.#renderers.edgesRenderer.drawLayer(frameContext, this, RENDER_PASSES.EDGES_XRAYED);
-        }
-    }
-
-    // ---------------------- OCCLUSION CULL RENDERING -----------------------------------
-
-    drawOcclusion(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.occlusionRenderer) {
-            this.#renderers.occlusionRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
-        }
-    }
-
-    // ---------------------- SHADOW BUFFER RENDERING -----------------------------------
-
-    drawShadow(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        // if (this.#renderers.shadowRenderer) {
-        //     this.#renderers.shadowRenderer.drawLayer(frameContext, this, RENDER_PASSES.COLOR_OPAQUE);
-        // }
-    }
-
-    //---- PICKING ----------------------------------------------------------------------------------------------------
-
-    drawPickMesh(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.pickMeshRenderer) {
-            this.#renderers.pickMeshRenderer.drawLayer(frameContext, this, RENDER_PASSES.PICK);
-        }
-    }
-
-    drawPickDepths(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.pickDepthRenderer) {
-            this.#renderers.pickDepthRenderer.drawLayer(frameContext, this, RENDER_PASSES.PICK);
-        }
-    }
-
-    drawPickNormals(drawFlags: DrawFlags, frameContext: FrameContext) {
-        if (this.#numCulledMeshes === this.#numMeshes || this.#numVisibleMeshes === 0) {
-            return;
-        }
-        this.#updateBackfaceCull(drawFlags, frameContext);
-        if (this.#renderers.pickNormalsRenderer) {
-            this.#renderers.pickNormalsRenderer.drawLayer(frameContext, this, RENDER_PASSES.PICK);
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------
-
-    precisionRayPickSurface(meshId: string, worldRayOrigin: math.FloatArrayType, worldRayDir: any, worldSurfacePos: { set: (arg0: math.FloatArrayType) => void; }, worldNormal: math.FloatArrayType) {
-    }
+    // updateDrawFlags() {
+    //     if (this.meshCounts.numVisible === 0) {
+    //         return;
+    //     }
+    //     if (this.meshCounts.numCulled === this.meshCounts.numMeshes) {
+    //         return;
+    //     }
+    //     const drawFlags = this.drawFlags;
+    //     drawFlags.colorOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
+    //     if (this.meshCounts.numTransparent > 0) {
+    //         drawFlags.colorTransparent = true;
+    //     }
+    //     if (this.meshCounts.numXRayed > 0) {
+    //         const xrayMaterial = this.#view.xrayMaterial.state;
+    //         if (xrayMaterial.fill) {
+    //             if (xrayMaterial.fillAlpha < 1.0) {
+    //                 drawFlags.xrayedSilhouetteTransparent = true;
+    //             } else {
+    //                 drawFlags.xrayedSilhouetteOpaque = true;
+    //             }
+    //         }
+    //         if (xrayMaterial.edges) {
+    //             if (xrayMaterial.edgeAlpha < 1.0) {
+    //                 drawFlags.xrayedEdgesTransparent = true;
+    //             } else {
+    //                 drawFlags.xrayedEdgesOpaque = true;
+    //             }
+    //         }
+    //     }
+    //     if (this.meshCounts.numEdges > 0) {
+    //         const edgeMaterial = this.#view.edgeMaterial.state;
+    //         if (edgeMaterial.edges) {
+    //             drawFlags.edgesOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
+    //             if (this.meshCounts.numTransparent > 0) {
+    //                 drawFlags.edgesTransparent = true;
+    //             }
+    //         }
+    //     }
+    //     if (this.meshCounts.numSelected > 0) {
+    //         const selectedMaterial = this.#view.selectedMaterial.state;
+    //         if (selectedMaterial.fill) {
+    //             if (selectedMaterial.fillAlpha < 1.0) {
+    //                 drawFlags.selectedSilhouetteTransparent = true;
+    //             } else {
+    //                 drawFlags.selectedSilhouetteOpaque = true;
+    //             }
+    //         }
+    //         if (selectedMaterial.edges) {
+    //             if (selectedMaterial.edgeAlpha < 1.0) {
+    //                 drawFlags.selectedEdgesTransparent = true;
+    //             } else {
+    //                 drawFlags.selectedEdgesOpaque = true;
+    //             }
+    //         }
+    //     }
+    //     if (this.meshCounts.numHighlighted > 0) {
+    //         const highlightMaterial = this.#view.highlightMaterial.state;
+    //         if (highlightMaterial.fill) {
+    //             if (highlightMaterial.fillAlpha < 1.0) {
+    //                 drawFlags.highlightedSilhouetteTransparent = true;
+    //             } else {
+    //                 drawFlags.highlightedSilhouetteOpaque = true;
+    //             }
+    //         }
+    //         if (highlightMaterial.edges) {
+    //             if (highlightMaterial.edgeAlpha < 1.0) {
+    //                 drawFlags.highlightedEdgesTransparent = true;
+    //             } else {
+    //                 drawFlags.highlightedEdgesOpaque = true;
+    //             }
+    //         }
+    //     }
+    // }
 
     // ---------
 

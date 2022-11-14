@@ -9,7 +9,7 @@ import {WEBGL_INFO} from "./lib/webglInfo";
  *
  * @private
  */
-class FrameContext {
+class RenderContext {
 
     /**
      * The View we are rendering.
@@ -83,9 +83,6 @@ class FrameContext {
 
     /**
      * Indicates which pass the renderer is currently rendering.
-     *
-     * See {@link Scene/passes:property"}}Scene#passes{{/crossLink}}, which configures how many passes we render
-     * per frame, which typically set to ````2```` when rendering a stereo view.
      */
     public renderPass: number;
 
@@ -177,11 +174,6 @@ class FrameContext {
         this.backfaces = false;
         this.frontface = true;
         this.textureUnit = 0;
-        this.drawElements = 0;
-        this.drawArrays = 0;
-        this.useProgram = 0;
-        this.bindTexture = 0;
-        this.bindArray = 0;
         this.shadowViewMatrix = null;
         this.shadowProjMatrix = null;
         this.pickViewMatrix = null;
@@ -193,6 +185,9 @@ class FrameContext {
         this.occlusionTexture = null;
     }
 
+    /**
+     * Gets the next available texture unit for this render
+     */
     get nextTextureUnit() {
         const textureUnit = this.textureUnit;
         this.textureUnit = (this.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
@@ -237,4 +232,4 @@ class FrameContext {
     }
 }
 
-export {FrameContext};
+export {RenderContext};

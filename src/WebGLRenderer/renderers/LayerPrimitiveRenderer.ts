@@ -1,5 +1,5 @@
-import {math, View, Perspective, AmbientLight, DirLight, PointLight} from "../../viewer/index";
-import {FrameContext} from "../FrameContext";
+import {AmbientLight, DirLight, math, Perspective, PointLight, View} from "../../viewer/index";
+import {RenderContext} from "../RenderContext";
 
 import {RENDER_PASSES} from "../WebGLSceneModel/RENDER_PASSES";
 import {Program} from "../lib/Program";
@@ -19,11 +19,13 @@ export abstract class LayerPrimitiveRenderer {
      */
     errors: string[];
 
+    protected renderContext: RenderContext;
+
     protected view: View;
-    
+
     #hash: string;
     #program: Program;
-    #gl: WebGL2RenderingContext;
+
 
     #uniforms: {
         renderPass: WebGLUniformLocation;
@@ -70,18 +72,17 @@ export abstract class LayerPrimitiveRenderer {
         occlusionMap: Sampler;
     };
     #needRebuild: boolean;
-    
-    constructor(view: View, gl: WebGL2RenderingContext) {
-        this.view = view;
-        this.#gl = gl;
+
+    constructor(renderContext: RenderContext) {
+        this.renderContext = renderContext;
         this.#needRebuild = true;
         this.#build();
     }
 
     #build(): void {
 
-        const view = this.view;
-        const gl = this.#gl;
+        const view = this.renderContext.view;
+        const gl = this.renderContext.gl;
 
         this.#program = new Program(gl, this.#buildShader());
 
@@ -193,8 +194,9 @@ export abstract class LayerPrimitiveRenderer {
      */
     needRebuild() {
         this.#needRebuild = true;
-        
+
     }
+
     /**
      * Gets if this LayerPrimitiveRenderer's configuration is still valid for the current View state.
      */
@@ -209,11 +211,9 @@ export abstract class LayerPrimitiveRenderer {
     /**
      * Draws the given Layer within the given render pass.
      *
-     * @param frameContext Renderer state that varies throughout each frame.
      * @param layer The Layer to draw
-     * @param renderPass Indicates which render pass to render
      */
-    draw(frameContext: FrameContext, layer: Layer, renderPass: number) {
+    draw(layer: Layer) {
 
         if (this.#program && !this.#getValid()) {
             this.#program.destroy();
@@ -225,21 +225,23 @@ export abstract class LayerPrimitiveRenderer {
             if (this.errors) {
                 return;
             }
-            frameContext.lastProgramId = null;
+            this.renderContext.lastProgramId = null;
         }
 
         const sceneModel = layer.sceneModel;
         const state = layer.state;
 
         const program = this.#program;
-        const gl = this.#gl;
-        const view = this.view;
+        const renderContext = this.renderContext;
+        const renderPass = renderContext.renderPass;
+        const gl = this.renderContext.gl;
+        const view = this.renderContext.view;
         const uniforms = this.#uniforms;
         const samplers = this.#samplers;
 
-        if (frameContext.lastProgramId !== program.id) {
-            frameContext.lastProgramId = program.id;
-            this.#bind(frameContext);
+        if (renderContext.lastProgramId !== program.id) {
+            renderContext.lastProgramId = program.id;
+            this.#bind(renderContext);
         }
 
         if (uniforms.renderPass) {
@@ -293,66 +295,66 @@ export abstract class LayerPrimitiveRenderer {
         }
 
         if (samplers.cameraMatrices) {
-            state.dataTextureSet.cameraMatrices.bindTexture(program, samplers.cameraMatrices, frameContext.nextTextureUnit);
+            state.dataTextureSet.cameraMatrices.bindTexture(program, samplers.cameraMatrices, renderContext.nextTextureUnit);
         }
         if (samplers.sceneModelMatrices) {
-            state.dataTextureSet.sceneModelMatrices.bindTexture(program, samplers.sceneModelMatrices, frameContext.nextTextureUnit);
+            state.dataTextureSet.sceneModelMatrices.bindTexture(program, samplers.sceneModelMatrices, renderContext.nextTextureUnit);
         }
         if (samplers.positions) {
-            state.dataTextureSet.positions.bindTexture(program, samplers.positions, frameContext.nextTextureUnit);
+            state.dataTextureSet.positions.bindTexture(program, samplers.positions, renderContext.nextTextureUnit);
         }
         if (samplers.eachMeshMatrices) {
-            state.dataTextureSet.eachMeshMatrices.bindTexture(program, samplers.eachMeshMatrices, frameContext.nextTextureUnit);
+            state.dataTextureSet.eachMeshMatrices.bindTexture(program, samplers.eachMeshMatrices, renderContext.nextTextureUnit);
         }
         if (samplers.eachMeshAttributes) {
-            state.dataTextureSet.eachMeshAttributes.bindTexture(program, samplers.eachMeshAttributes, frameContext.nextTextureUnit);
+            state.dataTextureSet.eachMeshAttributes.bindTexture(program, samplers.eachMeshAttributes, renderContext.nextTextureUnit);
         }
         if (samplers.eachMeshOffsets) {
-        //    state.dataTextureSet.eachMeshOffset.bindTexture(program, samplers.eachMeshOffsets, frameContext.nextTextureUnit);
+            //    state.dataTextureSet.eachMeshOffset.bindTexture(program, samplers.eachMeshOffsets, renderContext.nextTextureUnit);
         }
         if (samplers.eachTriangleMesh) {
             if (state.numIndices8Bits > 0) {
-                state.dataTextureSet.eachTriangleMesh_8Bits.bindTexture(program, samplers.eachTriangleMesh, frameContext.nextTextureUnit);
-                state.dataTextureSet.indices_8Bits.bindTexture(program, samplers.indices, frameContext.nextTextureUnit);
+                state.dataTextureSet.eachTriangleMesh_8Bits.bindTexture(program, samplers.eachTriangleMesh, renderContext.nextTextureUnit);
+                state.dataTextureSet.indices_8Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, state.numIndices8Bits);
             }
             if (state.numIndices16Bits > 0) {
-                state.dataTextureSet.eachTriangleMesh_16Bits.bindTexture(program, samplers.eachTriangleMesh, frameContext.nextTextureUnit);
-                state.dataTextureSet.indices_16Bits.bindTexture(program, samplers.indices, frameContext.nextTextureUnit);
+                state.dataTextureSet.eachTriangleMesh_16Bits.bindTexture(program, samplers.eachTriangleMesh, renderContext.nextTextureUnit);
+                state.dataTextureSet.indices_16Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, state.numIndices16Bits);
             }
             if (state.numIndices32Bits > 0) {
-                state.dataTextureSet.eachTriangleMesh_32Bits.bindTexture(program, samplers.eachTriangleMesh, frameContext.nextTextureUnit);
-                state.dataTextureSet.indices_32Bits.bindTexture(program, samplers.indices, frameContext.nextTextureUnit);
+                state.dataTextureSet.eachTriangleMesh_32Bits.bindTexture(program, samplers.eachTriangleMesh, renderContext.nextTextureUnit);
+                state.dataTextureSet.indices_32Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, state.numIndices32Bits);
             }
         }
         if (samplers.baseColorMap) {
-            samplers.baseColorMap.bindTexture(state.materialTextureSet.colorTexture.texture, frameContext.nextTextureUnit);
+            samplers.baseColorMap.bindTexture(state.materialTextureSet.colorTexture.texture, renderContext.nextTextureUnit);
         }
         if (samplers.metallicRoughMap) {
-            samplers.metallicRoughMap.bindTexture(state.materialTextureSet.metallicRoughnessTexture.texture, frameContext.nextTextureUnit);
+            samplers.metallicRoughMap.bindTexture(state.materialTextureSet.metallicRoughnessTexture.texture, renderContext.nextTextureUnit);
         }
         if (samplers.emissiveMap) {
-            samplers.emissiveMap.bindTexture(state.materialTextureSet.emissiveTexture.texture, frameContext.nextTextureUnit);
+            samplers.emissiveMap.bindTexture(state.materialTextureSet.emissiveTexture.texture, renderContext.nextTextureUnit);
         }
         if (samplers.normalMap) {
-            samplers.normalMap.bindTexture(state.materialTextureSet.normalsTexture.texture, frameContext.nextTextureUnit);
+            samplers.normalMap.bindTexture(state.materialTextureSet.normalsTexture.texture, renderContext.nextTextureUnit);
         }
         if (samplers.occlusionMap) {
-            samplers.occlusionMap.bindTexture(state.materialTextureSet.occlusionTexture.texture, frameContext.nextTextureUnit);
+            samplers.occlusionMap.bindTexture(state.materialTextureSet.occlusionTexture.texture, renderContext.nextTextureUnit);
         }
     }
 
     /**
      * Binds this renderer and loads global state, eg. lights, ambient shadows, environment maps etc.
      *
-     * @param frameContext
+     * @param renderContext
      * @private
      */
-    #bind(frameContext: FrameContext) {
-        const view = this.view;
-        const gl = this.#gl;
+    #bind(renderContext: RenderContext) {
+        const view = this.renderContext.view;
+        const gl = this.renderContext.gl;
         const uniforms = this.#uniforms;
         const project = view.camera.project;
         this.#program.bind();
@@ -389,7 +391,7 @@ export abstract class LayerPrimitiveRenderer {
                 tempVec4[2] = sao.blendCutoff;
                 tempVec4[3] = sao.blendFactor;
                 gl.uniform4fv(uniforms.sao, tempVec4);
-                // program.bindTexture(this.#uOcclusionTexture, frameContext.occlusionTexture, 0);
+                // program.bindTexture(this.#uOcclusionTexture, renderContext.occlusionTexture, 0);
             }
         }
         if (uniforms.gammaFactor) {
@@ -402,11 +404,11 @@ export abstract class LayerPrimitiveRenderer {
             gl.uniform1f(uniforms.nearPlaneHeight, (view.camera.projection === "ortho") ? 1.0 : (gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspective.fov * Math.PI / 180.0))));
         }
         if (uniforms.pickZNear) {
-            gl.uniform1f(uniforms.pickZNear, frameContext.pickZNear);
-            gl.uniform1f(uniforms.pickZFar, frameContext.pickZFar);
+            gl.uniform1f(uniforms.pickZNear, renderContext.pickZNear);
+            gl.uniform1f(uniforms.pickZFar, renderContext.pickZFar);
         }
         if (uniforms.pickInvisible) {
-            gl.uniform1i(uniforms.pickInvisible, frameContext.pickInvisible ? 1 : 0);
+            gl.uniform1i(uniforms.pickInvisible, renderContext.pickInvisible ? 1 : 0);
         }
         if (uniforms.logDepthBufFC) {
             const logDepthBufFC = 2.0 / (Math.log((project as Perspective).far + 1.0) / Math.LN2);
@@ -453,7 +455,7 @@ export abstract class LayerPrimitiveRenderer {
     }
 
     protected get vertLogDepthBufDefs(): string {
-        if (this.view.logarithmicDepthBufferEnabled) {
+        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
             return `uniform float logDepthBufFC;
                     out float fragDepth;
                     bool isPerspectiveMatrix(mat4 m) {
@@ -470,7 +472,7 @@ export abstract class LayerPrimitiveRenderer {
     }
 
     protected get vertLogDepthBufOutputs(): string {
-        if (this.view.logarithmicDepthBufferEnabled) {
+        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
             return `fragDepth = 1.0 + clipPos.w;
                     isPerspective = float (isPerspectiveMatrix(projMatrix));`;
         } else {
@@ -519,7 +521,7 @@ export abstract class LayerPrimitiveRenderer {
     }
 
     protected get fragLightDefs(): string {
-        const view = this.view;
+        const view = this.renderContext.view;
         const src = [];
         src.push("uniform vec4 lightAmbient;");
         for (let i = 0, len = view.lightsList.length; i < len; i++) {
@@ -543,7 +545,7 @@ export abstract class LayerPrimitiveRenderer {
     }
 
     protected get fragLogDepthBufDefs(): string {
-        if (this.view.logarithmicDepthBufferEnabled) {
+        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
             return `in float isPerspective;
                     uniform float logDepthBufFC;
                     in float fragDepth;`;
@@ -553,7 +555,7 @@ export abstract class LayerPrimitiveRenderer {
     }
 
     protected get fragLogDepthBufOutput(): string {
-        if (this.view.logarithmicDepthBufferEnabled) {
+        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
             return "gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;";
         } else {
             return ""
@@ -570,8 +572,8 @@ export abstract class LayerPrimitiveRenderer {
         src.push("vec3 viewLightDir = vec3(0.0, 0.0, -1.0);");
         src.push("float lambertian = 1.0;");
 
-        for (let i = 0, len = this.view.lightsList.length; i < len; i++) {
-            const light: any = this.view.lightsList[i];
+        for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
+            const light: any = this.renderContext.view.lightsList[i];
             if (light.type === "ambient") {
                 continue;
             }
@@ -606,7 +608,7 @@ export abstract class LayerPrimitiveRenderer {
     }
 
     protected get fragSAOOutput(): string {
-        if (this.view.sao.enabled) {
+        if (this.renderContext.view.sao.enabled) {
             // Doing SAO blend in the main solid fill draw shader just so that edge lines can be drawn over the top
             // Would be more efficient to defer this, then render lines later, using same depth buffer for Z-reject
             return `float viewportWidth     = uSAOParams[0];
@@ -630,7 +632,7 @@ export abstract class LayerPrimitiveRenderer {
         const src = [];
         src.push(`in vec4 worldPosition;
                   in vec4 meshFlags2;`);
-        for (let i = 0, len = this.view.sectionPlanesList.length; i < len; i++) {
+        for (let i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
             src.push(`uniform bool sectionPlaneActive${i};
                       uniform vec3 sectionPlanePos${i};
                       uniform vec3 sectionPlaneDir${i};`);
@@ -641,8 +643,8 @@ export abstract class LayerPrimitiveRenderer {
     protected get fragLightSourceUniforms(): string {
         const src = [];
         src.push(`uniform vec4 lightAmbient;`);
-        for (let i = 0, len = this.view.lightsList.length; i < len; i++) {
-            const light = this.view.lightsList[i];
+        for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
+            const light = this.renderContext.view.lightsList[i];
             if (light instanceof AmbientLight) {
                 continue;
             }
@@ -660,12 +662,12 @@ export abstract class LayerPrimitiveRenderer {
 
     protected get fragSectionPlanesSlice(): string {
         const src = [];
-        const clipping = (this.view.sectionPlanesList.length > 0);
+        const clipping = (this.renderContext.view.sectionPlanesList.length > 0);
         if (clipping) {
             src.push(`bool clippable = (float(meshFlags2.x) > 0.0);
                       if (clippable) {
                           float dist = 0.0;`);
-            for (let i = 0, len = this.view.sectionPlanesList.length; i < len; i++) {
+            for (let i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
                 src.push(`if (sectionPlaneActive${i}) {
                               dist += clamp(dot(-sectionPlaneDir${i}.xyz, worldPosition.xyz - sectionPlanePos${i}.xyz), 0.0, 1000.0);
                           }`);

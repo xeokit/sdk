@@ -1,4 +1,5 @@
 import {
+    constants,
     math,
     Renderer,
     SceneModel,
@@ -10,17 +11,25 @@ import {
     ViewerCapabilities
 } from "../viewer/index";
 
+import {RENDER_PASSES} from "./WebGLSceneModel/RENDER_PASSES";
 import {WEBGL_INFO} from "./lib/webglInfo";
-import {FrameContext} from "./FrameContext";
+import {RenderContext} from "./RenderContext";
 import {RenderBufferManager} from "./lib/RenderBufferManager";
 import {RenderBuffer} from "./lib/RenderBuffer";
 import {SAOOcclusionRenderer} from "./lib/sao/SAOOcclusionRenderer";
 import {SAODepthLimitedBlurRenderer} from "./lib/sao/SAODepthLimitedBlurRenderer";
 import {getExtension} from "./lib/getExtension";
 import {Pickable} from "./Pickable";
-import {Drawable} from "./Drawable";
 import {WebGLSceneModel} from "./WebGLSceneModel/WebGLSceneModel";
 import {TextureTranscoder} from "./textureTranscoders/TextureTranscoder";
+import {Layer} from "./WebGLSceneModel/Layer";
+import {ColorPointsRenderer} from "./renderers/ColorPointsRenderer";
+import {FastColorTrianglesRenderer} from "./renderers/FastColorTrianglesRenderer";
+import {QualityColorTrianglesRenderer} from "./renderers/QualityColorTrianglesRenderer";
+import {ColorLinesRenderer} from "./renderers/ColorLinesRenderer";
+import {SilhouetteTrianglesRenderer} from "./renderers/SilhouetteTrianglesRenderer";
+import {SilhouettePointsRenderer} from "./renderers/SilhouettePointsRenderer";
+import {SilhouetteLinesRenderer} from "./renderers/SilhouetteLinesRenderer";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
@@ -37,7 +46,7 @@ export class WebGLRenderer implements Renderer {
     #stateSortDirty: boolean;
     #viewer: Viewer;
     #view: View;
-    #frameContext: FrameContext;
+    #renderContext: RenderContext;
     #canvasTransparent: boolean;
     #transparentEnabled: boolean;
     #edgesEnabled: boolean;
@@ -46,10 +55,9 @@ export class WebGLRenderer implements Renderer {
     #shadowsDirty: boolean;
     #pbrEnabled: boolean;
     #backgroundColor: math.FloatArrayType;
-    #drawables: { [key: string]: Drawable };
-    #drawListPreCull: Drawable[];
-    #drawList: Drawable[];
-    #drawListDirty: boolean;
+    #webglSceneModels: { [key: string]: WebGLSceneModel };
+    #layerList: Layer[];
+    #layerListDirty: boolean;
     #pickIDs = new utils.Map({});
     #saoDepthRenderBuffer: RenderBuffer;
     #renderBufferManager: RenderBufferManager;
@@ -62,19 +70,26 @@ export class WebGLRenderer implements Renderer {
     #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
     #textureTranscoder: TextureTranscoder;
 
+    #layerRenderers: {
+        colorPoints: ColorPointsRenderer;
+        colorTriangles: FastColorTrianglesRenderer;
+        qualityColorTriangles: QualityColorTrianglesRenderer;
+        colorLines: ColorLinesRenderer;
+        silhouettePoints: any;
+        silhouetteTriangles: SilhouetteTrianglesRenderer;
+        silhouetteLines: any;
+    };
+
     constructor(params: {
         textureTranscoder?: TextureTranscoder
     }) {
-
         this.#textureTranscoder = params.textureTranscoder;
         this.#canvasTransparent = false;
         this.#alphaDepthMask = false;
         this.#extensionHandles = {};
         this.#pickIDs = new utils.Map({});
-        this.#drawables = {};
-        this.#drawListPreCull = [];
-        this.#drawList = [];
-        this.#drawListDirty = true;
+        this.#layerList = [];
+        this.#layerListDirty = true;
         this.#stateSortDirty = true;
         this.#imageDirty = true;
         this.#shadowsDirty = true;
@@ -88,7 +103,7 @@ export class WebGLRenderer implements Renderer {
         this.#saoOcclusionRenderer = new SAOOcclusionRenderer(this.#view, this.gl);
         this.#saoDepthLimitedBlurRenderer = new SAODepthLimitedBlurRenderer(this.#view, this.gl);
         this.#occlusionTester = null; // Lazy-created in #addMarker()
-        this.#frameContext = null;
+        this.#renderContext = null;
     }
 
     init(viewer: Viewer): void { // NOP
@@ -131,9 +146,16 @@ export class WebGLRenderer implements Renderer {
         if (this.gl) {
             this.gl.hint(this.gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.gl.NICEST);
         }
-        this.#frameContext = new FrameContext(this.#view, this.gl);
-        // this.#canvasTransparent = (!!view.transparent);
-        // this.#alphaDepthMask = view.alphaDepthMask;
+        this.#renderContext = new RenderContext(this.#view, this.gl);
+        this.#layerRenderers = {
+            colorPoints: new ColorPointsRenderer(this.#renderContext),
+            colorTriangles: new FastColorTrianglesRenderer(this.#renderContext),
+            qualityColorTriangles: new QualityColorTrianglesRenderer(this.#renderContext),
+            colorLines: new ColorLinesRenderer(this.#renderContext),
+            silhouettePoints: new SilhouettePointsRenderer(this.#renderContext),
+            silhouetteTriangles: new SilhouetteTrianglesRenderer(this.#renderContext),
+            silhouetteLines: new SilhouetteLinesRenderer(this.#renderContext)
+        };
         return 0;
     }
 
@@ -148,12 +170,12 @@ export class WebGLRenderer implements Renderer {
             textureTranscoder: this.#textureTranscoder
         }, params));
         webglSceneModel.events.on("finalized", () => {
-            this.#drawables[webglSceneModel.id] = webglSceneModel;
-            this.#drawListDirty = true;
+            this.#webglSceneModels[webglSceneModel.id] = webglSceneModel;
+            this.#layerListDirty = true;
         });
         webglSceneModel.events.on("destroyed", () => {
-            delete this.#drawables[webglSceneModel.id];
-            this.#drawListDirty = true;
+            delete this.#webglSceneModels[webglSceneModel.id];
+            this.#layerListDirty = true;
         });
         return webglSceneModel;
     }
@@ -218,7 +240,7 @@ export class WebGLRenderer implements Renderer {
     };
 
     needsRender(viewIndex?: number): boolean {
-        return (this.#imageDirty || this.#drawListDirty || this.#stateSortDirty);
+        return (this.#imageDirty || this.#layerListDirty || this.#stateSortDirty);
     }
 
     render(viewIndex: number, params: {
@@ -228,7 +250,7 @@ export class WebGLRenderer implements Renderer {
         if (params.force) {
             this.#imageDirty = true;
         }
-        this.#updateDrawList();
+        this.#updateLayerList();
         if (this.#imageDirty) {
             this.#draw({clear: true});
             this.#imageDirty = false;
@@ -239,47 +261,30 @@ export class WebGLRenderer implements Renderer {
         return null;
     };
 
-    #updateDrawList() {
-        if (this.#drawListDirty) {
-            this.#buildDrawList();
-            this.#drawListDirty = false;
+    #updateLayerList() {
+        if (this.#layerListDirty) {
+            this.#buildLayerList();
+            this.#layerListDirty = false;
             this.#stateSortDirty = true;
         }
         if (this.#stateSortDirty) {
-            this.#sortDrawList();
+       //     this.#sortLayerList();
             this.#stateSortDirty = false;
             this.#imageDirty = true;
         }
-        if (this.#imageDirty) {
-            this.#cullDrawList();
-        }
     }
 
-    #buildDrawList() {
+    #buildLayerList() {
         let lenDrawableList = 0;
-        for (let id in this.#drawables) {
-            this.#drawListPreCull[lenDrawableList++] = this.#drawables[id];
-        }
-        this.#drawListPreCull.length = lenDrawableList;
-    }
-
-    #sortDrawList() {
-//        this.#drawListPreCull.sort(drawableInfo.stateSortCompare);
-    }
-
-
-    #cullDrawList() {
-        let lenDrawableList = 0;
-        for (let i = 0, len = this.#drawListPreCull.length; i < len; i++) {
-            const drawable = this.#drawListPreCull[i];
-            drawable.rebuildDrawFlags();
-            if (!drawable.drawFlags.culled) {
-                this.#drawList[lenDrawableList++] = drawable;
+        for (let id in this.#webglSceneModels) {
+            const webglSceneModel = this.#webglSceneModels[id];
+            for (let i = 0, len = webglSceneModel.layerList.length; i < len; i++) {
+                this.#layerList[lenDrawableList++] = webglSceneModel.layerList[i];
             }
         }
-        this.#drawList.length = lenDrawableList;
+        this.#layerList.length = lenDrawableList;
     }
-
+    
     #draw(params: {
         clear: boolean;
     }) {
@@ -302,7 +307,6 @@ export class WebGLRenderer implements Renderer {
         clear: boolean;
     }) {
         const sao = this.#view.sao;
-        // Render depth buffer
         const saoDepthRenderBuffer = this.#renderBufferManager.getRenderBuffer("saoDepth", {
             depthTexture: WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]
         });
@@ -334,7 +338,7 @@ export class WebGLRenderer implements Renderer {
     #drawDepth(params: {
         clear: boolean
     }) {
-        this.#frameContext.reset();
+        this.#renderContext.reset();
         const gl = this.gl;
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.clearColor(0, 0, 0, 0);
@@ -346,15 +350,15 @@ export class WebGLRenderer implements Renderer {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         }
 
-        for (let i = 0, len = this.#drawList.length; i < len; i++) {
-            const drawable = this.#drawList[i];
-            // if (drawable.culled === true || drawable.visible === false || !drawable.drawDepth) {
-            //     continue;
-            // }
-            if (drawable.drawFlags.colorOpaque) {
-                drawable.drawDepth(this.#frameContext);
-            }
-        }
+        // for (let i = 0, len = this.#layerListPostCull.length; i < len; i++) {
+        //     const layer = this.#layerListPostCull[i];
+        //     // if (layer.culled === true || layer.visible === false || !layer.drawDepth) {
+        //     //     continue;
+        //     // }
+        //     // if (layer.drawFlags.colorOpaque) {
+        //     //     //    layer.drawDepth(this.#renderContext);
+        //     // }
+        // }
         // const numVertexAttribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; // Fixes https://github.com/xeokit/xeokit-sdk/issues/174
         // for (let ii = 0; ii < numVertexAttribs; ii++) {
         //     gl.disableVertexAttribArray(ii);
@@ -366,29 +370,29 @@ export class WebGLRenderer implements Renderer {
     }) {
 
         const view = this.#view;
-        const frameContext = this.#frameContext;
+        const renderContext = this.#renderContext;
         const gl = this.gl;
 
-        const normalDrawSAOBin: Drawable[] = [];
-        const normalEdgesOpaqueBin: Drawable[] = [];
-        const normalFillTransparentBin: Drawable[] = [];
-        const normalEdgesTransparentBin: Drawable[] = [];
-        const xrayedFillOpaqueBin: Drawable[] = [];
-        const xrayEdgesOpaqueBin: Drawable[] = [];
-        const xrayedFillTransparentBin: Drawable[] = [];
-        const xrayEdgesTransparentBin: Drawable[] = [];
-        const highlightedFillOpaqueBin: Drawable[] = [];
-        const highlightedEdgesOpaqueBin: Drawable[] = [];
-        const highlightedFillTransparentBin: Drawable[] = [];
-        const highlightedEdgesTransparentBin: Drawable[] = [];
-        const selectedFillOpaqueBin: Drawable[] = [];
-        const selectedEdgesOpaqueBin: Drawable[] = [];
-        const selectedFillTransparentBin: Drawable[] = [];
-        const selectedEdgesTransparentBin: Drawable[] = [];
+        const normalDrawSAOBin: Layer[] = [];
+        const edgesColorOpaqueBin: Layer[] = [];
+        const normalFillTransparentBin: Layer[] = [];
+        const edgesColorTransparentBin: Layer[] = [];
+        const xrayedSilhouetteOpaqueBin: Layer[] = [];
+        const xrayEdgesOpaqueBin: Layer[] = [];
+        const xrayedSilhouetteTransparentBin: Layer[] = [];
+        const xrayEdgesTransparentBin: Layer[] = [];
+        const highlightedSilhouetteOpaqueBin: Layer[] = [];
+        const highlightedEdgesOpaqueBin: Layer[] = [];
+        const highlightedSilhouetteTransparentBin: Layer[] = [];
+        const highlightedEdgesTransparentBin: Layer[] = [];
+        const selectedSilhouetteOpaqueBin: Layer[] = [];
+        const selectedEdgesOpaqueBin: Layer[] = [];
+        const selectedSilhouetteTransparentBin: Layer[] = [];
+        const selectedEdgesTransparentBin: Layer[] = [];
 
-        frameContext.reset();
-        frameContext.withSAO = false;
-        frameContext.pbrEnabled = this.#pbrEnabled && !!view.qualityRender;
+        renderContext.reset();
+        renderContext.withSAO = false;
+        renderContext.pbrEnabled = this.#pbrEnabled && !!view.qualityRender;
 
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
@@ -404,15 +408,15 @@ export class WebGLRenderer implements Renderer {
         gl.depthMask(true);
         gl.lineWidth(1);
 
-        frameContext.lineWidth = 1;
+        renderContext.lineWidth = 1;
 
         const saoPossible = view.sao.possible;
 
         if (this.#saoEnabled && saoPossible) {
             const occlusionRenderBuffer1 = this.#renderBufferManager.getRenderBuffer("saoOcclusion");
-            frameContext.occlusionTexture = occlusionRenderBuffer1 ? occlusionRenderBuffer1.getTexture() : null;
+            renderContext.occlusionTexture = occlusionRenderBuffer1 ? occlusionRenderBuffer1.getTexture() : null;
         } else {
-            frameContext.occlusionTexture = null;
+            renderContext.occlusionTexture = null;
 
         }
 
@@ -423,104 +427,121 @@ export class WebGLRenderer implements Renderer {
         // Render normal opaque solids, defer others to subsequent bins, to render after
 
         let normalDrawSAOBinLen = 0;
-        let normalEdgesOpaqueBinLen = 0;
+        let edgesColorOpaqueBinLen = 0;
         let normalFillTransparentBinLen = 0;
-        let normalEdgesTransparentBinLen = 0;
-        let xrayedFillOpaqueBinLen = 0;
+        let edgesColorTransparentBinLen = 0;
+        let xrayedSilhouetteOpaqueBinLen = 0;
         let xrayEdgesOpaqueBinLen = 0;
-        let xrayedFillTransparentBinLen = 0;
+        let xrayedSilhouetteTransparentBinLen = 0;
         let xrayEdgesTransparentBinLen = 0;
-        let highlightedFillOpaqueBinLen = 0;
+        let highlightedSilhouetteOpaqueBinLen = 0;
         let highlightedEdgesOpaqueBinLen = 0;
-        let highlightedFillTransparentBinLen = 0;
+        let highlightedSilhouetteTransparentBinLen = 0;
         let highlightedEdgesTransparentBinLen = 0;
-        let selectedFillOpaqueBinLen = 0;
+        let selectedSilhouetteOpaqueBinLen = 0;
         let selectedEdgesOpaqueBinLen = 0;
-        let selectedFillTransparentBinLen = 0;
+        let selectedSilhouetteTransparentBinLen = 0;
         let selectedEdgesTransparentBinLen = 0;
 
-        for (let i = 0, len = this.#drawList.length; i < len; i++) {
-            const drawable = this.#drawList[i];
-            // if (drawable.culled === true || drawable.visible === false) {
-            //     continue;
-            // }
-            const drawFlags = drawable.drawFlags;
-            if (drawFlags.colorOpaque) {
-                if (this.#saoEnabled && saoPossible && drawable.qualityRender) {
-                    normalDrawSAOBin[normalDrawSAOBinLen++] = drawable;
+        for (let i = 0, len = this.#layerList.length; i < len; i++) {
+
+            const layer = this.#layerList[i];
+            const meshCounts = layer.meshCounts;
+
+            if (meshCounts.numCulled === meshCounts.numMeshes || meshCounts.numVisible === 0) {
+                continue;
+            }
+
+            if (meshCounts.numTransparent < meshCounts.numMeshes) {
+                if (this.#saoEnabled && saoPossible && layer.sceneModel.qualityRender) {
+                    normalDrawSAOBin[normalDrawSAOBinLen++] = layer;
                 } else {
-                    drawable.drawColorOpaque(frameContext);
+                    this.#drawLayer(layer, RENDER_PASSES.COLOR_OPAQUE, layer.sceneModel.qualityRender);
                 }
             }
             if (this.#transparentEnabled) {
-                if (drawFlags.colorTransparent) {
-                    normalFillTransparentBin[normalFillTransparentBinLen++] = drawable;
+                if (meshCounts.numTransparent) {
+                    normalFillTransparentBin[normalFillTransparentBinLen++] = layer;
                 }
             }
-            if (drawFlags.xrayedSilhouetteTransparent) {
-                xrayedFillTransparentBin[xrayedFillTransparentBinLen++] = drawable;
-            }
-            if (drawFlags.xrayedSilhouetteOpaque) {
-                xrayedFillOpaqueBin[xrayedFillOpaqueBinLen++] = drawable;
-            }
-            if (drawFlags.highlightedSilhouetteTransparent) {
-                highlightedFillTransparentBin[highlightedFillTransparentBinLen++] = drawable;
-            }
-            if (drawFlags.highlightedSilhouetteOpaque) {
-                highlightedFillOpaqueBin[highlightedFillOpaqueBinLen++] = drawable;
-            }
-            if (drawFlags.selectedSilhouetteTransparent) {
-                selectedFillTransparentBin[selectedFillTransparentBinLen++] = drawable;
-            }
-            if (drawFlags.selectedSilhouetteOpaque) {
-                selectedFillOpaqueBin[selectedFillOpaqueBinLen++] = drawable;
-            }
-            if (this.#edgesEnabled) {
-                if (drawFlags.edgesOpaque) {
-                    normalEdgesOpaqueBin[normalEdgesOpaqueBinLen++] = drawable;
-                }
-                if (drawFlags.edgesTransparent) {
-                    normalEdgesTransparentBin[normalEdgesTransparentBinLen++] = drawable;
+            if (meshCounts.numXRayed > 0) {
+                if (view.xrayMaterial.fill) {
+                    if (view.xrayMaterial.fillAlpha < 1.0) {
+                        xrayedSilhouetteTransparentBin[xrayedSilhouetteTransparentBinLen++] = layer;
+                    } else {
+                        xrayedSilhouetteOpaqueBin[xrayedSilhouetteOpaqueBinLen++] = layer;
+                    }
                 }
             }
-            if (drawFlags.selectedEdgesTransparent) {
-                selectedEdgesTransparentBin[selectedEdgesTransparentBinLen++] = drawable;
+            if (meshCounts.numHighlighted > 0) {
+                if (view.highlightMaterial.fill) {
+                    if (view.highlightMaterial.fillAlpha < 1.0) {
+                        highlightedSilhouetteTransparentBin[highlightedSilhouetteTransparentBinLen++] = layer;
+                    } else {
+                        highlightedSilhouetteOpaqueBin[highlightedSilhouetteOpaqueBinLen++] = layer;
+                    }
+                }
             }
-            if (drawFlags.selectedEdgesOpaque) {
-                selectedEdgesOpaqueBin[selectedEdgesOpaqueBinLen++] = drawable;
+            if (meshCounts.numSelected > 0) {
+                if (view.selectedMaterial.fill) {
+                    if (view.selectedMaterial.fillAlpha < 1.0) {
+                        selectedSilhouetteTransparentBin[selectedSilhouetteTransparentBinLen++] = layer;
+                    } else {
+                        selectedSilhouetteOpaqueBin[selectedSilhouetteOpaqueBinLen++] = layer;
+                    }
+                }
             }
-            if (drawFlags.xrayedEdgesTransparent) {
-                xrayEdgesTransparentBin[xrayEdgesTransparentBinLen++] = drawable;
-            }
-            if (drawFlags.xrayedEdgesOpaque) {
-                xrayEdgesOpaqueBin[xrayEdgesOpaqueBinLen++] = drawable;
-            }
-            if (drawFlags.highlightedEdgesTransparent) {
-                highlightedEdgesTransparentBin[highlightedEdgesTransparentBinLen++] = drawable;
-            }
-            if (drawFlags.highlightedEdgesOpaque) {
-                highlightedEdgesOpaqueBin[highlightedEdgesOpaqueBinLen++] = drawable;
+
+            if (this.#edgesEnabled && this.#view.edgeMaterial.edges) {
+
+                if (meshCounts.numEdges > 0) {
+                    if (meshCounts.numTransparent < meshCounts.numMeshes) {
+                        edgesColorOpaqueBin[edgesColorOpaqueBinLen++] = layer;
+                    }
+                    if (meshCounts.numTransparent > 0) {
+                        edgesColorTransparentBin[edgesColorTransparentBinLen++] = layer;
+                    }
+
+                    // if (view.selectedMaterial.edgeAlpha < 1.0) {
+                    //     selectedEdgesTransparentBin[selectedEdgesTransparentBinLen++] = layer;
+                    // } else {
+                    //     selectedEdgesOpaqueBin[selectedEdgesOpaqueBinLen++] = layer;
+                    // }
+                    // if (drawFlags.xrayedEdgesTransparent) {
+                    //     xrayEdgesTransparentBin[xrayEdgesTransparentBinLen++] = layer;
+                    // }
+                    // if (drawFlags.xrayedEdgesOpaque) {
+                    //     xrayEdgesOpaqueBin[xrayEdgesOpaqueBinLen++] = layer;
+                    // }
+                    // if (drawFlags.highlightedEdgesTransparent) {
+                    //     highlightedEdgesTransparentBin[highlightedEdgesTransparentBinLen++] = layer;
+                    // }
+                    // if (drawFlags.highlightedEdgesOpaque) {
+                    //     highlightedEdgesOpaqueBin[highlightedEdgesOpaqueBinLen++] = layer;
+                    // }
+                }
             }
         }
 
         // Render deferred bins
 
         if (normalDrawSAOBinLen > 0) {
-            frameContext.withSAO = true;
+            renderContext.withSAO = true;
             for (let i = 0; i < normalDrawSAOBinLen; i++) {
-                normalDrawSAOBin[i].drawColorOpaque(frameContext);
+                //    this.#drawLayer(normalDrawSAOBin[i], RENDER_PASSES.COLOR_OPAQUE, layer.sceneModel.qualityRender);
+                //    normalDrawSAOBin[i].drawColorOpaque(renderContext);
             }
         }
-        for (let i = 0; i < normalEdgesOpaqueBinLen; i++) {
-            normalEdgesOpaqueBin[i].drawEdgesColorOpaque(frameContext);
+        for (let i = 0; i < edgesColorOpaqueBinLen; i++) {
+            this.#drawLayer(edgesColorOpaqueBin[i], RENDER_PASSES.EDGES_COLOR_OPAQUE);
         }
-        for (let i = 0; i < xrayedFillOpaqueBinLen; i++) {
-            xrayedFillOpaqueBin[i].drawSilhouetteXRayed(frameContext);
+        for (let i = 0; i < xrayedSilhouetteOpaqueBinLen; i++) {
+            this.#drawLayer(xrayedSilhouetteOpaqueBin[i], RENDER_PASSES.SILHOUETTE_XRAYED);
         }
         for (let i = 0; i < xrayEdgesOpaqueBinLen; i++) {
-            xrayEdgesOpaqueBin[i].drawEdgesXRayed(frameContext);
+            this.#drawLayer(xrayEdgesOpaqueBin[i], RENDER_PASSES.EDGES_XRAYED);
         }
-        if (xrayedFillTransparentBinLen > 0 || xrayEdgesTransparentBinLen > 0 || normalFillTransparentBinLen > 0 || normalEdgesTransparentBinLen > 0) {
+        if (xrayedSilhouetteTransparentBinLen > 0 || xrayEdgesTransparentBinLen > 0 || normalFillTransparentBinLen > 0 || edgesColorTransparentBinLen > 0) {
             gl.enable(gl.CULL_FACE);
             gl.enable(gl.BLEND);
             if (this.#canvasTransparent) {
@@ -530,43 +551,42 @@ export class WebGLRenderer implements Renderer {
                 gl.blendEquation(gl.FUNC_ADD);
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             }
-            frameContext.backfaces = false;
+            renderContext.backfaces = false;
             if (!this.#alphaDepthMask) {
                 gl.depthMask(false);
             }
             for (let i = 0; i < xrayEdgesTransparentBinLen; i++) {
-                xrayEdgesTransparentBin[i].drawEdgesXRayed(frameContext);
+                this.#drawLayer(xrayEdgesTransparentBin[i], RENDER_PASSES.EDGES_XRAYED);
             }
-            for (let i = 0; i < xrayedFillTransparentBinLen; i++) {
-                xrayedFillTransparentBin[i].drawSilhouetteXRayed(frameContext);
+            for (let i = 0; i < xrayedSilhouetteTransparentBinLen; i++) {
+                this.#drawLayer(xrayedSilhouetteTransparentBin[i], RENDER_PASSES.SILHOUETTE_XRAYED);
             }
-            if (normalFillTransparentBinLen > 0 || normalEdgesTransparentBinLen > 0) {
+            if (normalFillTransparentBinLen > 0 || edgesColorTransparentBinLen > 0) {
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             }
-            for (let i = 0; i < normalEdgesTransparentBinLen; i++) {
-                normalEdgesTransparentBin[i].drawEdgesColorTransparent(frameContext);
+            for (let i = 0; i < edgesColorTransparentBinLen; i++) {
+                this.#drawLayer(edgesColorTransparentBin[i], RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
             }
             for (let i = 0; i < normalFillTransparentBinLen; i++) {
-                const drawable = normalFillTransparentBin[i];
-                drawable.drawColorTransparent(frameContext);
+                this.#drawLayer(normalFillTransparentBin[i], RENDER_PASSES.COLOR_TRANSPARENT);
             }
             gl.disable(gl.BLEND);
             if (!this.#alphaDepthMask) {
                 gl.depthMask(true);
             }
         }
-        if (highlightedFillOpaqueBinLen > 0 || highlightedEdgesOpaqueBinLen > 0) {
-            frameContext.lastProgramId = null; // HACK
+        if (highlightedSilhouetteOpaqueBinLen > 0 || highlightedEdgesOpaqueBinLen > 0) {
+            renderContext.lastProgramId = null; // HACK
             gl.clear(gl.DEPTH_BUFFER_BIT);
             for (let i = 0; i < highlightedEdgesOpaqueBinLen; i++) {
-                highlightedEdgesOpaqueBin[i].drawEdgesHighlighted(frameContext);
+                this.#drawLayer(highlightedEdgesOpaqueBin[i], RENDER_PASSES.EDGES_HIGHLIGHTED);
             }
-            for (let i = 0; i < highlightedFillOpaqueBinLen; i++) {
-                highlightedFillOpaqueBin[i].drawSilhouetteHighlighted(frameContext);
+            for (let i = 0; i < highlightedSilhouetteOpaqueBinLen; i++) {
+                this.#drawLayer(highlightedSilhouetteOpaqueBin[i], RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
             }
         }
-        if (highlightedFillTransparentBinLen > 0 || highlightedEdgesTransparentBinLen > 0 || highlightedFillOpaqueBinLen > 0) {
-            frameContext.lastProgramId = null;
+        if (highlightedSilhouetteTransparentBinLen > 0 || highlightedEdgesTransparentBinLen > 0 || highlightedSilhouetteOpaqueBinLen > 0) {
+            renderContext.lastProgramId = null;
             gl.clear(gl.DEPTH_BUFFER_BIT);
             gl.enable(gl.CULL_FACE);
             gl.enable(gl.BLEND);
@@ -577,25 +597,25 @@ export class WebGLRenderer implements Renderer {
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             }
             for (let i = 0; i < highlightedEdgesTransparentBinLen; i++) {
-                highlightedEdgesTransparentBin[i].drawEdgesHighlighted(frameContext);
+                this.#drawLayer(highlightedEdgesTransparentBin[i], RENDER_PASSES.EDGES_HIGHLIGHTED);
             }
-            for (let i = 0; i < highlightedFillTransparentBinLen; i++) {
-                highlightedFillTransparentBin[i].drawSilhouetteHighlighted(frameContext);
+            for (let i = 0; i < highlightedSilhouetteTransparentBinLen; i++) {
+                this.#drawLayer(highlightedSilhouetteTransparentBin[i], RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
             }
             gl.disable(gl.BLEND);
         }
-        if (selectedFillOpaqueBinLen > 0 || selectedEdgesOpaqueBinLen > 0) {
-            frameContext.lastProgramId = null;
+        if (selectedSilhouetteOpaqueBinLen > 0 || selectedEdgesOpaqueBinLen > 0) {
+            renderContext.lastProgramId = null;
             gl.clear(gl.DEPTH_BUFFER_BIT);
             for (let i = 0; i < selectedEdgesOpaqueBinLen; i++) {
-                selectedEdgesOpaqueBin[i].drawEdgesSelected(frameContext);
+                this.#drawLayer(selectedEdgesOpaqueBin[i], RENDER_PASSES.EDGES_SELECTED);
             }
-            for (let i = 0; i < selectedFillOpaqueBinLen; i++) {
-                selectedFillOpaqueBin[i].drawSilhouetteSelected(frameContext);
+            for (let i = 0; i < selectedSilhouetteOpaqueBinLen; i++) {
+                this.#drawLayer(selectedSilhouetteOpaqueBin[i], RENDER_PASSES.SILHOUETTE_SELECTED);
             }
         }
-        if (selectedFillTransparentBinLen > 0 || selectedEdgesTransparentBinLen > 0) {
-            frameContext.lastProgramId = null;
+        if (selectedSilhouetteTransparentBinLen > 0 || selectedEdgesTransparentBinLen > 0) {
+            renderContext.lastProgramId = null;
             gl.clear(gl.DEPTH_BUFFER_BIT);
             gl.enable(gl.CULL_FACE);
             gl.enable(gl.BLEND);
@@ -606,10 +626,10 @@ export class WebGLRenderer implements Renderer {
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             }
             for (let i = 0; i < selectedEdgesTransparentBinLen; i++) {
-                selectedEdgesTransparentBin[i].drawEdgesSelected(frameContext);
+                this.#drawLayer(selectedEdgesTransparentBin[i], RENDER_PASSES.EDGES_SELECTED);
             }
-            for (let i = 0; i < selectedFillTransparentBinLen; i++) {
-                selectedFillTransparentBin[i].drawSilhouetteSelected(frameContext);
+            for (let i = 0; i < selectedSilhouetteTransparentBinLen; i++) {
+                this.#drawLayer(selectedSilhouetteTransparentBin[i], RENDER_PASSES.SILHOUETTE_SELECTED);
             }
             gl.disable(gl.BLEND);
         }
@@ -622,6 +642,78 @@ export class WebGLRenderer implements Renderer {
         const numVertexAttribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; // Fixes https://github.com/xeokit/xeokit-sdk/issues/174
         for (let ii = 0; ii < numVertexAttribs; ii++) {
             gl.disableVertexAttribArray(ii);
+        }
+    }
+
+    #drawLayer(layer: Layer, renderPass: number, quality: boolean = true) {
+        switch (layer.primitive) {
+            case constants.TrianglesPrimitive:
+            case constants.SurfacePrimitive:
+            case constants.SolidPrimitive:
+                switch (renderPass) {
+                    case RENDER_PASSES.COLOR_OPAQUE:
+                        if (layer.meshCounts.numTransparent === layer.meshCounts.numMeshes || layer.meshCounts.numXRayed === layer.meshCounts.numMeshes) {
+                            return;
+                        }
+                        if (quality) {
+                            this.#layerRenderers.qualityColorTriangles.draw(layer);
+                        } else {
+                            this.#layerRenderers.colorTriangles.draw(layer);
+                        }
+                        break;
+                    case RENDER_PASSES.COLOR_TRANSPARENT:
+                        if (layer.meshCounts.numTransparent === 0) {
+                            return;
+                        }
+                        if (quality) {
+                            this.#layerRenderers.qualityColorTriangles.draw(layer);
+                        } else {
+                            this.#layerRenderers.colorTriangles.draw(layer);
+                        }
+                        break;
+                    case RENDER_PASSES.SILHOUETTE_SELECTED:
+                        if (layer.meshCounts.numSelected > 0) {
+                            this.#layerRenderers.silhouetteTriangles.draw(layer);
+                        }
+                        break;
+                    case RENDER_PASSES.SILHOUETTE_HIGHLIGHTED:
+                        if (layer.meshCounts.numHighlighted > 0) {
+                            this.#layerRenderers.silhouetteTriangles.draw(layer);
+                        }
+                        break;
+                    case RENDER_PASSES.SILHOUETTE_XRAYED:
+                        if (layer.meshCounts.numXRayed > 0) {
+                            this.#layerRenderers.silhouetteTriangles.draw(layer);
+                        }
+                        break;
+                }
+                break;
+            case constants.LinesPrimitive:
+                switch (renderPass) {
+                    case RENDER_PASSES.COLOR_OPAQUE:
+                    case RENDER_PASSES.COLOR_TRANSPARENT:
+                        this.#layerRenderers.colorLines.draw(layer);
+                        break;
+                    case RENDER_PASSES.SILHOUETTE_SELECTED:
+                    case RENDER_PASSES.SILHOUETTE_HIGHLIGHTED:
+                    case RENDER_PASSES.SILHOUETTE_XRAYED:
+                        this.#layerRenderers.silhouetteLines.draw(layer);
+                        break;
+                }
+                break;
+            case constants.PointsPrimitive:
+                switch (renderPass) {
+                    case RENDER_PASSES.COLOR_OPAQUE:
+                    case RENDER_PASSES.COLOR_TRANSPARENT:
+                        this.#layerRenderers.colorPoints.draw(layer);
+                        break;
+                    case RENDER_PASSES.SILHOUETTE_SELECTED:
+                    case RENDER_PASSES.SILHOUETTE_HIGHLIGHTED:
+                    case RENDER_PASSES.SILHOUETTE_XRAYED:
+                        this.#layerRenderers.silhouettePoints.draw(layer);
+                        break;
+                }
+                break;
         }
     }
 }

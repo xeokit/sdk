@@ -48,10 +48,10 @@ export class Scene extends Component {
 
         super(null, params);
 
+        this.tiles = new Tiles(this);
         this.viewer = viewer;
         this.models = {};
         this.sceneObjects = {};
-        this.tiles = new Tiles(this);
 
         this.#center = math.vec3();
         this.#aabb = math.boundaries.AABB3();

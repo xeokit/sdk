@@ -103,7 +103,7 @@ class ViewObject {
      *
      * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleViewObjects}.
      * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setViewObjectsVisible} to batch-update the visibility of Objects.
+     * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
      */
     get visible(): boolean {
         return this.state.visible;
@@ -114,7 +114,8 @@ class ViewObject {
      *
      * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleViewObjects}.
      * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setViewObjectsVisible} to batch-update the visibility of Objects.
+     * * Fires an "objectVisibility" event on associated {@link ViewLayer}s.
+     * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
      */
     set visible(visible: boolean) {
         if (visible === this.state.visible) {
@@ -130,7 +131,7 @@ class ViewObject {
      * Gets if this ViewObject is X-rayed.
      *
      * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedViewObjects}.
-     * * Use {@link ViewLayer.setViewObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     get xrayed(): boolean {
         return this.state.xrayed;
@@ -140,7 +141,7 @@ class ViewObject {
      * Sets if this ViewObject is X-rayed.
      *
      * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedViewObjects}.
-     * * Use {@link ViewLayer.setViewObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     set xrayed(xrayed: boolean) {
         if (this.state.xrayed === xrayed) {
@@ -175,7 +176,7 @@ class ViewObject {
      * Gets if this ViewObject is highlighted.
      *
      * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedViewObjects}.
-     * * Use {@link ViewLayer.setViewObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     get highlighted(): boolean {
         return this.state.highlighted;
@@ -185,7 +186,7 @@ class ViewObject {
      * Sets if this ViewObject is highlighted.
      *
      * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedViewObjects}.
-     * * Use {@link ViewLayer.setViewObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     set highlighted(highlighted: boolean) {
         if (highlighted === this.state.highlighted) {
@@ -201,7 +202,7 @@ class ViewObject {
      * Gets if this ViewObject is selected.
      *
      * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedViewObjects}.
-     * * Use {@link ViewLayer.setViewObjectsSelected} to batch-update the selected state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     get selected(): boolean {
         return this.state.selected;
@@ -211,7 +212,7 @@ class ViewObject {
      * Sets if this ViewObject is selected.
      *
      * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedViewObjects}.
-     * * Use {@link ViewLayer.setViewObjectsSelected} to batch-update the selected state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     set selected(selected: boolean) {
         if (selected === this.state.selected) {
@@ -227,7 +228,7 @@ class ViewObject {
      * Gets if this ViewObject is culled.
      *
      * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setViewObjectsCulled} to batch-update the culled state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */
     get culled(): boolean {
         return this.state.culled;
@@ -237,7 +238,7 @@ class ViewObject {
      * Sets if this ViewObject is culled.
      *
      * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setViewObjectsCulled} to batch-update the culled state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */
     set culled(value: boolean) {
         if (value === this.state.culled) {
@@ -251,7 +252,7 @@ class ViewObject {
      * Gets if this ViewObject is clippable.
      *
      * * Clipping is done by the {@link SectionPlane}s in {@link ViewLayer.sectionPlanes}.
-     * * Use {@link ViewLayer.setViewObjectsClippable} to batch-update the clippable state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
      */
     get clippable(): boolean {
         return this.state.clippable;
@@ -261,7 +262,7 @@ class ViewObject {
      * Sets if this ViewObject is clippable.
      *
      * * Clipping is done by the {@link SectionPlane}s in {@link ViewLayer.sectionPlanes}.
-     * * Use {@link ViewLayer.setViewObjectsClippable} to batch-update the clippable state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
      */
     set clippable(value: boolean) {
         if (value === this.state.clippable) {
@@ -276,7 +277,7 @@ class ViewObject {
      *
      * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} and {@link ViewLayer.getAABB} will include this ViewObject's boundary.
      * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
-     * * Use {@link ViewLayer.setViewObjectsCollidable} to batch-update the collidable state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
     get collidable(): boolean {
         return this.state.collidable;
@@ -287,7 +288,7 @@ class ViewObject {
      *
      * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} and {@link ViewLayer.getAABB} will include this ViewObject's boundary.
      * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
-     * * Use {@link ViewLayer.setViewObjectsCollidable} to batch-update the collidable state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
     set collidable(value: boolean) {
         if (value === this.state.collidable) {
@@ -303,7 +304,7 @@ class ViewObject {
      * Gets if this ViewObject is pickable.
      *
      * * Picking is done with {@link ViewLayer.pick}.
-     * * Use {@link ViewLayer.setViewObjectsPickable} to batch-update the pickable state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
     get pickable(): boolean {
         return this.state.pickable;
@@ -313,7 +314,7 @@ class ViewObject {
      * Sets if this ViewObject is pickable.
      *
      * * Picking is done with {@link ViewLayer.pick}.
-     * * Use {@link ViewLayer.setViewObjectsPickable} to batch-update the pickable state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
     set pickable(value: boolean) {
         if (this.state.pickable === value) {
@@ -329,7 +330,7 @@ class ViewObject {
      *
      * * Multiplies by rendered fragment colors.
      * * Each element of the color is in range ````[0..1]````.
-     * * Use {@link ViewLayer.setViewObjectsColorized} to batch-update the colorized state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
     get colorize(): Float32Array {
         return this.state.colorize;
@@ -341,7 +342,7 @@ class ViewObject {
      * * Multiplies by rendered fragment colors.
      * * Each element of the color is in range ````[0..1]````.
      * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
-     * * Use {@link ViewLayer.setViewObjectsColorized} to batch-update the colorized state of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
     set colorize(value: math.FloatArrayType | undefined | null) {
         let colorize = this.state.colorize;
@@ -363,7 +364,7 @@ class ViewObject {
      * Gets the opacity factor for this ViewObject.
      *
      * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
-     * * Use {@link ViewLayer.setViewObjectsOpacity} to batch-update the opacities of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
      */
     get opacity(): number {
         return this.state.colorize[3];
@@ -374,7 +375,7 @@ class ViewObject {
      *
      * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
      * * Set to ````null```` or ````undefined```` to reset the opacity to its default value of ````1````.
-     * * Use {@link ViewLayer.setViewObjectsOpacity} to batch-update the opacities of ViewObjects.
+     * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
      */
     set opacity(opacity: number | undefined | null) {
         let colorize = this.state.colorize;

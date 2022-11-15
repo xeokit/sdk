@@ -52,7 +52,6 @@ export class WebGLRenderer implements Renderer {
     #edgesEnabled: boolean;
     #imageDirty: boolean;
     #saoEnabled: boolean;
-    #shadowsDirty: boolean;
     #pbrEnabled: boolean;
     #backgroundColor: math.FloatArrayType;
     #webglSceneModels: { [key: string]: WebGLSceneModel };
@@ -64,7 +63,6 @@ export class WebGLRenderer implements Renderer {
     #extensionHandles: any;
     #logarithmicDepthBufferEnabled: boolean;
     #alphaDepthMask: boolean;
-    #snapshotBound: boolean;
     #occlusionTester: any;
     #saoOcclusionRenderer: SAOOcclusionRenderer;
     #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
@@ -75,9 +73,9 @@ export class WebGLRenderer implements Renderer {
         colorTriangles: FastColorTrianglesRenderer;
         qualityColorTriangles: QualityColorTrianglesRenderer;
         colorLines: ColorLinesRenderer;
-        silhouettePoints: any;
+        silhouettePoints: SilhouettePointsRenderer;
         silhouetteTriangles: SilhouetteTrianglesRenderer;
-        silhouetteLines: any;
+        silhouetteLines: SilhouetteLinesRenderer;
     };
 
     constructor(params: {
@@ -92,14 +90,12 @@ export class WebGLRenderer implements Renderer {
         this.#layerListDirty = true;
         this.#stateSortDirty = true;
         this.#imageDirty = true;
-        this.#shadowsDirty = true;
         this.#transparentEnabled = true;
         this.#edgesEnabled = true;
         this.#saoEnabled = true;
         this.#pbrEnabled = true;
         this.#backgroundColor = math.vec3();
         this.#renderBufferManager = new RenderBufferManager(this.#view, this.gl);
-        this.#snapshotBound = false;
         this.#saoOcclusionRenderer = new SAOOcclusionRenderer(this.#view, this.gl);
         this.#saoDepthLimitedBlurRenderer = new SAODepthLimitedBlurRenderer(this.#view, this.gl);
         this.#occlusionTester = null; // Lazy-created in #addMarker()
@@ -491,9 +487,7 @@ export class WebGLRenderer implements Renderer {
                     }
                 }
             }
-
             if (this.#edgesEnabled && this.#view.edgeMaterial.edges) {
-
                 if (meshCounts.numEdges > 0) {
                     if (meshCounts.numTransparent < meshCounts.numMeshes) {
                         edgesColorOpaqueBin[edgesColorOpaqueBinLen++] = layer;
@@ -501,7 +495,6 @@ export class WebGLRenderer implements Renderer {
                     if (meshCounts.numTransparent > 0) {
                         edgesColorTransparentBin[edgesColorTransparentBinLen++] = layer;
                     }
-
                     // if (view.selectedMaterial.edgeAlpha < 1.0) {
                     //     selectedEdgesTransparentBin[selectedEdgesTransparentBinLen++] = layer;
                     // } else {

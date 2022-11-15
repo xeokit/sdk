@@ -6,75 +6,75 @@ import {Scene, SceneModel} from "../scene/index";
 import {View} from "./View";
 
 /**
- Optional component that organizes {@link ViewObject}s into bins within a {@link View}.
-
- ## Usage
-
- Create a viewer with a WebGL-based scene renderer:
-
- ````javascript
- import {Viewer, FastRender, WebGLRenderer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
-
- const myViewer = new Viewer({
-    id: "myViewer",
-    renderer: new WebGLRenderer({ })
-});
-
- const mySceneModel = myViewer.scene.createModel({
-    id: "myModel"
-});
-
- mySceneModel.createMesh({
-    id: "myMesh",
-    primitive: SolidPrimitive,
-    positions: [...],
-    indices: [...]
-    //...
-});
-
- mySceneModel.createObject({
-    id: "myObject1",
-    meshIds: ["myMesh}],
-    viewLayer: "foo"
-    //...
- });
-
- mySceneModel.createObject({
-    id: "myObject2",
-    meshIds: ["myMesh}],
-    viewLayer: "foo"
-    //...
-  });
-
- mySceneModel.createObject({
-    id: "myObject3",
-    meshIds: ["myMesh}],
-    viewLayer: "baz"
-    //...
- });
-
- myModel.finalize();
- ````
-
- Create a view of the model:
-
- ````javascript
- const view1 = myViewer.createView({
-    id: "myView",
-    canvasId: "myCanvas1"
- });
-
- view1.camera.eye = [-3.933, 2.855, 27.018];
- view1.camera.look = [4.400, 3.724, 8.899];
- view1.camera.up = [-0.018, 0.999, 0.039];
-
- view1.layers["foo"].objects["myObject1"].highlighted = true;
- view1.layers["foo"].objects["myObject2"].highlighted = true;
- view1.layers["foo"].setObjectsXRayed(["myObject1", "myObject2"], true);
-
- view1.layers["bar"].objects["myObject3"].highlighted = true;
- view1.layers["bar"].setObjectsSelected(["myObject3"], true);
- ````
+ * Optional component that organizes {@link ViewObject}s into bins within a {@link View}.
+ *
+ * ## Usage
+ *
+ * Create a viewer with a WebGL-based scene renderer:
+ *
+ *````javascript
+ * import {Viewer, FastRender, WebGLRenderer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const myViewer = new Viewer({
+ *      id: "myViewer",
+ *      renderer: new WebGLRenderer({ })
+ * });
+ *
+ * const mySceneModel = myViewer.scene.createModel({
+ *      id: "myModel"
+ * });
+ *
+ * mySceneModel.createMesh({
+ *      id: "myMesh",
+ *      primitive: SolidPrimitive,
+ *      positions: [...],
+ *      indices: [...]
+ *      //...
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "myObject1",
+ *      meshIds: ["myMesh}],
+ *      viewLayer: "foo"
+ *      //...
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "myObject2",
+ *      meshIds: ["myMesh}],
+ *      viewLayer: "foo"
+ *      //...
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "myObject3",
+ *      meshIds: ["myMesh}],
+ *      viewLayer: "baz"
+ *      //...
+ * });
+ *
+ * myModel.finalize();
+ * ````
+ *
+ * Create a view of the model:
+ *
+ * ````javascript
+ * const view1 = myViewer.createView({
+ *      id: "myView",
+ *      canvasId: "myCanvas1"
+ * });
+ *
+ * view1.camera.eye = [-3.933, 2.855, 27.018];
+ * view1.camera.look = [4.400, 3.724, 8.899];
+ * view1.camera.up = [-0.018, 0.999, 0.039];
+ *
+ * view1.layers["foo"].objects["myObject1"].highlighted = true;
+ * view1.layers["foo"].objects["myObject2"].highlighted = true;
+ * view1.layers["foo"].setObjectsXRayed(["myObject1", "myObject2"], true);
+ *
+ * view1.layers["bar"].objects["myObject3"].highlighted = true;
+ * view1.layers["bar"].setObjectsSelected(["myObject3"], true);
+ * ````
  */
 class ViewLayer extends Component {
 

@@ -83,6 +83,8 @@ class DataTextureBuffer { // Buffers data as we build a Layer; is converted into
     eachMeshMatrices: any[];
     eachMeshNormalMatrix: any[];
     eachMeshPositionsDecompressMatrix: any[];
+    eachMeshFlags1: any[];
+    eachMeshFlags2: any[];
     eachTriangleMesh_32Bits: number[];
     eachTriangleMesh_16Bits: number[];
     eachTriangleMesh_8Bits: number[];
@@ -108,6 +110,8 @@ class DataTextureBuffer { // Buffers data as we build a Layer; is converted into
         this.eachMeshMatrices = [];
         this.eachMeshNormalMatrix = [];
         this.eachMeshPositionsDecompressMatrix = [];
+        this.eachMeshFlags1 = [];
+        this.eachMeshFlags2 = [];
         this.eachTriangleMesh_32Bits = [];
         this.eachTriangleMesh_16Bits = [];
         this.eachTriangleMesh_8Bits = [];
@@ -174,6 +178,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             // @ts-ignore
             this.state.origin.set(layerParams.origin);
         }
+
+        this.beginDeferredFlags();
+
         this.#finalized = false;
     }
 
@@ -652,6 +659,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshTransparent(meshId: number, flags: number, transparent: boolean) {
+        if (!this.#finalized) {
+            throw "Not finalized";
+        }
         if (transparent) {
             this.meshCounts.numTransparent++;
             this.meshCounts.numTransparent++;
@@ -673,8 +683,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         const edges = !!(flags & SceneObjectFlags.EDGES);
         const pickable = !!(flags & SceneObjectFlags.PICKABLE);
         const culled = !!(flags & SceneObjectFlags.CULLED);
-        // Color
-        let f0;
+        let f0; // Color
         if (!visible || culled || xrayed) { // Highlight & select are layered on top of color - not mutually exclusive
             f0 = RENDER_PASSES.NOT_RENDERED;
         } else {
@@ -684,8 +693,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
                 f0 = RENDER_PASSES.COLOR_OPAQUE;
             }
         }
-        // Silhouette
-        let f1;
+        let f1; // Silhouette
         if (!visible || culled) {
             f1 = RENDER_PASSES.NOT_RENDERED;
         } else if (selected) {
@@ -697,8 +705,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         } else {
             f1 = RENDER_PASSES.NOT_RENDERED;
         }
-        // Edges
-        let f2 = 0;
+        let f2 = 0; // Edges
         if (!visible || culled) {
             f2 = RENDER_PASSES.NOT_RENDERED;
         } else if (selected) {
@@ -716,8 +723,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         } else {
             f2 = RENDER_PASSES.NOT_RENDERED;
         }
-        // Pick
-        let f3 = (visible && !culled && pickable) ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED;
+        let f3 = (visible && !culled && pickable) ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED; // Pick
         const dataTextureSet = this.state.dataTextureSet;
         const gl = this.#gl;
         tempUint8Array4 [0] = f0;
@@ -773,83 +779,6 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshId, 1, 1, gl.RGB, gl.FLOAT, tempFloat32Array3);
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
-
-
-    // updateDrawFlags() {
-    //     if (this.meshCounts.numVisible === 0) {
-    //         return;
-    //     }
-    //     if (this.meshCounts.numCulled === this.meshCounts.numMeshes) {
-    //         return;
-    //     }
-    //     const drawFlags = this.drawFlags;
-    //     drawFlags.colorOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
-    //     if (this.meshCounts.numTransparent > 0) {
-    //         drawFlags.colorTransparent = true;
-    //     }
-    //     if (this.meshCounts.numXRayed > 0) {
-    //         const xrayMaterial = this.#view.xrayMaterial.state;
-    //         if (xrayMaterial.fill) {
-    //             if (xrayMaterial.fillAlpha < 1.0) {
-    //                 drawFlags.xrayedSilhouetteTransparent = true;
-    //             } else {
-    //                 drawFlags.xrayedSilhouetteOpaque = true;
-    //             }
-    //         }
-    //         if (xrayMaterial.edges) {
-    //             if (xrayMaterial.edgeAlpha < 1.0) {
-    //                 drawFlags.xrayedEdgesTransparent = true;
-    //             } else {
-    //                 drawFlags.xrayedEdgesOpaque = true;
-    //             }
-    //         }
-    //     }
-    //     if (this.meshCounts.numEdges > 0) {
-    //         const edgeMaterial = this.#view.edgeMaterial.state;
-    //         if (edgeMaterial.edges) {
-    //             drawFlags.edgesOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
-    //             if (this.meshCounts.numTransparent > 0) {
-    //                 drawFlags.edgesTransparent = true;
-    //             }
-    //         }
-    //     }
-    //     if (this.meshCounts.numSelected > 0) {
-    //         const selectedMaterial = this.#view.selectedMaterial.state;
-    //         if (selectedMaterial.fill) {
-    //             if (selectedMaterial.fillAlpha < 1.0) {
-    //                 drawFlags.selectedSilhouetteTransparent = true;
-    //             } else {
-    //                 drawFlags.selectedSilhouetteOpaque = true;
-    //             }
-    //         }
-    //         if (selectedMaterial.edges) {
-    //             if (selectedMaterial.edgeAlpha < 1.0) {
-    //                 drawFlags.selectedEdgesTransparent = true;
-    //             } else {
-    //                 drawFlags.selectedEdgesOpaque = true;
-    //             }
-    //         }
-    //     }
-    //     if (this.meshCounts.numHighlighted > 0) {
-    //         const highlightMaterial = this.#view.highlightMaterial.state;
-    //         if (highlightMaterial.fill) {
-    //             if (highlightMaterial.fillAlpha < 1.0) {
-    //                 drawFlags.highlightedSilhouetteTransparent = true;
-    //             } else {
-    //                 drawFlags.highlightedSilhouetteOpaque = true;
-    //             }
-    //         }
-    //         if (highlightMaterial.edges) {
-    //             if (highlightMaterial.edgeAlpha < 1.0) {
-    //                 drawFlags.highlightedEdgesTransparent = true;
-    //             } else {
-    //                 drawFlags.highlightedEdgesOpaque = true;
-    //             }
-    //         }
-    //     }
-    // }
-
-    // ---------
 
     destroy() {
         this.state.dataTextureSet.destroy();

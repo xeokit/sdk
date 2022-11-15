@@ -202,9 +202,6 @@ class View extends Component {
      * Map of the all {@link ViewLayer}s in this View.
      *
      * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
-     *
-     * The View automatically ensures that there is a {@link ViewObject} here for
-     * each {@link SceneObject} in the {@link Viewer}'s {@link Scene}.
      */
     public readonly layers: { [key: string]: ViewLayer };
 

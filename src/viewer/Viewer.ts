@@ -30,7 +30,7 @@ import {ViewParams} from "./ViewParams";
  * Create a viewer with a WebGL-based scene renderer:
  *
  * ````javascript
- * import {Viewer, FastRender, WebGLRenderer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ * import {Viewer, FastRender, WebGLRenderer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -41,36 +41,42 @@ import {ViewParams} from "./ViewParams";
  * Create model geometry and materials:
  *
  * ````javascript
- * const mySceneModel = myViewer.scene.createModel({
+ * const mySceneModel = myViewer.scene.createModel({ // Create SceneModel
  *     id: "myModel"
  * });
  *
- * mySceneModel.createMesh({
- *     id: "myMesh",
- *     primitive: SolidPrimitive,
+ * mySceneModel.createGeometry({
+ *     id: "myGeometry",
+ *     primitive: constants.TrianglesPrimitive,
  *     positions: [...],
  *     indices: [...]
  *     //...
  * });
  *
- * mySceneModel.createObject({
+ * mySceneModel.createMesh({
+ *     id: "myMesh",
+ *     geometryId: "myGeometry",
+ *     //...
+ * });
+ *
+ * mySceneModel.createObject({ // Create SceneObject
  *     id: "myObject",
- *     meshIds: ["myMesh}],
+ *     meshIds: ["myMesh"],
  *     viewLayer: "main"
  *     //...
  * });
  *
- * myModel.finalize();
+ * myModel.finalize(); // SceneModel begins rendering
  * ````
  *
  * Define optional semantic information for the model:
  *
  * ````javascript
- * const myDataModel = myViewer.data.createModel({
+ * const myDataModel = myViewer.data.createModel({ // Create MetaModel
  *     id: "myModel"
  * });
  *
- * myDataModel.createObject({
+ * myDataModel.createObject({ // Create MetaObject
  *     id: "myObject",
  *     name: "Some object",
  *     type: "MyType"
@@ -80,7 +86,7 @@ import {ViewParams} from "./ViewParams";
  * Create a view of the model:
  *
  * ````javascript
- * const view1 = myViewer.createView({
+ * const view1 = myViewer.createView({ // Create a View
  *     id: "myView",
  *     canvasId: "myCanvas1"
  * });
@@ -89,9 +95,7 @@ import {ViewParams} from "./ViewParams";
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
  * view1.camera.projection = "perspective";
- * view1.cameraControl.navMode = "orbit";
- *
- * view1.renderMode = FastRender;
+ * view1.cameraControl.navMode = "orbit";;
  * ````
  * Customize the view:
  *
@@ -111,7 +115,7 @@ export class Viewer {
 
      Don't use this Viewer if this is ````true````.
      */
-    destroyed: boolean;
+    readonly destroyed: boolean;
 
     /**
      * Indicates the capabilities of this Viewer.
@@ -124,7 +128,7 @@ export class Viewer {
     readonly events: Events;
 
     /**
-     The viewer's locale service.
+     Provides locale string translations for this Viewer.
 
      This may be configured via the Viewer's constructor.
 
@@ -134,27 +138,31 @@ export class Viewer {
     readonly localeService: LocaleService;
 
     /**
-     Metadata about models and objects.
+     Contains semantic data about models in this Viewer.
      */
     readonly data: Data;
 
     /**
-     The Viewer's {@link Scene}.
+     Contains geometry and materials for models in this viewer.
      */
     readonly scene: Scene;
 
     /**
-     The {@link View}s belonging to this Viewer, each keyed to {@link View#id}.
+     * Map of all the Views in this Viewer.
+     *
+     * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
      */
     readonly views: { [key: string]: View };
 
     /**
-     List of {@link View}s belonging to this Viewer.
+     * List of all the Views in this Viewer.
+     *
+     * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
      */
     readonly viewList: View[];
 
     /**
-     The number of {@link View}s belonging to this Viewer.
+     *  The number of {@link View}s belonging to this Viewer.
      */
     numViews: number;
 
@@ -170,8 +178,7 @@ export class Viewer {
     readonly startTime: number = (new Date()).getTime();
 
     /**
-     The renderer.
-     @private
+     * @private
      */
     readonly renderer: Renderer;
 
@@ -372,11 +379,11 @@ export class Viewer {
     error(message: string): void {
         message = `[ERROR] ${this.#prefixMessageWithID(message)}`;
         window.console.error(message);
-        // this.viewer.events.fire("error", message);
+        this.events.fire("error", message);
     }
 
     /**
-     Destroys this Viewer and all {@link View}s, {@link SceneModel}s, {@link DataModel}s and {@link Plugin}s we've created within it.
+     * Destroys this Viewer and all {@link View}s, {@link SceneModel}s, {@link DataModel}s and {@link Plugin}s we've created within it.
      */
     destroy(): void {
         if (this.destroyed) {
@@ -388,10 +395,10 @@ export class Viewer {
             const plugin = pluginList[i];
             plugin.destroy();
         }
-        // for (let id in this.views) {
-        //     this.views[id].destroy();
-        // }
-        // this.scene.destroy();
+        for (let id in this.views) {
+            this.views[id].destroy();
+        }
+        this.scene.destroy();
     }
 
     #prefixMessageWithID(message: string): string {
@@ -406,7 +413,6 @@ export class Viewer {
         for (let viewIndex = 0; ; viewIndex++) {
             if (!this.viewList[viewIndex]) {
                 this.viewList[viewIndex] = view;
-                // @ts-ignore
                 this.numViews++;
                 view.viewIndex = viewIndex;
                 return;
@@ -420,7 +426,6 @@ export class Viewer {
         }
         delete this.views[view.id];
         delete this.viewList[view.viewIndex];
-        // @ts-ignore
         this.numViews--;
     }
 }

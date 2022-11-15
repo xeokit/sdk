@@ -269,30 +269,30 @@ export abstract class LayerPrimitiveRenderer {
             }
         }
 
-        if (view.sectionPlanesList.length) {
-            const numSectionPlanes = view.sectionPlanesList.length;
-            const origin = layer.state.origin;
-            const sectionPlanes = view.sectionPlanesList;
-            const baseIndex = layer.layerIndex * numSectionPlanes;
-            const drawFlags = sceneModel.drawFlags;
-            for (let sectionPlaneIndex = 0; sectionPlaneIndex < numSectionPlanes; sectionPlaneIndex++) {
-                const sectionPlaneUniforms = this.#uniforms.sectionPlanes[sectionPlaneIndex];
-                if (sectionPlaneUniforms) {
-                    const active = drawFlags.sectionPlanesActivePerLayer[baseIndex + sectionPlaneIndex];
-                    gl.uniform1i(sectionPlaneUniforms.active, active ? 1 : 0);
-                    if (active) {
-                        const sectionPlane = sectionPlanes[sectionPlaneIndex];
-                        if (origin) {
-                            const rtcSectionPlanePos = math.rtc.getPlaneRTCPos(sectionPlane.dist, sectionPlane.dir, origin, tempVec3a);
-                            gl.uniform3fv(sectionPlaneUniforms.pos, rtcSectionPlanePos);
-                        } else {
-                            gl.uniform3fv(sectionPlaneUniforms.pos, sectionPlane.pos);
-                        }
-                        gl.uniform3fv(sectionPlaneUniforms.dir, sectionPlane.dir);
-                    }
-                }
-            }
-        }
+        // if (view.sectionPlanesList.length) {
+        //     const numSectionPlanes = view.sectionPlanesList.length;
+        //     const origin = layer.state.origin;
+        //     const sectionPlanes = view.sectionPlanesList;
+        //     const baseIndex = layer.layerIndex * numSectionPlanes;
+        //     const drawFlags = sceneModel.drawFlags;
+        //     for (let sectionPlaneIndex = 0; sectionPlaneIndex < numSectionPlanes; sectionPlaneIndex++) {
+        //         const sectionPlaneUniforms = this.#uniforms.sectionPlanes[sectionPlaneIndex];
+        //         if (sectionPlaneUniforms) {
+        //             const active = drawFlags.sectionPlanesActivePerLayer[baseIndex + sectionPlaneIndex];
+        //             gl.uniform1i(sectionPlaneUniforms.active, active ? 1 : 0);
+        //             if (active) {
+        //                 const sectionPlane = sectionPlanes[sectionPlaneIndex];
+        //                 if (origin) {
+        //                     const rtcSectionPlanePos = math.rtc.getPlaneRTCPos(sectionPlane.dist, sectionPlane.dir, origin, tempVec3a);
+        //                     gl.uniform3fv(sectionPlaneUniforms.pos, rtcSectionPlanePos);
+        //                 } else {
+        //                     gl.uniform3fv(sectionPlaneUniforms.pos, sectionPlane.pos);
+        //                 }
+        //                 gl.uniform3fv(sectionPlaneUniforms.dir, sectionPlane.dir);
+        //             }
+        //         }
+        //     }
+        // }
 
         if (samplers.cameraMatrices) {
             state.dataTextureSet.cameraMatrices.bindTexture(program, samplers.cameraMatrices, renderContext.nextTextureUnit);

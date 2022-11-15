@@ -1160,3 +1160,6 @@ export class WebGLSceneModel extends Component implements SceneModel {
  */
 }
 
+class WebGLSceneModelImpl extends WebGLSceneModel {
+}
+

@@ -83,9 +83,9 @@ class SectionPlane extends Component {
      * @param [cfg.dir=[0,0,-1]] Vector perpendicular to the plane surface, indicating the SectionPlane plane orientation.
      */
     constructor(view: View, cfg: {
-        pos?: math.FloatArrayType;
+        pos?: math.FloatArrayParam;
         active?: boolean;
-        dir?: math.FloatArrayType
+        dir?: math.FloatArrayParam
     } = {}) {
 
         super(view, cfg);
@@ -147,7 +147,7 @@ class SectionPlane extends Component {
      *
      * @param value New position.
      */
-    set pos(value: math.FloatArrayType) {
+    set pos(value: math.FloatArrayParam) {
         this.state.pos.set(value);
         this.state.dist = (-math.dotVec3(this.state.pos, this.state.dir));
         this.events.fire("pos", this.state.pos);
@@ -171,7 +171,7 @@ class SectionPlane extends Component {
      *
      * @param value New direction.
      */
-    set dir(value: math.FloatArrayType) {
+    set dir(value: math.FloatArrayParam) {
         this.state.dir.set(value);
         this.state.dist = (-math.dotVec3(this.state.pos, this.state.dir));
         this.view.redraw();

@@ -22,11 +22,11 @@ class Perspective extends Component {
      * @private
      */
     public readonly state: {
-        transposedMatrix: math.FloatArrayType;
+        transposedMatrix: math.FloatArrayParam;
         far: number;
         near: number;
-        matrix: math.FloatArrayType;
-        inverseMatrix: math.FloatArrayType;
+        matrix: math.FloatArrayParam;
+        inverseMatrix: math.FloatArrayParam;
         fov: number;
         fovAxis: string;
     };
@@ -201,7 +201,7 @@ class Perspective extends Component {
      *
      * @returns  The Perspective's projection matrix.
      */
-    get matrix(): math.FloatArrayType {
+    get matrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -213,7 +213,7 @@ class Perspective extends Component {
      *
      * @returns  The inverse of {@link Perspective.matrix}.
      */
-    get inverseMatrix(): math.FloatArrayType {
+    get inverseMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -229,7 +229,7 @@ class Perspective extends Component {
      *
      * @returns  The transpose of {@link Perspective#matrix}.
      */
-    get transposedMatrix(): math.FloatArrayType {
+    get transposedMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -270,7 +270,7 @@ class Perspective extends Component {
      * @param viewPos Outputs un-projected 3D View-space coordinates.
      * @param worldPos Outputs un-projected 3D World-space coordinates.
      */
-    unproject(canvasPos: math.FloatArrayType, screenZ: number, screenPos: math.FloatArrayType, viewPos: math.FloatArrayType, worldPos: math.FloatArrayType): math.FloatArrayType {
+    unproject(canvasPos: math.FloatArrayParam, screenZ: number, screenPos: math.FloatArrayParam, viewPos: math.FloatArrayParam, worldPos: math.FloatArrayParam): math.FloatArrayParam {
 
         const canvas = this.camera.view.canvas.canvas;
         const halfCanvasWidth = canvas.offsetWidth / 2.0;

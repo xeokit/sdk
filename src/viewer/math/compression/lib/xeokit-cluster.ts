@@ -3,22 +3,22 @@
  * @license MIT
  */
 
-export function makeClusters(inputData) {
+export function makeClusters(inputData: any) {
 
-    function countEntityTriangles(entity) {
+    function countEntityTriangles(entity: any) {
 
         let numTriangles = 0;
 
-        entity.meshes.forEach(function (mesh) {
+        entity.meshes.forEach(function (mesh: any) {
             numTriangles += mesh.numTriangles;
         });
 
         return numTriangles;
     }
 
-    function scanCellsForEntities(cellSideInMeters, entityFilterFunc) {
+    function scanCellsForEntities(cellSideInMeters: any, entityFilterFunc: any) {
 
-        const filterFunc = entityFilterFunc || function (entity) {
+        const filterFunc = entityFilterFunc || function (entity: any) {
             return true;
         };
 
@@ -53,7 +53,7 @@ export function makeClusters(inputData) {
             }
         }
 
-        const scanResult = {
+        const scanResult: any = {
             cellsByEntity: {},
             entitiesByCell: {},
             cellsX: numCellsPerAxisX,
@@ -61,9 +61,9 @@ export function makeClusters(inputData) {
         };
 
         (cells || []).forEach(function (cell) {
-            inputData.aabbTree.search(cell).filter(function (x) {
+            inputData.aabbTree.search(cell).filter(function (x: any) {
                 return filterFunc(x.entity);
-            }).forEach(function (x) {
+            }).forEach(function (x: any) {
                 const id = x.entity.id;
                 scanResult.cellsByEntity [id] = scanResult.cellsByEntity [id] || {
                     cells: [],
@@ -86,8 +86,8 @@ export function makeClusters(inputData) {
      * ```minPercentOfClusteredPolygons``` % polygons are clustered.
      * @param {float} minPercentOfClusteredPolygons
      */
-    function getMaxCellsPerEntity(minPercentOfClusteredPolygons, cellsByEntity) {
-        const trianglesForEntityCellsCount = {};
+    function getMaxCellsPerEntity(minPercentOfClusteredPolygons: any, cellsByEntity: any) {
+        const trianglesForEntityCellsCount: any = {};
         let totalTriangles = 0;
         Object.keys(cellsByEntity).forEach(function (entityId) {
             const entityCells = cellsByEntity[entityId].cells;
@@ -100,11 +100,11 @@ export function makeClusters(inputData) {
 
         const cellsCounts = Object.keys(trianglesForEntityCellsCount);
 
-        cellsCounts.sort(function (a, b) {
+        cellsCounts.sort(function (a: any, b: any): any {
             return a - b;
         });
 
-        let cellCount = 0;
+        let cellCount: any = 0;
         let accum = 0.0;
 
         for (let i = 0; i < cellsCounts.length && accum < minPercentOfClusteredPolygons; i++) {
@@ -122,7 +122,7 @@ export function makeClusters(inputData) {
         };
     }
 
-    function generateSpiralIndexes(sizeX, sizeY) {
+    function generateSpiralIndexes(sizeX: any, sizeY: any) {
 
         const state = {
             pos: {
@@ -179,19 +179,20 @@ export function makeClusters(inputData) {
         return retVal;
     }
 
-    function getAllEntitesOnCell(cellId, maxCellsPerEntity, entitiesByCell, cellsByEntity) {
+    function getAllEntitesOnCell(cellId: any, maxCellsPerEntity: any, entitiesByCell: any, cellsByEntity: any) {
         const ebc = entitiesByCell [cellId] || {
             entities: [],
         };
-        return ebc.entities.filter(function (entity) {
+        return ebc.entities.filter(function (entity: any) {
             return cellsByEntity [entity.id].cells.length <= maxCellsPerEntity;
         });
     }
 
-    function generateEntityMappings(cellsX, cellsZ, maxCellsPerEntity, entitiesByCell, cellsByEntity, maxPolygonsPerCluster) {
-        const processedEntities = {};
+    function generateEntityMappings(cellsX: any, cellsZ: any, maxCellsPerEntity: any, entitiesByCell: any, cellsByEntity: any, maxPolygonsPerCluster: any) {
+        const processedEntities: any = {};
         // Create clusters for entities
-        const previousState = {
+
+        const previousState: any = {
             accumEntities: [],
         };
         const entityClusters = [];
@@ -201,15 +202,15 @@ export function makeClusters(inputData) {
                 maxCellsPerEntity,
                 entitiesByCell,
                 cellsByEntity
-            ).filter(function (entity) {
+            ).filter(function (entity: any) {
                 return !(entity.id in processedEntities);
             });
 
-            entities.forEach(function (entity) {
+            entities.forEach(function (entity: any) {
                 processedEntities [entity.id] = true;
             });
 
-            entities.sort(function (e1, e2) {
+            entities.sort(function (e1: any, e2: any) {
                 return countEntityTriangles(e1) - countEntityTriangles(e2);
             });
 
@@ -244,7 +245,7 @@ export function makeClusters(inputData) {
         }
 
         // Create shared clusters for unclustered entities
-        const unClusteredEntities = [];
+        const unClusteredEntities: any = [];
 
         Object.keys(cellsByEntity).forEach(function (entityId) {
             if (!(entityId in processedEntities)) {
@@ -253,9 +254,9 @@ export function makeClusters(inputData) {
         });
 
         let remainingTriangles = maxPolygonsPerCluster;
-        let accumEntities = [];
+        let accumEntities: any = [];
 
-        unClusteredEntities.forEach(function (entity) {
+        unClusteredEntities.forEach(function (entity: any) {
             const numTriangles = countEntityTriangles(entity);
             if (numTriangles > remainingTriangles) {
                 entityClusters.push(accumEntities);
@@ -271,10 +272,10 @@ export function makeClusters(inputData) {
         }
 
         // Prepare return value
-        const entityIdToClusterIdMapping = {};
+        const entityIdToClusterIdMapping: any = {};
 
         entityClusters.forEach(function (cluster, clusterIndex) {
-            cluster.forEach(function (entity) {
+            cluster.forEach(function (entity: any) {
                 entityIdToClusterIdMapping [entity.id] = clusterIndex;
             });
         });
@@ -285,7 +286,7 @@ export function makeClusters(inputData) {
         };
     }
 
-    function generateClusters(params) {
+    function generateClusters(params: any) {
         const scanResult = scanCellsForEntities(params.cellSideInMeters, params.entityFilterFunc);
         const maxCellsResult = getMaxCellsPerEntity(params.minPercentOfClustredPolygons, scanResult.cellsByEntity);
         const clusteringResult = generateEntityMappings(
@@ -306,9 +307,9 @@ export function makeClusters(inputData) {
     }
 
     let totalClusters = 0;
-    const generateClustersResult = generateClusters({
+    const generateClustersResult: any = generateClusters({
         cellSideInMeters: 0.05,
-        entityFilterFunc: function (entity) {
+        entityFilterFunc: function (entity: any) {
             return true;
         },
         maxPolygonsPerCluster: 90000,
@@ -318,10 +319,10 @@ export function makeClusters(inputData) {
     // totalVisibleClusters += generateClustersResult.clusters.visible;
     totalClusters += generateClustersResult.clusters.total;
 
-    const orderedEntityIds = [];
+    const orderedEntityIds: any = [];
 
-    generateClustersResult.clusteringResult.clusters.forEach(function (cluster) {
-        cluster.forEach(function (item) {
+    generateClustersResult.clusteringResult.clusters.forEach(function (cluster: any) {
+        cluster.forEach(function (item: any) {
             orderedEntityIds.push(item.id);
         });
     });
@@ -329,5 +330,5 @@ export function makeClusters(inputData) {
     generateClustersResult.orderedEntityIds = orderedEntityIds;
 
     return generateClustersResult;
-};
+}
 

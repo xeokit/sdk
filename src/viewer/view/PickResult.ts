@@ -17,14 +17,14 @@ class PickResult {
     #gotWorldNormal: boolean;
     #gotUV: boolean;
     #canvasPos: Int16Array;
-    #origin: math.FloatArrayType;
-    #direction: math.FloatArrayType;
+    #origin: math.FloatArrayParam;
+    #direction: math.FloatArrayParam;
     #indices: Int32Array;
-    #localPos: math.FloatArrayType;
-    #worldPos: math.FloatArrayType;
-    #viewPos: math.FloatArrayType;
-    #worldNormal: math.FloatArrayType;
-    #uv: math.FloatArrayType;
+    #localPos: math.FloatArrayParam;
+    #worldPos: math.FloatArrayParam;
+    #viewPos: math.FloatArrayParam;
+    #worldNormal: math.FloatArrayParam;
+    #uv: math.FloatArrayParam;
 
     constructor() {
 
@@ -66,7 +66,7 @@ class PickResult {
     /**
      * @private
      */
-    set canvasPos(value: math.FloatArrayType | Int16Array) {
+    set canvasPos(value: math.FloatArrayParam | Int16Array) {
         if (value) {
             this.#canvasPos[0] = value[0];
             this.#canvasPos[1] = value[1];
@@ -79,7 +79,7 @@ class PickResult {
     /**
      * World-space 3D ray origin when raypicked.
      */
-    get origin(): math.FloatArrayType | null {
+    get origin(): math.FloatArrayParam | null {
         return this.#gotOrigin ? this.#origin : null;
     }
 
@@ -100,7 +100,7 @@ class PickResult {
     /**
      * World-space 3D ray direction when raypicked.
      */
-    get direction(): math.FloatArrayType | null {
+    get direction(): math.FloatArrayParam | null {
         return this.#gotDirection ? this.#direction : null;
     }
 
@@ -144,7 +144,7 @@ class PickResult {
      * Picked Local-space point on surface.
      * Only defined when an object and a point on its surface was picked.
      */
-    get localPos(): math.FloatArrayType | null {
+    get localPos(): math.FloatArrayParam | null {
         return this.#viewObject && this.#gotLocalPos ? this.#localPos : null;
     }
 
@@ -166,7 +166,7 @@ class PickResult {
      * Picked World-space point on surface.
      * Only defined when an object and a point on its surface was picked.
      */
-    get worldPos(): math.FloatArrayType | null {
+    get worldPos(): math.FloatArrayParam | null {
         return this.#viewObject && this.#gotWorldPos ? this.#worldPos : null;
     }
 
@@ -188,7 +188,7 @@ class PickResult {
      * Picked View-space point on surface.
      * Only defined when an object and a point on its surface was picked.
      */
-    get viewPos(): math.FloatArrayType | null {
+    get viewPos(): math.FloatArrayParam | null {
         return this.#viewObject && this.#gotViewPos ? this.#viewPos : null;
     }
 
@@ -210,7 +210,7 @@ class PickResult {
      * Normal vector at picked position on surface.
      * Only defined when an object and a point on its surface was picked.
      */
-    get worldNormal(): math.FloatArrayType | null {
+    get worldNormal(): math.FloatArrayParam | null {
         return this.#viewObject && this.#gotWorldNormal ? this.#worldNormal : null;
     }
 
@@ -232,7 +232,7 @@ class PickResult {
      * UV coordinates at picked position on surface.
      * Only defined when an object and a point on its surface was picked.
      */
-    get uv(): math.FloatArrayType | null {
+    get uv(): math.FloatArrayParam | null {
         return this.#viewObject && this.#gotUV ? this.#uv : null;
     }
 

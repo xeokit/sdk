@@ -20,15 +20,15 @@ class Frustum extends Component {
      * @private
      */
     public readonly state: {
-        transposedMatrix: math.FloatArrayType;
+        transposedMatrix: math.FloatArrayParam;
         far: number;
         near: number;
         left: number;
         right: number;
         bottom: number;
         top: number;
-        matrix: math.FloatArrayType;
-        inverseMatrix: math.FloatArrayType
+        matrix: math.FloatArrayParam;
+        inverseMatrix: math.FloatArrayParam
     };
 
     #inverseMatrixDirty: boolean;
@@ -197,7 +197,7 @@ class Frustum extends Component {
      *
      * @returns The Frustum's projection matrix matrix.
      */
-    get matrix(): math.FloatArrayType {
+    get matrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -209,7 +209,7 @@ class Frustum extends Component {
      *
      * @returns  The inverse orthographic projection matrix.
      */
-    get inverseMatrix(): math.FloatArrayType  {
+    get inverseMatrix(): math.FloatArrayParam  {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -225,7 +225,7 @@ class Frustum extends Component {
      *
      * @returns The transpose of {@link Frustum#matrix}.
      */
-    get transposedMatrix(): math.FloatArrayType  {
+    get transposedMatrix(): math.FloatArrayParam  {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -257,11 +257,11 @@ class Frustum extends Component {
      * @param worldPos Outputs un-projected 3D World-space coordinates.
      */
     unproject(
-        canvasPos: math.FloatArrayType,
+        canvasPos: math.FloatArrayParam,
         screenZ: number,
-        screenPos: math.FloatArrayType,
-        viewPos: math.FloatArrayType,
-        worldPos: math.FloatArrayType): math.FloatArrayType {
+        screenPos: math.FloatArrayParam,
+        viewPos: math.FloatArrayParam,
+        worldPos: math.FloatArrayParam): math.FloatArrayParam {
 
         const canvas = this.camera.view.canvas.canvas;
 

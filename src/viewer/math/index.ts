@@ -14,7 +14,7 @@ export * as rays from "./ray";
 /**
  * Utility functions for working with relative-to-center (RTC) coordinates.
  */
-export * as rtc from "./rtc/index";
+export * as rtc from "./rtc";
 
 /**
  * Utility functions for geometry and coordinate de/compression.

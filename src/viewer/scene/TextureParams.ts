@@ -1,4 +1,4 @@
-import {FloatArrayType} from "../math/math";
+import {FloatArrayParam} from "../math/math";
 
 /**
  * Texture creation parameters for {@link SceneModel.createTexture}.
@@ -17,6 +17,8 @@ export interface TextureParams {
 
     /**
      * Transcoded texture data.
+     *
+     * See: {@link TextureTranscoder}.
      */
     buffers?: ArrayBuffer[];
 
@@ -80,5 +82,5 @@ export interface TextureParams {
     /**
      * RGBA color to preload the texture with.
      */
-    preloadColor?: FloatArrayType;
+    preloadColor?: FloatArrayParam;
 }

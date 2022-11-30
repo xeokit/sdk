@@ -224,18 +224,18 @@ class Camera extends Component {
      * @private
      */
     public readonly state: {
-        deviceMatrix: math.FloatArrayType,
-        normalMatrix: math.FloatArrayType,
+        deviceMatrix: math.FloatArrayParam,
+        normalMatrix: math.FloatArrayParam,
         hasDeviceMatrix: boolean,
-        matrix: math.FloatArrayType,
-        inverseMatrix: math.FloatArrayType,
-        eye: math.FloatArrayType,
-        look: math.FloatArrayType,
-        up: math.FloatArrayType,
-        worldAxis: math.FloatArrayType,
-        worldUp: math.FloatArrayType,
-        worldRight: math.FloatArrayType,
-        worldForward: math.FloatArrayType,
+        matrix: math.FloatArrayParam,
+        inverseMatrix: math.FloatArrayParam,
+        eye: math.FloatArrayParam,
+        look: math.FloatArrayParam,
+        up: math.FloatArrayParam,
+        worldAxis: math.FloatArrayParam,
+        worldUp: math.FloatArrayParam,
+        worldRight: math.FloatArrayParam,
+        worldForward: math.FloatArrayParam,
         gimbalLock: boolean,
         constrainPitch: boolean,
         projectionType: string
@@ -275,12 +275,12 @@ class Camera extends Component {
      * @private
      */
     constructor(view: View, cfg: {
-        eye?: math.FloatArrayType;
-        look?: math.FloatArrayType,
-        up?: math.FloatArrayType;
-        deviceMatrix?: math.FloatArrayType;
+        eye?: math.FloatArrayParam;
+        look?: math.FloatArrayParam,
+        up?: math.FloatArrayParam;
+        deviceMatrix?: math.FloatArrayParam;
         gimbalLock?: boolean;
-        worldAxis?: math.FloatArrayType;
+        worldAxis?: math.FloatArrayParam;
         projection?: string;
         constrainPitch?: boolean;
         projectionType?: string
@@ -356,7 +356,7 @@ class Camera extends Component {
      *
      * @type {Number[]} New eye position.
      */
-    get eye(): math.FloatArrayType {
+    get eye(): math.FloatArrayParam {
         return this.state.eye;
     }
 
@@ -368,7 +368,7 @@ class Camera extends Component {
      * @emits "eye" event on change, with the value of this property.
      * @type {Number[]} New eye position.
      */
-    set eye(eye: math.FloatArrayType) {
+    set eye(eye: math.FloatArrayParam) {
         // @ts-ignore
         this.state.eye.set(eye);
         this.setDirty(); // Ensure matrix built on next "tick"
@@ -382,7 +382,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} Camera look position.
      */
-    get look(): math.FloatArrayType {
+    get look(): math.FloatArrayParam {
         return this.state.look;
     }
 
@@ -395,7 +395,7 @@ class Camera extends Component {
      *
      * @param look Camera look position.
      */
-    set look(look: math.FloatArrayType) {
+    set look(look: math.FloatArrayParam) {
         // @ts-ignore
         this.state.look.set(look);
         this.setDirty(); // Ensure matrix built on next "tick"
@@ -407,7 +407,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} Direction of "up".
      */
-    get up(): math.FloatArrayType {
+    get up(): math.FloatArrayParam {
         return this.state.up;
     }
 
@@ -418,7 +418,7 @@ class Camera extends Component {
      *
      * @param up Direction of "up".
      */
-    set up(up: math.FloatArrayType) {
+    set up(up: math.FloatArrayParam) {
         // @ts-ignore
         this.state.up.set(up);
         this.setDirty();
@@ -434,7 +434,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The "up" vector.
      */
-    get worldUp(): math.FloatArrayType {
+    get worldUp(): math.FloatArrayParam {
         return this.state.worldUp;
     }
 
@@ -447,7 +447,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The "up" vector.
      */
-    get worldRight(): math.FloatArrayType {
+    get worldRight(): math.FloatArrayParam {
         return this.state.worldRight;
     }
 
@@ -460,7 +460,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The "up" vector.
      */
-    get worldForward(): math.FloatArrayType {
+    get worldForward(): math.FloatArrayParam {
         return this.state.worldForward;
     }
 
@@ -523,7 +523,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The current World coordinate axis.
      */
-    get worldAxis(): math.FloatArrayType {
+    get worldAxis(): math.FloatArrayParam {
         return this.state.worldAxis;
     }
 
@@ -536,7 +536,7 @@ class Camera extends Component {
      *
      * @param axis The new Wworld coordinate axis.
      */
-    set worldAxis(axis: math.FloatArrayType) {
+    set worldAxis(axis: math.FloatArrayParam) {
         const state = this.state;
             // @ts-ignore
         state.worldAxis.set(axis);
@@ -557,7 +557,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The matrix.
      */
-    get deviceMatrix(): math.FloatArrayType {
+    get deviceMatrix(): math.FloatArrayParam {
         // @ts-ignore
         return this.state.deviceMatrix;
     }
@@ -569,7 +569,7 @@ class Camera extends Component {
      *
      * @param matrix The matrix.
      */
-    set deviceMatrix(matrix: math.FloatArrayType) {
+    set deviceMatrix(matrix: math.FloatArrayParam) {
         // @ts-ignore
         this.state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
         this.state.hasDeviceMatrix = !!matrix;
@@ -617,7 +617,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The viewing transform matrix.
      */
-    get matrix(): math.FloatArrayType {
+    get matrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -631,7 +631,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The viewing transform matrix.
      */
-    get viewMatrix(): math.FloatArrayType {
+    get viewMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -645,7 +645,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The viewing normal transform matrix.
      */
-    get normalMatrix(): math.FloatArrayType {
+    get normalMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -659,7 +659,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The viewing normal transform matrix.
      */
-    get viewNormalMatrix(): math.FloatArrayType {
+    get viewNormalMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -673,7 +673,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The inverse viewing transform matrix.
      */
-    get inverseViewMatrix(): math.FloatArrayType {
+    get inverseViewMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -687,7 +687,7 @@ class Camera extends Component {
      *
      * @returns {Number[]} The projection matrix.
      */
-    get projMatrix(): math.FloatArrayType {
+    get projMatrix(): math.FloatArrayParam {
         // @ts-ignore
         return this[this.projection].matrix;
     }
@@ -844,7 +844,7 @@ class Camera extends Component {
      *
      * @param pan The pan vector
      */
-    pan(pan: math.FloatArrayType) {
+    pan(pan: math.FloatArrayParam) {
         const eye2 = math.subVec3(this.state.eye, this.state.look, tempVec3);
         const vec = [0, 0, 0];
         let v;

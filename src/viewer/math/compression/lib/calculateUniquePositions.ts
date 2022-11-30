@@ -10,9 +10,9 @@
  * step, but is much more GC-friendly and actually faster than the classic O(N)
  * approach based in keeping a hash-based LUT to identify unique positions.
  */
-let comparePositions = null;
+let comparePositions:any = null;
 
-function compareVertex(a, b) {
+function compareVertex(a:any, b:any) {
     let res;
 
     for (let i = 0; i < 3; i++) {
@@ -24,9 +24,9 @@ function compareVertex(a, b) {
     return 0;
 };
 
-let seqInit = null;
+let seqInit:any = null;
 
-function setMaxNumberOfPositions(maxPositions) {
+function setMaxNumberOfPositions(maxPositions:any) {
     if (seqInit !== null && seqInit.length >= maxPositions) {
         return;
     }
@@ -68,7 +68,7 @@ function setMaxNumberOfPositions(maxPositions) {
  *
  * @returns An array with 3 elements: 0 => the uniquified positions; 1 and 2 => the remapped edges and edgeIndices arrays
  */
-function uniquifyPositions(mesh) {
+function uniquifyPositions(mesh:any) {
     let _positions = mesh.positions;
     let _indices = mesh.indices;
     let _edgeIndices = mesh.edgeIndices;

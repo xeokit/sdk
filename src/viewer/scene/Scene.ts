@@ -5,7 +5,6 @@ import {Viewer} from "../Viewer";
 import {SceneObject} from "./SceneObject";
 import {SceneModel} from "./SceneModel";
 import {createUUID} from "../utils/index";
-import {FloatArrayType} from "../math/math";
 import {SceneModelParams} from "./SceneModelParams";
 import {Tiles} from "./Tiles";
 
@@ -35,10 +34,11 @@ export class Scene extends Component {
     /**
      * The {@link SceneObject}s in this Scene.
      */
-    readonly sceneObjects: { [key: string]: SceneObject };
+    readonly objects: { [key: string]: SceneObject };
 
-    #center: FloatArrayType;
-    #aabb: FloatArrayType;
+    #center: Float64Array;
+    #aabb: Float64Array;
+    
     #aabbDirty: boolean;
 
     /**
@@ -51,7 +51,7 @@ export class Scene extends Component {
         this.tiles = new Tiles(this);
         this.viewer = viewer;
         this.models = {};
-        this.sceneObjects = {};
+        this.objects = {};
 
         this.#center = math.vec3();
         this.#aabb = math.boundaries.AABB3();
@@ -61,7 +61,7 @@ export class Scene extends Component {
     /**
      * Gets the World-space 3D center of this Scene.
      */
-    get center(): FloatArrayType {
+    get center(): Float64Array {
         if (this.#aabbDirty) {
             const aabb = this.aabb; // Lazy-build AABB
             this.#center[0] = (aabb[0] + aabb[3]) / 2;
@@ -74,12 +74,12 @@ export class Scene extends Component {
     /**
      * Gets the World-space axis-aligned 3D boundary (AABB) of this Scene.
      *
-     * The AABB encompases the boundaries of all {@link SceneModels} currently in {@link Scene.models}, and  is
+     * The AABB encompases the boundaries of all {@link SceneModel} s currently in {@link Scene.models}, and  is
      * represented by a six-element Float64Array containing the min/max extents of the axis-aligned volume, ie. ````[xmin, ymin,zmin,xmax,ymax, zmax]````.
      *
      * When the Scene has no content, the boundary will be an inverted shape, ie. ````[-100,-100,-100,100,100,100]````.
      */
-    get aabb() {
+    get aabb() : Float64Array {
         if (this.#aabbDirty) {
             let xmin = math.MAX_DOUBLE;
             let ymin = math.MAX_DOUBLE;
@@ -88,7 +88,7 @@ export class Scene extends Component {
             let ymax = math.MIN_DOUBLE;
             let zmax = math.MIN_DOUBLE;
             let aabb;
-            const objects = this.sceneObjects;
+            const objects = this.objects;
             let valid = false;
             for (const objectId in objects) {
                 if (objects.hasOwnProperty(objectId)) {
@@ -150,7 +150,7 @@ export class Scene extends Component {
      * independently represent that SceneObject's visual state in that View.
      *
      * When we've finished with the SceneModel, we destroy it using {@link SceneModel.destroy}. That will automatically remove its
-     * Objects from all our existing Views.
+     * ViewObjects from all our existing Views.
      *
      * @param params SceneModel configuration
      * @seealso {@link Data.createModel}
@@ -200,19 +200,19 @@ export class Scene extends Component {
     }
 
     #registerSceneObjects(sceneModel: SceneModel) {
-        const sceneObjects = sceneModel.objects;
-        for (let id in sceneObjects) {
-            const sceneObject = sceneObjects[id];
-            this.sceneObjects[sceneObject.id] = sceneObject;
+        const objects = sceneModel.objects;
+        for (let id in objects) {
+            const sceneObject = objects[id];
+            this.objects[sceneObject.id] = sceneObject;
         }
         this.#aabbDirty = true;
     }
 
     #deregisterSceneObjects(sceneModel: SceneModel) {
-        const sceneObjects = sceneModel.objects;
-        for (let id in sceneObjects) {
-            const sceneObject = sceneObjects[id];
-            delete this.sceneObjects[sceneObject.id];
+        const objects = sceneModel.objects;
+        for (let id in objects) {
+            const sceneObject = objects[id];
+            delete this.objects[sceneObject.id];
         }
         this.#aabbDirty = true;
     }

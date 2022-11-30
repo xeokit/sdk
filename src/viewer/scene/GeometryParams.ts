@@ -1,4 +1,4 @@
-import {FloatArrayType, IntArrayType} from "../math/math";
+import {FloatArrayParam, IntArrayParam} from "../math/math";
 
 /**
  * Non-compressed geometry parameter type for {@link SceneModel.createGeometry}.
@@ -13,7 +13,7 @@ export interface GeometryParams {
     /**
      * RTC origin for the geometry.
      */
-    origin: FloatArrayType;
+    origin: FloatArrayParam;
 
     /**
      * ID for the geometry.
@@ -32,28 +32,28 @@ export interface GeometryParams {
      *
      * Alternative to {@link GeometryParams.positionsCompressed}.
      */
-    positions: FloatArrayType;
+    positions: FloatArrayParam;
 
     /*
     * Flat array of uncompressed floating-point vertex UV coordinates.
     *
     * Alternative to {@link LayerGeometryParams.uvsCompressed}.
     */
-    uvs?: FloatArrayType;
+    uvs?: FloatArrayParam;
 
     /**
      * Flat array of uncompressed floating-point vertex colors.
      *
      * Alternative to {@link GeometryParams.colorsCompressed}.
      */
-    colors?: FloatArrayType;
+    colors?: FloatArrayParam;
 
     /**
      * Flat array of primitive connectivity indices.
      *
      * Ignored for primitive type {@link PointsPrimitive}, which does not need indices.
      */
-    indices?: IntArrayType;
+    indices?: IntArrayParam;
 
     /**
      * The threshold angle, in degrees, beyond which the deviation in normal directions of each pair of adjacent faces

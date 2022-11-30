@@ -1,4 +1,4 @@
-import {FloatArrayType} from "../math/math";
+import {FloatArrayParam} from "../math/math";
 import {Component} from "../Component";
 import {Scene} from "./Scene";
 import {Tile} from "./Tile";
@@ -36,7 +36,7 @@ export class Tiles extends Component {
      * Creates a {@link Tile} with the given 3D World-space boundary, if not already existing.
      * @param params
      */
-    createTile(params: { aabb: FloatArrayType }): Tile {
+    createTile(params: { aabb: FloatArrayParam }): Tile {
         const tile = new Tile(this, {aabb: params.aabb});
         return tile;
     }
@@ -46,7 +46,7 @@ export class Tiles extends Component {
      * @param worldPos A 3D World-space position.
      * @returns The intersecting {@link Tile}, if any, else null.
      */
-    findTile(worldPos: FloatArrayType): Tile {
+    findTile(worldPos: FloatArrayParam): Tile {
         return null;
     }
 }

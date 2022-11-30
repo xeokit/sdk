@@ -1,4 +1,4 @@
-import {FloatArrayType, IntArrayType} from "../math/math";
+import {FloatArrayParam} from "../math/math";
 
 /**
  * Mesh creation parameters for {@link SceneModel.createMesh}.
@@ -30,14 +30,14 @@ export interface MeshParams {
      *
      * Default is ````[1,1,1]````.
      */
-    color?: FloatArrayType;
+    color?: FloatArrayParam;
 
     /**
      * RGB pick color of the mesh.
      *
      * This is used internally within {@link SceneModel}.
      */
-    pickColor?: FloatArrayType;
+    pickColor?: FloatArrayParam;
 
     /**
      * Opacity of the mesh.
@@ -70,32 +70,32 @@ export interface MeshParams {
      * When this is given, then 3D positions given in {@link MeshParams.positions} or
      * {@link MeshParams.positionsCompressed} are assumed to be relative to this.
      */
-    origin?: FloatArrayType;
+    origin?: FloatArrayParam;
 
     /**
      * Optional local 3D translation vector.
      */
-    position?: FloatArrayType;
+    position?: FloatArrayParam;
 
     /**
      * Optional local 3D scale vector.
      */
-    scale?: FloatArrayType;
+    scale?: FloatArrayParam;
 
     /**
      * Optional local 3D rotation quaternion.
      */
-    quaternion?: FloatArrayType;
+    quaternion?: FloatArrayParam;
 
     /**
      * Optional local 3D rotation as Euler angles given in degrees, for each of the X, Y and Z axis.
      */
-    rotation?: FloatArrayType;
+    rotation?: FloatArrayParam;
 
     /**
      * Optional local 3D transform matrix.
      *
      * Overrides {@link MeshParams.position}, {@link MeshParams.scale}, {@link MeshParams.quaternion} and {@link MeshParams.rotation}.
      */
-    matrix?: FloatArrayType;
+    matrix?: FloatArrayParam;
 }

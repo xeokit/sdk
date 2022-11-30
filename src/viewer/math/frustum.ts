@@ -1,6 +1,6 @@
 import {mat4, mulMat4} from "./matrix";
 import {vec3} from "./vector";
-import {FloatArrayType} from "./math";
+import {FloatArrayParam} from "./math";
 
 const tempVec3a = vec3();
 const tempVec3b = vec3();
@@ -11,9 +11,9 @@ const tempMat4a = mat4();
  */
 class FrustumPlane {
 
-    public testVertex: FloatArrayType;
+    public testVertex: FloatArrayParam;
     public offset: number;
-    public normal: FloatArrayType;
+    public normal: FloatArrayParam;
 
     /**
      * Creates a new frustum plane.
@@ -77,7 +77,7 @@ class Frustum {
  * @param viewMat
  * @param projMat
  */
-export function setFrustum(frustum:Frustum, viewMat:FloatArrayType, projMat:FloatArrayType) {
+export function setFrustum(frustum:Frustum, viewMat:FloatArrayParam, projMat:FloatArrayParam) {
     const m = mulMat4(projMat, viewMat, tempMat4a);
     const m0 = m[0];
     const m1 = m[1];
@@ -108,7 +108,7 @@ export function setFrustum(frustum:Frustum, viewMat:FloatArrayType, projMat:Floa
  * @param frustum
  * @param aabb
  */
-export function frustumIntersectsAABB3(frustum:Frustum, aabb:FloatArrayType):number {
+export function frustumIntersectsAABB3(frustum:Frustum, aabb:FloatArrayParam):number {
     let ret = Frustum.INSIDE;
     const min = tempVec3a;
     const max = tempVec3b;

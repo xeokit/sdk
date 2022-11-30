@@ -1,7 +1,7 @@
 export * from "./Scene";
 export * from "./SceneModel";
 export * from "./SceneObject";
-export * from "../../../_WebGLSceneModel/lib/Transform";
+export * from "./Transform";
 export * from "./Renderer";
 export * from "./Tiles";
 export * from "./Tile";
@@ -9,7 +9,7 @@ export {SceneModelParams} from "./SceneModelParams";
 export {MeshParams} from "./MeshParams";
 export {TextureSetParams} from "./TextureSetParams";
 export {TextureParams} from "./TextureParams";
-export {TransformParams} from "../../../_WebGLSceneModel/lib/TransformParams";
+export {TransformParams} from "./TransformParams";
 export {GeometryParams} from "./GeometryParams";
 export {GeometryCompressedParams} from "./GeometryCompressedParams";
 export {GeometryBucketParams} from "./GeometryBucketParams";

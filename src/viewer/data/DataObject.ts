@@ -1,6 +1,7 @@
 import {PropertySet} from "./PropertySet";
 import {DataModel} from "./DataModel";
 import {DataObjectParams} from "./DataObjectParams";
+import {Relation} from "./Relation";
 
 /**
  *  Semantic data about an object within a {@link Viewer}.

@@ -7,18 +7,22 @@ import {SceneModelParams} from "./SceneModelParams";
 import {Viewer} from "../Viewer";
 
 /**
- * Creates and renders geometry and materials for a {@link Viewer}.
+ * Pluggable, internal rendering strategy for a {@link Viewer}.
  *
- * A Viewer has a single implementation of this type, which wraps an available browser 3D graphics API, such as WebGL or WebGPU.
+ * Used by a Viewer internally, to allocate and render geometry and materials using a browser 3D graphics API (eg. WebGL, WebGPU).
  *
- * You don't normally want to touch this, unless you're configuring a custom allocation/rendering strategy for your Viewer
+ * You don't normally need to know about this interface, unless you're configuring your Viewer with a custom strategy.
+ *
+ * A Viewer has a {@link WebGLRenderer} by default.
  *
  * ## Usage
  *
  * ````javascript
+ * import {Viewer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
  * const myViewer = new Viewer({
- *     id: "myViewer,
- *     renderer: new MyRenderer({ ... })
+ *     id: "myViewer",
+ *     renderer: new MyRenderer({ })
  * });
  * ````
  */
@@ -45,6 +49,8 @@ export interface Renderer {
      * Registers a {@link View} with this Renderer.
      *
      * The Renderer will then begin rendering each {@link SceneModel} created with {@link SceneModel.createModel} for the new View.
+     *
+     * You can only register as many Views as indicated in {@link ViewerCapabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
      *
      * @param view The View.
      * @returns A handle for the View within this Renderer.
@@ -111,7 +117,7 @@ export interface Renderer {
      * @param viewIndex Index of the View.
      * @param color RGB background color.
      */
-    setBackgroundColor(viewIndex: number, color: math.FloatArrayType): void;
+    setBackgroundColor(viewIndex: number, color: math.FloatArrayParam): void;
 
     /**
      * Indicates that the renderer needs to render a new frame for the given View.

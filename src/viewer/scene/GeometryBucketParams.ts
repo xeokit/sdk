@@ -1,4 +1,4 @@
-import * as math from "../math/math";
+import {IntArrayParam} from "../math/math";
 
 /**
  * A geometry bucket within {@link GeometryCompressedParams.geometryBuckets}.
@@ -12,31 +12,31 @@ export interface GeometryBucketParams {
      *
      * Vertex positions are required for all primitive types.
      */
-    positionsCompressed: math.IntArrayType,
+    positionsCompressed: IntArrayParam,
 
     /**
      * GeometryBucketHandle bucket's UV coordinates, quantized as 16-bit integers.
      *
      * Internally, the Viewer de-quantizes these with {@link GeometryCompressedParams.uvsDecompressMatrix}.
      */
-    uvsCompressed?: math.IntArrayType,
+    uvsCompressed?: IntArrayParam,
 
     /**
      * GeometryBucketHandle bucket's vertex RGB colors, quantized as 8-bit integers.
      */
-    colorsCompressed?: math.IntArrayType;
+    colorsCompressed?: IntArrayParam;
 
     /**
      * GeometryBucketHandle bucket's primitive indices.
      *
      * This is either an array of 8-bit, 16-bit or 32-bit values.
      */
-    indices?: math.IntArrayType,
+    indices?: IntArrayParam,
 
     /**
      * GeometryBucketHandle bucket's edge indices.
      *
      * This is either an array of 8-bit, 16-bit or 32-bit values.
      */
-    edgeIndices?: math.IntArrayType
+    edgeIndices?: IntArrayParam
 }

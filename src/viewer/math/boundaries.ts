@@ -1,19 +1,19 @@
-import {FloatArrayType, MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "./math";
+import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "./math";
 import {lenVec3, subVec3, vec2, vec3} from "./vector";
 import {decompressPosition} from "./compression/index";
 
 /**
  * Returns a new, uninitialized 3D axis-aligned bounding box.
  */
-export function AABB3(values?: FloatArrayType): FloatArrayType {
+export function AABB3(values?: FloatArrayParam): Float64Array {
     // @ts-ignore
-    return newFloatArray(values || 6);
+    return Float64Array(values || 6);
 }
 
 /**
  * Returns a new, uninitialized 2D axis-aligned bounding box.
  */
-export function AABB2(values?: FloatArrayType): FloatArrayType {
+export function AABB2(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return newFloatArray(values || 4);
 }
@@ -21,7 +21,7 @@ export function AABB2(values?: FloatArrayType): FloatArrayType {
 /**
  * Returns a new, uninitialized 3D oriented bounding box (OBB).
  */
-export function OBB3(values?: FloatArrayType): FloatArrayType {
+export function OBB3(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return newFloatArray(values || 32);
 }
@@ -29,7 +29,7 @@ export function OBB3(values?: FloatArrayType): FloatArrayType {
 /**
  * Returns a new, uninitialized 2D oriented bounding box (OBB).
  */
-export function OBB2(values?: FloatArrayType): FloatArrayType {
+export function OBB2(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return newFloatArray(values || 16);
 }
@@ -40,7 +40,7 @@ export function Sphere3(
     y: number,
     z: number,
     r: number
-): FloatArrayType {
+): FloatArrayParam {
     return newFloatArray([x, y, z, r]);
 }
 
@@ -48,10 +48,10 @@ export function Sphere3(
  * Transforms an OBB3 by a 4x4 matrix.
  */
 export function transformOBB3(
-    m: FloatArrayType,
-    p: FloatArrayType,
-    p2: FloatArrayType = p
-): FloatArrayType {
+    m: FloatArrayParam,
+    p: FloatArrayParam,
+    p2: FloatArrayParam = p
+): FloatArrayParam {
     let i;
     const len = p.length;
 
@@ -93,8 +93,8 @@ export function transformOBB3(
 /** Returns true if the first AABB contains the second AABB.
  */
 export function containsAABB3(
-    aabb1: FloatArrayType,
-    aabb2: FloatArrayType
+    aabb1: FloatArrayParam,
+    aabb2: FloatArrayParam
 ): boolean {
     const result =
         aabb1[0] <= aabb2[0] &&
@@ -113,7 +113,7 @@ export const getAABB3Diag: Function = (() => {
     const min = newFloatArray(3);
     const max = newFloatArray(3);
     const tempVec3 = newFloatArray(3);
-    return (aabb: FloatArrayType): number => {
+    return (aabb: FloatArrayParam): number => {
         min[0] = aabb[0];
         min[1] = aabb[1];
         min[2] = aabb[2];
@@ -133,7 +133,7 @@ export const getAABB3DiagPoint = (() => {
     const max = newFloatArray(3);
     const tempVec3 = newFloatArray(3);
 
-    return (aabb: FloatArrayType, p: FloatArrayType): number => {
+    return (aabb: FloatArrayParam, p: FloatArrayParam): number => {
         min[0] = aabb[0];
         min[1] = aabb[1];
         min[2] = aabb[2];
@@ -162,7 +162,7 @@ export const getAABB3DiagPoint = (() => {
 /**
  * Gets the area of an AABB.
  */
-export function getAABB3Area(aabb: FloatArrayType): number {
+export function getAABB3Area(aabb: FloatArrayParam): number {
     const width = aabb[3] - aabb[0];
     const height = aabb[4] - aabb[1];
     const depth = aabb[5] - aabb[2];
@@ -173,9 +173,9 @@ export function getAABB3Area(aabb: FloatArrayType): number {
  * Gets the center of an AABB.
  */
 export function getAABB3Center(
-    aabb: FloatArrayType,
-    dest: FloatArrayType = vec3()
-): FloatArrayType {
+    aabb: FloatArrayParam,
+    dest: FloatArrayParam = vec3()
+): FloatArrayParam {
     dest[0] = (aabb[0] + aabb[3]) / 2;
     dest[1] = (aabb[1] + aabb[4]) / 2;
     dest[2] = (aabb[2] + aabb[5]) / 2;
@@ -186,9 +186,9 @@ export function getAABB3Center(
  * Gets the center of a 2D AABB.
  */
 export function getAABB2Center(
-    aabb: FloatArrayType,
-    dest: FloatArrayType = vec2()
-): FloatArrayType {
+    aabb: FloatArrayParam,
+    dest: FloatArrayParam = vec2()
+): FloatArrayParam {
     dest[0] = (aabb[2] + aabb[0]) / 2;
     dest[1] = (aabb[3] + aabb[1]) / 2;
     return dest;
@@ -198,7 +198,7 @@ export function getAABB2Center(
  * Collapses a 3D axis-aligned boundary, ready to expand to fit 3D points.
  * Creates new AABB if none supplied.
  */
-export function collapseAABB3(aabb: FloatArrayType = AABB3()): FloatArrayType {
+export function collapseAABB3(aabb: FloatArrayParam = AABB3()): FloatArrayParam {
     aabb[0] = MAX_DOUBLE;
     aabb[1] = MAX_DOUBLE;
     aabb[2] = MAX_DOUBLE;
@@ -214,7 +214,7 @@ export function collapseAABB3(aabb: FloatArrayType = AABB3()): FloatArrayType {
  *
  * @private
  */
-export function AABB3ToOBB3(aabb: FloatArrayType = AABB3(), obb = OBB3()): FloatArrayType {
+export function AABB3ToOBB3(aabb: FloatArrayParam = AABB3(), obb = OBB3()): FloatArrayParam {
     obb[0] = aabb[0];
     obb[1] = aabb[1];
     obb[2] = aabb[2];
@@ -261,7 +261,7 @@ export function AABB3ToOBB3(aabb: FloatArrayType = AABB3(), obb = OBB3()): Float
 /**
  * Expands the first axis-aligned 3D boundary to enclose the second, if required.
  */
-export function expandAABB3(aabb1: FloatArrayType, aabb2: FloatArrayType) {
+export function expandAABB3(aabb1: FloatArrayParam, aabb2: FloatArrayParam) {
     if (aabb1[0] > aabb2[0]) {
         aabb1[0] = aabb2[0];
     }
@@ -287,7 +287,7 @@ export function expandAABB3(aabb1: FloatArrayType, aabb2: FloatArrayType) {
 /**
  * Expands an axis-aligned 3D boundary to enclose the given point, if needed.
  */
-export function expandAABB3Point3(aabb: FloatArrayType, p: FloatArrayType) {
+export function expandAABB3Point3(aabb: FloatArrayParam, p: FloatArrayParam) {
 
     if (aabb[0] > p[0]) {
         aabb[0] = p[0];
@@ -319,7 +319,7 @@ export function expandAABB3Point3(aabb: FloatArrayType, p: FloatArrayType) {
 /**
  * Expands an axis-aligned 3D boundary to enclose the given points, if needed.
  */
-export function expandAABB3Points3(aabb: FloatArrayType, positions: FloatArrayType): FloatArrayType {
+export function expandAABB3Points3(aabb: FloatArrayParam, positions: FloatArrayParam): FloatArrayParam {
     var x;
     var y;
     var z;
@@ -354,9 +354,9 @@ export function expandAABB3Points3(aabb: FloatArrayType, positions: FloatArrayTy
  * an array of eight 3D positions, one for each corner of the boundary.
  */
 export function ABB3ToOBB3(
-    aabb: FloatArrayType,
-    obb: FloatArrayType = OBB3()
-): FloatArrayType {
+    aabb: FloatArrayParam,
+    obb: FloatArrayParam = OBB3()
+): FloatArrayParam {
     obb[0] = aabb[0];
     obb[1] = aabb[1];
     obb[2] = aabb[2];
@@ -407,10 +407,10 @@ export const positions3ToAABB3 = (() => {
     const p = newFloatArray(3);
 
     return (
-        positions: FloatArrayType,
-        aabb: FloatArrayType,
-        positionsDecompressMatrix: FloatArrayType
-    ): FloatArrayType => {
+        positions: FloatArrayParam,
+        aabb: FloatArrayParam,
+        positionsDecompressMatrix: FloatArrayParam
+    ): FloatArrayParam => {
         aabb = aabb || AABB3();
 
         let xmin = MAX_DOUBLE;
@@ -481,9 +481,9 @@ export const positions3ToAABB3 = (() => {
  * Finds the minimum axis-aligned 3D boundary enclosing the homogeneous 3D points (x,y,z,w) given in a flattened array.
  */
 export function OBB3ToAABB3(
-    obb: FloatArrayType,
-    aabb: FloatArrayType = AABB3()
-): FloatArrayType {
+    obb: FloatArrayParam,
+    aabb: FloatArrayParam = AABB3()
+): FloatArrayParam {
     let xmin = MAX_DOUBLE;
     let ymin = MAX_DOUBLE;
     let zmin = MAX_DOUBLE;
@@ -540,8 +540,8 @@ export function OBB3ToAABB3(
  */
 export function points3ToAABB3(
     points: number[][],
-    aabb: FloatArrayType = AABB3()
-): FloatArrayType {
+    aabb: FloatArrayParam = AABB3()
+): FloatArrayParam {
     let xmin = MAX_DOUBLE;
     let ymin = MAX_DOUBLE;
     let zmin = MAX_DOUBLE;
@@ -597,9 +597,9 @@ export function points3ToAABB3(
  * Gets the 3D center of the given flat array of 3D positions.
  */
 export function getPositionsCenter(
-    positions: FloatArrayType,
-    center: FloatArrayType = vec3()
-): FloatArrayType {
+    positions: FloatArrayParam,
+    center: FloatArrayParam = vec3()
+): FloatArrayParam {
     let xCenter = 0;
     let yCenter = 0;
     let zCenter = 0;

@@ -35,12 +35,12 @@ class CameraFlightAnimation extends Component {
     public readonly camera: Camera;
 
     #duration: number;
-    #look1: math.FloatArrayType;
-    #eye1: math.FloatArrayType;
-    #up1: math.FloatArrayType;
-    #look2: math.FloatArrayType;
-    #eye2: math.FloatArrayType;
-    #up2: math.FloatArrayType;
+    #look1: math.FloatArrayParam;
+    #eye1: math.FloatArrayParam;
+    #up1: math.FloatArrayParam;
+    #look2: math.FloatArrayParam;
+    #eye2: math.FloatArrayParam;
+    #up2: math.FloatArrayParam;
     #orthoScale1: number;
     #orthoScale2: number;
     #fit: boolean;
@@ -57,8 +57,8 @@ class CameraFlightAnimation extends Component {
     #flyingEyeLookUp: boolean;
     #fitFOV: number;
     #projection2: string;
-    #projMatrix1: math.FloatArrayType;
-    #projMatrix2: math.FloatArrayType;
+    #projMatrix1: math.FloatArrayParam;
+    #projMatrix2: math.FloatArrayParam;
 
     /**
      @private
@@ -121,12 +121,12 @@ class CameraFlightAnimation extends Component {
     flyTo(params: {
               projection?: string;
               orthoScale?: number;
-              aabb?: math.FloatArrayType;
+              aabb?: math.FloatArrayParam;
               length?: number;
-              eye?: math.FloatArrayType;
-              look?: math.FloatArrayType;
-              up?: math.FloatArrayType;
-              poi?: math.FloatArrayType;
+              eye?: math.FloatArrayParam;
+              look?: math.FloatArrayParam;
+              up?: math.FloatArrayParam;
+              poi?: math.FloatArrayParam;
               fitFOV?: number;
               duration?: number;
           } = {},
@@ -163,10 +163,10 @@ class CameraFlightAnimation extends Component {
         this.#orthoScale1 = camera.ortho.scale;
         this.#orthoScale2 = params.orthoScale || this.#orthoScale1;
 
-        let aabb: math.FloatArrayType;
-        let eye: math.FloatArrayType;
-        let look: math.FloatArrayType;
-        let up: math.FloatArrayType;
+        let aabb: math.FloatArrayParam;
+        let eye: math.FloatArrayParam;
+        let look: math.FloatArrayParam;
+        let up: math.FloatArrayParam;
 
         if (params.aabb) {
             aabb = params.aabb;
@@ -306,10 +306,10 @@ class CameraFlightAnimation extends Component {
 
         const camera = this.camera;
 
-        let aabb: math.FloatArrayType;
-        let newEye: math.FloatArrayType;
-        let newLook: math.FloatArrayType;
-        let newUp: math.FloatArrayType;
+        let aabb: math.FloatArrayParam;
+        let newEye: math.FloatArrayParam;
+        let newLook: math.FloatArrayParam;
+        let newUp: math.FloatArrayParam;
 
         if (params.aabb) { // Boundary3D
             aabb = params.aabb;

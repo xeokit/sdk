@@ -1,12 +1,12 @@
-import {clamp, DEGTORAD, FloatArrayType, newFloatArray} from "./math";
+import {clamp, DEGTORAD, FloatArrayParam, newFloatArray} from "./math";
 import {addVec4, cross3Vec3, dotVec3, lenVec3, lenVec4, normalizeVec4, subVec4, vec3, vec4} from "./vector";
 
-const tempVec4a: FloatArrayType = vec4();
+const tempVec4a: FloatArrayParam = vec4();
 
 /**
  * Returns a new, uninitialized 3x3 matrix.
  */
-export function mat3(values?: FloatArrayType): FloatArrayType {
+export function mat3(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return new newFloatArray(values || 9);
 }
@@ -14,7 +14,7 @@ export function mat3(values?: FloatArrayType): FloatArrayType {
 /**
  * Returns a new, uninitialized 4x4 matrix.
  */
-export function mat4(values?: FloatArrayType): FloatArrayType {
+export function mat4(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return newFloatArray(values || 16);
 }
@@ -28,7 +28,7 @@ const tempMat4b = mat4();
  * @param m2
  * @returns {boolean}
  */
-export function compareMat4(m1: FloatArrayType, m2: FloatArrayType): boolean {
+export function compareMat4(m1: FloatArrayParam, m2: FloatArrayParam): boolean {
     return m1[0] === m2[0] &&
         m1[1] === m2[1] &&
         m1[2] === m2[2] &&
@@ -50,7 +50,7 @@ export function compareMat4(m1: FloatArrayType, m2: FloatArrayType): boolean {
 /**
  * Returns a 4x4 perspective projection matrix.
  */
-export function perspectiveMat4(fovyrad: number, aspectratio: number, znear: number, zfar: number, m?: FloatArrayType): FloatArrayType {
+export function perspectiveMat4(fovyrad: number, aspectratio: number, znear: number, zfar: number, m?: FloatArrayParam): FloatArrayParam {
     const pmin = [];
     const pmax = [];
     pmin[2] = znear;
@@ -65,7 +65,7 @@ export function perspectiveMat4(fovyrad: number, aspectratio: number, znear: num
 /**
  * Returns a 4x4 perspective frustum projection matrix.
  */
-export function frustumMat4v(fmin: FloatArrayType, fmax: FloatArrayType, m?: FloatArrayType): FloatArrayType {
+export function frustumMat4v(fmin: FloatArrayParam, fmax: FloatArrayParam, m?: FloatArrayParam): FloatArrayParam {
     if (!m) {
         m = mat4();
     }
@@ -106,7 +106,7 @@ export function orthoMat4c(
     top: number,
     near: number,
     far: number,
-    dest?: FloatArrayType): FloatArrayType {
+    dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = mat4();
     }
@@ -142,7 +142,7 @@ export function frustumMat4(
     top: number,
     near: number,
     far: number,
-    dest?: FloatArrayType): FloatArrayType {
+    dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = mat4();
     }
@@ -172,7 +172,7 @@ export function frustumMat4(
 /**
  * Returns a 4x4 identity matrix.
  */
-export function identityMat4(dest?: FloatArrayType) {
+export function identityMat4(dest?: FloatArrayParam) {
     if (!dest) {
         dest = mat4();
     }
@@ -198,7 +198,7 @@ export function identityMat4(dest?: FloatArrayType) {
 /**
  * Returns a 3x3 identity matrix.
  */
-export function identityMat3(dest?: FloatArrayType) {
+export function identityMat3(dest?: FloatArrayParam) {
     if (!dest) {
         dest = mat4();
     }
@@ -217,7 +217,7 @@ export function identityMat3(dest?: FloatArrayType) {
 /**
  * Tests if the given 4x4 matrix is the identity matrix.
  */
-export function isIdentityMat4(m: FloatArrayType): boolean {
+export function isIdentityMat4(m: FloatArrayParam): boolean {
     if (m[0] !== 1.0 || m[1] !== 0.0 || m[2] !== 0.0 || m[3] !== 0.0 ||
         m[4] !== 0.0 || m[5] !== 1.0 || m[6] !== 0.0 || m[7] !== 0.0 ||
         m[8] !== 0.0 || m[9] !== 0.0 || m[10] !== 1.0 || m[11] !== 0.0 ||
@@ -230,7 +230,7 @@ export function isIdentityMat4(m: FloatArrayType): boolean {
 /**
  * Creates a 4x4 rotation matrix.
  */
-export function rotationMat4v(anglerad: number, axis: FloatArrayType, m?: FloatArrayType): FloatArrayType {
+export function rotationMat4v(anglerad: number, axis: FloatArrayParam, m?: FloatArrayParam): FloatArrayParam {
     if (!m) {
         m = mat4();
     }
@@ -275,7 +275,7 @@ export function rotationMat4v(anglerad: number, axis: FloatArrayType, m?: FloatA
 /**
  * Creates a 4x4 'lookat' viewing transform matrix.
  */
-export function lookAtMat4v(pos: FloatArrayType, target: FloatArrayType, up: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function lookAtMat4v(pos: FloatArrayParam, target: FloatArrayParam, up: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = mat4();
     }
@@ -362,7 +362,7 @@ export function lookAtMat4v(pos: FloatArrayType, target: FloatArrayType, up: Flo
 /**
  * Returns the inverse of the given 4x4 matrix.
  */
-export function inverseMat4(mat: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function inverseMat4(mat: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = mat;
     }
@@ -417,7 +417,7 @@ export function inverseMat4(mat: FloatArrayType, dest?: FloatArrayType): FloatAr
 /**
  * Transposes the given 4x4 matrix.
  */
-export function transposeMat4(mat: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function transposeMat4(mat: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     const m4 = mat[4];
     const m14 = mat[14];
     const m8 = mat[8];
@@ -467,7 +467,7 @@ export function transposeMat4(mat: FloatArrayType, dest?: FloatArrayType): Float
 /**
  * Multiplies the given 4x4 matrix by the given four-element vector.
  */
-export function mulMat4v4(m: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function mulMat4v4(m: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = m;
     }
@@ -487,7 +487,7 @@ export function mulMat4v4(m: FloatArrayType, v: FloatArrayType, dest?: FloatArra
  * @method mulMat4
  * @static
  */
-export function mulMat4(a: FloatArrayType, b: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function mulMat4(a: FloatArrayParam, b: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = a;
     }
@@ -545,7 +545,7 @@ export function mulMat4(a: FloatArrayType, b: FloatArrayType, dest?: FloatArrayT
 /**
  * Multiplies the two given 3x3 matrices by each other.
  */
-export function mulMat3(a: FloatArrayType, b: FloatArrayType, dest: FloatArrayType = newFloatArray(9)) {
+export function mulMat3(a: FloatArrayParam, b: FloatArrayParam, dest: FloatArrayParam = newFloatArray(9)) {
 
     const a11 = a[0];
     const a12 = a[3];
@@ -586,7 +586,7 @@ export function mulMat3(a: FloatArrayType, b: FloatArrayType, dest: FloatArrayTy
  * @method transformPoint3
  * @static
  */
-export function transformPoint3(m: FloatArrayType, p: FloatArrayType, dest?: FloatArrayType) {
+export function transformPoint3(m: FloatArrayParam, p: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = p;
     }
@@ -604,7 +604,7 @@ export function transformPoint3(m: FloatArrayType, p: FloatArrayType, dest?: Flo
  * @method transformPoint3
  * @static
  */
-export function transformPoint4(m: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function transformPoint4(m: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     dest[0] = m[0] * v[0] + m[4] * v[1] + m[8] * v[2] + m[12] * v[3];
     dest[1] = m[1] * v[0] + m[5] * v[1] + m[9] * v[2] + m[13] * v[3];
     dest[2] = m[2] * v[0] + m[6] * v[1] + m[10] * v[2] + m[14] * v[3];
@@ -618,7 +618,7 @@ export function transformPoint4(m: FloatArrayType, v: FloatArrayType, dest?: Flo
  * @method transformPoints3
  * @static
  */
-export function transformPoints3(m: FloatArrayType, points: number[][], points2: number[][]) {
+export function transformPoints3(m: FloatArrayParam, points: number[][], points2: number[][]) {
     const result = points2 || [];
     const len = points.length;
     let p0;
@@ -672,7 +672,7 @@ export function transformPoints3(m: FloatArrayType, points: number[][], points2:
 /**
  * Transforms an array of positions by a 4x4 matrix.
  */
-export function transformPositions3(m: FloatArrayType, p: FloatArrayType, p2?: FloatArrayType) {
+export function transformPositions3(m: FloatArrayParam, p: FloatArrayParam, p2?: FloatArrayParam) {
     if (!p2) {
         p2 = p;
     }
@@ -718,7 +718,7 @@ export function transformPositions3(m: FloatArrayType, p: FloatArrayType, p2?: F
 /**
  * Transforms an array of positions by a 4x4 matrix.
  */
-export function transformPositions4(m: FloatArrayType, p: FloatArrayType, p2?: FloatArrayType) {
+export function transformPositions4(m: FloatArrayParam, p: FloatArrayParam, p2?: FloatArrayParam) {
     if (!p2) {
         p2 = p;
     }
@@ -758,7 +758,7 @@ export function transformPositions4(m: FloatArrayType, p: FloatArrayType, p2?: F
 /**
  * Transforms a three-element vector by a 4x4 matrix.
  */
-export function transformVec3(m: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function transformVec3(m: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     const v0 = v[0];
     const v1 = v[1];
     const v2 = v[2];
@@ -774,7 +774,7 @@ export function transformVec3(m: FloatArrayType, v: FloatArrayType, dest?: Float
  * @method transformVec4
  * @static
  */
-export function transformVec4(m: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function transformVec4(m: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     const v0 = v[0];
     const v1 = v[1];
     const v2 = v[2];
@@ -791,7 +791,7 @@ export function transformVec4(m: FloatArrayType, v: FloatArrayType, dest?: Float
 /**
  * Efficiently post-concatenates a scaling to the given matrix.
  */
-export function scaleMat4v(xyz: FloatArrayType, m: FloatArrayType = identityMat4()) {
+export function scaleMat4v(xyz: FloatArrayParam, m: FloatArrayParam = identityMat4()) {
     const x = xyz[0];
     const y = xyz[1];
     const z = xyz[2];
@@ -812,7 +812,7 @@ export function scaleMat4v(xyz: FloatArrayType, m: FloatArrayType = identityMat4
 
 /**
  */
-export function scalingMat4v(v: FloatArrayType, m: FloatArrayType = identityMat4()): FloatArrayType {
+export function scalingMat4v(v: FloatArrayParam, m: FloatArrayParam = identityMat4()): FloatArrayParam {
     m[0] = v[0];
     m[5] = v[1];
     m[10] = v[2];
@@ -822,7 +822,7 @@ export function scalingMat4v(v: FloatArrayType, m: FloatArrayType = identityMat4
 /**
  * Returns a 3x3 scale matrix.
  */
-export function scalingMat3v(v: FloatArrayType, m: FloatArrayType = identityMat3()): FloatArrayType {
+export function scalingMat3v(v: FloatArrayParam, m: FloatArrayParam = identityMat3()): FloatArrayParam {
     m[0] = v[0];
     m[4] = v[1];
     return m;
@@ -832,8 +832,8 @@ export function scalingMat3v(v: FloatArrayType, m: FloatArrayType = identityMat3
  * Returns a 4x4 scale matrix.
  */
 export const scalingMat4c = ((() => {
-    const xyz: FloatArrayType = newFloatArray(3);
-    return (x: number, y: number, z: number, dest?: FloatArrayType) => {
+    const xyz: FloatArrayParam = newFloatArray(3);
+    return (x: number, y: number, z: number, dest?: FloatArrayParam) => {
         xyz[0] = x;
         xyz[1] = y;
         xyz[2] = z;
@@ -849,7 +849,7 @@ export const scalingMat4c = ((() => {
  * @param z
  * @param m
  */
-export function scaleMat4c(x: number, y: number, z: number, m: FloatArrayType): FloatArrayType {
+export function scaleMat4c(x: number, y: number, z: number, m: FloatArrayParam): FloatArrayParam {
 
     m[0] *= x;
     m[4] *= y;
@@ -872,7 +872,7 @@ export function scaleMat4c(x: number, y: number, z: number, m: FloatArrayType): 
 /**
  * Returns 4x4 scale matrix.
  */
-export function scalingMat4s(s: number): FloatArrayType {
+export function scalingMat4s(s: number): FloatArrayParam {
     return scalingMat4c(s, s, s);
 }
 
@@ -884,10 +884,10 @@ export function scalingMat4s(s: number): FloatArrayType {
  * @param mat
  */
 export function composeMat4(
-    position: FloatArrayType,
-    quaternion: FloatArrayType,
-    scale: FloatArrayType,
-    mat: FloatArrayType = mat4()): FloatArrayType {
+    position: FloatArrayParam,
+    quaternion: FloatArrayParam,
+    scale: FloatArrayParam,
+    mat: FloatArrayParam = mat4()): FloatArrayParam {
     quaternionToRotationMat4(quaternion, mat);
     scaleMat4v(scale, mat);
     translateMat4v(position, mat);
@@ -900,7 +900,7 @@ export function composeMat4(
 export const decomposeMat4 = (() => {
     const vec = vec3();
     const matrix = mat4();
-    return function decompose(mat: FloatArrayType, position: FloatArrayType, quaternion: FloatArrayType, scale: FloatArrayType) {
+    return function decompose(mat: FloatArrayParam, position: FloatArrayParam, quaternion: FloatArrayParam, scale: FloatArrayParam) {
         vec[0] = mat[0];
         vec[1] = mat[1];
         vec[2] = mat[2];
@@ -946,14 +946,14 @@ export const decomposeMat4 = (() => {
 /**
  * Efficiently post-concatenates a translation to the given matrix.
  */
-export function translateMat4v(xyz: FloatArrayType, m: FloatArrayType = identityMat4()) {
+export function translateMat4v(xyz: FloatArrayParam, m: FloatArrayParam = identityMat4()) {
     return translateMat4c(xyz[0], xyz[1], xyz[2], m);
 }
 
 /**
  * Efficiently post-concatenates a translation, given as separate components, to the given matrix.
  */
-export function translateMat4c(x: number, y: number, z: number, m: FloatArrayType = identityMat4()) {
+export function translateMat4c(x: number, y: number, z: number, m: FloatArrayParam = identityMat4()) {
     const m3 = m[3];
     m[0] += m3 * x;
     m[1] += m3 * y;
@@ -977,7 +977,7 @@ export function translateMat4c(x: number, y: number, z: number, m: FloatArrayTyp
  * Creates a new matrix that replaces the translation in the rightmost column of the given
  * affine matrix with the given translation.
  */
-export function setMat4Translation(m: FloatArrayType, translation: FloatArrayType, dest: FloatArrayType): FloatArrayType {
+export function setMat4Translation(m: FloatArrayParam, translation: FloatArrayParam, dest: FloatArrayParam): FloatArrayParam {
 
     dest[0] = m[0];
     dest[1] = m[1];
@@ -1005,7 +1005,7 @@ export function setMat4Translation(m: FloatArrayType, translation: FloatArrayTyp
 /**
  * Returns 4x4 translation matrix.
  */
-export function translationMat4v(v: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function translationMat4v(v: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     const m = dest || identityMat4();
     m[12] = v[0];
     m[13] = v[1];
@@ -1016,7 +1016,7 @@ export function translationMat4v(v: FloatArrayType, dest?: FloatArrayType): Floa
 /**
  * Returns 3x3 translation matrix.
  */
-export function translationMat3v(v: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function translationMat3v(v: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     const m = dest || identityMat3();
     m[6] = v[0];
     m[7] = v[1];
@@ -1028,7 +1028,7 @@ export function translationMat3v(v: FloatArrayType, dest?: FloatArrayType): Floa
  */
 export const translationMat4c = ((() => {
     const xyz = newFloatArray(3);
-    return (x: number, y: number, z: number, dest: FloatArrayType): FloatArrayType => {
+    return (x: number, y: number, z: number, dest: FloatArrayParam): FloatArrayParam => {
         xyz[0] = x;
         xyz[1] = y;
         xyz[2] = z;
@@ -1039,7 +1039,7 @@ export const translationMat4c = ((() => {
 /**
  * Returns 4x4 translation matrix.
  */
-export function translationMat4s(s: number, dest?: FloatArrayType) {
+export function translationMat4s(s: number, dest?: FloatArrayParam) {
     return translationMat4c(s, s, s, dest);
 }
 
@@ -1047,7 +1047,7 @@ export function translationMat4s(s: number, dest?: FloatArrayType) {
 /**
  * Returns the determinant of the given 4x4 matrix.
  */
-export function determinantMat4(mat: FloatArrayType): number {
+export function determinantMat4(mat: FloatArrayParam): number {
     const a00 = mat[0];
     const a01 = mat[1];
     const a02 = mat[2];
@@ -1080,7 +1080,7 @@ export function determinantMat4(mat: FloatArrayType): number {
  * @param [dest] Destination Euler angles, created by default.
  * @returns  The Euler angles.
  */
-export function mat4ToEuler(mat: FloatArrayType, order: string, dest: FloatArrayType = vec3()) {
+export function mat4ToEuler(mat: FloatArrayParam, order: string, dest: FloatArrayParam = vec3()) {
     // Assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
     const m11 = mat[0];
     const m12 = mat[4];
@@ -1152,7 +1152,7 @@ export function mat4ToEuler(mat: FloatArrayType, order: string, dest: FloatArray
 /**
  * Linearly interpolates between two 4x4 matrices.
  */
-export function lerpMat4(t: number, t1: number, t2: number, m1: FloatArrayType, m2: FloatArrayType, dest?: FloatArrayType) {
+export function lerpMat4(t: number, t1: number, t2: number, m1: FloatArrayParam, m2: FloatArrayParam, dest?: FloatArrayParam) {
     const result = dest || mat4();
     const f = (t - t1) / (t2 - t1);
     result[0] = m1[0] + (f * (m2[0] - m1[0]));
@@ -1181,8 +1181,8 @@ export function lerpMat4(t: number, t1: number, t2: number, m1: FloatArrayType, 
  * @returns New quaternion
  */
 export function identityQuaternion(
-    dest: FloatArrayType = vec4()
-): FloatArrayType {
+    dest: FloatArrayParam = vec4()
+): FloatArrayParam {
     dest[0] = 0.0;
     dest[1] = 0.0;
     dest[2] = 0.0;
@@ -1199,10 +1199,10 @@ export function identityQuaternion(
  * @returns  The quaternion.
  */
 export function eulerToQuaternion(
-    euler: FloatArrayType,
+    euler: FloatArrayParam,
     order: string,
-    dest: FloatArrayType = vec4()
-): FloatArrayType {
+    dest: FloatArrayParam = vec4()
+): FloatArrayParam {
     // http://www.mathworks.com/matlabcentral/fileexchange/20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/content/SpinCalc.m
 
     const a = (euler[0] * DEGTORAD) / 2;
@@ -1257,9 +1257,9 @@ export function eulerToQuaternion(
  * @param dest The quaternion
  */
 export function mat4ToQuaternion(
-    m: FloatArrayType,
-    dest: FloatArrayType = vec4()
-): FloatArrayType {
+    m: FloatArrayParam,
+    dest: FloatArrayParam = vec4()
+): FloatArrayParam {
     // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
     // Assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
@@ -1317,10 +1317,10 @@ export function mat4ToQuaternion(
  * @param dest
  */
 export function vec3PairToQuaternion(
-    u: FloatArrayType,
-    v: FloatArrayType,
-    dest: FloatArrayType = vec4()
-): FloatArrayType {
+    u: FloatArrayParam,
+    v: FloatArrayParam,
+    dest: FloatArrayParam = vec4()
+): FloatArrayParam {
     const norm_u_norm_v = Math.sqrt(dotVec3(u, u) * dotVec3(v, v));
     let real_part = norm_u_norm_v + dotVec3(u, v);
 
@@ -1356,9 +1356,9 @@ export function vec3PairToQuaternion(
  * @param dest
  */
 export function angleAxisToQuaternion(
-    angleAxis: FloatArrayType,
-    dest: FloatArrayType = vec4()
-): FloatArrayType {
+    angleAxis: FloatArrayParam,
+    dest: FloatArrayParam = vec4()
+): FloatArrayParam {
     const halfAngle = angleAxis[3] / 2.0;
     const fsin = Math.sin(halfAngle);
     dest[0] = fsin * angleAxis[0];
@@ -1375,9 +1375,9 @@ export function angleAxisToQuaternion(
  * @param dest
  */
 export function quaternionToEuler(
-    q: FloatArrayType,
+    q: FloatArrayParam,
     order: string,
-    dest: FloatArrayType = vec3()
+    dest: FloatArrayParam = vec3()
 ) {
     quaternionToRotationMat4(q, tempMat4a);
     mat4ToEuler(tempMat4a, order, dest);
@@ -1391,10 +1391,10 @@ export function quaternionToEuler(
  * @param dest
  */
 export function mulQuaternions(
-    p: FloatArrayType,
-    q: FloatArrayType,
-    dest: FloatArrayType = vec4()
-): FloatArrayType {
+    p: FloatArrayParam,
+    q: FloatArrayParam,
+    dest: FloatArrayParam = vec4()
+): FloatArrayParam {
     const p0 = p[0];
     const p1 = p[1];
     const p2 = p[2];
@@ -1417,10 +1417,10 @@ export function mulQuaternions(
  * @param dest
  */
 export function vec3ApplyQuaternion(
-    q: FloatArrayType,
-    vec: FloatArrayType,
-    dest: FloatArrayType = vec3()
-): FloatArrayType {
+    q: FloatArrayParam,
+    vec: FloatArrayParam,
+    dest: FloatArrayParam = vec3()
+): FloatArrayParam {
     const x = vec[0];
     const y = vec[1];
     const z = vec[2];
@@ -1452,9 +1452,9 @@ export function vec3ApplyQuaternion(
  * @param dest
  */
 export function quaternionToMat4(
-    q: FloatArrayType,
-    dest: FloatArrayType
-): FloatArrayType {
+    q: FloatArrayParam,
+    dest: FloatArrayParam
+): FloatArrayParam {
     dest = identityMat4(dest);
 
     const q0 = q[0]; //x
@@ -1500,9 +1500,9 @@ export function quaternionToMat4(
  * @param m
  */
 export function quaternionToRotationMat4(
-    q: FloatArrayType,
-    m: FloatArrayType
-): FloatArrayType {
+    q: FloatArrayParam,
+    m: FloatArrayParam
+): FloatArrayParam {
     const x = q[0];
     const y = q[1];
     const z = q[2];
@@ -1554,9 +1554,9 @@ export function quaternionToRotationMat4(
  * @returns The normalized quaternion
  */
 export function normalizeQuaternion(
-    q: FloatArrayType,
-    dest: FloatArrayType = q
-): FloatArrayType {
+    q: FloatArrayParam,
+    dest: FloatArrayParam = q
+): FloatArrayParam {
     const len = lenVec4([q[0], q[1], q[2], q[3]]);
     dest[0] = q[0] / len;
     dest[1] = q[1] / len;
@@ -1572,8 +1572,8 @@ export function normalizeQuaternion(
  * @returns The conjugate of the quaternion
  */
 export function conjugateQuaternion(
-    q: FloatArrayType,
-    dest: FloatArrayType = q
+    q: FloatArrayParam,
+    dest: FloatArrayParam = q
 ) {
     dest[0] = -q[0];
     dest[1] = -q[1];
@@ -1588,7 +1588,7 @@ export function conjugateQuaternion(
  * @param dest
  * @returns The inverse quaternion
  */
-export function inverseQuaternion(q: FloatArrayType, dest: FloatArrayType) {
+export function inverseQuaternion(q: FloatArrayParam, dest: FloatArrayParam) {
     return normalizeQuaternion(conjugateQuaternion(q, dest));
 }
 
@@ -1599,8 +1599,8 @@ export function inverseQuaternion(q: FloatArrayType, dest: FloatArrayType) {
  * @returns The angle-axis rotation
  */
 export function quaternionToAngleAxis(
-    q: FloatArrayType,
-    angleAxis: FloatArrayType = vec4()
+    q: FloatArrayParam,
+    angleAxis: FloatArrayParam = vec4()
 ) {
     q = normalizeQuaternion(q, tempVec4a);
     const q3 = q[3];

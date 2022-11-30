@@ -13,11 +13,11 @@ import {View} from "./View";
  * Create a viewer with a WebGL-based scene renderer:
  *
  *````javascript
- * import {Viewer, FastRender, WebGLRenderer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ * import {Viewer, FastRender, webgl} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
  *
  * const myViewer = new Viewer({
  *      id: "myViewer",
- *      renderer: new WebGLRenderer({ })
+ *      renderer: new webgl({ })
  * });
  *
  * const mySceneModel = myViewer.scene.createModel({

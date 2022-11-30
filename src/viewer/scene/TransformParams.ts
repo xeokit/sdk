@@ -18,5 +18,5 @@ export interface TransformParams {
     /**
      * 4x4 matrix that defines the transformation.
      */
-    matrix: math.FloatArrayType,
+    matrix: math.FloatArrayParam,
 }

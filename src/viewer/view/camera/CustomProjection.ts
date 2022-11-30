@@ -18,9 +18,9 @@ class CustomProjection extends Component {
      * @private
      */
     public readonly state: {
-        matrix: math.FloatArrayType;
-        transposedMatrix: math.FloatArrayType;
-        inverseMatrix: math.FloatArrayType
+        matrix: math.FloatArrayParam;
+        transposedMatrix: math.FloatArrayParam;
+        inverseMatrix: math.FloatArrayParam
     };
 
     #inverseMatrixDirty: boolean;
@@ -30,7 +30,7 @@ class CustomProjection extends Component {
      * @private
      */
     constructor(camera: Camera, cfg: {
-        matrix?: math.FloatArrayType
+        matrix?: math.FloatArrayParam
     } = {}) {
 
         super(camera, cfg);
@@ -54,7 +54,7 @@ class CustomProjection extends Component {
      *
      * @return  New value for the CustomProjection's matrix.
      */
-    get matrix(): math.FloatArrayType {
+    get matrix(): math.FloatArrayParam {
         return this.state.matrix;
     }
 
@@ -67,7 +67,7 @@ class CustomProjection extends Component {
      *
      * @param matrix New value for the CustomProjection's matrix.
      */
-    set matrix(matrix: math.FloatArrayType) {
+    set matrix(matrix: math.FloatArrayParam) {
         // @ts-ignore
         this.state.matrix.set(matrix);
         this.#inverseMatrixDirty = true;
@@ -82,7 +82,7 @@ class CustomProjection extends Component {
      *
      * @returns The inverse of {@link CustomProjection.matrix}.
      */
-    get inverseMatrix(): math.FloatArrayType {
+    get inverseMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -98,7 +98,7 @@ class CustomProjection extends Component {
      *
      * @returns The transpose of {@link CustomProjection.matrix}.
      */
-    get transposedMatrix(): math.FloatArrayType {
+    get transposedMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
@@ -119,11 +119,11 @@ class CustomProjection extends Component {
      * @param worldPos Outputs un-projected 3D World-space coordinates.
      */
     unproject(
-        canvasPos: math.FloatArrayType,
+        canvasPos: math.FloatArrayParam,
         screenZ: number,
-        screenPos: math.FloatArrayType,
-        viewPos: math.FloatArrayType,
-        worldPos: math.FloatArrayType) {
+        screenPos: math.FloatArrayParam,
+        viewPos: math.FloatArrayParam,
+        worldPos: math.FloatArrayParam) {
         const canvas = this.camera.view.canvas.canvas;
         const halfCanvasWidth = canvas.offsetWidth / 2.0;
         const halfCanvasHeight = canvas.offsetHeight / 2.0;

@@ -1,4 +1,4 @@
-import {FloatArrayType} from "../math/math";
+import {FloatArrayParam} from "../math/math";
 
 /**
  * {@link SceneModel} creation parameters for {@link Scene.createModel}.
@@ -22,34 +22,34 @@ export interface SceneModelParams {
     /**
      * 4x4 transform matrix.
      */
-    matrix?: FloatArrayType;
+    matrix?: FloatArrayParam;
 
     /**
      * Scale of the SceneModel.
      *
      * Default is ````[1,1,1]````.
      */
-    scale?: FloatArrayType;
+    scale?: FloatArrayParam;
 
     /**
      * Quaternion defining the orientation of the SceneModel.
      */
-    quaternion?: FloatArrayType;
+    quaternion?: FloatArrayParam;
 
     /**
      * Orientation of the SceneModel, given as Euler angles in degrees for X, Y and Z axis.
      */
-    rotation?: FloatArrayType;
+    rotation?: FloatArrayParam;
 
     /**
      * World-space position of the SceneModel.
      */
-    position?: FloatArrayType;
+    position?: FloatArrayParam;
 
     /**
      * RTC coordinate origin for the SceneModel.
      *
      * Default is ````[0, 0, 0]````.
      */
-    origin?: FloatArrayType;
+    origin?: FloatArrayParam;
 }

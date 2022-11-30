@@ -1,7 +1,7 @@
-import {dotVec3, mulVec3Scalar, normalizeVec3, vec3} from "../vector";
-import {setMat4Translation, transformVec4} from "../matrix";
-import {FloatArrayType} from "../math";
-import {getPositionsCenter} from "../boundaries";
+import {dotVec3, mulVec3Scalar, normalizeVec3, vec3} from "./vector";
+import {setMat4Translation, transformVec4} from "./matrix";
+import {FloatArrayParam} from "./math";
+import {getPositionsCenter} from "./boundaries";
 
 const tempVec3a = vec3();
 
@@ -15,7 +15,7 @@ export const createRTCViewMat = (function () {
     const rtcCenterWorld = new Float64Array(4);
     const rtcCenterView = new Float64Array(4);
 
-    return function (viewMat: FloatArrayType, rtcCenter: FloatArrayType, rtcViewMat: FloatArrayType = tempMat) {
+    return function (viewMat: FloatArrayParam, rtcCenter: FloatArrayParam, rtcViewMat: FloatArrayParam = tempMat) {
         rtcCenterWorld[0] = rtcCenter[0];
         rtcCenterWorld[1] = rtcCenter[1];
         rtcCenterWorld[2] = rtcCenter[2];
@@ -36,7 +36,7 @@ export const createRTCViewMat = (function () {
  * @param rtcCenter Double-precision relative-to-center (RTC) center pos.
  * @param rtcPos Single-precision offset fom that center.
  */
-export function worldToRTCPos(worldPos: FloatArrayType, rtcCenter: FloatArrayType, rtcPos: FloatArrayType) {
+export function worldToRTCPos(worldPos: FloatArrayParam, rtcCenter: FloatArrayParam, rtcPos: FloatArrayParam) {
 
     const xHigh = Float32Array.from([worldPos[0]])[0];
     const xLow = worldPos[0] - xHigh;
@@ -72,7 +72,7 @@ export function worldToRTCPos(worldPos: FloatArrayType, rtcCenter: FloatArrayTyp
  * ````false````, we can safely ignore the data returned in ````rtcPositions```` and ````rtcCenter````,
  * since ````rtcCenter```` will equal ````[0,0,0]````, and ````rtcPositions```` will contain identical values to ````positions````.
  */
-export function worldToRTCPositions(worldPositions: FloatArrayType, rtcPositions: FloatArrayType, rtcCenter: FloatArrayType, cellSize = 10000000): boolean {
+export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = 10000000): boolean {
 
     const center = getPositionsCenter(worldPositions, tempVec3a);
 
@@ -102,7 +102,7 @@ export function worldToRTCPositions(worldPositions: FloatArrayType, rtcPositions
  * @param rtcPos Single-precision offset fom that center.
  * @param worldPos The World-space position.
  */
-export function rtcToWorldPos(rtcCenter: FloatArrayType, rtcPos: FloatArrayType, worldPos: FloatArrayType): FloatArrayType {
+export function rtcToWorldPos(rtcCenter: FloatArrayParam, rtcPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
     worldPos[0] = rtcCenter[0] + rtcPos[0];
     worldPos[1] = rtcCenter[1] + rtcPos[1];
     worldPos[2] = rtcCenter[2] + rtcPos[2];
@@ -119,7 +119,7 @@ export function rtcToWorldPos(rtcCenter: FloatArrayType, rtcPos: FloatArrayType,
  * @param rtcPlanePos
  * @returns {*}
  */
-export function getPlaneRTCPos(dist: number, dir: FloatArrayType, rtcCenter: FloatArrayType, rtcPlanePos: FloatArrayType) {
+export function getPlaneRTCPos(dist: number, dir: FloatArrayParam, rtcCenter: FloatArrayParam, rtcPlanePos: FloatArrayParam) {
     const rtcCenterToPlaneDist = dotVec3(dir, rtcCenter) + dist;
     const dirNormalized = normalizeVec3(dir, tempVec3a);
     mulVec3Scalar(dirNormalized, -rtcCenterToPlaneDist, rtcPlanePos);

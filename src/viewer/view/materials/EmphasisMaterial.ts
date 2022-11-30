@@ -37,9 +37,9 @@ class EmphasisMaterial extends Component {
      * @private
      */
     constructor(view: View, options: {
-        fillColor?: math.FloatArrayType;
+        fillColor?: math.FloatArrayParam;
         backfaces?: boolean;
-        edgeColor?: math.FloatArrayType;
+        edgeColor?: math.FloatArrayParam;
         edgeWidth?: number;
         edgeAlpha?: number;
         edges?: boolean;
@@ -90,7 +90,7 @@ class EmphasisMaterial extends Component {
      *
      * Default is ````[0.4, 0.4, 0.4]````.
      */
-    set fillColor(value: math.FloatArrayType) {
+    set fillColor(value: math.FloatArrayParam) {
         const fillColor = this.state.fillColor;
         if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
             return;
@@ -163,7 +163,7 @@ class EmphasisMaterial extends Component {
      *
      * Default is ```` [0.2, 0.2, 0.2]````.
      */
-    set edgeColor(value: math.FloatArrayType) {
+    set edgeColor(value: math.FloatArrayParam) {
         let edgeColor = this.state.edgeColor;
         if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
             return;

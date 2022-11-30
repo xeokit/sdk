@@ -344,7 +344,7 @@ class ViewObject {
      * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
      * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
-    set colorize(value: math.FloatArrayType | undefined | null) {
+    set colorize(value: math.FloatArrayParam | undefined | null) {
         let colorize = this.state.colorize;
         if (value) {
             colorize[0] = value[0];

@@ -28,3 +28,8 @@ export * as utils from "./utils/index"
 export * as constants from "./constants";
 
 export * from "./ViewParams";
+
+/**
+ * Compressed texture transcoders.
+ */
+export * from "./textureTranscoders/index";

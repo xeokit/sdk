@@ -1,4 +1,4 @@
-import {math} from "../index";
+import {FloatArrayParam} from "../math/index";
 import {GeometryBucketParams} from "./GeometryBucketParams";
 
 /**
@@ -30,22 +30,22 @@ export interface GeometryCompressedParams {
     /**
      * RTC origin for the geometry.
      */
-    origin?: math.FloatArrayType;
+    origin?: FloatArrayParam;
 
     /**
      * 4x4 matrix to de-quantize the geometry's 3D vertex positions.
      */
-    positionsDecompressMatrix: math.FloatArrayType;
+    positionsDecompressMatrix: FloatArrayParam;
 
     /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
      */
-    aabb?: math.FloatArrayType;
+    aabb?: FloatArrayParam;
 
     /**
      * 4x4 matrix to de-quantize the geometry's UV coordinates, when UVs are provided.
      */
-    uvsDecompressMatrix?: math.FloatArrayType;
+    uvsDecompressMatrix?: FloatArrayParam;
 
     /**
      * The geometry arrays, organized into buckets for optimal memory use.

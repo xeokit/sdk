@@ -1,6 +1,6 @@
 import {Component} from "../Component";
 import {Scene} from "./Scene";
-import {FloatArrayType} from "../math/math";
+import {FloatArrayParam} from "../math/math";
 import {vec3} from "../math/vector";
 import {getAABB3Center} from "../math/boundaries";
 import {SceneObject} from "./SceneObject";
@@ -25,12 +25,12 @@ export class Tile  {
     /**
      * The 3D World-space center of this tile.
      */
-    public readonly origin: FloatArrayType;
+    public readonly origin: FloatArrayParam;
 
     /**
      * The 3D axis-aligned World-space boundary of this tile.
      */
-    public readonly aabb: FloatArrayType;
+    public readonly aabb: FloatArrayParam;
 
     /**
      * The {@link SceneModel}s in this tile.
@@ -52,7 +52,7 @@ export class Tile  {
     /**
      * @private
      */
-    constructor(tiles: Tiles, options: { aabb: FloatArrayType }) {
+    constructor(tiles: Tiles, options: { aabb: FloatArrayParam }) {
         this.tiles = tiles;
         this.aabb = options.aabb;
         this.origin = getAABB3Center(options.aabb);

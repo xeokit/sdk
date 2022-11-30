@@ -1,4 +1,4 @@
-import {DEGTORAD, FloatArrayType, IntArrayType} from "../math";
+import {DEGTORAD, FloatArrayParam, IntArrayParam} from "../math";
 import {decompressPosition} from "../compression/index";
 import {cross3Vec3, dotVec3, normalizeVec3, subVec3, vec3} from "../vector";
 
@@ -22,7 +22,7 @@ const ab = vec3();
 const cross = vec3();
 const normal = vec3();
 
-function weldVertices(positions: FloatArrayType, indices: IntArrayType) {
+function weldVertices(positions: FloatArrayParam, indices: IntArrayParam) {
     const positionsMap = {}; // Hashmap for looking up vertices by position coordinates (and making sure they are unique)
     let vx;
     let vy;
@@ -55,7 +55,7 @@ function weldVertices(positions: FloatArrayType, indices: IntArrayType) {
     }
 }
 
-function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayType) {
+function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayParam) {
     numFaces = 0;
     for (let i = 0, len = numIndices; i < len; i += 3) {
         const ia = ((weldedIndices[i]) * 3);
@@ -104,10 +104,10 @@ function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayTyp
  * Builds edge connectivity indices from a 3D triangle mesh given as vertex positions and triangle indices
  */
 export function buildEdgeIndices(
-    positions: FloatArrayType,
-    indices: IntArrayType,
-    positionsDecompressMatrix: FloatArrayType,
-    edgeThreshold: number = 10): IntArrayType {
+    positions: FloatArrayParam,
+    indices: IntArrayParam,
+    positionsDecompressMatrix: FloatArrayParam,
+    edgeThreshold: number = 10): IntArrayParam {
 
     weldVertices(positions, indices);
     buildFaces(indices.length, positionsDecompressMatrix);

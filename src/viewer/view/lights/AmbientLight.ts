@@ -42,7 +42,7 @@ class AmbientLight extends Component {
         /** Intensity factor in range ````[0..1]````.  Default is ````1````.*/
         intensity?: number;
         /** RGB color in range ````[0..1,0..1,0..1]````. Default is ````[0.7, 0.7, 0.7]````.*/
-        color?: math.FloatArrayType
+        color?: math.FloatArrayParam
     } = {}) {
         super(view, cfg);
         this.view = view;
@@ -61,7 +61,7 @@ class AmbientLight extends Component {
      *
      * @param color The AmbientLight's RGB color.
      */
-    set color(color: math.FloatArrayType) {
+    set color(color: math.FloatArrayParam) {
         this.state.color.set(color);
         this.view.redraw();
     }
@@ -71,7 +71,7 @@ class AmbientLight extends Component {
      *
      * Default value is ````[0.7, 0.7, 0.7]````.
      */
-    get color(): math.FloatArrayType {
+    get color(): math.FloatArrayParam {
         return this.state.color;
     }
 

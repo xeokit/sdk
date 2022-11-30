@@ -1,5 +1,4 @@
 import {Scene} from "./Scene";
-import {FloatArrayType} from "../math/math";
 import {SceneObject} from "./SceneObject";
 import {Transform} from "./Transform";
 import {Events} from "../Events";
@@ -10,6 +9,7 @@ import {TextureParams} from "./TextureParams";
 import {TransformParams} from "./TransformParams";
 import {GeometryParams} from "./GeometryParams";
 import {GeometryCompressedParams} from "./GeometryCompressedParams";
+import {FloatArrayParam} from "../math/index";
 
 /**
  * Contains geometry and materials for a model within a {@link Viewer}.
@@ -36,7 +36,7 @@ export interface SceneModel {
     readonly events: Events;
 
     /**
-     * The {@link SceneObject}s in this SceneModel.
+     * The {@link SceneObject}s in this SceneModel, each mapped to {@link SceneObject.id}.
      */
     readonly objects: { [key: string]: SceneObject };
 
@@ -48,17 +48,17 @@ export interface SceneModel {
     /**
      * The axis-aligned World-space 3D boundary of this SceneModel.
      */
-    readonly aabb: FloatArrayType;
+    readonly aabb: FloatArrayParam;
 
     /**
      * The 3D World-space coordinate origin of this SceneModel.
      */
-    readonly origin: FloatArrayType;
+    readonly origin: FloatArrayParam;
 
     /**
      * The 3D World-space transform matrix of this SceneModel.
      */
-    readonly worldMatrix: FloatArrayType;
+    readonly worldMatrix: FloatArrayParam;
 
     /**
      * Whether quality rendering is enabled for this SceneModel.

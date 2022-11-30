@@ -685,7 +685,7 @@ class Input extends Component {
     /**
      * Current mouse position within the canvas.
      */
-    public mouseCanvasPos: math.FloatArrayType = math.vec2();
+    public mouseCanvasPos: math.FloatArrayParam = math.vec2();
 
     #eventsBound: any;
     #keyUpListener: (e: any) => void;

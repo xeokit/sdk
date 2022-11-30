@@ -95,7 +95,7 @@ class PanController {
         return dolliedThroughSurface;
     }
 
-    #unproject(canvasPos: math.FloatArrayType, worldPos: math.FloatArrayType) {
+    #unproject(canvasPos: math.FloatArrayParam, worldPos: math.FloatArrayParam) {
 
         const camera = this.view.camera;
         const transposedProjectMat = camera.project.transposedMatrix;

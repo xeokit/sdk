@@ -5,6 +5,7 @@ import {DataObject} from "./DataObject";
 import {DataModelParams} from "./DataModelParams";
 import {DataObjectParams} from "./DataObjectParams";
 import {PropertySetParams} from "./PropertySetParams";
+import {Relation} from "./Relation";
 
 /**
  *  Semantic data about a model within a {@link Viewer}.

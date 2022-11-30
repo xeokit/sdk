@@ -80,13 +80,13 @@ class Metrics extends Component {
 
     #units: string;
     #scale: number;
-    #origin: math.FloatArrayType;
+    #origin: math.FloatArrayParam;
 
     /**
      * @private
      */
     constructor(view: View, cfg: {
-        origin: math.FloatArrayType;
+        origin: math.FloatArrayParam;
         scale: number;
         units: string
     } = {
@@ -202,14 +202,14 @@ class Metrics extends Component {
     /**
      * Gets the 3D Real-space origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
      */
-    get origin(): math.FloatArrayType {
+    get origin(): math.FloatArrayParam {
         return this.#origin;
     }
 
     /**
      * Sets the Real-space 3D origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
      */
-    set origin(value: math.FloatArrayType) {
+    set origin(value: math.FloatArrayParam) {
         if (!value) {
             this.#origin[0] = 0;
             this.#origin[1] = 0;
@@ -231,7 +231,7 @@ class Metrics extends Component {
      * @param [realPos] Destination for Real-space 3D position.
      * @returns  Real-space 3D position, in units indicated by {@link Metrics#units}.
      */
-    worldToRealPos(worldPos: math.FloatArrayType, realPos: math.FloatArrayType = math.vec3()): math.FloatArrayType {
+    worldToRealPos(worldPos: math.FloatArrayParam, realPos: math.FloatArrayParam = math.vec3()): math.FloatArrayParam {
         realPos[0] = this.#origin[0] + (this.#scale * worldPos[0]);
         realPos[1] = this.#origin[1] + (this.#scale * worldPos[1]);
         realPos[2] = this.#origin[2] + (this.#scale * worldPos[2]);
@@ -247,7 +247,7 @@ class Metrics extends Component {
      * @param [worldPos] Destination for World-space 3D position.
      * @returns  World-space 3D position.
      */
-    realToWorldPos(realPos: math.FloatArrayType, worldPos: math.FloatArrayType = math.vec3()): math.FloatArrayType {
+    realToWorldPos(realPos: math.FloatArrayParam, worldPos: math.FloatArrayParam = math.vec3()): math.FloatArrayParam {
         worldPos[0] = (realPos[0] - this.#origin[0]) / this.#scale;
         worldPos[1] = (realPos[1] - this.#origin[1]) / this.#scale;
         worldPos[2] = (realPos[2] - this.#origin[2]) / this.#scale;

@@ -59,9 +59,9 @@ class PointLight extends Component {
         /** Intensity of this PointLight, as a factor in range ````[0..1]````. */
         intensity?: number;
         /** RGB color */
-        color?: math.FloatArrayType;
+        color?: math.FloatArrayParam;
         /** World-space position */
-        pos?: math.FloatArrayType;
+        pos?: math.FloatArrayParam;
         /** Quadratic attenuation factor. */
         quadraticAttenuation?: number;
         /** Constant attenuation factor */
@@ -97,7 +97,7 @@ class PointLight extends Component {
      *
      * @returns {Number[]} The position.
      */
-    get pos(): math.FloatArrayType {
+    get pos(): math.FloatArrayParam {
         return this.state.pos;
     }
 
@@ -110,7 +110,7 @@ class PointLight extends Component {
      *
      * @param pos The position.
      */
-    set pos(pos: math.FloatArrayType) {
+    set pos(pos: math.FloatArrayParam) {
         this.state.pos.set(pos || [1.0, 1.0, 1.0]);
         this.view.redraw();
     }
@@ -122,7 +122,7 @@ class PointLight extends Component {
      *
      * @returns {Number[]} The PointLight's RGB color.
      */
-    get color(): math.FloatArrayType {
+    get color(): math.FloatArrayParam {
         return this.state.color;
     }
 
@@ -133,7 +133,7 @@ class PointLight extends Component {
      *
      * @param color The PointLight's RGB color.
      */
-    set color(color: math.FloatArrayType) {
+    set color(color: math.FloatArrayParam) {
         this.state.color.set(color || [0.7, 0.7, 0.8]);
         this.view.redraw();
     }

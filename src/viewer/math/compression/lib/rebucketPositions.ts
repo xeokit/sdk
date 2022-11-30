@@ -5,98 +5,78 @@
 
 const MAX_RE_BUCKET_FAN_OUT = 8;
 
-let bucketsForIndices = null;
+let bucketsForIndices: any = null;
 
-function compareBuckets(a, b) {
+function compareBuckets(a: any, b: any) {
     let aa = a * 3;
     let bb = b * 3;
-
     let aa1, aa2, aa3, bb1, bb2, bb3;
-
     const minBucketA = Math.min(
         aa1 = bucketsForIndices[aa],
         aa2 = bucketsForIndices[aa + 1],
         aa3 = bucketsForIndices[aa + 2]
     );
-
     const minBucketB = Math.min(
         bb1 = bucketsForIndices[bb],
         bb2 = bucketsForIndices[bb + 1],
         bb3 = bucketsForIndices[bb + 2]
     );
-
     if (minBucketA != minBucketB) {
         return minBucketA - minBucketB;
     }
-
     const maxBucketA = Math.max(
         aa1,
         aa2,
         aa3,
     );
-
     const maxBucketB = Math.max(
         bb1,
         bb2,
         bb3,
     );
-
     if (maxBucketA != maxBucketB) {
         return maxBucketA - maxBucketB;
     }
-
     return 0;
 }
 
-function preSortIndices(indices, bitsPerBucket) {
+function preSortIndices(indices: any, bitsPerBucket: any) {
     let seq = new Int32Array(indices.length / 3);
-
     for (let i = 0, len = seq.length; i < len; i++) {
         seq[i] = i;
     }
-
     bucketsForIndices = new Int32Array(indices.length);
-
     for (let i = 0, len = indices.length; i < len; i++) {
         bucketsForIndices[i] = indices[i] >> bitsPerBucket;
     }
-
     seq.sort(compareBuckets);
-
     const sortedIndices = new Int32Array(indices.length);
-
     for (let i = 0, len = seq.length; i < len; i++) {
         sortedIndices[i * 3 + 0] = indices[seq[i] * 3 + 0];
         sortedIndices[i * 3 + 1] = indices[seq[i] * 3 + 1];
         sortedIndices[i * 3 + 2] = indices[seq[i] * 3 + 2];
     }
-
     return sortedIndices;
 }
 
-let compareEdgeIndices = null;
+let compareEdgeIndices: any = null;
 
-function compareIndices(a, b) {
+function compareIndices(a: any, b: any) {
     let retVal = compareEdgeIndices[a * 2] - compareEdgeIndices[b * 2];
-
     if (retVal != 0) {
         return retVal;
     }
-
     return compareEdgeIndices[a * 2 + 1] - compareEdgeIndices[b * 2 + 1];
 }
 
-function preSortEdgeIndices(edgeIndices) {
+function preSortEdgeIndices(edgeIndices: any): any {
     if ((edgeIndices || []).length == 0) {
         return [];
     }
-
     let seq = new Int32Array(edgeIndices.length / 2);
-
     for (let i = 0, len = seq.length; i < len; i++) {
         seq[i] = i;
     }
-
     for (let i = 0, j = 0, len = edgeIndices.length; i < len; i += 2) {
         if (edgeIndices[i] > edgeIndices[i + 1]) {
             let tmp = edgeIndices[i];
@@ -104,39 +84,33 @@ function preSortEdgeIndices(edgeIndices) {
             edgeIndices[i + 1] = tmp;
         }
     }
-
     compareEdgeIndices = new Int32Array(edgeIndices);
-
     seq.sort(compareIndices);
-
     const sortedEdgeIndices = new Int32Array(edgeIndices.length);
-
     for (let i = 0, len = seq.length; i < len; i++) {
         sortedEdgeIndices[i * 2 + 0] = edgeIndices[seq[i] * 2 + 0];
         sortedEdgeIndices[i * 2 + 1] = edgeIndices[seq[i] * 2 + 1];
     }
-
     return sortedEdgeIndices;
 }
 
-function rebucketPositions(mesh, bitsPerBucket, checkResult = false) {
+function rebucketPositions(mesh: any, bitsPerBucket: any, checkResult = false): any {
+
     const positions = (mesh.positions || []);
-
     const indices = preSortIndices(mesh.indices || [], bitsPerBucket);
-
     const edgeIndices = preSortEdgeIndices(mesh.edgeIndices || []);
 
     /**
      * Code adapted from https://stackoverflow.com/questions/22697936/binary-search-in-javascript
      */
-    function edgeSearch(el0, el1) {
+    function edgeSearch(el0: any, el1: any) {
         if (el0 > el1) {
             let tmp = el0;
             el0 = el1;
             el1 = tmp;
         }
 
-        function compare_fn(a, b) {
+        function compare_fn(a: any, b: any) {
             if (a != el0) {
                 return el0 - a;
             }
@@ -159,13 +133,13 @@ function rebucketPositions(mesh, bitsPerBucket, checkResult = false) {
                 n = k - 1;
             } else {
                 return k;
-            /**
-             * Flat array of compressed integer vertex colors.
-             *
-             * Alternative to {@link GeometryParams.colorsCompressed}.
-             *
-             * Ignored when {@link GeometryParams.geometryId} is defined.
-             */
+                /**
+                 * Flat array of compressed integer vertex colors.
+                 *
+                 * Alternative to {@link GeometryParams.colorsCompressed}.
+                 *
+                 * Ignored when {@link GeometryParams.geometryId} is defined.
+                 */
             }
         }
         return -m - 1;
@@ -190,12 +164,12 @@ function rebucketPositions(mesh, bitsPerBucket, checkResult = false) {
     const bucketIndicesRemap = new Int32Array(numPositions);
     bucketIndicesRemap.fill(-1);
 
-    const buckets = [];
+    const buckets: any = [];
 
     function addEmptyBucket() {
         bucketIndicesRemap.fill(-1);
 
-        let newBucket = {
+        let newBucket: any = {
             positions: [],
             indices: [],
             edgeIndices: [],
@@ -306,7 +280,7 @@ function rebucketPositions(mesh, bitsPerBucket, checkResult = false) {
     let newSize = 0;
     let newPositions = -positions.length / 3;
 
-    buckets.forEach(bucket => {
+    buckets.forEach((bucket: any) => {
         newSize += bucket.positions.length * 2 + (bucket.indices.length + bucket.edgeIndices.length) * newBytesPerIndex;
         newPositions += bucket.positions.length / 3;
     });
@@ -326,23 +300,23 @@ function rebucketPositions(mesh, bitsPerBucket, checkResult = false) {
     return buckets;
 }
 
-function unbucket(buckets) {
-    let positions = [];
-    let indices = [];
-    let edgeIndices = [];
+function unbucket(buckets: any) {
+    let positions: any = [];
+    let indices: any = [];
+    let edgeIndices: any = [];
 
     let positionsBase = 0;
 
-    buckets.forEach(bucket => {
-        bucket.positions.forEach(coord => {
+    buckets.forEach((bucket: any) => {
+        bucket.positions.forEach((coord: any) => {
             positions.push(coord);
         });
 
-        bucket.indices.forEach(index => {
+        bucket.indices.forEach((index: any) => {
             indices.push(index + positionsBase);
         });
 
-        bucket.edgeIndices.forEach(edgeIndex => {
+        bucket.edgeIndices.forEach((edgeIndex: any) => {
             edgeIndices.push(edgeIndex + positionsBase);
         });
 
@@ -356,13 +330,13 @@ function unbucket(buckets) {
     };
 }
 
-function doCheckResult(buckets, mesh) {
-    const meshDict = {};
-    const edgesDict = {};
+function doCheckResult(buckets: any, mesh: any) {
+    const meshDict: any = {};
+    const edgesDict: any = {};
 
     let edgeIndicesCount = 0;
 
-    buckets.forEach(bucket => {
+    buckets.forEach((bucket: any) => {
         let indices = bucket.indices;
         let edgeIndices = bucket.edgeIndices;
         let positions = bucket.positions;

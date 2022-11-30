@@ -33,20 +33,20 @@ export interface PickParams  {
     /**
      * Ray-picking direction, used when {@link PickParams.rayPick} is ````true````.
      */
-    direction?: math.FloatArrayType;
+    direction?: math.FloatArrayParam;
 
     /**
      * Ray-picking origin, used when {@link PickParams.rayPick} is ````true````.
      */
-    origin?: math.FloatArrayType;
+    origin?: math.FloatArrayParam;
 
     /**
      * Ray-picking direction matrix, used when {@link PickParams.rayPick} is ````true````.
      */
-    matrix?: math.FloatArrayType;
+    matrix?: math.FloatArrayParam;
 
     /**
      * Canvas coordinates, used when {@link PickParams.rayPick} is ````false````.
      */
-    canvasPos?: math.FloatArrayType;
+    canvasPos?: math.FloatArrayParam;
 }

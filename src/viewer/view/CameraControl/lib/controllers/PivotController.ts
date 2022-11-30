@@ -1,5 +1,5 @@
 import * as math from "../../../../math/index";
-import {FloatArrayType} from "../../../../math/index";
+import {FloatArrayParam} from "../../../../math/index";
 import {View} from "../../../View";
 import {CameraControl} from "../../CameraControl";
 
@@ -18,17 +18,17 @@ class PivotController {
 
     #view: View;
     #configs: any;
-    #pivotWorldPos: FloatArrayType;
-    #cameraOffset: FloatArrayType;
+    #pivotWorldPos: FloatArrayParam;
+    #cameraOffset: FloatArrayParam;
     #azimuth: number;
     #polar: number;
     #radius: number;
     #pivotPosSet: boolean;
     #pivoting: boolean;
     #shown: boolean;
-    #pivotViewPos: FloatArrayType;
-    #pivotProjPos: FloatArrayType;
-    #pivotCanvasPos: FloatArrayType;
+    #pivotViewPos: FloatArrayParam;
+    #pivotProjPos: FloatArrayParam;
+    #pivotCanvasPos: FloatArrayParam;
     #cameraDirty: boolean;
     #onViewMatrix: any;
     #onProjMatrix: any;
@@ -143,7 +143,7 @@ class PivotController {
      *
      * @param worldPos The new World-space pivot position.
      */
-    setPivotPos(worldPos: math.FloatArrayType) {
+    setPivotPos(worldPos: math.FloatArrayParam) {
         // @ts-ignore
         this.#pivotWorldPos.set(worldPos);
         this.#pivotPosSet = true;
@@ -155,7 +155,7 @@ class PivotController {
      *
      * @param canvasPos
      */
-    setCanvasPivotPos(canvasPos: math.FloatArrayType) {
+    setCanvasPivotPos(canvasPos: math.FloatArrayParam) {
         const camera = this.#view.camera;
         const pivotShereRadius = Math.abs(math.distVec3(this.#view.viewer.scene.center, camera.eye));
         const transposedProjectMat = camera.project.transposedMatrix;

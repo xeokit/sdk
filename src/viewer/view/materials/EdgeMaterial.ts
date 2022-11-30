@@ -33,7 +33,7 @@ class EdgeMaterial extends Component {
      * @private
      */
     constructor(view: View, options: {
-        edgeColor?: math.FloatArrayType;
+        edgeColor?: math.FloatArrayParam;
         edgeWidth?: number;
         edgeAlpha?: number;
         edges?: boolean;
@@ -103,7 +103,7 @@ class EdgeMaterial extends Component {
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
-    set edgeColor(value: math.FloatArrayType) {
+    set edgeColor(value: math.FloatArrayParam) {
         let edgeColor = this.state.edgeColor;
         if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
             return;

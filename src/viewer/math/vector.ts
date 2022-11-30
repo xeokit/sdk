@@ -1,16 +1,16 @@
-import {FloatArrayType, FloatArrayClass} from "./math";
+import {FloatArrayParam, FloatArrayClass} from "./math";
 
 /**
  * Returns the dot product of two three-element vectors.
  */
-export function dotVec3(u: FloatArrayType, v: FloatArrayType): number {
+export function dotVec3(u: FloatArrayParam, v: FloatArrayParam): number {
     return (u[0] * v[0] + u[1] * v[1] + u[2] * v[2]);
 }
 
 /**
  * Returns a new, uninitialized two-element vector.
  */
-export function vec2(values?: FloatArrayType): FloatArrayType {
+export function vec2(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return new FloatArrayClass(values || 2);
 }
@@ -18,7 +18,7 @@ export function vec2(values?: FloatArrayType): FloatArrayType {
 /**
  * Returns a new, uninitialized three-element vector.
  */
-export function vec3(values?: FloatArrayType): FloatArrayType {
+export function vec3(values?: FloatArrayParam): Float64Array {
     // @ts-ignore
     return new Float64Array(values || 3);
 }
@@ -26,7 +26,7 @@ export function vec3(values?: FloatArrayType): FloatArrayType {
 /**
  * Returns a new, uninitialized four-element vector.
  */
-export function vec4(values?: FloatArrayType): FloatArrayType {
+export function vec4(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return new FloatArrayClass(values || 4);
 }
@@ -34,7 +34,7 @@ export function vec4(values?: FloatArrayType): FloatArrayType {
 /**
  * Negates a three-element vector.
  */
-export function negateVec3(v: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function negateVec3(v: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = v;
     }
@@ -47,7 +47,7 @@ export function negateVec3(v: FloatArrayType, dest?: FloatArrayType): FloatArray
 /**
  * Negates a four-element vector.
  */
-export function negateVec4(v: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function negateVec4(v: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = v;
     }
@@ -61,7 +61,7 @@ export function negateVec4(v: FloatArrayType, dest?: FloatArrayType): FloatArray
 /**
  * Adds one four-element vector to another.
  */
-export function addVec4(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function addVec4(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = u;
     }
@@ -75,7 +75,7 @@ export function addVec4(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayT
 /**
  * Adds a scalar value to each element of a four-element vector.
  */
-export function addVec4Scalar(v: FloatArrayType, s: number, dest?: FloatArrayType) {
+export function addVec4Scalar(v: FloatArrayParam, s: number, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -89,7 +89,7 @@ export function addVec4Scalar(v: FloatArrayType, s: number, dest?: FloatArrayTyp
 /**
  * Multiplies each element of a four-element vector by a scalar.
  */
-export function mulVec4Scalar(v: FloatArrayType, s: number, dest?: FloatArrayType) {
+export function mulVec4Scalar(v: FloatArrayParam, s: number, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -103,7 +103,7 @@ export function mulVec4Scalar(v: FloatArrayType, s: number, dest?: FloatArrayTyp
 /**
  * Multiplies each element of a three-element vector by a scalar.
  */
-export function mulVec3Scalar(v: FloatArrayType, s: number, dest?: FloatArrayType): FloatArrayType {
+export function mulVec3Scalar(v: FloatArrayParam, s: number, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = v;
     }
@@ -116,7 +116,7 @@ export function mulVec3Scalar(v: FloatArrayType, s: number, dest?: FloatArrayTyp
 /**
  * Multiplies each element of a two-element vector by a scalar.
  */
-export function mulVec2Scalar(v: FloatArrayType, s: number, dest?: FloatArrayType): FloatArrayType {
+export function mulVec2Scalar(v: FloatArrayParam, s: number, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = v;
     }
@@ -128,7 +128,7 @@ export function mulVec2Scalar(v: FloatArrayType, s: number, dest?: FloatArrayTyp
 /**
  * Adds one three-element vector to another.
  */
-export function addVec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType): FloatArrayType {
+export function addVec3(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = u;
     }
@@ -140,7 +140,7 @@ export function addVec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayT
 
 /**
  */
-export function addVec3Scalar(v: FloatArrayType, s: number, dest?: FloatArrayType) {
+export function addVec3Scalar(v: FloatArrayParam, s: number, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -153,7 +153,7 @@ export function addVec3Scalar(v: FloatArrayType, s: number, dest?: FloatArrayTyp
 /**
  * Subtracts one four-element vector from another.
  */
-export function subVec4(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function subVec4(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = u;
     }
@@ -167,14 +167,14 @@ export function subVec4(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayT
 /**
  * Returns true if the two 3-element vectors are the same.
  */
-export function compareVec3(v1: FloatArrayType, v2: FloatArrayType): boolean {
+export function compareVec3(v1: FloatArrayParam, v2: FloatArrayParam): boolean {
     return (v1[0] === v2[0] && v1[1] === v2[1] && v1[2] === v2[2]);
 }
 
 /**
  * Subtracts one three-element vector from another.
  */
-export function subVec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function subVec3(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = u;
     }
@@ -187,7 +187,7 @@ export function subVec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayT
 /**
  * Subtracts one two-element vector from another.
  */
-export function subVec2(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function subVec2(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = u;
     }
@@ -213,7 +213,7 @@ export function geometricMeanVec2(...vectors: any) {
 /**
  * Subtracts a scalar value from each element of a four-element vector.
  */
-export function subVec4Scalar(v: FloatArrayType, s: number, dest?: FloatArrayType) {
+export function subVec4Scalar(v: FloatArrayParam, s: number, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -233,7 +233,7 @@ export function subVec4Scalar(v: FloatArrayType, s: number, dest?: FloatArrayTyp
  * @param  {Array(Number)} [dest] Destination vector
  * @return {Array(Number)} dest if specified, v otherwise
  */
-export function subScalarVec4(v: FloatArrayType, s: number, dest?: FloatArrayType) {
+export function subScalarVec4(v: FloatArrayParam, s: number, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -247,7 +247,7 @@ export function subScalarVec4(v: FloatArrayType, s: number, dest?: FloatArrayTyp
 /**
  * Multiplies one three-element vector by another.
  */
-export function mulVec4(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function mulVec4(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = u;
     }
@@ -262,7 +262,7 @@ export function mulVec4(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayT
 /**
  * Divides one three-element vector by another.
  */
-export function divVec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function divVec3(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = u;
     }
@@ -275,7 +275,7 @@ export function divVec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayT
 /**
  * Divides one four-element vector by another.
  */
-export function divVec4(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function divVec4(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = u;
     }
@@ -289,7 +289,7 @@ export function divVec4(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayT
 /**
  * Divides a scalar by a three-element vector, returning a new vector.
  */
-export function divScalarVec3(s: number, v: FloatArrayType, dest?: FloatArrayType) {
+export function divScalarVec3(s: number, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -302,7 +302,7 @@ export function divScalarVec3(s: number, v: FloatArrayType, dest?: FloatArrayTyp
 /**
  * Divides a three-element vector by a scalar.
  */
-export function divVec3Scalar(v: FloatArrayType, s: number, dest?: FloatArrayType) {
+export function divVec3Scalar(v: FloatArrayParam, s: number, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -315,7 +315,7 @@ export function divVec3Scalar(v: FloatArrayType, s: number, dest?: FloatArrayTyp
 /**
  * Divides a four-element vector by a scalar.
  */
-export function divVec4Scalar(v: FloatArrayType, s: number, dest?: FloatArrayType) {
+export function divVec4Scalar(v: FloatArrayParam, s: number, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -329,7 +329,7 @@ export function divVec4Scalar(v: FloatArrayType, s: number, dest?: FloatArrayTyp
 /**
  * Divides a scalar by a four-element vector, returning a new vector.
  */
-export function divScalarVec4(s: number, v: FloatArrayType, dest?: FloatArrayType) {
+export function divScalarVec4(s: number, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = v;
     }
@@ -343,14 +343,14 @@ export function divScalarVec4(s: number, v: FloatArrayType, dest?: FloatArrayTyp
 /**
  * Returns the dot product of two four-element vectors.
  */
-export function dotVec4(u: FloatArrayType, v: FloatArrayType) {
+export function dotVec4(u: FloatArrayParam, v: FloatArrayParam) {
     return (u[0] * v[0] + u[1] * v[1] + u[2] * v[2] + u[3] * v[3]);
 }
 
 /**
  * Returns the cross product of two four-element vectors.
  */
-export function cross3Vec4(u: FloatArrayType, v: FloatArrayType) {
+export function cross3Vec4(u: FloatArrayParam, v: FloatArrayParam) {
     const u0 = u[0];
     const u1 = u[1];
     const u2 = u[2];
@@ -367,7 +367,7 @@ export function cross3Vec4(u: FloatArrayType, v: FloatArrayType) {
 /**
  * Returns the cross product of two three-element vectors.
  */
-export function cross3Vec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArrayType) {
+export function cross3Vec3(u: FloatArrayParam, v: FloatArrayParam, dest?: FloatArrayParam) {
     if (!dest) {
         dest = u;
     }
@@ -383,7 +383,7 @@ export function cross3Vec3(u: FloatArrayType, v: FloatArrayType, dest?: FloatArr
     return dest;
 }
 
-export function sqLenVec4(v: FloatArrayType) { // TODO
+export function sqLenVec4(v: FloatArrayParam) { // TODO
     return dotVec4(v, v);
 }
 
@@ -394,7 +394,7 @@ export function sqLenVec4(v: FloatArrayType) { // TODO
  * @param {Array(Number)} v The vector
  * @return The length
  */
-export function lenVec4(v: FloatArrayType) {
+export function lenVec4(v: FloatArrayParam) {
     return Math.sqrt(sqLenVec4(v));
 }
 
@@ -402,43 +402,43 @@ export function lenVec4(v: FloatArrayType) {
 /**
  * Returns the dot product of two two-element vectors.
  */
-export function dotVec2(u: FloatArrayType, v: FloatArrayType) {
+export function dotVec2(u: FloatArrayParam, v: FloatArrayParam) {
     return (u[0] * v[0] + u[1] * v[1]);
 }
 
 
-export function sqLenVec3(v: FloatArrayType) {
+export function sqLenVec3(v: FloatArrayParam) {
     return dotVec3(v, v);
 }
 
 
-export function sqLenVec2(v: FloatArrayType) {
+export function sqLenVec2(v: FloatArrayParam) {
     return dotVec2(v, v);
 }
 
 /**
  * Returns the length of a three-element vector.
  */
-export function lenVec3(v: FloatArrayType): number {
+export function lenVec3(v: FloatArrayParam): number {
     return Math.sqrt(sqLenVec3(v));
 }
 
 export const distVec3 = ((() => {
     const vec = vec3();
-    return (v: FloatArrayType, w: FloatArrayType) => lenVec3(subVec3(v, w, vec));
+    return (v: FloatArrayParam, w: FloatArrayParam) => lenVec3(subVec3(v, w, vec));
 }))()
 
 /**
  * Returns the length of a two-element vector.
  */
-export function lenVec2(v: FloatArrayType): number {
+export function lenVec2(v: FloatArrayParam): number {
     return Math.sqrt(sqLenVec2(v));
 }
 
 /**
  * Linearly interpolates between two 3D vectors.
  */
-export function lerpVec3(t: number, t1: number, t2: number, p1: FloatArrayType, p2: FloatArrayType, dest: any) {
+export function lerpVec3(t: number, t1: number, t2: number, p1: FloatArrayParam, p2: FloatArrayParam, dest: any) {
     const result = dest || vec3();
     const f = (t - t1) / (t2 - t1);
     result[0] = p1[0] + (f * (p2[0] - p1[0]));
@@ -449,7 +449,7 @@ export function lerpVec3(t: number, t1: number, t2: number, p1: FloatArrayType, 
 
 export const distVec2 = ((() => {
     const vec = vec2();
-    return (v: FloatArrayType, w: FloatArrayType) => lenVec2(subVec2(v, w, vec));
+    return (v: FloatArrayParam, w: FloatArrayParam) => lenVec2(subVec2(v, w, vec));
 }))();
 
 /**
@@ -460,7 +460,7 @@ export const distVec2 = ((() => {
  * @return [] dest if specified, v otherwise
  *
  */
-export function rcpVec3(v: FloatArrayType, dest: FloatArrayType) {
+export function rcpVec3(v: FloatArrayParam, dest: FloatArrayParam) {
     return divScalarVec3(1.0, v, dest);
 }
 
@@ -468,7 +468,7 @@ export function rcpVec3(v: FloatArrayType, dest: FloatArrayType) {
  * Normalizes a four-element vector
  *
  */
-export function normalizeVec4(v: FloatArrayType, dest: FloatArrayType) {
+export function normalizeVec4(v: FloatArrayParam, dest: FloatArrayParam) {
     const f = 1.0 / lenVec4(v);
     return mulVec4Scalar(v, f, dest);
 }
@@ -478,7 +478,7 @@ export function normalizeVec4(v: FloatArrayType, dest: FloatArrayType) {
  * @method normalizeVec4
  * @static
  */
-export function normalizeVec3(v: FloatArrayType, dest?: FloatArrayType) {
+export function normalizeVec3(v: FloatArrayParam, dest?: FloatArrayParam) {
     const f = 1.0 / lenVec3(v);
     return mulVec3Scalar(v, f, dest);
 }
@@ -486,7 +486,7 @@ export function normalizeVec3(v: FloatArrayType, dest?: FloatArrayType) {
 /**
  * Normalizes a two-element vector
  */
-export function normalizeVec2(v: FloatArrayType, dest: FloatArrayType) {
+export function normalizeVec2(v: FloatArrayParam, dest: FloatArrayParam) {
     const f = 1.0 / lenVec2(v);
     return mulVec2Scalar(v, f, dest);
 }
@@ -494,7 +494,7 @@ export function normalizeVec2(v: FloatArrayType, dest: FloatArrayType) {
 /**
  * Gets the angle between two vectors
  */
-export function angleVec3(v: FloatArrayType, w: FloatArrayType) {
+export function angleVec3(v: FloatArrayParam, w: FloatArrayParam) {
     let theta = dotVec3(v, w) / (Math.sqrt(sqLenVec3(v) * sqLenVec3(w)));
     theta = theta < -1 ? -1 : (theta > 1 ? 1 : theta);  // Clamp to handle numerical problems
     return Math.acos(theta);
@@ -507,7 +507,7 @@ export const vec3FromMat4Scale: Function = ((() => {
 
     const tempVec3 = vec3();
 
-    return function (m: FloatArrayType, dest: FloatArrayType) {
+    return function (m: FloatArrayParam, dest: FloatArrayParam) {
 
         tempVec3[0] = m[0];
         tempVec3[1] = m[1];
@@ -535,7 +535,7 @@ export const vec3FromMat4Scale: Function = ((() => {
  * Converts an n-element vector to a JSON-serializable
  * array with values rounded to two decimal places.
  */
-export function vecToArray(v: FloatArrayType): FloatArrayType {
+export function vecToArray(v: FloatArrayParam): FloatArrayParam {
     v = Array.prototype.slice.call(v);
     for (let i = 0, len = v.length; i < len; i++) {
         v[i] = trunc(v[i]);
@@ -551,7 +551,7 @@ function trunc(v: number) {
 /**
  * Calculates the normal vector of a triangle.
  */
-export function triangleNormal(a: FloatArrayType, b: FloatArrayType, c: FloatArrayType, normal: FloatArrayType = vec3()): FloatArrayType {
+export function triangleNormal(a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam, normal: FloatArrayParam = vec3()): FloatArrayParam {
     const p1x = b[0] - a[0];
     const p1y = b[1] - a[1];
     const p1z = b[2] - a[2];

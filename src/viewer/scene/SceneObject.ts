@@ -1,6 +1,6 @@
 import {Scene} from "./Scene";
 import {SceneModel} from "./SceneModel";
-import {FloatArrayType} from "../math/math";
+import {FloatArrayParam} from "../math/math";
 
 /**
  * GeometryBucketHandle and material for an object within a {@link Viewer}.
@@ -33,7 +33,7 @@ export interface SceneObject {
     /**
      * The axis-aligned World-space 3D boundary of this SceneObject.
      */
-    readonly aabb: FloatArrayType;
+    readonly aabb: FloatArrayParam;
 
     /**
      * @private
@@ -83,7 +83,7 @@ export interface SceneObject {
     /**
      * @private
      */
-    setColorize(viewIndex: number, color?: FloatArrayType): void;
+    setColorize(viewIndex: number, color?: FloatArrayParam): void;
 
     /**
      * @private
@@ -93,6 +93,6 @@ export interface SceneObject {
     /**
      * @private
      */
-    setOffset(viewIndex: number, offset: FloatArrayType): void;
+    setOffset(viewIndex: number, offset: FloatArrayParam): void;
 }
 

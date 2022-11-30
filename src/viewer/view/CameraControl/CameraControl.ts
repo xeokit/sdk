@@ -593,7 +593,7 @@ class CameraControl extends Component {
      *
      * @return {Number[]} worldPos The current World-space 3D pivot position.
      */
-    get pivotPos(): math.FloatArrayType {
+    get pivotPos(): math.FloatArrayParam {
         return this.#controllers.pivotController.getPivotPos();
     }
 
@@ -604,7 +604,7 @@ class CameraControl extends Component {
      *
      * @param worldPos The new World-space 3D target position.
      */
-    set pivotPos(worldPos: math.FloatArrayType) {
+    set pivotPos(worldPos: math.FloatArrayParam) {
         this.#controllers.pivotController.setPivotPos(worldPos);
     }
 

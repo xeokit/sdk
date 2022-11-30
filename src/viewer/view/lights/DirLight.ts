@@ -45,8 +45,8 @@ class DirLight extends Component {
      * @param [options.intensity=1.0] The intensity of this DirLight, as a factor in range ````[0..1]````.
      * @param [options.space="view"] The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
      */
-    constructor(view: View, options: { intensity?: number; color?: math.FloatArrayType; 
-        dir?: math.FloatArrayType; space?: "world" | "view" } = {}) {
+    constructor(view: View, options: { intensity?: number; color?: math.FloatArrayParam; 
+        dir?: math.FloatArrayParam; space?: "world" | "view" } = {}) {
         super(view, options);
         this.view = view;
         this.state = {
@@ -66,7 +66,7 @@ class DirLight extends Component {
      *
      * @returns {Number[]} The direction vector.
      */
-    get dir(): math.FloatArrayType {
+    get dir(): math.FloatArrayParam {
         return this.state.dir;
     }
 
@@ -77,7 +77,7 @@ class DirLight extends Component {
      *
      * @param value The direction vector.
      */
-    set dir(value: math.FloatArrayType) {
+    set dir(value: math.FloatArrayParam) {
         this.state.dir.set(value);
         this.view.redraw();
     }
@@ -89,7 +89,7 @@ class DirLight extends Component {
      *
      * @returns {Number[]} The DirLight's RGB color.
      */
-    get color(): math.FloatArrayType {
+    get color(): math.FloatArrayParam {
         return this.state.color;
     }
 
@@ -100,7 +100,7 @@ class DirLight extends Component {
      *
      * @param color The DirLight's RGB color.
      */
-    set color(color: math.FloatArrayType) {
+    set color(color: math.FloatArrayParam) {
         this.state.color.set(color);
         this.view.redraw();
     }

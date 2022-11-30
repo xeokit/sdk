@@ -1,4 +1,4 @@
-import {FloatArrayType} from "./math";
+import {FloatArrayParam} from "./math";
 import {cross3Vec3, dotVec3, normalizeVec3, subVec3, vec3, vec4} from "./vector";
 import {transformVec3, transformVec4} from "./matrix";
 
@@ -14,7 +14,7 @@ const tempVec4b = vec4();
 /**
  * Finds the intersection of a 3D ray with a 3D triangle.
  */
-export function rayTriangleIntersect(origin: FloatArrayType, dir: FloatArrayType, a: FloatArrayType, b: FloatArrayType, c: FloatArrayType, isect: FloatArrayType): FloatArrayType {
+export function rayTriangleIntersect(origin: FloatArrayParam, dir: FloatArrayParam, a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam, isect: FloatArrayParam): FloatArrayParam {
     isect = isect || vec3();
     const EPSILON = 0.000001;
     const edge1 = subVec3(b, a, tempVec3);
@@ -49,7 +49,7 @@ export function rayTriangleIntersect(origin: FloatArrayType, dir: FloatArrayType
  @param rayOriginDest The transformed ray origin
  @param rayDirDest The transformed ray direction
  */
-export function transformRay(matrix: FloatArrayType, rayOrigin: FloatArrayType, rayDir: FloatArrayType, rayOriginDest: FloatArrayType, rayDirDest: FloatArrayType) {
+export function transformRay(matrix: FloatArrayParam, rayOrigin: FloatArrayParam, rayDir: FloatArrayParam, rayOriginDest: FloatArrayParam, rayDirDest: FloatArrayParam) {
     tempVec4a[0] = rayOrigin[0];
     tempVec4a[1] = rayOrigin[1];
     tempVec4a[2] = rayOrigin[2];

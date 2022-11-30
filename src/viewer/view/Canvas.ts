@@ -29,7 +29,7 @@ class Canvas extends Component {
     public readonly boundary: number[];
 
     #onTick: number;
-    #backgroundColor: math.FloatArrayType;
+    #backgroundColor: math.FloatArrayParam;
     #backgroundColorFromAmbientLight: boolean;
     #resolutionScale: number;
 
@@ -124,7 +124,7 @@ class Canvas extends Component {
      *
      * Default value is ````[1, 1, 1]````.
      */
-    get backgroundColor(): math.FloatArrayType {
+    get backgroundColor(): math.FloatArrayParam {
         return this.#backgroundColor;
     }
 
@@ -133,7 +133,7 @@ class Canvas extends Component {
      *
      * Default value is ````[1, 1, 1]````.
      */
-    set backgroundColor(value: math.FloatArrayType) {
+    set backgroundColor(value: math.FloatArrayParam) {
         if (value) {
             this.#backgroundColor[0] = value[0];
             this.#backgroundColor[1] = value[1];

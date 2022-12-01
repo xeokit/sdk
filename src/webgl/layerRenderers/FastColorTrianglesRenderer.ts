@@ -8,7 +8,7 @@ export class FastColorTrianglesRenderer extends LayerRenderer {
     }
 
     getHash(): string {
-        return `${this.view.getSectionPlanesHash()}-${this.view.getLightsHash()}`;
+        return `${this.renderContext.view.getSectionPlanesHash()}-${this.renderContext.view.getLightsHash()}`;
     }
 
     buildVertexShader(): string {

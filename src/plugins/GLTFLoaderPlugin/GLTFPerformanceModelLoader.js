@@ -353,15 +353,15 @@ const parseGLTF = (function () {
 
             if (meshInfo) {
 
-                let createEntity;
+                let createObject;
 
                 if (ctx.handleGLTFNode) {
                     const actions = {};
                     if (!ctx.handleGLTFNode(ctx.performanceModel.id, glTFNode, actions)) {
                         return;
                     }
-                    if (actions.createEntity) {
-                        createEntity = actions.createEntity;
+                    if (actions.createObject) {
+                        createObject = actions.createObject;
                     }
                 }
 
@@ -394,12 +394,12 @@ const parseGLTF = (function () {
                             meshCfg.opacity = 1.0;
                         }
 
-                        if (createEntity) {
-                            if (createEntity.colorize) {
-                                meshCfg.color = createEntity.colorize;
+                        if (createObject) {
+                            if (createObject.colorize) {
+                                meshCfg.color = createObject.colorize;
                             }
-                            if (createEntity.opacity !== undefined && createEntity.opacity !== null) {
-                                meshCfg.opacity = createEntity.opacity;
+                            if (createObject.opacity !== undefined && createObject.opacity !== null) {
+                                meshCfg.opacity = createObject.opacity;
                             }
                         }
 
@@ -433,12 +433,12 @@ const parseGLTF = (function () {
                         }
                     }
 
-                    if (createEntity) {
-                        performanceModel.createEntity(utils.apply(createEntity, {
+                    if (createObject) {
+                        performanceModel.createObject(utils.apply(createObject, {
                             meshIds: meshIds
                         }));
                     } else {
-                        performanceModel.createEntity({
+                        performanceModel.createObject({
                             meshIds: meshIds
                         });
                     }

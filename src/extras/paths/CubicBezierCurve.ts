@@ -18,10 +18,10 @@ import {Component} from "../Component";
  * [Cubic Bezier Curve from WikiPedia](https://en.wikipedia.org/wiki/B%C3%A9zier_curve)
  */
 class CubicBezierCurve extends Curve {
-    private _v0: math.FloatArrayType;
-    private _v1: math.FloatArrayType;
-    private _v2: math.FloatArrayType;
-    private _v3: math.FloatArrayType;
+    private _v0: math.FloatArrayParam;
+    private _v1: math.FloatArrayParam;
+    private _v2: math.FloatArrayParam;
+    private _v3: math.FloatArrayParam;
 
     /**
      * @constructor
@@ -36,10 +36,10 @@ class CubicBezierCurve extends Curve {
      */
     constructor(owner: Component, cfg: {
         t?: number,
-        v0: math.FloatArrayType,
-        v1: math.FloatArrayType,
-        v2: math.FloatArrayType,
-        v3: math.FloatArrayType
+        v0: math.FloatArrayParam,
+        v1: math.FloatArrayParam,
+        v2: math.FloatArrayParam,
+        v3: math.FloatArrayParam
     }) {
         super(owner, cfg);
         this.v0 = cfg.v0;
@@ -56,7 +56,7 @@ class CubicBezierCurve extends Curve {
      *
      * @param value - The starting point.
      */
-    set v0(value:math.FloatArrayType) {
+    set v0(value:math.FloatArrayParam) {
         this._v0 = value || math.vec3([0, 0, 0]);
     }
 
@@ -67,7 +67,7 @@ class CubicBezierCurve extends Curve {
      *
      * @returns The starting point.
      */
-    get v0() : math.FloatArrayType{
+    get v0() : math.FloatArrayParam{
         return this._v0;
     }
 
@@ -78,7 +78,7 @@ class CubicBezierCurve extends Curve {
      *
      * @param value - The first control point.
      */
-    set v1(value:math.FloatArrayType) {
+    set v1(value:math.FloatArrayParam) {
         this._v1 = value || math.vec3([0, 0, 0]);
     }
 
@@ -91,7 +91,7 @@ class CubicBezierCurve extends Curve {
      *
      * @returns The first control point.
      */
-    get v1() : math.FloatArrayType{
+    get v1() : math.FloatArrayParam{
         return this._v1;
     }
 
@@ -102,7 +102,7 @@ class CubicBezierCurve extends Curve {
      *
      * @param value - The second control point.
      */
-    set v2(value:math.FloatArrayType) {
+    set v2(value:math.FloatArrayParam) {
         this._v2 = value || math.vec3([0, 0, 0]);
     }
 
@@ -113,7 +113,7 @@ class CubicBezierCurve extends Curve {
      *
      * @returns The second control point.
      */
-    get v2() : math.FloatArrayType{
+    get v2() : math.FloatArrayParam{
         return this._v2;
     }
 
@@ -126,7 +126,7 @@ class CubicBezierCurve extends Curve {
      *
      * @param value - The end point.
      */
-    set v3(value:math.FloatArrayType) {
+    set v3(value:math.FloatArrayParam) {
         this.events.fire("v3", this._v3 = value || math.vec3([0, 0, 0]));
     }
 
@@ -139,7 +139,7 @@ class CubicBezierCurve extends Curve {
      *
      * @returns The end point.
      */
-    get v3(): math.FloatArrayType {
+    get v3(): math.FloatArrayParam {
         return this._v3;
     }
 
@@ -171,7 +171,7 @@ class CubicBezierCurve extends Curve {
      *
      * @returns {{Number[]}} The point at the given position.
      */
-    get point(): math.FloatArrayType {
+    get point(): math.FloatArrayParam {
         return this.getPoint(this._t);
     }
 
@@ -182,7 +182,7 @@ class CubicBezierCurve extends Curve {
      *
      * @returns {{Number[]}} The point at the given position.
      */
-    getPoint(t: number): math.FloatArrayType {
+    getPoint(t: number): math.FloatArrayParam {
 
         var vector = math.vec3();
 

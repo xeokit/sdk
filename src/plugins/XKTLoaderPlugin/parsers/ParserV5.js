@@ -222,7 +222,7 @@ function load(viewer, options, inflatedData, performanceModel) {
 
             const entityDefaults = {}; // TODO: get from lookup from entity IDs
 
-            performanceModel.createEntity(utils.apply(entityDefaults, {
+            performanceModel.createObject(utils.apply(entityDefaults, {
                 id: entityId,
                 isObject: true, ///////////////// TODO: If objectData exists
                 meshIds: meshIds

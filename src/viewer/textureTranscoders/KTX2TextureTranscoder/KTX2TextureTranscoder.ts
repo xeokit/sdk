@@ -6,16 +6,51 @@ const KTX2_ALPHA_PREMULTIPLIED = 1;
 
 let activeTranscoders = 0;
 
+const BasisFormat = {
+    ETC1S: 0,
+    UASTC_4x4: 1
+};
+
+const TranscoderFormat = {
+    ETC1: 0,
+    ETC2: 1,
+    BC1: 2,
+    BC3: 3,
+    BC4: 4,
+    BC5: 5,
+    BC7_M6_OPAQUE_ONLY: 6,
+    BC7_M5: 7,
+    PVRTC1_4_RGB: 8,
+    PVRTC1_4_RGBA: 9,
+    ASTC_4x4: 10,
+    ATC_RGB: 11,
+    ATC_RGBA_INTERPOLATED_ALPHA: 12,
+    RGBA32: 13,
+    RGB565: 14,
+    BGR565: 15,
+    RGBA4444: 16
+};
+
+const EngineFormat = {
+    RGBAFormat: constants.RGBAFormat,
+    RGBA_ASTC_4x4_Format: constants.RGBA_ASTC_4x4_Format,
+    RGBA_BPTC_Format: constants.RGBA_BPTC_Format,
+    RGBA_ETC2_EAC_Format: constants.RGBA_ETC2_EAC_Format,
+    RGBA_PVRTC_4BPPV1_Format: constants.RGBA_PVRTC_4BPPV1_Format,
+    RGBA_S3TC_DXT5_Format: constants.RGBA_S3TC_DXT5_Format,
+    RGB_ETC1_Format: constants.RGB_ETC1_Format,
+    RGB_ETC2_Format: constants.RGB_ETC2_Format,
+    RGB_PVRTC_4BPPV1_Format: constants.RGB_PVRTC_4BPPV1_Format,
+    RGB_S3TC_DXT1_Format: constants.RGB_S3TC_DXT1_Format
+};
 
 /**
  * KTX2 texture data transcoding strategy.
  *
- * Plug one of these into your {@link Renderer} implementation if you want to be able to create or load models in your
- * Viewer that have KTX2-enoded compressed textures.
+ * A {@link Renderer} implementation usually has one of these, so that it can create compressed textures from transcoded
+ * KTX2 texture data via {@link SceneModel.createTexture}.
  *
- * When provided, the Viewer will use this strategy internally within {@link SceneModel.createTexture} to convert transcoded texture
- * data. This is only required when we'll be loading transcoded data, or providing it to {@link SceneModel.createTexture}. When
- * this strategy is provided, we then assume that all transcoded texture data added to a  ````SceneModel```` will be in KTX2 format.
+ * By default, a {@link Viewer} has an internal {@link WebGLRenderer}, which has a {@link KTX2TextureTranscoder}.
  *
  * ## Overview
  *
@@ -23,7 +58,7 @@ let activeTranscoders = 0;
  * transcode [KTX2](https://github.khronos.org/KTX-Specification/) textures.
  * * Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/) by default, but can
  * also be configured to load the Codec from local files.
- * * We also bundle the Basis Codec with the xeokit-sdk npm package, and in the [repository](https://github.com/xeokit/xeokit-viewer/tree/master/dist/basis).
+ * * We also bundle the Basis Codec with the xeokit-viewer npm package, and in the [repository](https://github.com/xeokit/xeokit-viewer/tree/master/dist/basis).
  *
  * ## What is KTX2?
  *
@@ -34,30 +69,12 @@ let activeTranscoders = 0;
  *
  * ## Loading XKT files containing KTX2 textures
  *
- * {@link XKTLoaderPlugin} uses a KTX2TextureTranscoder to load textures in XKT files. An XKTLoaderPlugin has its own
- * default KTX2TextureTranscoder, configured to load the Basis Codec from the [CDN](https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/). If we wish, we can override that with our own
- * KTX2TextureTranscoder, configured to load the Codec locally.
- *
- * In the example below, we'll create a {@link Viewer} and add an {@link XKTLoaderPlugin}
- * configured with a KTX2TextureTranscoder. Then we'll use the XKTLoaderPlugin to load an
- * XKT file that contains KTX2 textures, which the plugin will transcode using
- * its KTX2TextureTranscoder.
- *
- * We'll configure our KTX2TextureTranscoder to load the Basis Codec from a local directory. If we were happy with loading the
- * Codec from our [CDN](https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/) (ie. our app will always have an Internet connection) then we could just leave out the
- * KTX2TextureTranscoder altogether, and let the XKTLoaderPlugin use its internal default KTX2TextureTranscoder, which is configured to
- * load the Codec from the CDN. We'll stick with loading our own Codec, in case we want to run our app without an Internet connection.
- *
- * <a href="https://xeokit.github.io/xeokit-sdk/examples/#loading_XKT_Textures_HousePlan"><img src="https://xeokit.github.io/xeokit-sdk/assets/images/xktWithTextures.png"></a>
- *
- * * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/#loading_XKT_Textures_HousePlan)]
- *
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({
- *          textureTranscoder: new KTX2TextureTranscoder({
- *              transcoderPath: "./../dist/basis/" // <------ Path to BasisU transcoder module
+ *     renderer: new WebGLRenderer({ // Optional
+ *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
+ *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
  *     })
  * });
@@ -79,28 +96,14 @@ let activeTranscoders = 0;
  * });
  * ````
  *
- * ## Loading KTX2 files into a VBOSceneModel
- *
- * A {@link SceneModel} that is configured with a KTX2TextureTranscoder will
- * allow us to load textures into it from KTX2-transcoded buffers or files.
- *
- * In the example below, we'll create a {@link Viewer}, containing a {@link VBOSceneModel} configured with a
- * KTX2TextureTranscoder.
- *
- * We'll then programmatically create a simple object within the VBOSceneModel, consisting of
- * a single box mesh with a texture loaded from a KTX2 file, which our VBOSceneModel internally transcodes, using
- * its KTX2TextureTranscoder.
- *
- * As in the previous example, we'll configure our KTX2TextureTranscoder to load the Basis Codec from a local directory.
- *
- * * [Run a similar example](http://localhost:8080/examples/sceneRepresentation_VBOSceneModel_batching_textures_ktx2.html)
+ * ## Loading KTX2 files into a SceneModel
  *
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({
- *          textureTranscoder: new KTX2TextureTranscoder({
- *              transcoderPath: "./../dist/basis/" // <------ Path to BasisU transcoder module
+ *     renderer: new WebGLRenderer({ // Optional
+ *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
+ *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
  *     })
  * });
@@ -120,12 +123,12 @@ let activeTranscoders = 0;
  *
  * sceneModel.createTexture({
  *      id: "myColorTexture",
- *      src: "../assets/textures/compressed/sample_uastc_zstd.ktx2" // <<----- KTX2 texture asset
+ *      src: "sample_uastc_zstd.ktx2" // <<----- KTX2 texture asset
  * });
  *
  * sceneModel.createTexture({
  *      id: "myMetallicRoughnessTexture",
- *      src: "../assets/textures/alpha/crosshatchAlphaMap.jpg" // <<----- JPEG texture asset
+ *      src: "crosshatchAlphaMap.jpg" // <<----- JPEG texture asset
  * });
  *
  * sceneModel.createTextureSet({
@@ -157,24 +160,14 @@ let activeTranscoders = 0;
  * sceneModel.finalize();
  * ````
  *
- * ## Loading KTX2 ArrayBuffers into a VBOSceneModel
- *
- * A {@link SceneModel} that is configured with a KTX2TextureTranscoder will also allow us to load textures into
- * it from KTX2 ArrayBuffers.
- *
- * In the example below, we'll create a {@link Viewer}, containing a {@link VBOSceneModel} configured with a
- * KTX2TextureTranscoder.
- *
- * We'll then programmatically create a simple object within the VBOSceneModel, consisting of
- * a single mesh with a texture loaded from a KTX2 ArrayBuffer, which our VBOSceneModel internally transcodes, using
- * its KTX2TextureTranscoder.
+ * ## Loading KTX2 ArrayBuffers into a SceneModel
  *
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({
- *          textureTranscoder: new KTX2TextureTranscoder({
- *              transcoderPath: "./../dist/basis/" // <------ Path to BasisU transcoder module
+ *     renderer: new WebGLRenderer({ // Optional
+ *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
+ *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
  *     })
  * });
@@ -192,7 +185,7 @@ let activeTranscoders = 0;
  *      id: "myModel"
  * });
  *
- * utils.loadArraybuffer("../assets/textures/compressed/sample_uastc_zstd.ktx2",(arrayBuffer) => {
+ * utils.loadArraybuffer("sample_uastc_zstd.ktx2",(arrayBuffer) => {
  *
  *      sceneModel.createTexture({
  *         id: "myColorTexture",
@@ -235,21 +228,15 @@ let activeTranscoders = 0;
  * ````
  */
 export class KTX2TextureTranscoder implements TextureTranscoder {
-    _transcoderPath: string;
-    _transcoderBinary: any;
-    _transcoderPending: Promise<void>;
-    _workerPool: utils.WorkerPool;
-    _workerSourceURL: string;
-    _workerConfig: { astcSupported: any; etc1Supported: any; pvrtcSupported: any; etc2Supported: any; dxtSupported: any; bptcSupported: any };
-    _supportedFileTypes: string[];
-    withCredentials: boolean;
-    BasisWorker: () => void;
-    EngineFormat: any;
-    TranscoderFormat: any;
-    static BasisFormat: any;
-    static BasisWorker: () => void;
-    private static EngineFormat: any;
-    private static TranscoderFormat: any;
+
+    #transcoderPath: string;
+    #transcoderBinary: any;
+    #transcoderPending: Promise<void>;
+    #workerPool: utils.WorkerPool;
+    #workerSourceURL: string;
+    #workerConfig: { astcSupported: any; etc1Supported: any; pvrtcSupported: any; etc2Supported: any; dxtSupported: any; bptcSupported: any };
+    #supportedFileTypes: string[];
+    #withCredentials: boolean;
 
     /**
      * Creates a new KTX2TextureTranscoder.
@@ -262,38 +249,27 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
      */
     constructor(params: { transcoderPath?: string, workerLimit?: number }) {
 
-        this._transcoderPath = params.transcoderPath || "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/";
-        this._transcoderBinary = null;
-        this._transcoderPending = null;
-        this._workerPool = new utils.WorkerPool();
-        this._workerSourceURL = '';
+        this.#transcoderPath = params.transcoderPath || "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/";
+        this.#transcoderBinary = null;
+        this.#transcoderPending = null;
+        this.#workerPool = new utils.WorkerPool();
+        this.#workerSourceURL = '';
 
         if (params.workerLimit) {
-            this._workerPool.setWorkerLimit(params.workerLimit);
+            this.#workerPool.setWorkerLimit(params.workerLimit);
         }
 
-        // const viewerCapabilities = params.viewer.capabilities;
-        //
-        // this._workerConfig = {
-        //     astcSupported: viewerCapabilities.astcSupported,
-        //     etc1Supported: viewerCapabilities.etc1Supported,
-        //     etc2Supported: viewerCapabilities.etc2Supported,
-        //     dxtSupported: viewerCapabilities.dxtSupported,
-        //     bptcSupported: viewerCapabilities.bptcSupported,
-        //     pvrtcSupported: viewerCapabilities.pvrtcSupported
-        // };
-
-        this._workerConfig = null;
-
-        this._supportedFileTypes = ["xkt2"];
+        this.#workerConfig = null;
+        this.#supportedFileTypes = ["xkt2"];
     }
 
     /**
      * Called by {@link Renderer} to initialize this transcoder.
+     *
      * @param viewerCapabilities
      */
     init(viewerCapabilities: ViewerCapabilities) {
-        this._workerConfig = {
+        this.#workerConfig = {
             astcSupported: viewerCapabilities.astcSupported,
             etc1Supported: viewerCapabilities.etc1Supported,
             etc2Supported: viewerCapabilities.etc2Supported,
@@ -313,8 +289,8 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
     transcode(buffers: ArrayBuffer[], config = {}): Promise<CompressedTextureParams> {
         return new Promise<CompressedTextureParams>((resolve, reject) => {
             const taskConfig = config;
-            this._initTranscoder().then(() => {
-                return this._workerPool.postMessage({
+            this.#initTranscoder().then(() => {
+                return this.#workerPool.postMessage({
                     type: 'transcode',
                     buffers,
                     taskConfig: taskConfig
@@ -340,40 +316,40 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
         });
     }
 
-    _initTranscoder() {
-        if (!this._transcoderPending) {
+    #initTranscoder() {
+        if (!this.#transcoderPending) {
             const jsLoader = new utils.FileLoader();
-            jsLoader.setPath(this._transcoderPath);
-            jsLoader.setWithCredentials(this.withCredentials);
+            jsLoader.setPath(this.#transcoderPath);
+            jsLoader.setWithCredentials(this.#withCredentials);
             // @ts-ignore
             const jsContent = jsLoader.loadAsync('basis_transcoder.js');
             const binaryLoader = new utils.FileLoader();
-            binaryLoader.setPath(this._transcoderPath);
+            binaryLoader.setPath(this.#transcoderPath);
             binaryLoader.setResponseType('arraybuffer');
-            binaryLoader.setWithCredentials(this.withCredentials);
+            binaryLoader.setWithCredentials(this.#withCredentials);
             // @ts-ignore
             const binaryContent = binaryLoader.loadAsync('basis_transcoder.wasm');
-            this._transcoderPending = Promise.all([jsContent, binaryContent])
+            this.#transcoderPending = Promise.all([jsContent, binaryContent])
                 .then(([jsContent, binaryContent]) => {
-                    const fn = KTX2TextureTranscoder.BasisWorker.toString();
+                    const fn = BasisWorker.toString();
                     const body = [
                         '/* constants */',
-                        'let _EngineFormat = ' + JSON.stringify(KTX2TextureTranscoder.EngineFormat),
-                        'let _TranscoderFormat = ' + JSON.stringify(KTX2TextureTranscoder.TranscoderFormat),
-                        'let _BasisFormat = ' + JSON.stringify(KTX2TextureTranscoder.BasisFormat),
+                        'let _EngineFormat = ' + JSON.stringify(EngineFormat),
+                        'let _TranscoderFormat = ' + JSON.stringify(TranscoderFormat),
+                        'let _BasisFormat = ' + JSON.stringify(BasisFormat),
                         '/* basis_transcoder.js */',
                         jsContent,
                         '/* worker */',
                         fn.substring(fn.indexOf('{') + 1, fn.lastIndexOf('}'))
                     ].join('\n');
-                    this._workerSourceURL = URL.createObjectURL(new Blob([body]));
-                    this._transcoderBinary = binaryContent;
-                    this._workerPool.setWorkerCreator(() => {
-                        const worker = new Worker(this._workerSourceURL);
-                        const transcoderBinary = this._transcoderBinary.slice(0);
+                    this.#workerSourceURL = URL.createObjectURL(new Blob([body]));
+                    this.#transcoderBinary = binaryContent;
+                    this.#workerPool.setWorkerCreator(() => {
+                        const worker = new Worker(this.#workerSourceURL);
+                        const transcoderBinary = this.#transcoderBinary.slice(0);
                         worker.postMessage({
                             type: 'init',
-                            config: this._workerConfig,
+                            config: this.#workerConfig,
                             transcoderBinary
                         }, [transcoderBinary]);
                         return worker;
@@ -384,67 +360,21 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
             }
             activeTranscoders++;
         }
-        return this._transcoderPending;
+        return this.#transcoderPending;
     }
 
     /**
      * Destroys this KTX2TextureTranscoder
      */
     destroy() {
-        URL.revokeObjectURL(this._workerSourceURL);
-        this._workerPool.destroy();
+        URL.revokeObjectURL(this.#workerSourceURL);
+        this.#workerPool.destroy();
         activeTranscoders--;
     }
 }
 
-// @ts-ignore
-KTX2TextureTranscoder.BasisFormat = {
-    ETC1S: 0,
-    UASTC_4x4: 1
-};
 
-// @ts-ignore
-KTX2TextureTranscoder.TranscoderFormat = {
-    ETC1: 0,
-    ETC2: 1,
-    BC1: 2,
-    BC3: 3,
-    BC4: 4,
-    BC5: 5,
-    BC7_M6_OPAQUE_ONLY: 6,
-    BC7_M5: 7,
-    PVRTC1_4_RGB: 8,
-    PVRTC1_4_RGBA: 9,
-    ASTC_4x4: 10,
-    ATC_RGB: 11,
-    ATC_RGBA_INTERPOLATED_ALPHA: 12,
-    RGBA32: 13,
-    RGB565: 14,
-    BGR565: 15,
-    RGBA4444: 16
-};
-
-// @ts-ignore
-KTX2TextureTranscoder.EngineFormat = {
-    RGBAFormat: constants.RGBAFormat,
-    RGBA_ASTC_4x4_Format: constants.RGBA_ASTC_4x4_Format,
-    RGBA_BPTC_Format: constants.RGBA_BPTC_Format,
-    RGBA_ETC2_EAC_Format: constants.RGBA_ETC2_EAC_Format,
-    RGBA_PVRTC_4BPPV1_Format: constants.RGBA_PVRTC_4BPPV1_Format,
-    RGBA_S3TC_DXT5_Format: constants.RGBA_S3TC_DXT5_Format,
-    RGB_ETC1_Format: constants.RGB_ETC1_Format,
-    RGB_ETC2_Format: constants.RGB_ETC2_Format,
-    RGB_PVRTC_4BPPV1_Format: constants.RGB_PVRTC_4BPPV1_Format,
-    RGB_S3TC_DXT1_Format: constants.RGB_S3TC_DXT1_Format
-};
-
-/* WEB WORKER */
-
-/**
- * @private
- * @constructor
- */
-KTX2TextureTranscoder.BasisWorker = function () {
+const BasisWorker = function () {
 
     let config: { [x: string]: any; };
     let transcoderPending: Promise<any>;
@@ -493,7 +423,7 @@ KTX2TextureTranscoder.BasisWorker = function () {
                             // @ts-ignore
                         }, buffers);
                     } catch (error) {
-                        console.error(`[KTX2TextureTranscoder.BasisWorker]: ${error}`);
+                        console.error(`[BasisWorker]: ${error}`);
                         // @ts-ignore
                         self.postMessage({type: 'error', id: message.id, error: error.message});
                     }

@@ -90,7 +90,7 @@ export interface SceneModel {
     /**
      * Creates a geometry within this SceneModel, from pre-compressed geometry parameters.
      *
-     * Use {@link compressGeometryParams} to convert {@link GeometryParams} to {@link GeometryCompressedParams}.
+     * Use {@link compressGeometryParams} to pre-compress {@link GeometryParams} into {@link GeometryCompressedParams}.
      *
      * @param params Pre-compressed geometry parameters.
      */

@@ -146,7 +146,7 @@ function load(viewer, options, inflatedData, performanceModel) {
             meshIds.push(meshId);
         }
 
-        performanceModel.createEntity(utils.apply(entityDefaults, {
+        performanceModel.createObject(utils.apply(entityDefaults, {
             id: entityId,
             isObject: (entityIsObjects [i] === 1),
             meshIds: meshIds

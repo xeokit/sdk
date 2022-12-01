@@ -173,7 +173,7 @@ class Path extends Curve {
      * @param t Indicates point of progress along this curve, in the range [0..1].
      * @returns {{Number[]}}
      */
-    getPoint(t:number):math.FloatArrayType {
+    getPoint(t:number):math.FloatArrayParam {
         var d = t * this.length;
         var curveLengths = this._getCurveLengths();
         var i = 0, diff, curve;

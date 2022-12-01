@@ -356,7 +356,7 @@ class GLTFLoaderPlugin extends Plugin {
                     const objectData = this.viewer.sceneData.objects[nodeId];
                     const type = (objectData ? objectData.type : "DEFAULT") || "DEFAULT";
 
-                    actions.createEntity = {
+                    actions.createObject = {
                         id: nodeId,
                         isObject: true // Registers the Entity in Scene#objects
                     };
@@ -366,19 +366,19 @@ class GLTFLoaderPlugin extends Plugin {
                     if (props) { // Set Entity's initial rendering state for recognized type
 
                         if (props.visible === false) {
-                            actions.createEntity.visible = false;
+                            actions.createObject.visible = false;
                         }
 
                         if (props.colorize) {
-                            actions.createEntity.colorize = props.colorize;
+                            actions.createObject.colorize = props.colorize;
                         }
 
                         if (props.pickable === false) {
-                            actions.createEntity.pickable = false;
+                            actions.createObject.pickable = false;
                         }
 
                         if (props.opacity !== undefined && props.opacity !== null) {
-                            actions.createEntity.opacity = props.opacity;
+                            actions.createObject.opacity = props.opacity;
                         }
                     }
 
@@ -426,7 +426,7 @@ class GLTFLoaderPlugin extends Plugin {
 
                 const id = name;
 
-                actions.createEntity = { // Create an Entity for this glTF scene node
+                actions.createObject = { // Create an Entity for this glTF scene node
                     id: id,
                     isObject: true // Registers the Entity in Scene#objects
                 };

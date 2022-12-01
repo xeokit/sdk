@@ -29,7 +29,7 @@ abstract class Curve extends Component {
      * @param t Position to get point at.
      * @returns {Number[]} Point at the given position.
      */
-    abstract getPoint(t: number, result?: math.FloatArrayType): math.FloatArrayType ;
+    abstract getPoint(t: number, result?: math.FloatArrayParam): math.FloatArrayParam ;
 
     /**
      * Sets the progress along this Curve.
@@ -57,9 +57,9 @@ abstract class Curve extends Component {
     /**
      * Gets the tangent on this Curve at position {@link Curve#t}.
      *
-     * @returns {{math.FloatArrayType}} The tangent.
+     * @returns {{math.FloatArrayParam}} The tangent.
      */
-    get tangent(): math.FloatArrayType {
+    get tangent(): math.FloatArrayParam {
         return this.getTangent(this._t);
     }
 
@@ -77,9 +77,9 @@ abstract class Curve extends Component {
      * Returns a normalized tangent vector on this Curve at the given position.
      *
      * @param t Position to get tangent at.
-     * @returns {{math.FloatArrayType}} Normalized tangent vector
+     * @returns {{math.FloatArrayParam}} Normalized tangent vector
      */
-    getTangent(t: number): math.FloatArrayType {
+    getTangent(t: number): math.FloatArrayParam {
         let delta = 0.0001;
         if (t === undefined) {
             t = this._t;
@@ -98,7 +98,7 @@ abstract class Curve extends Component {
         return math.normalizeVec3(vec, []);
     }
 
-    getPointAt(u: number = 0): math.FloatArrayType {
+    getPointAt(u: number = 0): math.FloatArrayParam {
         let t = this.getUToTMapping(u);
         return this.getPoint(t);
     }
@@ -109,7 +109,7 @@ abstract class Curve extends Component {
      * @param divisions The number of divisions.
      * @returns {{Array of Array}} Array of sampled 3D points.
      */
-    getPoints(divisions: number = 5): math.FloatArrayType[] {
+    getPoints(divisions: number = 5): math.FloatArrayParam[] {
         if (!divisions) {
             divisions = 5;
         }
@@ -120,7 +120,7 @@ abstract class Curve extends Component {
         return pts;
     }
 
-    _getLengths(divisions: number = 200): math.FloatArrayType {
+    _getLengths(divisions: number = 200): math.FloatArrayParam {
         if (!divisions) {
             divisions = (this.#arcLengthDivisions) ? (this.#arcLengthDivisions) : 200;
         }

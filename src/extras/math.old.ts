@@ -35,7 +35,7 @@ const math = {
      * @property ArrayStorageType
      * @type {Float32Array|Float64Array}
      */
-    getFloatArrayType() {
+    getFloatArrayParam() {
         return ArrayStorageType
     },
 

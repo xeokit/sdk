@@ -3,10 +3,8 @@ import {FloatArrayParam, IntArrayParam} from "../math/math";
 /**
  * Non-compressed geometry parameter type for {@link SceneModel.createGeometry}.
  *
- * There are two ways we can use this parameter type:
- *
- * 1. Create geometry using {@link SceneModel.createGeometry}, which will compress the geometry internally for us using {@link compressGeometryParams}
- * 2. Use {@link compressGeometryParams} ourselves, to convert to {@link GeometryParamsCompressed}, then create the geometry using {@link SceneModel.createGeometryCompressed}.
+ * * We can use {@link compressGeometryParams} to pre-compress to a {@link GeometryCompressedParams}, then use {@link SceneModel.createGeometryCompressed} directly. This
+ * is desireable if we are able to do that pre-compression offline and cache the GeometryCompressedParams.
  */
 export interface GeometryParams {
 

@@ -926,7 +926,7 @@ export class WebIFCLoaderPlugin extends Plugin {
                 meshIds.push(meshId);
             }
             const entityId = ctx.options.globalizeObjectIds ? math.globalizeObjectId(ctx.sceneModel.id, globalId) : globalId;
-            ctx.sceneModel.createEntity({
+            ctx.sceneModel.createObject({
                 id: entityId,
                 meshIds: meshIds,
                 isObject: true

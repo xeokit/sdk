@@ -4,13 +4,7 @@ import {GeometryBucketParams} from "./GeometryBucketParams";
 /**
  * Compressed geometry creation parameter type for {@link SceneModel.createGeometryCompressed}.
  *
- * This parameter type provides geometry data for the {@link SceneModel} builder method
- * {@link SceneModel.createGeometryCompressed}, in a compact format that reduces the amount of memory used for
- * vertex attributes and indices.
- *
- * Use {@link SceneModel.createGeometry} and {@link GeometryParams} to create geometries programmatically, from human-readable
- * arrays that are not yet quantized. Use {@link SceneModel.createGeometryCompressed} and GeometryCompressedParams to
- * create geometries from pre-compressed data.
+ * Use {@link compressGeometryParams} to create these from {@link GeometryParams}.
  */
 export interface GeometryCompressedParams {
 

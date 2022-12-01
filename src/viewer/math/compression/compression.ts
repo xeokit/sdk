@@ -23,27 +23,19 @@ const translate: FloatArrayParam = mat4();
 const scale: FloatArrayParam = mat4();
 
 /**
- * This function applies two steps to the provided mesh geometry data:
+ * Compresses {@link GeometryParams} into {@link GeometryCompressedParams}.
  *
- * - 1st, it reduces its `.positions` to unique positions, thus removing duplicate vertices. It will adjust the `.indices`
- * and `.edgeIndices` array accordingly to the unique `.positions`.
+ * This function applies these steps:
  *
- * - 2nd, it tries to do an optimization called `index rebucketting`
+ * 1. Remove duplicate vertex positions and adjust the indices arrays accordingly
+ * 2. Quantize vertex positions and UVs
+ * 3. Calculate edge indices (for triangle mesh)
+ * 4. Split mesh into 1-3 buckets (sub-meshes), in which each bucket relies on a different number of bits for storage of indices
  *
- *   _Rebucketting minimizes the amount of RAM usage for a given mesh geometry by trying do demote its needed index bitness._
+ * See {@link GeometryCompressedParams} for more info.
  *
- *   - _for 32 bit indices, will try to demote them to 16 bit indices_
- *   - _for 16 bit indices, will try to demote them to 8 bits indices_
- *   - _8 bits indices are kept as-is_
- *
- *   The fact that 32/16/8 bits are needed for indices, depends on the number of maximumm indexable vertices within the
- *   mesh geometry: this is, the number of vertices in the mesh geometry.
- *
- * The function returns the same provided input `geometryParams`, enriched with the additional key `.preparedBuckets`.
- *
- * @param {object} geometryParams The mesh information containing `.positions`, `.indices`, `.edgeIndices` arrays.
- *
- * @returns {object} The mesh information enrichened with `.geometries` key.
+ * @param geometryParams Uncompressed geometry params.
+ * @returns Compressed geometry params.
  */
 export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
     const aabb = math.boundaries.collapseAABB3();
@@ -51,12 +43,8 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
     //math.boundaries.AABB3ToOBB3(aabb, this.obb);
     const positionsDecompressMatrix = math.mat4();
     const quantizedPositions = math.compression.quantizePositions(geometryParams.positions, aabb, positionsDecompressMatrix);
-    const edgeIndices =
-        (geometryParams.primitive === SolidPrimitive ||
-            geometryParams.primitive === SurfacePrimitive ||
-            geometryParams.primitive === TrianglesPrimitive) ?
-            math.geometry.buildEdgeIndices(quantizedPositions, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold)
-            : null;
+    const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) ?
+        math.geometry.buildEdgeIndices(quantizedPositions, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold) : null;
     let uniqueQuantizedPositions, uniqueIndices, uniqueEdgeIndices;
     [
         uniqueQuantizedPositions,

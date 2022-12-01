@@ -16,7 +16,7 @@ import {Component} from "../Component";
  */
 class SplineCurve extends Curve {
 
-    #points: math.FloatArrayType[];
+    #points: math.FloatArrayParam[];
 
     /**
      * @constructor
@@ -28,7 +28,7 @@ class SplineCurve extends Curve {
      * @param [cfg.t=0] Current position on this CubicBezierCurve, in range between 0..1.
      */
     constructor(owner: Component, cfg: {
-        points: math.FloatArrayType[],
+        points: math.FloatArrayParam[],
         t: 0
     } = {
         points: [],
@@ -46,7 +46,7 @@ class SplineCurve extends Curve {
      *
      * @param value New control points.
      */
-    set points(value: math.FloatArrayType[]) {
+    set points(value: math.FloatArrayParam[]) {
         this.#points = value || [];
     }
 
@@ -57,7 +57,7 @@ class SplineCurve extends Curve {
      *
      * @returns {Number[]} The control points.
      */
-    get points(): math.FloatArrayType[] {
+    get points(): math.FloatArrayParam[] {
         return this.#points;
     }
 
@@ -93,7 +93,7 @@ class SplineCurve extends Curve {
      *
      * @returns {Number[]} The point at {@link SplineCurve#t}.
      */
-    get point(): math.FloatArrayType{
+    get point(): math.FloatArrayParam{
         return this.getPoint(this._t);
     }
 
@@ -104,7 +104,7 @@ class SplineCurve extends Curve {
      * @param result Point at the given position.
      * @returns {Number[]} Point at the given position.
      */
-    getPoint(t: number, result?: math.FloatArrayType): math.FloatArrayType{
+    getPoint(t: number, result?: math.FloatArrayParam): math.FloatArrayParam{
 
         if (!result) {
             result = math.vec3();

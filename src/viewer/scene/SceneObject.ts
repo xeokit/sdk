@@ -3,7 +3,7 @@ import {SceneModel} from "./SceneModel";
 import {FloatArrayParam} from "../math/math";
 
 /**
- * GeometryBucketHandle and material for an object within a {@link Viewer}.
+ * Geometry and material for an object within a {@link Viewer}.
  *
  * ## Overview
  *

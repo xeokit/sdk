@@ -3,15 +3,14 @@ import {SceneModel} from "./SceneModel";
 import {FloatArrayParam} from "../math/math";
 
 /**
- * Geometry and material for an object within a {@link Viewer}.
+ * Geometry and material for an object in a viewer.
  *
  * ## Overview
  *
- * * Belongs to a {@link SceneModel}, which belongs to a {@link Scene}
+ * * Contained in a {@link SceneModel}
  * * Created with {@link SceneModel.createObject}
- * * Registered by {@link SceneModel.id} in {@link SceneModel.sceneObjects} and {@link Scene.sceneObjects}
- * * Has a corresponding {@link ViewObject} in each of the {@link Viewer}'s {@link View}s
- * * Can have a corresponding {@link DataObject} in the {@link Viewer}'s {@link Data}
+ * * Registered in {@link SceneModel.objects} and {@link Scene.objects}
+ * * Has a {@link ViewObject} in each {@link View}
  */
 export interface SceneObject {
 

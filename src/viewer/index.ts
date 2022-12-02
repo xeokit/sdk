@@ -1,35 +1,73 @@
-export * from "./localization/index";
-export * from "./scene/index";
-export * from "./data/index";
-export * from "./Plugin";
-export * from "./Component";
 export * from "./Viewer";
-export * from "./ViewerCapabilities";
-export * from "./view/index";
-export * from "./Events";
-
-/**
- * Core viewer math utilities.
- *
- * ## Overview
- *
- * * Core 3D and 2D math library
- * * GeometryBucketHandle de/compression functions
- * * Primitive generation functions (cube, torus, sphere..)
- * * RTC coordinate functions
- */
-export * as math from "./math/index"
-
-export * as utils from "./utils/index"
 
 /**
  * Viewer constants.
  */
 export * as constants from "./constants";
 
-export * from "./ViewParams";
+/**
+ * Geometry and materials
+ */
+export * from "./scene/index";
 
 /**
- * Compressed texture transcoders.
+ * Interactive views
  */
+export * from "./view/index";
+
+/**
+ * Math utilities
+ */
+export * as math from "./math/index"
+
+/**
+ * Misc. utilities
+ */
+export * as utils from "./utils/index"
+
+/**
+  * Compressed texture transcoders.
+  */
 export * from "./textureTranscoders/index";
+
+export * from "./ViewerCapabilities";
+
+export * from "./Component";
+
+export * from "./Events";
+
+//
+//
+//
+// export * from "./Component";
+// export * from "./Plugin";
+// export * from "./localization/index";
+// export * from "./scene/index";
+// export * from "./data/index";
+//
+//
+// export * from "./ViewerCapabilities";
+// export * from "./view/index";
+// export * from "./Events";
+//
+// /**
+//  * Core viewer math utilities.
+//  *
+//  * ## Overview
+//  *
+//  * * Core 3D and 2D math library
+//  * * GeometryBucketHandle de/compression functions
+//  * * Primitive generation functions (cube, torus, sphere..)
+//  * * RTC coordinate functions
+//  */
+// export * as math from "./math/index"
+//
+// export * as utils from "./utils/index"
+//
+//
+// export * from "./ViewParams";
+//
+// /**
+//  * Compressed texture transcoders.
+//  */
+// export * from "./textureTranscoders/index";

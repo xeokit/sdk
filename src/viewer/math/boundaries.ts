@@ -7,7 +7,7 @@ import {decompressPosition} from "./compression/index";
  */
 export function AABB3(values?: FloatArrayParam): Float64Array {
     // @ts-ignore
-    return Float64Array(values || 6);
+    return new Float64Array(values || 6);
 }
 
 /**

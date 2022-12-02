@@ -8,7 +8,7 @@ import {DataModelParams} from "./DataModelParams";
 import {createUUID} from "../utils/index";
 
 /**
- * Contains semantic data about the models within a {@link Viewer}.
+ * Contains semantic data about models.
  *
  * ## Overview
  *
@@ -129,26 +129,29 @@ class Data extends Component {
 
         const list: string[] = [];
         const dataObject = this.objects[id];
+        if (!dataObject) {
+            return list;
+        }
         const includeMask = (includeTypes && includeTypes.length > 0) ? arrayToMap(includeTypes) : null;
         const excludeMask = (excludeTypes && excludeTypes.length > 0) ? arrayToMap(excludeTypes) : null;
 
-        function visit(dataObject: DataObject) {
-            if (!dataObject) {
+        function visit(_dataObject: DataObject) {
+            if (!_dataObject) {
                 return;
             }
             let include = true;
             // @ts-ignore
-            if (excludeMask && excludeMask[dataObject.type]) {
+            if (excludeMask && excludeMask[_dataObject.type]) {
                 include = false;
             } else { // @ts-ignore
-                if (includeMask && (!includeMask[dataObject.type])) {
+                if (includeMask && (!includeMask[_dataObject.type])) {
                     include = false;
                 }
             }
             if (include) {
-                list.push(dataObject.id);
+                list.push(_dataObject.id);
             }
-            const children = dataObject.children;
+            const children = _dataObject.children;
             if (children) {
                 for (let i = 0, len = children.length; i < len; i++) {
                     visit(children[i]);
@@ -178,6 +181,9 @@ class Data extends Component {
         const objects = this.objects;
         const objectsByType = this.objectsByType;
         let visit = (dataObject: DataObject) => {
+            if (!dataObject) {
+                return;
+            }
             objects[dataObject.id] = dataObject;
             const types = (objectsByType[dataObject.type] || (objectsByType[dataObject.type] = {}));
             if (!types[dataObject.id]) {
@@ -192,7 +198,9 @@ class Data extends Component {
                 }
             }
         };
-        visit(dataModel.rootDataObject);
+        if (dataModel.rootDataObject) {
+            visit(dataModel.rootDataObject);
+        }
         for (let propertySetId in dataModel.propertySets) {
             if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
                 this.propertySets[propertySetId] = dataModel.propertySets[propertySetId];
@@ -203,6 +211,9 @@ class Data extends Component {
 
     #deregisterDataModel(dataModel: DataModel) {
         let visit = (dataObject: DataObject) => {
+            if (!dataObject) {
+                return;
+            }
             delete this.objects[dataObject.id];
             const types = this.objectsByType[dataObject.type];
             if (types && types[dataObject.id]) {
@@ -220,10 +231,12 @@ class Data extends Component {
                 }
             }
         };
-        visit(dataModel.rootDataObject);
-        for (let propertySetId in dataModel.propertySets) {
-            if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
-                delete this.propertySets[propertySetId];
+        if (dataModel.rootDataObject) {
+            visit(dataModel.rootDataObject);
+            for (let propertySetId in dataModel.propertySets) {
+                if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
+                    delete this.propertySets[propertySetId];
+                }
             }
         }
         delete this.models[dataModel.id];

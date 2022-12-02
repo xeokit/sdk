@@ -5,17 +5,56 @@ import {DataObject} from "./DataObject";
 import {DataModelParams} from "./DataModelParams";
 import {DataObjectParams} from "./DataObjectParams";
 import {PropertySetParams} from "./PropertySetParams";
-import {Relation} from "./Relation";
 
 /**
- *  Semantic data about a model within a {@link Viewer}.
+ *  Buildable container of semantic data for a model.
  *
  * ## Overview
  *
- *  * Belongs to a {@link Data}
  *  * Created with {@link Data.createModel}
- *  * Registered by {@link DataModel.id} in {@link Data.models}
+ *  * Stored in {@link Data.models}
  *  * Contains {@link DataObject}s and {@link PropertySet}s
+ *
+ *  ## Usage
+ *
+ * ````javascript
+ * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const myViewer = new Viewer({
+ *   id: "myViewer"
+ * });
+ *
+ * const myDataModel = myViewer.data.createModel({
+ *   id: "myModel"
+ * });
+ *
+ * myDataModel.createPropertySet({
+ *     id: "myPropSet",
+ *     properties: [
+ *         {
+ *             id: "myProp",
+ *             value: 5
+ *         },
+ *         {
+ *             id: "myOtherProp",
+ *             value: "foo"
+ *         }
+ *     ]
+ * });
+ *
+ * myDataModel.createObject({
+ *   id: "myObject",
+ *   name: "Some object",
+ *   type: "MyType",
+ *   propertySetIds: ["myPropSet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *   id: "myObject2",
+ *   name: "Some other object",
+ *   type: "MyOtherType"
+ * });
+ * ````
  */
 class DataModel extends Component {
 

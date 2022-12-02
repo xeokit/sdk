@@ -261,7 +261,7 @@ export abstract class LayerRenderer {
                 gl.uniform4f(uniforms.color, fillColor[0], fillColor[1], fillColor[2], fillAlpha);
 
             } else {
-                gl.uniform4fv(uniforms.color, math.vec3([1, 1, 1]));
+                gl.uniform4fv(uniforms.color, new Float32Array([1, 1, 1]));
             }
         }
 
@@ -353,7 +353,7 @@ export abstract class LayerRenderer {
         // if (this.#uProjMatrix) {
         //     gl.uniformMatrix4fv(this.#uProjMatrix, false, project.matrix);
         // }
-        if (uniforms.lightAmbient) {
+        if (uniforms.lightAmbient) {      // @ts-ignore
             gl.uniform4fv(uniforms.lightAmbient, view.getAmbientColorAndIntensity());
         }
         for (let i = 0, len = uniforms.lights.length; i < len; i++) {
@@ -382,6 +382,7 @@ export abstract class LayerRenderer {
                 tempVec4[1] = viewportHeight;
                 tempVec4[2] = sao.blendCutoff;
                 tempVec4[3] = sao.blendFactor;
+                // @ts-ignore
                 gl.uniform4fv(uniforms.sao, tempVec4);
                 // program.bindTexture(this.#uOcclusionTexture, renderContext.occlusionTexture, 0);
             }
@@ -432,7 +433,8 @@ export abstract class LayerRenderer {
                 precision mediump usampler2D;
                 precision mediump isampler2D;
                 precision mediump sampler2D;
-                uniform int renderPass;`;
+                uniform int renderPass;
+                #endif`;
     }
 
     protected get vertDataTextureDefs(): string {

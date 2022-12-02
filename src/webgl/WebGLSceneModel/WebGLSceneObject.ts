@@ -166,7 +166,7 @@ class WebGLSceneObject implements SceneObject {
         }
         const opacityUpdated = (opacity !== null && opacity !== undefined);
         // @ts-ignore
-        const lastOpacityQuantized = this.#meshes[0].#colorize[3];
+        const lastOpacityQuantized = this.#meshes[0].colorize[3];
         let opacityQuantized = 255;
         if (opacityUpdated) {
             if (opacity < 0) {

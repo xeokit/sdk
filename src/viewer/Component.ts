@@ -12,7 +12,7 @@ import {Viewer} from "./Viewer";
  - Has logging methods
  - Optionally manages lifecycle of owned Components
  */
-class Component {
+export class Component {
 
     /**
      The Viewer to which this Component belongs.
@@ -60,7 +60,7 @@ class Component {
             } else if (owner instanceof Component) {
                 this.viewer = owner.viewer;
             } else {
-                throw "Invalid Component constructor argument: 'owner' must be a Component"
+              //  throw "Invalid Component constructor argument: 'owner' must be a Component"
             }
             this.#owner = owner;
         }
@@ -145,7 +145,7 @@ class Component {
 
      Sets {@link Component.destroyed} ````true````.
 
-    @private
+     @private
 
      */
     destroy(): void {
@@ -192,4 +192,4 @@ class Component {
     }
 }
 
-export {Component};
+

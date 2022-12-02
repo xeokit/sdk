@@ -12,12 +12,49 @@ import {GeometryCompressedParams} from "./GeometryCompressedParams";
 import {FloatArrayParam} from "../math/index";
 
 /**
- * Contains geometry and materials for a model within a {@link Viewer}.
+ *  Buildable container of geometry and materials for a model.
  *
- * * Contains {@link SceneObject}s
- * * Created by {@link Scene.createModel}
- * * Stored in {@link Scene.models}
- * * May have a corresponding {@link DataModel}
+ *  * Created by factory method {@link Scene.createModel}
+ *  * Has builder methods {@link SceneModel.createGeometry}, {@link SceneModel.createTexture}, {@link SceneModel.createObject} etc.
+ *  * Contains {@link SceneObject | SceneObjects}
+ *  * Stored in {@link Scene.models}
+ *
+ * ## Usage
+ *
+ * ````javascript
+ * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";*
+ *
+ * const myViewer = new Viewer({
+ *    id: "myViewer"
+ * });
+ *
+ * const mySceneModel = myViewer.scene.createModel({
+ *    id: "myModel"
+ * });
+ *
+ * mySceneModel.createGeometry({
+ *    id: "myGeometry",
+ *    primitive: constants.TrianglesPrimitive,
+ *    positions: [...],
+ *    indices: [...]
+ *    //...
+ * });
+ *
+ * mySceneModel.createMesh({
+ *    id: "myMesh",
+ *    geometryId: "myGeometry",
+ *    //...
+ * });
+ *
+ * mySceneModel.createObject({
+ *    id: "myObject",
+ *    meshIds: ["myMesh"],
+ *    viewLayer: "main"
+ *    //...
+ * });
+ *
+ * myModel.finalize();
+ * ````
  */
 export interface SceneModel {
 
@@ -65,7 +102,7 @@ export interface SceneModel {
      *
      * Default is ````true````.
      */
-     qualityRender: boolean;
+    qualityRender: boolean;
 
     /**
      * True once this SceneModel has been destroyed.

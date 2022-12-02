@@ -14,10 +14,12 @@ import {
 } from "../matrix";
 import {normalizeVec3, vec3} from "../vector";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../constants";
-import {GeometryParams, GeometryCompressedParams, math} from "../../../viewer/index";
+import {GeometryParams, GeometryCompressedParams} from "../../../viewer/scene/index";
 
 import {uniquifyPositions} from "./lib/calculateUniquePositions";
 import {rebucketPositions} from "./lib/rebucketPositions";
+import {collapseAABB3, expandAABB3Points3} from "../boundaries";
+import {buildEdgeIndices} from "../geometry/buildEdgeIndices";
 
 const translate: FloatArrayParam = mat4();
 const scale: FloatArrayParam = mat4();
@@ -38,13 +40,13 @@ const scale: FloatArrayParam = mat4();
  * @returns Compressed geometry params.
  */
 export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
-    const aabb = math.boundaries.collapseAABB3();
-    math.boundaries.expandAABB3Points3(aabb, geometryParams.positions);
+    const aabb = collapseAABB3();
+    expandAABB3Points3(aabb, geometryParams.positions);
     //math.boundaries.AABB3ToOBB3(aabb, this.obb);
-    const positionsDecompressMatrix = math.mat4();
-    const quantizedPositions = math.compression.quantizePositions(geometryParams.positions, aabb, positionsDecompressMatrix);
+    const positionsDecompressMatrix = mat4();
+    const quantizedPositions = quantizePositions(geometryParams.positions, aabb, positionsDecompressMatrix);
     const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) ?
-        math.geometry.buildEdgeIndices(quantizedPositions, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold) : null;
+        buildEdgeIndices(quantizedPositions, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold) : null;
     let uniqueQuantizedPositions, uniqueIndices, uniqueEdgeIndices;
     [
         uniqueQuantizedPositions,

@@ -4,13 +4,12 @@ import {DataObjectParams} from "./DataObjectParams";
 import {Relation} from "./Relation";
 
 /**
- *  Semantic data about an object within a {@link Viewer}.
+ *  Semantic data about an object.
  *
  *  ## Overview
  *
- *  * Belongs to a {@link DataModel}
- *  * Corresponds to a {@link SceneObject} when {@link DataObject.id} matches the {@link SceneObject.id}
- *  * Stored by {@link SceneObject.id} in {@link DataModel.objects} and {@link Data.objects}
+ *  * Contained in a {@link DataModel}
+ *  * Stored by {@link DataModel.id} in {@link DataModel.objects} and {@link Data.objects}
  *  * Created with {@link DataModel.createObject} or {@link DataObject.createObject}
  */
 class DataObject {

@@ -152,7 +152,7 @@ export class WebGLRenderer implements Renderer {
             throw "Only one View allowed with WebGLRenderer (see ViewerCapabilities.maxViews)";
         }
         this.#view = view;
-        const WEBGL_CONTEXT_NAMES = ["WebGLRenderer"];
+        const WEBGL_CONTEXT_NAMES = ["webgl2"];
         const canvasElement = view.canvas.canvas;
         const contextAttr = {};
         let gl: WebGL2RenderingContext = null;
@@ -187,6 +187,9 @@ export class WebGLRenderer implements Renderer {
     }
 
     createModel(params: SceneModelParams): SceneModel {
+        if (!this.#renderContext) {
+            throw "Must register a View before you create a model";
+        }
         const webglSceneModel = new WebGLSceneModel(utils.apply({
             view: this.#view,
             scene: this.#viewer.scene,

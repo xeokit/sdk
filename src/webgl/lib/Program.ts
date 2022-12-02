@@ -38,8 +38,8 @@ export class Program {
         this.samplers = {};
         this.attributes = {};
 
-        this.vertexShader = new Shader(gl, gl.VERTEX_SHADER, joinSansComments(this.source.vertex));
-        this.fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, joinSansComments(this.source.fragment));
+        this.vertexShader = new Shader(gl, gl.VERTEX_SHADER, this.source.vertex);
+        this.fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, this.source.fragment);
 
         if (!this.vertexShader.allocated) {
             this.errors = ["Vertex shader failed to allocate"].concat(this.vertexShader.errors);

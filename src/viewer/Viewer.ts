@@ -11,10 +11,14 @@ import {apply, createUUID} from "./utils/index";
 import {Events} from "./Events";
 import {ViewerCapabilities} from "./ViewerCapabilities";
 import {ViewParams} from "./ViewParams";
-import {WebGLRenderer} from "../webgl/index";
+import {WebGLRenderer} from "../webgl/WebGLRenderer";
 
 /**
- * The browser-based viewer at the core of ````@xeokit/xeokit-viewer````.
+ * An extensible browser-based 3D viewer for AECO applications.
+ *
+ * * Fast, double precision rendering with low memory footprint
+ * * Semantic data
+ * * Multiple canvases
  *
  * ## Overview
  *
@@ -274,8 +278,10 @@ export class Viewer {
         }
         const view = new View(apply({id, viewer: this}, params));
         this.#registerView(view);
+        view.viewIndex = this.renderer.registerView(view);
         view.events.on("destroyed", () => {
             this.#deregisterView(view);
+            this.renderer.deregisterView(view.viewIndex);
             this.events.fire("viewDestroyed", view);
         });
         this.events.fire("viewCreated", view);

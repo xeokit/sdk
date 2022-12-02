@@ -4,7 +4,6 @@ import {Viewport} from "./Viewport.js";
 import {Canvas} from "./Canvas";
 import {CameraControl} from "./CameraControl/index";
 import {Input} from "./Input.js";
-import * as utils from "../utils/index";
 import {ViewObject} from "./ViewObject";
 import {SectionPlane} from "./SectionPlane";
 import {AmbientLight, DirLight, PointLight} from "./lights/index";
@@ -21,7 +20,7 @@ import {FastRender, QualityRender} from "../constants";
 import {ViewLayer} from "./ViewLayer";
 
 /**
- * An independently-configurable view of the models within a {@link Viewer}.
+ * A view of the objects in a viewer.
  */
 class View extends Component {
 

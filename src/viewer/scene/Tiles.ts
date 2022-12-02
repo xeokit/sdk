@@ -2,7 +2,6 @@ import {FloatArrayParam} from "../math/math";
 import {Component} from "../Component";
 import {Scene} from "./Scene";
 import {Tile} from "./Tile";
-import {SceneModel} from "./SceneModel";
 
 /**
  * The {@link Tile}s within a {@link Scene}.
@@ -10,7 +9,7 @@ import {SceneModel} from "./SceneModel";
  * * Located at {@link Scene.tiles}
  * * Contains {@link Tile}s
  */
-export class Tiles extends Component {
+class Tiles extends Component {
 
     /**
      * The owner Scene.
@@ -50,3 +49,5 @@ export class Tiles extends Component {
         return null;
     }
 }
+
+export {Tiles};

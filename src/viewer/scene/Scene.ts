@@ -9,10 +9,12 @@ import {SceneModelParams} from "./SceneModelParams";
 import {Tiles} from "./Tiles";
 
 /**
- * Contains geometry and materials for the models within a {@link Viewer}.
+ * Contains geometry and materials for models.
  *
  * * Located at {@link Viewer.scene}
  * * Contains {@link SceneModel}s and {@link SceneObject}s
+ *
+ *
  */
 export class Scene extends Component {
 

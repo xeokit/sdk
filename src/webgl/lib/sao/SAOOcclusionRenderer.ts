@@ -317,15 +317,19 @@ export class SAOOcclusionRenderer {
         program.bind();
         gl.uniform1f(this.#uCameraNear, near);
         gl.uniform1f(this.#uCameraFar, far);
+        // @ts-ignore
         gl.uniformMatrix4fv(this.#uCameraProjectionMatrix, false, projectionMatrix);
+        // @ts-ignore
         gl.uniformMatrix4fv(this.#uCameraInverseProjectionMatrix, false, inverseProjectionMatrix);
         // @ts-ignore
         gl.uniform1i(this.#uPerspective, perspective);
         gl.uniform1f(this.#uScale, sao.scale * (far / 5));
         gl.uniform1f(this.#uIntensity, sao.intensity);
         gl.uniform1f(this.#uBias, sao.bias);
+        // @ts-ignore
         gl.uniform1f(this.#uKernelRadius, sao.kernelRadius);
         gl.uniform1f(this.#uMinResolution, sao.minResolution);
+        // @ts-ignore
         gl.uniform2fv(this.#uViewport, tempVec2);
         gl.uniform1f(this.#uRandomSeed, randomSeed);
         const depthTexture = WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]

@@ -4,11 +4,17 @@ import {SceneObject} from "../scene/index";
 import * as math from '../math/index';
 
 /**
- * Represents the visual state of a model object within a {@link View}.
+ * The visual state of an object in a viewer.
+ *
+ * ## Overview
+ *
+ * * Contained in a {@link View}
+ * * Exists automatically for each {@link SceneObject}
+ * * Registered by {@link ViewObject.id} in {@link View.objects}
  *
  * ## Summary
  *
- * Each View will automatically contain a ViewObject for each {@link SceneObject} that currently exists. Whenever a
+ * Every View will automatically contain a ViewObject for each {@link SceneObject} that currently exists. Whenever a
  * SceneObject is created or destroyed, a ViewObject will also automatically be created and destroyed within each View that
  * exists at the time. Each new View we subsequently create will automatically get a ViewObject for each of the SceneObjects
  * that currently exist.

@@ -15,6 +15,8 @@ export class SilhouetteTrianglesLayerRenderer extends LayerRenderer {
     buildVertexShader(): string {
         return `${this.vertHeader}   
        
+                uniform int                 renderPass;   
+                       
                 uniform mediump usampler2D  eachPrimitiveMesh;
                 uniform lowp    usampler2D  eachMeshAttributes;
                 
@@ -29,7 +31,7 @@ export class SilhouetteTrianglesLayerRenderer extends LayerRenderer {
                 uniform  float  logDepthBufFC;
                  
                 out vec4        worldPosition;
-                out int         meshFlags2;                       
+                flat out uint    meshFlags2r;                       
                 out uvec4       meshColor;
                 out float       fragDepth;
                 
@@ -87,9 +89,9 @@ export class SilhouetteTrianglesLayerRenderer extends LayerRenderer {
                    
                     vec4 _worldPosition = modelMatrix * ((meshMatrix * positionsDecompressMatrix) * vec4(position, 1.0)); 
                     vec4 viewPosition   = viewMatrix * _worldPosition;                   
-                    vec4 clipPosition   = projMatrix * viewPosition;");
+                    vec4 clipPosition   = projMatrix * viewPosition;
 
-                    meshFlags2     = meshFlags2.r;                     
+                    meshFlags2r     = meshFlags2.r;                     
                     meshColor      = texelFetch (eachMeshAttributes, ivec2(0, meshIndex), 0);                          
                     fragDepth      = 1.0 + clipPosition.w;");
                     enableLogDepthBuf  = float (isPerspectiveMatrix(projMatrix));
@@ -102,7 +104,7 @@ export class SilhouetteTrianglesLayerRenderer extends LayerRenderer {
     buildFragmentShader(): string {
         return `${this.fragHeader}                          
            
-                in int         meshFlags2;  
+                in uint         meshFlags2r;  
                 in uvec4       meshColor;
                 in float       fragDepth;
                 in float       enableLogDepthBuf;    

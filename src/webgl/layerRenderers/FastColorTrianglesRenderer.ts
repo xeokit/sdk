@@ -14,6 +14,8 @@ export class FastColorTrianglesRenderer extends LayerRenderer {
     buildVertexShader(): string {
         return `${this.vertHeader}   
         
+            uniform int                 renderPass;   
+            
                 uniform mediump usampler2D  eachPrimitiveMesh;
                 uniform lowp    usampler2D  eachMeshAttributes;
                 
@@ -28,8 +30,8 @@ export class FastColorTrianglesRenderer extends LayerRenderer {
                 uniform  float  logDepthBufFC;
                  
                 out vec4        worldPosition;
-                out int         meshFlags2;                       
-                out uvec4       meshColor;
+                flat out uint    meshFlags2r;                       
+                flat out uvec4       meshColor;
                 out float       fragDepth;
                 
                 bool isPerspectiveMatrix(mat4 m) {
@@ -85,13 +87,13 @@ export class FastColorTrianglesRenderer extends LayerRenderer {
                    
                     vec4  _worldPosition = worldMatrix * ((meshMatrix * positionsDecompressMatrix) * vec4(position, 1.0)); 
                     vec4  viewPosition   = viewMatrix * _worldPosition;                   
-                    vec4  clipPosition   = projMatrix * viewPosition;");
+                    vec4  clipPosition   = projMatrix * viewPosition;
 
-                    meshFlags2     = meshFlags2.r;                     
+                    meshFlags2r     = meshFlags2.r;                     
                     meshColor      = texelFetch (eachMeshAttributes, ivec2(0, meshIndex), 0);                          
-                    fragDepth      = 1.0 + clipPosition.w;");
+                    fragDepth      = 1.0 + clipPosition.w;
                     isPerspective  = float (isPerspectiveMatrix(projMatrix));
-                    worldPosition  = _worldPosition;");                                                 
+                    worldPosition  = _worldPosition;                                               
                     
                     gl_Position    = clipPosition;
                 }`;
@@ -100,11 +102,10 @@ export class FastColorTrianglesRenderer extends LayerRenderer {
     buildFragmentShader(): string {
         return `${this.fragHeader}                        
     
-                in uvec4        meshColor;
+             flat   in uvec4        meshColor;
                 in float        fragDepth;
                 in float        isPerspective;    
-                in vec4         worldPosition;
-                in int          meshFlags2;        
+                flat in uint          meshFlags2r;        
                 uniform float   logDepthBufFC;                        
     
                 ${this.fragSectionPlaneDefs}                  
@@ -124,7 +125,7 @@ export class FastColorTrianglesRenderer extends LayerRenderer {
                     ${this.fragSectionPlanesSlice}                                    
                     ${this.fragFlatShading}     
           
-                    outColor = meshColor;                   
+                    outColor = vec4(meshColor);                   
                     gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;                        
                 }`;
     }

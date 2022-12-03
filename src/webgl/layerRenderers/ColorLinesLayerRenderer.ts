@@ -14,7 +14,8 @@ export class ColorLinesLayerRenderer extends LayerRenderer {
 
     buildVertexShader(): string {
         return `${this.vertHeader}   
-        
+
+                uniform int                 renderPass;        
                 uniform highp   sampler2D   cameraMatrices;
                 uniform highp   sampler2D   sceneModelMatrices;
                 uniform mediump sampler2D   eachMeshMatrices;
@@ -24,10 +25,10 @@ export class ColorLinesLayerRenderer extends LayerRenderer {
                 uniform mediump usampler2D  colors;
                 uniform highp   usampler2D  indices;              
                 uniform mediump usampler2D  eachPrimitiveMesh;                
-                uniform  float  logDepthBufFC;
+                uniform  float              logDepthBufFC;
                                  
                 out vec4        worldPosition;
-                out int         meshFlags2;                       
+                flat out int    meshFlags2;                       
                 out float       fragDepth;
                 
                 bool isPerspectiveMatrix(mat4 m) {
@@ -86,13 +87,13 @@ export class ColorLinesLayerRenderer extends LayerRenderer {
                                                   
                     vec4  _worldPosition = worldMatrix * ((meshMatrix * positionsDecompressMatrix) * vec4(position, 1.0)); 
                     vec4  viewPosition   = viewMatrix * _worldPosition;                   
-                    vec4 clipPos         = projMatrix * viewPosition;");
+                    vec4 clipPos         = projMatrix * viewPosition;
 
                     vec3 _colors[3];                   
                     _colors[0] = vec3(texelFetch(colors, ivec2(indexPositionH.r, indexPositionV.r), 0));
                     _colors[1] = vec3(texelFetch(colors, ivec2(indexPositionH.g, indexPositionV.g), 0));
                     _colors[2] = vec3(texelFetch(colors, ivec2(indexPositionH.b, indexPositionV.b), 0));
-                    vec4 color = _colors[gl_VertexID % 3];
+                    vec4 color = vec4(_colors[gl_VertexID % 3],1.0);
                     
                     meshFlags2     = meshFlags2.r;                     
                     pointColor     = color;                          

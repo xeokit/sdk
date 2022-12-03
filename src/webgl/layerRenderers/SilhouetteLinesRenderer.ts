@@ -19,6 +19,8 @@ export class SilhouetteLinesRenderer extends LayerRenderer {
     buildVertexShader(): string {
         return `${this.vertHeader}   
         
+                uniform int                 renderPass;   
+                        
                 uniform highp   sampler2D   cameraMatrices;
                 uniform highp   sampler2D   sceneModelMatrices;
                 uniform mediump sampler2D   eachMeshMatrices;
@@ -31,7 +33,7 @@ export class SilhouetteLinesRenderer extends LayerRenderer {
                 uniform  float  logDepthBufFC;
                  
                 out vec4        worldPosition;
-                out int         meshFlags2;                       
+                flat out int    meshFlags2r;                       
                 out uvec4       meshColor;
                 out float       fragDepth;
                 
@@ -86,9 +88,9 @@ export class SilhouetteLinesRenderer extends LayerRenderer {
                    
                     vec4  _worldPosition = worldMatrix * ((meshMatrix * positionsDecompressMatrix) * vec4(position, 1.0)); 
                     vec4  viewPosition   = viewMatrix * _worldPosition;                   
-                    vec4 clipPos         = projMatrix * viewPosition;");
+                    vec4 clipPos         = projMatrix * viewPosition;
 
-                    meshFlags2     = meshFlags2.r;                     
+                    meshFlags2r     = meshFlags2.r;                     
                     meshColor      = texelFetch (eachMeshAttributes, ivec2(0, meshIndex), 0);                          
                     fragDepth      = 1.0 + clipPos.w;");
                     enableLogDepthBuf  = float (isPerspectiveMatrix(projMatrix));
@@ -103,7 +105,7 @@ export class SilhouetteLinesRenderer extends LayerRenderer {
                 in float       fragDepth;
                 in float       enableLogDepthBuf;    
                 in vec4        worldPosition;
-                in int         meshFlags2;                        
+                in int         meshFlags2r;                        
                 uniform vec4   colorize;      
                 uniform float  logDepthBufFC;                                       
                 ${this.fragSectionPlaneDefs}                                

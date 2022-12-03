@@ -14,6 +14,7 @@ export class ColorPointsLayerRenderer extends LayerRenderer {
     buildVertexShader(): string {
         return `${this.vertHeader}   
         
+                uniform int                 renderPass;        
                 uniform highp   sampler2D   cameraMatrices;
                 uniform highp   sampler2D   sceneModelMatrices;
                 uniform mediump sampler2D   eachMeshMatrices;
@@ -23,10 +24,9 @@ export class ColorPointsLayerRenderer extends LayerRenderer {
                 uniform mediump usampler2D  colors;
                 uniform highp   usampler2D  indices;              
                 uniform mediump usampler2D  eachPrimitiveMesh;                
-                uniform  float  logDepthBufFC;
-                                 
+                uniform  float              logDepthBufFC;                                 
                 out vec4        worldPosition;
-                out int         meshFlags2;                       
+                flat out int    meshFlags2r;                       
                 out float       fragDepth;
                 
                 bool isPerspectiveMatrix(mat4 m) {
@@ -85,15 +85,15 @@ export class ColorPointsLayerRenderer extends LayerRenderer {
                                                   
                     vec4  _worldPosition = worldMatrix * ((meshMatrix * positionsDecompressMatrix) * vec4(position, 1.0)); 
                     vec4  viewPosition   = viewMatrix * _worldPosition;                   
-                    vec4 clipPos         = projMatrix * viewPosition;");
+                    vec4 clipPos         = projMatrix * viewPosition;
 
                     vec3 _colors[3];                   
                     _colors[0] = vec3(texelFetch(colors, ivec2(indexPositionH.r, indexPositionV.r), 0));
                     _colors[1] = vec3(texelFetch(colors, ivec2(indexPositionH.g, indexPositionV.g), 0));
                     _colors[2] = vec3(texelFetch(colors, ivec2(indexPositionH.b, indexPositionV.b), 0));
-                    vec4 color = _colors[gl_VertexID % 3];
+  vec4 color = vec4(_colors[gl_VertexID % 3],1.0);
                     
-                    meshFlags2     = meshFlags2.r;                     
+                    meshFlags2r     = meshFlags2.r;                     
                     pointColor     = color;                          
                     fragDepth      = 1.0 + clipPos.w;");
                     enableLogDepthBuf  = float (isPerspectiveMatrix(projMatrix));
@@ -107,7 +107,7 @@ export class ColorPointsLayerRenderer extends LayerRenderer {
                 in uvec4       pointColor;
                 in float       fragDepth;
                 in vec4        worldPosition;
-                in int         meshFlags2;          
+                in int         meshFlags2r;          
                 
                 in float       enableLogDepthBuf;                                 
                 uniform float  logDepthBufFC;                                       

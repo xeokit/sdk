@@ -89,34 +89,34 @@ class MousePickHandler {
 
                         if (this.#lastPickedEntityId !== undefined) {
 
-                            cameraControl.fire("hoverOut", { // Hovered off an entity
+                            cameraControl.events.fire("hoverOut", { // Hovered off an entity
                                 entity: this.#view.objects[this.#lastPickedEntityId]
                             }, true);
                         }
 
-                        cameraControl.fire("hoverEnter", pickController.pickResult, true); // Hovering over a new entity
+                        cameraControl.events.fire("hoverEnter", pickController.pickResult, true); // Hovering over a new entity
 
                         this.#lastPickedEntityId = pickedEntityId;
                     }
 
-                    cameraControl.fire("hover", pickController.pickResult, true);
+                    cameraControl.events.fire("hover", pickController.pickResult, true);
 
                     if (pickController.pickResult.worldPos) { // Hovering the surface of an entity
-                        cameraControl.fire("hoverSurface", pickController.pickResult, true);
+                        cameraControl.events.fire("hoverSurface", pickController.pickResult, true);
                     }
 
                 } else {
 
                     if (this.#lastPickedEntityId !== undefined) {
 
-                        cameraControl.fire("hoverOut", { // Hovered off an entity
+                        cameraControl.events.fire("hoverOut", { // Hovered off an entity
                             entity: this.#view.objects[this.#lastPickedEntityId]
                         }, true);
 
                         this.#lastPickedEntityId = undefined;
                     }
 
-                    cameraControl.fire("hoverOff", { // Not hovering on any entity
+                    cameraControl.events.fire("hoverOff", { // Not hovering on any entity
                         canvasPos: pickController.pickCursorPos
                     }, true);
                 }
@@ -228,13 +228,13 @@ class MousePickHandler {
 
                     if (pickController.pickResult) {
 
-                        cameraControl.fire("picked", pickController.pickResult, true);
+                        cameraControl.events.fire("picked", pickController.pickResult, true);
 
                         if (pickController.pickedSurface) {
-                            cameraControl.fire("pickedSurface", pickController.pickResult, true);
+                            cameraControl.events.fire("pickedSurface", pickController.pickResult, true);
                         }
                     } else {
-                        cameraControl.fire("pickedNothing", {
+                        cameraControl.events.fire("pickedNothing", {
                             canvasPos: states.pointerCanvasPos
                         }, true);
                     }
@@ -258,11 +258,11 @@ class MousePickHandler {
 
                     if (pickController.pickResult) {
 
-                        cameraControl.fire("picked", pickController.pickResult, true);
+                        cameraControl.events.fire("picked", pickController.pickResult, true);
 
                         if (pickController.pickedSurface) {
 
-                            cameraControl.fire("pickedSurface", pickController.pickResult, true);
+                            cameraControl.events.fire("pickedSurface", pickController.pickResult, true);
 
                             if ((!configs.firstPerson) && configs.followPointer) {
                                 controllers.pivotController.setPivotPos(pickController.pickResult.worldPos);
@@ -272,7 +272,7 @@ class MousePickHandler {
                             }
                         }
                     } else {
-                        cameraControl.fire("pickedNothing", {
+                        cameraControl.events.fire("pickedNothing", {
                             canvasPos: states.pointerCanvasPos
                         }, true);
                     }
@@ -295,10 +295,10 @@ class MousePickHandler {
 
                 if (pickController.pickResult) {
 
-                    cameraControl.fire("doublePicked", pickController.pickResult, true);
+                    cameraControl.events.fire("doublePicked", pickController.pickResult, true);
 
                     if (pickController.pickedSurface) {
-                        cameraControl.fire("doublePickedSurface", pickController.pickResult, true);
+                        cameraControl.events.fire("doublePickedSurface", pickController.pickResult, true);
                     }
 
                     if (configs.doublePickFlyTo) {
@@ -320,7 +320,7 @@ class MousePickHandler {
 
                 } else {
 
-                    cameraControl.fire("doublePickedNothing", {
+                    cameraControl.events.fire("doublePickedNothing", {
                         canvasPos: states.pointerCanvasPos
                     }, true);
 

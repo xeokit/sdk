@@ -158,6 +158,7 @@ export class Scene extends Component {
      * @seealso {@link Data.createModel}
      */
     createModel(params: SceneModelParams): SceneModel {
+        this.log(`Creating SceneModel : ${params.id}`);
         if (this.viewer.viewList.length === 0) {
             throw "Please create a View with Viewer.createView() before creating a SceneModel";
         }
@@ -168,14 +169,15 @@ export class Scene extends Component {
         }
         const sceneModel = this.viewer.renderer.createModel(params);
         this.models[sceneModel.id] = sceneModel;
-        sceneModel.events.on("finalized", () => {
-            this.#registerSceneObjects(sceneModel);
-            this.events.fire("sceneModelCreated", sceneModel);
+        sceneModel.events.on("finalized", (finalizedSceneModel) => {
+            this.#registerSceneObjects(finalizedSceneModel);
+            this.events.fire("sceneModelCreated", finalizedSceneModel);
+            this.log(`SceneModel created: ${finalizedSceneModel.id}`);
         });
-        sceneModel.events.on("destroyed", () => {
-            delete this.models[sceneModel.id];
-            this.#deregisterSceneObjects(sceneModel);
-            this.events.fire("sceneModelDestroyed", sceneModel);
+        sceneModel.events.on("destroyed", (destroyedSceneModel) => {
+            delete this.models[destroyedSceneModel.id];
+            this.#deregisterSceneObjects(destroyedSceneModel);
+            this.events.fire("sceneModelDestroyed", destroyedSceneModel);
         });
         return sceneModel;
     }

@@ -251,7 +251,7 @@ class MousePanRotateDollyHandler {
                     const x = canvasPos[0];
                     const y = canvasPos[1];
                     if (Math.abs(x - lastXDown) < 3 && Math.abs(y - lastYDown) < 3) {
-                        controllers.cameraControl.fire("rightClick", { // For context menus
+                        controllers.cameraControl.events.fire("rightClick", { // For context menus
                             pagePos: [Math.round(e.pageX), Math.round(e.pageY)],
                             canvasPos: canvasPos,
                             event: e

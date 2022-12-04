@@ -4,14 +4,17 @@
  *
  * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
  */
-function t(t) {
-    return (r, ...e) => n(t, r, e)
+function t(t: Function) {
+    // @ts-ignore
+    return (r: any, ...e: ArrayLike<any>) => n(t, r, e)
 }
 
-function r(r, n) {
+function r(r: object, n: PropertyKey) {
     return t(s(r, n).get)
 }
 
+// @ts-ignore
+// @ts-ignore
 const {
         apply: n,
         construct: e,
@@ -39,13 +42,17 @@ const {
         defineProperty: B,
         freeze: x,
         is: E
+        // @ts-ignore
     } = A, T = A.prototype, O = t(T.isPrototypeOf), j = A.hasOwn || t(T.hasOwnProperty), I = Array, P = I.isArray,
+    // @ts-ignore
     S = I.prototype, _ = t(S.join), F = t(S.push), L = t(S.toLocaleString), R = S[g], C = t(R), N = Math.trunc,
     U = ArrayBuffer, M = U.isView, D = t(U.prototype.slice), k = r(U.prototype, "byteLength"),
     W = "undefined" != typeof SharedArrayBuffer ? SharedArrayBuffer : null, V = W && r(W.prototype, "byteLength"),
+    // @ts-ignore
     Y = c(Uint8Array), z = Y.from, G = Y.prototype, K = G[g], X = t(G.keys), q = t(G.values), H = t(G.entries),
     J = t(G.set), Q = t(G.reverse), Z = t(G.fill), $ = t(G.copyWithin), tt = t(G.sort), rt = t(G.slice),
     nt = t(G.subarray), et = r(G, "buffer"), ot = r(G, "byteOffset"), it = r(G, "length"), st = r(G, v),
+    // @ts-ignore
     ct = Uint16Array, ut = (...t) => n(z, ct, t), ft = Uint32Array, ht = Float32Array, lt = c([][g]()), at = t(lt.next),
     yt = t(function* () {
     }().next), pt = c(lt), wt = DataView.prototype, gt = t(wt.getUint16), dt = t(wt.setUint16), vt = TypeError,
@@ -57,7 +64,7 @@ for (let t = 0; t < 256; ++t) {
     r < -27 ? (Ft[t] = 0, Ft[256 | t] = 32768, Lt[t] = 24, Lt[256 | t] = 24) : r < -14 ? (Ft[t] = 1024 >> -r - 14, Ft[256 | t] = 1024 >> -r - 14 | 32768, Lt[t] = -r - 1, Lt[256 | t] = -r - 1) : r <= 15 ? (Ft[t] = r + 15 << 10, Ft[256 | t] = r + 15 << 10 | 32768, Lt[t] = 13, Lt[256 | t] = 13) : r < 128 ? (Ft[t] = 31744, Ft[256 | t] = 64512, Lt[t] = 24, Lt[256 | t] = 24) : (Ft[t] = 31744, Ft[256 | t] = 64512, Lt[t] = 13, Lt[256 | t] = 13)
 }
 
-function Rt(t) {
+function Rt(t: number) {
     St[0] = t;
     const r = _t[0],
         n = r >> 23 & 511;
@@ -82,18 +89,20 @@ for (let t = 33; t < 63; ++t) Nt[t] = 2147483648 + (t - 32 << 23);
 Nt[63] = 3347054592, Ut[0] = 0;
 for (let t = 1; t < 64; ++t) Ut[t] = 32 === t ? 0 : 1024;
 
-function Mt(t) {
+function Mt(t: number) {
     const r = t >> 10;
     return _t[0] = Ct[Ut[r] + (1023 & t)] + Nt[r], St[0]
 }
 
-function Dt(t) {
+function Dt(t: unknown) {
     if ("bigint" == typeof t) throw vt("Cannot convert a BigInt value to a number");
     if (t = y(t), !p(t) || 0 === t) return t;
+    // @ts-ignore
     return Mt(Rt(t))
 }
 
-function kt(t) {
+function kt(t: any[]) {
+    // @ts-ignore
     if (t[g] === R) return t;
     const r = C(t);
     return m(null,
@@ -132,44 +141,46 @@ const Wt = new Et,
                 }
         });
 
-function Yt(t) {
+function Yt(t:any) {
     const r = m(Vt);
     return It(Wt, r, t), r
 }
 
-function zt(t) {
+function zt(t:any) {
     return null !== t && "object" == typeof t || "function" == typeof t
 }
 
-function Gt(t) {
+function Gt(t:any) {
     return null !== t && "object" == typeof t
 }
 
-function Kt(t) {
+function Kt(t:any) {
     return void 0 !== st(t)
 }
 
-function Xt(t) {
+function Xt(t:any) {
     const r = st(t);
     return "BigInt64Array" === r || "BigUint64Array" === r
 }
 
-function qt(t) {
+function qt(t:any) {
     if (null === W) return !1;
     try {
         return V(t), !0
-    } catch (t) {
+    } catch (t:any) {
         return !1
     }
 }
 
-function Ht(t) {
+function Ht(t:any) {
     if (!P(t)) return !1;
+    // @ts-ignore
     if (t[g] === R) return !0;
+    // @ts-ignore
     return "Array Iterator" === t[g]()[v]
 }
 
-function Jt(t) {
+function Jt(t:any) {
     if ("string" != typeof t) return !1;
     const r = y(t);
     return t === r + "" && (!!p(r) && r === N(r))
@@ -177,18 +188,18 @@ function Jt(t) {
 
 const Qt = y.MAX_SAFE_INTEGER;
 
-function Zt(t) {
+function Zt(t:any) {
     if ("bigint" == typeof t) throw vt("Cannot convert a BigInt value to a number");
     const r = y(t);
     return w(r) || 0 === r ? 0 : N(r)
 }
 
-function $t(t) {
+function $t(t:any) {
     const r = Zt(t);
     return r < 0 ? 0 : r < Qt ? r : Qt
 }
 
-function tr(t, r) {
+function tr(t: { constructor: any; }, r: ArrayBufferConstructor) {
     if (!zt(t)) throw vt("This is not an object");
     const n = t.constructor;
     if (void 0 === n) return r;
@@ -197,16 +208,16 @@ function tr(t, r) {
     return null == e ? r : e
 }
 
-function rr(t) {
+function rr(t:any) {
     if (qt(t)) return !1;
     try {
         return D(t, 0, 0), !1
-    } catch (t) {
+    } catch (t:any) {
     }
     return !0
 }
 
-function nr(t, r) {
+function nr(t: unknown, r: unknown) {
     const n = w(t),
         e = w(r);
     if (n && e) return 0;
@@ -226,8 +237,8 @@ function nr(t, r) {
 const er = b("__Float16Array__"),
     or = new Et;
 
-function ir(t) {
-    return jt(or, t) || !M(t) && function (t) {
+function ir(t:any) {
+    return jt(or, t) || !M(t) && function (t:any) {
         if (!Gt(t)) return !1;
         const r = c(t);
         if (!Gt(r)) return !1;
@@ -238,11 +249,11 @@ function ir(t) {
     }(t)
 }
 
-function sr(t) {
+function sr(t:any) {
     if (!ir(t)) throw vt("This is not a Float16Array object")
 }
 
-function cr(t, r) {
+function cr(t: any, r: number) {
     const n = ir(t),
         e = Kt(t);
     if (!n && !e) throw vt("Species constructor didn't return TypedArray object");
@@ -257,7 +268,7 @@ function cr(t, r) {
     if (Xt(t)) throw vt("Cannot mix BigInt and other types, use explicit conversions")
 }
 
-function ur(t) {
+function ur(t:any) {
     const r = Ot(or, t);
     if (void 0 !== r) {
         if (rr(et(r))) throw vt("Attempting to access detached ArrayBuffer");
@@ -269,7 +280,7 @@ function ur(t) {
     return Ot(or, o)
 }
 
-function fr(t) {
+function fr(t:any) {
     const r = it(t),
         n = [];
     for (let e = 0; e < r; ++e) n[e] = Mt(t[e]);
@@ -284,23 +295,23 @@ for (const t of f(G)) {
 }
 const lr = x(
     {
-        get: (t, r, n) => Jt(r) && j(t, r) ? Mt(i(t, r)) : xt(hr, r) && O(G, t) ? i(t, r) : i(t, r, n),
-        set: (t, r, n, e) => Jt(r) && j(t, r) ? h(t, r, Rt(n)) : h(t, r, n, e),
-        getOwnPropertyDescriptor(t, r) {
+        get: (t: object, r: PropertyKey, n: any) => Jt(r) && j(t, r) ? Mt(i(t, r)) : xt(hr, r) && O(G, t) ? i(t, r) : i(t, r, n),
+        set: (t: object, r: PropertyKey, n: number, e: any) => Jt(r) && j(t, r) ? h(t, r, Rt(n)) : h(t, r, n, e),
+        getOwnPropertyDescriptor(t: object, r: PropertyKey) {
             if (Jt(r) && j(t, r)) {
                 const n = s(t, r);
                 return n.value = Mt(n.value), n
             }
             return s(t, r)
         },
-        defineProperty: (t, r, n) => Jt(r) && j(t, r) && j(n, "value") ? (n.value = Rt(n.value), o(t, r, n)) : o(t, r, n)
+        defineProperty: (t: object, r: PropertyKey, n: PropertyDescriptor & ThisType<any>) => Jt(r) && j(t, r) && j(n, "value") ? (n.value = Rt(n.value), o(t, r, n)) : o(t, r, n)
     });
 
 class ar {
-    constructor(t, r, n) {
+    constructor(t: string | number | any[], r: undefined, n: undefined) {
         let o;
         if (ir(t)) o = e(ct, [ur(t)], new.target);
-        else if (zt(t) && !function (t) {
+        else if (zt(t) && !function (t:any) {
             try {
                 return k(t), !0
             } catch (t) {
@@ -317,63 +328,78 @@ class ar {
                 const c = new s(2 * n);
                 o = e(ct, [c], new.target)
             } else {
+                // @ts-ignore
                 const i = t[g];
                 if (null != i && "function" != typeof i) throw vt("@@iterator property is not callable");
+                // @ts-ignore
                 null != i ? Ht(t) ? (r = t, n = t.length) : (r = [...t], n = r.length) : (r = t, n = $t(r.length)), o = e(ct, [n], new.target)
             }
-            for (let t = 0; t < n; ++t) o[t] = Rt(r[t])
+            for (let t = 0; t < n; ++t) { // @ts-ignore
+                o[t] = Rt(r[t])
+            }
         } else o = e(ct, arguments, new.target);
         const i = new a(o, lr);
         return It(or, i, o), i
     }
 
-    static from(t, ...r) {
+    static from(t: string | any[], ...r: any[]) {
         const e = this;
         if (!u(e, er)) throw vt("This constructor is not a subclass of Float16Array");
         if (e === ar) {
             if (ir(t) && 0 === r.length) {
                 const r = ur(t),
                     n = new ct(et(r), ot(r), it(r));
+                // @ts-ignore
                 return new ar(et(rt(n)))
             }
+            // @ts-ignore
             if (0 === r.length) return new ar(et(ut(t, Rt)));
             const e = r[0],
                 o = r[1];
+            // @ts-ignore
             return new ar(et(ut(t, (function (t, ...r) {
                 return Rt(n(e, this, [t, ...kt(r)]))
             }), o)))
         }
         let o, i;
+        // @ts-ignore
         const s = t[g];
         if (null != s && "function" != typeof s) throw vt("@@iterator property is not callable");
+        // @ts-ignore
         if (null != s) Ht(t) ? (o = t, i = t.length) : !Kt(c = t) || c[g] !== K && "Array Iterator" !== c[g]()[v] ? (o = [...t], i = o.length) : (o = t, i = it(t));
         else {
             if (null == t) throw vt("Cannot convert undefined or null to object");
             o = A(t), i = $t(o.length)
         }
         var c;
+        // @ts-ignore
         const f = new e(i);
         if (0 === r.length)
+            // @ts-ignore
             for (let t = 0; t < i; ++t) f[t] = o[t];
         else {
             const t = r[0],
                 e = r[1];
+            // @ts-ignore
             for (let r = 0; r < i; ++r) f[r] = n(t, e, [o[r], r])
         }
         return f
     }
 
-    static of(...t) {
+    static of(...t:any) {
         const r = this;
         if (!u(r, er)) throw vt("This constructor is not a subclass of Float16Array");
         const n = t.length;
         if (r === ar) {
+            // @ts-ignore
             const r = new ar(n),
                 e = ur(r);
             for (let r = 0; r < n; ++r) e[r] = Rt(t[r]);
             return r
         }
+        // @ts-ignore
         const e = new r(n);
+        // @ts-ignore
         for (let r = 0; r < n; ++r) e[r] = t[r];
         return e
     }
@@ -400,7 +426,7 @@ class ar {
         }())
     }
 
-    at(t) {
+    at(t:any) {
         sr(this);
         const r = ur(this),
             n = it(r),
@@ -409,13 +435,15 @@ class ar {
         if (!(o < 0 || o >= n)) return Mt(r[o])
     }
 
-    map(t, ...r) {
+    map(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
             i = r[0],
+            // @ts-ignore
             s = tr(e, ar);
         if (s === ar) {
+            // @ts-ignore
             const r = new ar(o),
                 s = ur(r);
             for (let r = 0; r < o; ++r) {
@@ -433,21 +461,25 @@ class ar {
         return c
     }
 
-    filter(t, ...r) {
+    filter(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
             i = r[0],
+            // @ts-ignore
             s = [];
         for (let r = 0; r < o; ++r) {
             const o = Mt(e[r]);
+            // @ts-ignore
             n(t, i, [o, r, this]) && F(s, o)
         }
+        // @ts-ignore
         const c = new (tr(e, ar))(s);
+        // @ts-ignore
         return cr(c), c
     }
 
-    reduce(t, ...r) {
+    reduce(t: (arg0: any, arg1: number, arg2: number, arg3: this) => any, ...r: any[]) {
         sr(this);
         const n = ur(this),
             e = it(n);
@@ -458,7 +490,7 @@ class ar {
         return o
     }
 
-    reduceRight(t, ...r) {
+    reduceRight(t: (arg0: any, arg1: number, arg2: number, arg3: this) => any, ...r: any[]) {
         sr(this);
         const n = ur(this),
             e = it(n);
@@ -469,7 +501,7 @@ class ar {
         return o
     }
 
-    forEach(t, ...r) {
+    forEach(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
@@ -477,7 +509,7 @@ class ar {
         for (let r = 0; r < o; ++r) n(t, i, [Mt(e[r]), r, this])
     }
 
-    find(t, ...r) {
+    find(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
@@ -488,7 +520,7 @@ class ar {
         }
     }
 
-    findIndex(t, ...r) {
+    findIndex(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
@@ -500,7 +532,7 @@ class ar {
         return -1
     }
 
-    findLast(t, ...r) {
+    findLast(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
@@ -511,7 +543,7 @@ class ar {
         }
     }
 
-    findLastIndex(t, ...r) {
+    findLastIndex(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
@@ -523,7 +555,7 @@ class ar {
         return -1
     }
 
-    every(t, ...r) {
+    every(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
@@ -533,7 +565,7 @@ class ar {
         return !0
     }
 
-    some(t, ...r) {
+    some(t: Function, ...r: any[]) {
         sr(this);
         const e = ur(this),
             o = it(e),
@@ -543,7 +575,7 @@ class ar {
         return !1
     }
 
-    set(t, ...r) {
+    set(t: number, ...r: number[]) {
         sr(this);
         const n = ur(this),
             e = Zt(r[0]);
@@ -567,31 +599,34 @@ class ar {
         return Q(t), this
     }
 
-    fill(t, ...r) {
+    fill(t: number, ...r: any[]) {
         sr(this);
         const n = ur(this);
         return Z(n, Rt(t), ...kt(r)), this
     }
 
-    copyWithin(t, r, ...n) {
+    copyWithin(t: any, r: any, ...n: any[]) {
         sr(this);
         const e = ur(this);
         return $(e, t, r, ...kt(n)), this
     }
 
-    sort(...t) {
+    sort(...t:any) {
         sr(this);
         const r = ur(this),
             n = void 0 !== t[0] ? t[0] : nr;
+        // @ts-ignore
         return tt(r, ((t, r) => n(Mt(t), Mt(r)))), this
     }
 
-    slice(...t) {
+    slice(...t:any) {
         sr(this);
         const r = ur(this),
+            // @ts-ignore
             n = tr(r, ar);
         if (n === ar) {
             const n = new ct(et(r), ot(r), it(r));
+            // @ts-ignore
             return new ar(et(rt(n, ...kt(t))))
         }
         const e = it(r),
@@ -608,17 +643,19 @@ class ar {
         return f
     }
 
-    subarray(...t) {
+    subarray(...t:any) {
         sr(this);
         const r = ur(this),
+            // @ts-ignore
             n = tr(r, ar),
             e = new ct(et(r), ot(r), it(r)),
             o = nt(e, ...kt(t)),
             i = new n(et(o), ot(o), it(o));
+        // @ts-ignore
         return cr(i), i
     }
 
-    indexOf(t, ...r) {
+    indexOf(t: number, ...r: any[]) {
         sr(this);
         const n = ur(this),
             e = it(n);
@@ -630,7 +667,7 @@ class ar {
         return -1
     }
 
-    lastIndexOf(t, ...r) {
+        lastIndexOf(t: number, ...r: any[]) {
         sr(this);
         const n = ur(this),
             e = it(n);
@@ -642,7 +679,7 @@ class ar {
         return -1
     }
 
-    includes(t, ...r) {
+    includes(t: unknown, ...r: any[]) {
         sr(this);
         const n = ur(this),
             e = it(n);
@@ -658,13 +695,13 @@ class ar {
         return !1
     }
 
-    join(...t) {
+    join(...t:any) {
         sr(this);
         const r = fr(ur(this));
         return _(r, ...kt(t))
     }
 
-    toLocaleString(...t) {
+    toLocaleString(...t:any) {
         sr(this);
         const r = fr(ur(this));
         return L(r, ...kt(t))
@@ -682,11 +719,11 @@ B(ar, "BYTES_PER_ELEMENT",
     {}), l(ar, Y);
 const yr = ar.prototype;
 
-function pr(t, r, ...n) {
+function pr(t: any, r: any, ...n: any[]) {
     return Mt(gt(t, r, ...kt(n)))
 }
 
-function wr(t, r, n, ...e) {
+function wr(t: any, r: any, n: number, ...e: any[]) {
     return dt(t, r, Rt(n), ...kt(e))
 }
 

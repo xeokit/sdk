@@ -213,7 +213,7 @@
 //         if (clipping) {
 //             src.push("   vWorldPosition = worldPosition;");
 //         }
-//         src.push("   vec4 clipPos = projMatrix * viewPosition;");
+//         src.push("   vec4 clipPos = projMatrix * viewPosition;
 //         src.push("   gl_PointSize = " + POINT_SIZE + ".0;");
 //         if (this.view.logarithmicDepthBufferEnabled) {
 //             src.push("vFragDepth = 1.0 + clipPos.w;");

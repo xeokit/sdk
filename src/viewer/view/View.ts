@@ -195,7 +195,7 @@ class View extends Component {
      */
     public readonly lightsList: (AmbientLight | PointLight | DirLight)[] = [];
 
-    #sectionPlanesHash: string | null = null;
+    gammaOutput: boolean;
 
     /**
      * Map of the all {@link ViewLayer}s in this View.
@@ -218,11 +218,9 @@ class View extends Component {
     #colorizedObjectIds: string[] | null;
     #numOpacityObjects: number;
     #opacityObjectIds: string[] | null;
-
-    #lightsHash: string | null = null;
-
     #qualityRender: boolean;
-    gammaOutput: boolean;
+    #lightsHash: string | null = null;
+    #sectionPlanesHash: string | null = null;
 
     /**
      * Creates a new View within a Viewer.
@@ -263,12 +261,44 @@ class View extends Component {
         this.viewer = options.viewer;
 
         const canvas = options.canvasElement || document.getElementById(options.canvasId);
-
         if (!(canvas instanceof HTMLCanvasElement)) {
             throw "Mandatory View config expected: valid canvasId or canvasElement";
         }
 
+        this.layers = {};
         this.viewIndex = 0;
+        this.objects = {};
+        this.visibleObjects = {};
+        this.xrayedObjects = {};
+        this.highlightedObjects = {};
+        this.selectedObjects = {};
+        this.colorizedObjects = {};
+        this.opacityObjects = {};
+        this.sectionPlanes = {};
+        this.sectionPlanesList = [];
+        this.lights = {};
+        this.lightsList = [];
+        this.layers = {};
+
+        this.#numObjects = 0;
+        this.#objectIds = null;
+        this.#numVisibleObjects = 0;
+        this.#visibleObjectIds = null;
+        this.#numXRayedObjects = 0;
+        this.#xrayedObjectIds = null;
+        this.#numHighlightedObjects = 0;
+        this.#highlightedObjectIds = null;
+        this.#numSelectedObjects = 0;
+        this.#selectedObjectIds = null;
+        this.#numColorizedObjects = 0;
+        this.#colorizedObjectIds = null;
+        this.#numOpacityObjects = 0;
+        this.#opacityObjectIds = null;
+        this.#qualityRender = options.qualityRender;
+        this.gammaOutput = true;
+
+        this.#sectionPlanesHash = null;
+        this.#lightsHash = null;
 
         this.canvas = new Canvas(this, {
             canvas: canvas,

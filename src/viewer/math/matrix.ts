@@ -762,7 +762,7 @@ export function transformVec3(m: FloatArrayParam, v: FloatArrayParam, dest?: Flo
     const v0 = v[0];
     const v1 = v[1];
     const v2 = v[2];
-    dest = dest || this.vec3();
+    dest = dest || vec3();
     dest[0] = (m[0] * v0) + (m[4] * v1) + (m[8] * v2);
     dest[1] = (m[1] * v0) + (m[5] * v1) + (m[9] * v2);
     dest[2] = (m[2] * v0) + (m[6] * v1) + (m[10] * v2);

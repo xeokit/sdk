@@ -1,7 +1,7 @@
 import {Camera, math, SceneModel} from "../../viewer/index";
 import {DataTexture} from "../lib/DataTexture";
 // @ts-ignore
-import {Float16Array} from "./float16.js";
+import {Float16Array} from "./float16";
 
 const emptyDataTexture = new DataTexture({textureWidth: 0, textureHeight: 0});
 
@@ -378,6 +378,7 @@ export class DataTextureFactory {
             throw "texture height == 0";
         }
         const textureWidth = 4 * 3;
+        // @ts-ignore
         const textureData = new Float16Array(4 * textureWidth * textureHeight);
         for (let i = 0; i < positionDecodeMatrices.length; i++) {
             textureData.set(positionDecodeMatrices [i], i * 48);   // 4x4 values
@@ -386,6 +387,7 @@ export class DataTextureFactory {
         const texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16F, textureWidth, textureHeight);
+        // @ts-ignore
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.HALF_FLOAT, new Uint16Array(textureData.buffer), 0);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);

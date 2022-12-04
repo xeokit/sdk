@@ -59,7 +59,7 @@ export abstract class LayerRenderer {
         edgeIndices: Sampler;
         eachMeshMatrices: Sampler;
         eachMeshAttributes: Sampler;
-        eachMeshOffsets: Sampler;
+        //    eachMeshOffsets: Sampler;
         eachEdgeOffset: Sampler;
         eachPrimitiveMesh: Sampler;
         eachEdgeMesh: Sampler;
@@ -89,21 +89,25 @@ export abstract class LayerRenderer {
         }
 
         const program = this.#program;
-        const uniforms = this.#uniforms;
-        const samplers = this.#samplers;
 
-        uniforms.renderPass = program.getLocation("renderPass");
-        uniforms.sao = program.getLocation("sao");
-        uniforms.logDepthBufFC = program.getLocation("logDepthBufFC");
-        uniforms.gammaFactor = program.getLocation("gammaFactor");
-        uniforms.pointSize = program.getLocation("pointSize");
-        uniforms.nearPlaneHeight = program.getLocation("nearPlaneHeight");
-        uniforms.pointCloudIntensityRange = program.getLocation("pointCloudIntensityRange");
-        uniforms.pickZNear = program.getLocation("pickZNear");
-        uniforms.pickZFar = program.getLocation("pickZFar");
-        uniforms.pickInvisible = program.getLocation("pickInvisible");
-        uniforms.color = program.getLocation("color");
-        uniforms.lightAmbient = program.getLocation("lightAmbient");
+        this.#uniforms = {
+            renderPass: program.getLocation("renderPass"),
+            sao: program.getLocation("sao"),
+            logDepthBufFC: program.getLocation("logDepthBufFC"),
+            gammaFactor: program.getLocation("gammaFactor"),
+            pointSize: program.getLocation("pointSize"),
+            nearPlaneHeight: program.getLocation("nearPlaneHeight"),
+            pointCloudIntensityRange: program.getLocation("pointCloudIntensityRange"),
+            pickZNear: program.getLocation("pickZNear"),
+            pickZFar: program.getLocation("pickZFar"),
+            pickInvisible: program.getLocation("pickInvisible"),
+            color: program.getLocation("color"),
+            lightAmbient: program.getLocation("lightAmbient"),
+            lights: [],
+            sectionPlanes: []
+        };
+
+        const uniforms = this.#uniforms;
 
         const lights = view.lightsList;
         for (let i = 0, len = lights.length; i < len; i++) {
@@ -133,7 +137,6 @@ export abstract class LayerRenderer {
             }
         }
 
-        uniforms.sectionPlanes = [];
         for (let i = 0, len = view.sectionPlanesList.length; i < len; i++) {
             uniforms.sectionPlanes.push({
                 active: program.getLocation("sectionPlaneActive" + i),
@@ -142,21 +145,23 @@ export abstract class LayerRenderer {
             });
         }
 
-        samplers.cameraMatrices = program.getSampler("cameraMatrices");
-        samplers.sceneModelMatrices = program.getSampler("sceneModelMatrices");
-        samplers.positions = program.getSampler("positions");
-        samplers.indices = program.getSampler("indices");
-        samplers.edgeIndices = program.getSampler("edgeIndices");
-        samplers.eachMeshAttributes = program.getSampler("eachMeshAttributes");
-        samplers.eachMeshMatrices = program.getSampler("eachMeshMatrices");
-        samplers.eachEdgeOffset = program.getSampler("eachMeshOffset");
-        samplers.eachPrimitiveMesh = program.getSampler("eachMeshTriangleMesh");
-        samplers.eachEdgeMesh = program.getSampler("eachEdgeMesh");
-        samplers.baseColorMap = program.getSampler("baseColorMap");
-        samplers.metallicRoughMap = program.getSampler("metallicRoughMap");
-        samplers.emissiveMap = program.getSampler("emissiveMap");
-        samplers.normalMap = program.getSampler("normalMap");
-        samplers.occlusionMap = program.getSampler("occlusionMap");
+        this.#samplers = {
+            cameraMatrices: program.getSampler("cameraMatrices"),
+            sceneModelMatrices: program.getSampler("sceneModelMatrices"),
+            positions: program.getSampler("positions"),
+            indices: program.getSampler("indices"),
+            edgeIndices: program.getSampler("edgeIndices"),
+            eachMeshAttributes: program.getSampler("eachMeshAttributes"),
+            eachMeshMatrices: program.getSampler("eachMeshMatrices"),
+            eachEdgeOffset: program.getSampler("eachMeshOffset"),
+            eachPrimitiveMesh: program.getSampler("eachMeshTriangleMesh"),
+            eachEdgeMesh: program.getSampler("eachEdgeMesh"),
+            baseColorMap: program.getSampler("baseColorMap"),
+            metallicRoughMap: program.getSampler("metallicRoughMap"),
+            emissiveMap: program.getSampler("emissiveMap"),
+            normalMap: program.getSampler("normalMap"),
+            occlusionMap: program.getSampler("occlusionMap")
+        };
 
         this.#hash = this.getHash();
     }
@@ -305,9 +310,9 @@ export abstract class LayerRenderer {
         if (samplers.eachMeshAttributes) {
             state.dataTextureSet.eachMeshAttributes.bindTexture(program, samplers.eachMeshAttributes, renderContext.nextTextureUnit);
         }
-        if (samplers.eachMeshOffsets) {
-            //    state.dataTextureSet.eachMeshOffset.bindTexture(program, samplers.eachMeshOffsets, renderContext.nextTextureUnit);
-        }
+        // if (samplers.eachMeshOffsets) {
+        //     //    state.dataTextureSet.eachMeshOffset.bindTexture(program, samplers.eachMeshOffsets, renderContext.nextTextureUnit);
+        // }
         if (samplers.eachPrimitiveMesh) {
             if (state.numIndices8Bits > 0) {
                 state.dataTextureSet.eachPrimitiveMesh_8Bits.bindTexture(program, samplers.eachPrimitiveMesh, renderContext.nextTextureUnit);

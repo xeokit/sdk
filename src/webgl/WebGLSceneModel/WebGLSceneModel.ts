@@ -138,6 +138,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
         this.id = params.id;
         this.events = new Events();
         this.scene = params.scene;
+        this.objects = {};
         this.objectList = [];
 
         this.#view = params.view;
@@ -147,6 +148,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
 
         this.#aabb = math.boundaries.collapseAABB3();
         this.#aabbDirty = false;
+        this.#layers = {};
         this.layerList = [];
         this.#lastOrigin = null;
         this.#lastPositionsDecompressMatrix = null;
@@ -344,6 +346,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
     }
 
     createGeometry(geometryParams: GeometryParams): void {
+        this.log(`SceneModel.createGeometry(..)`);
         if (this.destroyed || this.#finalized) {
             return;
         }
@@ -370,6 +373,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
     }
 
     createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): void {
+        this.log(`SceneModel.createGeometryCompressed(..)`);
         if (this.destroyed || this.#finalized) {
             return;
         }
@@ -577,6 +581,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
     }
 
     createMesh(meshParams: MeshParams): void {
+        this.log(`SceneModel.createMesh(..)`);
         if (this.destroyed || this.#finalized) {
             return;
         }
@@ -643,6 +648,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
     }
 
     createObject(sceneObjectParams: SceneObjectParams): SceneObject {
+        this.log(`SceneModel.createObject(..)`);
         if (this.destroyed || this.#finalized) {
             return;
         }
@@ -726,7 +732,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
         this.#currentLayers = {};
         this.#webglRenderer.setImageDirty();
         this.scene.setAABBDirty();
-        this.events.fire("finalized", {});
+        this.events.fire("finalized", this);
     }
 
     /*

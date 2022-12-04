@@ -83,23 +83,23 @@ export class WebGLRenderer implements Renderer {
     #textureTranscoder: TextureTranscoder;
 
     #layerRenderers: {
-        colorPoints: ColorPointsLayerRenderer;
+        // colorPoints: ColorPointsLayerRenderer;
         colorTriangles: FastColorTrianglesRenderer;
-        qualityColorTriangles: QualityColorTrianglesRenderer;
-        colorLines: ColorLinesLayerRenderer;
-        silhouettePoints: SilhouettePointsRenderer;
-        silhouetteTriangles: SilhouetteTrianglesLayerRenderer;
-        silhouetteLines: SilhouetteLinesRenderer;
+        // qualityColorTriangles: QualityColorTrianglesRenderer;
+        // colorLines: ColorLinesLayerRenderer;
+        // silhouettePoints: SilhouettePointsRenderer;
+        // silhouetteTriangles: SilhouetteTrianglesLayerRenderer;
+        // silhouetteLines: SilhouetteLinesRenderer;
     };
 
     /**
-      Creates a WebGLRenderer.
+     Creates a WebGLRenderer.
 
-      @param params Configs
-      @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link SceneModel.createTexture}
-      to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-      to {@link SceneModel.createTexture}. We assume that all transcoded texture data added to a  ````SceneModel````
-      will then be in a format supported by this transcoder.
+     @param params Configs
+     @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link SceneModel.createTexture}
+     to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
+     to {@link SceneModel.createTexture}. We assume that all transcoded texture data added to a  ````SceneModel````
+     will then be in a format supported by this transcoder.
      */
     constructor(params: {
         textureTranscoder?: TextureTranscoder
@@ -121,6 +121,7 @@ export class WebGLRenderer implements Renderer {
         this.#occlusionTester = null; // Lazy-created in #addMarker()
         this.#renderContext = null;
         this.#layerRenderers = null;
+        this.#webglSceneModels = {};
     }
 
     init(viewer: Viewer): void {
@@ -172,13 +173,13 @@ export class WebGLRenderer implements Renderer {
         }
         this.#renderContext = new RenderContext(this.#viewer, this.#view, gl);
         this.#layerRenderers = {
-            colorPoints: new ColorPointsLayerRenderer(this.#renderContext),
+            //       colorPoints: new ColorPointsLayerRenderer(this.#renderContext),
             colorTriangles: new FastColorTrianglesRenderer(this.#renderContext),
-            qualityColorTriangles: new QualityColorTrianglesRenderer(this.#renderContext),
-            colorLines: new ColorLinesLayerRenderer(this.#renderContext),
-            silhouettePoints: new SilhouettePointsRenderer(this.#renderContext),
-            silhouetteTriangles: new SilhouetteTrianglesLayerRenderer(this.#renderContext),
-            silhouetteLines: new SilhouetteLinesRenderer(this.#renderContext)
+            // qualityColorTriangles: new QualityColorTrianglesRenderer(this.#renderContext),
+            // colorLines: new ColorLinesLayerRenderer(this.#renderContext),
+            // silhouettePoints: new SilhouettePointsRenderer(this.#renderContext),
+            // silhouetteTriangles: new SilhouetteTrianglesLayerRenderer(this.#renderContext),
+            // silhouetteLines: new SilhouetteLinesRenderer(this.#renderContext)
         };
         return 0;
     }
@@ -195,14 +196,14 @@ export class WebGLRenderer implements Renderer {
             scene: this.#viewer.scene,
             textureTranscoder: this.#textureTranscoder,
             webglRenderer: this,
-            renderContext:this.#renderContext
+            renderContext: this.#renderContext
         }, params));
-        webglSceneModel.events.on("finalized", () => {
-            this.#webglSceneModels[webglSceneModel.id] = webglSceneModel;
+        webglSceneModel.events.on("finalized", (finalizedSceneModel) => {
+            this.#webglSceneModels[finalizedSceneModel.id] = finalizedSceneModel;
             this.#layerListDirty = true;
         });
-        webglSceneModel.events.on("destroyed", () => {
-            delete this.#webglSceneModels[webglSceneModel.id];
+        webglSceneModel.events.on("destroyed", (destroyedSceneModel) => {
+            delete this.#webglSceneModels[destroyedSceneModel.id];
             this.#layerListDirty = true;
         });
         return webglSceneModel;
@@ -697,7 +698,7 @@ export class WebGLRenderer implements Renderer {
                             return;
                         }
                         if (quality) {
-                            this.#layerRenderers.qualityColorTriangles.draw(layer);
+                            //    this.#layerRenderers.qualityColorTriangles.draw(layer);
                         } else {
                             this.#layerRenderers.colorTriangles.draw(layer);
                         }
@@ -707,24 +708,24 @@ export class WebGLRenderer implements Renderer {
                             return;
                         }
                         if (quality) {
-                            this.#layerRenderers.qualityColorTriangles.draw(layer);
+                            //     this.#layerRenderers.qualityColorTriangles.draw(layer);
                         } else {
                             this.#layerRenderers.colorTriangles.draw(layer);
                         }
                         break;
                     case RENDER_PASSES.SILHOUETTE_SELECTED:
                         if (layer.meshCounts.numSelected > 0) {
-                            this.#layerRenderers.silhouetteTriangles.draw(layer);
+                            //  this.#layerRenderers.silhouetteTriangles.draw(layer);
                         }
                         break;
                     case RENDER_PASSES.SILHOUETTE_HIGHLIGHTED:
                         if (layer.meshCounts.numHighlighted > 0) {
-                            this.#layerRenderers.silhouetteTriangles.draw(layer);
+                            // this.#layerRenderers.silhouetteTriangles.draw(layer);
                         }
                         break;
                     case RENDER_PASSES.SILHOUETTE_XRAYED:
                         if (layer.meshCounts.numXRayed > 0) {
-                            this.#layerRenderers.silhouetteTriangles.draw(layer);
+                            //   this.#layerRenderers.silhouetteTriangles.draw(layer);
                         }
                         break;
                 }
@@ -733,12 +734,12 @@ export class WebGLRenderer implements Renderer {
                 switch (renderPass) {
                     case RENDER_PASSES.COLOR_OPAQUE:
                     case RENDER_PASSES.COLOR_TRANSPARENT:
-                        this.#layerRenderers.colorLines.draw(layer);
+                        //this.#layerRenderers.colorLines.draw(layer);
                         break;
                     case RENDER_PASSES.SILHOUETTE_SELECTED:
                     case RENDER_PASSES.SILHOUETTE_HIGHLIGHTED:
                     case RENDER_PASSES.SILHOUETTE_XRAYED:
-                        this.#layerRenderers.silhouetteLines.draw(layer);
+                        // this.#layerRenderers.silhouetteLines.draw(layer);
                         break;
                 }
                 break;
@@ -746,12 +747,12 @@ export class WebGLRenderer implements Renderer {
                 switch (renderPass) {
                     case RENDER_PASSES.COLOR_OPAQUE:
                     case RENDER_PASSES.COLOR_TRANSPARENT:
-                        this.#layerRenderers.colorPoints.draw(layer);
+                        //  this.#layerRenderers.colorPoints.draw(layer);
                         break;
                     case RENDER_PASSES.SILHOUETTE_SELECTED:
                     case RENDER_PASSES.SILHOUETTE_HIGHLIGHTED:
                     case RENDER_PASSES.SILHOUETTE_XRAYED:
-                        this.#layerRenderers.silhouettePoints.draw(layer);
+                        //  this.#layerRenderers.silhouettePoints.draw(layer);
                         break;
                 }
                 break;

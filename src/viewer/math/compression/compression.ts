@@ -40,32 +40,39 @@ const scale: FloatArrayParam = mat4();
  * @returns Compressed geometry params.
  */
 export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
+
     const aabb = collapseAABB3();
+
     expandAABB3Points3(aabb, geometryParams.positions);
+
     //math.boundaries.AABB3ToOBB3(aabb, this.obb);
     const positionsDecompressMatrix = mat4();
-    const quantizedPositions = quantizePositions(geometryParams.positions, aabb, positionsDecompressMatrix);
+    const positionsCompressed = quantizePositions(geometryParams.positions, aabb, positionsDecompressMatrix);
     const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) ?
-        buildEdgeIndices(quantizedPositions, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold) : null;
-    let uniqueQuantizedPositions, uniqueIndices, uniqueEdgeIndices;
+        buildEdgeIndices(positionsCompressed, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold) : null;
+    let uniquePositionsCompressed, uniqueIndices, uniqueEdgeIndices;
+
     [
-        uniqueQuantizedPositions,
+        uniquePositionsCompressed,
         uniqueIndices,
-        uniqueEdgeIndices,
+        uniqueEdgeIndices
     ] = uniquifyPositions({
-        positions: quantizedPositions,
+        positionsCompressed,
         uvs: geometryParams.uvs,
         indices: geometryParams.indices,
         edgeIndices: edgeIndices
     });
-    const numUniquePositions = uniqueQuantizedPositions.length / 3;
+
+    const numUniquePositions = uniquePositionsCompressed.length / 3;
+
     const geometryBuckets = rebucketPositions({
-            positions: uniqueQuantizedPositions,
+            positionsCompressed: uniquePositionsCompressed,
             indices: uniqueIndices,
             edgeIndices: uniqueEdgeIndices,
         },
         (numUniquePositions > (1 << 16)) ? 16 : 8
     );
+
     return {
         id: geometryParams.id,
         primitive: geometryParams.primitive,
@@ -436,7 +443,7 @@ function octDecodeVec2s(octs: Int8Array, result: FloatArrayParam): FloatArrayPar
  */
 export function quantizePositions(positions: FloatArrayParam, aabb: FloatArrayParam, positionsDecompressMatrix: FloatArrayParam) { // http://cg.postech.ac.kr/research/mesh_comp_mobile/mesh_comp_mobile_conference.pdf
     const lenPositions = positions.length;
-    const quantizedPositions = new Uint16Array(lenPositions);
+    const positionsCompressed = new Uint16Array(lenPositions);
     const xmin = aabb[0];
     const ymin = aabb[1];
     const zmin = aabb[2];
@@ -449,16 +456,16 @@ export function quantizePositions(positions: FloatArrayParam, aabb: FloatArrayPa
     const zMultiplier = maxInt / zwid;
     const verify = (num: number) => num >= 0 ? num : 0;
     for (let i = 0; i < lenPositions; i += 3) {
-        quantizedPositions[i + 0] = Math.floor(verify(positions[i + 0] - xmin) * xMultiplier);
-        quantizedPositions[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
-        quantizedPositions[i + 2] = Math.floor(verify(positions[i + 2] - zmin) * zMultiplier);
+        positionsCompressed[i + 0] = Math.floor(verify(positions[i + 0] - xmin) * xMultiplier);
+        positionsCompressed[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
+        positionsCompressed[i + 2] = Math.floor(verify(positions[i + 2] - zmin) * zMultiplier);
     }
     identityMat4(translate);
     translationMat4v(aabb, translate);
     identityMat4(scale);
     scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
     mulMat4(translate, scale, positionsDecompressMatrix);
-    return quantizedPositions;
+    return positionsCompressed;
 }
 
 /**

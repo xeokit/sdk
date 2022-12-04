@@ -1184,7 +1184,7 @@ class CameraControl extends Component {
      * @param keyDownMap
      * @private
      */
-    #isKeyDownForAction(action: number, keyDownMap: { [key: number]: boolean }) {
+    _isKeyDownForAction(action: number, keyDownMap: { [key: number]: boolean }) {
         const keys = this.#keyMap[action];
         if (!keys) {
             return false;

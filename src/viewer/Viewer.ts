@@ -285,6 +285,7 @@ export class Viewer {
             this.events.fire("viewDestroyed", view);
         });
         this.events.fire("viewCreated", view);
+        this.log(`View created: ${view.id}`);
         return view;
     }
 

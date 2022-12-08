@@ -6,74 +6,240 @@ import {Scene, SceneModel} from "../scene/index";
 import {View} from "./View";
 
 /**
- * Optional component that organizes {@link ViewObject}s into bins within a {@link View}.
+ * A layer of {@link ViewObject|ViewObjects} in a {@link View}.
  *
- * ## Usage
+ * ## Summary
  *
- * Create a viewer with a WebGL-based scene renderer:
+ * * Useful for segreggating {@link ViewObject|ViewObjects} so we don't get our model objects mixed up with our UI and environment objects
+ * * Created automatically or manually (see {@link View.createLayer})
+ * * Registered in {@link View.layers}
+ * * Contains ViewObjects for {@link SceneObject|SceneObjects} that have matching {@link SceneObject.viewLayerId}
+ *
+ * ## Overview
+ *
+ * ViewLayers organize a {@link View|View's} {@link ViewObject|ViewObjects} into layers, according to which aspects of 
+ * the view they represent. They make it easier for us to focus our interactions on the ViewObjects that are relevant 
+ * to the particular aspects we're interested in.
+ *
+ * ### Typical use case: segregating model objects from environment objects
+ * 
+ * A typical use case for this feature is to group environmental {@link ViewObject|ViewObjects} (e.g. ground, skybox) in an "environment" ViewLayer,
+ * and group model ViewObjects in a "model" ViewLayer. Then we can focus our model interactions (show, hide, highlight,
+ * save/load BCF viewpoints, etc.) on the ViewObjects in the "model" ViewLayer, without involving the "environment"
+ * ViewObjects at all, which are effectively in the background. We can basically ignore the environment objects as we
+ * do various batch operations on our model objects, i.e. "X-ray all", "X-ray everything except for walls" and so on.
+ *
+ * ### Automatic ViewLayers
+ *
+ * By default, each {@link View} automatically lazy-creates ViewLayers within itself as required. As {@link SceneObject|SceneObjects} appear in the
+ * {@link Scene}, {@link ViewObject|ViewObjects} and Viewlayers magically appear in each existing View.
+ *
+ * Recall that, whenever a {@link SceneObject} is created, each existing {@link View} will automatically create a
+ * corresponding {@link ViewObject} to represent and control that SceneObject's appearance within the View's canvas.
+ *
+ * If the {@link SceneObject} also happens to have a value set on its {@link SceneObject.viewLayerId} ID property, then the View
+ * will also automatically ensure that it contains a matching {@link ViewLayer}, and will register the new ViewObject
+ * in that ViewLayer. Note that each ViewObject can belong to a maximum of one ViewLayer.
+ *
+ * When a {@link View} automatically creates Viewlayers, it will also automatically destroy them again whenever
+ * their {@link SceneObject|SceneObjects} have all been destroyed.
+ *
+ * ### Manual ViewLayers
+ *
+ * We can configure a {@link View} to **not** automatically create ViewLayers, and instead rely on us to manually create them.
+ *
+ * When we do that, the View will only create the {@link ViewObject|ViewObjects} within itself for the ViewLayers that we created. The
+ * View will ignore all SceneObjects that don't have {@link SceneObject.viewLayerId} values that match the IDs of our
+ * manually-created ViewLayers.
+ *
+ * This feature is useful for ensuring that aspect-focused Views don't contain huge numbers of unused ViewObjects for
+ * SceneObjects that they never show.
+ *
+ * When we manually create ViewLayers like this, then the View will not automatically destroy them whenever
+ * their {@link SceneObject|SceneObjects} have all been destroyed. This keeps them around, so that the View can
+ * continue to selectively create ViewObjects for them, in case we continue to making matching SceneObjects in future.
+ *
+ * ## Examples
+ *
+ * ### Exampe 1: Automatic ViewLayers
+ *
+ * Create a {@link Viewer}:
  *
  *````javascript
- * import {Viewer, FastRender, webgl} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ * import {Viewer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
  *
  * const myViewer = new Viewer({
- *      id: "myViewer",
- *      renderer: new webgl({ })
+ *      id: "myViewer"
  * });
+ *````
  *
- * const mySceneModel = myViewer.scene.createModel({
- *      id: "myModel"
- * });
- *
- * mySceneModel.createMesh({
- *      id: "myMesh",
- *      primitive: SolidPrimitive,
- *      positions: [...],
- *      indices: [...]
- *      //...
- * });
- *
- * mySceneModel.createObject({
- *      id: "myObject1",
- *      meshIds: ["myMesh}],
- *      viewLayer: "foo"
- *      //...
- * });
- *
- * mySceneModel.createObject({
- *      id: "myObject2",
- *      meshIds: ["myMesh}],
- *      viewLayer: "foo"
- *      //...
- * });
- *
- * mySceneModel.createObject({
- *      id: "myObject3",
- *      meshIds: ["myMesh}],
- *      viewLayer: "baz"
- *      //...
- * });
- *
- * myModel.finalize();
- * ````
- *
- * Create a view of the model:
+ * Create a {@link View}, with the default setting of ````false```` for {@link ViewParams.autoLayers}:
  *
  * ````javascript
  * const view1 = myViewer.createView({
  *      id: "myView",
- *      canvasId: "myCanvas1"
+ *      canvasId: "myCanvas1",
+ *      autoLayers: true // <<----------- Default
  * });
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
+ * ````
  *
- * view1.layers["foo"].objects["myObject1"].highlighted = true;
- * view1.layers["foo"].objects["myObject2"].highlighted = true;
- * view1.layers["foo"].setObjectsXRayed(["myObject1", "myObject2"], true);
+ * Next, we'll create a {@link SceneModel} containing two model {@link SceneObject|SceneObjects} that represent a building
+ * foundation and walls, along with two environmental SceneObjects that represent a skybox and ground plane.
  *
- * view1.layers["bar"].objects["myObject3"].highlighted = true;
- * view1.layers["bar"].setObjectsSelected(["myObject3"], true);
+ * The ground and skybox SceneObjects specify that their {@link ViewObject|ViewObjects} belong
+ * to "environment" ViewLayers, while the model SceneObjects specify that their ViewObjects belong to "model" ViewLayers.
+ *
+ * ````javascript
+ * const mySceneModel = myViewer.scene.createModel({
+ *      id: "myModel"
+ * });
+ *
+ * // (calls to SceneModel createGeometry and
+ * // createMesh omitted for brevity)
+ *
+ * mySceneModel.createObject({
+ *      id: "ground",
+ *      meshIds: ["groundMesh}],
+ *      viewLayerId: "environment"
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "skyBox",
+ *      meshIds: ["skyBoxMesh}],
+ *      viewLayerId: "environment"
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "houseFoundation",
+ *      meshIds: ["myMesh}],
+ *      viewLayerId: "model"
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "houseWalls",
+ *      meshIds: ["myMesh}],
+ *      viewLayerId: "model"
+ * });
+ *
+ * myModel.finalize();
+ * ````
+ *
+ * Our {@link View} has now automatically created an "environment" {@link ViewLayer}, which contains {@link ViewObject|ViewObjects} for the skybox and
+ * ground plane SceneObjects, and a "model" ViewLayer, which contains ViewObjects for the house foundation and walls.
+ *
+ * We can now batch-update the ViewObjects in each ViewLayer independently. As mentioned, this is useful when we need to ignore things
+ * like UI or environmental objects in batch-updates, BCF viewpoints etc.
+ *
+ * ````javascript
+ * // viewer.scene.objects contains four SceneObjects with IDs "ground", "skyBox", "houseFoundation" and "houseWalls"
+ *
+ * // viewer.views.view1.objects contains four ViewObjects with IDs "ground", "skyBox", "houseFoundation" and "houseWalls"
+ *
+ * // viewer.views.view1.layers contains two ViewLayers with IDs "environment" and "model"
+ *
+ * const environmentLayer = view1.layers["environment"];
+ * environmentLayer.setObjectsVisible(environmentLayer.objectIds, true);
+
+ * const modelLayer = view1.layers["model"];
+ * modelLayer.setObjectsVisible(modelLayer.objectIds, true);
+ * ````
+ *
+ * ### Example 2: Manual ViewLayers
+ *
+ * Create a {@link Viewer}:
+ *
+ * ````javascript
+ * import {Viewer} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const myViewer = new Viewer({
+ *      id: "myViewer"
+ * });
+ * ````
+ *
+ * Create a {@link View}, this time with ````false```` for {@link ViewParams.autoLayers}, in order to **not**
+ * automatically create ViewLayers on demand:
+ *
+ * ````javascript
+ * const view1 = myViewer.createView({
+ *      id: "myView",
+ *      canvasId: "myCanvas1",
+ *      autoLayers: false // <<----------- Override default
+ * });
+ *
+ * view1.camera.eye = [-3.933, 2.855, 27.018];
+ * view1.camera.look = [4.400, 3.724, 8.899];
+ * view1.camera.up = [-0.018, 0.999, 0.039];
+ * ````
+ *
+ * We'll manually create the "model" ViewLayer, and won't create an "environment" ViewLayer:
+ *
+ * ````javascript
+ * const modelViewLayer = view1.createLayer({
+ *     id: "model",
+ *     visible: true
+ * });
+ * ````
+ *
+ * As we did in the previous example, we'll now create a {@link SceneModel} containing two model
+ * {@link SceneObject|SceneObjects} that represent a building foundation and walls, along with two environmental
+ * SceneObjects that represent a skybox and ground plane.
+ *
+ * As before, the ground and skybox SceneObjects specify that their {@link ViewObject|ViewObjects} belong to "environment" ViewLayers,
+ * while the model SceneObjects specify that their ViewObjects belong to "model" ViewLayers.
+ *
+ * ````javascript
+ * const mySceneModel = myViewer.scene.createModel({
+ *      id: "myModel"
+ * });
+ *
+ * // (calls to SceneModel createGeometry and
+ * // createMesh omitted for brevity)
+ *
+ * mySceneModel.createObject({
+ *      id: "ground",
+ *      meshIds: ["groundMesh}],
+ *      viewLayerId: "environment"
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "skyBox",
+ *      meshIds: ["skyBoxMesh}],
+ *      viewLayerId: "environment"
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "houseFoundation",
+ *      meshIds: ["myMesh}],
+ *      viewLayerId: "model"
+ * });
+ *
+ * mySceneModel.createObject({
+ *      id: "houseWalls",
+ *      meshIds: ["myMesh}],
+ *      viewLayerId: "model"
+ * });
+ *
+ * myModel.finalize();
+ * ````
+ *
+ * This time, however, our {@link View} has now created {@link ViewObject|ViewObjects} for the "model" SceneObjects, while
+ * ignoring the "environment" SceneObjects.
+ *
+ * As far as this View is converned, the "environment" SceneObjects do not exist.
+ *
+ * ````javascript
+ * // viewer.scene.objects contains four SceneObjects with IDs "ground", "skyBox", "houseFoundation" and "houseWalls"
+ *
+ * // viewer.views.view1.objects contains two ViewObjects with IDs "houseFoundation" and "houseWalls"
+ *
+ * // viewer.views.view1.layers contains one ViewLayer with ID "model"
+ *
+ * const modelLayer = view1.layers["model"];
+ * modelLayer.setObjectsVisible(modelLayer.objectIds, true);
  * ````
  */
 class ViewLayer extends Component {
@@ -83,29 +249,29 @@ class ViewLayer extends Component {
 
      This ViewLayer is mapped by this ID in {@link View.layers}.
      */
-    declare public readonly id: string;
+    declare readonly id: string;
 
     /**
      * The Viewer to which this ViewLayer belongs.
      */
-    declare public readonly viewer: Viewer;
+    declare readonly viewer: Viewer;
 
     /**
      * The View to which this ViewLayer belongs.
      */
-    declare public readonly view: View;
+    declare readonly view: View;
 
     /**
      * Map of the all {@link ViewObject}s in this ViewLayer.
      *
-     * These are the ViewObjects for which {@link ViewObject.viewLayer} has the same value as {@link ViewLayer.id}.
+     * These are the ViewObjects for which {@link ViewObject.viewLayerId} has the same value as {@link ViewLayer.id}.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
      * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
      * each {@link SceneObject} in the {@link Viewer}'s {@link Scene}.
      */
-    public readonly objects: { [key: string]: ViewObject };
+    readonly objects: { [key: string]: ViewObject };
 
     /**
      * Map of the currently visible {@link ViewObject}s in this ViewLayer.
@@ -114,7 +280,7 @@ class ViewLayer extends Component {
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
-    public readonly visibleObjects: { [key: string]: ViewObject };
+    readonly visibleObjects: { [key: string]: ViewObject };
 
     /**
      * Map of currently x-rayed {@link ViewObject}s in this ViewLayer.
@@ -123,7 +289,7 @@ class ViewLayer extends Component {
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
-    public readonly xrayedObjects: { [key: string]: ViewObject };
+    readonly xrayedObjects: { [key: string]: ViewObject };
 
     /**
      * Map of currently highlighted {@link ViewObject}s in this ViewLayer.
@@ -132,7 +298,7 @@ class ViewLayer extends Component {
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
-    public readonly highlightedObjects: { [key: string]: ViewObject };
+    readonly highlightedObjects: { [key: string]: ViewObject };
 
     /**
      * Map of currently selected {@link ViewObject}s in this ViewLayer.
@@ -141,21 +307,28 @@ class ViewLayer extends Component {
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
-    public readonly selectedObjects: { [key: string]: ViewObject };
+    readonly selectedObjects: { [key: string]: ViewObject };
 
     /**
      * Map of currently colorized {@link ViewObject}s in this ViewLayer.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
-    public readonly colorizedObjects: { [key: string]: ViewObject };
+    readonly colorizedObjects: { [key: string]: ViewObject };
 
     /**
      * Map of {@link ViewObject}s in this ViewLayer whose opacity has been updated.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
-    public readonly opacityObjects: { [key: string]: ViewObject };
+    readonly opacityObjects: { [key: string]: ViewObject };
+
+    /**
+     * When true, View destroys this ViewLayer as soon as there are no ViewObjects
+     * that need it. When false, View retains it.
+     * @private
+     */
+    autoDestroy: boolean;
 
     #numObjects: number;
     #objectIds: string[] | null;
@@ -181,6 +354,7 @@ class ViewLayer extends Component {
         viewer: Viewer;
         view: View;
         qualityRender?: boolean;
+        autoDestroy?:boolean;
     }) {
 
         super(options.view, options);
@@ -196,6 +370,8 @@ class ViewLayer extends Component {
         this.selectedObjects = {};
         this.colorizedObjects = {};
         this.opacityObjects = {};
+
+        this.autoDestroy = (options.autoDestroy !== false);
 
         this.#numObjects = 0;
         this.#numVisibleObjects = 0;
@@ -717,7 +893,7 @@ class ViewLayer extends Component {
         const sceneObjects = sceneModel.objects;
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
-            if (sceneObject.viewLayer == this.id) {
+            if (sceneObject.viewLayerId == this.id) {
                 const viewObject = new ViewObject(this, sceneObject, {});
                 this.objects[viewObject.id] = viewObject;
                 this.#numObjects++;

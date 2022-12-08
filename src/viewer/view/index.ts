@@ -13,3 +13,4 @@ export * from "./CameraControl/index";
 export * from "./lights/index";
 export * from "./materials/index";
 export * from "./mementos/index";
+export * from "./ViewLayerParams";

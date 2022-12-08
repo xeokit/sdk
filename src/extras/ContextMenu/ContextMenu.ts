@@ -74,7 +74,7 @@ class Item {
  *
  * * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/#ContextMenu_Canvas_TreeViewPlugin_Custom)]
  *
- * ## Overview
+ * ## Summary
  *
  * * A pure JavaScript, lightweight context menu
  * * Dynamically configure menu items

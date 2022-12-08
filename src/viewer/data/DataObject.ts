@@ -6,7 +6,7 @@ import {Relation} from "./Relation";
 /**
  *  Semantic data about an object.
  *
- *  ## Overview
+ *  ## Summary
  *
  *  * Contained in a {@link DataModel}
  *  * Stored by {@link DataModel.id} in {@link DataModel.objects} and {@link Data.objects}
@@ -58,7 +58,7 @@ class DataObject {
      *
      * Undefined when there are no children.
      */
-    public readonly children: DataObject[];
+    public readonly objects: DataObject[];
 
     /**
      * External application-specific metadata
@@ -86,7 +86,7 @@ class DataObject {
         this.type = type;
         this.propertySets = propertySets || [];
         this.parent = parent;
-        this.children = [];
+        this.objects = [];
     }
 
     /**
@@ -115,10 +115,10 @@ class DataObject {
                 return;
             }
             objectIds.push(dataObject.id);
-            const children = dataObject.children;
-            if (children) {
-                for (let i = 0, len = children.length; i < len; i++) {
-                    visit(children[i]);
+            const objects = dataObject.objects;
+            if (objects) {
+                for (let i = 0, len = objects.length; i < len; i++) {
+                    visit(objects[i]);
                 }
             }
         }
@@ -139,7 +139,7 @@ class DataObject {
                 return;
             }
             callback(dataObject);
-            const children = dataObject.children;
+            const children = dataObject.objects;
             if (children) {
                 for (var i = 0, len = children.length; i < len; i++) {
                     visit(children[i]);
@@ -170,10 +170,10 @@ class DataObject {
             if (mask[dataObject.type]) {
                 objectIds.push(dataObject.id);
             }
-            const children = dataObject.children;
-            if (children) {
-                for (let i = 0, len = children.length; i < len; i++) {
-                    visit(children[i]);
+            const objects = dataObject.objects;
+            if (objects) {
+                for (let i = 0, len = objects.length; i < len; i++) {
+                    visit(objects[i]);
                 }
             }
         }

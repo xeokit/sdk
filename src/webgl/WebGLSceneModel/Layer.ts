@@ -1,7 +1,15 @@
 import {WebGLSceneModel} from "./WebGLSceneModel";
 import {DataTextureSet} from "./DataTextureSet";
 import {DataTextureFactory} from "./DataTextureFactory";
-import {constants, GeometryBucketParams, GeometryCompressedParams, math, MeshParams, View} from "../../viewer/index";
+import {
+    constants,
+    GeometryBucketParams,
+    GeometryCompressedParams,
+    math,
+    MeshParams,
+    RTCViewMat,
+    View
+} from "../../viewer/index";
 
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import {RENDER_PASSES} from './RENDER_PASSES';
@@ -34,7 +42,7 @@ interface GeometryBucketHandle { // Storage handle for a geometry bucket within 
     numVertices: number;
     numTriangles: number;
     numLines: number;
-    numPoints:number;
+    numPoints: number;
     numEdges: number;
     indicesBase: number;
     edgeIndicesBase: number
@@ -56,20 +64,20 @@ interface MeshPartHandle {
 }
 
 export interface LayerRenderState { // What a LayerRenderer needs to render this Layer
-    materialTextureSet: TextureSet;
-    dataTextureSet: DataTextureSet;
-    primitive: number;
-    origin: math.FloatArrayParam;
-    numIndices8Bits: number;
-    numIndices16Bits: number;
-    numIndices32Bits: number;
-    numEdgeIndices8Bits: number;
-    numEdgeIndices16Bits: number;
-    numEdgeIndices32Bits: number;
-    numVertices: number;
+    materialTextureSet: TextureSet; // Color, opacity, metal/roughness, ambient occlusion maps
+    dataTextureSet: DataTextureSet;  // Data textures containing geometry, transforms, flags and material attributes
+    primitive: number; // Layer primitive type
+    origin: math.FloatArrayParam; // Layer's RTC coordinate origin
+    numIndices8Bits: number; // How many 8-bit encodable indices in layer
+    numIndices16Bits: number; // How many 16-bit encodable indices in layer
+    numIndices32Bits: number; // How many 32-bit encodable indices in layer
+    numEdgeIndices8Bits: number; // How many 8-bit encodable edge indices in layer
+    numEdgeIndices16Bits: number; // How many 16-bit encodable edge indices in layer
+    numEdgeIndices32Bits: number; // How many 32-bit encodable edge indices in layer
+    numVertices: number; // How many vertices in layer
 }
 
-class DataTextureBuffer { // Buffers data as we build a Layer; is converted into data textures once the Layer is built
+class DataTextureBuffer { // Temp data buffer as we build a Layer; converted into data textures once Layer is built
     positionsCompressed: number[];
     indices_8Bits: number[];
     indices_16Bits: number[];
@@ -128,11 +136,10 @@ class DataTextureBuffer { // Buffers data as we build a Layer; is converted into
 export class Layer { // A container of meshes within a WebGLSceneModel
 
     sceneModel: WebGLSceneModel;
-    primitive: number;
     layerIndex: number;
-    aabb: math.FloatArrayParam;
-    state: LayerRenderState;
+    rtcViewMat: RTCViewMat;
     meshCounts: MeshCounts;
+    renderState: LayerRenderState;
 
     #gl: WebGL2RenderingContext;
     #view: View;
@@ -140,8 +147,6 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     #geometryHandles: { [key: string]: any };
     #meshPartHandles: MeshPartHandle[];
     #numMeshParts: number;
-    #modelAABB: math.FloatArrayParam;
-    sortId: string;
     #deferredSetFlagsActive: boolean;
     #deferredSetFlagsDirty: boolean;
     #finalized: boolean;
@@ -149,18 +154,17 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     constructor(layerParams: LayerParams, renderers?: any) {
 
         this.meshCounts = new MeshCounts();
-        this.primitive = layerParams.primitive;
         this.layerIndex = layerParams.layerIndex;
         this.sceneModel = layerParams.sceneModel;
 
-        this.state = <LayerRenderState>{
+        this.renderState = <LayerRenderState>{
             primitive: layerParams.primitive,
             dataTextureSet: new DataTextureSet(),
-            origin: math.vec3(),
+            origin: math.vec3(layerParams.origin),
             numIndices8Bits: 0,
             numIndices16Bits: 0,
-            numIndices32Bits: 0,
-            numEdgeIndices8Bits: 0,
+            numIndices32Bits: 0, 
+            numEdgeIndices8Bits: 0, 
             numEdgeIndices16Bits: 0,
             numEdgeIndices32Bits: 0,
             numVertices: 0
@@ -170,15 +174,10 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         this.#view = layerParams.view;
         this.#dataTextureBuffer = new DataTextureBuffer();
         this.#numMeshParts = 0;
-        this.#modelAABB = math.boundaries.collapseAABB3();
         this.#geometryHandles = {};
         this.#meshPartHandles = [];
 
-        this.aabb = math.boundaries.collapseAABB3();
-
-        if (layerParams.origin) { // @ts-ignore
-            this.state.origin.set(layerParams.origin);
-        }
+        this.rtcViewMat = layerParams.view.camera.getRTCViewMat(this.renderState.origin);
 
         this.beginDeferredFlags();
 
@@ -186,14 +185,14 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     get hash() {
-        return `layer-${this.state.primitive}-${this.state.origin[0]}-${this.state.origin[1]}-${this.state.origin[2]}`;
+        return `layer-${this.renderState.primitive}-${this.renderState.origin[0]}-${this.renderState.origin[1]}-${this.renderState.origin[2]}`;
     }
 
     canCreateMesh(geometryCompressedParams: GeometryCompressedParams): boolean {
         if (this.#finalized) {
             throw "Already finalized";
         }
-        const state = this.state;
+        const renderState = this.renderState;
         const numGeometryBuckets = geometryCompressedParams.geometryBuckets.length;
         if ((this.#numMeshParts + numGeometryBuckets) > MAX_MESH_PARTS) {
             return false;
@@ -206,10 +205,10 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             numIndices += geometryBucket.indices.length;
         }
         const primVerts = (geometryCompressedParams.primitive === constants.PointsPrimitive) ? 1 : (geometryCompressedParams.primitive == constants.LinesPrimitive ? 2 : 3);
-        const maxIndicesOfAnyBits = Math.max(state.numIndices8Bits, state.numIndices16Bits, state.numIndices32Bits);
+        const maxIndicesOfAnyBits = Math.max(renderState.numIndices8Bits, renderState.numIndices16Bits, renderState.numIndices32Bits);
         const numVerts = numPositions / primVerts;
         let numTriangleIndices = numIndices / 3;
-        return (state.numVertices + numVerts) <= MAX_DATATEXTURE_HEIGHT * 1024 && (numTriangleIndices + numIndices) <= MAX_DATATEXTURE_HEIGHT * 1024;
+        return (renderState.numVertices + numVerts) <= MAX_DATATEXTURE_HEIGHT * 1024 && (numTriangleIndices + numIndices) <= MAX_DATATEXTURE_HEIGHT * 1024;
     }
 
     hasGeometry(geometryId: string): boolean {
@@ -233,9 +232,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     #createGeometryBucket(geometryBucket: GeometryBucketParams): GeometryBucketHandle {
-        const state = this.state;
+        const renderState = this.renderState;
         if (geometryBucket.indices) {  // Align indices to INDICES_EDGE_INDICES_ALIGNMENT_SIZE
-            const numVertsForPrim = (this.primitive === constants.PointsPrimitive ? 1 : (this.primitive === constants.LinesPrimitive ? 2: 3));
+            const numVertsForPrim = (this.renderState.primitive === constants.PointsPrimitive ? 1 : (this.renderState.primitive === constants.LinesPrimitive ? 2 : 3));
             const alignedIndicesLen = Math.ceil((geometryBucket.indices.length / numVertsForPrim) / INDICES_EDGE_INDICES_ALIGNMENT_SIZE) * INDICES_EDGE_INDICES_ALIGNMENT_SIZE * numVertsForPrim;
             const alignedIndices = new Uint32Array(alignedIndicesLen);
             alignedIndices.fill(0);
@@ -292,7 +291,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
                 edgeIndicesBuffer.push(edgeIndices[i]);
             }
         }
-        state.numVertices += numVertices;
+        renderState.numVertices += numVertices;
         return <GeometryBucketHandle>{
             vertexBase,
             numVertices,
@@ -308,7 +307,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Already finalized";
         }
         // if (origin) {
-        //     this.state.origin = origin;
+        //     this.renderState.origin = origin;
         //     worldAABB[0] += origin[0];
         //     worldAABB[1] += origin[1];
         //     worldAABB[2] += origin[2];
@@ -316,7 +315,6 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         //     worldAABB[4] += origin[1];
         //     worldAABB[5] += origin[2];
         // }
-        // math.boundaries.expandAABB3(this.aabb, worldAABB);
         const meshId = this.meshCounts.numMeshes;
         const meshPartIds: number[] = [];
         if (!meshParams.geometryId) {
@@ -352,7 +350,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
 
         const dataTextureBuffer = this.#dataTextureBuffer;
 
-        const state = this.state;
+        const renderState = this.renderState;
 
         const matrix = meshParams.matrix || identityMatrix;
         const color = meshParams.color || [255, 255, 255];
@@ -370,11 +368,11 @@ export class Layer { // A container of meshes within a WebGLSceneModel
 
         let currentNumIndices;
         if (geometryBucketHandle.numVertices <= (1 << 8)) {
-            currentNumIndices = state.numIndices8Bits;
+            currentNumIndices = renderState.numIndices8Bits;
         } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
-            currentNumIndices = state.numIndices16Bits;
+            currentNumIndices = renderState.numIndices16Bits;
         } else {
-            currentNumIndices = state.numIndices32Bits;
+            currentNumIndices = renderState.numIndices32Bits;
         }
         dataTextureBuffer.eachMeshVertexPortionBase.push(geometryBucketHandle.vertexBase);
         dataTextureBuffer.eachMeshVertexPortionOffset.push(currentNumIndices / 3 - geometryBucketHandle.indicesBase);
@@ -383,11 +381,11 @@ export class Layer { // A container of meshes within a WebGLSceneModel
 
         let currentNumEdgeIndices;
         if (geometryBucketHandle.numVertices <= (1 << 8)) {
-            currentNumEdgeIndices = state.numEdgeIndices8Bits;
+            currentNumEdgeIndices = renderState.numEdgeIndices8Bits;
         } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
-            currentNumEdgeIndices = state.numEdgeIndices16Bits;
+            currentNumEdgeIndices = renderState.numEdgeIndices16Bits;
         } else {
-            currentNumEdgeIndices = state.numEdgeIndices32Bits;
+            currentNumEdgeIndices = renderState.numEdgeIndices32Bits;
         }
         dataTextureBuffer.eachMeshEdgeIndicesOffset.push(currentNumEdgeIndices / 2 - geometryBucketHandle.edgeIndicesBase);
 
@@ -400,13 +398,13 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             let eachPrimitiveMeshBuffer;
             if (geometryBucketHandle.numVertices <= (1 << 8)) {
                 eachPrimitiveMeshBuffer = dataTextureBuffer.eachPrimitiveMesh_8Bits;
-                state.numIndices8Bits += numIndices;
+                renderState.numIndices8Bits += numIndices;
             } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
                 eachPrimitiveMeshBuffer = dataTextureBuffer.eachPrimitiveMesh_16Bits;
-                state.numIndices16Bits += numIndices;
+                renderState.numIndices16Bits += numIndices;
             } else {
                 eachPrimitiveMeshBuffer = dataTextureBuffer.eachPrimitiveMesh_32Bits;
-                state.numIndices32Bits += numIndices;
+                renderState.numIndices32Bits += numIndices;
             }
             for (let i = 0; i < geometryBucketHandle.numTriangles; i += INDICES_EDGE_INDICES_ALIGNMENT_SIZE) {
                 eachPrimitiveMeshBuffer.push(meshPartId);
@@ -420,13 +418,13 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             let edgeIndicesMeshIdBuffer;
             if (geometryBucketHandle.numVertices <= (1 << 8)) {
                 edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_8Bits;
-                state.numEdgeIndices8Bits += numEdgeIndices;
+                renderState.numEdgeIndices8Bits += numEdgeIndices;
             } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
                 edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_16Bits;
-                state.numEdgeIndices16Bits += numEdgeIndices;
+                renderState.numEdgeIndices16Bits += numEdgeIndices;
             } else {
                 edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_32Bits;
-                state.numEdgeIndices32Bits += numEdgeIndices;
+                renderState.numEdgeIndices32Bits += numEdgeIndices;
             }
             for (let i = 0; i < geometryBucketHandle.numEdges; i += INDICES_EDGE_INDICES_ALIGNMENT_SIZE) {
                 edgeIndicesMeshIdBuffer.push(meshPartId);
@@ -449,9 +447,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         const gl = this.#gl;
         const dataTextureFactory = new DataTextureFactory();
         const dataTextureBuffer = this.#dataTextureBuffer;
-        const dataTextureSet = this.state.dataTextureSet;
-        dataTextureSet.cameraMatrices = dataTextureFactory.createCameraMatricesDataTexture(gl, this.sceneModel.scene.viewer.viewList[0].camera, /* HACK */this.state.origin.slice());
-        dataTextureSet.sceneModelMatrices = dataTextureFactory.createSceneModelMatricesDataTexture(gl, this.sceneModel);
+        const dataTextureSet = this.renderState.dataTextureSet;
         dataTextureSet.positions = dataTextureFactory.createPositionsDataTexture(gl, dataTextureBuffer.positionsCompressed);
         dataTextureSet.indices_8Bits = dataTextureFactory.createIndices8BitDataTexture(gl, dataTextureBuffer.indices_8Bits);
         dataTextureSet.indices_16Bits = dataTextureFactory.createIndices16BitDataTexture(gl, dataTextureBuffer.indices_16Bits);
@@ -527,7 +523,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         }
         this.#deferredSetFlagsDirty = false;
         const gl = this.#gl;
-        const dataTextureSet = this.state.dataTextureSet;
+        const dataTextureSet = this.renderState.dataTextureSet;
         gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, dataTextureSet.eachMeshAttributes.textureWidth, dataTextureSet.eachMeshAttributes.textureHeight, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, dataTextureSet.eachMeshAttributes.textureData);
         gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachEdgeOffset.texture);
@@ -543,6 +539,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
+            debugger;
             this.meshCounts.numVisible++;
         } else {
             this.meshCounts.numVisible--;
@@ -644,7 +641,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         if (!this.#finalized) {
             throw "Not finalized";
         }
-        const dataTextureSet = this.state.dataTextureSet;
+        const dataTextureSet = this.renderState.dataTextureSet;
         const gl = this.#gl;
         tempUint8Array4 [0] = color[0];
         tempUint8Array4 [1] = color[1];
@@ -726,7 +723,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             f2 = RENDER_PASSES.NOT_RENDERED;
         }
         let f3 = (visible && !culled && pickable) ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED; // Pick
-        const dataTextureSet = this.state.dataTextureSet;
+        const dataTextureSet = this.renderState.dataTextureSet;
         const gl = this.#gl;
         tempUint8Array4 [0] = f0;
         tempUint8Array4 [1] = f1;
@@ -747,7 +744,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
             throw "Not finalized";
         }
         const clippable = !!(flags & SCENE_OBJECT_FLAGS.CLIPPABLE) ? 255 : 0;
-        const dataTextureSet = this.state.dataTextureSet;
+        const dataTextureSet = this.renderState.dataTextureSet;
         const gl = this.#gl;
         tempUint8Array4 [0] = clippable;
         tempUint8Array4 [1] = 0;
@@ -767,7 +764,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         if (!this.#finalized) {
             throw "Not finalized";
         }
-        const dataTextureSet = this.state.dataTextureSet;
+        const dataTextureSet = this.renderState.dataTextureSet;
         const gl = this.#gl;
         tempFloat32Array3 [0] = offset[0];
         tempFloat32Array3 [1] = offset[1];
@@ -783,7 +780,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     destroy() {
-        this.state.dataTextureSet.destroy();
+        this.#view.camera.putRTCViewMat(this.rtcViewMat);
+        this.renderState.dataTextureSet.destroy();
     }
 }
 

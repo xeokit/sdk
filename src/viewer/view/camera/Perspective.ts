@@ -18,10 +18,7 @@ class Perspective extends Component {
      */
     public readonly camera: Camera;
 
-    /**
-     * @private
-     */
-    public readonly state: {
+    #state: {
         transposedMatrix: math.FloatArrayParam;
         far: number;
         near: number;
@@ -49,7 +46,7 @@ class Perspective extends Component {
 
         this.camera = camera;
 
-        this.state = {
+        this.#state = {
             matrix: math.mat4(),
             inverseMatrix: math.mat4(),
             transposedMatrix: math.mat4(),
@@ -75,7 +72,7 @@ class Perspective extends Component {
      * @returns {Number} Current field-of-view.
      */
     get fov(): number {
-        return this.state.fov;
+        return this.#state.fov;
     }
 
     /**
@@ -88,12 +85,12 @@ class Perspective extends Component {
      * @param value New field-of-view.
      */
     set fov(value: number) {
-        if (value === this.state.fov) {
+        if (value === this.#state.fov) {
             return;
         }
-        this.state.fov = value;
+        this.#state.fov = value;
         this.setDirty();
-        this.events.fire("fov", this.state.fov);
+        this.events.fire("fov", this.#state.fov);
     }
 
     /**
@@ -108,7 +105,7 @@ class Perspective extends Component {
      * @returns {String} The current FOV axis value.
      */
     get fovAxis(): string {
-        return this.state.fovAxis;
+        return this.#state.fovAxis;
     }
 
     /**
@@ -124,16 +121,16 @@ class Perspective extends Component {
      */
     set fovAxis(value: string) {
         value = value || "min";
-        if (this.state.fovAxis === value) {
+        if (this.#state.fovAxis === value) {
             return;
         }
         if (value !== "x" && value !== "y" && value !== "min") {
             this.error("Unsupported value for 'fovAxis': " + value + " - defaulting to 'min'");
             value = "min";
         }
-        this.state.fovAxis = value;
+        this.#state.fovAxis = value;
         this.setDirty(); 
-        this.events.fire("fovAxis", this.state.fovAxis);
+        this.events.fire("fovAxis", this.#state.fovAxis);
     }
 
     /**
@@ -146,7 +143,7 @@ class Perspective extends Component {
      * @returns The Perspective's near plane position.
      */
     get near(): number {
-        return this.state.near;
+        return this.#state.near;
     }
 
     /**
@@ -159,12 +156,12 @@ class Perspective extends Component {
      * @param value New Perspective near plane position.
      */
     set near(value: number) {
-        if (this.state.near === value) {
+        if (this.#state.near === value) {
             return;
         }
-        this.state.near = value;
+        this.#state.near = value;
         this.setDirty(); 
-        this.events.fire("near", this.state.near);
+        this.events.fire("near", this.#state.near);
     }
 
     /**
@@ -173,7 +170,7 @@ class Perspective extends Component {
      * @return {Number} The Perspective's far plane position.
      */
     get far(): number {
-        return this.state.far;
+        return this.#state.far;
     }
 
     /**
@@ -184,12 +181,12 @@ class Perspective extends Component {
      * @param value New Perspective far plane position.
      */
     set far(value: number) {
-        if (this.state.far === value) {
+        if (this.#state.far === value) {
             return;
         }
-        this.state.far = value;
+        this.#state.far = value;
         this.setDirty(); 
-        this.events.fire("far", this.state.far);
+        this.events.fire("far", this.#state.far);
     }
 
     /**
@@ -205,7 +202,7 @@ class Perspective extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.state.matrix;
+        return this.#state.matrix;
     }
 
     /**
@@ -218,10 +215,10 @@ class Perspective extends Component {
             this.cleanIfDirty();
         }
         if (this.inverseMatrixDirty) {
-            math.inverseMat4(this.state.matrix, this.state.inverseMatrix);
+            math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
             this.inverseMatrixDirty = false;
         }
-        return this.state.inverseMatrix;
+        return this.#state.inverseMatrix;
     }
 
     /**
@@ -234,10 +231,10 @@ class Perspective extends Component {
             this.cleanIfDirty();
         }
         if (this.transposedMatrixDirty) {
-            math.transposeMat4(this.state.matrix, this.state.transposedMatrix);
+            math.transposeMat4(this.#state.matrix, this.#state.transposedMatrix);
             this.transposedMatrixDirty = false;
         }
-        return this.state.transposedMatrix;
+        return this.#state.transposedMatrix;
     }
 
     /**
@@ -248,17 +245,17 @@ class Perspective extends Component {
         const HEIGHT_INDEX = 3;
         const boundary = this.camera.view.viewport.boundary;
         const aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
-        const fovAxis = this.state.fovAxis;
-        let fov = this.state.fov;
+        const fovAxis = this.#state.fovAxis;
+        let fov = this.#state.fov;
         if (fovAxis === "x" || (fovAxis === "min" && aspect < 1) || (fovAxis === "max" && aspect > 1)) {
             fov = fov / aspect;
         }
         fov = Math.min(fov, 120);
-        math.perspectiveMat4(fov * (Math.PI / 180.0), aspect, this.state.near, this.state.far, this.state.matrix);
+        math.perspectiveMat4(fov * (Math.PI / 180.0), aspect, this.#state.near, this.#state.far, this.#state.matrix);
         this.inverseMatrixDirty = true;
         this.transposedMatrixDirty = true;
         this.camera.view.redraw();
-        this.events.fire("matrix", this.state.matrix);
+        this.events.fire("matrix", this.#state.matrix);
     }
 
     /**

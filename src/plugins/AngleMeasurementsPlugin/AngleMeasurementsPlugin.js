@@ -10,7 +10,7 @@ import {AngleMeasurementsControl} from "./AngleMeasurementsControl.js";
  * * [[Example 1: Model with angle measurements](https://xeokit.github.io/xeokit-sdk/examples/#measurements_angle_modelWithMeasurements)]
  * * [[Example 2: Create angle measurements with mouse](https://xeokit.github.io/xeokit-sdk/examples/#measurements_angle_createWithMouse)]
  *
- * ## Overview
+ * ## Summary
  *
  * * An {@link AngleMeasurement} shows the angle between two connected 3D line segments, given
  * as three positions on the surface(s) of one or more {@link Entity}s.

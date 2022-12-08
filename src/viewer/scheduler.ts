@@ -103,8 +103,8 @@ class Scheduler {
                     renderInfo = this.#viewersRenderInfo[id] = {}; // FIXME
                 }
 
-                //
-                // ticksPerOcclusionTest = viewer.ticksPerOcclusionTest;
+
+                // const ticksPerOcclusionTest = viewer.ticksPerOcclusionTest;
                 // if (renderInfo.ticksPerOcclusionTest !== ticksPerOcclusionTest) {
                 //     renderInfo.ticksPerOcclusionTest = ticksPerOcclusionTest;
                 //     renderInfo.renderCountdown = ticksPerOcclusionTest;
@@ -120,7 +120,7 @@ class Scheduler {
                 //     renderInfo.renderCountdown = ticksPerRender;
                 // }
                 // if (--renderInfo.renderCountdown === 0) {
-                //     viewer.render(forceRender);
+                    viewer.render({});
                 //     renderInfo.renderCountdown = ticksPerRender;
                 // }
             }

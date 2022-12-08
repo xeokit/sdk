@@ -71,7 +71,7 @@ export interface Renderer {
      *
      * The SceneModel provides an interface through which we can then build geometry and materials within
      * it. Once we've built the SceneModel and called {@link SceneModel.finalize}, the Renderer will immediately begin
-     * rendering it all {@link View}s that we registered previously with {@link Renderer.registerView}.
+     * rendering it all {@link View|Views} that we registered previously with {@link Renderer.registerView}.
      *
      * When we've finished with the SceneModel, we then call {@link SceneModel.destroy} to destroy it.
      *

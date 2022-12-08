@@ -5,6 +5,9 @@ import {Ortho} from './Ortho.js';
 import {Frustum} from './Frustum.js';
 import {CustomProjection} from './CustomProjection.js';
 import {View} from "../View";
+import {FloatArrayParam} from "../../math/index";
+import {RTCViewMat} from "./RTCViewMat";
+
 
 const tempVec3 = math.vec3();
 const tempVec3b = math.vec3();
@@ -19,10 +22,11 @@ const eyeLookVecNorm = math.vec3();
 const eyeLookOffset = math.vec3();
 const offsetEye = math.vec3();
 
+
 /**
  * Controls the  viewpoint and projection for a {@link View}.
  *
- * ## Overview
+ * ## Summary
  *
  * * Located at {@link View.camera}
  * * Views are located at {@link Viewer.views}
@@ -220,10 +224,7 @@ class Camera extends Component {
      */
     public readonly view: View;
 
-    /**
-     * @private
-     */
-    public readonly state: {
+    #state: {
         deviceMatrix: math.FloatArrayParam,
         normalMatrix: math.FloatArrayParam,
         hasDeviceMatrix: boolean,
@@ -272,6 +273,11 @@ class Camera extends Component {
     #activeProjection: Perspective | Ortho | Frustum | CustomProjection;
 
     /**
+     * View matrices for relative-to-center (RTC) coordinate system origins.
+     */
+    public readonly rtcViewMats: { [key: string]: RTCViewMat };
+
+    /**
      * @private
      */
     constructor(view: View, cfg: {
@@ -290,13 +296,13 @@ class Camera extends Component {
 
         this.view = view;
 
-        this.state = {
+        this.#state = {
             eye: math.vec3(cfg.eye || [0, 0, 10]),
             look: math.vec3(cfg.look || [0, 0, 0]),
             up: math.vec3(cfg.up || [0, 1, 0]),
-            worldUp : math.vec3([0, 1, 0]),
-            worldRight : math.vec3([1, 0, 0]),
-            worldForward : math.vec3([0, 0, -1]),
+            worldUp: math.vec3([0, 1, 0]),
+            worldRight: math.vec3([1, 0, 0]),
+            worldForward: math.vec3([0, 0, -1]),
             worldAxis: new Float32Array(cfg.worldAxis || [1, 0, 0, 0, 1, 0, 0, 0, 1]),
             gimbalLock: cfg.gimbalLock !== false,
             constrainPitch: cfg.constrainPitch === true,
@@ -308,6 +314,8 @@ class Camera extends Component {
             inverseMatrix: math.mat4()
         };
 
+        this.rtcViewMats = {};
+
         this.perspective = new Perspective(this);
         this.ortho = new Ortho(this);
         this.frustum = new Frustum(this);
@@ -316,22 +324,22 @@ class Camera extends Component {
         this.#activeProjection = this.perspective;
 
         this.perspective.events.on("matrix", () => {
-            if (this.state.projectionType === "perspective") {
+            if (this.#state.projectionType === "perspective") {
                 this.events.fire("projMatrix", this.perspective.matrix);
             }
         });
         this.ortho.events.on("matrix", () => {
-            if (this.state.projectionType === "ortho") {
+            if (this.#state.projectionType === "ortho") {
                 this.events.fire("projMatrix", this.ortho.matrix);
             }
         });
         this.frustum.events.on("matrix", () => {
-            if (this.state.projectionType === "frustum") {
+            if (this.#state.projectionType === "frustum") {
                 this.events.fire("projMatrix", this.frustum.matrix);
             }
         });
         this.customProjection.events.on("matrix", () => {
-            if (this.state.projectionType === "customProjection") {
+            if (this.#state.projectionType === "customProjection") {
                 this.events.fire("projMatrix", this.customProjection.matrix);
             }
         });
@@ -357,7 +365,7 @@ class Camera extends Component {
      * @type {Number[]} New eye position.
      */
     get eye(): math.FloatArrayParam {
-        return this.state.eye;
+        return this.#state.eye;
     }
 
     /**
@@ -370,9 +378,9 @@ class Camera extends Component {
      */
     set eye(eye: math.FloatArrayParam) {
         // @ts-ignore
-        this.state.eye.set(eye);
+        this.#state.eye.set(eye);
         this.setDirty(); // Ensure matrix built on next "tick"
-        this.events.fire("eye", this.state.eye);
+        this.events.fire("eye", this.#state.eye);
     }
 
     /**
@@ -383,7 +391,7 @@ class Camera extends Component {
      * @returns {Number[]} Camera look position.
      */
     get look(): math.FloatArrayParam {
-        return this.state.look;
+        return this.#state.look;
     }
 
     /**
@@ -397,9 +405,9 @@ class Camera extends Component {
      */
     set look(look: math.FloatArrayParam) {
         // @ts-ignore
-        this.state.look.set(look);
+        this.#state.look.set(look);
         this.setDirty(); // Ensure matrix built on next "tick"
-        this.events.fire("look", this.state.look);
+        this.events.fire("look", this.#state.look);
     }
 
     /**
@@ -408,7 +416,7 @@ class Camera extends Component {
      * @returns {Number[]} Direction of "up".
      */
     get up(): math.FloatArrayParam {
-        return this.state.up;
+        return this.#state.up;
     }
 
     /**
@@ -420,9 +428,9 @@ class Camera extends Component {
      */
     set up(up: math.FloatArrayParam) {
         // @ts-ignore
-        this.state.up.set(up);
+        this.#state.up.set(up);
         this.setDirty();
-        this.events.fire("up", this.state.up);
+        this.events.fire("up", this.#state.up);
     }
 
     /**
@@ -435,7 +443,7 @@ class Camera extends Component {
      * @returns {Number[]} The "up" vector.
      */
     get worldUp(): math.FloatArrayParam {
-        return this.state.worldUp;
+        return this.#state.worldUp;
     }
 
     /**
@@ -448,7 +456,7 @@ class Camera extends Component {
      * @returns {Number[]} The "up" vector.
      */
     get worldRight(): math.FloatArrayParam {
-        return this.state.worldRight;
+        return this.#state.worldRight;
     }
 
     /**
@@ -461,7 +469,7 @@ class Camera extends Component {
      * @returns {Number[]} The "up" vector.
      */
     get worldForward(): math.FloatArrayParam {
-        return this.state.worldForward;
+        return this.#state.worldForward;
     }
 
     /**
@@ -474,7 +482,7 @@ class Camera extends Component {
      * @returns {Boolean} ````true```` if pitch rotation is currently constrained.
      */
     get constrainPitch(): boolean {
-        return this.state.constrainPitch;
+        return this.#state.constrainPitch;
     }
 
     /**
@@ -489,8 +497,8 @@ class Camera extends Component {
      * @param value Set ````true```` to contrain pitch rotation.
      */
     set constrainPitch(value: boolean) {
-        this.state.constrainPitch = value;
-        this.events.fire("constrainPitch", this.state.constrainPitch);
+        this.#state.constrainPitch = value;
+        this.events.fire("constrainPitch", this.#state.constrainPitch);
     }
 
     /**
@@ -499,7 +507,7 @@ class Camera extends Component {
      * @returns {Boolean} Returns ````true```` if gimbal is locked.
      */
     get gimbalLock(): boolean {
-        return this.state.gimbalLock;
+        return this.#state.gimbalLock;
     }
 
     /**
@@ -510,8 +518,8 @@ class Camera extends Component {
      * @params {Boolean} gimbalLock Set true to lock gimbal.
      */
     set gimbalLock(value: boolean) {
-        this.state.gimbalLock = value;
-        this.events.fire("gimbalLock", this.state.gimbalLock);
+        this.#state.gimbalLock = value;
+        this.events.fire("gimbalLock", this.#state.gimbalLock);
     }
 
     /**
@@ -524,7 +532,7 @@ class Camera extends Component {
      * @returns {Number[]} The current World coordinate axis.
      */
     get worldAxis(): math.FloatArrayParam {
-        return this.state.worldAxis;
+        return this.#state.worldAxis;
     }
 
     /**
@@ -537,8 +545,8 @@ class Camera extends Component {
      * @param axis The new Wworld coordinate axis.
      */
     set worldAxis(axis: math.FloatArrayParam) {
-        const state = this.state;
-            // @ts-ignore
+        const state = this.#state;
+        // @ts-ignore
         state.worldAxis.set(axis);
         state.worldRight[0] = state.worldAxis[0];
         state.worldRight[1] = state.worldAxis[1];
@@ -559,7 +567,7 @@ class Camera extends Component {
      */
     get deviceMatrix(): math.FloatArrayParam {
         // @ts-ignore
-        return this.state.deviceMatrix;
+        return this.#state.deviceMatrix;
     }
 
     /**
@@ -571,10 +579,10 @@ class Camera extends Component {
      */
     set deviceMatrix(matrix: math.FloatArrayParam) {
         // @ts-ignore
-        this.state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-        this.state.hasDeviceMatrix = !!matrix;
+        this.#state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+        this.#state.hasDeviceMatrix = !!matrix;
         this.setDirty();
-        this.events.fire("deviceMatrix", this.state.deviceMatrix);
+        this.events.fire("deviceMatrix", this.#state.deviceMatrix);
     }
 
     /**
@@ -582,7 +590,7 @@ class Camera extends Component {
      * @returns {boolean}
      */
     get xUp(): boolean {
-        return this.state.worldUp[0] > this.state.worldUp[1] && this.state.worldUp[0] > this.state.worldUp[2];
+        return this.#state.worldUp[0] > this.#state.worldUp[1] && this.#state.worldUp[0] > this.#state.worldUp[2];
     }
 
     /**
@@ -590,7 +598,7 @@ class Camera extends Component {
      * @returns {boolean}
      */
     get yUp(): boolean {
-        return this.state.worldUp[1] > this.state.worldUp[0] && this.state.worldUp[1] > this.state.worldUp[2];
+        return this.#state.worldUp[1] > this.#state.worldUp[0] && this.#state.worldUp[1] > this.#state.worldUp[2];
     }
 
     /**
@@ -598,7 +606,7 @@ class Camera extends Component {
      * @returns {boolean}
      */
     get zUp(): boolean {
-        return this.state.worldUp[2] > this.state.worldUp[0] && this.state.worldUp[2] > this.state.worldUp[1];
+        return this.#state.worldUp[2] > this.#state.worldUp[0] && this.#state.worldUp[2] > this.#state.worldUp[1];
     }
 
     /**
@@ -607,7 +615,7 @@ class Camera extends Component {
      * @returns {Number} The distance.
      */
     get eyeLookDist(): number {
-        return math.lenVec3(math.subVec3(this.state.look, this.state.eye, tempVec3));
+        return math.lenVec3(math.subVec3(this.#state.look, this.#state.eye, tempVec3));
     }
 
     /**
@@ -621,7 +629,7 @@ class Camera extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.state.matrix;
+        return this.#state.matrix;
     }
 
     /**
@@ -635,7 +643,7 @@ class Camera extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.state.matrix;
+        return this.#state.matrix;
     }
 
     /**
@@ -649,7 +657,7 @@ class Camera extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.state.normalMatrix;
+        return this.#state.normalMatrix;
     }
 
     /**
@@ -663,7 +671,7 @@ class Camera extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.state.normalMatrix;
+        return this.#state.normalMatrix;
     }
 
     /**
@@ -677,7 +685,7 @@ class Camera extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.state.inverseMatrix;
+        return this.#state.inverseMatrix;
     }
 
     /**
@@ -702,7 +710,7 @@ class Camera extends Component {
      * @returns {String} Identifies the active projection type.
      */
     get projection(): string {
-        return this.state.projectionType;
+        return this.#state.projectionType;
     }
 
     /**
@@ -716,7 +724,7 @@ class Camera extends Component {
      */
     set projection(value: string) {
         value = value || "perspective";
-        if (this.state.projectionType === value) {
+        if (this.#state.projectionType === value) {
             return;
         }
         if (value === "perspective") {
@@ -733,42 +741,43 @@ class Camera extends Component {
             value = "perspective";
         }
         this.#activeProjection.clean();
-        this.state.projectionType = value;
+        this.#state.projectionType = value;
         this.view.redraw();
         this.clean(); // Need to rebuild lookat matrix with full eye, look & up
         // @ts-ignore
         this.events.fire("dirty");
-        this.events.fire("projection", this.state.projectionType);
+        this.events.fire("projection", this.#state.projectionType);
         this.events.fire("projMatrix", this.#activeProjection.matrix);
     }
 
     clean() {
-        const state = this.state;
+        const state = this.#state;
         // In ortho mode, build the view matrix with an eye position that's translated
         // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
         // the front off the view (not a problem with perspective, since objects close enough
         // to be clipped by the front plane are usually too big to see anything of their cross-sections).
         let eye;
         if (this.projection === "ortho") {
-            math.subVec3(this.state.eye, this.state.look, eyeLookVec);
+            math.subVec3(this.#state.eye, this.#state.look, eyeLookVec);
             math.normalizeVec3(eyeLookVec, eyeLookVecNorm);
             math.mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
-            math.addVec3(this.state.look, eyeLookOffset, offsetEye);
+            math.addVec3(this.#state.look, eyeLookOffset, offsetEye);
             eye = offsetEye;
         } else {
-            eye = this.state.eye;
+            eye = this.#state.eye;
         }
         if (state.hasDeviceMatrix) {
-            math.lookAtMat4v(eye, this.state.look, this.state.up, tempMatb);
+            math.lookAtMat4v(eye, this.#state.look, this.#state.up, tempMatb);
             math.mulMat4(state.deviceMatrix, tempMatb, state.matrix);
         } else {
-            math.lookAtMat4v(eye, this.state.look, this.state.up, state.matrix);
+            math.lookAtMat4v(eye, this.#state.look, this.#state.up, state.matrix);
         }
-        math.inverseMat4(this.state.matrix, this.state.inverseMatrix);
-        math.transposeMat4(this.state.inverseMatrix, this.state.normalMatrix);
+        math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
+        math.transposeMat4(this.#state.inverseMatrix, this.#state.normalMatrix);
+        this.#invalidateRTCViewMatrices();
         this.view.redraw();
-        this.events.fire("matrix", this.state.matrix);
-        this.events.fire("viewMatrix", this.state.matrix);
+        this.events.fire("matrix", this.#state.matrix);
+        this.events.fire("viewMatrix", this.#state.matrix);
     }
 
     /**
@@ -777,11 +786,11 @@ class Camera extends Component {
      * @param angleInc Angle of rotation in degrees
      */
     orbitYaw(angleInc: number) {
-        let lookEyeVec = math.subVec3(this.state.eye, this.state.look, tempVec3);
-        math.rotationMat4v(angleInc * 0.0174532925, this.state.gimbalLock ? this.state.worldUp : this.state.up, tempMat);
+        let lookEyeVec = math.subVec3(this.#state.eye, this.#state.look, tempVec3);
+        math.rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.#state.worldUp : this.#state.up, tempMat);
         lookEyeVec = math.transformPoint3(tempMat, lookEyeVec, tempVec3b);
-        this.eye = math.addVec3(this.state.look, lookEyeVec, tempVec3c); // Set eye position as 'look' plus 'eye' vector
-        this.up = math.transformPoint3(tempMat, this.state.up, tempVec3d); // Rotate 'up' vector
+        this.eye = math.addVec3(this.#state.look, lookEyeVec, tempVec3c); // Set eye position as 'look' plus 'eye' vector
+        this.up = math.transformPoint3(tempMat, this.#state.up, tempVec3d); // Rotate 'up' vector
     }
 
     /**
@@ -790,18 +799,18 @@ class Camera extends Component {
      * @param angleInc Angle of rotation in degrees
      */
     orbitPitch(angleInc: number) {
-        if (this.state.constrainPitch) {
-            angleInc = math.dotVec3(this.state.up, this.state.worldUp) / math.DEGTORAD;
+        if (this.#state.constrainPitch) {
+            angleInc = math.dotVec3(this.#state.up, this.#state.worldUp) / math.DEGTORAD;
             if (angleInc < 1) {
                 return;
             }
         }
-        let eye2 = math.subVec3(this.state.eye, this.state.look, tempVec3);
-        const left = math.cross3Vec3(math.normalizeVec3(eye2, tempVec3b), math.normalizeVec3(this.state.up, tempVec3c));
+        let eye2 = math.subVec3(this.#state.eye, this.#state.look, tempVec3);
+        const left = math.cross3Vec3(math.normalizeVec3(eye2, tempVec3b), math.normalizeVec3(this.#state.up, tempVec3c));
         math.rotationMat4v(angleInc * 0.0174532925, left, tempMat);
         eye2 = math.transformPoint3(tempMat, eye2, tempVec3d);
-        this.up = math.transformPoint3(tempMat, this.state.up, tempVec3e);
-        this.eye = math.addVec3(eye2, this.state.look, tempVec3f);
+        this.up = math.transformPoint3(tempMat, this.#state.up, tempVec3e);
+        this.eye = math.addVec3(eye2, this.#state.look, tempVec3f);
     }
 
     /**
@@ -810,12 +819,12 @@ class Camera extends Component {
      * @param angleInc Angle of rotation in degrees
      */
     yaw(angleInc: number) {
-        let look2 = math.subVec3(this.state.look, this.state.eye, tempVec3);
-        math.rotationMat4v(angleInc * 0.0174532925, this.state.gimbalLock ? this.state.worldUp : this.state.up, tempMat);
+        let look2 = math.subVec3(this.#state.look, this.#state.eye, tempVec3);
+        math.rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.#state.worldUp : this.#state.up, tempMat);
         look2 = math.transformPoint3(tempMat, look2, tempVec3b);
-        this.look = math.addVec3(look2, this.state.eye, tempVec3c);
-        if (this.state.gimbalLock) {
-            this.up = math.transformPoint3(tempMat, this.state.up, tempVec3d);
+        this.look = math.addVec3(look2, this.#state.eye, tempVec3c);
+        if (this.#state.gimbalLock) {
+            this.up = math.transformPoint3(tempMat, this.#state.up, tempVec3d);
         }
     }
 
@@ -825,18 +834,18 @@ class Camera extends Component {
      * @param angleInc Angle of rotation in degrees
      */
     pitch(angleInc: number) {
-        if (this.state.constrainPitch) {
-            angleInc = math.dotVec3(this.state.up, this.state.worldUp) / math.DEGTORAD;
+        if (this.#state.constrainPitch) {
+            angleInc = math.dotVec3(this.#state.up, this.#state.worldUp) / math.DEGTORAD;
             if (angleInc < 1) {
                 return;
             }
         }
-        let look2 = math.subVec3(this.state.look, this.state.eye, tempVec3);
-        const left = math.cross3Vec3(math.normalizeVec3(look2, tempVec3b), math.normalizeVec3(this.state.up, tempVec3c));
+        let look2 = math.subVec3(this.#state.look, this.#state.eye, tempVec3);
+        const left = math.cross3Vec3(math.normalizeVec3(look2, tempVec3b), math.normalizeVec3(this.#state.up, tempVec3c));
         math.rotationMat4v(angleInc * 0.0174532925, left, tempMat);
-        this.up = math.transformPoint3(tempMat, this.state.up, tempVec3f);
+        this.up = math.transformPoint3(tempMat, this.#state.up, tempVec3f);
         look2 = math.transformPoint3(tempMat, look2, tempVec3d);
-        this.look = math.addVec3(look2, this.state.eye, tempVec3e);
+        this.look = math.addVec3(look2, this.#state.eye, tempVec3e);
     }
 
     /**
@@ -845,18 +854,18 @@ class Camera extends Component {
      * @param pan The pan vector
      */
     pan(pan: math.FloatArrayParam) {
-        const eye2 = math.subVec3(this.state.eye, this.state.look, tempVec3);
+        const eye2 = math.subVec3(this.#state.eye, this.#state.look, tempVec3);
         const vec = [0, 0, 0];
         let v;
         if (pan[0] !== 0) {
-            const left = math.cross3Vec3(math.normalizeVec3(eye2, []), math.normalizeVec3(this.state.up, tempVec3b));
+            const left = math.cross3Vec3(math.normalizeVec3(eye2, []), math.normalizeVec3(this.#state.up, tempVec3b));
             v = math.mulVec3Scalar(left, pan[0]);
             vec[0] += v[0];
             vec[1] += v[1];
             vec[2] += v[2];
         }
         if (pan[1] !== 0) {
-            v = math.mulVec3Scalar(math.normalizeVec3(this.state.up, tempVec3c), pan[1]);
+            v = math.mulVec3Scalar(math.normalizeVec3(this.#state.up, tempVec3c), pan[1]);
             vec[0] += v[0];
             vec[1] += v[1];
             vec[2] += v[2];
@@ -867,8 +876,8 @@ class Camera extends Component {
             vec[1] += v[1];
             vec[2] += v[2];
         }
-        this.eye = math.addVec3(this.state.eye, vec, tempVec3e);
-        this.look = math.addVec3(this.state.look, vec, tempVec3f);
+        this.eye = math.addVec3(this.#state.eye, vec, tempVec3e);
+        this.look = math.addVec3(this.#state.look, vec, tempVec3f);
     }
 
     /**
@@ -877,14 +886,55 @@ class Camera extends Component {
      * @param delta Zoom factor increment.
      */
     zoom(delta: number) {
-        const vec = math.subVec3(this.state.eye, this.state.look, tempVec3);
+        const vec = math.subVec3(this.#state.eye, this.#state.look, tempVec3);
         const lenLook = Math.abs(math.lenVec3(vec));
         const newLenLook = Math.abs(lenLook + delta);
         if (newLenLook < 0.5) {
             return;
         }
         const dir = math.normalizeVec3(vec, tempVec3c);
-        this.eye = math.addVec3(this.state.look, math.mulVec3Scalar(dir, newLenLook), tempVec3d);
+        this.eye = math.addVec3(this.#state.look, math.mulVec3Scalar(dir, newLenLook), tempVec3d);
+    }
+
+    #invalidateRTCViewMatrices(): void {
+        Object.values(this.rtcViewMats).forEach((rtcViewMat) => {
+            rtcViewMat.dirty = true;
+        });
+    }
+
+    /**
+     * Gets an RTC view matrix for the given relative-to-center (RTC) coordinate system origin.
+     *
+     * The RTCViewMat returned by this method will provide a dynamically-synchronized
+     * version of {@link Camera.viewMatrix} for the given RTC origin. Whenever {@link Camera.viewMatrix} 
+     * updates, {@link RTCViewMat.viewMatrix} will update also.
+     * 
+     * Make sure to release it with {@link putRTCViewMat} or {@link RTCViewMat.release} when you no longer need it.
+     *
+     * @param origin The RTC coordinate origin.
+     * @returns An RTC view matrix for the given RTC coordinate origin.
+     */
+    getRTCViewMat(origin: FloatArrayParam): RTCViewMat {
+        const id = `${origin[0]}_${origin[1]}_${origin[2]}`;
+        let rtcViewMat = this.rtcViewMats[id];
+        if (!rtcViewMat) {
+            rtcViewMat = new RTCViewMat(this, id, origin);
+            this.rtcViewMats[id] = rtcViewMat;
+        }
+        rtcViewMat.useCount++;
+        return rtcViewMat;
+    }
+
+    /**
+     * Releases an RTC view matrix.
+     *
+     * @param rtcViewMat The RTC view matrix.
+     */
+    putRTCViewMat(rtcViewMat: RTCViewMat): void {
+        rtcViewMat.useCount--;
+        if (rtcViewMat.useCount <= 0) {
+            delete this.rtcViewMats[rtcViewMat.id];
+        }
     }
 
     /**

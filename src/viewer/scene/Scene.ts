@@ -9,10 +9,19 @@ import {SceneModelParams} from "./SceneModelParams";
 import {Tiles} from "./Tiles";
 
 /**
- * Contains geometry and materials for models.
+ * Contains geometric representations of the models and objects within a {@link Viewer}.
+ *
+ * ## Summary
  *
  * * Located at {@link Viewer.scene}
- * * Contains {@link SceneModel}s and {@link SceneObject}s
+ * * Stores {@link SceneModel|SceneModels} in {@link Scene.models}
+ * * Stores {@link SceneObject|SceneObjects} in {@link Scene.objects}
+ * * Provides the center and axis-aligned World-space boundary of all {@link SceneObject|SceneObjects} in {@link Scene.center} and {@link Scene.aabb}, respectively
+ * * Use {@link Scene.createModel} to create {@link SceneModel|SceneModels}
+ * * Use {@link SceneModel.createObject} to create {@link SceneObject|SceneObjects}
+ * * {@link View|Views} automatically contain {@link ViewObject|ViewObjects} to represent all existing {@link SceneObject|SceneObjects}
+ *
+ * ## Overview
  *
  *
  */
@@ -29,12 +38,12 @@ export class Scene extends Component {
     readonly tiles: Tiles;
 
     /**
-     * The {@link SceneModel}s in this Scene.
+     * The {@link SceneModel|SceneModels} in this Scene.
      */
     readonly models: { [key: string]: SceneModel };
 
     /**
-     * The {@link SceneObject}s in this Scene.
+     * The {@link SceneObject|SceneObjects} in this Scene.
      */
     readonly objects: { [key: string]: SceneObject };
 
@@ -146,13 +155,21 @@ export class Scene extends Component {
      * we can then build geometry and materials within it.
      *
      * When we've finished building our SceneModel, we then call {@link SceneModel.finalize}, which causes it to
-     * immediately begin rendering within all the {@link View}s we created previously with {@link Viewer.createView}.
+     * immediately begin rendering within all the {@link View|Views} we created previously with {@link Viewer.createView}.
      *
-     * As that happens, each {@link View} automatically gets a {@link ViewObject} for each of the SceneModel's {@link SceneObject}s, to
+     * As that happens, each {@link View} automatically gets a {@link ViewObject} for each of the SceneModel's {@link SceneObject|SceneObjects}, to
      * independently represent that SceneObject's visual state in that View.
      *
      * When we've finished with the SceneModel, we destroy it using {@link SceneModel.destroy}. That will automatically remove its
      * ViewObjects from all our existing Views.
+     *
+     * ### Usage
+     *
+     * ````javascript
+     * const mySceneModel = myViewer.scene.createModel({
+     *    id: "myModel"
+     * });
+     * ````
      *
      * @param params SceneModel configuration
      * @seealso {@link Data.createModel}
@@ -183,7 +200,7 @@ export class Scene extends Component {
     }
 
     /**
-     * Destroys all {@link SceneModel}s in this Scene.
+     * Destroys all {@link SceneModel|SceneModels} in this Scene.
      *
      * This invalidates all SceneModels created previously with {@link Scene.createModel}.
      */

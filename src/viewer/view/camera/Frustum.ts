@@ -16,10 +16,7 @@ class Frustum extends Component {
      */
     public readonly camera: Camera;
 
-    /**
-     * @private
-     */
-    public readonly state: {
+    #state: {
         transposedMatrix: math.FloatArrayParam;
         far: number;
         near: number;
@@ -50,7 +47,7 @@ class Frustum extends Component {
 
         this.camera = camera;
 
-        this.state = {
+        this.#state = {
             matrix: math.mat4(),
             inverseMatrix: math.mat4(),
             transposedMatrix: math.mat4(),
@@ -72,7 +69,7 @@ class Frustum extends Component {
      * @return {Number} Left frustum plane position.
      */
     get left(): number {
-        return this.state.left;
+        return this.#state.left;
     }
 
     /**
@@ -81,7 +78,7 @@ class Frustum extends Component {
      * @param value New left frustum plane position.
      */
     set left(value: number) {
-        this.state.left = value;
+        this.#state.left = value;
         this.setDirty();
     }
 
@@ -91,7 +88,7 @@ class Frustum extends Component {
      * @return {Number} Right frustum plane position.
      */
     get right(): number {
-        return this.state.right;
+        return this.#state.right;
     }
 
     /**
@@ -100,7 +97,7 @@ class Frustum extends Component {
      * @param value New right frustum plane position.
      */
     set right(value: number) {
-        this.state.right = value
+        this.#state.right = value
         this.setDirty();
     }
 
@@ -112,7 +109,7 @@ class Frustum extends Component {
      * @return {Number} Top frustum plane position.
      */
     get top(): number {
-        return this.state.top;
+        return this.#state.top;
     }
 
     /**
@@ -121,7 +118,7 @@ class Frustum extends Component {
      * @param value New top frustum plane position.
      */
     set top(value: number) {
-        this.state.top = value
+        this.#state.top = value
         this.setDirty();
     }
 
@@ -131,7 +128,7 @@ class Frustum extends Component {
      * @return {Number} Bottom frustum plane position.
      */
     get bottom(): number {
-        return this.state.bottom;
+        return this.#state.bottom;
     }
 
     /**
@@ -140,7 +137,7 @@ class Frustum extends Component {
      * @param value New bottom frustum plane position.
      */
     set bottom(value: number) {
-        this.state.bottom = value
+        this.#state.bottom = value
         this.setDirty();
     }
 
@@ -152,7 +149,7 @@ class Frustum extends Component {
      * @return {Number} Near frustum plane position.
      */
     get near(): number {
-        return this.state.near;
+        return this.#state.near;
     }
 
     /**
@@ -163,7 +160,7 @@ class Frustum extends Component {
      * @param value New Frustum near plane position.
      */
     set near(value: number) {
-        this.state.near = value
+        this.#state.near = value
         this.setDirty();
     }
 
@@ -175,7 +172,7 @@ class Frustum extends Component {
      * @return {Number} Far frustum plane position.
      */
     get far(): number {
-        return this.state.far;
+        return this.#state.far;
     }
 
     /**
@@ -186,7 +183,7 @@ class Frustum extends Component {
      * @param value New far frustum plane position.
      */
     set far(value: number) {
-        this.state.far = value
+        this.#state.far = value
         this.setDirty();
     }
 
@@ -201,7 +198,7 @@ class Frustum extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.state.matrix;
+        return this.#state.matrix;
     }
 
     /**
@@ -214,10 +211,10 @@ class Frustum extends Component {
             this.cleanIfDirty();
         }
         if (this.#inverseMatrixDirty) {
-            math.inverseMat4(this.state.matrix, this.state.inverseMatrix);
+            math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
             this.#inverseMatrixDirty = false;
         }
-        return this.state.inverseMatrix;
+        return this.#state.inverseMatrix;
     }
 
     /**
@@ -230,21 +227,21 @@ class Frustum extends Component {
             this.cleanIfDirty();
         }
         if (this.#transposedMatrixDirty) {
-            math.transposeMat4(this.state.matrix, this.state.transposedMatrix);
+            math.transposeMat4(this.#state.matrix, this.#state.transposedMatrix);
             this.#transposedMatrixDirty = false;
         }
-        return this.state.transposedMatrix;
+        return this.#state.transposedMatrix;
     }
 
     /**
      * @private
      */
     clean() {
-        math.frustumMat4(this.state.left, this.state.right, this.state.bottom, this.state.top, this.state.near, this.state.far, this.state.matrix);
+        math.frustumMat4(this.#state.left, this.#state.right, this.#state.bottom, this.#state.top, this.#state.near, this.#state.far, this.#state.matrix);
         this.#inverseMatrixDirty = true;
         this.#transposedMatrixDirty = true;
         this.camera.view.redraw();
-        this.events.fire("matrix", this.state.matrix);
+        this.events.fire("matrix", this.#state.matrix);
     }
 
     /**

@@ -13,7 +13,7 @@ const newLookEyeVec = math.vec3();
 /**
  * Navigates a {@link Camera} to look at specified objects, boundaries or locations.
  *
- * ## Overview
+ * ## Summary
  *
  * * Belongs to a {@link View}, and is located at {@link View.cameraFlight}
  * * Controls the View's {@link Camera}, which is located at {@link View.camera}

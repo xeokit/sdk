@@ -10,7 +10,7 @@ class RenderContext {
     /**
      * The Viewer.
      */
-    public viewer : Viewer;
+    public viewer: Viewer;
 
     /**
      * The View we are rendering.
@@ -55,32 +55,9 @@ class RenderContext {
     public textureUnit: number;
 
     /**
-     * Performance statistic that counts how many times the renderer has called ````gl.drawElements()```` has been
-     * called so far within the current frame.
-     */
-    public drawElements: number;
-
-    /**
-     * Performance statistic that counts how many times ````gl.drawArrays()```` has been called so far within
-     * the current frame.
-     */
-    public drawArrays: number;
-
-    /**
-     * Performance statistic that counts how many times ````gl.useProgram()```` has been called so far within
-     * the current frame.
-     */
-    public useProgram: number;
-
-    /**
      * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
      */
     public bindTexture: number;
-
-    /**
-     * Counts how many times the renderer has called ````gl.bindArray()```` so far within the current frame.
-     */
-    public bindArray: number;
 
     /**
      * Indicates which pass the renderer is currently rendering.
@@ -142,24 +119,10 @@ class RenderContext {
      */
     public occlusionTexture: Texture;
 
-    /**
-     * True when color textures are enabled.
-     */
-    colorTextureEnabled: boolean;
-
-    #matPool: any[];
-    #matPoolNextFreeIndex: number;
-    #rtcViewMats: { [key: string]: math.FloatArrayParam };
-    #rtcPickViewMats: { [key: string]: math.FloatArrayParam };
-
     constructor(viewer: Viewer, view: View, gl: WebGL2RenderingContext) {
         this.viewer = viewer;
         this.view = view;
         this.gl = gl;
-        this.#matPool = [];
-        this.#matPoolNextFreeIndex = 0;
-        this.#rtcViewMats = {};
-        this.#rtcPickViewMats = {};
         this.reset();
     }
 
@@ -167,9 +130,6 @@ class RenderContext {
      * Called by the renderer before each frame.
      */
     reset() {
-        this.#matPoolNextFreeIndex = 0;
-        this.#rtcViewMats = {};
-        this.#rtcPickViewMats = {};
         this.lastProgramId = null;
         this.pbrEnabled = false;
         this.withSAO = false;
@@ -194,43 +154,6 @@ class RenderContext {
         const textureUnit = this.textureUnit;
         this.textureUnit = (this.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
         return textureUnit;
-    }
-
-    /**
-     * Gets view matrix for the given RTC center
-     */
-    getRTCViewMatrix(originHash: string, origin: math.FloatArrayParam): math.FloatArrayParam {
-        let rtcViewMat = this.#rtcViewMats[originHash];
-        if (!rtcViewMat) {
-            rtcViewMat = this.#getNewMat();
-            math.rtc.createRTCViewMat(this.view.camera.viewMatrix, origin, rtcViewMat);
-            this.#rtcViewMats[originHash] = rtcViewMat;
-        }
-        return rtcViewMat;
-    }
-
-    /**
-     * Gets picking view RTC matrix for the given RTC center
-     */
-    getRTCPickViewMatrix(originHash: string, origin: math.FloatArrayParam): math.FloatArrayParam {
-        let rtcPickViewMat = this.#rtcPickViewMats[originHash];
-        if (!rtcPickViewMat) {
-            rtcPickViewMat = this.#getNewMat();
-            const pickViewMat = this.pickViewMatrix || this.view.camera.viewMatrix;
-            math.rtc.createRTCViewMat(pickViewMat, origin, rtcPickViewMat);
-            this.#rtcPickViewMats[originHash] = rtcPickViewMat;
-        }
-        return rtcPickViewMat;
-    }
-
-    #getNewMat() {
-        let mat = this.#matPool[this.#matPoolNextFreeIndex];
-        if (!mat) {
-            mat = math.mat4();
-            this.#matPool[this.#matPoolNextFreeIndex] = mat;
-        }
-        this.#matPoolNextFreeIndex++;
-        return mat;
     }
 }
 

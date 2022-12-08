@@ -115,6 +115,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
     #worldMatrixNonIdentity: boolean;
     #onCameraViewMatrix: number;
     #finalized: boolean;
+    #viewLayerId: string;
 
     constructor(params: {
         id: string;
@@ -131,6 +132,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
         edgeThreshold?: number;
         textureTranscoder?: TextureTranscoder;
         qualityRender?: boolean;
+        viewLayerId?:string;
     }) {
 
         super(params.view);
@@ -188,6 +190,8 @@ export class WebGLSceneModel extends Component implements SceneModel {
         }
 
         this.qualityRender = (params.qualityRender !== false);
+
+        this.#viewLayerId = params.viewLayerId;
 
         this.#onCameraViewMatrix = this.#view.camera.events.on("matrix", () => {
             this.#viewMatrixDirty = true;
@@ -591,7 +595,23 @@ export class WebGLSceneModel extends Component implements SceneModel {
             return;
         }
 
-        const origin = (meshParams.origin) ? math.addVec3(this.#origin, meshParams.origin, tempVec3a) : this.#origin;
+        const origin = tempVec3a;
+
+        origin[0] = this.#origin[0];
+        origin[1] = this.#origin[1];
+        origin[2] = this.#origin[2];
+
+        if (geometryCompressedParams.origin) {
+            origin[0] += geometryCompressedParams.origin[0];
+            origin[1] += geometryCompressedParams.origin[1];
+            origin[2] += geometryCompressedParams.origin[2];
+        }
+
+        if (meshParams.origin) {
+            origin[0] += meshParams.origin[0];
+            origin[1] += meshParams.origin[1];
+            origin[2] += meshParams.origin[2];
+        }
 
         const layer = this.#getLayer(origin, meshParams.textureSetId, geometryCompressedParams);
 
@@ -691,7 +711,8 @@ export class WebGLSceneModel extends Component implements SceneModel {
             id,
             sceneModel: this,
             meshes,
-            aabb
+            aabb,
+            viewLayerId: (sceneObjectParams.viewLayerId || this.#viewLayerId)
         });
         this.objectList.push(sceneObject);
         this.objects[id] = sceneObject;
@@ -1017,7 +1038,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
     }
 
     #getLayer(origin: math.FloatArrayParam, textureSetId: string, geometryCompressedParams: GeometryCompressedParams): Layer {
-        const layerId = `${origin[0]}.${origin[1]}.${origin[2]}.${textureSetId}.${geometryCompressedParams.primitive}`;
+        const layerId = `${origin[0]}_${origin[1]}_${origin[2]}_${textureSetId}_${geometryCompressedParams.primitive}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {
             if (layer.canCreateMesh(geometryCompressedParams)) {

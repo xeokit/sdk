@@ -6,7 +6,7 @@ import {Viewer} from "./Viewer";
 /**
  The base class for xeokit {@link Viewer} components.
 
- ## Overview
+ ## Summary
 
  - Handles events with an {@link Events} in {@link Component.events}
  - Has logging methods

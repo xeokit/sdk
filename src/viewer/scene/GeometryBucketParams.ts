@@ -8,7 +8,8 @@ export interface GeometryBucketParams {
     /**
      * GeometryBucketHandle bucket's 3D vertex positions, quantized as 16-bit integers.
      *
-     * Internally, the Viewer de-quantizes these with {@link GeometryCompressedParams.positionsDecompressMatrix}.
+     * Internally, the Viewer uses {@link GeometryCompressedParams.positionsDecompressMatrix} to decompress (dequantize)
+     * these back to 32-bit floating-point relative-to-center (RTC) positions that are relative to {@link GeometryCompressedParams.origin}.
      *
      * Vertex positions are required for all primitive types.
      */

@@ -3,9 +3,9 @@ import {SceneModel} from "./SceneModel";
 import {FloatArrayParam} from "../math/math";
 
 /**
- * Geometry and material for an object in a viewer.
+ * Geometric representation of an object in a viewer.
  *
- * ## Overview
+ * ## Summary
  *
  * * Contained in a {@link SceneModel}
  * * Created with {@link SceneModel.createObject}
@@ -27,7 +27,7 @@ export interface SceneObject {
     /**
      * Which {@link ViewLayer} this SceneObject belongs to.
      */
-    readonly viewLayer: string ;
+    readonly viewLayerId: string ;
 
     /**
      * The axis-aligned World-space 3D boundary of this SceneObject.

@@ -67,12 +67,12 @@ export function worldToRTCPos(worldPos: FloatArrayParam, rtcCenter: FloatArrayPa
  * @param worldPositions Flat array of World-space 3D positions.
  * @param rtcPositions Outputs the computed flat array of 3D RTC positions.
  * @param rtcCenter Outputs the computed double-precision relative-to-center (RTC) center pos.
- * @param [cellSize=10000000] The size of each coordinate cell within the RTC coordinate system.
+ * @param [cellSize=200] The size of each coordinate cell within the RTC coordinate system.
  * @returns ````True```` if the positions actually needed conversion to RTC, else ````false````. When
  * ````false````, we can safely ignore the data returned in ````rtcPositions```` and ````rtcCenter````,
  * since ````rtcCenter```` will equal ````[0,0,0]````, and ````rtcPositions```` will contain identical values to ````positions````.
  */
-export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = 10000000): boolean {
+export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = 200): boolean {
 
     const center = getPositionsCenter(worldPositions, tempVec3a);
 

@@ -31,29 +31,19 @@ export * as utils from "./utils/index"
 export * from "./textureTranscoders/index";
 
 export * from "./ViewerCapabilities";
-
 export * from "./Component";
-
 export * from "./Events";
+export * from "./Component";
+export * from "./Plugin";
+export * from "./localization/index";
+export * from "./data/index";
 
-//
-//
-//
-// export * from "./Component";
-// export * from "./Plugin";
-// export * from "./localization/index";
-// export * from "./scene/index";
-// export * from "./data/index";
-//
-//
-// export * from "./ViewerCapabilities";
-// export * from "./view/index";
-// export * from "./Events";
+
 //
 // /**
 //  * Core viewer math utilities.
 //  *
-//  * ## Overview
+//  * ## Summary
 //  *
 //  * * Core 3D and 2D math library
 //  * * GeometryBucketHandle de/compression functions
@@ -65,7 +55,7 @@ export * from "./Events";
 // export * as utils from "./utils/index"
 //
 //
-// export * from "./ViewParams";
+export * from "./ViewParams";
 //
 // /**
 //  * Compressed texture transcoders.

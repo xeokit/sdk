@@ -2,10 +2,11 @@ import {Component} from '../Component';
 import {View} from "./View";
 import * as math from '../math/index';
 
+
 /**
  *  An arbitrarily-aligned World-space clipping plane.
  *
- * ## Overview
+ * ## Summary
  *
  * * Belongs to a {@link View}.
  * * Slices portions off {@link ViewObject}s to create cross-section views or reveal interiors.
@@ -66,7 +67,7 @@ class SectionPlane extends Component {
      */
     public readonly view: View;
 
-    public readonly state: {
+    #state: {
         pos: Float64Array;
         active: boolean;
         dist: number;
@@ -74,6 +75,7 @@ class SectionPlane extends Component {
     };
 
     /**
+     * @private
      * @constructor
      * @param [view]  Owner component. When destroyed, the owner will destroy this SectionPlane as well.
      * @param cfg  SectionPlane configuration
@@ -92,7 +94,7 @@ class SectionPlane extends Component {
 
         this.view = view;
 
-        this.state = {
+        this.#state = {
             active: cfg.active !== false,
             pos: new Float64Array(cfg.pos || [0, 0, 0]),
             dir: new Float32Array(cfg.pos || [0, 0, -1]),
@@ -110,7 +112,7 @@ class SectionPlane extends Component {
      * @returns Returns ````true```` if active.
      */
     get active(): boolean {
-        return this.state.active;
+        return this.#state.active;
     }
 
     /**
@@ -121,12 +123,12 @@ class SectionPlane extends Component {
      * @param value Set ````true```` to activate else ````false```` to deactivate.
      */
     set active(value: boolean) {
-        if (this.state.active === value) {
+        if (this.#state.active === value) {
             return;
         }
-        this.state.active = value;
+        this.#state.active = value;
         this.view.redraw();
-        this.events.fire("active", this.state.active);
+        this.events.fire("active", this.#state.active);
     }
 
     /**
@@ -137,7 +139,7 @@ class SectionPlane extends Component {
      * @returns  Current position.
      */
     get pos(): Float64Array {
-        return this.state.pos;
+        return this.#state.pos;
     }
 
     /**
@@ -148,9 +150,9 @@ class SectionPlane extends Component {
      * @param value New position.
      */
     set pos(value: math.FloatArrayParam) {
-        this.state.pos.set(value);
-        this.state.dist = (-math.dotVec3(this.state.pos, this.state.dir));
-        this.events.fire("pos", this.state.pos);
+        this.#state.pos.set(value);
+        this.#state.dist = (-math.dotVec3(this.#state.pos, this.#state.dir));
+        this.events.fire("pos", this.#state.pos);
     }
 
     /**
@@ -161,7 +163,7 @@ class SectionPlane extends Component {
      * @returns value Current direction.
      */
     get dir(): Float32Array {
-        return this.state.dir;
+        return this.#state.dir;
     }
 
     /**
@@ -172,10 +174,10 @@ class SectionPlane extends Component {
      * @param value New direction.
      */
     set dir(value: math.FloatArrayParam) {
-        this.state.dir.set(value);
-        this.state.dist = (-math.dotVec3(this.state.pos, this.state.dir));
+        this.#state.dir.set(value);
+        this.#state.dist = (-math.dotVec3(this.#state.pos, this.#state.dir));
         this.view.redraw();
-        this.events.fire("dir", this.state.dir);
+        this.events.fire("dir", this.#state.dir);
     }
 
     /**
@@ -187,19 +189,19 @@ class SectionPlane extends Component {
      * @returns Distance to the origin of the World-space coordinate system.
      */
     get dist(): number {
-        return this.state.dist;
+        return this.#state.dist;
     }
 
     /**
      * Inverts the direction of {@link SectionPlane.dir}.
      */
     flipDir() {
-        const dir = this.state.dir;
+        const dir = this.#state.dir;
         dir[0] *= -1.0;
         dir[1] *= -1.0;
         dir[2] *= -1.0;
-        this.state.dist = (-math.dotVec3(this.state.pos, this.state.dir));
-        this.events.fire("dir", this.state.dir);
+        this.#state.dist = (-math.dotVec3(this.#state.pos, this.#state.dir));
+        this.events.fire("dir", this.#state.dir);
         this.view.redraw();
     }
 

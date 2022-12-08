@@ -52,4 +52,14 @@ export interface SceneModelParams {
      * Default is ````[0, 0, 0]````.
      */
     origin?: FloatArrayParam;
+
+    /**
+     * Causes each {@link View} to put {@link ViewObject|ViewObjects} for the new {@link SceneModel}
+     * into a {@link ViewLayer} with this ID.
+     *
+     * Each View will create the ViewLayer first, if required.
+     *
+     * Overridden by {@link SceneObjectParams.viewLayerId}.
+     */
+    viewLayerId?: string;
 }

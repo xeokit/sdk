@@ -2,9 +2,18 @@ import {FloatArrayParam} from "../math/index";
 import {GeometryBucketParams} from "./GeometryBucketParams";
 
 /**
- * Compressed geometry creation parameter type for {@link SceneModel.createGeometryCompressed}.
+ * Pre-compressed geometry creation parameters for {@link SceneModel.createGeometryCompressed}.
  *
- * Use {@link compressGeometryParams} to create these from {@link GeometryParams}.
+ * ## Summary
+ *
+ * * Created from {@link GeometryParams} using {@link compressGeometryParams}
+ * * Used with {@link SceneModel.createGeometryCompressed}
+ * * Simplifies geometry by combining duplicate positions and adjusting indices
+ * * Generates edge indices for triangle meshes
+ * * Ignores normals (our shaders auto-generate them)
+ * * Converts positions to relative-to-center (RTC) coordinates
+ * * Quantizes positions and UVs as 16-bit unsigned integers
+ * * Splits geometry into {@link GeometryBucketParams | buckets } to enable indices to use the minimum storage bits
  */
 export interface GeometryCompressedParams {
 
@@ -22,17 +31,24 @@ export interface GeometryCompressedParams {
     primitive: number;
 
     /**
-     * RTC origin for the geometry.
+     * The origin of the geometry's 3D relative-to-center (RTC) coordinate system.
+     *
+     * Assumed to be ````[0,0,0]```` by default.
      */
     origin?: FloatArrayParam;
 
     /**
-     * 4x4 matrix to de-quantize the geometry's 3D vertex positions.
+     * Matrix to decompress {@link GeometryBucketParams.positionsCompressed}.
+     *
+     * The Viewer uses this matrix internally to decompress (dequantize) {@link GeometryBucketParams.positionsCompressed}
+     * back to 32-bit floating-point relative-to-center (RTC) coordinates that are relative to {@link GeometryCompressedParams.origin}.
      */
     positionsDecompressMatrix: FloatArrayParam;
 
     /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
+     *
+     * The boundary coordinates are relative to {@link GeometryCompressedParams.origin}.
      */
     aabb?: FloatArrayParam;
 

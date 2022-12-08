@@ -5,7 +5,7 @@ import {Component} from "../Component";
 /**
  * A {@link Curve} along which a 3D position can be animated.
  *
- * ## Overview
+ * ## Summary
  *
  * * As shown in the diagram below, a CubicBezierCurve is defined by four control points.
  * * You can sample a {@link CubicBezierCurve#point} and a {@link CubicBezierCurve#tangent} vector on a CubicBezierCurve for any given value of {@link CubicBezierCurve#t} in the range [0..1].

@@ -196,7 +196,8 @@ export class WebGLRenderer implements Renderer {
             scene: this.#viewer.scene,
             textureTranscoder: this.#textureTranscoder,
             webglRenderer: this,
-            renderContext: this.#renderContext
+            renderContext: this.#renderContext,
+            viewLayerId: params.viewLayerId
         }, params));
         webglSceneModel.events.on("finalized", (finalizedSceneModel) => {
             this.#webglSceneModels[finalizedSceneModel.id] = finalizedSceneModel;
@@ -688,7 +689,7 @@ export class WebGLRenderer implements Renderer {
     }
 
     #drawLayer(layer: Layer, renderPass: number, quality: boolean = true) {
-        switch (layer.primitive) {
+        switch (layer.renderState.primitive) {
             case constants.TrianglesPrimitive:
             case constants.SurfacePrimitive:
             case constants.SolidPrimitive:

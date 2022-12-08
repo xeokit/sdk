@@ -8,17 +8,18 @@ import {DataModelParams} from "./DataModelParams";
 import {createUUID} from "../utils/index";
 
 /**
- * Contains semantic data about models.
+ * Contains semantic data about the models within a {@link Viewer}.
  *
- * ## Overview
+ * ## Summary
  *
  * * Located at {@link Viewer.data}
- * * Contains {@link DataModel}s to classify the {@link SceneModel}s in the Viewer's {@link Scene}
- * * Contains hierarchies of {@link DataObject}s to classify the {@link SceneObject}s in the Scene
- * * Provides methods to build its MetaModels and objects
- * * Provides methods to iterate and query objects
+ * * Contains {@link DataModel}s to classify the {@link SceneModel|SceneModels} in the {@link Scene}
+ * * Contains {@link DataObject}s to classify the {@link SceneObject|SceneObjects} in the Scene
+ * * Use {@link Data.createModel} to create {@link DataModel|DataModels}
+ * * Use {@link DataModel.createObject} to create {@link DataObject|DataObjects}
+ * * Use {@link DataModel.createPropertySet} to create {@link PropertySet|PropertySets}
  */
-class Data extends Component {
+export class Data extends Component {
 
     /**
      * The {@link Viewer} to which this Data belongs.
@@ -151,10 +152,10 @@ class Data extends Component {
             if (include) {
                 list.push(_dataObject.id);
             }
-            const children = _dataObject.children;
-            if (children) {
-                for (let i = 0, len = children.length; i < len; i++) {
-                    visit(children[i]);
+            const objects = _dataObject.objects;
+            if (objects) {
+                for (let i = 0, len = objects.length; i < len; i++) {
+                    visit(objects[i]);
                 }
             }
         }
@@ -190,10 +191,10 @@ class Data extends Component {
                 types[dataObject.id] = dataObject;
                 this.typeCounts[dataObject.type]++;
             }
-            const children = dataObject.children;
-            if (children) {
-                for (let i = 0, len = children.length; i < len; i++) {
-                    const childDataObject = children[i];
+            const objects2 = dataObject.objects;
+            if (objects2) {
+                for (let i = 0, len = objects2.length; i < len; i++) {
+                    const childDataObject = objects2[i];
                     visit(childDataObject);
                 }
             }
@@ -223,10 +224,10 @@ class Data extends Component {
                     delete this.objectsByType[dataObject.type];
                 }
             }
-            const children = dataObject.children;
-            if (children) {
-                for (let i = 0, len = children.length; i < len; i++) {
-                    const childDataObject = children[i];
+            const objects = dataObject.objects;
+            if (objects) {
+                for (let i = 0, len = objects.length; i < len; i++) {
+                    const childDataObject = objects[i];
                     visit(childDataObject);
                 }
             }
@@ -250,5 +251,3 @@ function arrayToMap(array: any[]): { [key: string]: any } {
     }
     return map;
 }
-
-export {Data};

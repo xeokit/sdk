@@ -40,7 +40,7 @@ const unitsInfo = {
  * Configures its {@link Viewer}'s measurement unit and mapping between the Real-space and World-space 3D Cartesian coordinate systems.
  *
  *
- * ## Overview
+ * ## Summary
  *
  * * Located at {@link Viewer#metrics}.
  * * {@link Metrics#units} configures the Real-space unit type, which is ````"meters"```` by default.

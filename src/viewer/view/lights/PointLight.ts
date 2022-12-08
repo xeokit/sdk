@@ -5,7 +5,7 @@ import * as math from '../../math/index';
 /**
  * A positional light source within a {@link View}.
  *
- * ## Overview
+ * ## Summary
  *
  * * Originates from a single point and spreads outward in all directions, with optional attenuation over distance.
  * * Has a position in {@link PointLight.pos}, but no direction.
@@ -28,10 +28,7 @@ class PointLight extends Component {
      */
     public readonly view: View;
 
-    /**
-     * @private
-     */
-    readonly state: {
+    #state: {
         intensity: number;
         attenuation: Float32Array;
         color: Float32Array;
@@ -76,7 +73,7 @@ class PointLight extends Component {
 
         this.view = view;
 
-        this.state = {
+        this.#state = {
             type: "point",
             pos: new Float64Array(cfg.pos || [1.0, 1.0, 1.0]),
             color: new Float32Array(cfg.color || [0.7, 0.7, 0.8]),
@@ -98,7 +95,7 @@ class PointLight extends Component {
      * @returns {Number[]} The position.
      */
     get pos(): math.FloatArrayParam {
-        return this.state.pos;
+        return this.#state.pos;
     }
 
     /**
@@ -111,7 +108,7 @@ class PointLight extends Component {
      * @param pos The position.
      */
     set pos(pos: math.FloatArrayParam) {
-        this.state.pos.set(pos || [1.0, 1.0, 1.0]);
+        this.#state.pos.set(pos || [1.0, 1.0, 1.0]);
         this.view.redraw();
     }
 
@@ -123,7 +120,7 @@ class PointLight extends Component {
      * @returns {Number[]} The PointLight's RGB color.
      */
     get color(): math.FloatArrayParam {
-        return this.state.color;
+        return this.#state.color;
     }
 
     /**
@@ -134,7 +131,7 @@ class PointLight extends Component {
      * @param color The PointLight's RGB color.
      */
     set color(color: math.FloatArrayParam) {
-        this.state.color.set(color || [0.7, 0.7, 0.8]);
+        this.#state.color.set(color || [0.7, 0.7, 0.8]);
         this.view.redraw();
     }
 
@@ -146,7 +143,7 @@ class PointLight extends Component {
      * @returns {Number} The PointLight's intensity.
      */
     get intensity(): number {
-        return this.state.intensity;
+        return this.#state.intensity;
     }
 
     /**
@@ -157,10 +154,10 @@ class PointLight extends Component {
      * @param intensity The PointLight's intensity
      */
     set intensity(intensity: number) {
-        if (intensity === this.state.intensity) {
+        if (intensity === this.#state.intensity) {
             return;
         }
-        this.state.intensity = intensity;
+        this.#state.intensity = intensity;
         this.view.redraw();
     }
 
@@ -172,7 +169,7 @@ class PointLight extends Component {
      * @returns {Number} The constant attenuation factor.
      */
     get constantAttenuation(): number {
-        return this.state.attenuation[0];
+        return this.#state.attenuation[0];
     }
 
     /**
@@ -183,7 +180,7 @@ class PointLight extends Component {
      * @param value The constant attenuation factor.
      */
     set constantAttenuation(value: number) {
-        this.state.attenuation[0] = value;
+        this.#state.attenuation[0] = value;
         this.view.redraw();
     }
 
@@ -195,7 +192,7 @@ class PointLight extends Component {
      * @returns {Number} The linear attenuation factor.
      */
     get linearAttenuation(): number {
-        return this.state.attenuation[1];
+        return this.#state.attenuation[1];
     }
 
     /**
@@ -206,7 +203,7 @@ class PointLight extends Component {
      * @param value The linear attenuation factor.
      */
     set linearAttenuation(value: number) {
-        this.state.attenuation[1] = value;
+        this.#state.attenuation[1] = value;
         this.view.redraw();
     }
 
@@ -218,7 +215,7 @@ class PointLight extends Component {
      * @returns {Number} The quadratic attenuation factor.
      */
     get quadraticAttenuation(): number {
-        return this.state.attenuation[2];
+        return this.#state.attenuation[2];
     }
 
     /**
@@ -229,7 +226,7 @@ class PointLight extends Component {
      * @param value The quadratic attenuation factor.
      */
     set quadraticAttenuation(value: number) {
-        this.state.attenuation[2] = value;
+        this.#state.attenuation[2] = value;
         this.view.redraw();
     }
 

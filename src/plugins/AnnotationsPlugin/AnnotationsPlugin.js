@@ -18,7 +18,7 @@ const tempVec3c = math.vec3();
  * * [[Example 4: Click annotations to fly to viewpoint](https://xeokit.github.io/xeokit-sdk/examples/#annotations_clickFlyToPosition)]
  * * [[Example 5: Create Annotations with externally-created elements](https://xeokit.github.io/xeokit-sdk/examples/#annotations_externalElements)]
  *
- * ## Overview
+ * ## Summary
  *
  * * An {@link Annotation} is a 3D position with a label attached.
  * * Annotations render themselves with HTML elements that float over the canvas; customize the appearance of

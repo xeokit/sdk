@@ -3,7 +3,7 @@ import {Events} from "../Events";
 /**
  The localization service for a {@link Viewer}.
 
- ## Overview
+ ## Summary
 
  * A container of string translations ("messages") for various locales.
  * A {@link Viewer} has its own default LocaleService at {@link Viewer.localeService}.

@@ -1,6 +1,4 @@
-/**
- * Data type from which a {@link DataModel} is created.
- */
+
 import {PropertySetParams} from "./PropertySetParams";
 import {DataObjectParams} from "./DataObjectParams";
 

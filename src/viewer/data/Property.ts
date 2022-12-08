@@ -4,7 +4,7 @@ import {PropertyParams} from "./PropertyParams";
 /**
  * A property of a model or object within a {@link Viewer}.
  *
- * ## Overview
+ * ## Summary
  *
  * * Belongs to a {@link PropertySet}
  * * Registered by {@link Property.id} in {@link PropertySet.properties}

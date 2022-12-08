@@ -6,7 +6,7 @@ import {PropertySetParams} from "./PropertySetParams";
 /**
  * A set of properties of a model or object within a {@link Viewer}.
  *
- * ## Overview
+ * ## Summary
  *
  * * Belongs to a {@link DataModel}
  * * Registered by {@link PropertySet.id} in {@link DataModel.propertySets}

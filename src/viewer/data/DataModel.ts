@@ -7,9 +7,9 @@ import {DataObjectParams} from "./DataObjectParams";
 import {PropertySetParams} from "./PropertySetParams";
 
 /**
- *  Buildable container of semantic data for a model.
+ *  A buildable semantic representation of a model within a viewer.
  *
- * ## Overview
+ * ## Summary
  *
  *  * Created with {@link Data.createModel}
  *  * Stored in {@link Data.models}
@@ -163,6 +163,8 @@ class DataModel extends Component {
         this.schema = dataModelCfg.schema || "";
         this.propertySets = {};
         this.objects = {};
+        this.objectsByType = {};
+        this.typeCounts = {};
         this.rootDataObject = null;
         this.#destroyed = false;
 
@@ -184,6 +186,7 @@ class DataModel extends Component {
                         const parentDataObject = this.objects[dataObjectCfg.parentId];
                         if (parentDataObject) {
                             dataObject.parent = parentDataObject;
+                            parentDataObject.objects.push(dataObject);
                         } else {
                             this.rootDataObject = dataObject; // FIXME
                         }

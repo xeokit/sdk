@@ -16,22 +16,29 @@ import {WebGLRenderer} from "../webgl/WebGLRenderer";
 /**
  * An extensible browser-based 3D viewer for AECO applications.
  *
- * * Fast, double precision rendering with low memory footprint
- * * Semantic data
+ * ## Summary
+ *
+ * * Fast, double precision 3D rendering, in all major browsers
+ * * Fast model loading from binary format
  * * Multiple canvases
+ * * Super low memory footprint
+ * * Semantic data model
+ * * Open architecture
  *
  * ## Overview
  *
  * A ````Viewer```` has three main components:
  *
- * * {@link Scene} - Contains geometry and materials for models.
- * * {@link Data} - Contains optional semantic information about the models.
- * * {@link View}s - One or more independently-configurable views of the models, each with its own canvas.
+ *  * {@link Scene} - Contains geometric representations of models, with materials, textures, transforms etc.
+ *  * {@link Data} - Contains optional semantic data models (e.g. IFC elements and property sets).
+ *  * {@link View|Views} - One or more independently-configurable canvases viewing the models in {@link Scene}.
  *
- * A ````Viewer```` can also be configured with a custom {@link Renderer} strategy, in case we need to customize the way
- * the Viewer allocates and renders 3D models on the underlying browser API (eg. WebGL, WebGPU).
+ * We can also configure a ````Viewer```` with a custom {@link Renderer} strategy, in case we need to customize the way
+ * the Viewer uses the underlying browser graphics API (e.g. WebGL, WebGPU) to create and render models.
  *
- * ## Usage
+ * ## Examples
+ *
+ * ### Example 1: Basic Viewer
  *
  * Create a viewer:
  *
@@ -43,7 +50,22 @@ import {WebGLRenderer} from "../webgl/WebGLRenderer";
  * });
  * ````
  *
- * Create model geometry and materials:
+ * Create a view:
+ *
+ * ````javascript
+ * const view1 = myViewer.createView({
+ *     id: "myView",
+ *     canvasId: "myCanvas1"
+ * });
+ *
+ * view1.camera.eye = [-3.933, 2.855, 27.018];
+ * view1.camera.look = [4.400, 3.724, 8.899];
+ * view1.camera.up = [-0.018, 0.999, 0.039];
+ * view1.camera.projection = "perspective";
+ * view1.cameraControl.navMode = "orbit";
+ * ````
+ *
+ * Create a geometric model representation:
  *
  * ````javascript
  * const mySceneModel = myViewer.scene.createModel({
@@ -67,14 +89,14 @@ import {WebGLRenderer} from "../webgl/WebGLRenderer";
  * mySceneModel.createObject({
  *     id: "myObject",
  *     meshIds: ["myMesh"],
- *     viewLayer: "main"
+ *     viewLayerId: "main"
  *     //...
  * });
  *
- * myModel.finalize();
+ * mySceneModel.finalize();
  * ````
  *
- * Define optional semantic information for the model:
+ * Define optional semantic representation for the model:
  *
  * ````javascript
  * const myDataModel = myViewer.data.createModel({
@@ -86,21 +108,6 @@ import {WebGLRenderer} from "../webgl/WebGLRenderer";
  *     name: "Some object",
  *     type: "MyType"
  * });
- * ````
- *
- * Create a view of the model:
- *
- * ````javascript
- * const view1 = myViewer.createView({
- *     id: "myView",
- *     canvasId: "myCanvas1"
- * });
- *
- * view1.camera.eye = [-3.933, 2.855, 27.018];
- * view1.camera.look = [4.400, 3.724, 8.899];
- * view1.camera.up = [-0.018, 0.999, 0.039];
- * view1.camera.projection = "perspective";
- * view1.cameraControl.navMode = "orbit";
  * ````
  *
  * Customize the view:
@@ -168,7 +175,7 @@ export class Viewer {
     readonly viewList: View[];
 
     /**
-     *  The number of {@link View}s belonging to this Viewer.
+     *  The number of {@link View|Views} belonging to this Viewer.
      */
     numViews: number;
 
@@ -332,7 +339,7 @@ export class Viewer {
     }
 
     /**
-     Trigger a redraw of all {@link View}s belonging to this Viewer.
+     Trigger a redraw of all {@link View|Views} belonging to this Viewer.
 
      @private
      */
@@ -391,7 +398,7 @@ export class Viewer {
     }
 
     /**
-     * Destroys this Viewer and all {@link View}s, {@link SceneModel}s, {@link DataModel}s and {@link Plugin}s we've created within it.
+     * Destroys this Viewer and all {@link View|Views}, {@link SceneModel|SceneModels}, {@link DataModel}s and {@link Plugin}s we've created within it.
      */
     destroy(): void {
         if (this.destroyed) {
@@ -435,6 +442,16 @@ export class Viewer {
         delete this.views[view.id];
         delete this.viewList[view.viewIndex];
         this.numViews--;
+    }
+
+    /**
+     * @private
+     * @param params
+     */
+    render(params:any) {
+        for (let viewIndex = 0; ; viewIndex++) {
+            this.renderer.render(viewIndex, {force: true});
+        }
     }
 }
 

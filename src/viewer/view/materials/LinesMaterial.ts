@@ -14,10 +14,7 @@ class LinesMaterial extends Component {
      */
     public readonly view: View;
 
-    /**
-     * @private
-     */
-    public readonly state: {
+    #state: {
         lineWidth: number
     };
 
@@ -30,7 +27,7 @@ class LinesMaterial extends Component {
 
         this.view = view;
 
-        this.state = {
+        this.#state = {
             lineWidth: (options.lineWidth !== undefined && options.lineWidth !== null) ? options.lineWidth : 1
         };
     }
@@ -41,7 +38,7 @@ class LinesMaterial extends Component {
      * Default value is ````1```` pixels.
      */
     set lineWidth(value: number) {
-        this.state.lineWidth = value || 1;
+        this.#state.lineWidth = value || 1;
         this.view.redraw();
     }
 
@@ -51,7 +48,7 @@ class LinesMaterial extends Component {
      * Default value is ````1```` pixels.
      */
     get lineWidth(): number {
-        return this.state.lineWidth;
+        return this.#state.lineWidth;
     }
 }
 

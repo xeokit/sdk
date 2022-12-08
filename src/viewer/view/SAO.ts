@@ -12,10 +12,7 @@ export class SAO extends Component {
      */
     public readonly view: View;
 
-    /**
-     * @private
-     */
-    public readonly state: {
+    #state: {
         renderModes: number[];
         intensity: number;
         minResolution: number;
@@ -36,7 +33,7 @@ export class SAO extends Component {
 
         this.view = view;
 
-        this.state = {
+        this.#state = {
             renderModes: [QualityRender],
             enabled: params.enabled !== false,
             kernelRadius: params.kernelRadius || 100.0,
@@ -59,7 +56,7 @@ export class SAO extends Component {
      * Default value is [{@link QualityRender}].
      */
     set renderModes(value: number[]) {
-        this.state.renderModes = value;
+        this.#state.renderModes = value;
         this.view.redraw();
     }
 
@@ -71,7 +68,7 @@ export class SAO extends Component {
      * Default value is [{@link QualityRender}].
      */
     get renderModes(): number[] {
-        return this.state.renderModes;
+        return this.#state.renderModes;
     }
 
     /**
@@ -92,10 +89,10 @@ export class SAO extends Component {
      */
     set enabled(value:boolean) {
         value = !!value;
-        if (this.state.enabled === value) {
+        if (this.#state.enabled === value) {
             return;
         }
-        this.state.enabled = value;
+        this.#state.enabled = value;
         this.view.redraw();
     }
 
@@ -107,7 +104,7 @@ export class SAO extends Component {
      * Default value is ````false````.
      */
     get enabled() :boolean{
-        return this.state.enabled;
+        return this.#state.enabled;
     }
 
     /**
@@ -119,7 +116,7 @@ export class SAO extends Component {
         if (!this.supported) {
             return false;
         }
-        if (!this.state.enabled) {
+        if (!this.#state.enabled) {
             return false;
         }
         const projection = this.view.camera.projection;
@@ -141,10 +138,10 @@ export class SAO extends Component {
         if (value === undefined || value === null) {
             value = 100.0;
         }
-        if (this.state.kernelRadius === value) {
+        if (this.#state.kernelRadius === value) {
             return;
         }
-        this.state.kernelRadius = value;
+        this.#state.kernelRadius = value;
         this.view.redraw();
     }
 
@@ -154,7 +151,7 @@ export class SAO extends Component {
      * Default value is ````100.0````.
      */
     get kernelRadius() :number{
-        return this.state.kernelRadius;
+        return this.#state.kernelRadius;
     }
 
     /**
@@ -166,10 +163,10 @@ export class SAO extends Component {
         if (value === undefined || value === null) {
             value = 0.15;
         }
-        if (this.state.intensity === value) {
+        if (this.#state.intensity === value) {
             return;
         }
-        this.state.intensity = value;
+        this.#state.intensity = value;
         this.view.redraw();
     }
 
@@ -179,7 +176,7 @@ export class SAO extends Component {
      * Default value is ````0.15````.
      */
     get intensity() :number{
-        return this.state.intensity;
+        return this.#state.intensity;
     }
 
     /**
@@ -191,10 +188,10 @@ export class SAO extends Component {
         if (value === undefined || value === null) {
             value = 0.5;
         }
-        if (this.state.bias === value) {
+        if (this.#state.bias === value) {
             return;
         }
-        this.state.bias = value;
+        this.#state.bias = value;
         this.view.redraw();
     }
 
@@ -204,7 +201,7 @@ export class SAO extends Component {
      * Default value is ````0.5````.
      */
     get bias() :number{
-        return this.state.bias;
+        return this.#state.bias;
     }
 
     /**
@@ -216,10 +213,10 @@ export class SAO extends Component {
         if (value === undefined || value === null) {
             value = 1.0;
         }
-        if (this.state.scale === value) {
+        if (this.#state.scale === value) {
             return;
         }
-        this.state.scale = value;
+        this.#state.scale = value;
         this.view.redraw();
     }
 
@@ -229,7 +226,7 @@ export class SAO extends Component {
      * Default value is ````1.0````.
      */
     get scale():number {
-        return this.state.scale;
+        return this.#state.scale;
     }
 
     /**
@@ -241,10 +238,10 @@ export class SAO extends Component {
         if (value === undefined || value === null) {
             value = 0.0;
         }
-        if (this.state.minResolution === value) {
+        if (this.#state.minResolution === value) {
             return;
         }
-        this.state.minResolution = value;
+        this.#state.minResolution = value;
         this.view.redraw();
     }
 
@@ -254,7 +251,7 @@ export class SAO extends Component {
      * Default value is ````0.0````.
      */
     get minResolution():number {
-        return this.state.minResolution;
+        return this.#state.minResolution;
     }
 
     /**
@@ -268,10 +265,10 @@ export class SAO extends Component {
         if (value === undefined || value === null) {
             value = 10;
         }
-        if (this.state.numSamples === value) {
+        if (this.#state.numSamples === value) {
             return;
         }
-        this.state.numSamples = value;
+        this.#state.numSamples = value;
         this.view.redraw();
     }
 
@@ -281,7 +278,7 @@ export class SAO extends Component {
      * Default value is ````10````.
      */
     get numSamples() :number{
-        return this.state.numSamples;
+        return this.#state.numSamples;
     }
 
     /**
@@ -291,10 +288,10 @@ export class SAO extends Component {
      */
     set blur(value:boolean) {
         value = (value !== false);
-        if (this.state.blur === value) {
+        if (this.#state.blur === value) {
             return;
         }
-        this.state.blur = value;
+        this.#state.blur = value;
         this.view.redraw();
     }
 
@@ -304,7 +301,7 @@ export class SAO extends Component {
      * Default value is ````true````.
      */
     get blur():boolean {
-        return this.state.blur;
+        return this.#state.blur;
     }
 
     /**
@@ -318,10 +315,10 @@ export class SAO extends Component {
         if (value === undefined || value === null) {
             value = 0.3;
         }
-        if (this.state.blendCutoff === value) {
+        if (this.#state.blendCutoff === value) {
             return;
         }
-        this.state.blendCutoff = value;
+        this.#state.blendCutoff = value;
         this.view.redraw();
     }
 
@@ -333,7 +330,7 @@ export class SAO extends Component {
      * Normally you don't need to alter this.
      */
     get blendCutoff():number {
-        return this.state.blendCutoff;
+        return this.#state.blendCutoff;
     }
 
     /**
@@ -347,10 +344,10 @@ export class SAO extends Component {
         if (value === undefined || value === null) {
             value = 1.0;
         }
-        if (this.state.blendFactor === value) {
+        if (this.#state.blendFactor === value) {
             return;
         }
-        this.state.blendFactor = value;
+        this.#state.blendFactor = value;
         this.view.redraw();
     }
 
@@ -362,7 +359,7 @@ export class SAO extends Component {
      * Normally you don't need to alter this.
      */
     get blendFactor() :number{
-        return this.state.blendFactor;
+        return this.#state.blendFactor;
     }
 
     /**

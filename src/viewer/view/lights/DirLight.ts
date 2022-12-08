@@ -4,7 +4,7 @@ import * as math from '../../math/index';
 /**
  * A directional light source within a {@link View}.
  *
- * ## Overview
+ * ## Summary
  *
  * * Illuminates all objects equally from a given direction.
  * * Has an emission direction vector in {@link DirLight.dir}, but no position.
@@ -25,10 +25,7 @@ class DirLight extends Component {
      */
     public readonly view: View;
 
-     /**
-     * @private
-     */
-    readonly state: {
+     #state: {
         type: "dir";
         dir: Float32Array;
         color: Float32Array;
@@ -49,7 +46,7 @@ class DirLight extends Component {
         dir?: math.FloatArrayParam; space?: "world" | "view" } = {}) {
         super(view, options);
         this.view = view;
-        this.state = {
+        this.#state = {
             type: "dir",
             dir: new Float32Array(options.dir || [1.0, 1.0, 1.0]),
             color: new Float32Array(options.color || [0.7, 0.7, 0.8]),
@@ -67,7 +64,7 @@ class DirLight extends Component {
      * @returns {Number[]} The direction vector.
      */
     get dir(): math.FloatArrayParam {
-        return this.state.dir;
+        return this.#state.dir;
     }
 
     /**
@@ -78,7 +75,7 @@ class DirLight extends Component {
      * @param value The direction vector.
      */
     set dir(value: math.FloatArrayParam) {
-        this.state.dir.set(value);
+        this.#state.dir.set(value);
         this.view.redraw();
     }
 
@@ -90,7 +87,7 @@ class DirLight extends Component {
      * @returns {Number[]} The DirLight's RGB color.
      */
     get color(): math.FloatArrayParam {
-        return this.state.color;
+        return this.#state.color;
     }
 
     /**
@@ -101,7 +98,7 @@ class DirLight extends Component {
      * @param color The DirLight's RGB color.
      */
     set color(color: math.FloatArrayParam) {
-        this.state.color.set(color);
+        this.#state.color.set(color);
         this.view.redraw();
     }
 
@@ -113,7 +110,7 @@ class DirLight extends Component {
      * @returns {Number} The DirLight's intensity.
      */
     get intensity(): number {
-        return this.state.intensity;
+        return this.#state.intensity;
     }
 
     /**
@@ -124,7 +121,7 @@ class DirLight extends Component {
      * @param intensity The DirLight's intensity
      */
     set intensity(intensity: number) {
-        this.state.intensity = intensity;
+        this.#state.intensity = intensity;
         this.view.redraw();
     }
 

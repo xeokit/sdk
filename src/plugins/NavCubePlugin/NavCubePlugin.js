@@ -16,7 +16,7 @@ import {CubeTextureCanvas} from "./CubeTextureCanvas.js";
  *
  * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/#gizmos_NavCubePlugin)]
  *
- * ## Overview
+ * ## Summary
  *
  * * Rotating the NavCube causes the Viewer's {@link Camera} to orbit its current
  * point-of-interest. Conversely, orbiting the Camera causes the NavCube to rotate accordingly.

@@ -5,7 +5,7 @@ import * as math from '../../math/index';
 /**
  * Configures the appearance of {@link ViewObject}s when they are xrayed, highlighted or selected.
  *
- * ## Overview
+ * ## Summary
  *
  * * Located at {@link View.xrayMaterial}, {@link View.highlightMaterial} and {@link View.selectedMaterial}.
  * * XRay a {@link ViewObject} by setting {@link ViewObject.xrayed} ````true````.
@@ -19,10 +19,7 @@ class EmphasisMaterial extends Component {
      */
     public readonly view: View;
 
-    /**
-     * @private
-     */
-    public readonly state: {
+    #state: {
         fillColor: Float32Array;
         backfaces: boolean;
         edgeColor: Float32Array;
@@ -51,7 +48,7 @@ class EmphasisMaterial extends Component {
 
         this.view = view;
 
-        this.state = {
+        this.#state = {
             fill: !!options.fill,
             fillColor: new Float32Array(options.fillColor || [0.4, 0.4, 0.4]),
             fillAlpha: (options.fillAlpha !== undefined && options.fillAlpha !== null) ? options.fillAlpha : 0.2,
@@ -69,10 +66,10 @@ class EmphasisMaterial extends Component {
      * Default is ````true````.
      */
     set fill(value: boolean) {
-        if (this.state.fill === value) {
+        if (this.#state.fill === value) {
             return;
         }
-        this.state.fill = value;
+        this.#state.fill = value;
         this.view.redraw();
     }
 
@@ -82,7 +79,7 @@ class EmphasisMaterial extends Component {
      * Default is ````true````.
      */
     get fill(): boolean {
-        return this.state.fill;
+        return this.#state.fill;
     }
 
     /**
@@ -91,7 +88,7 @@ class EmphasisMaterial extends Component {
      * Default is ````[0.4, 0.4, 0.4]````.
      */
     set fillColor(value: math.FloatArrayParam) {
-        const fillColor = this.state.fillColor;
+        const fillColor = this.#state.fillColor;
         if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
             return;
         }
@@ -107,7 +104,7 @@ class EmphasisMaterial extends Component {
      * Default is ````[0.4, 0.4, 0.4]````.
      */
     get fillColor(): Float32Array {
-        return this.state.fillColor;
+        return this.#state.fillColor;
     }
 
     /**
@@ -118,10 +115,10 @@ class EmphasisMaterial extends Component {
      * Default is ````0.2````.
      */
     set fillAlpha(value: number) {
-        if (this.state.fillAlpha === value) {
+        if (this.#state.fillAlpha === value) {
             return;
         }
-        this.state.fillAlpha = value;
+        this.#state.fillAlpha = value;
         this.view.redraw();
     }
 
@@ -133,7 +130,7 @@ class EmphasisMaterial extends Component {
      * Default is ````0.2````.
      */
     get fillAlpha(): number {
-        return this.state.fillAlpha;
+        return this.#state.fillAlpha;
     }
 
     /**
@@ -142,10 +139,10 @@ class EmphasisMaterial extends Component {
      * Default is ````true````.
      */
     set edges(value: boolean) {
-        if (this.state.edges === value) {
+        if (this.#state.edges === value) {
             return;
         }
-        this.state.edges = value;
+        this.#state.edges = value;
         this.view.redraw();
     }
 
@@ -155,7 +152,7 @@ class EmphasisMaterial extends Component {
      * Default is ````true````.
      */
     get edges(): boolean {
-        return this.state.edges;
+        return this.#state.edges;
     }
 
     /**
@@ -164,7 +161,7 @@ class EmphasisMaterial extends Component {
      * Default is ```` [0.2, 0.2, 0.2]````.
      */
     set edgeColor(value: math.FloatArrayParam) {
-        let edgeColor = this.state.edgeColor;
+        let edgeColor = this.#state.edgeColor;
         if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
             return;
         }
@@ -180,7 +177,7 @@ class EmphasisMaterial extends Component {
      * Default is ```` [0.2, 0.2, 0.2]````.
      */
     get edgeColor(): Float32Array {
-        return this.state.edgeColor;
+        return this.#state.edgeColor;
     }
 
     /**
@@ -191,10 +188,10 @@ class EmphasisMaterial extends Component {
      * Default is ````0.2````.
      */
     set edgeAlpha(value: number) {
-        if (this.state.edgeAlpha === value) {
+        if (this.#state.edgeAlpha === value) {
             return;
         }
-        this.state.edgeAlpha = value;
+        this.#state.edgeAlpha = value;
         this.view.redraw();
     }
 
@@ -206,7 +203,7 @@ class EmphasisMaterial extends Component {
      * Default is ````0.2````.
      */
     get edgeAlpha(): number {
-        return this.state.edgeAlpha;
+        return this.#state.edgeAlpha;
     }
 
     /**
@@ -215,7 +212,7 @@ class EmphasisMaterial extends Component {
      * Default value is ````1.0```` pixels.
      */
     set edgeWidth(value: number) {
-        this.state.edgeWidth = value;
+        this.#state.edgeWidth = value;
         this.view.redraw();
     }
 
@@ -227,7 +224,7 @@ class EmphasisMaterial extends Component {
      * Default value is ````1.0```` pixels.
      */
     get edgeWidth(): number {
-        return this.state.edgeWidth;
+        return this.#state.edgeWidth;
     }
 
     /**
@@ -236,10 +233,10 @@ class EmphasisMaterial extends Component {
      * Default is ````false````.
      */
     set backfaces(value: boolean) {
-        if (this.state.backfaces === value) {
+        if (this.#state.backfaces === value) {
             return;
         }
-        this.state.backfaces = value;
+        this.#state.backfaces = value;
         this.view.redraw();
     }
 
@@ -249,7 +246,7 @@ class EmphasisMaterial extends Component {
      * Default is ````false````.
      */
     get backfaces(): boolean {
-        return this.state.backfaces;
+        return this.#state.backfaces;
     }
 
     /**

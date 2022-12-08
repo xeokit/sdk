@@ -26,27 +26,39 @@ class Tiles extends Component {
      */
     constructor(scene: Scene) {
         super(scene);
-
         this.scene = scene;
         this.tiles = {};
     }
 
     /**
-     * Creates a {@link Tile} with the given 3D World-space boundary, if not already existing.
-     * @param params
+     * Gets a Tile for the given coordinate origin.
+     *
+     * Make sure to release it with {@link putTile} when you no longer need it.
+     *
+     * @param origin The coordinate origin.
+     * @returns A Tile for the origin.
      */
-    createTile(params: { aabb: FloatArrayParam }): Tile {
-        const tile = new Tile(this, {aabb: params.aabb});
+    getTile(origin: FloatArrayParam): Tile {
+        const id = `${origin[0]}-${origin[1]}-${origin[2]}`;
+        let tile = this.tiles[id];
+        if (!tile) {
+            tile = new Tile(this, id, origin);
+            this.tiles[id] = tile;
+        }
+        tile.useCount++;
         return tile;
     }
 
     /**
-     * Finds the tile that intersects the given 3D World-space position, if any.
-     * @param worldPos A 3D World-space position.
-     * @returns The intersecting {@link Tile}, if any, else null.
+     * Releases an RTC view matrix.
+     *
+     * @param tile The RTC view matrix.
      */
-    findTile(worldPos: FloatArrayParam): Tile {
-        return null;
+    putTile(tile: Tile): void {
+        tile.useCount--;
+        if (tile.useCount <= 0) {
+            delete this.tiles[tile.id];
+        }
     }
 }
 

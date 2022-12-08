@@ -1,6 +1,5 @@
-import {Camera, math, SceneModel} from "../../viewer/index";
+import { math} from "../../viewer/index";
 import {DataTexture} from "../lib/DataTexture";
-// @ts-ignore
 import {Float16Array} from "./float16";
 
 const emptyDataTexture = new DataTexture({textureWidth: 0, textureHeight: 0});
@@ -18,69 +17,6 @@ export class DataTextureFactory {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    }
-
-    /**
-     * Create a DataTexture containing the given Camera's viewMatrix, viewNormalMatrix and projectMatrix
-     */
-    createCameraMatricesDataTexture(gl: WebGL2RenderingContext, camera: Camera, origin: math.FloatArrayParam): DataTexture {
-        const textureWidth = 4;
-        const textureHeight = 3; // space for 3 matrices
-        const texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
-        this.disableFilteringForBoundTexture(gl);
-        gl.bindTexture(gl.TEXTURE_2D, null);
-        const cameraMatrices = new DataTexture({gl, texture, textureWidth, textureHeight});
-        let cameraDirty = true;
-        const onCameraMatrix = () => {
-            if (!cameraDirty) {
-                return;
-            }
-            cameraDirty = false;
-            gl.bindTexture(gl.TEXTURE_2D, cameraMatrices.texture);
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0,  /* 1st matrix: camera view matrix */ 4, 1, gl.RGBA, gl.FLOAT, new Float32Array((origin) ? math.rtc.createRTCViewMat(camera.viewMatrix, origin) : camera.viewMatrix));
-         //   gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 1, /* 2nd matrix: camera view normal matrix */4, 1, gl.RGBA, gl.FLOAT, new Float32Array(camera.viewNormalMatrix));
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 2, /* 3rd matrix: camera project matrix */4, 1, gl.RGBA, gl.FLOAT, new Float32Array(camera.project.matrix));
-        };
-        camera.events.on("matrix", () => cameraDirty = true);
-        camera.view.events.on("rendering", onCameraMatrix);
-        onCameraMatrix();
-        return cameraMatrices;
-    }
-
-    /**
-     * Creates a DataTexture containing the given SceneModel's worldMatrix and worldNormalMatrix
-     */
-    createSceneModelMatricesDataTexture(gl: WebGL2RenderingContext, sceneModel: SceneModel): DataTexture {
-        const textureWidth = 4;
-        const textureHeight = 2; // space for 2 matrices
-        const texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0,
-            0, // x-offset
-            0, // y-offset (sceneModel world matrix)
-            4, // data width (4x4 values)
-            1, // data height (1 matrix)
-            gl.RGBA,
-            gl.FLOAT,
-            new Float32Array(sceneModel.worldMatrix)
-        );
-        // gl.texSubImage2D(
-        //     gl.TEXTURE_2D,
-        //     0,
-        //     0, // x-offset
-        //     1, // y-offset (sceneModel normal matrix)
-        //     4, // data width (4x4 values)
-        //     1, // data height (1 matrix)
-        //     gl.RGBA,
-        //     gl.FLOAT,
-        //     new Float32Array(sceneModel.worldNormalMatrix)
-      //  );
-        this.disableFilteringForBoundTexture(gl);
-        gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
@@ -322,7 +258,7 @@ export class DataTextureFactory {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight, textureData});
+        return new DataTexture({gl, texture, textureWidth, textureHeight, textureData}); // Re-writeable texture data
     }
 
     /**
@@ -350,7 +286,7 @@ export class DataTextureFactory {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight, textureData});
+        return new DataTexture({gl, texture, textureWidth, textureHeight, textureData}); // Re-writeable texture data
     }
 
     /**

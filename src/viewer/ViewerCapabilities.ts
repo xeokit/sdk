@@ -7,7 +7,7 @@
 export interface ViewerCapabilities {
 
     /**
-     * The number of {@link View}s we are allowed to create with {@link Viewer.createView}.
+     * The number of {@link View|Views} we are allowed to create with {@link Viewer.createView}.
      *
      * This will be determined by the {@link Renderer} implementation the Viewer is configured with.
      */

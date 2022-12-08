@@ -14,10 +14,7 @@ class CustomProjection extends Component {
      */
     public readonly camera: Camera;
 
-    /**
-     * @private
-     */
-    public readonly state: {
+    #state: {
         matrix: math.FloatArrayParam;
         transposedMatrix: math.FloatArrayParam;
         inverseMatrix: math.FloatArrayParam
@@ -37,7 +34,7 @@ class CustomProjection extends Component {
 
         this.camera = camera;
 
-        this.state = {
+        this.#state = {
             matrix: math.mat4(cfg.matrix || math.identityMat4()),
             inverseMatrix: math.mat4(),
             transposedMatrix: math.mat4()
@@ -55,7 +52,7 @@ class CustomProjection extends Component {
      * @return  New value for the CustomProjection's matrix.
      */
     get matrix(): math.FloatArrayParam {
-        return this.state.matrix;
+        return this.#state.matrix;
     }
 
     /**
@@ -69,12 +66,12 @@ class CustomProjection extends Component {
      */
     set matrix(matrix: math.FloatArrayParam) {
         // @ts-ignore
-        this.state.matrix.set(matrix);
+        this.#state.matrix.set(matrix);
         this.#inverseMatrixDirty = true;
         this.#transposedMatrixDirty = true;
         this.setDirty();
         this.camera.view.redraw();
-        this.events.fire("matrix", this.state.matrix);
+        this.events.fire("matrix", this.#state.matrix);
     }
 
     /**
@@ -87,10 +84,10 @@ class CustomProjection extends Component {
             this.cleanIfDirty();
         }
         if (this.#inverseMatrixDirty) {
-            math.inverseMat4(this.state.matrix, this.state.inverseMatrix);
+            math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
             this.#inverseMatrixDirty = false;
         }
-        return this.state.inverseMatrix;
+        return this.#state.inverseMatrix;
     }
 
     /**
@@ -103,10 +100,10 @@ class CustomProjection extends Component {
             this.cleanIfDirty();
         }
         if (this.#transposedMatrixDirty) {
-            math.transposeMat4(this.state.matrix, this.state.transposedMatrix);
+            math.transposeMat4(this.#state.matrix, this.#state.transposedMatrix);
             this.#transposedMatrixDirty = false;
         }
-        return this.state.transposedMatrix;
+        return this.#state.transposedMatrix;
     }
 
     /**

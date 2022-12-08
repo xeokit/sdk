@@ -4,27 +4,24 @@ import {SceneObject} from "../scene/index";
 import * as math from '../math/index';
 
 /**
- * The visual state of an object in a viewer.
- *
- * ## Overview
- *
- * * Contained in a {@link View}
- * * Exists automatically for each {@link SceneObject}
- * * Registered by {@link ViewObject.id} in {@link View.objects}
+ * Represents the visual state of a {@link SceneObject} in a {@link View}.
  *
  * ## Summary
  *
- * Every View will automatically contain a ViewObject for each {@link SceneObject} that currently exists. Whenever a
- * SceneObject is created or destroyed, a ViewObject will also automatically be created and destroyed within each View that
- * exists at the time. Each new View we subsequently create will automatically get a ViewObject for each of the SceneObjects
- * that currently exist.
+ * * Contained in a {@link View}
+ * * Created automatically for each existing {@link SceneObject}
+ * * Registered by {@link ViewObject.id} in {@link View.objects}
+ * * Use {@link ViewLayer|ViewLayers} to organize
  *
- * If the SceneObject has a value for {@link SceneObject.viewLayer}, then each View will put its corresponding ViewObject in a
- * {@link ViewLayer} `
+ * ## Overview
  *
- * - Registered by {@link ViewObject.id} in {@link ViewLayer.objects}
- * - Has a corresponding {@link SceneObject} in {@link Scene.sceneObjects}
- * - May have a corresponding {@link DataObject} in {@link DataModel.objects}
+ * Every View automatically maintains within itself a ViewObject for each {@link SceneObject} that exists in the {@link Viewer|Viewer's} {@link Scene}.
+ *
+ * Whenever we create a SceneObject, each View will automatically create a corresponding ViewObject within itself. When
+ * we destroy a SceneObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View
+ * are therefore a manifest of the SceneObjects in the Scene.
+ *
+ * {@link ViewLayer}.
  */
 class ViewObject {
 
@@ -86,15 +83,15 @@ class ViewObject {
         this.sceneObject = sceneObject;
 
         this.#state = {
-            visible: true,
-            culled: false,
-            pickable: true,
-            clippable: true,
-            collidable: true,
-            xrayed: false,
-            selected: false,
-            highlighted: false,
-            edges: false,
+            visible: null,
+            culled: null,
+            pickable: null,
+            clippable: null,
+            collidable: null,
+            xrayed: null,
+            selected: null,
+            highlighted: null,
+            edges: null,
             colorize: new Float32Array(4),
             colorized: false,
             opacityUpdated: false
@@ -258,11 +255,11 @@ class ViewObject {
      * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
      * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */
-    set culled(value: boolean) {
-        if (value === this.#state.culled) {
+    set culled(culled: boolean) {
+        if (culled === this.#state.culled) {
             return;
         }
-        this.#state.culled = value;
+        this.#state.culled = culled;
         this.layer.redraw();
     }
 
@@ -334,11 +331,11 @@ class ViewObject {
      * * Picking is done with {@link ViewLayer.pick}.
      * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
-    set pickable(value: boolean) {
-        if (this.#state.pickable === value) {
+    set pickable(pickable: boolean) {
+        if (this.#state.pickable === pickable) {
             return;
         }
-        this.#state.pickable = value;
+        this.#state.pickable = pickable;
         // No need to trigger a render;
         // state is only used when picking
     }

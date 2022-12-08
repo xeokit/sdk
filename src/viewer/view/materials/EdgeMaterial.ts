@@ -6,7 +6,7 @@ import {QualityRender} from "../../constants";
 /**
  * Configures the appearance of {@link ViewObject}s when their edges are emphasised.
  *
- * ## Overview
+ * ## Summary
  *
  * * Located at {@link View.edgeMaterial}.
  * * Emphasise edges of a {@link ViewObject} by setting {@link ViewObject.edges} ````true````.
@@ -21,7 +21,7 @@ class EdgeMaterial extends Component {
     /**
      * @private
      */
-    public readonly state: {
+    #state: {
         edgeColor: Float32Array;
         edgeWidth: number;
         edgeAlpha: number;
@@ -44,7 +44,7 @@ class EdgeMaterial extends Component {
 
         this.view = view;
 
-        this.state = {
+        this.#state = {
             renderModes: options.renderModes || [QualityRender],
             edges: options.edges !== false,
             edgeColor: new Float32Array(options.edgeColor || [0.2, 0.2, 0.2]),
@@ -61,7 +61,7 @@ class EdgeMaterial extends Component {
      * Default value is [{@link QualityRender}].
      */
     set renderModes(value: number[]) {
-        this.state.renderModes = value;
+        this.#state.renderModes = value;
         this.view.redraw();
     }
 
@@ -73,7 +73,7 @@ class EdgeMaterial extends Component {
      * Default value is [{@link QualityRender}].
      */
     get renderModes(): number[] {
-        return this.state.renderModes;
+        return this.#state.renderModes;
     }
 
     /**
@@ -82,10 +82,10 @@ class EdgeMaterial extends Component {
      * Default is ````true````.
      */
     set edges(value: boolean) {
-        if (this.state.edges === value) {
+        if (this.#state.edges === value) {
             return;
         }
-        this.state.edges = value;
+        this.#state.edges = value;
         this.view.redraw();
     }
 
@@ -95,7 +95,7 @@ class EdgeMaterial extends Component {
      * Default is ````true````.
      */
     get edges(): boolean {
-        return this.state.edges;
+        return this.#state.edges;
     }
 
     /**
@@ -104,7 +104,7 @@ class EdgeMaterial extends Component {
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
     set edgeColor(value: math.FloatArrayParam) {
-        let edgeColor = this.state.edgeColor;
+        let edgeColor = this.#state.edgeColor;
         if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
             return;
         }
@@ -120,7 +120,7 @@ class EdgeMaterial extends Component {
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
     get edgeColor(): Float32Array {
-        return this.state.edgeColor;
+        return this.#state.edgeColor;
     }
 
     /**
@@ -131,10 +131,10 @@ class EdgeMaterial extends Component {
      * Default value is ````1.0````.
      */
     set edgeAlpha(value: number) {
-        if (this.state.edgeAlpha === value) {
+        if (this.#state.edgeAlpha === value) {
             return;
         }
-        this.state.edgeAlpha = value;
+        this.#state.edgeAlpha = value;
         this.view.redraw();
     }
 
@@ -146,7 +146,7 @@ class EdgeMaterial extends Component {
      * Default value is ````1.0````.
      */
     get edgeAlpha(): number {
-        return this.state.edgeAlpha;
+        return this.#state.edgeAlpha;
     }
 
     /**
@@ -155,10 +155,10 @@ class EdgeMaterial extends Component {
      * Default value is ````1.0```` pixels.
      */
     set edgeWidth(value: number) {
-        if (this.state.edgeWidth === value) {
+        if (this.#state.edgeWidth === value) {
             return;
         }
-        this.state.edgeWidth = value;
+        this.#state.edgeWidth = value;
         this.view.redraw();
     }
 
@@ -170,7 +170,7 @@ class EdgeMaterial extends Component {
      * Default value is ````1.0```` pixels.
      */
     get edgeWidth(): number {
-        return this.state.edgeWidth;
+        return this.#state.edgeWidth;
     }
 
     /**

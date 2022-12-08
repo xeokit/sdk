@@ -18,10 +18,7 @@ class Ortho extends Component {
      */
     public readonly camera: Camera;
 
-    /**
-     * @private
-     */
-    public readonly state: {
+    #state: {
         transposedMatrix: math.FloatArrayParam;
         far: number;
         near: number;
@@ -47,7 +44,7 @@ class Ortho extends Component {
 
         this.camera = camera;
 
-        this.state = {
+        this.#state = {
             matrix: math.mat4(),
             inverseMatrix: math.mat4(),
             transposedMatrix: math.mat4(),
@@ -74,7 +71,7 @@ class Ortho extends Component {
      * returns New Ortho scale value.
      */
     get scale(): number {
-        return this.state.scale;
+        return this.#state.scale;
     }
 
     /**
@@ -89,7 +86,7 @@ class Ortho extends Component {
         if (value <= 0) {
             value = 0.01;
         }
-        this.state.scale = value;
+        this.#state.scale = value;
         this.setDirty();
     }
 
@@ -101,7 +98,7 @@ class Ortho extends Component {
      * returns New Ortho near plane position.
      */
     get near(): number {
-        return this.state.near;
+        return this.#state.near;
     }
 
     /**
@@ -114,10 +111,10 @@ class Ortho extends Component {
      * @param value New Ortho near plane position.
      */
     set near(value: number) {
-        if (this.state.near === value) {
+        if (this.#state.near === value) {
             return;
         }
-        this.state.near = value;
+        this.#state.near = value;
         this.setDirty();
     }
 
@@ -129,7 +126,7 @@ class Ortho extends Component {
      * returns New far ortho plane position.
      */
     get far(): number {
-        return this.state.far;
+        return this.#state.far;
     }
 
     /**
@@ -142,10 +139,10 @@ class Ortho extends Component {
      * @param value New far ortho plane position.
      */
     set far(value: number) {
-        if (this.state.far === value) {
+        if (this.#state.far === value) {
             return;
         }
-        this.state.far = value;
+        this.#state.far = value;
         this.setDirty();
     }
 
@@ -162,7 +159,7 @@ class Ortho extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.state.matrix;
+        return this.#state.matrix;
     }
 
     /**
@@ -175,10 +172,10 @@ class Ortho extends Component {
             this.cleanIfDirty();
         }
         if (this.#inverseMatrixDirty) {
-            math.inverseMat4(this.state.matrix, this.state.inverseMatrix);
+            math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
             this.#inverseMatrixDirty = false;
         }
-        return this.state.inverseMatrix;
+        return this.#state.inverseMatrix;
     }
 
     /**
@@ -191,10 +188,10 @@ class Ortho extends Component {
             this.cleanIfDirty();
         }
         if (this.#transposedMatrixDirty) {
-            math.transposeMat4(this.state.matrix, this.state.transposedMatrix);
+            math.transposeMat4(this.#state.matrix, this.#state.transposedMatrix);
             this.#transposedMatrixDirty = false;
         }
-        return this.state.transposedMatrix;
+        return this.#state.transposedMatrix;
     }
 
     /**
@@ -206,7 +203,7 @@ class Ortho extends Component {
         const HEIGHT_INDEX = 3;
 
         const view = this.camera.view;
-        const scale = this.state.scale;
+        const scale = this.#state.scale;
         const halfSize = 0.5 * scale;
 
         const boundary = view.viewport.boundary;
@@ -232,14 +229,14 @@ class Ortho extends Component {
             bottom = -halfSize;
         }
 
-        math.orthoMat4c(left, right, bottom, top, this.state.near, this.state.far, this.state.matrix);
+        math.orthoMat4c(left, right, bottom, top, this.#state.near, this.#state.far, this.#state.matrix);
 
         this.#inverseMatrixDirty = true;
         this.#transposedMatrixDirty = true;
 
         this.camera.view.redraw();
 
-        this.events.fire("matrix", this.state.matrix);
+        this.events.fire("matrix", this.#state.matrix);
     }
 
     /**

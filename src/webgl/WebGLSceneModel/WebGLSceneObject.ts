@@ -19,7 +19,7 @@ class WebGLSceneObject implements SceneObject {
     /**
      * Which {@link ViewLayer} this SceneObject belongs to.
      */
-    readonly viewLayer: string ;
+    readonly viewLayerId: string ;
 
     #meshes: Mesh[];
     #flags: number;
@@ -33,7 +33,8 @@ class WebGLSceneObject implements SceneObject {
         id: string,
         sceneModel: SceneModel,
         meshes: Mesh[],
-        aabb: any
+        aabb: any,
+        viewLayerId?:string
     }) {
         this.id = params.id;
         this.model = params.sceneModel;
@@ -44,6 +45,8 @@ class WebGLSceneObject implements SceneObject {
         this.#offset = math.vec3();
         this.#colorizeUpdated = false;
         this.#opacityUpdated = false;
+
+        this.viewLayerId = params.viewLayerId;
 
         for (let i = 0, len = this.#meshes.length; i < len; i++) {  // TODO: tidier way? Refactor?
             const mesh = this.#meshes[i];

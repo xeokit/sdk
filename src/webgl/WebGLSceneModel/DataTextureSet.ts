@@ -2,8 +2,6 @@ import {DataTexture} from "../lib/DataTexture";
 
 export class DataTextureSet {
 
-    cameraMatrices: DataTexture;
-    sceneModelMatrices: DataTexture;
     positions: DataTexture; // All quantized positions for a Layer
     indices_8Bits: DataTexture; // All 8-bit indices
     indices_16Bits: DataTexture; // All 16-bit indices
@@ -27,8 +25,6 @@ export class DataTextureSet {
     #finalized: boolean;
 
     constructor() {
-        this.cameraMatrices = null;
-        this.sceneModelMatrices = null;
         this.positions = null;
         this.indices_8Bits = null;
         this.indices_16Bits = null;
@@ -73,8 +69,6 @@ export class DataTextureSet {
     }
 
     destroy() {
-        this.cameraMatrices.destroy();
-        this.sceneModelMatrices.destroy();
         this.positions.destroy();
         this.indices_8Bits.destroy();
         this.indices_16Bits.destroy();

@@ -18,40 +18,124 @@ import {GeometryParams, GeometryCompressedParams} from "../../../viewer/scene/in
 
 import {uniquifyPositions} from "./lib/calculateUniquePositions";
 import {rebucketPositions} from "./lib/rebucketPositions";
-import {collapseAABB3, expandAABB3Points3} from "../boundaries";
+import {collapseAABB3, expandAABB3Points3, getPositionsCenter} from "../boundaries";
 import {buildEdgeIndices} from "../geometry/buildEdgeIndices";
+import * as constants from "../../constants";
+
 
 const translate: FloatArrayParam = mat4();
 const scale: FloatArrayParam = mat4();
 
+const tempVec3 = vec3();
+const tempVec3b = vec3();
+
 /**
  * Compresses {@link GeometryParams} into {@link GeometryCompressedParams}.
  *
- * This function applies these steps:
+ * * Simplifies geometry by combining duplicate positions and adjusting indices
+ * * Generates edge indices for triangle meshes
+ * * Ignores normals (our shaders auto-generate them)
+ * * Converts positions to relative-to-center (RTC) coordinates
+ * * Quantizes positions and UVs as 16-bit unsigned integers
+ * * Splits geometry into {@link GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
- * 1. Remove duplicate vertex positions and adjust the indices arrays accordingly
- * 2. Quantize vertex positions and UVs
- * 3. Calculate edge indices (for triangle mesh)
- * 4. Split mesh into 1-3 buckets (sub-meshes), in which each bucket relies on a different number of bits for storage of indices
+ * The GeometryCompressedParams can then be given to {@link SceneModel.createGeometryCompressed}.
  *
- * See {@link GeometryCompressedParams} for more info.
+ * #### Special Consideration for SolidPrimitive
+ *
+ * Note that if {@link GeometryParams.primitive} is {@link constants.SolidPrimitive} and {@link GeometryCompressedParams.geometryBuckets}
+ * contains more than one {@link GeometryBucketParams}, then {@link GeometryCompressedParams.primitive} will become
+ * {@link constants.SurfacePrimitive}, in the assumption that bucketing has split open a closed (solid) triangle mesh, which
+ * can therefore no longer be treated as a solid.
+ *
+ * ### Example 1: Compressing parameters for a small geometry
+ *
+ * The example below demonstrates compression of {@link GeometryParams} for a simple geometry that only requires a
+ * single {@link GeometryBucketParams | bucket }.
+ *
+ * Note that if the {@link GeometryParams.positions} array was large enough to require some indices to use more than 16 bits
+ * for storage, then that's when the bucketing would kick in, to split the mesh into smaller buckets, each with smaller
+ * indices that index a subset of the positions.
+ *
+ * ````javascript
+ * import {math, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const compressedGeometry = math.compression.compressGeometry({
+ *      id: "myBoxGeometry",
+ *      primitive: constants.TrianglesPrimitive,
+ *      positions: [
+ *          202, 202, 202, 200, 202, 202,
+ *          200, 200, 202, 202, 200, 202,
+ *          202, 202, 202, 202, 200, 202,
+ *          202, 200, 200, 202, 202, 200,
+ *          202, 202, 202, 202, 202, 200,
+ *          200, 202, 200, 200, 202, 202,
+ *          200, 202, 202, 200, 202, 200,
+ *          200, 200, 200, 200, 200, 202,
+ *          200, 200, 200, 202, 200, 200,
+ *          202, 200, 202, 200, 200, 202,
+ *          202, 200, 200, 200, 200, 200,
+ *          200, 202, 200, 202, 202, 200
+ *      ],
+ *      indices: [
+ *          0, 1, 2, 0, 2, 3, 4, 5, 6, 4,
+ *          6, 7, 8, 9, 10, 8, 10, 11, 12,
+ *          13, 14, 12, 14, 15, 16, 17, 18,
+ *          16, 18, 19, 20, 21, 22, 20, 22, 23
+ *      ]
+ *  });
+ * ````
+ *
+ * The value of ````compressedGeometry```` is:
+ *
+ * ````javascript
+ * {
+ *      id: "myBoxGeometry",
+ *      primitive: constants.TrianglesPrimitive,
+ *      origin: [200,200,200],
+ *      positionsDecompressMatrix: [
+ *          0.00003052270125906143, 0, 0, 0,
+ *          0, 0.00003052270125906143, 0, 0,
+ *          0, 0, 0.00003052270125906143, 0,
+ *          -1, -1, -1, 1
+ *      ],
+ *      geometryBuckets: [
+ *          {
+ *              positionsCompressed: [
+ *                  65525, 65525, 65525, 0, 65525, 65525,
+ *                  0, 0, 65525, 65525, 0, 65525, 65525,
+ *                  0, 0, 65525, 65525, 0, 0, 65525, 0, 0,
+ *                  0, 0
+ *              ],
+ *              indices: [
+ *                  0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
+ *                  0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
+ *                  4, 7, 6, 4, 6, 5
+ *              ],
+ *              edgeIndices: [
+ *                  3, 4, 0, 4, 5, 0, 5, 6,
+ *                  0, 6, 1, 1, 6, 7, 1, 7,
+ *                  3, 2, 4, 7, 6, 4, 6
+ *              ]
+ *          }
+ *      ]
+ * }
+ * ````
  *
  * @param geometryParams Uncompressed geometry params.
  * @returns Compressed geometry params.
  */
 export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
-
-    const aabb = collapseAABB3();
-
-    expandAABB3Points3(aabb, geometryParams.positions);
-
-    //math.boundaries.AABB3ToOBB3(aabb, this.obb);
     const positionsDecompressMatrix = mat4();
-    const positionsCompressed = quantizePositions(geometryParams.positions, aabb, positionsDecompressMatrix);
-    const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) ?
-        buildEdgeIndices(positionsCompressed, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold) : null;
+    const rtcPositions = new Float32Array(geometryParams.positions.length);
+    worldToRTCPositions(geometryParams.positions, geometryParams.origin, rtcPositions, tempVec3);
+    const aabb = collapseAABB3();
+    expandAABB3Points3(aabb, rtcPositions);
+    const positionsCompressed = quantizePositions(rtcPositions, aabb, positionsDecompressMatrix);
+    const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive)
+        ? buildEdgeIndices(positionsCompressed, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold)
+        : null;
     let uniquePositionsCompressed, uniqueIndices, uniqueEdgeIndices;
-
     [
         uniquePositionsCompressed,
         uniqueIndices,
@@ -62,26 +146,45 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
         indices: geometryParams.indices,
         edgeIndices: edgeIndices
     });
-
     const numUniquePositions = uniquePositionsCompressed.length / 3;
-
     const geometryBuckets = rebucketPositions({
-            positionsCompressed: uniquePositionsCompressed,
-            indices: uniqueIndices,
-            edgeIndices: uniqueEdgeIndices,
-        },
-        (numUniquePositions > (1 << 16)) ? 16 : 8
-    );
-
+        positionsCompressed: uniquePositionsCompressed,
+        indices: uniqueIndices,
+        edgeIndices: uniqueEdgeIndices,
+    }, (numUniquePositions > (1 << 16)) ? 16 : 8);
     return {
         id: geometryParams.id,
-        primitive: geometryParams.primitive,
-        origin: geometryParams.origin,
+        primitive: (geometryParams.primitive === constants.SolidPrimitive && geometryBuckets.length > 1) // Assume that closed triangle mesh is decomposed into open surfaces
+            ? constants.TrianglesPrimitive
+            : geometryParams.primitive,
+        origin: tempVec3,
         aabb,
         positionsDecompressMatrix,
         uvsDecompressMatrix: undefined,
         geometryBuckets
     };
+}
+
+function worldToRTCPositions(worldPositions: FloatArrayParam, origin: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = 200): boolean {
+    const center = getPositionsCenter(worldPositions, tempVec3b);
+    if (origin) {
+        center[0] += origin[0];
+        center[1] += origin[1];
+        center[2] += origin[2];
+    }
+    const rtcCenterX = Math.round(center[0] / cellSize) * cellSize;
+    const rtcCenterY = Math.round(center[1] / cellSize) * cellSize;
+    const rtcCenterZ = Math.round(center[2] / cellSize) * cellSize;
+    for (let i = 0, len = worldPositions.length; i < len; i += 3) {
+        rtcPositions[i + 0] = worldPositions[i + 0] - rtcCenterX;
+        rtcPositions[i + 1] = worldPositions[i + 1] - rtcCenterY;
+        rtcPositions[i + 2] = worldPositions[i + 2] - rtcCenterZ;
+    }
+    rtcCenter[0] = rtcCenterX;
+    rtcCenter[1] = rtcCenterY;
+    rtcCenter[2] = rtcCenterZ;
+    const rtcNeeded = (rtcCenter[0] !== 0 || rtcCenter[1] !== 0 || rtcCenter[2] !== 0);
+    return rtcNeeded;
 }
 
 /**

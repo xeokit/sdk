@@ -23,7 +23,7 @@ import {Scene} from "../../scene/Scene";
 /**
  * Controls a {@link Camera} with user input.
  *
- * ## Overview
+ * ## Summary
  *
  * * Controls the {@link Camera} belonging to its {@link View}
  * * Reads touch, mouse and keyboard input

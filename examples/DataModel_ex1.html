@@ -1,0 +1,269 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="css/pageStyle.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+<canvas id="myCanvas"></canvas>
+<div class="slideout-sidebar">
+    <h1>SceneModel</h1>
+    <p>Buidling a simple SceneModel.</p>
+    <h3>Components used</h3>
+    <ul>
+        <li>
+            <a href="../docs/class/src/viewer/Viewer.js~Viewer.html" target="_other">Viewer</a>
+        </li>
+        <li>
+            <a href="../docs/class/src/viewer/scene/mesh/Mesh.js~Mesh.html" target="_other">WebGL2Renderer</a>
+        </li>
+        <li>
+            <a href="../docs/class/src/viewer/scene/geometry/ReadableGeometry.js~ReadableGeometry.html" target="_other">DataModel</a>
+        </li>
+        <li>
+            <a href="../docs/class/src/viewer/scene/geometry/ReadableGeometry.js~ReadableGeometry.html" target="_other">SceneModel</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script id="source" type="module">
+
+    import {Viewer, constants} from "../dist/xeokit-viewer.es.js";
+
+    const viewer = new Viewer();
+
+    // Create a view
+
+    const view1 = viewer.createView({
+        viewId: "myView1",
+        canvasId: "myCanvas"
+    });
+
+    view1.camera.eye = [-3.933, 2.855, 27.018];
+    view1.camera.look = [4.400, 3.724, 8.899];
+    view1.camera.up = [-0.018, 0.999, 0.039];
+    view1.camera.projection = "perspective";
+    view1.cameraControl.navMode = "orbit";
+
+    // Create a semantic data model
+
+    viewer.data.createModel({
+        id: "myTableModel",
+        projectId: "024120003",
+        revisionId: "902344223",
+        author: "xeolabs",
+        createdAt: "Jan 26 2022",
+        creatingApplication: "WebStorm",
+        schema: "ifc4",
+        propertySets: [
+            {
+                id: "tablePropertySet",
+                originalSystemId: "tablePropertySet",
+                name: "Table properties",
+                type: "",
+                properties: [
+                    {
+                        name: "Weight",
+                        value: 5,
+                        type: "",
+                        valueType: "",
+                        description: "Weight of the thing"
+                    },
+                    {
+                        name: "Height",
+                        value: 12,
+                        type: "",
+                        valueType: "",
+                        description: "Height of the thing"
+                    }
+                ]
+            },
+            {
+                id: "legPropertySet",
+                originalSystemId: "legPropertySet",
+                name: "Table leg properties",
+                type: "",
+                properties: [
+                    {
+                        name: "Weight",
+                        value: 5,
+                        type: "",
+                        valueType: "",
+                        description: "Weight of the thing"
+                    },
+                    {
+                        name: "Height",
+                        value: 12,
+                        type: "",
+                        valueType: "",
+                        description: "Height of the thing"
+                    }
+                ]
+            }
+        ],
+        objects: [
+            {
+                id: "table",
+                originalSystemId: "table",
+                type: "furniture",
+                name: "Table",
+                propertySetIds: ["tablePropertySet"]
+            },
+            {
+                id: "redLeg",
+                name: "Red table Leg",
+                type: "leg",
+                parentId: "table",
+                propertySetIds: ["tableLegPropertySet"]
+            },
+            {
+                id: "greenLeg",
+                name: "Green table leg",
+                type: "leg",
+                parentId: "table",
+                propertySetIds: ["tableLegPropertySet"]
+            },
+            {
+                id: "blueLeg",
+                name: "Blue table leg",
+                type: "leg",
+                parentId: "table",
+                propertySetIds: ["tableLegPropertySet"]
+            },
+            {
+                id: "yellowLeg",
+                name: "Yellow table leg",
+                type: "leg",
+                parentId: "table",
+                propertySetIds: ["tableLegPropertySet"]
+            },
+            {
+                id: "tableTop",
+                name: "Purple table top",
+                type: "surface",
+                parentId: "table",
+                propertySetIds: ["tableTopPropertySet"]
+            }
+        ]
+    });
+
+    // Create a scene model
+
+    const sceneModel = viewer.scene.createModel({
+        id: "myTable",
+        position: [0, 0, 0],
+        scale: [1, 1, 1],
+        rotation: [0, 0, 0]
+    });
+
+    sceneModel.createGeometry({
+        id: "myBoxGeometry",
+        primitive: constants.TrianglesPrimitive,
+        positions: [
+            1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
+            1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, // v0-v3-v4-v1 right
+            1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, // v0-v1-v6-v1 top
+            -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, // v1-v6-v7-v2 left
+            -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1,// v7-v4-v3-v2 bottom
+            1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1 // v4-v7-v6-v1 back
+        ],
+        indices: [
+            0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
+            16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
+        ]
+    });
+
+    // Red table leg object
+
+    sceneModel.createMesh({
+        id: "redLegMesh",
+        geometryId: "myBoxGeometry",
+        position: [-4, -6, -4],
+        scale: [1, 3, 1],
+        rotation: [0, 0, 0],
+        color: [1, 0.3, 0.3]
+    });
+
+    sceneModel.createObject({
+        id: "redLeg",
+        meshIds: ["redLegMesh"]
+    });
+
+    // Green table leg object
+
+    sceneModel.createMesh({
+        id: "greenLegMesh",
+        geometryId: "myBoxGeometry",
+        position: [4, -6, -4],
+        scale: [1, 3, 1],
+        rotation: [0, 0, 0],
+        color: [0.3, 1.0, 0.3]
+    });
+
+    sceneModel.createObject({
+        id: "greenLeg",
+        meshIds: ["greenLegMesh"]
+    });
+
+    // Blue table leg
+
+    sceneModel.createMesh({
+        id: "blueLegMesh",
+        geometryId: "myBoxGeometry",
+        position: [4, -6, 4],
+        scale: [1, 3, 1],
+        rotation: [0, 0, 0],
+        color: [0.3, 0.3, 1.0]
+    });
+
+    sceneModel.createObject({
+        id: "blueLeg",
+        meshIds: ["blueLegMesh"]
+    });
+
+    // Yellow table leg
+
+    sceneModel.createMesh({
+        id: "yellowLegMesh",
+        geometryId: "myBoxGeometry",
+        position: [-4, -6, 4],
+        scale: [1, 3, 1],
+        rotation: [0, 0, 0],
+        color: [1.0, 1.0, 0.0]
+    });
+
+    sceneModel.createObject({
+        id: "yellowLeg",
+        meshIds: ["yellowLegMesh"]
+    });
+
+    // Purple table top
+
+    sceneModel.createMesh({
+        id: "tableTopMesh",
+        geometryId: "myBoxGeometry",
+        position: [0, -3, 0],
+        scale: [6, 0.5, 6],
+        rotation: [0, 0, 0],
+        color: [1.0, 0.3, 1.0]
+    });
+
+    sceneModel.createObject({ // Create object
+        id: "tableTop",
+        meshIds: ["tableTopMesh"]
+    });
+
+    sceneModel.finalize();
+
+    window.viewer = viewer;
+
+
+</script>
+</html>

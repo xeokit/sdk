@@ -1,12 +1,22 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "ES2020",
+    "declaration": true,
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "sourceMap": true,
-    "target": "es6"
+    "target": "es6",
+    "lib": [
+      "ES2020",
+      "es2016",
+      "dom",
+      "es5",
+      "es6"
+    ]
   },
-  "include": ["src/index.ts"],
-  "exclude": ["node_modules"]
+  "files": [
+    "./src/index.ts"
+  ]
 }
+
+

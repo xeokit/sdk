@@ -1,27 +1,37 @@
-import nodeResolve from 'rollup-plugin-node-resolve';
+import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import typescript from 'rollup-plugin-typescript2';
 
-// export default {
-//     input: './src/index.ts',
-//     output: [
-//         {
-//             file: './dist/xeokit-viewer.es.js',
-//             format: 'es',
-//             name: 'bundle'
-//         }
-//     ],
-//     plugins: [
-//         nodeResolve()
-//     ]
-// }
+const packageJson = require('./package.json');
 
-import dts from 'rollup-plugin-dts'
-import esbuild from 'rollup-plugin-esbuild'
+const globals = {
+    ...packageJson.devDependencies,
+};
 
 export default {
-        input: `src/viewer/index.ts`,
-        plugins: [ nodeResolve(),dts()],
-        output: {
-            file: `dist/bundle.d.ts`,
-            format: 'es',
+    input: 'src/index.ts',
+    output: [
+        {
+            file: packageJson.module,
+            format: 'esm', // ES Modules
+            sourcemap: true,
         },
-    }
+    ],
+    plugins: [
+        peerDepsExternal(),
+        resolve(),
+        commonjs(),
+        typescript({
+            useTsconfigDeclarationDir: true,
+            tsconfigOverride: {
+                exclude: ['**/*.stories.*'],
+            },
+        }),
+        commonjs({
+            exclude: 'node_modules',
+            ignoreGlobal: true,
+        }),
+    ],
+    external: Object.keys(globals),
+};

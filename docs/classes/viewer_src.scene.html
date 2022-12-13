@@ -1,0 +1,791 @@
+<!doctype html>
+<html class="minimal">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Scene | xeokit-sdk</title>
+	<meta name="description" content="Documentation for Scene in xeokit-sdk, a glTF 2.0 SDK for JavaScript, TypeScript, and Node.js.">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="referrer" content="no-referrer-when-downgrade" />
+	<meta property="og:site_name" content="glTF-Transform" />
+	<meta property="og:title" content="Scene | xeokit-sdk" />
+	<meta property="og:description" content="Documentation for Scene in xeokit-sdk, a glTF 2.0 SDK for JavaScript, TypeScript, and Node.js." />
+	<meta property="og:url" content="https://gltf-transform.donmccurdy.com/classes/viewer_src.scene.html" />
+	<meta name="og:image" content="https://gltf-transform.donmccurdy.com/media/hero.jpg" />
+	<meta name="og:image:alt" content="Function symbol, f(📦) → 📦, where the argument and output are a box labeled 'glTF'." />
+	<meta name="og:image:width" content="2000" />
+	<meta name="og:image:height" content="1000" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Scene | xeokit-sdk" />
+	<meta name="twitter:description" content="Documentation for Scene in xeokit-sdk, a glTF 2.0 SDK for JavaScript, TypeScript, and Node.js." />
+	<meta name="twitter:url" content="https://gltf-transform.donmccurdy.com/classes/viewer_src.scene.html" />
+	<meta name="twitter:image" content="https://gltf-transform.donmccurdy.com/media/hero.jpg" />
+	<meta name="twitter:image:alt" content="Function symbol, f(📦) → 📦, where the argument and output are a box labeled 'glTF'." />
+	<meta name="twitter:label1" content="Written by" />
+	<meta name="twitter:data1" content="Don McCurdy" />
+	<meta name="twitter:creator" content="@donrmccurdy" />
+	<link rel="stylesheet" href="/assets/css/main.css"></link>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell">
+					<strong><a href="../index.html">xeokit-sdk</a></strong>
+					<a class="header-badge"
+					target="_blank"
+					href="https://github.com/donmccurdy/glTF-Transform">
+					<img alt="GitHub stars"
+					src="https://img.shields.io/github/stars/donmccurdy/glTF-Transform?style=social">
+					</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="javascript:;" id="tsd-menu" class="tsd-widget menu no-caption">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+        (function () {
+            const bodyEl = document.body;
+
+            // Show/hide navigation sidebar (mobile).
+            const menuEl = document.querySelector('#tsd-menu');
+            menuEl.addEventListener('click', function () {
+                if (bodyEl.classList.contains('toggle-nav')) {
+                    bodyEl.classList.remove('toggle-nav');
+                } else {
+                    bodyEl.classList.add('toggle-nav');
+                }
+            })
+
+            // Show/hide inherited members.
+            if (location.href.includes('classes')) {
+                const inheritedInputEl = document.querySelector('#tsd-filter-inherited');
+                inheritedInputEl.addEventListener('change', function () {
+                    if (inheritedInputEl.checked) {
+                        bodyEl.classList.remove('toggle-inherited');
+                    } else {
+                        bodyEl.classList.add('toggle-inherited');
+                    }
+                });
+            } else {
+                const filterEl = document.querySelector('#tsd-filter');
+                filterEl.style.display = 'none';
+            }
+        }())
+    </script>
+</header>
+<nav class="tsd-navigation secondary">
+	<h4>Introduction</h4>
+	<ul>
+		<li class="tsd-kind-namespace">
+			<a href="/" class="tsd-kind-icon">
+				Home
+			</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="/concepts.html" class="tsd-kind-icon">
+				Concepts
+			</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="/extensions.html" class="tsd-kind-icon">
+				Extensions
+			</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="/functions.html" class="tsd-kind-icon">
+				Functions
+			</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="/cli.html" class="tsd-kind-icon">
+				CLI
+			</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="/contributing.html" class="tsd-kind-icon">
+				Contributing
+			</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="/credits.html" class="tsd-kind-icon">
+				Credits
+			</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="https://github.com/donmccurdy/glTF-Transform" target="_blank" class="tsd-kind-icon">GitHub</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="https://www.npmjs.com/search?q=%40gltf-transform" target="_blank" class="tsd-kind-icon">NPM</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="https://github.com/donmccurdy/glTF-Transform/discussions" target="_blank" class="tsd-kind-icon">Discussions</a>
+		</li>
+		<li class="tsd-kind-namespace">
+			<a href="https://github.com/donmccurdy/glTF-Transform/blob/main/CHANGELOG.md" target="_blank" class="tsd-kind-icon">Changelog</a>
+		</li>
+	</ul>
+	<h4>Documents</h4>
+	<ul>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.document.html" class="tsd-kind-icon">
+				Document
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/interfaces/core.jsondocument.html" class="tsd-kind-icon">
+				JSON<wbr>Document
+			</a>
+		</li>
+	</ul>
+	<h4>I/O</h4>
+	<ul>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.platformio.html" class="tsd-kind-icon">
+				PlatformIO <em>(Abstract)</em>
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.denoio.html" class="tsd-kind-icon">
+				DenoIO
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.nodeio.html" class="tsd-kind-icon">
+				NodeIO
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.webio.html" class="tsd-kind-icon">
+				WebIO
+			</a>
+		</li>
+	</ul>
+	<h4>Properties</h4>
+	<ul>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.property.html" class="tsd-kind-icon">
+				Property <em>(Abstract)</em>
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.extension.html" class="tsd-kind-icon">
+				Extension <em>(Abstract)</em>
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.extensionproperty.html" class="tsd-kind-icon">
+				ExtensionProperty <em>(Abstract)</em>
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.accessor.html" class="tsd-kind-icon">
+				Accessor
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.animation.html" class="tsd-kind-icon">
+				Animation
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.animationchannel.html" class="tsd-kind-icon">
+				AnimationChannel
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.animationsampler.html" class="tsd-kind-icon">
+				AnimationSampler
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.buffer.html" class="tsd-kind-icon">
+				Buffer
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.camera.html" class="tsd-kind-icon">
+				Camera
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.material.html" class="tsd-kind-icon">
+				Material
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.mesh.html" class="tsd-kind-icon">
+				Mesh
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.node.html" class="tsd-kind-icon">
+				Node
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.primitive.html" class="tsd-kind-icon">
+				Primitive
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.primitivetarget.html" class="tsd-kind-icon">
+				PrimitiveTarget
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.root.html" class="tsd-kind-icon">
+				Root
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.scene.html" class="tsd-kind-icon">
+				Scene
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.skin.html" class="tsd-kind-icon">
+				Skin
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.texture.html" class="tsd-kind-icon">
+				Texture
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.textureinfo.html" class="tsd-kind-icon">
+				TextureInfo
+			</a>
+		</li>
+	</ul>
+	<h4>Extensions (Khronos)</h4>
+	<ul>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.dracomeshcompression.html" class="tsd-kind-icon">
+				DracoMeshCompression
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.lightspunctual.html" class="tsd-kind-icon">
+				LightsPunctual
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialsclearcoat.html" class="tsd-kind-icon">
+				MaterialsClearcoat
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialsemissivestrength.html" class="tsd-kind-icon">
+				MaterialsEmissiveStrength
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialsior.html" class="tsd-kind-icon">
+				MaterialsIOR
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialsiridescence.html" class="tsd-kind-icon">
+				MaterialsIridescence
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialspbrspecularglossiness.html" class="tsd-kind-icon">
+				MaterialsPBRSpecularGlossiness
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialssheen.html" class="tsd-kind-icon">
+				MaterialsSheen
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialsspecular.html" class="tsd-kind-icon">
+				MaterialsSpecular
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialstransmission.html" class="tsd-kind-icon">
+				MaterialsTransmission
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialsunlit.html" class="tsd-kind-icon">
+				MaterialsUnlit
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialsvariants.html" class="tsd-kind-icon">
+				MaterialsVariants
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.materialsvolume.html" class="tsd-kind-icon">
+				MaterialsVolume
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.meshquantization.html" class="tsd-kind-icon">
+				MeshQuantization
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.texturebasisu.html" class="tsd-kind-icon">
+				TextureBasisu
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.texturetransform.html" class="tsd-kind-icon">
+				TextureTransform
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.xmp.html" class="tsd-kind-icon">
+				XMP
+			</a>
+		</li>
+	</ul>
+	<h4>Extensions (Vendor)</h4>
+	<ul>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.texturewebp.html" class="tsd-kind-icon">
+				TextureWebP
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.meshgpuinstancing.html" class="tsd-kind-icon">
+				MeshGPUInstancing
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/extensions.meshoptcompression.html" class="tsd-kind-icon">
+				MeshoptCompression
+			</a>
+		</li>
+	</ul>
+	<h4>Utilities</h4>
+	<ul>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.bufferutils.html" class="tsd-kind-icon">
+				Buffer<wbr>Utils
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.colorutils.html" class="tsd-kind-icon">
+				Color<wbr>Utils
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.fileutils.html" class="tsd-kind-icon">
+				File<wbr>Utils
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.imageutils.html" class="tsd-kind-icon">
+				Image<wbr>Utils
+			</a>
+		</li>
+		<li class="tsd-kind-class">
+			<a href="/classes/core.logger.html" class="tsd-kind-icon">
+				Logger
+			</a>
+		</li>
+	</ul>
+</nav>
+<div class="container container-main">
+	<div class="content-wrap">
+		<section class="tsd-panel tsd-comment">
+			<div class="tsd-comment tsd-typography">
+				<div class="lead">
+					<p>Contains geometric representations of the models and objects within a <a href="viewer_src.viewer.html">Viewer</a>.</p>
+				</div>
+				<a href="#summary" id="summary" style="color: inherit; text-decoration: none;">
+					<h2>Summary</h2>
+				</a>
+				<ul>
+					<li>Located at <a href="viewer_src.viewer.html#scene">Viewer.scene</a></li>
+					<li>Stores <a href="../interfaces/viewer_src.scenemodel.html">SceneModels</a> in <a href="viewer_src.scene.html#models">Scene.models</a></li>
+					<li>Stores <a href="../interfaces/viewer_src.sceneobject.html">SceneObjects</a> in <a href="viewer_src.scene.html#objects">Scene.objects</a></li>
+					<li>Provides the center and axis-aligned World-space boundary of all <a href="../interfaces/viewer_src.sceneobject.html">SceneObjects</a> in <a href="viewer_src.scene.html#center">Scene.center</a> and <a href="viewer_src.scene.html#aabb">Scene.aabb</a>, respectively</li>
+					<li>Use <a href="viewer_src.scene.html#createmodel">Scene.createModel</a> to create <a href="../interfaces/viewer_src.scenemodel.html">SceneModels</a></li>
+					<li>Use <a href="../interfaces/viewer_src.scenemodel.html#createobject">SceneModel.createObject</a> to create <a href="../interfaces/viewer_src.sceneobject.html">SceneObjects</a></li>
+					<li><a href="viewer_src.view.html">Views</a> automatically contain <a href="viewer_src.viewobject.html">ViewObjects</a> to represent all existing <a href="../interfaces/viewer_src.sceneobject.html">SceneObjects</a></li>
+				</ul>
+				<a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
+					<h2>Overview</h2>
+				</a>
+			</div>
+		</section>
+		<section class="tsd-panel tsd-hierarchy">
+			<h3>Hierarchy</h3>
+			<ul class="tsd-hierarchy">
+				<li>
+					<a href="viewer_src.component.html" class="tsd-signature-type">Component</a>
+					<ul class="tsd-hierarchy">
+						<li>
+							<span class="target">Scene</span>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</section>
+		<section class="tsd-panel-group tsd-member-group ">
+			<h2>Constructors</h2>
+			<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+				<a name="constructor" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+					<li class="tsd-signature tsd-kind-icon">new <wbr>Scene<span class="tsd-signature-symbol">(</span>viewer<span class="tsd-signature-symbol">: </span><a href="viewer_src.viewer.html" class="tsd-signature-type">Viewer</a>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="viewer_src.scene.html" class="tsd-signature-type">Scene</a></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<p>Overrides <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#constructor">constructor</a></p>
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L53">viewer/src/viewer/scene/Scene.ts:53</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+		</section>
+		<section class="tsd-panel-group tsd-member-group ">
+			<h2>Properties</h2>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<a name="destroyed" class="tsd-anchor"></a>
+				<div class="tsd-signature tsd-kind-icon">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>True once this Component has been destroyed.</p>
+					</div>
+					<p>Don&#39;t use this Component if this is <code>true</code>.</p>
+				</div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/Component.ts#L32">viewer/src/viewer/Component.ts:32</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<a name="events" class="tsd-anchor"></a>
+				<div class="tsd-signature tsd-kind-icon">events<span class="tsd-signature-symbol">:</span> <a href="viewer_src.events.html" class="tsd-signature-type">Events</a></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Manages events on this component.</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>eventproperty</dt>
+						<dd></dd>
+					</dl>
+				</div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/Component.ts#L38">viewer/src/viewer/Component.ts:38</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<a name="id" class="tsd-anchor"></a>
+				<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>ID of this Component, unique within the <a href="viewer_src.viewer.html">Viewer</a>.</p>
+					</div>
+				</div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/Component.ts#L25">viewer/src/viewer/Component.ts:25</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<a name="models" class="tsd-anchor"></a>
+				<div class="tsd-signature tsd-kind-icon">models<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The <a href="../interfaces/viewer_src.scenemodel.html">SceneModels</a> in this Scene.</p>
+					</div>
+				</div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L43">viewer/src/viewer/scene/Scene.ts:43</a></li>
+					</ul>
+				</aside>
+				<div class="tsd-type-declaration">
+					<h4>Type declaration</h4>
+					<ul class="tsd-parameters">
+						<li class="tsd-parameter-index-signature">
+							<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="../interfaces/viewer_src.scenemodel.html" class="tsd-signature-type">SceneModel</a></h5>
+						</li>
+					</ul>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<a name="objects" class="tsd-anchor"></a>
+				<div class="tsd-signature tsd-kind-icon">objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The <a href="../interfaces/viewer_src.sceneobject.html">SceneObjects</a> in this Scene.</p>
+					</div>
+				</div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L48">viewer/src/viewer/scene/Scene.ts:48</a></li>
+					</ul>
+				</aside>
+				<div class="tsd-type-declaration">
+					<h4>Type declaration</h4>
+					<ul class="tsd-parameters">
+						<li class="tsd-parameter-index-signature">
+							<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="../interfaces/viewer_src.sceneobject.html" class="tsd-signature-type">SceneObject</a></h5>
+						</li>
+					</ul>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<a name="tiles" class="tsd-anchor"></a>
+				<div class="tsd-signature tsd-kind-icon">tiles<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Tiles</span></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The {@link Tiles} in this Scene.</p>
+					</div>
+				</div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L38">viewer/src/viewer/scene/Scene.ts:38</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+				<a name="viewer" class="tsd-anchor"></a>
+				<div class="tsd-signature tsd-kind-icon">viewer<span class="tsd-signature-symbol">:</span> <a href="viewer_src.viewer.html" class="tsd-signature-type">Viewer</a></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The <a href="viewer_src.viewer.html">Viewer</a> this Scene belongs to.</p>
+					</div>
+				</div>
+				<aside class="tsd-sources">
+					<p>Overrides <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#viewer">viewer</a></p>
+					<ul>
+						<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L33">viewer/src/viewer/scene/Scene.ts:33</a></li>
+					</ul>
+				</aside>
+			</section>
+		</section>
+		<section class="tsd-panel-group tsd-member-group ">
+			<h2>Accessors</h2>
+			<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+				<a name="aabb" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> aabb<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float64Array</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Gets the World-space axis-aligned 3D boundary (AABB) of this Scene.</p>
+							</div>
+							<p>The AABB encompases the boundaries of all <a href="../interfaces/viewer_src.scenemodel.html">SceneModel</a> s currently in <a href="viewer_src.scene.html#models">Scene.models</a>, and  is
+							represented by a six-element Float64Array containing the min/max extents of the axis-aligned volume, ie. <code>[xmin, ymin,zmin,xmax,ymax, zmax]</code>.</p>
+							<p>When the Scene has no content, the boundary will be an inverted shape, ie. <code>[-100,-100,-100,100,100,100]</code>.</p>
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L93">viewer/src/viewer/scene/Scene.ts:93</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+				<a name="center" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> center<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float64Array</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Gets the World-space 3D center of this Scene.</p>
+							</div>
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L75">viewer/src/viewer/scene/Scene.ts:75</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+		</section>
+		<section class="tsd-panel-group tsd-member-group ">
+			<h2>Methods</h2>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="clear" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">clear<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Destroys all <a href="../interfaces/viewer_src.scenemodel.html">SceneModels</a> in this Scene.</p>
+							</div>
+							<p>This invalidates all SceneModels created previously with <a href="viewer_src.scene.html#createmodel">Scene.createModel</a>.</p>
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L207">viewer/src/viewer/scene/Scene.ts:207</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="createmodel" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">create<wbr>Model<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><a href="../interfaces/viewer_src.scenemodelparams.html" class="tsd-signature-type">SceneModelParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/viewer_src.scenemodel.html" class="tsd-signature-type">SceneModel</a></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Creates a new <a href="../interfaces/viewer_src.scenemodel.html">SceneModel</a> within this Scene.</p>
+							</div>
+							<p>The SceneModel represents a new model within the Scene and provides an interface through which
+							we can then build geometry and materials within it.</p>
+							<p>When we&#39;ve finished building our SceneModel, we then call <a href="../interfaces/viewer_src.scenemodel.html#finalize">SceneModel.finalize</a>, which causes it to
+							immediately begin rendering within all the <a href="viewer_src.view.html">Views</a> we created previously with <a href="viewer_src.viewer.html#createview">Viewer.createView</a>.</p>
+							<p>As that happens, each <a href="viewer_src.view.html">View</a> automatically gets a <a href="viewer_src.viewobject.html">ViewObject</a> for each of the SceneModel&#39;s <a href="../interfaces/viewer_src.sceneobject.html">SceneObjects</a>, to
+							independently represent that SceneObject&#39;s visual state in that View.</p>
+							<p>When we&#39;ve finished with the SceneModel, we destroy it using <a href="../interfaces/viewer_src.scenemodel.html#destroy">SceneModel.destroy</a>. That will automatically remove its
+							ViewObjects from all our existing Views.</p>
+							<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+								<h3>Usage</h3>
+							</a>
+							<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mySceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">   </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000">});</span>
+</code></pre>
+							<dl class="tsd-comment-tags">
+								<dt>seealso</dt>
+								<dd><p><a href="viewer_src.data.html#createmodel">Data.createModel</a></p>
+								</dd>
+							</dl>
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L177">viewer/src/viewer/scene/Scene.ts:177</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-private">
+				<a name="destroy" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-private">
+					<li class="tsd-signature tsd-kind-icon">destroy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<p>Overrides <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#destroy">destroy</a></p>
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/scene/Scene.ts#L244">viewer/src/viewer/scene/Scene.ts:244</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<a name="error" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<li class="tsd-signature tsd-kind-icon">error<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Logs an error for this component to the JavaScript console.</p>
+							</div>
+							<p>The console message will have this format: <em><code>[ERROR] [&lt;component type&gt; =&lt;component id&gt;: &lt;message&gt;</code></em></p>
+							<p>Also fires the message as an &quot;error&quot; event on the <a href="viewer_src.viewer.html">Viewer</a>.</p>
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/Component.ts#L119">viewer/src/viewer/Component.ts:119</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<a name="log" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<li class="tsd-signature tsd-kind-icon">log<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Logs a console debugging message for this component.</p>
+							</div>
+							<p>The console message will have this format: <em><code>[LOG] [&lt;component type&gt; &lt;component id&gt;: &lt;message&gt;</code></em></p>
+							<p>Also fires the message as a &quot;log&quot; event on the parent <a href="viewer_src.viewer.html">Viewer</a>.</p>
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/Component.ts#L87">viewer/src/viewer/Component.ts:87</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<a name="warn" class="tsd-anchor"></a>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<li class="tsd-signature tsd-kind-icon">warn<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Logs a warning for this component to the JavaScript console.</p>
+							</div>
+							<p>The console message will have this format: <em><code>[WARN] [&lt;component type&gt; =&lt;component id&gt;: &lt;message&gt;</code></em></p>
+							<p>Also fires the message as a &quot;warn&quot; event on the parent <a href="viewer_src.viewer.html">Viewer</a>.</p>
+						</div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/873e4b9/packages/viewer/src/viewer/Component.ts#L103">viewer/src/viewer/Component.ts:103</a></li>
+							</ul>
+						</aside>
+					</li>
+				</ul>
+			</section>
+		</section>
+		<div class="container tsd-generator">
+			<img src="/media/kicker.jpg" alt="Function symbol, f(📦) → 📦, where the argument and output are a box labeled 'glTF'.">
+			<p>
+				<span class="line">Made by <a href="https://twitter.com/donrmccurdy" target="_blank" rel="noopener">Don McCurdy</a></span>
+				<span class="divider">•</span>
+				<span class="line"><a href="https://typedoc.org/" target="_blank">TypeDoc</a> documentation</span>
+				<span class="divider">•</span>
+				<span class="line">Copyright 2021 under <a href="https://github.com/donmccurdy/glTF-Transform/blob/master/LICENSE" target="_blank">MIT license</a></span>
+			</p>
+		</div>
+	</div>
+</div>
+</body>
+</html>

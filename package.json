@@ -1,66 +1,47 @@
 {
-  "name": "@xeokit/xeokit-viewer",
-  "version": "0.0.1",
-  "description": "Web Programming Toolkit for 3D/2D BIM and AEC Graphics",
-  "main": "dist/xeokit-viewer.js",
-  "module": "dist/xeokit-viewer.mjs",
-  "typings": "dist/xeokit-viewer.d.ts",
-  "scripts": {
-    "build": "rollup --config rollup.config.js",
-    "docs": "rm -Rf ./docs/*; typedoc --tsconfig tsconfig.json",
-    "publish": "npm publish --access public"
-  },
+  "private": true,
+  "name": "xeokit-sdk",
+  "author": "Lindsay Kay <xeolabs.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeokit/xeokit-viewer.git"
+    "url": "git+https://github.com/xeokit/xeokit-sdk.git"
   },
-  "keywords": [
-    "webgpu",
-    "javascript",
-    "xeokit",
-    "xeolabs",
-    "ifc",
-    "bcf",
-    "bim",
-    "gis",
-    "cad",
-    "buildingsmart",
-    "openbim",
-    "opensource",
-    "solidworks",
-    "gltf",
-    "3dxml",
-    "obj",
-    "stl",
-    "laz",
-    "las",
-    "pointcloud",
-    "3d-viewer"
+  "license": "AGPL3",
+  "workspaces": [
+    "packages/*"
   ],
-  "author": "Lindsay Kay",
-  "license": "See LICENSE.txt",
-  "bugs": {
-    "url": "https://github.com/xeokit/xeokit-viewer/issues"
+  "scripts": {
+    "dist": "lerna run dist",
+    "watch": "lerna run watch --parallel --stream",
+    "watch:debug": "lerna run watch:debug --parallel --stream",
+    "clean:dist": "rm -rf packages/*/dist/**",
+    "clean:deps": "rm -rf packages/*/node_modules/**",
+    "docs": "typedoc packages/viewer/src/index.ts packages/viewer-navcube/src/index.ts packages/viewer-treeview/src/index.ts packages/viewer-xktloader/src/index.ts --out docs/ --name xeokit-sdk  --disableOutputCheck --excludeInternal --excludeNotDocumented  --theme docs/theme --media docs/media --readme docs/INDEX.md --includes docs",
+    "publish": "npm publish --access public"
   },
-  "homepage": "https://xeokit.io",
   "devDependencies": {
-    "@percy/script": "^1.1.0",
-    "esdoc": "^1.1.0",
-    "esdoc-custom-theme": "^1.4.2",
-    "esdoc-publish-html-plugin": "^1.1.2",
-    "esdoc-standard-plugin": "^1.0.0",
-    "eslint": "^5.16.0",
-    "http-server": "^0.12.3",
-    "rollup": "^2.46.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "typedoc": "^0.22.10"
-  },
-  "files": [
-    "/dist"
-  ],
-  "dependencies": {
-    "rollup-plugin-dts": "^4.2.3",
-    "rollup-plugin-esbuild": "^4.10.1"
+    "@types/command-exists": "1.2.0",
+    "@types/ndarray": "1.0.11",
+    "@types/node": "18.11.10",
+    "@types/node-gzip": "1.1.0",
+    "@types/tape": "4.13.2",
+    "@typescript-eslint/eslint-plugin": "5.45.0",
+    "@typescript-eslint/parser": "5.45.0",
+    "canvas": "2.10.2",
+    "concurrently": "7.6.0",
+    "eslint": "8.29.0",
+    "eslint-config-prettier": "8.5.0",
+    "lerna": "6.1.0",
+    "microbundle": "0.14.2",
+    "mikktspace": "1.1.1",
+    "nyc": "15.1.0",
+    "prettier": "2.8.0",
+    "source-map-support": "0.5.21",
+    "tap-spec": "5.0.0",
+    "tape": "5.6.1",
+    "ts-node": "10.9.1",
+    "typedoc": "0.21.2",
+    "typescript": "4.9.3",
+    "http-server": "^14.1.1"
   }
 }

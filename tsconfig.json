@@ -1,22 +1,27 @@
 {
   "compilerOptions": {
-    "module": "ES2020",
-    "declaration": true,
-    "noImplicitAny": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
+    "baseUrl": "./packages",
+    "paths": {
+      "@xeokit-viewer/*": ["*/src"]
+    },
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "lib": ["es6", "dom"],
     "target": "es6",
-    "lib": [
-      "ES2020",
-      "es2016",
-      "dom",
-      "es5",
-      "es6"
-    ]
+    "declaration": true,
+    "stripInternal": true,
+    "typeRoots": ["node_modules/@types"],
+
+    // Components of "strict" mode.
+    "alwaysStrict": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": true
   },
-  "files": [
-    "./src/index.ts"
+  "include": [
+    "packages/*/src/**/*.ts",
+    // Included to allow TypeDoc to find `pages.ts` content.
+    "docs/*.ts"
   ]
 }
-
-

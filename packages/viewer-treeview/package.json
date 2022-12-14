@@ -1,8 +1,8 @@
 {
   "name": "@xeokit/viewer-treeview",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha-1",
   "description": "",
-  "module": "dist/viewer-treeview.es.js",
+  "module": "dist/xeokit-viewer-treeview.modern.js",
   "source": "src/index.ts",
   "scripts": {
     "dist": "microbundle --format modern,cjs --define PACKAGE_VERSION=$npm_package_version",
@@ -11,16 +11,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeokit/xeokit-viewer-treeview.git"
+    "url": "git+https://github.com/xeokit/xeokit-viewer.git"
   },
   "author": "Lindsay Kay",
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/xeokit/xeokit-viewer-treeview/issues"
+    "url": "https://github.com/xeokit/xeokit-viewer/issues"
   },
   "homepage": "https://xeokit.io",
   "dependencies": {
-    "@xeokit/viewer": "0.0.1"
+    "@xeokit/viewer": "0.0.1-alpha-1"
   },
   "files": [
     "dist/",
@@ -51,5 +51,5 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-viewer-treeview.es.js"
+  "main": "dist/xeokit-viewer-treeview.modern.js"
 }

@@ -1,11 +1,10 @@
-// @ts-ignore
-import { Plugin } from '../../../dist/xeokit-viewer.es.js';
+import {Plugin, Viewer} from '../../viewer/dist/';
 
 /**
  * TODO
  */
 export class NavCubePlugin extends Plugin {
-    constructor() {
-super();
+    constructor(id: string, viewer: Viewer, cfg?: {}) {
+        super(id, viewer, cfg);
     }
 }

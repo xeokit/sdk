@@ -14,6 +14,7 @@ html {
     -webkit-text-size-adjust: 100%;
     /* 2 */
     font-family: sans-serif;
+    
 }
 
 /**
@@ -27,6 +28,13 @@ button, input, select, textarea {
 * * Address margins handled incorrectly in IE 6/7. */
 body {
     margin: 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    line-height: 1.50;
+    word-spacing: normal;
+    text-align: left;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* ==========================================================================
@@ -126,7 +134,7 @@ p, pre {
 /**
 * * Correct font family set oddly in IE 6, Safari 4/5, and Chrome. */
 code, kbd, pre, samp {
-    font-family: monospace, serif;
+    font-family: monospace, sans-serif;
     _font-family: "courier new", monospace;
     font-size: 1em;
 }
@@ -1745,7 +1753,9 @@ img {
  * * ========================================================================== */
 
 body {
-    font-family: Iowan Old Style,Apple Garamond,Palatino Linotype,Times New Roman,"Droid Serif",Times,serif;
+    font-family: 'Roboto', sans-serif,"Droid sans-serif",Times,sans-serif;
+
+
 }
 
 .header-badge img {

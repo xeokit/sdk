@@ -8,11 +8,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="referrer" content="no-referrer-when-downgrade" />
 
-	<meta property="og:site_name" content="glTF-Transform" />
+	<meta property="og:site_name" content="xeokit-sdk" />
 	<meta property="og:title" content="{{#ifCond model.name '===' project.name}}{{else}}{{model.name}} | {{/ifCond}}{{project.name}}" />
 	<meta property="og:description" content="{{#ifCond model.name '===' project.name}}glTF 2.0 SDK for JavaScript, TypeScript, and Node.js.{{else}}Documentation for {{model.name}} in {{project.name}}, a glTF 2.0 SDK for JavaScript, TypeScript, and Node.js.{{/ifCond}}" />
-	<meta property="og:url" content="https://gltf-transform.donmccurdy.com/{{url}}" />
-	<meta name="og:image" content="https://gltf-transform.donmccurdy.com/media/hero.jpg" />
+	<meta property="og:url" content="https://gltf-transform.xeolabs.com/{{url}}" />
+	<meta name="og:image" content="https://gltf-transform.xeolabs.com/media/hero.jpg" />
 	<meta name="og:image:alt" content="Function symbol, f(📦) → 📦, where the argument and output are a box labeled 'glTF'." />
 	<meta name="og:image:width" content="2000" />
 	<meta name="og:image:height" content="1000" />
@@ -20,12 +20,12 @@
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="{{#ifCond model.name '===' project.name}}{{else}}{{model.name}} | {{/ifCond}}{{project.name}}" />
 	<meta name="twitter:description" content="{{#ifCond model.name '===' project.name}}glTF 2.0 SDK for JavaScript, TypeScript, and Node.js.{{else}}Documentation for {{model.name}} in {{project.name}}, a glTF 2.0 SDK for JavaScript, TypeScript, and Node.js.{{/ifCond}}" />
-	<meta name="twitter:url" content="https://gltf-transform.donmccurdy.com/{{url}}" />
-	<meta name="twitter:image" content="https://gltf-transform.donmccurdy.com/media/hero.jpg" />
+	<meta name="twitter:url" content="https://gltf-transform.xeolabs.com/{{url}}" />
+	<meta name="twitter:image" content="https://gltf-transform.xeolabs.com/media/hero.jpg" />
 	<meta name="twitter:image:alt" content="Function symbol, f(📦) → 📦, where the argument and output are a box labeled 'glTF'." />
 	<meta name="twitter:label1" content="Written by" />
-	<meta name="twitter:data1" content="Don McCurdy" />
-	<meta name="twitter:creator" content="@donrmccurdy" />
+	<meta name="twitter:data1" content="xeolabs" />
+	<meta name="twitter:creator" content="@xeolabs" />
 
 	<link rel="stylesheet" href="/assets/css/main.css"></link>
 </head>
@@ -42,61 +42,150 @@
 			</a>
 		</li>
 		<li class="tsd-kind-namespace">
-			<a href="/concepts.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.concepts.html'}} active{{/ifCond}}">
+			<a href="/modules/pages.concepts.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.concepts.html'}} active{{/ifCond}}">
 				Concepts
 			</a>
 		</li>
 		<li class="tsd-kind-namespace">
-			<a href="/extensions.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.extensions.html'}} active{{/ifCond}}">
-				Extensions
+			<a href="/modules/pages.viewer.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.viewer.html'}} active{{/ifCond}}">
+				Viewer
 			</a>
 		</li>
 		<li class="tsd-kind-namespace">
-			<a href="/functions.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/functions.html'}} active{{/ifCond}}">
-				Functions
+			<a href="/modules/pages.plugins.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.plugins.html'}} active{{/ifCond}}">
+				Plugins
 			</a>
 		</li>
 		<li class="tsd-kind-namespace">
-			<a href="/cli.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.cli.html'}} active{{/ifCond}}">
-				CLI
+			<a href="/modules/pages.converter.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.converter.html'}} active{{/ifCond}}">
+				Converter
 			</a>
 		</li>
+        <li class="tsd-kind-namespace">
+            <a href="/modules/pages.bimviewer.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.bimviewer.html'}} active{{/ifCond}}">
+                BIMViewer
+            </a>
+        </li>
 		<li class="tsd-kind-namespace">
-			<a href="/contributing.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.contributing.html'}} active{{/ifCond}}">
+			<a href="/modules/pages.contributing.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.contributing.html'}} active{{/ifCond}}">
 				Contributing
 			</a>
 		</li>
 		<li class="tsd-kind-namespace">
-			<a href="/credits.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.credits.html'}} active{{/ifCond}}">
+			<a href="/modules/pages.credits.html" class="tsd-kind-icon{{#ifCond url '===' 'modules/pages.credits.html'}} active{{/ifCond}}">
 				Credits
 			</a>
 		</li>
 		<li class="tsd-kind-namespace">
-			<a href="https://github.com/donmccurdy/glTF-Transform" target="_blank" class="tsd-kind-icon">GitHub</a>
+			<a href="https://github.com/xeokit" target="_blank" class="tsd-kind-icon">GitHub</a>
 		</li>
 		<li class="tsd-kind-namespace">
-			<a href="https://www.npmjs.com/search?q=%40gltf-transform" target="_blank" class="tsd-kind-icon">NPM</a>
+			<a href="https://www.npmjs.com/search?q=%40xeokit" target="_blank" class="tsd-kind-icon">NPM</a>
 		</li>
-		<li class="tsd-kind-namespace">
-			<a href="https://github.com/donmccurdy/glTF-Transform/discussions" target="_blank" class="tsd-kind-icon">Discussions</a>
-		</li>
-		<li class="tsd-kind-namespace">
-			<a href="https://github.com/donmccurdy/glTF-Transform/blob/main/CHANGELOG.md" target="_blank" class="tsd-kind-icon">Changelog</a>
-		</li>
+<!--		<li class="tsd-kind-namespace">-->
+<!--			<a href="https://github.com/xeolabs/xeokit-sdk/blob/main/CHANGELOG.md" target="_blank" class="tsd-kind-icon">Changelog</a>-->
+<!--		</li>-->
 	</ul>
 
-	<h4>Documents</h4>
+    <h2>Viewer</h2>
+
+    <h4>Viewer</h4>
+    <ul>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.viewer.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.viewer.html'}} active{{/ifCond}}">
+                Viewer
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.localeservice.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.localeservice.html'}} active{{/ifCond}}">
+                LocaleService
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.webglrenderer.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.webglrenderer.html'}} active{{/ifCond}}">
+                WebGLRenderer
+            </a>
+        </li>
+    </ul>
+
+    <h4>Representation</h4>
+    <p>Model representation in a viewer</p>
+    <ul>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.scene.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.scene.html'}} active{{/ifCond}}">
+                Scene
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/interfaces/packages_viewer_src.scenemodel.html" class="tsd-kind-icon{{#ifCond url '===' 'interfaces/packages_viewer_src.scenemodel.html'}} active{{/ifCond}}">
+                SceneModel
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.sceneobject.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.sceneobject.html'}} active{{/ifCond}}">
+                SceneObject
+            </a>
+        </li>
+    </ul>
+
+    <h4>Semantics </h4>
+    <p>Model semantic data in a viewer</p>
+    <ul>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.data.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.data.html'}} active{{/ifCond}}">
+                Data
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.datamodel.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.datamodel.html'}} active{{/ifCond}}">
+                DataModel
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.dataobject.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.dataobject.html'}} active{{/ifCond}}">
+                DataObject
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.propertyset.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.propertyset.html'}} active{{/ifCond}}">
+                PropertySet
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.property.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.property.html'}} active{{/ifCond}}">
+                Property
+            </a>
+        </li>
+    </ul>
+
+	<h4>Views</h4>
+    <p><i>Creating multi-canvas views of models</i></p>
 	<ul>
 		<li class="tsd-kind-class">
-			<a href="/classes/core.document.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/core.document.html'}} active{{/ifCond}}">
-				Document
+			<a href="/classes/packages_viewer_src.view.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.view.html'}} active{{/ifCond}}">
+				View
 			</a>
 		</li>
-		<li class="tsd-kind-class">
-			<a href="/interfaces/core.jsondocument.html" class="tsd-kind-icon{{#ifCond url '===' 'interfaces/core.jsondocument.html'}} active{{/ifCond}}">
-				JSON<wbr>Document
-			</a>
-		</li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.viewlayer.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.viewlayer.html'}} active{{/ifCond}}">
+                ViewLayer
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.viewObject.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.viewobject.html'}} active{{/ifCond}}">
+                ViewObject
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.camera.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.camera.html'}} active{{/ifCond}}">
+                Camera
+            </a>
+        </li>
+        <li class="tsd-kind-class">
+            <a href="/classes/packages_viewer_src.sectionplane.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/packages_viewer_src.sectionplane.html'}} active{{/ifCond}}">
+                SectionPlane
+            </a>
+        </li>
 	</ul>
 
 	<h4>I/O</h4>
@@ -222,109 +311,109 @@
 		</li>
 	</ul>
 
-	<h4>Extensions (Khronos)</h4>
+	<h4>Viewer (Khronos)</h4>
 	<ul>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.dracomeshcompression.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.dracomeshcompression.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.dracomeshcompression.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.dracomeshcompression.html'}} active{{/ifCond}}">
 				DracoMeshCompression
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.lightspunctual.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.lightspunctual.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.lightspunctual.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.lightspunctual.html'}} active{{/ifCond}}">
 				LightsPunctual
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialsclearcoat.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialsclearcoat.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialsclearcoat.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialsclearcoat.html'}} active{{/ifCond}}">
 				MaterialsClearcoat
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialsemissivestrength.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialsemissivestrength.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialsemissivestrength.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialsemissivestrength.html'}} active{{/ifCond}}">
 				MaterialsEmissiveStrength
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialsior.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialsior.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialsior.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialsior.html'}} active{{/ifCond}}">
 				MaterialsIOR
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialsiridescence.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialsiridescence.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialsiridescence.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialsiridescence.html'}} active{{/ifCond}}">
 				MaterialsIridescence
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialspbrspecularglossiness.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialspbrspecularglossiness.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialspbrspecularglossiness.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialspbrspecularglossiness.html'}} active{{/ifCond}}">
 				MaterialsPBRSpecularGlossiness
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialssheen.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialssheen.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialssheen.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialssheen.html'}} active{{/ifCond}}">
 				MaterialsSheen
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialsspecular.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialsspecular.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialsspecular.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialsspecular.html'}} active{{/ifCond}}">
 				MaterialsSpecular
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialstransmission.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialstransmission.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialstransmission.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialstransmission.html'}} active{{/ifCond}}">
 				MaterialsTransmission
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialsunlit.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialsunlit.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialsunlit.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialsunlit.html'}} active{{/ifCond}}">
 				MaterialsUnlit
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialsvariants.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialsvariants.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialsvariants.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialsvariants.html'}} active{{/ifCond}}">
 				MaterialsVariants
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.materialsvolume.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.materialsvolume.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.materialsvolume.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.materialsvolume.html'}} active{{/ifCond}}">
 				MaterialsVolume
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.meshquantization.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.meshquantization.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.meshquantization.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.meshquantization.html'}} active{{/ifCond}}">
 				MeshQuantization
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.texturebasisu.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.texturebasisu.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.texturebasisu.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.texturebasisu.html'}} active{{/ifCond}}">
 				TextureBasisu
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.texturetransform.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.texturetransform.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.texturetransform.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.texturetransform.html'}} active{{/ifCond}}">
 				TextureTransform
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.xmp.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.xmp.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.xmp.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.xmp.html'}} active{{/ifCond}}">
 				XMP
 			</a>
 		</li>
 	</ul>
 
-	<h4>Extensions (Vendor)</h4>
+	<h4>Viewer (Vendor)</h4>
 	<ul>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.texturewebp.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.texturewebp.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.texturewebp.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.texturewebp.html'}} active{{/ifCond}}">
 				TextureWebP
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.meshgpuinstancing.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.meshgpuinstancing.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.meshgpuinstancing.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.meshgpuinstancing.html'}} active{{/ifCond}}">
 				MeshGPUInstancing
 			</a>
 		</li>
 		<li class="tsd-kind-class">
-			<a href="/classes/extensions.meshoptcompression.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/extensions.meshoptcompression.html'}} active{{/ifCond}}">
+			<a href="/classes/viewer.meshoptcompression.html" class="tsd-kind-icon{{#ifCond url '===' 'classes/viewer.meshoptcompression.html'}} active{{/ifCond}}">
 				MeshoptCompression
 			</a>
 		</li>

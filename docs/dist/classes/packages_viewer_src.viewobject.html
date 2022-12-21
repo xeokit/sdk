@@ -1,0 +1,1008 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ViewObject | xeokit-sdk</title>
+	<meta name="description" content="Documentation for xeokit-sdk">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">xeokit-sdk</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">xeokit-sdk</a>
+				</li>
+				<li>
+					<a href="../modules/packages_viewer_src.html">packages/viewer/src</a>
+				</li>
+				<li>
+					<a href="packages_viewer_src.viewobject.html">ViewObject</a>
+				</li>
+			</ul>
+			<h1>Class ViewObject</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Represents the visual state of a <a href="../interfaces/packages_viewer_src.sceneobject.html">SceneObject</a> in a <a href="packages_viewer_src.view.html">View</a>.</p>
+					</div>
+					<a href="#summary" id="summary" style="color: inherit; text-decoration: none;">
+						<h2>Summary</h2>
+					</a>
+					<ul>
+						<li>Contained in <a href="packages_viewer_src.view.html#objects">View.objects</a> and <a href="packages_viewer_src.viewlayer.html#objects">ViewLayer.objects</a></li>
+						<li>Created automatically for each existing <a href="../interfaces/packages_viewer_src.sceneobject.html">SceneObject</a></li>
+						<li>Registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in <a href="packages_viewer_src.view.html#objects">View.objects</a></li>
+						<li>Use <a href="packages_viewer_src.viewlayer.html">ViewLayers</a> to organize ViewObjects</li>
+					</ul>
+					<a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
+						<h2>Overview</h2>
+					</a>
+					<p>Every View automatically maintains within itself a ViewObject for each <a href="../interfaces/packages_viewer_src.sceneobject.html">SceneObject</a> that exists in the <a href="packages_viewer_src.viewer.html">Viewer&#39;s</a> <a href="packages_viewer_src.scene.html">Scene</a>.</p>
+					<p>Whenever we create a SceneObject, each View will automatically create a corresponding ViewObject within itself. When
+						we destroy a SceneObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View
+					are therefore a manifest of the SceneObjects in the Scene.</p>
+					<p><a href="packages_viewer_src.viewlayer.html">ViewLayer</a>.</p>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">ViewObject</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="packages_viewer_src.viewobject.html#_state" class="tsd-kind-icon">#state</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#layer" class="tsd-kind-icon">layer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#sceneobject" class="tsd-kind-icon">scene<wbr>Object</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#clippable-1" class="tsd-kind-icon">clippable</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#collidable-1" class="tsd-kind-icon">collidable</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#colorize-1" class="tsd-kind-icon">colorize</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#culled-1" class="tsd-kind-icon">culled</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#edges-1" class="tsd-kind-icon">edges</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#highlighted-1" class="tsd-kind-icon">highlighted</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#opacity" class="tsd-kind-icon">opacity</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#pickable-1" class="tsd-kind-icon">pickable</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#selected-1" class="tsd-kind-icon">selected</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#visible-1" class="tsd-kind-icon">visible</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="packages_viewer_src.viewobject.html#xrayed-1" class="tsd-kind-icon">xrayed</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="packages_viewer_src.viewobject.html#_destroy" class="tsd-kind-icon">_destroy</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>View<wbr>Object<span class="tsd-signature-symbol">(</span>layer<span class="tsd-signature-symbol">: </span><a href="packages_viewer_src.viewlayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a>, sceneObject<span class="tsd-signature-symbol">: </span><a href="../interfaces/packages_viewer_src.sceneobject.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneObject</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span>clippable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>collidable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>colorize<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>culled<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>edges<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>highlighted<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>opacity<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>pickable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>selected<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>visible<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>xrayed<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="packages_viewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L57">packages/viewer/src/viewer/view/ViewObject.ts:57</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>layer: <a href="packages_viewer_src.viewlayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a></h5>
+								</li>
+								<li>
+									<h5>sceneObject: <a href="../interfaces/packages_viewer_src.sceneobject.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneObject</a></h5>
+								</li>
+								<li>
+									<h5>options: <span class="tsd-signature-symbol">{ </span>clippable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>collidable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>colorize<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>culled<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>edges<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>highlighted<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>opacity<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>pickable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>selected<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>visible<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>xrayed<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = {}</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> clippable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> collidable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> colorize<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> culled<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> edges<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> highlighted<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> opacity<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> pickable<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> selected<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> visible<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> xrayed<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="packages_viewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_state" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> #state</h3>
+					<div class="tsd-signature tsd-kind-icon">#state<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>clippable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>collidable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>colorize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol">; </span>colorized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>culled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>edges<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>highlighted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>opacityUpdated<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>pickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>selected<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>visible<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>xrayed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L44">packages/viewer/src/viewer/view/ViewObject.ts:44</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>clippable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>collidable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>colorize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>colorized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>culled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>edges<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>highlighted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>opacity<wbr>Updated<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>pickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>selected<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>visible<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>xrayed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="id" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L32">packages/viewer/src/viewer/view/ViewObject.ts:32</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Unique ID of this ViewObject within <a href="packages_viewer_src.viewlayer.html#objects">ViewLayer.objects</a>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="layer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> layer</h3>
+					<div class="tsd-signature tsd-kind-icon">layer<span class="tsd-signature-symbol">:</span> <a href="packages_viewer_src.viewlayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L37">packages/viewer/src/viewer/view/ViewObject.ts:37</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The ViewLayer to which this ViewObject belongs.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="sceneobject" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> scene<wbr>Object</h3>
+					<div class="tsd-signature tsd-kind-icon">scene<wbr>Object<span class="tsd-signature-symbol">:</span> <a href="../interfaces/packages_viewer_src.sceneobject.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneObject</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L42">packages/viewer/src/viewer/view/ViewObject.ts:42</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The corresponding <a href="../interfaces/packages_viewer_src.sceneobject.html">SceneObject</a>.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="clippable-1" class="tsd-anchor"></a>
+					<h3>clippable</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> clippable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> clippable<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L267">packages/viewer/src/viewer/view/ViewObject.ts:267</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject is clippable.</p>
+								</div>
+								<ul>
+									<li>Clipping is done by the <a href="packages_viewer_src.sectionplane.html">SectionPlane</a>s in {@link ViewLayer.sectionPlanes}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsclippable">ViewLayer.setObjectsClippable</a> to batch-update the clippable state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L277">packages/viewer/src/viewer/view/ViewObject.ts:277</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject is clippable.</p>
+								</div>
+								<ul>
+									<li>Clipping is done by the <a href="packages_viewer_src.sectionplane.html">SectionPlane</a>s in {@link ViewLayer.sectionPlanes}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsclippable">ViewLayer.setObjectsClippable</a> to batch-update the clippable state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>value: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="collidable-1" class="tsd-anchor"></a>
+					<h3>collidable</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> collidable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> collidable<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L292">packages/viewer/src/viewer/view/ViewObject.ts:292</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject is included in boundary calculations.</p>
+								</div>
+								<ul>
+									<li>When <code>true</code>, the 3D World boundaries returned by {@link ViewLayer.aabb} and {@link ViewLayer.getAABB} will include this ViewObject&#39;s boundary.</li>
+									<li>The ViewObject&#39;s 3D boundary is held in <a href="../interfaces/packages_viewer_src.sceneobject.html#aabb">SceneObject.aabb</a>.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectscollidable">ViewLayer.setObjectsCollidable</a> to batch-update the collidable state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L303">packages/viewer/src/viewer/view/ViewObject.ts:303</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject included in boundary calculations.</p>
+								</div>
+								<ul>
+									<li>When <code>true</code>, the 3D World boundaries returned by {@link ViewLayer.aabb} and {@link ViewLayer.getAABB} will include this ViewObject&#39;s boundary.</li>
+									<li>The ViewObject&#39;s 3D boundary is held in <a href="../interfaces/packages_viewer_src.sceneobject.html#aabb">SceneObject.aabb</a>.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectscollidable">ViewLayer.setObjectsCollidable</a> to batch-update the collidable state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>value: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="colorize-1" class="tsd-anchor"></a>
+					<h3>colorize</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> colorize<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> colorize<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><a href="../modules/packages_viewer_src.math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L345">packages/viewer/src/viewer/view/ViewObject.ts:345</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the RGB colorize color for this ViewObject.</p>
+								</div>
+								<ul>
+									<li>Multiplies by rendered fragment colors.</li>
+									<li>Each element of the color is in range <code>[0..1]</code>.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectscolorized">ViewLayer.setObjectsColorized</a> to batch-update the colorized state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Float32Array</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L357">packages/viewer/src/viewer/view/ViewObject.ts:357</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets the RGB colorize color for this ViewObject.</p>
+								</div>
+								<ul>
+									<li>Multiplies by rendered fragment colors.</li>
+									<li>Each element of the color is in range <code>[0..1]</code>.</li>
+									<li>Set to <code>null</code> or <code>undefined</code> to reset the colorize color to its default value of <code>[1,1,1]</code>.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectscolorized">ViewLayer.setObjectsColorized</a> to batch-update the colorized state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>value: <a href="../modules/packages_viewer_src.math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="culled-1" class="tsd-anchor"></a>
+					<h3>culled</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> culled<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> culled<span class="tsd-signature-symbol">(</span>culled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L243">packages/viewer/src/viewer/view/ViewObject.ts:243</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject is culled.</p>
+								</div>
+								<ul>
+									<li>The ViewObject is only rendered when <a href="packages_viewer_src.viewobject.html#visible-1">ViewObject.visible</a> is <code>true</code> and <a href="packages_viewer_src.viewobject.html#culled-1">ViewObject.culled</a> is <code>false</code>.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsculled">ViewLayer.setObjectsCulled</a> to batch-update the culled state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L253">packages/viewer/src/viewer/view/ViewObject.ts:253</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject is culled.</p>
+								</div>
+								<ul>
+									<li>The ViewObject is only rendered when <a href="packages_viewer_src.viewobject.html#visible-1">ViewObject.visible</a> is <code>true</code> and <a href="packages_viewer_src.viewobject.html#culled-1">ViewObject.culled</a> is <code>false</code>.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsculled">ViewLayer.setObjectsCulled</a> to batch-update the culled state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>culled: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="edges-1" class="tsd-anchor"></a>
+					<h3>edges</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> edges<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> edges<span class="tsd-signature-symbol">(</span>edges<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L169">packages/viewer/src/viewer/view/ViewObject.ts:169</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject shows edges.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L176">packages/viewer/src/viewer/view/ViewObject.ts:176</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject shows edges.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>edges: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="highlighted-1" class="tsd-anchor"></a>
+					<h3>highlighted</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> highlighted<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> highlighted<span class="tsd-signature-symbol">(</span>highlighted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L191">packages/viewer/src/viewer/view/ViewObject.ts:191</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject is highlighted.</p>
+								</div>
+								<ul>
+									<li>When <a href="packages_viewer_src.viewobject.html#highlighted-1">ViewObject.highlighted</a> is <code>true</code> the ViewObject will be registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in {@link ViewLayer.highlightedViewObjects}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectshighlighted">ViewLayer.setObjectsHighlighted</a> to batch-update the highlighted state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L201">packages/viewer/src/viewer/view/ViewObject.ts:201</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject is highlighted.</p>
+								</div>
+								<ul>
+									<li>When <a href="packages_viewer_src.viewobject.html#highlighted-1">ViewObject.highlighted</a> is <code>true</code> the ViewObject will be registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in {@link ViewLayer.highlightedViewObjects}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectshighlighted">ViewLayer.setObjectsHighlighted</a> to batch-update the highlighted state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>highlighted: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="opacity" class="tsd-anchor"></a>
+					<h3>opacity</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> opacity<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> opacity<span class="tsd-signature-symbol">(</span>opacity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L379">packages/viewer/src/viewer/view/ViewObject.ts:379</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the opacity factor for this ViewObject.</p>
+								</div>
+								<ul>
+									<li>This is a factor in range <code>[0..1]</code> which multiplies by the rendered fragment alphas.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsopacity">ViewLayer.setObjectsOpacity</a> to batch-update the opacities of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L390">packages/viewer/src/viewer/view/ViewObject.ts:390</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets the opacity factor for this ViewObject.</p>
+								</div>
+								<ul>
+									<li>This is a factor in range <code>[0..1]</code> which multiplies by the rendered fragment alphas.</li>
+									<li>Set to <code>null</code> or <code>undefined</code> to reset the opacity to its default value of <code>1</code>.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsopacity">ViewLayer.setObjectsOpacity</a> to batch-update the opacities of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>opacity: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="pickable-1" class="tsd-anchor"></a>
+					<h3>pickable</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> pickable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> pickable<span class="tsd-signature-symbol">(</span>pickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L319">packages/viewer/src/viewer/view/ViewObject.ts:319</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject is pickable.</p>
+								</div>
+								<ul>
+									<li>Picking is done with {@link ViewLayer.pick}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectspickable">ViewLayer.setObjectsPickable</a> to batch-update the pickable state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L329">packages/viewer/src/viewer/view/ViewObject.ts:329</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject is pickable.</p>
+								</div>
+								<ul>
+									<li>Picking is done with {@link ViewLayer.pick}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectspickable">ViewLayer.setObjectsPickable</a> to batch-update the pickable state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>pickable: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="selected-1" class="tsd-anchor"></a>
+					<h3>selected</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> selected<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> selected<span class="tsd-signature-symbol">(</span>selected<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L217">packages/viewer/src/viewer/view/ViewObject.ts:217</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject is selected.</p>
+								</div>
+								<ul>
+									<li>When <a href="packages_viewer_src.viewobject.html#selected-1">ViewObject.selected</a> is <code>true</code> the ViewObject will be registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in {@link ViewLayer.selectedViewObjects}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsselected">ViewLayer.setObjectsSelected</a> to batch-update the selected state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L227">packages/viewer/src/viewer/view/ViewObject.ts:227</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject is selected.</p>
+								</div>
+								<ul>
+									<li>When <a href="packages_viewer_src.viewobject.html#selected-1">ViewObject.selected</a> is <code>true</code> the ViewObject will be registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in {@link ViewLayer.selectedViewObjects}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsselected">ViewLayer.setObjectsSelected</a> to batch-update the selected state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>selected: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="visible-1" class="tsd-anchor"></a>
+					<h3>visible</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> visible<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> visible<span class="tsd-signature-symbol">(</span>visible<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L118">packages/viewer/src/viewer/view/ViewObject.ts:118</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject is visible.</p>
+								</div>
+								<ul>
+									<li>When <a href="packages_viewer_src.viewobject.html#visible-1">ViewObject.visible</a> is <code>true</code> the ViewObject will be registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in {@link ViewLayer.visibleViewObjects}.</li>
+									<li>Each ViewObject is only rendered when <a href="packages_viewer_src.viewobject.html#visible-1">ViewObject.visible</a> is <code>true</code> and <a href="packages_viewer_src.viewobject.html#culled-1">ViewObject.culled</a> is <code>false</code>.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsvisible">ViewLayer.setObjectsVisible</a> to batch-update the visibility of ViewObjects, which fires a single event for the batch.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L130">packages/viewer/src/viewer/view/ViewObject.ts:130</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject is visible.</p>
+								</div>
+								<ul>
+									<li>When <a href="packages_viewer_src.viewobject.html#visible-1">ViewObject.visible</a> is <code>true</code> the ViewObject will be registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in {@link ViewLayer.visibleViewObjects}.</li>
+									<li>Each ViewObject is only rendered when <a href="packages_viewer_src.viewobject.html#visible-1">ViewObject.visible</a> is <code>true</code> and <a href="packages_viewer_src.viewobject.html#culled-1">ViewObject.culled</a> is <code>false</code>.</li>
+									<li>Fires an &quot;objectVisibility&quot; event on associated <a href="packages_viewer_src.viewlayer.html">ViewLayer</a>s.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsvisible">ViewLayer.setObjectsVisible</a> to batch-update the visibility of ViewObjects, which fires a single event for the batch.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>visible: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="xrayed-1" class="tsd-anchor"></a>
+					<h3>xrayed</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> xrayed<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> xrayed<span class="tsd-signature-symbol">(</span>xrayed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L146">packages/viewer/src/viewer/view/ViewObject.ts:146</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets if this ViewObject is X-rayed.</p>
+								</div>
+								<ul>
+									<li>When <a href="packages_viewer_src.viewobject.html#xrayed-1">ViewObject.xrayed</a> is <code>true</code> the ViewObject will be registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in {@link ViewLayer.xrayedViewObjects}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsxrayed">ViewLayer.setObjectsXRayed</a> to batch-update the X-rayed state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L156">packages/viewer/src/viewer/view/ViewObject.ts:156</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets if this ViewObject is X-rayed.</p>
+								</div>
+								<ul>
+									<li>When <a href="packages_viewer_src.viewobject.html#xrayed-1">ViewObject.xrayed</a> is <code>true</code> the ViewObject will be registered by <a href="packages_viewer_src.viewobject.html#id">ViewObject.id</a> in {@link ViewLayer.xrayedViewObjects}.</li>
+									<li>Use <a href="packages_viewer_src.viewlayer.html#setobjectsxrayed">ViewLayer.setObjectsXRayed</a> to batch-update the X-rayed state of ViewObjects.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>xrayed: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_destroy" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _destroy</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_destroy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8236d4c/packages/viewer/src/viewer/view/ViewObject.ts#L402">packages/viewer/src/viewer/view/ViewObject.ts:402</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/packages_viewer_navcube_src.html">packages/viewer-<wbr>navcube/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/packages_viewer_treeview_src.html">packages/viewer-<wbr>treeview/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/packages_viewer_xktloader_src.html">packages/viewer-<wbr>xktloader/src</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/packages_viewer_src.html">packages/viewer/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/pages.html">pages</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module">
+						<a href="packages_viewer_src.viewobject.html" class="tsd-kind-icon">View<wbr>Object</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="packages_viewer_src.viewobject.html#_state" class="tsd-kind-icon">#state</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#id" class="tsd-kind-icon">id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#layer" class="tsd-kind-icon">layer</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#sceneobject" class="tsd-kind-icon">scene<wbr>Object</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#clippable-1" class="tsd-kind-icon">clippable</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#collidable-1" class="tsd-kind-icon">collidable</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#colorize-1" class="tsd-kind-icon">colorize</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#culled-1" class="tsd-kind-icon">culled</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#edges-1" class="tsd-kind-icon">edges</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#highlighted-1" class="tsd-kind-icon">highlighted</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#opacity" class="tsd-kind-icon">opacity</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#pickable-1" class="tsd-kind-icon">pickable</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#selected-1" class="tsd-kind-icon">selected</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#visible-1" class="tsd-kind-icon">visible</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="packages_viewer_src.viewobject.html#xrayed-1" class="tsd-kind-icon">xrayed</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="packages_viewer_src.viewobject.html#_destroy" class="tsd-kind-icon">_destroy</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

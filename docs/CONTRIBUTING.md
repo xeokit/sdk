@@ -2,17 +2,12 @@
 
 This project consists of multiple NPM packages, managed in one repository with
 [Lerna](https://lerna.js.org/). All code, excluding Node.js-based tests, is written in TypeScript.
-I recommend using VSCode for linting and type information, which becomes especially helpful
-when dealing with glTF schema objects.
 
 After cloning the repository, run:
 
 ```shell
 yarn install
 ```
-
-> **NOTICE:** If installation fails with errors during `node-canvas` compilation, you may need need
-> to complete the one-time setup described in https://github.com/Automattic/node-canvas#compiling.
 
 The project relies on [Yarn workspaces](https://classic.yarnpkg.com/docs/workspaces/) and will not build with npm. To build and test all code,
 run:
@@ -28,14 +23,11 @@ To run an arbitrary command across all packages:
 lerna exec -- <command>
 ```
 
-While working, use `yarn run watch` to watch and rebuild code after changes. To use a local
-version of the CLI, run `yarn link` within the `packages/cli` directory. Then
-`xeokit-sdk -h` will use local code instead of any global installation.
 
 ### Pull requests
 
 Before adding new features or packages to the repository, please open an issue on GitHub to discuss
-your proposal. Some features may not fit the current scope of the project, or may be more than I am
+your proposal. Some features may not fit the current scope of the project, or may be more than we are
 able to maintain long-term. Even if a feature does not end up in this repository, custom
 extensions and functions can be defined and used externally. Changes including test coverage are
 strongly preferred.
@@ -48,7 +40,7 @@ rather than being created by the API directly.
 
 ### Dependencies
 
-I recommend compiling with Node.js v12.x, which is the latest version with a prebuilt binary for
+We recommend compiling with Node.js v12.x, which is the latest version with a prebuilt binary for
 `gl` as of April 2020.
 
 Runtime dependencies should be installed only to the sub-package in which they are needed. Any
@@ -71,9 +63,10 @@ Certain JSDoc tags have notable meanings within this project:
 
 ### Roadmap
 
-xeokit-sdk supports the complete glTF 2.0 core format, and some extensions. Most official Khronos Group extensions (those prefixed with `KHR_`) will be implemented on a rolling basis — pull requests are very welcome. Multi-vendor extensions (prefixed with `EXT_`) may be included on a case-by-case basis. Single-vendor extensions (any other prefix) are unlikely to be included directly in the project, although xeokit-sdk does provide APIs to build and maintain implementations for those extensions externally.
+[//]: # (xeokit-sdk supports the complete glTF 2.0 core format, and some extensions. Most official Khronos Group extensions &#40;those prefixed with `KHR_`&#41; will be implemented on a rolling basis — pull requests are very welcome. Multi-vendor extensions &#40;prefixed with `EXT_`&#41; may be included on a case-by-case basis. Single-vendor extensions &#40;any other prefix&#41; are unlikely to be included directly in the project, although xeokit-sdk does provide APIs to build and maintain implementations for those extensions externally.)
 
-Suggestions and PRs for new [Functions](/functions.html) are also generally welcome.
+[//]: # ()
+[//]: # (Suggestions and PRs for new [Functions]&#40;/functions.html&#41; are also generally welcome.)
 
 ### Releasing
 

@@ -2,6 +2,7 @@
 import type {ViewLayer} from "./ViewLayer";
 import type {SceneObject} from "../scene/index";
 import type * as math from '../math/index';
+import {FloatArrayParam} from "../math/index";
 
 /**
  * Represents the visual state of a {@link SceneObject} in a {@link View}.

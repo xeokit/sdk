@@ -5,13 +5,13 @@ import type {DataObjectParams} from "./DataObjectParams";
 /**
  *  Semantic data about an object in a {@link DataModel}.
  *
+ *  See {@link Data} for usage examples.
+ *
  *  ## Summary
  *
  *  * Contained in a {@link DataModel}
  *  * Stored by {@link DataModel.id} in {@link DataModel.objects} and {@link Data.objects}
  *  * Created with {@link DataModel.createObject} or {@link DataObject.createObject}
- *
- *  See {@link Data} for usage examples.
  */
 class DataObject {
 

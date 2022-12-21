@@ -19,10 +19,12 @@ import type {FloatArrayParam} from "../math/index";
  * * Located at {@link Viewer.scene}
  * * Stores {@link SceneModel|SceneModels} in {@link Scene.models}
  * * Stores {@link SceneObject|SceneObjects} in {@link Scene.objects}
- * * Provides the center and axis-aligned World-space boundary of all {@link SceneObject|SceneObjects} in {@link Scene.center} and {@link Scene.aabb}, respectively
+ * * 3D center and boundary in {@link Scene.center} and {@link Scene.aabb}
  * * Use {@link Scene.createModel} to create {@link SceneModel|SceneModels}
  * * Use {@link SceneModel.createObject} to create {@link SceneObject|SceneObjects}
  * * {@link View|Views} automatically contain {@link ViewObject|ViewObjects} to represent all existing {@link SceneObject|SceneObjects}
+ *
+ * <br>
  *
  * ## Examples
  *
@@ -209,6 +211,8 @@ export class Scene extends Component {
     /**
      * Emits an event each time a {@link SceneModel} is created.
      *
+     * {@link Scene.aabb} and {@link Scene.center} may have updated values after this event.
+     *
      * @event
      */
     readonly onModelCreated: EventEmitter<Scene, SceneModel>;
@@ -216,13 +220,14 @@ export class Scene extends Component {
     /**
      * Emits an event each time a {@link SceneModel} is destroyed.
      *
+     * {@link Scene.aabb} and {@link Scene.center} may have updated values after this event.
+     *
      * @event
      */
     readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
 
     #center: Float64Array;
     #aabb: Float64Array;
-
     #aabbDirty: boolean;
 
     /**

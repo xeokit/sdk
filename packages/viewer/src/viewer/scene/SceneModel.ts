@@ -16,6 +16,8 @@ import type {Component} from "../Component";
 /**
  *  A buildable representation of geometry and materials for a model within a {@link Viewer}.
  *
+ * See {@link Scene} for usage examples.
+ *
  *  ## Summary
  *
  * * Created by {@link Scene.createModel}
@@ -29,8 +31,6 @@ import type {Component} from "../Component";
  * * Creates geometry from {@link GeometryCompressedParams|compressed} and {@link GeometryParams|uncompressed} formats
  * * Supports KTX compressed textures
  * * A {@link ViewObject} will automatically exist in each {@link View} for every {@link SceneObject} that exists
- *
- * See {@link Scene} for usage examples.
  */
 export interface SceneModel {
 

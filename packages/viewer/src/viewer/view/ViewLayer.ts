@@ -335,6 +335,8 @@ class ViewLayer extends Component {
     /**
      * Emits an event each time the visibility of a {@link ViewObject} changes.
      *
+     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
+     * 
      * @event
      */
     readonly onObjectVisibility: EventEmitter<ViewLayer, ViewObject>;

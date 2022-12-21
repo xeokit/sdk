@@ -5,19 +5,18 @@ import {DataObject} from "./DataObject";
 import type {DataModelParams} from "./DataModelParams";
 import type {DataObjectParams} from "./DataObjectParams";
 import type {PropertySetParams} from "./PropertySetParams";
-import {EventEmitter} from "../EventEmitter";
-import {EventDispatcher} from "strongly-typed-events";
+
 
 /**
- *  A buildable semantic data model within {@link Data}.
+ * A buildable semantic data model within {@link Data}.
+ *
+ * See {@link Data} for usage examples.
  *
  * ## Summary
  *
  *  * Created with {@link Data.createModel}
  *  * Stored in {@link Data.models}
  *  * Contains {@link DataObject|DataObjects} and {@link PropertySet|PropertySets}
- *
- *  See {@link Data} for usage examples.
  */
 class DataModel extends Component {
 

@@ -6,14 +6,14 @@ import type {PropertySetParams} from "./PropertySetParams";
 /**
  * A set of {@link Property|Properties} within a {@link DataModel}.
  *
+ * See {@link Data} for usage examples.
+ *
  * ## Summary
  *
  * * Belongs to a {@link DataModel}
  * * Registered by {@link PropertySet.id} in {@link DataModel.propertySets}
  * * Created with {@link Data.createPropertySet} or {@link DataModel.createPropertySet}
  * * Has {@link Property} components in {@link PropertySet.properties}
- *
- * See {@link Data} for usage examples.
  */
 class PropertySet {
 

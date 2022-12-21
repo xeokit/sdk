@@ -21,9 +21,11 @@ import {scheduler} from "../scheduler";
  * * Use {@link DataModel.createObject} to create {@link DataObject|DataObjects}
  * * Use {@link DataModel.createPropertySet} to create {@link PropertySet|PropertySets}
  *
+ * <br>
+ *
  * ## Examples
  *
- * ### Example 1. Creating a DataModel from JSON
+ * ### Example 1. Creating a DataModel from JSON Data
  *
  * Creating a {@link DataModel} within our Data, from a JSON object:
  *

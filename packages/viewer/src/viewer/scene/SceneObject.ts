@@ -5,14 +5,14 @@ import type {FloatArrayParam} from "../math/math";
 /**
  * Geometry and materials for an object in a {@link SceneModel}.
  *
+ * See {@link Scene} for usage examples.
+ *
  * ## Summary
  *
  * * Contained in a {@link SceneModel}
  * * Created with {@link SceneModel.createObject}
  * * Registered in {@link SceneModel.objects} and {@link Scene.objects}
  * * Has a {@link ViewObject} in each {@link View}
- *
- * See {@link Scene} for usage examples.
  */
 export interface SceneObject {
 

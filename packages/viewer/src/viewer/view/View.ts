@@ -273,6 +273,8 @@ class View extends Component {
     /**
      * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
      *
+     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
+     *
      * @event
      */
     readonly onObjectVisibility: EventEmitter<View, ViewObject>;
@@ -280,12 +282,16 @@ class View extends Component {
     /**
      * Emits an event each time a {@link ViewLayer} is created in this View.
      *
+     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link Scene.createModel} and {@link SceneModelParams.viewLayerId}.
+     *
      * @event
      */
     readonly onLayerCreated: EventEmitter<View, ViewLayer>;
 
     /**
      * Emits an event each time a {@link ViewLayer} in this View is destroyed.
+     *
+     * ViewLayers are destroyed explicitly with {@link ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
      *
      * @event
      */

@@ -1,11 +1,9 @@
 import {Component} from '../Component';
 import {Camera, CameraFlightAnimation} from "./camera/index";
-import {Viewport} from "./Viewport";
 import {Canvas} from "./Canvas";
 import {CameraControl} from "./CameraControl/index";
-import {Input} from "./Input";
 import {ViewObject} from "./ViewObject";
-import type {SectionPlane} from "./SectionPlane";
+import {SectionPlane} from "./SectionPlane";
 import type {AmbientLight, DirLight, PointLight} from "./lights/index";
 import {EdgeMaterial, EmphasisMaterial, PointsMaterial} from "./materials/index";
 import type {Viewer} from "../Viewer";
@@ -20,7 +18,11 @@ import {FastRender, QualityRender} from "../constants";
 import {ViewLayer} from "./ViewLayer";
 import * as utils from "../utils/index";
 import type {ViewLayerParams} from "./ViewLayerParams";
-import {SectionPlaneParams} from "./SectionPlaneParams";
+import type {SectionPlaneParams} from "./SectionPlaneParams";
+import {EventDispatcher, IEvent} from "strongly-typed-events";
+import {EventEmitter} from "./../EventEmitter";
+import {ViewParams} from "@xeokit-viewer/viewer";
+import {apply, createUUID} from "../utils/index";
 
 
 /**
@@ -118,11 +120,6 @@ class View extends Component {
     readonly sao: SAO;
 
     /**
-     * Publishes input events that occur on this View's canvas.
-     */
-    readonly input: Input;
-
-    /**
      * Controls the View's {@link Camera} from user input.
      */
     readonly cameraControl: CameraControl;
@@ -131,11 +128,6 @@ class View extends Component {
      * Flies or jumps the View's {@link Camera} to given positions.
      */
     readonly cameraFlight: CameraFlightAnimation;
-
-    /**
-     * Manages the 2D viewpoint for this View.
-     */
-    readonly viewport: Viewport;
 
     /**
      * Manages measurement units, origin and scale for this View.
@@ -278,6 +270,41 @@ class View extends Component {
      */
     readonly autoLayers: boolean;
 
+    /**
+     * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
+     *
+     * @event
+     */
+    readonly onObjectVisibility: EventEmitter<View, ViewObject>;
+
+    /**
+     * Emits an event each time a {@link ViewLayer} is created in this View.
+     *
+     * @event
+     */
+    readonly onLayerCreated: EventEmitter<View, ViewLayer>;
+
+    /**
+     * Emits an event each time a {@link ViewLayer} in this View is destroyed.
+     *
+     * @event
+     */
+    readonly onLayerDestroyed: EventEmitter<View, ViewLayer>;
+
+    /**
+     * Emits an event each time a {@link SectionPlane} is created in this View.
+     *
+     * @event
+     */
+    readonly onSectionPlaneCreated: EventEmitter<View, SectionPlane>;
+
+    /**
+     * Emits an event each time a {@link SectionPlane} in this View is destroyed.
+     *
+     * @event
+     */
+    readonly onSectionPlaneDestroyed: EventEmitter<View, SectionPlane>;
+
     #numObjects: number;
     #objectIds: string[] | null;
     #numVisibleObjects: number;
@@ -297,29 +324,13 @@ class View extends Component {
     #sectionPlanesHash: string | null = null;
 
     /**
-     * Creates a new View within a Viewer.
-     *
-     * The View will then be registered by {@link View.id} in {@link Viewer.views}.
-     *
      * @private
-     * @param options.viewer The Viewer that owns this View.
-     * @param options View configuration.
-     * @param options.id Optional ID for this View.
-     * @param options.canvasId -  ID of an existing HTML canvas for the View - either this or canvasElement is mandatory. When both values are given, the element reference is always preferred to the ID.
-     * @param options.canvasElement - Reference of an existing HTML canvas. Either this or canvasId is mandatory. When both values are given, the element reference is always preferred to the ID.
-     * @param options.transparent -  Whether the canvas is transparent.
-     * @param options.premultipliedAlpha -  Whether you want alpha composition with premultiplied alpha. Highlighting and selection works best when this is ````false````.
-     * @param options.backgroundColor=[1,1,1] - Sets the canvas background color to use when ````transparent```` is false.
-     * @param options.backgroundColorFromAmbientLight - When ````transparent```` is false, set this ````true````
-     * to derive the canvas background color from {@link AmbientLight.color}, or ````false```` to set the canvas background to ````backgroundColor````.
-     * @param options.qualityRender - Whether quality rendering is enabled for this View. Default is ````false````.
-     * @param options.logarithmicDepthBufferEnabled - Whether to enable logarithmic depth buffer for this View. This is ````false```` by default.
      */
     constructor(options: {
         viewer: Viewer;
         origin?: number[];
         scale?: number;
-        units?: string;
+        units?: number;
         canvasId?: string;
         canvasElement?: HTMLCanvasElement;
         backgroundColor?: any[];
@@ -382,15 +393,9 @@ class View extends Component {
             premultipliedAlpha: !!options.premultipliedAlpha
         });
 
-        this.canvas.events.on("boundary", () => {
+        this.canvas.onBoundary.subscribe(() => {
             this.redraw();
         });
-
-        this.input = new Input(this, {
-            element: this.canvas.canvas
-        });
-
-        this.viewport = new Viewport(this, {});
 
         this.camera = new Camera(this);
 
@@ -470,6 +475,12 @@ class View extends Component {
         this.autoLayers = (options.autoLayers !== false);
 
         this.logarithmicDepthBufferEnabled = !!options.logarithmicDepthBufferEnabled;
+
+        this.onObjectVisibility = new EventEmitter(new EventDispatcher<View, ViewObject>());
+        this.onLayerCreated = new EventEmitter(new EventDispatcher<View, ViewLayer>());
+        this.onLayerDestroyed = new EventEmitter(new EventDispatcher<View, ViewLayer>());
+        this.onSectionPlaneCreated = new EventEmitter(new EventDispatcher<View, SectionPlane>());
+        this.onSectionPlaneDestroyed = new EventEmitter(new EventDispatcher<View, SectionPlane>());
 
         this.#initObjects();
     }
@@ -659,7 +670,7 @@ class View extends Component {
         }
         this.#visibleObjectIds = null; // Lazy regenerate
         if (notify) {
-            this.events.fire("objectVisibility", viewObject, true);
+            this.onObjectVisibility.dispatch(this, viewObject);
         }
     }
 
@@ -734,6 +745,58 @@ class View extends Component {
     }
 
     /**
+     * Creates a {@link SectionPlane} in this View.
+     *
+     * @param sectionPlaneParams
+     */
+    createSectionPlane(sectionPlaneParams: SectionPlaneParams): SectionPlane {
+        let id = sectionPlaneParams.id || createUUID();
+        if (this.sectionPlanes[id]) {
+            this.error(`SectionPlane with ID "${id}" already exists - will randomly-generate ID`);
+            id = createUUID();
+        }
+        const sectionPlane = new SectionPlane(this, sectionPlaneParams);
+        this.#registerSectionPlane(sectionPlane);
+        sectionPlane.onDestroyed.one(() => {
+            this.#deregisterSectionPlane(sectionPlane);
+        });
+        return sectionPlane;
+    }
+
+    /**
+     * Destroys the {@link SectionPlane}s in this View.
+     */
+    clearSectionPlanes(): void {
+        const ids = Object.keys(this.sectionPlanes);
+        for (let i = 0, len = ids.length; i < len; i++) {
+            this.sectionPlanes[ids[i]].destroy();
+        }
+        this.sectionPlanesList.length = 0;
+        this.#sectionPlanesHash = null;
+    }
+
+    #registerSectionPlane(sectionPlane: SectionPlane) {
+        this.sectionPlanesList.push(sectionPlane);
+        this.sectionPlanes[sectionPlane.id] = sectionPlane;
+        this.#sectionPlanesHash = null;
+        this.rebuild();
+        this.onSectionPlaneCreated.dispatch(this, sectionPlane);
+    }
+
+    #deregisterSectionPlane(sectionPlane: SectionPlane) {
+        for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
+            if (this.sectionPlanesList[i].id === sectionPlane.id) {
+                this.sectionPlanesList.splice(i, 1);
+                this.#sectionPlanesHash = null;
+                delete this.sectionPlanes[sectionPlane.id];
+                this.rebuild();
+                this.onSectionPlaneDestroyed.dispatch(this, sectionPlane);
+                return;
+            }
+        }
+    }
+
+    /**
      * @private
      */
     getSectionPlanesHash() {
@@ -755,58 +818,13 @@ class View extends Component {
     };
 
     /**
-     *
-     * @param sectionPlaneParams
-     */
-    // createSectionPlane(sectionPlaneParams: SectionPlaneParams) : SectionPlane {
-    //
-    // }
-
-    /**
-     * Destroys the {@link SectionPlane}s in this View.
-     */
-    clearSectionPlanes(): void {
-        const ids = Object.keys(this.sectionPlanes);
-        for (let i = 0, len = ids.length; i < len; i++) {
-            this.sectionPlanes[ids[i]].destroy();
-        }
-        this.sectionPlanesList.length = 0;
-        this.#sectionPlanesHash = null;
-    }
-
-    /**
-     * @private
-     */
-    registerSectionPlane(sectionPlane: SectionPlane) {
-        this.sectionPlanesList.push(sectionPlane);
-        this.sectionPlanes[sectionPlane.id] = sectionPlane;
-        this.#sectionPlanesHash = null;
-        this.recompile();
-    }
-
-    /**
-     * @private
-     */
-    deregisterSectionPlane(sectionPlane: SectionPlane) {
-        for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
-            if (this.sectionPlanesList[i].id === sectionPlane.id) {
-                this.sectionPlanesList.splice(i, 1);
-                this.#sectionPlanesHash = null;
-                delete this.sectionPlanes[sectionPlane.id];
-                this.recompile();
-                return;
-            }
-        }
-    }
-
-    /**
      * @private
      */
     registerLight(light: PointLight | DirLight | AmbientLight) {
         this.lightsList.push(light);
         this.lights[light.id] = light;
         this.#lightsHash = null;
-        this.recompile();
+        this.rebuild();
     }
 
     /**
@@ -818,7 +836,7 @@ class View extends Component {
                 this.lightsList.splice(i, 1);
                 this.#lightsHash = null;
                 delete this.lights[light.id];
-                this.recompile();
+                this.rebuild();
                 return;
             }
         }
@@ -873,17 +891,15 @@ class View extends Component {
     /**
      * @private
      */
-    redraw() {
-        this.viewer.renderer.setImageDirty(this.viewIndex);
+    rebuild() {
+        this.viewer.renderer.needsRebuild(this.viewIndex);
     }
 
     /**
      * @private
      */
-    recompile() {
-        this.viewer.events.once("tick", () => {
-            this.events.fire("compile", this);
-        });
+    redraw() {
+        this.viewer.renderer.setImageDirty(this.viewIndex);
     }
 
     /**
@@ -893,6 +909,11 @@ class View extends Component {
      */
     destroy() {
         super.destroy();
+        this.onObjectVisibility.clear();
+        this.onLayerCreated.clear();
+        this.onLayerDestroyed.clear();
+        this.onSectionPlaneCreated.clear();
+        this.onSectionPlaneDestroyed.clear();
     }
 
     #initObjects() {
@@ -902,10 +923,10 @@ class View extends Component {
             const sceneModel = sceneModels[id];
             this.#createObjects(sceneModel);
         }
-        scene.events.on("sceneModelCreated", (sceneModel:SceneModel) => {
+        scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
             this.#createObjects(sceneModel);
         });
-        scene.events.on("sceneModelDestroyed", (sceneModel:SceneModel) => {
+        scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
             this.#destroyObjects(sceneModel);
         });
     }
@@ -926,8 +947,9 @@ class View extends Component {
                     viewer: this.viewer
                 });
                 this.layers[viewLayerId] = viewLayer;
-                viewLayer.events.on("destroyed", (viewLayer) => {
+                viewLayer.onDestroyed.one(() => {
                     delete this.layers[viewLayer.id];
+                    this.onLayerDestroyed.dispatch(this, viewLayer);
                 });
             }
             const viewObject = new ViewObject(viewLayer, sceneObject, {});
@@ -1188,6 +1210,11 @@ class View extends Component {
                 viewer: this.viewer
             });
             this.layers[viewLayerParams.id] = viewLayer;
+            this.onLayerCreated.dispatch(this, viewLayer);
+            viewLayer.onDestroyed.one(() => {
+                delete this.layers[viewLayer.id];
+                this.onLayerDestroyed.dispatch(this, viewLayer);
+            });
         }
         viewLayer.autoDestroy = false;
         return viewLayer;

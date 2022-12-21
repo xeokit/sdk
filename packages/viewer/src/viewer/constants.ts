@@ -408,3 +408,54 @@ export const QualityRender = 30000;
  * Fast rendering mode.
  */
 export const FastRender = 300001;
+
+/**
+ * Meters unit of measurement.
+ */
+export const MetersUnit = 400000;
+
+/**
+ * Centimeters unit of measurement.
+ */
+export const CentimetersUnit = 400001;
+
+/**
+ * Millimeters unit of measurement.
+ */
+export const MillimetersUnit = 400002;
+
+/**
+ * Yards unit of measurement.
+ */
+export const YardsUnit = 400003;
+
+/**
+ * Feet unit of measurement.
+ */
+export const FeetUnit = 400004;
+
+/**
+ * Inches unit of measurement.
+ */
+export const InchesUnit = 400005;
+
+/**
+ * Perspective projection type.
+ */
+export const PerspectiveProjectionType = 500000;
+
+/**
+ * Orthographic projection type.
+ */
+export const OrthoProjectionType = 500001;
+
+/**
+ * Frustum projection type.
+ */
+export const FrustumProjectionType = 500002;
+
+/**
+ * Custom projection type.
+ */
+export const CustomProjectionType = 500003;
+

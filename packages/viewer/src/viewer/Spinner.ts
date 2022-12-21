@@ -1,4 +1,6 @@
 import {Component} from './Component';
+import {EventEmitter, View} from "@xeokit-viewer/viewer";
+import {EventDispatcher} from "strongly-typed-events";
 
 const defaultCSS = ".sk-fading-circle {\
         background: transparent;\
@@ -162,9 +164,23 @@ const defaultCSS = ".sk-fading-circle {\
  */
 class Spinner extends Component {
     private _canvas: any;
-    private _element: HTMLElement;
+    private _element: any;
     private _isCustom: boolean;
     private _processes: number;
+
+    /**
+     * Emits an event each time the number of active processes updates.
+     *
+     * @event
+     */
+    readonly onProcesses: EventEmitter<Spinner, number>;
+
+    /**
+     * Emits an event when there are zero processes running.
+     *
+     * @event
+     */
+    readonly onZeroProcesses: EventEmitter<Spinner, number>;
 
     /**
      @private
@@ -197,6 +213,8 @@ class Spinner extends Component {
             this._createDefaultSpinner();
         }
         this.processes = 0;
+        this.onProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
+        this.onZeroProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
     }
 
     /** @private */
@@ -284,20 +302,9 @@ class Spinner extends Component {
         if (element) {
             element.style["visibility"] = (this._processes > 0) ? "visible" : "hidden";
         }
-        /**
-         Fired whenever this Spinner's {@link Spinner#visible} property changes.
-
-         @event processes
-         @param value The property's new value
-         */
-        this.events.fire("processes", this._processes);
+        this.onProcesses.dispatch(this, this._processes);
         if (this._processes === 0 && this._processes !== prevValue) {
-            /**
-             Fired whenever this Spinner's {@link Spinner#visible} property becomes zero.
-
-             @event zeroProcesses
-             */
-            this.events.fire("zeroProcesses", this._processes);
+            this.onZeroProcesses.dispatch(this, this._processes);
         }
     }
 
@@ -319,8 +326,11 @@ class Spinner extends Component {
         }
         const styleElement = document.getElementById("xeokit-spinner-css");
         if (styleElement) {
+            // @ts-ignore
             styleElement.parentNode.removeChild(styleElement)
         }
+        this.onProcesses.clear();
+        this.onZeroProcesses.clear();
     }
 }
 

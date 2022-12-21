@@ -1,7 +1,6 @@
 import type {Scene} from "./Scene";
 import type {SceneObject} from "./SceneObject";
 import type {Transform} from "./Transform";
-import type {Events} from "../Events";
 import type {SceneObjectParams} from "./SceneObjectParams";
 import type {MeshParams} from "./MeshParams";
 import type {TextureSetParams} from "./TextureSetParams";
@@ -10,6 +9,9 @@ import type {TransformParams} from "./TransformParams";
 import type {GeometryParams} from "./GeometryParams";
 import type {GeometryCompressedParams} from "./GeometryCompressedParams";
 import type {FloatArrayParam} from "../math/index";
+import type {EventEmitter} from "../EventEmitter";
+import type {Component} from "../Component";
+
 
 /**
  *  A buildable representation of geometry and materials for a model within a {@link Viewer}.
@@ -28,175 +30,7 @@ import type {FloatArrayParam} from "../math/index";
  * * Supports KTX compressed textures
  * * A {@link ViewObject} will automatically exist in each {@link View} for every {@link SceneObject} that exists
  *
- * ## Overview
- *
- * ## Examples
- *
- * ### Example 1. SceneModel with uncompressed geometry
- *
- * ````javascript
- * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
- *
- * const myViewer = new Viewer({
- *    id: "myViewer"
- * });
- *
- * myViewer.createView({
- *     id: "myView",
- *     canvasId: "myCanvas"
- * });
- *
- * const mySceneModel = myViewer.scene.createModel({
- *    id: "myModel"
- * });
- *
- * mySceneModel.createGeometry({
- *     id: "myBoxGeometry",
- *     primitive: constants.TrianglesPrimitive,
- *     positions: [
- *         1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1,
- *         1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1,
- *         1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1,
- *         -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1,
- *         -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1,
- *         1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1
- *     ],
- *     indices: [
- *         0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
- *         16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
- *     ]
- * });
- *
- * mySceneModel.createMesh({
- *    id: "myMesh",
- *    geometryId: "myGeometry"
- * });
- *
- * mySceneModel.createObject({
- *    id: "myObject",
- *    meshIds: ["myMesh"]
- * });
- *
- * mySceneModel.finalize();
- * ````
- *
- * ### Example 2. SceneModel with pre-compressed geometry
- *
- * ````javascript
- * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
- *
- * const myViewer = new Viewer({
- *    id: "myViewer"
- * });
- *
- * myViewer.createView({
- *     id: "myView",
- *     canvasId: "myCanvas"
- * });
- *
- * const mySceneModel = myViewer.scene.createModel({
- *    id: "myModel"
- * });
- *
- * mySceneModel.createGeometryCompressed({
- *      id: "myBoxGeometry",
- *      primitive: constants.TrianglesPrimitive,
- *      positionsDecompressMatrix: [
- *          0.00003052270125906143, 0, 0, 0,
- *          0, 0.00003052270125906143, 0, 0,
- *          0, 0, 0.00003052270125906143, 0,
- *          -1, -1, -1, 1
- *      ],
- *      geometryBuckets: [
- *          {
- *              positionsCompressed: [
- *                  65525, 65525, 65525, 0, 65525, 65525, 0, 0,
- *                  65525, 65525, 0, 65525, 65525, 0, 0, 65525,
- *                  65525, 0, 0, 65525, 0, 0, 0, 0
- *              ],
- *              indices: [
- *                  0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
- *                  0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
- *                  4, 7, 6, 4, 6, 5
- *              ]
- *          }
- *      ]
- * });
- *
- * mySceneModel.createMesh({
- *    id: "myMesh",
- *    geometryId: "myGeometry"
- * });
- *
- * mySceneModel.createObject({
- *    id: "myObject",
- *    meshIds: ["myMesh"]
- * });
- *
- * mySceneModel.finalize();
- * ````
- *
- * ### Textures
- *
- * ````javascript
- * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
- *
- * const myViewer = new Viewer({
- *    id: "myViewer"
- * });
- *
- * const mySceneModel = myViewer.scene.createModel({
- *    id: "myModel"
- * });
- *
- * mySceneModel.createGeometry({
- *     id: "myBoxGeometry",
- *     primitive: constants.TrianglesPrimitive,
- *     positions: [
- *         1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1,
- *         1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1,
- *         1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1,
- *         -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1,
- *         -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1,
- *         1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1
- *     ],
- *     indices: [
- *         0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
- *         16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
- *     ]
- * });
- *
- * mySceneGeometry.createTexture({
- *      id: "myColorTexture",
- *      src: "myColorTexture.jpeg",
- *      preloadColor: [1,0,0,1],
- *      encoding: constants.LinearEncoding,
- *      flipY: false,
- *      magFilter: constants.LinearFiler,
- *      minFilter: constants.LinearFiler,
- *      wrapR: constants.ClampToEdgeWrapping,
- *      wrapS: constants.ClampToEdgeWrapping,
- *      wrapT: constants.ClampToEdgeWrapping,
- * });
- *
- * mySceneModel.createTextureSet({
- *      id: "myTextureSet",
- *      colorTextureId: "myColorTexture"
- * });
- *
- * mySceneModel.createMesh({
- *    id: "myMesh",
- *    geometryId: "myGeometry",
- *    textureSetId: "myTextureSet",
- * });
- *
- * mySceneModel.createObject({
- *    id: "myObject",
- *    meshIds: ["myMesh"]
- * });
- *
- * mySceneModel.finalize();
- * ````
+ * See {@link Scene} for usage examples.
  */
 export interface SceneModel {
 
@@ -208,11 +42,6 @@ export interface SceneModel {
      * The owner Scene.
      */
     readonly scene: Scene;
-
-    /**
-     * Manages events occurring on this SceneModel.
-     */
-    readonly events: Events;
 
     /**
      * The {@link SceneObject|SceneObjects} in this SceneModel, each mapped to {@link SceneObject.id}.
@@ -250,6 +79,20 @@ export interface SceneModel {
      * True once this SceneModel has been destroyed.
      */
     readonly destroyed: boolean;
+
+    /**
+     * Emits an event when the {@link SceneModel} has been built.
+     *
+     * @event
+     */
+    readonly onBuilt: EventEmitter<SceneModel, null>;
+
+    /**
+     * Emits an event when the {@link SceneModel} has been destroyed.
+     *
+     * @event
+     */
+    readonly onDestroyed: EventEmitter<Component, null>;
 
     /**
      * Creates a Transform within this SceneModel.
@@ -405,11 +248,9 @@ export interface SceneModel {
     createObject(params: SceneObjectParams): SceneObject;
 
     /**
-     * Finalizes this SceneModel and prepares it for use.
-     *
-     * Fires a "finalized" event.
+     * Builds this SceneModel and prepares it for use.
      */
-    finalize(): void;
+    build(): void;
 
     /**
      * Destroys this SceneModel.

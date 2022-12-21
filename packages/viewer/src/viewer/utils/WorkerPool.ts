@@ -1,7 +1,6 @@
 /**
  * @author Deepkolos / https://github.com/deepkolos
  */
-
 export class WorkerPool {
     private pool: number;
     private queue: any[];

@@ -39,7 +39,7 @@ class Mesh implements Pickable{
         this.sceneObject = sceneObject;
     }
 
-    finalize(flags: number) {
+    build(flags: number) {
         // @ts-ignore
         this.layer.initFlags(this.meshId, flags, this.transparent);
     }

@@ -1,5 +1,5 @@
 /**
- * Parameters for creating a {@link DataObject} with {@link DataModel.createObject}.
+ * Used to create a {@link DataObject} with {@link DataModel.createObject}.
  */
 export interface DataObjectParams {
 

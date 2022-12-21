@@ -76,11 +76,11 @@ class TouchPickHandler {
                 const rightClickPageY = touches[0].pageY;
 
                 states.longTouchTimeout = setTimeout(() => {
-                    controllers.cameraControl.events.fire("rightClick", { // For context menus
+                    controllers.cameraControl.onRightClick.dispatch(cameraControl, { // For context menus
                         pagePos: [Math.round(rightClickPageX), Math.round(rightClickPageY)],
                         canvasPos: [Math.round(rightClickClientX), Math.round(rightClickClientY)],
                         event: e
-                    }, true);
+                    });
 
                     states.longTouchTimeout = null;
                 }, configs.longTapTimeout);
@@ -139,17 +139,17 @@ class TouchPickHandler {
 
                         if (pickController.pickResult) {
 
-                            cameraControl.events.fire("doublePicked", pickController.pickResult);
+                            cameraControl.onDoublePickedSurface.dispatch(cameraControl, pickController.pickResult);
 
                             if (pickController.pickedSurface) {
-                                cameraControl.events.fire("doublePickedSurface", pickController.pickResult);
+                                cameraControl.onPickedSurface.dispatch(cameraControl, pickController.pickResult);
                             }
 
                             if (configs.doublePickFlyTo) {
                                 flyCameraTo(pickController.pickResult);
                             }
                         } else {
-                            cameraControl.events.fire("doublePickedNothing");
+                            cameraControl.onDoublePickedNothing.dispatch(cameraControl, null);
                             if (configs.doublePickFlyTo) {
                                 flyCameraTo();
                             }
@@ -170,14 +170,14 @@ class TouchPickHandler {
 
                         if (pickController.pickResult) {
 
-                            cameraControl.events.fire("picked", pickController.pickResult);
+                            cameraControl.onPicked.dispatch(cameraControl, pickController.pickResult);
 
                             if (pickController.pickedSurface) {
-                                cameraControl.events.fire("pickedSurface", pickController.pickResult);
+                                cameraControl.onPickedSurface.dispatch(cameraControl,  pickController.pickResult);
                             }
 
                         } else {
-                            cameraControl.events.fire("pickedNothing");
+                            cameraControl.onPickedNothing.dispatch(cameraControl) ;
                         }
 
                         lastTapTime = currentTime;

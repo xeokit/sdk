@@ -135,6 +135,8 @@ import * as math from '../math/index';
  * ````javascript
  * myViewer.scene.input.setKeyboardEnabled(true)
  * ````
+ *
+ * @private
  */
 class Input extends Component {
 
@@ -647,59 +649,21 @@ class Input extends Component {
      */
     public ctrlDown: boolean = false;
 
-    /** True whenever left mouse button is down.
-     */
-    public mouseDownLeft: boolean = false;
-
-    /**
-     * True whenever middle mouse button is down.
-     */
-    public mouseDownMiddle: boolean = false;
-
-    /**
-     * True whenever the right mouse button is down.
-     */
-    public mouseDownRight: boolean = false;
-
-    /**
-     * Flag for each key that's down.
-     */
     public keyDown: boolean[] = [];
 
-    /** True while input enabled
-     */
     public enabled: boolean = true;
 
-    /** True while keyboard input is enabled.
-     *
-     * Default value is ````true````.
-     */
     public keyboardEnabled: boolean = true;
-
-    /** True while the mouse is over the canvas.
-     */
-    public mouseover: boolean = false;
 
     public shiftDown: boolean|undefined;
 
-    /**
-     * Current mouse position within the canvas.
-     */
-    public mouseCanvasPos: math.FloatArrayParam = math.vec2();
-
-    #eventsBound: any;
     #keyUpListener: (e: any) => void;
     #mouseEnterListener: (e: any) => void;
     #mouseLeaveListener: (e: any) => void;
     #keyDownListener: (e: any) => void;
-    #mouseDownListener: (e: any) => void;
-    #clickListener: (e: any) => void;
-    #mouseUpListener: (e: any) => void;
-    #dblClickListener: (e: any) => void;
-    #mouseMoveListener: (e: any) => void;
-    #mouseWheelListener: (e: any) => void;
 
-
+    private onKeyUp: any;
+    private onKeyDown: any;
 
     /**
      * @private
@@ -725,7 +689,7 @@ class Input extends Component {
                     this.shiftDown = true;
                 }
                 this.keyDown[e.keyCode] = true;
-                this.events.fire("keydown", e.keyCode, true);
+                this.onKeyDown.dispatch(this, e.keyCode);
             }
         }, false);
 
@@ -742,7 +706,7 @@ class Input extends Component {
                     this.shiftDown = false;
                 }
                 this.keyDown[e.keyCode] = false;
-                this.events.fire("keyup", e.keyCode, true);
+                this.onKeyUp.dispatch(this, e.keyCode);
             }
         });
 
@@ -752,7 +716,6 @@ class Input extends Component {
             }
             this.mouseover = true;
             this.#getMouseCanvasPos(e);
-            this.events.fire("mouseenter", this.mouseCanvasPos, true);
         });
 
         this.element.addEventListener("mouseleave", this.#mouseLeaveListener = (e) => {
@@ -761,151 +724,7 @@ class Input extends Component {
             }
             this.mouseover = false;
             this.#getMouseCanvasPos(e);
-            this.events.fire("mouseleave", this.mouseCanvasPos, true);
         });
-
-        this.element.addEventListener("mousedown", this.#mouseDownListener = (e) => {
-            if (!this.enabled) {
-                return;
-            }
-            switch (e.which) {
-                case 1:// Left button
-                    this.mouseDownLeft = true;
-                    break;
-                case 2:// Middle/both buttons
-                    this.mouseDownMiddle = true;
-                    break;
-                case 3:// Right button
-                    this.mouseDownRight = true;
-                    break;
-                default:
-                    break;
-            }
-            this.#getMouseCanvasPos(e);
-            this.element.focus();
-            this.events.fire("mousedown", this.mouseCanvasPos, true);
-            if (this.mouseover) {
-                e.preventDefault();
-            }
-        });
-
-        document.addEventListener("mouseup", this.#mouseUpListener = (e) => {
-            if (!this.enabled) {
-                return;
-            }
-            switch (e.which) {
-                case 1:// Left button
-                    this.mouseDownLeft = false;
-                    break;
-                case 2:// Middle/both buttons
-                    this.mouseDownMiddle = false;
-                    break;
-                case 3:// Right button
-                    this.mouseDownRight = false;
-                    break;
-                default:
-                    break;
-            }
-            this.events.fire("mouseup", this.mouseCanvasPos, true);
-            // if (this.mouseover) {
-            //     e.preventDefault();
-            // }
-        }, true);
-
-        document.addEventListener("click", this.#clickListener = (e) => {
-            if (!this.enabled) {
-                return;
-            }
-            switch (e.which) {
-                case 1:// Left button
-                    this.mouseDownLeft = false;
-                    this.mouseDownRight = false;
-                    break;
-                case 2:// Middle/both buttons
-                    this.mouseDownMiddle = false;
-                    break;
-                case 3:// Right button
-                    this.mouseDownLeft = false;
-                    this.mouseDownRight = false;
-                    break;
-                default:
-                    break;
-            }
-            this.#getMouseCanvasPos(e);
-            this.events.fire("click", this.mouseCanvasPos, true);
-            if (this.mouseover) {
-                e.preventDefault();
-            }
-        });
-
-        document.addEventListener("dblclick", this.#dblClickListener = (e) => {
-            if (!this.enabled) {
-                return;
-            }
-            switch (e.which) {
-                case 1:// Left button
-                    this.mouseDownLeft = false;
-                    this.mouseDownRight = false;
-                    break;
-                case 2:// Middle/both buttons
-                    this.mouseDownMiddle = false;
-                    break;
-                case 3:// Right button
-                    this.mouseDownLeft = false;
-                    this.mouseDownRight = false;
-                    break;
-                default:
-                    break;
-            }
-            this.#getMouseCanvasPos(e);
-            this.events.fire("dblclick", this.mouseCanvasPos, true);
-            if (this.mouseover) {
-                e.preventDefault();
-            }
-        });
-
-        this.element.addEventListener("mousemove", this.#mouseMoveListener = (e) => {
-            if (!this.enabled) {
-                return;
-            }
-            this.#getMouseCanvasPos(e);
-            this.events.fire("mousemove", this.mouseCanvasPos, true);
-            if (this.mouseover) {
-                e.preventDefault();
-            }
-        });
-
-        this.element.addEventListener("wheel", this.#mouseWheelListener = (e) => {
-            if (!this.enabled) {
-                return;
-            }
-            const delta = Math.max(-1, Math.min(1, -e.deltaY * 40));
-            this.events.fire("mousewheel", delta, true);
-        }, {passive: true});
-
-        // mouseclicked
-
-        {
-            let downX:number;
-            let downY:number;
-            // Tolerance between down and up positions for a mouse click
-            const tolerance = 2;
-            this.events.on("mousedown", (params:any) => {
-                downX = params[0];
-                downY = params[1];
-            });
-            this.events.on("mouseup", (params:any) => {
-                if (downX >= (params[0] - tolerance) &&
-                    downX <= (params[0] + tolerance) &&
-                    downY >= (params[1] - tolerance) &&
-                    downY <= (params[1] + tolerance)) {
-                    this.events.fire("mouseclicked", params, true);
-                }
-            });
-
-
-        }
-        this.#eventsBound = true;
     }
 
     #unbindEvents() {
@@ -951,7 +770,6 @@ class Input extends Component {
      */
     setEnabled(enable: boolean) {
         if (this.enabled !== enable) {
-            this.events.fire("enabled", this.enabled = enable);
         }
     }
 

@@ -1,17 +1,42 @@
+import type {FloatArrayParam} from "./math";
+
 /**
  * {@link View} creation parameters for {@link Viewer.createView}.
  */
 export interface ViewParams {
+
     /**
      * ID for the new View.
      */
-    id?: number | string;
+    id?: string;
 
+    /**
+     * The Real-space 3D origin, in Real-space units, at which the {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
+     */
+    origin?: FloatArrayParam;
 
-    origin?: number[];
+    /**
+     * The number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
+     *
+     * For example, if {@link ViewParams.units} is {@link MetersUnit}, and there are ten meters per World-space coordinate
+     * system unit, then this property would have a value of ````10.0````.
+     */
     scale?: number;
-    units?: string;
+
+    /**
+     * The unit of measurement for the {@link View}. Accepted values are {@link MetersUnit}, {@link CentimetersUnit},
+     * {@link MillimetersUnit}, {@link YardsUnit}, {@link FeetUnit} and {@link InchesUnit}.
+     */
+    units?: number;
+
+    /**
+     * ID of an HTMLCanvasElement in the DOM.
+     */
     canvasId?: string;
+
+    /**
+     *
+     */
     canvasElement?: HTMLCanvasElement;
     backgroundColor?: any[];
     backgroundColorFromAmbientLight?: boolean;

@@ -1,6 +1,9 @@
 import {Component} from '../../Component';
 import type {Camera} from "./Camera";
 import * as math from '../../math/index';
+import {EventEmitter} from "../../EventEmitter";
+import {EventDispatcher} from "strongly-typed-events";
+import {OrthoProjectionType} from "../../constants";
 
 /**
  * Orthographic projection configuration for a {@link Camera}.
@@ -10,6 +13,7 @@ import * as math from '../../math/index';
  * indicated with a single {@link Ortho.scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
  * contain the number of units given by {@link Ortho.scale}.
  * * {@link Ortho.near} and {@link Ortho.far} indicated the distances to the clipping planes.
+ * * {@link Ortho.onProjMatrix} will fire an event whenever {@link Ortho.projMatrix} updates, which indicates that one or more other properties have updated.
  */
 class Ortho extends Component {
 
@@ -18,17 +22,29 @@ class Ortho extends Component {
      */
     public readonly camera: Camera;
 
+    /**
+     * Emits an event each time {@link Ortho.projMatrix} updates.
+     *
+     * @event
+     */
+    readonly onProjMatrix: EventEmitter<Ortho, math.FloatArrayParam>;
+
+    /**
+     * The type of this projection.
+     */
+    static readonly type: number = OrthoProjectionType;
+
     #state: {
-        transposedMatrix: math.FloatArrayParam;
         far: number;
         near: number;
         scale: number;
-        matrix: math.FloatArrayParam;
-        inverseMatrix: math.FloatArrayParam
+        projMatrix: math.FloatArrayParam;
+        inverseProjMatrix: math.FloatArrayParam;
+        transposedProjMatrix: math.FloatArrayParam;
     };
 
     #inverseMatrixDirty: boolean;
-    #transposedMatrixDirty: boolean;
+    #transposedProjMatrixDirty: boolean;
     #onCanvasBoundary: any;
 
     /**
@@ -45,18 +61,20 @@ class Ortho extends Component {
         this.camera = camera;
 
         this.#state = {
-            matrix: math.mat4(),
-            inverseMatrix: math.mat4(),
-            transposedMatrix: math.mat4(),
             near: cfg.near || 0.1,
             far: cfg.far || 2000.0,
-            scale: cfg.scale || 1.0
+            scale: cfg.scale || 1.0,
+            projMatrix: math.mat4(),
+            inverseProjMatrix: math.mat4(),
+            transposedProjMatrix: math.mat4()
         };
 
-        this.#inverseMatrixDirty = true;
-        this.#transposedMatrixDirty = true;
+        this.onProjMatrix = new EventEmitter(new EventDispatcher<Ortho, math.FloatArrayParam>());
 
-        this.#onCanvasBoundary = this.camera.view.canvas.events.on("boundary", () => {
+        this.#inverseMatrixDirty = true;
+        this.#transposedProjMatrixDirty = true;
+
+        this.#onCanvasBoundary = this.camera.view.canvas.onBoundary.subscribe( () => {
             this.setDirty();
         });
     }
@@ -104,8 +122,6 @@ class Ortho extends Component {
     /**
      * Sets the position of the Ortho's near plane on the positive View-space Z-axis.
      *
-     * Fires a "near" emits on change.
-     *
      * Default value is ````0.1````.
      *
      * @param value New Ortho near plane position.
@@ -132,8 +148,6 @@ class Ortho extends Component {
     /**
      * Sets the position of the Ortho's far plane on the positive View-space Z-axis.
      *
-     * Fires a "far" event on change.
-     *
      * Default value is ````2000.0````.
      *
      * @param value New far ortho plane position.
@@ -149,49 +163,47 @@ class Ortho extends Component {
     /**
      * Gets the Ortho's projection transform matrix.
      *
-     * Fires a "matrix" event on change.
-     *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
      * @returns  The Ortho's projection matrix.
      */
-    get matrix(): math.FloatArrayParam {
+    get projMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.#state.matrix;
+        return this.#state.projMatrix;
     }
 
     /**
-     * Gets the inverse of {@link Ortho.matrix}.
+     * Gets the inverse of {@link Ortho.projMatrix}.
      *
-     * @returns  The inverse of {@link Ortho.matrix}.
+     * @returns  The inverse of {@link Ortho.projMatrix}.
      */
-    get inverseMatrix(): math.FloatArrayParam {
+    get inverseProjMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
         if (this.#inverseMatrixDirty) {
-            math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
+            math.inverseMat4(this.#state.projMatrix, this.#state.inverseProjMatrix);
             this.#inverseMatrixDirty = false;
         }
-        return this.#state.inverseMatrix;
+        return this.#state.inverseProjMatrix;
     }
 
     /**
-     * Gets the transpose of {@link Ortho.matrix}.
+     * Gets the transpose of {@link Ortho.projMatrix}.
      *
-     * @returns  The transpose of {@link Ortho#matrix}.
+     * @returns  The transpose of {@link Ortho.projMatrix}.
      */
-    get transposedMatrix(): math.FloatArrayParam {
+    get transposedProjMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        if (this.#transposedMatrixDirty) {
-            math.transposeMat4(this.#state.matrix, this.#state.transposedMatrix);
-            this.#transposedMatrixDirty = false;
+        if (this.#transposedProjMatrixDirty) {
+            math.transposeMat4(this.#state.projMatrix, this.#state.transposedProjMatrix);
+            this.#transposedProjMatrixDirty = false;
         }
-        return this.#state.transposedMatrix;
+        return this.#state.transposedProjMatrix;
     }
 
     /**
@@ -206,7 +218,7 @@ class Ortho extends Component {
         const scale = this.#state.scale;
         const halfSize = 0.5 * scale;
 
-        const boundary = view.viewport.boundary;
+        const boundary = view.canvas.boundary;
         const boundaryWidth = boundary[WIDTH_INDEX];
         const boundaryHeight = boundary[HEIGHT_INDEX];
         const aspect = boundaryWidth / boundaryHeight;
@@ -229,14 +241,14 @@ class Ortho extends Component {
             bottom = -halfSize;
         }
 
-        math.orthoMat4c(left, right, bottom, top, this.#state.near, this.#state.far, this.#state.matrix);
+        math.orthoMat4c(left, right, bottom, top, this.#state.near, this.#state.far, this.#state.projMatrix);
 
         this.#inverseMatrixDirty = true;
-        this.#transposedMatrixDirty = true;
+        this.#transposedProjMatrixDirty = true;
 
         this.camera.view.redraw();
 
-        this.events.fire("matrix", this.#state.matrix);
+        this.onProjMatrix.dispatch(this, this.#state.projMatrix);
     }
 
     /**
@@ -265,7 +277,7 @@ class Ortho extends Component {
         screenPos[2] = screenZ;
         screenPos[3] = 1.0;
 
-        math.mulMat4v4(this.inverseMatrix, screenPos, viewPos);
+        math.mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
         math.mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
 
         viewPos[3] = 1.0;
@@ -281,7 +293,8 @@ class Ortho extends Component {
      */
     destroy() {
         super.destroy();
-        this.camera.view.canvas.events.off(this.#onCanvasBoundary);
+        this.camera.view.canvas.onBoundary.unsubscribe(this.#onCanvasBoundary);
+        this.onProjMatrix.clear();
     }
 }
 

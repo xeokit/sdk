@@ -1,10 +1,11 @@
-import {utils} from "../../viewer/index";
+import {Map} from "../../viewer/utils";
+
 import {Shader} from "./Shader";
 import {Sampler} from "./Sampler";
 import {Attribute} from "./Attribute";
 import type {Texture} from "./Texture";
 
-const ids = new utils.Map({}, "");
+const ids = new Map({}, "");
 
 export class Program {
 

@@ -3,7 +3,7 @@ import type {SceneModel} from "./SceneModel";
 import type {FloatArrayParam} from "../math/math";
 
 /**
- * Geometric representation of an object in a viewer.
+ * Geometry and materials for an object in a {@link SceneModel}.
  *
  * ## Summary
  *
@@ -11,11 +11,13 @@ import type {FloatArrayParam} from "../math/math";
  * * Created with {@link SceneModel.createObject}
  * * Registered in {@link SceneModel.objects} and {@link Scene.objects}
  * * Has a {@link ViewObject} in each {@link View}
+ *
+ * See {@link Scene} for usage examples.
  */
 export interface SceneObject {
 
     /**
-     * The SceneModel that contains this SceneObject.
+     * The {@link SceneModel} that contains this SceneObject.
      */
     readonly model: SceneModel;
 

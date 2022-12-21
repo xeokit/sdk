@@ -216,9 +216,9 @@ class WebGLSceneObject implements SceneObject {
         // this.sceneModel.glRedraw();
     }
 
-    finalize(): void {
+    build(): void {
         for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].finalize(this.#flags);
+            this.#meshes[i].build(this.#flags);
         }
     }
 

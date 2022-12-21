@@ -212,7 +212,7 @@ export class SAODepthLimitedBlurRenderer {
         if (!this.#getInverseProjectMat) { // HACK: scene.camera not defined until render time
             this.#getInverseProjectMat = (() => {
                 let projMatDirty = true;
-                this.#view.camera.events.on("projMatrix", function () {
+                this.#view.camera.onProjMatrix.subscribe(()=> {
                     projMatDirty = true;
                 });
                 const inverseProjectMat = math.mat4();

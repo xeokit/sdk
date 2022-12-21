@@ -1,6 +1,6 @@
 import {Component} from '../Component';
 import type {View} from "./View";
-import {QualityRender} from "../constants";
+import {CustomProjectionType, FrustumProjectionType, QualityRender} from "../constants";
 
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link View}.
@@ -120,10 +120,10 @@ export class SAO extends Component {
             return false;
         }
         const projection = this.view.camera.projection;
-        if (projection === "customProjection") {
+        if (projection === CustomProjectionType) {
             return false;
         }
-        if (projection === "frustum") {
+        if (projection === FrustumProjectionType) {
             return false;
         }
         return true;

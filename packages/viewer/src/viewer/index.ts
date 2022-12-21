@@ -6,6 +6,11 @@ export * from "./Viewer";
 export * as constants from "./constants";
 
 /**
+ * Key codes.
+ */
+export * as keycodes from "./keycodes";
+
+/**
  * Geometry and materials
  */
 export * from "./scene/index";
@@ -16,14 +21,31 @@ export * from "./scene/index";
 export * from "./view/index";
 
 /**
- * Math utilities
+ * Math utilities library.
+ *
+ * Provides general utilities to support 2D and 3D graphics capabilities of {@link Viewer|Viewers}.
+ *
+ * Also provides specialized graphics utilities, grouped in the following namespaces:
+ *
+ * * **boundaries** - Utility functions for working with 3D and 2D boundaries.
+ * * **compression** - Utility functions for geometry and coordinate de/compression.
+ * * **curves** - Utility functions for working with spline curves.
+ * * **geometry** - Utility functions for generating geometry.
+ * * **rays** - Utility functions for working with 3D rays.
+ * * **rtc** - Utility functions for working with relative-to-center (RTC) coordinates.
+ *
+ * Use the math utilities library like this:
+ *
+ * ````javascript
+ * import {Viewer, math} from "xeokit-viewer.modern.js";
+ * const viewer = new Viewer();
+ * //...
+ * const aabb = math.boundaries.AABB();
+ * math.boundaries.collapseAABB3(aabb);
+ * math.boundaries.expandAABB3(viewer.scene.aabb);
+ * ````
  */
 export * as math from "./math/index"
-
-/**
- * Misc. utilities
- */
-export * as utils from "./utils/index"
 
 /**
   * Compressed texture transcoders.
@@ -32,32 +54,10 @@ export * from "./textureTranscoders/index";
 
 export * from "./ViewerCapabilities";
 export * from "./Component";
-export * from "./Events";
 export * from "./Component";
 export * from "./Plugin";
 export * from "./localization/index";
 export * from "./data/index";
-
-
-//
-// /**
-//  * Core viewer math utilities.
-//  *
-//  * ## Summary
-//  *
-//  * * Core 3D and 2D math library
-//  * * GeometryBucketHandle de/compression functions
-//  * * Primitive generation functions (cube, torus, sphere..)
-//  * * RTC coordinate functions
-//  */
-// export * as math from "./math/index"
-//
-// export * as utils from "./utils/index"
-//
-//
 export * from "./ViewParams";
-//
-// /**
-//  * Compressed texture transcoders.
-//  */
-// export * from "./textureTranscoders/index";
+
+export * from "./EventEmitter";

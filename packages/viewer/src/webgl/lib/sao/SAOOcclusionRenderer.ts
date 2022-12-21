@@ -4,6 +4,7 @@ import {WEBGL_INFO} from "../WEBGL_INFO";
 import {RenderBuffer} from "../RenderBuffer";
 import {Attribute} from "../Attribute";
 import {CustomProjection, View, math} from "../../../viewer/index";
+import {PerspectiveProjectionType} from "../../../viewer/constants";
 
 const tempVec2 = math.vec2();
 
@@ -274,7 +275,7 @@ export class SAOOcclusionRenderer {
         if (!this.#getInverseProjectMat) { // HACK: scene.camera not defined until render time
             this.#getInverseProjectMat = (() => {
                 let projMatDirty = true;
-                this.#view.camera.events.on("projMatrix", function () {
+                this.#view.camera.onProjMatrix.subscribe(()=> {
                     projMatDirty = true;
                 });
                 const inverseProjectMat = math.mat4();
@@ -300,10 +301,10 @@ export class SAOOcclusionRenderer {
             near = project.near;
             far = project.far;
         }
-        const projectionMatrix = project.matrix;
+        const projectionMatrix = project.projMatrix;
         const inverseProjectionMatrix = this.#getInverseProjectMat();
         const randomSeed = Math.random();
-        const perspective = (view.camera.projection === "perspective");
+        const perspective = (view.camera.projection === PerspectiveProjectionType);
 
         tempVec2[0] = viewportWidth;
         tempVec2[1] = viewportHeight;

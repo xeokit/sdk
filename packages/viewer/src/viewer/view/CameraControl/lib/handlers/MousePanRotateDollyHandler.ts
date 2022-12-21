@@ -1,34 +1,17 @@
 import * as math from "../../../../math/index";
 import type {View} from "../../../View";
+import {PerspectiveProjectionType} from "../../../../constants";
+import * as keycodes from "../../../../keycodes";
 
 const canvasPos = math.vec2();
-
-const getCanvasPosFromEvent = function (event:any, canvasPos:any) {
-    if (!event) {
-        event = window.event;
-        canvasPos[0] = event.x;
-        canvasPos[1] = event.y;
-    } else {
-        let element = event.target;
-        let totalOffsetLeft = 0;
-        let totalOffsetTop = 0;
-        while (element.offsetParent) {
-            totalOffsetLeft += element.offsetLeft;
-            totalOffsetTop += element.offsetTop;
-            element = element.offsetParent;
-        }
-        canvasPos[0] = event.pageX - totalOffsetLeft;
-        canvasPos[1] = event.pageY - totalOffsetTop;
-    }
-    return canvasPos;
-};
 
 /**
  * @private
  */
-class MousePanRotateDollyHandler {
+export class MousePanRotateDollyHandler {
 
     #view: View;
+
     #documentKeyDownHandler: (e: any) => void;
     #documentKeyUpHandler: (e: any) => void;
     #mouseDownHandler: (e: any) => void;
@@ -66,7 +49,7 @@ class MousePanRotateDollyHandler {
         const keyDown: any[] = [];
 
         document.addEventListener("keydown", this.#documentKeyDownHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled) || (!this.#view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!configs.keyboardEnabled)) {
                 return;
             }
             const keyCode = e.keyCode;
@@ -74,7 +57,7 @@ class MousePanRotateDollyHandler {
         });
 
         document.addEventListener("keyup", this.#documentKeyUpHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled) || (!this.#view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!configs.keyboardEnabled)) {
                 return;
             }
             const keyCode = e.keyCode;
@@ -116,7 +99,7 @@ class MousePanRotateDollyHandler {
             }
             switch (e.which) {
                 case 1: // Left button
-                    if (keyDown[this.#view.input.KEY_SHIFT] || configs.planView) {
+                    if (keyDown[keycodes.KEY_SHIFT] || configs.planView) {
                         mouseDownLeft = true;
                         setMousedownState();
                     } else {
@@ -157,7 +140,7 @@ class MousePanRotateDollyHandler {
             const x = states.pointerCanvasPos[0];
             const y = states.pointerCanvasPos[1];
 
-            const panning = keyDown[this.#view.input.KEY_SHIFT] || configs.planView || (!configs.panRightClick && mouseDownMiddle) || (configs.panRightClick && mouseDownRight);
+            const panning = keyDown[keycodes.KEY_SHIFT] || configs.planView || (!configs.panRightClick && mouseDownMiddle) || (configs.panRightClick && mouseDownRight);
 
             if (panning) {
 
@@ -168,7 +151,7 @@ class MousePanRotateDollyHandler {
 
                 // We use only canvasHeight here so that aspect ratio does not distort speed
 
-                if (camera.projection === "perspective") {
+                if (camera.projection === PerspectiveProjectionType) {
 
                     const depth = Math.abs(mouseDownPicked ? math.lenVec3(math.subVec3(pickedWorldPos, this.#view.camera.eye, [])) : this.#view.camera.eyeLookDist);
                     const targetDistance = depth * Math.tan((camera.perspective.fov / 2) * Math.PI / 180.0);
@@ -325,4 +308,24 @@ class MousePanRotateDollyHandler {
     }
 }
 
-export {MousePanRotateDollyHandler};
+const getCanvasPosFromEvent = function (event:any, canvasPos:any) {
+    if (!event) {
+        event = window.event;
+        canvasPos[0] = event.x;
+        canvasPos[1] = event.y;
+    } else {
+        let element = event.target;
+        let totalOffsetLeft = 0;
+        let totalOffsetTop = 0;
+        while (element.offsetParent) {
+            totalOffsetLeft += element.offsetLeft;
+            totalOffsetTop += element.offsetTop;
+            element = element.offsetParent;
+        }
+        canvasPos[0] = event.pageX - totalOffsetLeft;
+        canvasPos[1] = event.pageY - totalOffsetTop;
+    }
+    return canvasPos;
+};
+
+

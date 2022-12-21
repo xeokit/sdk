@@ -1,11 +1,15 @@
 import * as math from '../../math/index';
 import {Component} from '../../Component';
 import type {Camera} from "./Camera";
+import {EventEmitter} from "@xeokit-viewer/viewer";
+import {EventDispatcher} from "strongly-typed-events";
+import {CustomProjectionType} from "../../constants";
 
 /**
  * Configures a custom projection for a {@link Camera}.
  *
- * Located at {@link Camera.customProjection}.
+ * * Located at {@link Camera.customProjection}.
+ * * {@link CustomProjection.onProjMatrix} will fire an event whenever {@link CustomProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
 class CustomProjection extends Component {
 
@@ -14,20 +18,32 @@ class CustomProjection extends Component {
      */
     public readonly camera: Camera;
 
+    /**
+     * Emits an event each time {@link CustomProjection.projMatrix} updates.
+     *
+     * @event
+     */
+    readonly onProjMatrix: EventEmitter<CustomProjection, math.FloatArrayParam>;
+
+    /**
+     * The type of this projection.
+     */
+    static readonly type: number = CustomProjectionType;
+    
     #state: {
-        matrix: math.FloatArrayParam;
-        transposedMatrix: math.FloatArrayParam;
-        inverseMatrix: math.FloatArrayParam
+        projMatrix: math.FloatArrayParam;
+        transposedProjMatrix: math.FloatArrayParam;
+        inverseProjMatrix: math.FloatArrayParam
     };
 
-    #inverseMatrixDirty: boolean;
-    #transposedMatrixDirty: boolean;
+    #inverseProjMatrixDirty: boolean;
+    #transposedProjMatrixDirty: boolean;
 
     /**
      * @private
      */
     constructor(camera: Camera, cfg: {
-        matrix?: math.FloatArrayParam
+        projMatrix?: math.FloatArrayParam
     } = {}) {
 
         super(camera, cfg);
@@ -35,13 +51,15 @@ class CustomProjection extends Component {
         this.camera = camera;
 
         this.#state = {
-            matrix: math.mat4(cfg.matrix || math.identityMat4()),
-            inverseMatrix: math.mat4(),
-            transposedMatrix: math.mat4()
+            projMatrix: math.mat4(cfg.projMatrix || math.identityMat4()),
+            inverseProjMatrix: math.mat4(),
+            transposedProjMatrix: math.mat4()
         };
 
-        this.#inverseMatrixDirty = true;
-        this.#transposedMatrixDirty = false;
+        this.onProjMatrix = new EventEmitter(new EventDispatcher<CustomProjection, math.FloatArrayParam>());
+
+        this.#inverseProjMatrixDirty = true;
+        this.#transposedProjMatrixDirty = false;
     }
 
     /**
@@ -51,59 +69,57 @@ class CustomProjection extends Component {
      *
      * @return  New value for the CustomProjection's matrix.
      */
-    get matrix(): math.FloatArrayParam {
-        return this.#state.matrix;
+    get projMatrix(): math.FloatArrayParam {
+        return this.#state.projMatrix;
     }
 
     /**
      * Sets the CustomProjection's projection transform matrix.
      *
-     * Fires a "matrix" event on change.
-
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
-     * @param matrix New value for the CustomProjection's matrix.
+     * @param projMatrix New value for the CustomProjection's matrix.
      */
-    set matrix(matrix: math.FloatArrayParam) {
+    set projMatrix(projMatrix: math.FloatArrayParam) {
         // @ts-ignore
-        this.#state.matrix.set(matrix);
-        this.#inverseMatrixDirty = true;
-        this.#transposedMatrixDirty = true;
+        this.#state.projMatrix.set(projMatrix);
+        this.#inverseProjMatrixDirty = true;
+        this.#transposedProjMatrixDirty = true;
         this.setDirty();
         this.camera.view.redraw();
-        this.events.fire("matrix", this.#state.matrix);
+        this.onProjMatrix.dispatch(this, this.#state.projMatrix);
     }
 
     /**
-     * Gets the inverse of {@link CustomProjection.matrix}.
+     * Gets the inverse of {@link CustomProjection.projMatrix}.
      *
-     * @returns The inverse of {@link CustomProjection.matrix}.
+     * @returns The inverse of {@link CustomProjection.projMatrix}.
      */
-    get inverseMatrix(): math.FloatArrayParam {
+    get inverseProjMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        if (this.#inverseMatrixDirty) {
-            math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
-            this.#inverseMatrixDirty = false;
+        if (this.#inverseProjMatrixDirty) {
+            math.inverseMat4(this.#state.projMatrix, this.#state.inverseProjMatrix);
+            this.#inverseProjMatrixDirty = false;
         }
-        return this.#state.inverseMatrix;
+        return this.#state.inverseProjMatrix;
     }
 
     /**
-     * Gets the transpose of {@link CustomProjection.matrix}.
+     * Gets the transpose of {@link CustomProjection.projMatrix}.
      *
-     * @returns The transpose of {@link CustomProjection.matrix}.
+     * @returns The transpose of {@link CustomProjection.projMatrix}.
      */
-    get transposedMatrix(): math.FloatArrayParam {
+    get transposedProjMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        if (this.#transposedMatrixDirty) {
-            math.transposeMat4(this.#state.matrix, this.#state.transposedMatrix);
-            this.#transposedMatrixDirty = false;
+        if (this.#transposedProjMatrixDirty) {
+            math.transposeMat4(this.#state.projMatrix, this.#state.transposedProjMatrix);
+            this.#transposedProjMatrixDirty = false;
         }
-        return this.#state.transposedMatrix;
+        return this.#state.transposedProjMatrix;
     }
 
     /**
@@ -128,7 +144,7 @@ class CustomProjection extends Component {
         screenPos[1] = (canvasPos[1] - halfCanvasHeight) / halfCanvasHeight;
         screenPos[2] = screenZ;
         screenPos[3] = 1.0;
-        math.mulMat4v4(this.inverseMatrix, screenPos, viewPos);
+        math.mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
         math.mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
         viewPos[3] = 1.0;
         viewPos[1] *= -1;
@@ -141,6 +157,7 @@ class CustomProjection extends Component {
      */
     destroy() {
         super.destroy();
+        this.onProjMatrix.clear();
     }
 }
 

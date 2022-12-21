@@ -1,5 +1,4 @@
 import type {Viewer} from "./Viewer";
-import {Events} from "./Events";
 
 /**
  * Base class for {@link Viewer} plugins.
@@ -17,11 +16,6 @@ abstract class Plugin {
     public readonly viewer: Viewer;
 
     /**
-     * Manages events on this Plugin.
-     */
-    public readonly events: Events;
-
-    /**
      * Creates this Plugin and installs it into the given {@link Viewer}.
      *
      * @param id - ID for this plugin, unique among all plugins in the viewer.
@@ -32,7 +26,6 @@ abstract class Plugin {
 
         this.id = id;
         this.viewer = viewer;
-        this.events = new Events();
 
         viewer.registerPlugin(this);
     }

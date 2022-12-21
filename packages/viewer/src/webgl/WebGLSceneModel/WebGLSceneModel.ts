@@ -3,8 +3,6 @@ import {
     Scene,
     View,
     SceneModel,
-    Events,
-    utils,
     math,
     GeometryParams,
     MeshParams,
@@ -14,7 +12,7 @@ import {
     TextureSetParams,
     SceneObject,
     Transform,
-    GeometryCompressedParams
+    GeometryCompressedParams, EventEmitter, Camera
 } from "../../viewer/index";
 
 import {Texture2D} from "../lib/Texture2D";
@@ -49,6 +47,9 @@ import {compressGeometryParams} from "../../viewer/math/compression/compression"
 import type {TransformParams} from "../../viewer/scene/TransformParams";
 import type {TextureTranscoder} from "../../viewer/textureTranscoders/TextureTranscoder";
 import type {RenderContext} from "../RenderContext";
+import {createUUID, loadArraybuffer} from "../../viewer/utils";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../../viewer/math";
 
 const tempVec3a = math.vec3();
 const tempMat4 = math.mat4();
@@ -70,7 +71,6 @@ export class WebGLSceneModel extends Component implements SceneModel {
     readonly qualityRender: boolean;
     declare readonly id: string;
     readonly scene: Scene;
-    declare readonly events: Events;
     declare readonly destroyed: boolean;
 
     objects: { [key: string]: WebGLSceneObject };
@@ -112,9 +112,16 @@ export class WebGLSceneModel extends Component implements SceneModel {
     #aabb: math.FloatArrayParam;
     #viewMatrixDirty: boolean;
     #worldMatrixNonIdentity: boolean;
-    #onCameraViewMatrix: number;
-    #finalized: boolean;
+    #onCameraViewMatrix: () => void;
+    #built: boolean;
     #viewLayerId: string | undefined;
+
+    /**
+     * Emits an event when the {@link SceneModel} has been built.
+     *
+     * @event
+     */
+    readonly onBuilt: EventEmitter<SceneModel, null>;
 
     constructor(params: {
         id: string;
@@ -137,7 +144,6 @@ export class WebGLSceneModel extends Component implements SceneModel {
         super(params.view);
 
         this.id = params.id;
-        this.events = new Events();
         this.scene = params.scene;
         this.objects = {};
         this.objectList = [];
@@ -164,7 +170,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
         this.#numPoints = 0;
         this.#edgeThreshold = params.edgeThreshold || 10;
 
-        this.#finalized = false;
+        this.#built = false;
 
         // Build static matrix
 
@@ -189,11 +195,13 @@ export class WebGLSceneModel extends Component implements SceneModel {
 
         this.#viewLayerId = params.viewLayerId;
 
-        this.#onCameraViewMatrix = this.#view.camera.events.on("matrix", () => {
+        this.#onCameraViewMatrix = this.#view.camera.onViewMatrix.subscribe((camera:Camera, viewMatrix:FloatArrayParam) => {
             this.#viewMatrixDirty = true;
         });
 
         this.#createDefaultTextureSet();
+
+        this.onBuilt = new EventEmitter(new EventDispatcher<SceneModel, null>());
     }
 
     get origin(): math.FloatArrayParam {
@@ -345,8 +353,8 @@ export class WebGLSceneModel extends Component implements SceneModel {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
-        if (this.#finalized) {
-            throw new Error("SceneModel already finalized");
+        if (this.#built) {
+            throw new Error("SceneModel already built");
         }
         return null;
     }
@@ -355,8 +363,8 @@ export class WebGLSceneModel extends Component implements SceneModel {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
-        if (this.#finalized) {
-            throw new Error("SceneModel already finalized");
+        if (this.#built) {
+            throw new Error("SceneModel already built");
         }
         const geometryId = geometryParams.id;
         if (this.#geometries[geometryId]) {
@@ -384,8 +392,8 @@ export class WebGLSceneModel extends Component implements SceneModel {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
-        if (this.#finalized) {
-            throw new Error("SceneModel already finalized");
+        if (this.#built) {
+            throw new Error("SceneModel already built");
         }
         const geometryId = geometryCompressedParams.id;
         if (this.#geometries[geometryId]) {
@@ -405,8 +413,8 @@ export class WebGLSceneModel extends Component implements SceneModel {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
-        if (this.#finalized) {
-            throw new Error("SceneModel already finalized");
+        if (this.#built) {
+            throw new Error("SceneModel already built");
         }
         const textureId = textureParams.id;
         if (textureId === undefined || textureId === null) {
@@ -491,7 +499,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
                     if (!this.#textureTranscoder) {
                         this.error(`Can't create texture from 'src' - SceneModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);
                     } else {
-                        utils.loadArraybuffer(textureParams.src, (arrayBuffer: ArrayBuffer) => {
+                        loadArraybuffer(textureParams.src, (arrayBuffer: ArrayBuffer) => {
                                 if (!arrayBuffer.byteLength) {
                                     this.error(`Can't create texture from 'src': file data is zero length`);
                                     return;
@@ -524,8 +532,8 @@ export class WebGLSceneModel extends Component implements SceneModel {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
-        if (this.#finalized) {
-            throw new Error("SceneModel already finalized");
+        if (this.#built) {
+            throw new Error("SceneModel already built");
         }
         const textureSetId = textureSetParams.id;
         if (textureSetId === undefined || textureSetId === null) {
@@ -600,8 +608,8 @@ export class WebGLSceneModel extends Component implements SceneModel {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
-        if (this.#finalized) {
-            throw new Error("SceneModel already finalized");
+        if (this.#built) {
+            throw new Error("SceneModel already built");
         }
         const geometryCompressedParams = this.#geometries[meshParams.geometryId];
         if (!geometryCompressedParams) {
@@ -692,15 +700,15 @@ export class WebGLSceneModel extends Component implements SceneModel {
         if (this.destroyed) {
            throw new Error("SceneModel already destroyed");
         }
-        if (this.#finalized) {
-            throw new Error("SceneModel already finalized");
+        if (this.#built) {
+            throw new Error("SceneModel already built");
         }
         let id = sceneObjectParams.id;
         if (id === undefined) {
-            id = utils.createUUID();
+            id = createUUID();
         } else if (this.objects[id]) {
             this.error("[createObject] SceneModel already has a SceneObject with this ID: " + id + " - will assign random ID");
-            id = utils.createUUID();
+            id = createUUID();
         }
         const meshIds = sceneObjectParams.meshIds;
         if (meshIds === undefined) {
@@ -742,23 +750,23 @@ export class WebGLSceneModel extends Component implements SceneModel {
         return sceneObject;
     }
 
-    finalize() {
+    build() {
         if (this.destroyed) {
             this.log("SceneModel already destroyed");
             return;
         }
-        if (this.#finalized) {
-            this.log("SceneModel already finalized");
+        if (this.#built) {
+            this.log("SceneModel already built");
             return;
         }
         for (let layerId in this.#currentLayers) {
             if (this.#currentLayers.hasOwnProperty(layerId)) {
-                this.#currentLayers[layerId].finalize();
+                this.#currentLayers[layerId].build();
             }
         }
         for (let i = 0, len = this.objectList.length; i < len; i++) {
             const sceneObject = this.objectList[i];
-            sceneObject.finalize();
+            sceneObject.build();
         }
         for (let i = 0, len = this.objectList.length; i < len; i++) {
             const sceneObject = this.objectList[i];
@@ -780,7 +788,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
         this.#currentLayers = {};
         this.#webglRenderer.setImageDirty();
         this.scene.setAABBDirty();
-        this.events.fire("finalized", this);
+        this.onBuilt.dispatch(this, null);
     }
 
     /*
@@ -985,8 +993,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
         if (this.destroyed) {
             return;
         }
-        this.events.fire("destroyed", {}); // Fire this first
-        this.#view.camera.events.off(this.#onCameraViewMatrix);
+        this.#view.camera.onViewMatrix.unsubscribe(this.#onCameraViewMatrix);
         for (let layerId in this.#currentLayers) {
             if (this.#currentLayers.hasOwnProperty(layerId)) {
                 this.#currentLayers[layerId].destroy();
@@ -1010,6 +1017,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
         this.#meshes = {};
         this.objects = {};
         this.scene.setAABBDirty();
+        this.onBuilt.clear();
         super.destroy();
     }
 
@@ -1071,7 +1079,7 @@ export class WebGLSceneModel extends Component implements SceneModel {
             if (layer.canCreateMesh(geometryCompressedParams)) {
                 return layer;
             } else {
-                layer.finalize();
+                layer.build();
                 delete this.#currentLayers[layerId];
             }
         }
@@ -1218,6 +1226,5 @@ export class WebGLSceneModel extends Component implements SceneModel {
      */
 }
 
-class WebGLSceneModelImpl extends WebGLSceneModel {
-}
+
 

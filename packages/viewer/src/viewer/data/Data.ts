@@ -2,10 +2,12 @@ import {Component} from "../Component";
 import {DataModel} from "./DataModel";
 import type {DataObject} from "./DataObject";
 import type {PropertySet} from "./PropertySet";
-import type {Events} from "../Events";
 import type {Viewer} from "../Viewer";
 import type {DataModelParams} from "./DataModelParams";
 import {createUUID} from "../utils/index";
+import {EventEmitter, SceneModel} from "@xeokit-viewer/viewer";
+import {EventDispatcher} from "strongly-typed-events";
+import {scheduler} from "../scheduler";
 
 /**
  * Contains semantic data about the models within a {@link Viewer}.
@@ -18,6 +20,237 @@ import {createUUID} from "../utils/index";
  * * Use {@link Data.createModel} to create {@link DataModel|DataModels}
  * * Use {@link DataModel.createObject} to create {@link DataObject|DataObjects}
  * * Use {@link DataModel.createPropertySet} to create {@link PropertySet|PropertySets}
+ *
+ * ## Examples
+ *
+ * ### Example 1. Creating a DataModel from JSON
+ *
+ * Creating a {@link DataModel} within our Data, from a JSON object:
+ *
+ * ````javascript
+ * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const myViewer = new Viewer({
+ *   id: "myViewer"
+ * });
+ *
+ * myViewer.data.createModel({
+ *     id: "myTableModel",
+ *     projectId: "024120003",
+ *     revisionId: "902344223",
+ *     author: "xeolabs",
+ *     createdAt: "Jan 26 2022",
+ *     creatingApplication: "WebStorm",
+ *     schema: "ifc4",
+ *     propertySets: [
+ *         {
+ *             id: "tablePropertySet",
+ *             originalSystemId: "tablePropertySet",
+ *             name: "Table properties",
+ *             type: "",
+ *             properties: [
+ *                 {
+ *                     name: "Weight",
+ *                     value: 5,
+ *                     type: "",
+ *                     valueType: "",
+ *                     description: "Weight of the thing"
+ *                 },
+ *                 {
+ *                     name: "Height",
+ *                     value: 12,
+ *                     type: "",
+ *                     valueType: "",
+ *                     description: "Height of the thing"
+ *                 }
+ *             ]
+ *         },
+ *         {
+ *             id: "legPropertySet",
+ *             originalSystemId: "legPropertySet",
+ *             name: "Table leg properties",
+ *             type: "",
+ *             properties: [
+ *                 {
+ *                     name: "Weight",
+ *                     value: 5,
+ *                     type: "",
+ *                     valueType: "",
+ *                     description: "Weight of the thing"
+ *                 },
+ *                 {
+ *                     name: "Height",
+ *                     value: 12,
+ *                     type: "",
+ *                     valueType: "",
+ *                     description: "Height of the thing"
+ *                 }
+ *             ]
+ *         }
+ *     ],
+ *     objects: [
+ *         {
+ *             id: "table",
+ *             originalSystemId: "table",
+ *             type: "furniture",
+ *             name: "Table",
+ *             propertySetIds: ["tablePropertySet"]
+ *         },
+ *         {
+ *             id: "redLeg",
+ *             name: "Red table Leg",
+ *             type: "leg",
+ *             parentId: "table",
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "greenLeg",
+ *             name: "Green table leg",
+ *             type: "leg",
+ *             parentId: "table",
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "blueLeg",
+ *             name: "Blue table leg",
+ *             type: "leg",
+ *             parentId: "table",
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "yellowLeg",
+ *             name: "Yellow table leg",
+ *             type: "leg",
+ *             parentId: "table",
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "tableTop",
+ *             name: "Purple table top",
+ *             type: "surface",
+ *             parentId: "table",
+ *             propertySetIds: ["tableTopPropertySet"]
+ *         }
+ *     ]
+ * });
+ * ````
+ *
+ * ### Example 2. Creating a DataModel using Builder Methods
+ *
+ * In our second example, we'll create another {@link DataModel}, this time instantiating the {@link PropertySet},
+ * {@link Property} and {@link DataObject} components ourselves, using builder methods.
+ *
+ * ````javascript
+ * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const myViewer = new Viewer({
+ *   id: "myViewer"
+ * });
+ *
+ * const myDataModel = myViewer.data.createModel({
+ *     id: "myTableModel",
+ *     projectId: "024120003",
+ *     revisionId: "902344223",
+ *     author: "xeolabs",
+ *     createdAt: "Jan 26 2022",
+ *     creatingApplication: "WebStorm",
+ *     schema: "ifc4"
+ * });
+ *
+ * const tablePropertySet = myDataModel.createPropertySet({
+ *     id: "tablePropertySet",
+ *     originalSystemId: "tablePropertySet",
+ *     name: "Table properties",
+ *     type: ""
+ * });
+ *
+ * tablePropertySet.createProperty({
+ *     name: "Weight",
+ *     value: 5,
+ *     type: "",
+ *     valueType: "",
+ *     description: "Weight of the thing"
+ * });
+ *
+ * tablePropertySet.createProperty({
+ *     name: "Height",
+ *     value: 12,
+ *     type: "",
+ *     valueType: "",
+ *     description: "Height of the thing"
+ * });
+ *
+ * const legPropertySet = myDataModel.createPropertySet({
+ *     id: "legPropertySet",
+ *     originalSystemId: "legPropertySet",
+ *     name: "Table leg properties",
+ *     type: ""
+ * });
+ *
+ * legPropertySet.createProperty({
+ *     name: "Weight",
+ *     value: 5,
+ *     type: "",
+ *     valueType: "",
+ *     description: "Weight of the thing"
+ * });
+ *
+ * legPropertySet.createProperty({
+ *     name: "Height",
+ *     value: 12,
+ *     type: "",
+ *     valueType: "",
+ *     description: "Height of the thing"
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "table",
+ *     originalSystemId: "table",
+ *     type: "furniture",
+ *     name: "Table",
+ *     propertySetIds: ["tablePropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "redLeg",
+ *     name: "Red table Leg",
+ *     type: "leg",
+ *     parentId: "table",
+ *     propertySetIds: ["tableLegPropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "greenLeg",
+ *     name: "Green table leg",
+ *     type: "leg",
+ *     parentId: "table",
+ *     propertySetIds: ["tableLegPropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "blueLeg",
+ *     name: "Blue table leg",
+ *     type: "leg",
+ *     parentId: "table",
+ *     propertySetIds: ["tableLegPropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "yellowLeg",
+ *     name: "Yellow table leg",
+ *     type: "leg",
+ *     parentId: "table",
+ *     propertySetIds: ["tableLegPropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "tableTop",
+ *     name: "Purple table top",
+ *     type: "surface",
+ *     parentId: "table",
+ *     propertySetIds: ["tableTopPropertySet"]
+ * });
+ * ````
  */
 export class Data extends Component {
 
@@ -29,9 +262,18 @@ export class Data extends Component {
     declare public readonly viewer: Viewer;
 
     /**
-     * Manages events on this Data.
+     * Emits an event each time a {@link DataModel} is created.
+     *
+     * @event
      */
-    declare public readonly events: Events;
+    readonly onModelCreated: EventEmitter<Data, DataModel>;
+
+    /**
+     * Emits an event each time a {@link DataModel} is destroyed.
+     *
+     * @event
+     */
+    readonly onModelDestroyed: EventEmitter<Data, DataModel>;
 
     /**
      * The {@link DataModel}s belonging to this Data, each keyed to its {@link DataModel.id}.
@@ -71,12 +313,15 @@ export class Data extends Component {
         this.objects = {};
         this.objectsByType = {};
         this.typeCounts = {};
+
+        this.onModelCreated = new EventEmitter(new EventDispatcher<Data, DataModel>());
+        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Data, DataModel>());
     }
 
     /**
      * Creates a {@link DataModel} in this Data.
      *
-     * @param  dataModelCfg Data for the {@link DataModel}.
+     * @param  dataModelParams Data for the {@link DataModel}.
      * @param [options] Options for creating the {@link DataModel}.
      * @param [options.includeTypes] When provided, only create {@link DataObject}s with types in this list.
      * @param  [options.excludeTypes] When provided, never create {@link DataObject}s with types in this list.
@@ -85,25 +330,25 @@ export class Data extends Component {
      * @see {@link Scene.createModel}
      */
     createModel(
-        dataModelCfg: DataModelParams,
+        dataModelParams: DataModelParams,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],
             globalizeObjectIds?: boolean
         }
     ): DataModel {
-        let id = dataModelCfg.id || createUUID();
+        let id = dataModelParams.id || createUUID();
         if (this.models[id]) {
             this.error(`DataModel with ID "${id}" already exists - will randomly-generate ID`);
             id = createUUID();
         }
-        const dataModel = new DataModel(this, id, dataModelCfg, options);
+        const dataModel = new DataModel(this, id, dataModelParams, options);
         this.#registerDataModel(dataModel);
-        dataModel.events.on("destroyed", () => { // DataModel#destroy() called
+        dataModel.onDestroyed.one(() => { // DataModel#destroy() called
             this.#deregisterDataModel(dataModel);
-            this.events.fire("dataModelDestroyed", dataModel);
+            this.onModelDestroyed.dispatch(this, dataModel);
         });
-        this.events.fire("dataModelCreated", dataModel);
+        this.onModelCreated.dispatch(this, dataModel);
         return dataModel;
     }
 
@@ -241,6 +486,15 @@ export class Data extends Component {
             }
         }
         delete this.models[dataModel.id];
+    }
+
+    /**
+     * @private
+     */
+    destroy(): void {
+        this.onModelCreated.clear();
+        this.onModelDestroyed.clear();
+        super.destroy();
     }
 }
 

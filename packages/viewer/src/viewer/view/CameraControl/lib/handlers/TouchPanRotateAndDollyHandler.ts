@@ -1,5 +1,6 @@
 import * as math from "../../../../math/index";
 import type {View} from "../../../View";
+import {PerspectiveProjectionType} from "../../../../constants";
 
 
 const getCanvasPosFromEvent = function (event:any, canvasPos:any) {
@@ -50,7 +51,7 @@ class TouchPanRotateAndDollyHandler {
         let tapStartTime = -1;
         let waitForTick = false;
 
-        this.#onTick = this.#view.events.on("tick", () => {
+        this.#onTick = this.#view.viewer.onTick.subscribe(() => {
             waitForTick = false;
         });
 
@@ -173,7 +174,7 @@ class TouchPanRotateAndDollyHandler {
 
                     // We use only canvasHeight here so that aspect ratio does not distort speed
 
-                    if (camera.projection === "perspective") {
+                    if (camera.projection === PerspectiveProjectionType) {
 
                         const touchPicked = false;
                         const pickedWorldPos = [0, 0, 0];
@@ -228,7 +229,7 @@ class TouchPanRotateAndDollyHandler {
 
                     // We use only canvasHeight here so that aspect ratio does not distort speed
 
-                    if (camera.projection === "perspective") {
+                    if (camera.projection === PerspectiveProjectionType) {
                         const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : this.#view.viewer.scene.center;
 
                         const depth = Math.abs(math.lenVec3(math.subVec3(pickedWorldPos, this.#view.camera.eye, [])));
@@ -261,7 +262,7 @@ class TouchPanRotateAndDollyHandler {
         const canvas = this.#view.canvas.canvas;
         canvas.removeEventListener("touchstart", this.#canvasTouchStartHandler);
         canvas.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
-        this.#view.events.off(this.#onTick);
+        this.#view.viewer.onTick.unsubscribe(this.#onTick);
     }
 }
 

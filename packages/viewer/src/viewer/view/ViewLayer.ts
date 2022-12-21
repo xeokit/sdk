@@ -4,6 +4,8 @@ import {ViewObject} from "./ViewObject";
 import type {Viewer} from "../Viewer";
 import type {Scene, SceneModel} from "../scene/index";
 import type {View} from "./View";
+import {EventEmitter} from "../EventEmitter";
+import {EventDispatcher} from "strongly-typed-events";
 
 /**
  * A layer of {@link ViewObject|ViewObjects} in a {@link View}.
@@ -125,7 +127,7 @@ import type {View} from "./View";
  *      viewLayerId: "model"
  * });
  *
- * myModel.finalize();
+ * myModel.build();
  * ````
  *
  * Our {@link View} has now automatically created an "environment" {@link ViewLayer}, which contains {@link ViewObject|ViewObjects} for the skybox and
@@ -223,7 +225,7 @@ import type {View} from "./View";
  *      viewLayerId: "model"
  * });
  *
- * myModel.finalize();
+ * myModel.build();
  * ````
  *
  * This time, however, our {@link View} has now created {@link ViewObject|ViewObjects} for the "model" SceneObjects, while
@@ -330,6 +332,13 @@ class ViewLayer extends Component {
      */
     autoDestroy: boolean;
 
+    /**
+     * Emits an event each time the visibility of a {@link ViewObject} changes.
+     *
+     * @event
+     */
+    readonly onObjectVisibility: EventEmitter<ViewLayer, ViewObject>;
+
     #numObjects: number;
     #objectIds: string[] | null;
     #numVisibleObjects: number;
@@ -382,6 +391,8 @@ class ViewLayer extends Component {
         this.#numOpacityObjects = 0;
 
         this.#qualityRender = !!options.qualityRender;
+
+        this.onObjectVisibility = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
 
         this.#initObjects();
     }
@@ -568,15 +579,6 @@ class ViewLayer extends Component {
     /**
      * @private
      */
-    recompile() {
-        this.viewer.events.once("tick", () => {
-            this.events.fire("compile", this);
-        });
-    }
-
-    /**
-     * @private
-     */
     objectVisibilityUpdated(viewObject: ViewObject, visible: boolean, notify: boolean = true) {
         if (visible) {
             this.visibleObjects[viewObject.id] = viewObject;
@@ -587,7 +589,7 @@ class ViewLayer extends Component {
         }
         this.#visibleObjectIds = null; // Lazy regenerate
         if (notify) {
-            this.events.fire("objectVisibility", viewObject, true);
+            this.onObjectVisibility.dispatch(this, viewObject);
         }
         this.view.objectVisibilityUpdated(viewObject, visible, notify);
     }
@@ -881,10 +883,10 @@ class ViewLayer extends Component {
             const sceneModel = sceneModels[id];
             this.#createObjects(sceneModel);
         }
-        scene.events.on("sceneModelCreated", (sceneModel: SceneModel) => {
+        scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
             this.#createObjects(sceneModel);
         });
-        scene.events.on("sceneModelDestroyed", (sceneModel: SceneModel) => {
+        scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
             this.#destroyObjects(sceneModel);
         });
     }

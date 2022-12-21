@@ -20,7 +20,7 @@
   },
   "homepage": "https://xeokit.io",
   "dependencies": {
-    "@xeokit/viewer": "0.0.1"
+
   },
   "files": [
     "dist/",

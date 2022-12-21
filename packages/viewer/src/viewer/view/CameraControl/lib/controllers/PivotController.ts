@@ -56,15 +56,15 @@ class PivotController {
         this.#pivotCanvasPos = math.vec2();
         this.#cameraDirty = true;
 
-        this.#onViewMatrix = this.#view.camera.events.on("viewMatrix", () => {
+        this.#onViewMatrix = this.#view.camera.onViewMatrix.subscribe(() => {
             this.#cameraDirty = true;
         });
 
-        this.#onProjMatrix = this.#view.camera.events.on("projMatrix", () => {
+        this.#onProjMatrix = this.#view.camera.onProjMatrix.subscribe(() => {
             this.#cameraDirty = true;
         });
 
-        this.#onTick = this.#view.events.on("tick", () => {
+        this.#onTick = this.#view.viewer.onTick.subscribe(() => {
             this.updatePivotElement();
         });
     }
@@ -134,7 +134,7 @@ class PivotController {
      *
      * @returns {boolean}
      */
-    getPivoting() :boolean{
+    getPivoting(): boolean {
         return this.#pivoting;
     }
 
@@ -158,7 +158,7 @@ class PivotController {
     setCanvasPivotPos(canvasPos: math.FloatArrayParam) {
         const camera = this.#view.camera;
         const pivotShereRadius = Math.abs(math.distVec3(this.#view.viewer.scene.center, camera.eye));
-        const transposedProjectMat = camera.project.transposedMatrix;
+        const transposedProjectMat = camera.project.transposedProjMatrix;
         // @ts-ignore
         const Pt3 = transposedProjectMat.subarray(8, 12);
         // @ts-ignore
@@ -279,9 +279,9 @@ class PivotController {
     }
 
     destroy() {
-        this.#view.camera.events.off(this.#onViewMatrix);
-        this.#view.camera.events.off(this.#onProjMatrix);
-        this.#view.events.off(this.#onTick);
+        this.#view.camera.onViewMatrix.unsubscribe(this.#onViewMatrix);
+        this.#view.camera.onProjMatrix.unsubscribe(this.#onProjMatrix);
+        this.#view.viewer.onTick.unsubscribe(this.#onTick);
     }
 
     #cameraLookingDownwards() { // Returns true if angle between camera viewing direction and World-space "up" axis is too small

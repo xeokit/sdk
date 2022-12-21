@@ -26,9 +26,9 @@ class KeyboardAxisViewHandler {
         const camera = components.camera;
         const cameraControl = controllers.cameraControl;
 
-        view.input.events.on("keydown", this.#documentKeyDownHandler = (e) => {
+        document.addEventListener("keydown", this.#documentKeyDownHandler = (e) => {
 
-            if (!(configs.active && configs.pointerEnabled) || (!view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!configs.keyboardEnabled)) {
                 return;
             }
 

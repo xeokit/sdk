@@ -1,14 +1,14 @@
 import {scheduler} from "./scheduler";
 import * as utils from './utils/index';
-import {Events} from "./Events";
 import {Viewer} from "./Viewer";
+import {EventEmitter, SceneModel} from "@xeokit-viewer/viewer";
+import {EventDispatcher} from "strongly-typed-events";
 
 /**
  The base class for xeokit {@link Viewer} components.
 
  ## Summary
 
- - Handles events with an {@link Events} in {@link Component.events}
  - Has logging methods
  - Optionally manages lifecycle of owned Components
  */
@@ -22,7 +22,7 @@ export class Component {
     /**
      ID of this Component, unique within the {@link Viewer}.
      */
-    protected id: string;
+    public id: string;
 
     /**
      True once this Component has been destroyed.
@@ -31,17 +31,18 @@ export class Component {
      */
     protected destroyed: boolean;
 
-    /**
-     Manages events on this component.
-     @eventProperty
-     */
-    public readonly events: Events;
-
     protected dirty: boolean;
 
     readonly #owner?: Component;
 
     #ownedComponents: null | { [key: string]: Component };
+
+    /**
+     * Emits an event when the {@link Component} has been destroyed.
+     *
+     * @event
+     */
+    onDestroyed: EventEmitter<Component, null>;
 
     /**
      Creates a new component.
@@ -50,7 +51,7 @@ export class Component {
      @param cfg - Component configuration
      @param cfg.id - Optional ID for the component
      */
-    constructor(owner: null | Component, cfg: { id?: string, [key: string]: any }={}) {
+    constructor(owner: null | Component, cfg: { id?: string, [key: string]: any } = {}) {
         if (this instanceof Viewer) {
             this.viewer = this;
             this.#owner = undefined;
@@ -66,12 +67,12 @@ export class Component {
         }
         this.id = cfg.id || utils.createUUID();
         this.destroyed = false;
-        this.events = new Events();
         this.#ownedComponents = null; // // Components created with #create - lazy-instantiated
         this.dirty = false; // True when #update will be called on next tick
         if (owner) {
             owner.#own(this);
         }
+        this.onDestroyed = new EventEmitter(new EventDispatcher<Component, null>())
     }
 
     /**
@@ -87,7 +88,7 @@ export class Component {
     log(message: string): void {
         message = `[LOG] ${this.#prefixMessageWithID(message)}`;
         window.console.log(message);
-        this.viewer.events.fire("log", message);
+        //  this.viewer.events.fire("log", message);
     }
 
     /**
@@ -103,7 +104,7 @@ export class Component {
     warn(message: string): void {
         message = `[WARN] ${this.#prefixMessageWithID(message)}`;
         window.console.warn(message);
-        this.viewer.events.fire("warn", message);
+        //  this.viewer.events.fire("warn", message);
     }
 
     /**
@@ -119,7 +120,7 @@ export class Component {
     error(message: string): void {
         message = `[ERROR] ${this.#prefixMessageWithID(message)}`;
         window.console.error(message);
-        this.viewer.events.fire("error", message);
+        //   this.viewer.events.fire("error", message);
     }
 
     /**
@@ -152,8 +153,9 @@ export class Component {
         if (this.destroyed) {
             return;
         }
-        this.events.fire("destroyed", this.destroyed = true);
-        this.events.destroy();
+        this.onDestroyed.dispatch(this, null);
+        this.onDestroyed.clear();
+        this.destroyed = true;
         if (this.#ownedComponents) {
             for (let id in this.#ownedComponents) {
                 if (this.#ownedComponents.hasOwnProperty(id)) {
@@ -186,7 +188,7 @@ export class Component {
         if (!this.#ownedComponents[component.id]) {
             this.#ownedComponents[component.id] = component;
         }
-        component.events.once("destroyed", () => {
+        component.onDestroyed.one(() => {
             // @ts-ignore
             delete this.#ownedComponents[component.id];
         });

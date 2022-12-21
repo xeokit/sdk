@@ -1,4 +1,5 @@
 import type {FloatArrayParam, IntArrayParam} from "../math/math";
+import type { SceneModel } from "./SceneModel";
 
 /**
  * Non-compressed geometry parameters for {@link SceneModel.createGeometry}.

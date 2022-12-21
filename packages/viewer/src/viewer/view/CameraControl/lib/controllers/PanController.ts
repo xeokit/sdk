@@ -1,6 +1,7 @@
 import * as math from "../../../../math/index";
 import type {View} from "../../../View";
 import type {CameraControl} from "../../CameraControl";
+import {OrthoProjectionType, PerspectiveProjectionType} from "../../../../constants";
 
 const screenPos = math.vec4();
 const viewPos = math.vec4();
@@ -47,7 +48,7 @@ class PanController {
             dolliedThroughSurface = (eyeWorldPosDist < dollyDelta);
         }
 
-        if (camera.projection === "perspective") {
+        if (camera.projection === PerspectiveProjectionType) {
 
             camera.ortho.scale = camera.ortho.scale - dollyDelta;
 
@@ -72,7 +73,7 @@ class PanController {
                 camera.look = [camera.eye[0] + eyeLookVec[0], camera.eye[1] + eyeLookVec[1], camera.eye[2] + eyeLookVec[2]];
             }
 
-        } else if (camera.projection === "ortho") {
+        } else if (camera.projection === OrthoProjectionType) {
 
             // - set ortho scale, getting the unprojected targetCanvasPos before and after, get that difference in a vector;
             // - get the vector in which we're dollying;
@@ -98,7 +99,7 @@ class PanController {
     #unproject(canvasPos: math.FloatArrayParam, worldPos: math.FloatArrayParam) {
 
         const camera = this.view.camera;
-        const transposedProjectMat = camera.project.transposedMatrix;
+        const transposedProjectMat = camera.project.transposedProjMatrix;
         // @ts-ignore
         const Pt3 = transposedProjectMat.subarray(8, 12);
         // @ts-ignore

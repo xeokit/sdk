@@ -5,7 +5,6 @@ import {
     SceneModel,
     SceneModelParams,
     SceneObject,
-    utils,
     View,
     Viewer,
     ViewerCapabilities,
@@ -31,6 +30,7 @@ import {ColorLinesLayerRenderer} from "./layerRenderers/ColorLinesLayerRenderer"
 import {SilhouetteTrianglesLayerRenderer} from "./layerRenderers/SilhouetteTrianglesLayerRenderer";
 import {SilhouettePointsRenderer} from "./layerRenderers/SilhouettePointsRenderer";
 import {SilhouetteLinesRenderer} from "./layerRenderers/SilhouetteLinesRenderer";
+import {apply, Map} from "../viewer/utils";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
@@ -74,7 +74,7 @@ export class WebGLRenderer implements Renderer {
     #layerList: Layer[];
     #layerListDirty: boolean;
     #stateSortDirty: boolean;
-    #pickIDs = new utils.Map({});
+    #pickIDs = new Map({});
     #saoDepthRenderBuffer: RenderBuffer;
     #renderBufferManager: RenderBufferManager;
     #extensionHandles: any;
@@ -112,7 +112,7 @@ export class WebGLRenderer implements Renderer {
         this.#canvasTransparent = false;
         this.#alphaDepthMask = false;
         this.#extensionHandles = {};
-        this.#pickIDs = new utils.Map({});
+        this.#pickIDs = new Map({});
         this.#layerList = [];
         this.#layerListDirty = true;
         this.#stateSortDirty = true;
@@ -171,7 +171,7 @@ export class WebGLRenderer implements Renderer {
         }
         if (!gl) {
             console.error('Failed to get a WebGL2 context');
-            view.events.fire("webglContextFailed", true, true);
+          //  view.events.fire("webglContextFailed", true, true);
             return 0;
         }
         if (gl) {
@@ -197,7 +197,7 @@ export class WebGLRenderer implements Renderer {
         if (!this.#renderContext) {
             throw "Must register a View before you create a model";
         }
-        const webglSceneModel = new WebGLSceneModel(utils.apply({
+        const webglSceneModel = new WebGLSceneModel(apply({
             view: this.#view,
             scene: this.#viewer.scene,
             textureTranscoder: this.#textureTranscoder,
@@ -205,11 +205,11 @@ export class WebGLRenderer implements Renderer {
             renderContext: this.#renderContext,
             viewLayerId: params.viewLayerId
         }, params));
-        webglSceneModel.events.on("finalized", (finalizedSceneModel) => {
-            this.#webglSceneModels[finalizedSceneModel.id] = finalizedSceneModel;
+        webglSceneModel.onBuilt.one( (finalizedSceneModel) => {
+            this.#webglSceneModels[finalizedSceneModel.id] = <WebGLSceneModel>finalizedSceneModel;
             this.#layerListDirty = true;
         });
-        webglSceneModel.events.on("destroyed", (destroyedSceneModel) => {
+        webglSceneModel.onDestroyed.one( (destroyedSceneModel) => {
             delete this.#webglSceneModels[destroyedSceneModel.id];
             this.#layerListDirty = true;
         });
@@ -273,6 +273,13 @@ export class WebGLRenderer implements Renderer {
         }
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     };
+
+    needsRebuild(viewIndex?: number): void {
+       for (let rendererId in this.#layerRenderers) {
+           // @ts-ignore
+           this.#layerRenderers[rendererId].needRebuild();
+       }
+    }
 
     needsRender(viewIndex?: number): boolean {
         return (this.#imageDirty || this.#layerListDirty || this.#stateSortDirty);

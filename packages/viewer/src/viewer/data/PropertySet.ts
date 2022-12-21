@@ -4,7 +4,7 @@ import type {PropertyParams} from "./PropertyParams";
 import type {PropertySetParams} from "./PropertySetParams";
 
 /**
- * A set of properties of a model or object within a {@link Viewer}.
+ * A set of {@link Property|Properties} within a {@link DataModel}.
  *
  * ## Summary
  *
@@ -12,6 +12,8 @@ import type {PropertySetParams} from "./PropertySetParams";
  * * Registered by {@link PropertySet.id} in {@link DataModel.propertySets}
  * * Created with {@link Data.createPropertySet} or {@link DataModel.createPropertySet}
  * * Has {@link Property} components in {@link PropertySet.properties}
+ *
+ * See {@link Data} for usage examples.
  */
 class PropertySet {
 

@@ -298,7 +298,7 @@ class MousePickHandler {
                     cameraControl.events.fire("doublePicked", pickController.pickResult, true);
 
                     if (pickController.pickedSurface) {
-                        cameraControl.events.fire("doublePickedSurface", pickController.pickResult, true);
+                        cameraControl.onDoublePickedSurface.dispatch( pickController.pickResult, true);
                     }
 
                     if (configs.doublePickFlyTo) {

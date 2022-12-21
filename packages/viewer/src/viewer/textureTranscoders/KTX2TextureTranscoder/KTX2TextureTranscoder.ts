@@ -1,5 +1,6 @@
-import {CompressedTextureParams, constants, utils, Viewer, ViewerCapabilities} from "../../index";
+import {CompressedTextureParams, constants, Viewer, ViewerCapabilities} from "../../index";
 import type {TextureTranscoder} from "../TextureTranscoder";
+import {FileLoader, WorkerPool} from "../../utils";
 
 const KTX2TransferSRGB = 2;
 const KTX2_ALPHA_PREMULTIPLIED = 1;
@@ -157,7 +158,7 @@ const EngineFormat = {
  *      meshIds: ["myMesh"]
  *  });
  *
- * sceneModel.finalize();
+ * sceneModel.build();
  * ````
  *
  * ## Loading KTX2 ArrayBuffers into a SceneModel
@@ -223,7 +224,7 @@ const EngineFormat = {
  *          meshIds: ["myMesh"]
  *      });
  *
- *      sceneModel.finalize();
+ *      sceneModel.build();
  * });
  * ````
  */
@@ -232,7 +233,7 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
     #transcoderPath: string;
     #transcoderBinary: any;
     #transcoderPending: null | Promise<void>;
-    #workerPool: utils.WorkerPool;
+    #workerPool: WorkerPool;
     #workerSourceURL: string;
     #workerConfig: null | { astcSupported: any; etc1Supported: any; pvrtcSupported: any; etc2Supported: any; dxtSupported: any; bptcSupported: any };
     #supportedFileTypes: string[];
@@ -252,7 +253,7 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
         this.#transcoderPath = params.transcoderPath || "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/";
         this.#transcoderBinary = null;
         this.#transcoderPending = null;
-        this.#workerPool = new utils.WorkerPool();
+        this.#workerPool = new WorkerPool();
         this.#workerSourceURL = '';
 
         if (params.workerLimit) {
@@ -319,12 +320,12 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
 
     #initTranscoder() {
         if (!this.#transcoderPending) {
-            const jsLoader = new utils.FileLoader();
+            const jsLoader = new FileLoader();
             jsLoader.setPath(this.#transcoderPath);
             jsLoader.setWithCredentials(this.#withCredentials);
             // @ts-ignore
             const jsContent = jsLoader.loadAsync('basis_transcoder.js');
-            const binaryLoader = new utils.FileLoader();
+            const binaryLoader = new FileLoader();
             binaryLoader.setPath(this.#transcoderPath);
             binaryLoader.setResponseType('arraybuffer');
             binaryLoader.setWithCredentials(this.#withCredentials);

@@ -1,6 +1,9 @@
 import {Component} from '../../Component';
 import type {Camera} from "./Camera";
 import * as math from '../../math/index';
+import {EventEmitter} from "../../EventEmitter";
+import {EventDispatcher} from "strongly-typed-events";
+import {FrustumProjectionType} from "../../constants";
 
 /**
  *  Frustum-based perspective projection configuration for a {@link Camera}.
@@ -8,6 +11,7 @@ import * as math from '../../math/index';
  * * Located at {@link Camera#frustum}.
  * * Allows to explicitly set the positions of the left, right, top, bottom, near and far planes, which is useful for asymmetrical view volumes, such as for stereo viewing.
  * * {@link Frustum#near} and {@link Frustum#far} specify the distances to the clipping planes.
+ * * {@link Frustum.onProjMatrix} will fire an event whenever {@link Frustum.projMatrix} updates, which indicates that one or more other properties have updated.
  */
 class Frustum extends Component {
 
@@ -16,20 +20,32 @@ class Frustum extends Component {
      */
     public readonly camera: Camera;
 
+    /**
+     * Emits an event each time {@link Frustum.projMatrix} updates.
+     *
+     * @event
+     */
+    readonly onProjMatrix: EventEmitter<Frustum, math.FloatArrayParam>;
+
+    /**
+     * The type of this projection.
+     */
+    static readonly type: number = FrustumProjectionType;
+
     #state: {
-        transposedMatrix: math.FloatArrayParam;
         far: number;
         near: number;
         left: number;
         right: number;
         bottom: number;
         top: number;
-        matrix: math.FloatArrayParam;
-        inverseMatrix: math.FloatArrayParam
+        projMatrix: math.FloatArrayParam;
+        inverseProjMatrix: math.FloatArrayParam;
+        transposedProjMatrix: math.FloatArrayParam;
     };
 
     #inverseMatrixDirty: boolean;
-    #transposedMatrixDirty: boolean;
+    #transposedProjMatrixDirty: boolean;
 
     /**
      * @private
@@ -48,9 +64,9 @@ class Frustum extends Component {
         this.camera = camera;
 
         this.#state = {
-            matrix: math.mat4(),
-            inverseMatrix: math.mat4(),
-            transposedMatrix: math.mat4(),
+            projMatrix: math.mat4(),
+            inverseProjMatrix: math.mat4(),
+            transposedProjMatrix: math.mat4(),
             near: 0.1,
             far: 10000.0,
             left: (cfg.left !== undefined && cfg.left !== null) ? cfg.left : -1.0,
@@ -59,8 +75,10 @@ class Frustum extends Component {
             top: (cfg.top !== undefined && cfg.top !== null) ? cfg.top : 1.0
         };
 
+        this.onProjMatrix = new EventEmitter(new EventDispatcher<Frustum, math.FloatArrayParam>());
+
         this.#inverseMatrixDirty = true;
-        this.#transposedMatrixDirty = true;
+        this.#transposedProjMatrixDirty = true;
     }
 
     /**
@@ -103,8 +121,6 @@ class Frustum extends Component {
 
     /**
      * Gets the position of the Frustum's top plane on the View-space Y-axis.
-     *
-     * Fires a {@link Frustum#top:emits} emits on change.
      *
      * @return {Number} Top frustum plane position.
      */
@@ -192,56 +208,56 @@ class Frustum extends Component {
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
-     * @returns The Frustum's projection matrix matrix.
+     * @returns The Frustum's projection matrix
      */
-    get matrix(): math.FloatArrayParam {
+    get projMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.#state.matrix;
+        return this.#state.projMatrix;
     }
 
     /**
-     * Gets the inverse of {@link Frustum#matrix}.
+     * Gets the inverse of {@link Frustum.projMatrix}.
      *
-     * @returns  The inverse orthographic projection matrix.
+     * @returns  The inverse orthographic projection projMatrix.
      */
-    get inverseMatrix(): math.FloatArrayParam  {
+    get inverseProjMatrix(): math.FloatArrayParam  {
         if (this.dirty) {
             this.cleanIfDirty();
         }
         if (this.#inverseMatrixDirty) {
-            math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
+            math.inverseMat4(this.#state.projMatrix, this.#state.inverseProjMatrix);
             this.#inverseMatrixDirty = false;
         }
-        return this.#state.inverseMatrix;
+        return this.#state.inverseProjMatrix;
     }
 
     /**
-     * Gets the transpose of {@link Frustum#matrix}.
+     * Gets the transpose of {@link Frustum.projMatrix}.
      *
-     * @returns The transpose of {@link Frustum#matrix}.
+     * @returns The transpose of {@link Frustum.projMatrix}.
      */
-    get transposedMatrix(): math.FloatArrayParam  {
+    get transposedProjMatrix(): math.FloatArrayParam  {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        if (this.#transposedMatrixDirty) {
-            math.transposeMat4(this.#state.matrix, this.#state.transposedMatrix);
-            this.#transposedMatrixDirty = false;
+        if (this.#transposedProjMatrixDirty) {
+            math.transposeMat4(this.#state.projMatrix, this.#state.transposedProjMatrix);
+            this.#transposedProjMatrixDirty = false;
         }
-        return this.#state.transposedMatrix;
+        return this.#state.transposedProjMatrix;
     }
 
     /**
      * @private
      */
     clean() {
-        math.frustumMat4(this.#state.left, this.#state.right, this.#state.bottom, this.#state.top, this.#state.near, this.#state.far, this.#state.matrix);
+        math.frustumMat4(this.#state.left, this.#state.right, this.#state.bottom, this.#state.top, this.#state.near, this.#state.far, this.#state.projMatrix);
         this.#inverseMatrixDirty = true;
-        this.#transposedMatrixDirty = true;
+        this.#transposedProjMatrixDirty = true;
         this.camera.view.redraw();
-        this.events.fire("matrix", this.#state.matrix);
+        this.onProjMatrix.dispatch(this, this.#state.projMatrix);
     }
 
     /**
@@ -270,7 +286,7 @@ class Frustum extends Component {
         screenPos[2] = screenZ;
         screenPos[3] = 1.0;
 
-        math.mulMat4v4(this.inverseMatrix, screenPos, viewPos);
+        math.mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
         math.mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
 
         viewPos[3] = 1.0;
@@ -286,6 +302,7 @@ class Frustum extends Component {
      */
     destroy() {
         super.destroy();
+        this.onProjMatrix.clear();
     }
 }
 

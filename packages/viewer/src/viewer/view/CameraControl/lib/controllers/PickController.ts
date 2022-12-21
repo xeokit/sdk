@@ -76,7 +76,7 @@ class PickController {
         this.pickedSurface = false;
         this.#needFireEvents = false;
 
-        const hasHoverSurfaceSubs = this.#cameraControl.events.hasSubs("hoverSurface");
+        const hasHoverSurfaceSubs = (this.#cameraControl.onHoverSurface.count > 0);
 
         if (this.schedulePickSurface) {
             // @ts-ignore
@@ -151,34 +151,34 @@ class PickController {
             if (this.#lastPickedEntityId !== pickedEntityId) {
 
                 if (this.#lastPickedEntityId !== undefined && this.#lastPickedEntityId !== null) {
-                    this.#cameraControl.events.fire("hoverOut", {
+                    this.#cameraControl.onHoverOut.dispatch(this.#cameraControl, {
                         entity: this.#view.objects[this.#lastPickedEntityId]
-                    }, true);
+                    });
                 }
 
-                this.#cameraControl.events.fire("hoverEnter", this.pickResult, true);
+                this.#cameraControl.onHoverOut.dispatch(this.#cameraControl, this.pickResult);
                 this.#lastPickedEntityId = pickedEntityId;
             }
 
-            this.#cameraControl.events.fire("hover", this.pickResult, true);
+            this.#cameraControl.onHover.dispatch(this.#cameraControl,  this.pickResult);
 
             if (this.pickResult.worldPos) {
                 this.pickedSurface = true;
-                this.#cameraControl.events.fire("hoverSurface", this.pickResult, true);
+                this.#cameraControl.onHoverSurface.dispatch(this.#cameraControl, this.pickResult);
             }
 
         } else {
 
             if (this.#lastPickedEntityId !== undefined && this.#lastPickedEntityId !== null) {
-                this.#cameraControl.events.fire("hoverOut", {
+                this.#cameraControl.onHoverOut.dispatch(this.#cameraControl, {
                     entity: this.#view.objects[this.#lastPickedEntityId]
-                }, true);
+                });
                 this.#lastPickedEntityId = undefined;
             }
 
-            this.#cameraControl.events.fire("hoverOff", {
+            this.#cameraControl.onHoverOff.dispatch(this.#cameraControl, {
                 canvasPos: this.pickCursorPos
-            }, true);
+            });
         }
 
         this.pickResult = null;

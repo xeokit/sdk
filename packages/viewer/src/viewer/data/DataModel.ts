@@ -5,56 +5,19 @@ import {DataObject} from "./DataObject";
 import type {DataModelParams} from "./DataModelParams";
 import type {DataObjectParams} from "./DataObjectParams";
 import type {PropertySetParams} from "./PropertySetParams";
+import {EventEmitter} from "../EventEmitter";
+import {EventDispatcher} from "strongly-typed-events";
 
 /**
- *  A buildable semantic representation of a model within a viewer.
+ *  A buildable semantic data model within {@link Data}.
  *
  * ## Summary
  *
  *  * Created with {@link Data.createModel}
  *  * Stored in {@link Data.models}
- *  * Contains {@link DataObject}s and {@link PropertySet}s
+ *  * Contains {@link DataObject|DataObjects} and {@link PropertySet|PropertySets}
  *
- *  ## Usage
- *
- * ````javascript
- * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
- *
- * const myViewer = new Viewer({
- *   id: "myViewer"
- * });
- *
- * const myDataModel = myViewer.data.createModel({
- *   id: "myModel"
- * });
- *
- * myDataModel.createPropertySet({
- *     id: "myPropSet",
- *     properties: [
- *         {
- *             id: "myProp",
- *             value: 5
- *         },
- *         {
- *             id: "myOtherProp",
- *             value: "foo"
- *         }
- *     ]
- * });
- *
- * myDataModel.createObject({
- *   id: "myObject",
- *   name: "Some object",
- *   type: "MyType",
- *   propertySetIds: ["myPropSet"]
- * });
- *
- * myDataModel.createObject({
- *   id: "myObject2",
- *   name: "Some other object",
- *   type: "MyOtherType"
- * });
- * ````
+ *  See {@link Data} for usage examples.
  */
 class DataModel extends Component {
 
@@ -143,7 +106,7 @@ class DataModel extends Component {
     constructor(
         data: Data,
         id: string,
-        dataModelCfg: DataModelParams,
+        dataModelParams: DataModelParams,
         options?: {
             includeTypes?: string[],
             excludeTypes?: string[],
@@ -155,12 +118,12 @@ class DataModel extends Component {
         this.data = data;
 
         this.id = id;
-        this.projectId = dataModelCfg.projectId || "";
-        this.revisionId = dataModelCfg.revisionId || "";
-        this.author = dataModelCfg.author || "";
-        this.createdAt = dataModelCfg.createdAt || "";
-        this.creatingApplication = dataModelCfg.creatingApplication || "";
-        this.schema = dataModelCfg.schema || "";
+        this.projectId = dataModelParams.projectId || "";
+        this.revisionId = dataModelParams.revisionId || "";
+        this.author = dataModelParams.author || "";
+        this.createdAt = dataModelParams.createdAt || "";
+        this.creatingApplication = dataModelParams.creatingApplication || "";
+        this.schema = dataModelParams.schema || "";
         this.propertySets = {};
         this.objects = {};
         this.objectsByType = {};
@@ -168,18 +131,18 @@ class DataModel extends Component {
         this.rootDataObject = null;
         this.#destroyed = false;
 
-        if (dataModelCfg.propertySets) {
-            for (let i = 0, len = dataModelCfg.propertySets.length; i < len; i++) {
-                this.createPropertySet(dataModelCfg.propertySets[i]);
+        if (dataModelParams.propertySets) {
+            for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
+                this.createPropertySet(dataModelParams.propertySets[i]);
             }
         }
 
-        if (dataModelCfg.objects) {
-            for (let i = 0, len = dataModelCfg.objects.length; i < len; i++) {
-                this.createObject(dataModelCfg.objects[i]);
+        if (dataModelParams.objects) {
+            for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
+                this.createObject(dataModelParams.objects[i]);
             }
-            for (let i = 0, len = dataModelCfg.objects.length; i < len; i++) {
-                const dataObjectCfg = dataModelCfg.objects[i];
+            for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
+                const dataObjectCfg = dataModelParams.objects[i];
                 const dataObject = this.objects[dataObjectCfg.id];
                 if (dataObject) {
                     if (dataObjectCfg.parentId) {

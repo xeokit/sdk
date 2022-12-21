@@ -1,4 +1,6 @@
-import {Events} from "../Events";
+
+import {EventEmitter} from "../EventEmitter";
+import {EventDispatcher} from "strongly-typed-events";
 
 /**
  The localization service for a {@link Viewer}.
@@ -148,14 +150,16 @@ import {Events} from "../Events";
  */
 class LocaleService {
 
-    /**
-     * Manages events on this LocaleService.
-     */
-    public readonly events: Events;
-
     #messages: { [key: string]: any };
     #locales: string[];
     #locale: string = "en";
+
+    /**
+     * Emits an event each time the locale translations have updated.
+     *
+     * @event
+     */
+    readonly onUpdated: EventEmitter<LocaleService, string>;
 
     /**
      * Constructs a LocaleService.
@@ -168,11 +172,10 @@ class LocaleService {
         messages: {},
         locale: ""
     }) {
-
-        this.events = new Events();
-
         this.messages = cfg.messages;
         this.locale = cfg.locale;
+
+        this.onUpdated = new EventEmitter(new EventDispatcher<LocaleService, string>());
     }
 
     /**
@@ -216,7 +219,7 @@ class LocaleService {
     set messages(messages: { [key: string]: any }) {
         this.#messages = messages || {};
         this.#locales = Object.keys(this.#messages);
-        this.events.fire("updated", this);
+        this.onUpdated.dispatch(this, this.#locale);
     }
 
     /**
@@ -293,7 +296,7 @@ class LocaleService {
             return;
         }
         this.#locale = locale;
-        this.events.fire("updated", locale);
+        this.onUpdated.dispatch(this, this.#locale);
     }
 
     /**

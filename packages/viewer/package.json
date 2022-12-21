@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/viewer",
-  "version": "0.0.1-alpha-1",
+  "version": "0.0.0",
   "description": "An extensible browser-based 3D viewer for AECO applications",
   "module": "dist/xeokit-viewer.modern.js",
   "source": "src/index.ts",
@@ -48,5 +48,8 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-viewer.modern.js"
+  "main": "dist/xeokit-viewer.modern.js",
+  "dependencies": {
+    "strongly-typed-events": "3.0.7"
+  }
 }

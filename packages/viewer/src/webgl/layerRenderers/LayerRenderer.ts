@@ -5,6 +5,7 @@ import {RENDER_PASSES} from "../WebGLSceneModel/RENDER_PASSES";
 import {Program} from "../lib/Program";
 import type {Sampler} from "../lib/Sampler";
 import type {Layer} from "../WebGLSceneModel/Layer";
+import {OrthoProjectionType} from "../../viewer/constants";
 
 const tempVec4 = math.vec4();
 
@@ -185,7 +186,7 @@ export abstract class LayerRenderer {
     protected abstract buildFragmentShader(): string;
 
     /**
-     * Gets a hash for the LayerRenderer's current configuration.
+     * Gets a hash for the View's current configuration as pertaining to the LayerRenderer.
      */
     protected abstract getHash(): string;
 
@@ -416,7 +417,7 @@ export abstract class LayerRenderer {
             gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
         }
         if (uniforms.nearPlaneHeight) {
-            gl.uniform1f(uniforms.nearPlaneHeight, (view.camera.projection === "ortho") ? 1.0 : (gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspective.fov * Math.PI / 180.0))));
+            gl.uniform1f(uniforms.nearPlaneHeight, (view.camera.projection === OrthoProjectionType) ? 1.0 : (gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspective.fov * Math.PI / 180.0))));
         }
         if (uniforms.pickZNear) {
             gl.uniform1f(uniforms.pickZNear, this.renderContext.pickZNear);

@@ -1,4 +1,5 @@
 import type {View} from "../../../View";
+import * as keycodes from "../../../../keycodes";
 
 /**
  * @private
@@ -18,7 +19,6 @@ class KeyboardPanRotateDollyHandler {
 
         this.#view = components.view;
 
-        const input = components.view.input;
         const keyDownMap: any[] = [];
         const canvas = components.view.canvas.canvas;
 
@@ -29,7 +29,7 @@ class KeyboardPanRotateDollyHandler {
         });
 
         document.addEventListener("keydown", this.#documentKeyDownHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled) || (!components.view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!configs.keyboardEnabled)) {
                 return;
             }
             if (!states.mouseover) {
@@ -37,13 +37,13 @@ class KeyboardPanRotateDollyHandler {
             }
             const keyCode = e.keyCode;
             keyDownMap[keyCode] = true;
-            if (keyCode === input.KEY_SHIFT) {
+            if (keyCode === keycodes.KEY_SHIFT) {
                 canvas.style.cursor = "move";
             }
         });
 
         document.addEventListener("keyup", this.#documentKeyUpHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled) || (!components.view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!configs.keyboardEnabled)) {
                 return;
             }
             if (!states.mouseover) {
@@ -51,14 +51,14 @@ class KeyboardPanRotateDollyHandler {
             }
             const keyCode = e.keyCode;
             keyDownMap[keyCode] = false;
-            if (keyCode === input.KEY_SHIFT) {
+            if (keyCode === keycodes.KEY_SHIFT) {
                 canvas.style.cursor = null;
             }
         });
 
         this.#onTick = components.view.viewer.events.on("tick", (e: { deltaTime: number; }) => {
 
-            if (!(configs.active && configs.pointerEnabled) || (!components.view.input.keyboardEnabled)) {
+            if (!(configs.active && configs.pointerEnabled) || (!configs.keyboardEnabled)) {
                 return;
             }
 
@@ -112,7 +112,7 @@ class KeyboardPanRotateDollyHandler {
             // Keyboard panning
             //-------------------------------------------------------------------------------------------------
 
-            if (!keyDownMap[input.KEY_CTRL] && !keyDownMap[input.KEY_ALT]) {
+            if (!keyDownMap[keycodes.KEY_CTRL] && !keyDownMap[keycodes.KEY_ALT]) {
 
                 const dollyBackwards = cameraControl._isKeyDownForAction(cameraControl.DOLLY_BACKWARDS, keyDownMap);
                 const dollyForwards = cameraControl._isKeyDownForAction(cameraControl.DOLLY_FORWARDS, keyDownMap);
@@ -144,7 +144,7 @@ class KeyboardPanRotateDollyHandler {
             const panUp = cameraControl._isKeyDownForAction(cameraControl.PAN_UP, keyDownMap);
             const panDown = cameraControl._isKeyDownForAction(cameraControl.PAN_DOWN, keyDownMap);
 
-            const panDelta = (keyDownMap[input.KEY_ALT] ? 0.3 : 1.0) * elapsedSecs * configs.keyboardPanRate; // ALT for slower pan rate
+            const panDelta = (keyDownMap[keycodes.KEY_ALT] ? 0.3 : 1.0) * elapsedSecs * configs.keyboardPanRate; // ALT for slower pan rate
 
             if (panForwards || panBackwards || panLeft || panRight || panUp || panDown) {
 
@@ -181,7 +181,7 @@ class KeyboardPanRotateDollyHandler {
 
     destroy() {
 
-        this.#view.events.off(this.#onTick);
+        this.#view.viewer.onTick.unsubscribe(this.#onTick);
 
         document.removeEventListener("mousemove", this.#documentMouseMoveHandler);
         document.removeEventListener("keydown", this.#documentKeyDownHandler);

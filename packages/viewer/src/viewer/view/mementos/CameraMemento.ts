@@ -2,6 +2,7 @@ import type {View} from "../View";
 import {Frustum} from "../camera/index";
 import {Ortho} from "../camera/index";
 import {Perspective} from "../camera/index";
+import {OrthoProjectionType, PerspectiveProjectionType} from "../../constants";
 
 /**
  * Saves and restores the state of a {@link View}'s {@link Camera}.
@@ -86,7 +87,7 @@ class CameraMemento {
 
         if (project instanceof Perspective) {
             this.projection = {
-                projection: "perspective",
+                projection: PerspectiveProjectionType,
                 fov: project.fov,
                 fovAxis: project.fovAxis,
                 near: project.near,
@@ -96,7 +97,7 @@ class CameraMemento {
 
         if (project instanceof Ortho) {
             this.projection = {
-                projection: "ortho",
+                projection: OrthoProjectionType,
                 scale: project.scale,
                 near: project.near,
                 far: project.far
@@ -117,7 +118,7 @@ class CameraMemento {
 
         this.projection = {
             projection: "custom",
-            matrix: project.matrix.slice()
+            matrix: project.projMatrix.slice()
         };
     }
 
@@ -136,14 +137,14 @@ class CameraMemento {
 
             switch (savedProjection.type) {
 
-                case "perspective":
+                case PerspectiveProjectionType:
                     camera.perspective.fov = savedProjection.fov;
                     camera.perspective.fovAxis = savedProjection.fovAxis;
                     camera.perspective.near = savedProjection.near;
                     camera.perspective.far = savedProjection.far;
                     break;
 
-                case "ortho":
+                case OrthoProjectionType:
                     camera.ortho.scale = savedProjection.scale;
                     camera.ortho.near = savedProjection.near;
                     camera.ortho.far = savedProjection.far;
@@ -159,7 +160,7 @@ class CameraMemento {
                     break;
 
                 case "custom":
-                    camera.customProjection.matrix = savedProjection.matrix;
+                    camera.customProjection.projMatrix = savedProjection.matrix;
                     break;
             }
         }

@@ -1,6 +1,9 @@
 import * as math from '../math/index';
 import {Component} from '../Component';
 import type {View} from "./View";
+import {EventEmitter} from "@xeokit-viewer/viewer";
+import type {IntArrayParam} from "../math/index";
+import {EventDispatcher} from "strongly-typed-events";
 
 /**
  * Manages the HTML canvas belonging to a {@link View}.
@@ -28,10 +31,18 @@ class Canvas extends Component {
      */
     public readonly boundary: number[];
 
-    #onTick: number;
+    #onTick: () => void;
+
     #backgroundColor: math.FloatArrayParam;
     #backgroundColorFromAmbientLight: boolean;
     #resolutionScale: number;
+
+    /**
+     * Emits an event each time the canvas boundary changes.
+     *
+     * @event
+     */
+    readonly onBoundary: EventEmitter<Canvas, IntArrayParam>;
 
     /**
      * @private
@@ -39,6 +50,8 @@ class Canvas extends Component {
     constructor(view: View, cfg: { canvas: HTMLCanvasElement; backgroundColor: any[] | undefined; backgroundColorFromAmbientLight: boolean; premultipliedAlpha: boolean; transparent: boolean }) {
 
         super(view, cfg);
+
+        this.onBoundary = new EventEmitter(new EventDispatcher<Canvas, IntArrayParam>());
 
         this.#resolutionScale = 1;
         this.#backgroundColor = math.vec3([
@@ -65,11 +78,12 @@ class Canvas extends Component {
         let lastCanvasHeight = 0;
         let lastCanvasOffsetLeft = 0;
         let lastCanvasOffsetTop = 0;
-        let lastParent: null|HTMLElement = null;
+        let lastParent: null | HTMLElement = null;
 
-        let lastResolutionScale: null|number = null;
+        let lastResolutionScale: null | number = null;
 
-        this.#onTick = view.viewer.events.on("tick", () => {
+        this.#onTick = view.viewer.onTick.subscribe(() => {
+
             const canvas = this.canvas;
             const newResolutionScale = (this.#resolutionScale !== lastResolutionScale);
             const newWindowSize = (window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight);
@@ -77,6 +91,7 @@ class Canvas extends Component {
             const newCanvasPos = (canvas.offsetLeft !== lastCanvasOffsetLeft || canvas.offsetTop !== lastCanvasOffsetTop);
             const parent = canvas.parentElement;
             const newParent = (parent !== lastParent);
+
             if (newResolutionScale || newWindowSize || newCanvasSize || newCanvasPos || newParent) {
                 //   this._spinner._adjustPosition();
                 if (newResolutionScale || newCanvasSize || newCanvasPos) {
@@ -92,7 +107,7 @@ class Canvas extends Component {
                     boundary[2] = newWidth;
                     boundary[3] = newHeight;
                     if (!newResolutionScale || newCanvasSize) {
-                        this.events.fire("boundary", boundary);
+                        this.onBoundary.dispatch(this, boundary);
                     }
                     lastCanvasWidth = newWidth;
                     lastCanvasHeight = newHeight;
@@ -207,7 +222,7 @@ class Canvas extends Component {
      * @private
      */
     destroy() {
-        this.view.viewer.events.off(this.#onTick);
+        this.view.viewer.onTick.unsubscribe(this.#onTick);
         super.destroy();
     }
 }

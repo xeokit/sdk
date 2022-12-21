@@ -1,6 +1,10 @@
 import {Component} from '../Component';
 import type {View} from "./View";
 import * as math from '../math/index';
+import {EventDispatcher, IEvent} from "strongly-typed-events";
+import {EventEmitter} from "./../EventEmitter";
+import type {FloatArrayParam} from "../math/index";
+import {ViewObject} from "@xeokit-viewer/viewer";
 
 
 /**
@@ -67,6 +71,27 @@ class SectionPlane extends Component {
      */
     public readonly view: View;
 
+    /**
+     * Emits an event each time {@link SectionPlane.pos} changes.
+     *
+     * @event
+     */
+    readonly onPos: EventEmitter<SectionPlane, FloatArrayParam>;
+
+    /**
+     * Emits an event each time {@link SectionPlane.dir} changes.
+     *
+     * @event
+     */
+    readonly onDir: EventEmitter<SectionPlane, FloatArrayParam>;
+
+    /**
+     * Emits an event each time {@link SectionPlane.active} changes.
+     *
+     * @event
+     */
+    readonly onActive: EventEmitter<SectionPlane, boolean>;
+
     #state: {
         pos: Float64Array;
         active: boolean;
@@ -77,12 +102,6 @@ class SectionPlane extends Component {
     /**
      * @private
      * @constructor
-     * @param [view]  Owner component. When destroyed, the owner will destroy this SectionPlane as well.
-     * @param cfg  SectionPlane configuration
-     * @param  {String} [cfg.id] Optional ID, unique among all components in the parent {@link View}, generated automatically when omitted.
-     * @param [cfg.active=true] Indicates whether or not this SectionPlane is active.
-     * @param [cfg.pos=[0,0,0]] World-space position of the SectionPlane.
-     * @param [cfg.dir=[0,0,-1]] Vector perpendicular to the plane surface, indicating the SectionPlane plane orientation.
      */
     constructor(view: View, cfg: {
         pos?: math.FloatArrayParam;
@@ -101,7 +120,9 @@ class SectionPlane extends Component {
             dist: 0
         };
 
-        this.view.registerSectionPlane(this);
+        this.onPos = new EventEmitter(new EventDispatcher<SectionPlane, FloatArrayParam>());
+        this.onDir = new EventEmitter(new EventDispatcher<SectionPlane, FloatArrayParam>());
+        this.onActive = new EventEmitter(new EventDispatcher<SectionPlane, boolean>());
     }
 
     /**
@@ -128,7 +149,7 @@ class SectionPlane extends Component {
         }
         this.#state.active = value;
         this.view.redraw();
-        this.events.fire("active", this.#state.active);
+        this.onActive.dispatch(this, this.#state.active);
     }
 
     /**
@@ -152,7 +173,7 @@ class SectionPlane extends Component {
     set pos(value: math.FloatArrayParam) {
         this.#state.pos.set(value);
         this.#state.dist = (-math.dotVec3(this.#state.pos, this.#state.dir));
-        this.events.fire("pos", this.#state.pos);
+        this.onPos.dispatch(this, this.#state.pos);
     }
 
     /**
@@ -177,7 +198,7 @@ class SectionPlane extends Component {
         this.#state.dir.set(value);
         this.#state.dist = (-math.dotVec3(this.#state.pos, this.#state.dir));
         this.view.redraw();
-        this.events.fire("dir", this.#state.dir);
+        this.onDir.dispatch(this, this.#state.dir);
     }
 
     /**
@@ -201,15 +222,17 @@ class SectionPlane extends Component {
         dir[1] *= -1.0;
         dir[2] *= -1.0;
         this.#state.dist = (-math.dotVec3(this.#state.pos, this.#state.dir));
-        this.events.fire("dir", this.#state.dir);
+        this.onDir.dispatch(this, this.#state.dir);
         this.view.redraw();
     }
 
     /**
-     * @private
+     * Destroys this SectionPlane.
      */
     destroy() {
-        this.view.deregisterSectionPlane(this);
+        this.onPos.clear();
+        this.onActive.clear;
+        this.onDir.clear();
         super.destroy();
     }
 }

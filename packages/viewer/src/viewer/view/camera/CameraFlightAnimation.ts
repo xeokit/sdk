@@ -3,6 +3,9 @@ import {scheduler} from '../../scheduler';
 import {Component} from '../../Component';
 import type {View} from "../View";
 import type {Camera} from "./Camera";
+import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "../../constants";
+import {EventDispatcher, IEvent} from "strongly-typed-events";
+import {EventEmitter} from "./../../EventEmitter";
 
 const tempVec3 = math.vec3();
 const newLook = math.vec3();
@@ -51,14 +54,36 @@ class CameraFlightAnimation extends Component {
     #flyingLook: boolean;
     #callback: any;
     #callbackScope: any;
-    #time1: number|null;
-    #time2: number|null;
+    #time1: number | null;
+    #time2: number | null;
     easing: boolean;
     #flyingEyeLookUp: boolean;
     #fitFOV: number;
-    #projection2: string;
+    #projection2: number;
     #projMatrix1: math.FloatArrayParam;
     #projMatrix2: math.FloatArrayParam;
+
+
+    /**
+     * Emits an event each time the animation starts.
+     *
+     * @event
+     */
+    readonly onStarted: EventEmitter<CameraFlightAnimation, null>;
+
+    /**
+     * Emits an event each time the animation stops.
+     *
+     * @event
+     */
+    readonly onStopped: EventEmitter<CameraFlightAnimation, null>;
+
+    /**
+     * Emits an event each time the animation stops.
+     *
+     * @event
+     */
+    readonly onCancelled: EventEmitter<CameraFlightAnimation, null>;
 
     /**
      @private
@@ -92,6 +117,10 @@ class CameraFlightAnimation extends Component {
         this.#trail = false;
         this.#fit = true;
         this.#duration = 500;
+
+        this.onStarted = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
+        this.onStopped = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
+        this.onCancelled = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
     }
 
     /**
@@ -119,7 +148,7 @@ class CameraFlightAnimation extends Component {
      * @param {Object} [scope] Optional scope for callback.
      */
     flyTo(params: {
-              projection?: string;
+              projection?: number;
               orthoScale?: number;
               aabb?: math.FloatArrayParam;
               length?: number;
@@ -256,25 +285,25 @@ class CameraFlightAnimation extends Component {
 
         if (flyToProjection) {
 
-            if (params.projection === "ortho" && camera.projection !== "ortho") {
-                this.#projection2 = "ortho";
+            if (params.projection === OrthoProjectionType && camera.projection !== OrthoProjectionType) {
+                this.#projection2 = OrthoProjectionType;
                 this.#projMatrix1 = camera.projMatrix.slice();
-                this.#projMatrix2 = camera.ortho.matrix.slice();
-                camera.projection = "customProjection";
+                this.#projMatrix2 = camera.ortho.projMatrix.slice();
+                camera.projection = CustomProjectionType;
             }
 
-            if (params.projection === "perspective" && camera.projection !== "perspective") {
-                this.#projection2 = "perspective";
+            if (params.projection === PerspectiveProjectionType && camera.projection !== PerspectiveProjectionType) {
+                this.#projection2 = PerspectiveProjectionType;
                 this.#projMatrix1 = camera.projMatrix.slice();
-                this.#projMatrix2 = camera.perspective.matrix.slice();
-                camera.projection = "customProjection";
+                this.#projMatrix2 = camera.perspective.projMatrix.slice();
+                camera.projection = CustomProjectionType;
             }
         } else {
             // @ts-ignore
             this.#projection2 = null;
         }
 
-        this.events.fire("started", params, true);
+        this.onStarted.dispatch(this, null);
 
         this.#time1 = Date.now();
         this.#time2 = this.#time1 + (params.duration ? params.duration * 1000 : this.#duration);
@@ -417,8 +446,8 @@ class CameraFlightAnimation extends Component {
         }
 
         if (this.#projection2) {
-            const tProj = (this.#projection2 === "ortho") ? CameraFlightAnimation.#easeOutExpo(t, 0, 1, 1) : CameraFlightAnimation.#easeInCubic(t, 0, 1, 1);
-            camera.customProjection.matrix = math.lerpMat4(tProj, 0, 1, this.#projMatrix1, this.#projMatrix2);
+            const tProj = (this.#projection2 === OrthoProjectionType) ? CameraFlightAnimation.#easeOutExpo(t, 0, 1, 1) : CameraFlightAnimation.#easeInCubic(t, 0, 1, 1);
+            camera.customProjection.projMatrix = math.lerpMat4(tProj, 0, 1, this.#projMatrix1, this.#projMatrix2);
 
         } else {
             camera.ortho.scale = this.#orthoScale1 + (t * (this.#orthoScale2 - this.#orthoScale1));
@@ -464,7 +493,7 @@ class CameraFlightAnimation extends Component {
             this.#callback = null;
             callback();
         }
-        this.events.fire("stopped", true, true);
+        this.onStopped.dispatch(this, null);
     }
 
     /**
@@ -480,7 +509,7 @@ class CameraFlightAnimation extends Component {
         if (this.#callback) {
             this.#callback = null;
         }
-        this.events.fire("canceled", true, true);
+        this.onCancelled.dispatch(this, null);
     }
 
     /**
@@ -574,6 +603,9 @@ class CameraFlightAnimation extends Component {
     destroy() {
         this.stop();
         super.destroy();
+        this.onStarted.clear();
+        this.onStopped.clear();
+        this.onCancelled.clear();
     }
 }
 

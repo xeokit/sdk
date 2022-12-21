@@ -3,13 +3,15 @@ import type {DataModel} from "./DataModel";
 import type {DataObjectParams} from "./DataObjectParams";
 
 /**
- *  Semantic data about an object.
+ *  Semantic data about an object in a {@link DataModel}.
  *
  *  ## Summary
  *
  *  * Contained in a {@link DataModel}
  *  * Stored by {@link DataModel.id} in {@link DataModel.objects} and {@link Data.objects}
  *  * Created with {@link DataModel.createObject} or {@link DataObject.createObject}
+ *
+ *  See {@link Data} for usage examples.
  */
 class DataObject {
 
@@ -53,7 +55,7 @@ class DataObject {
     public parent?: DataObject;
 
     /**
-     * Child ObjectMeta instances within the structure hierarchy.
+     * Child DataObject instances within the structure hierarchy.
      *
      * Undefined when there are no children.
      */

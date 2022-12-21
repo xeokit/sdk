@@ -1,5 +1,4 @@
 export * from "./Canvas";
-export * from "./Input";
 export * from "./Metriqs";
 export * from "./View";
 export * from "./ViewLayer";

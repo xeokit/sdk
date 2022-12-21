@@ -8,10 +8,14 @@ import {scheduler} from "./scheduler";
 import type {Renderer} from "./scene/Renderer";
 import * as utils from "./utils/index";
 import {apply, createUUID} from "./utils/index";
-import {Events} from "./Events";
 import type {ViewerCapabilities} from "./ViewerCapabilities";
 import type {ViewParams} from "./ViewParams";
 import {WebGLRenderer} from "../webgl/WebGLRenderer";
+import {EventDispatcher, IEvent} from "strongly-typed-events";
+import {EventEmitter} from "./EventEmitter";
+
+class TickParams {
+}
 
 /**
  * An extensible browser-based 3D viewer for AECO applications.
@@ -61,7 +65,7 @@ import {WebGLRenderer} from "../webgl/WebGLRenderer";
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
- * view1.camera.projection = "perspective";
+ * view1.camera.projection = PerspectiveProjectionType;
  * view1.cameraControl.navMode = "orbit";
  * ````
  *
@@ -93,7 +97,7 @@ import {WebGLRenderer} from "../webgl/WebGLRenderer";
  *     //...
  * });
  *
- * mySceneModel.finalize();
+ * mySceneModel.build();
  * ````
  *
  * Define optional semantic representation for the model:
@@ -136,9 +140,25 @@ export class Viewer {
     readonly capabilities: ViewerCapabilities;
 
     /**
-     Manages events on this Viewer.
+     * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
+     *
+     * @event
      */
-    readonly events: Events;
+    readonly onTick: EventEmitter<Viewer, TickParams>;
+
+    /**
+     * Emits an event each time a {@link View} is created.
+     *
+     * @event
+     */
+    readonly onViewCreated: EventEmitter<Viewer, View>;
+
+    /**
+     * Emits an event each time a {@link View} is destroyed.
+     *
+     * @event
+     */
+    readonly onViewDestroyed: EventEmitter<Viewer, View>;
 
     /**
      Provides locale string translations for this Viewer.
@@ -215,8 +235,13 @@ export class Viewer {
         renderer?: Renderer
     } = {}) {
 
+        this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
+
+        this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
+
+        this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());
+
         this.id = params.id || createUUID();
-        this.events = new Events();
         this.localeService = params.localeService || new LocaleService();
         this.data = new Data(this);
         this.scene = new Scene(this, {});
@@ -248,8 +273,7 @@ export class Viewer {
      *
      * * The maximum number of views you're allowed to create is provided in {@link ViewerCapabilities.maxViews}. This
      * will be determined by the {@link Renderer} implementation the Viewer is configured with.
-     * * Fires a "viewCreated" event on this Viewer.
-     * * To destroy the View after use, call {@link View.destroy}, which fires a "viewDestroyed" event on this Viewer.
+     * * To destroy the View after use, call {@link View.destroy}.
      * * You must add a View to the Viewer before you can create or load content into the Viewer's Scene.
      *
      * ### Usage
@@ -269,7 +293,7 @@ export class Viewer {
      *
      * @param params
      */
-    createView(params: ViewParams): View|null {
+    createView(params: ViewParams): View | null {
         if (this.viewList.length >= this.capabilities.maxViews) {
             this.error(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
             return null;
@@ -287,15 +311,16 @@ export class Viewer {
         const view = new View(apply({id, viewer: this}, params));
         this.#registerView(view);
         view.viewIndex = this.renderer.registerView(view);
-        view.events.on("destroyed", () => {
+        view.onDestroyed.one( () => {
             this.#deregisterView(view);
             this.renderer.deregisterView(view.viewIndex);
-            this.events.fire("viewDestroyed", view);
+            this.onViewDestroyed.dispatch(this, view);
         });
-        this.events.fire("viewCreated", view);
+        this.onViewCreated.dispatch(this, view);
         this.log(`View created: ${view.id}`);
         return view;
     }
+
 
     /**
      @private
@@ -331,15 +356,6 @@ export class Viewer {
     }
 
     /**
-     @private
-     */
-    recompile() {
-        for (let id in this.views) {
-            this.views[id].recompile();
-        }
-    }
-
-    /**
      Trigger a redraw of all {@link View|Views} belonging to this Viewer.
 
      @private
@@ -355,15 +371,12 @@ export class Viewer {
 
      The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
 
-     Also fires the message as a "log" event on the parent {@link Viewer}.
-
      @private
      @param message - The message to log
      */
     log(message: string): void {
         message = `[LOG] ${this.#prefixMessageWithID(message)}`;
         window.console.log(message);
-        //   this.viewer.events.fire("log", message);
     }
 
     /**
@@ -371,15 +384,12 @@ export class Viewer {
 
      The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
 
-     Also fires the message as a "warn" event on the parent {@link Viewer}.
-
      @private
      @param message - The warning message to log
      */
     warn(message: string): void {
         message = `[WARN] ${this.#prefixMessageWithID(message)}`;
         window.console.warn(message);
-        // this.viewer.events.fire("warn", message);
     }
 
     /**
@@ -387,15 +397,12 @@ export class Viewer {
 
      The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
 
-     Also fires the message as an "error" event on the {@link Viewer}.
-
      @private
      @param message The error message to log
      */
     error(message: string): void {
         message = `[ERROR] ${this.#prefixMessageWithID(message)}`;
         window.console.error(message);
-        this.events.fire("error", message);
     }
 
     /**
@@ -415,6 +422,9 @@ export class Viewer {
             this.views[id].destroy();
         }
         this.scene.destroy();
+        this.onTick.clear();
+        this.onViewCreated.clear();
+        this.onViewDestroyed.clear();
     }
 
     #prefixMessageWithID(message: string): string {

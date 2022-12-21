@@ -5,82 +5,89 @@
 import {Component} from "../Component";
 import * as math from "../math/index";
 import type {View} from "./View";
+import * as constants from "./../constants";
+import {EventDispatcher, IEvent} from "strongly-typed-events";
+import {EventEmitter} from "./../EventEmitter";
+import {ViewObject} from "@xeokit-viewer/viewer";
 
 const unitsInfo = {
-    meters: {
+    [constants.MetersUnit]: {
         abbrev: "m"
     },
-    metres: {
-        abbrev: "m"
-    },
-    centimeters: {
+    [constants.CentimetersUnit]: {
         abbrev: "cm"
     },
-    centimetres: {
-        abbrev: "cm"
-    },
-    millimeters: {
+    [constants.MillimetersUnit]: {
         abbrev: "mm"
     },
-    millimetres: {
-        abbrev: "mm"
-    },
-    yards: {
+    [constants.YardsUnit]: {
         abbrev: "yd"
     },
-    feet: {
+    [constants.FeetUnit]: {
         abbrev: "ft"
     },
-    inches: {
+    [constants.InchesUnit]: {
         abbrev: "in"
     }
 };
 
 /**
- * Configures its {@link Viewer}'s measurement unit and mapping between the Real-space and World-space 3D Cartesian coordinate systems.
+ * Configures its {@link View}'s measurement unit and mapping between the Real-space and World-space 3D Cartesian coordinate systems.
  *
  *
  * ## Summary
  *
- * * Located at {@link Viewer#metrics}.
- * * {@link Metrics#units} configures the Real-space unit type, which is ````"meters"```` by default.
- * * {@link Metrics#scale} configures the number of Real-space units represented by each unit within the World-space 3D coordinate system. This is ````1.0```` by default.
- * * {@link Metrics#origin} configures the 3D Real-space origin, in current Real-space units, at which this {@link Viewer}'s World-space coordinate origin sits, This is ````[0,0,0]```` by default.
+ * * Located at {@link View.metrics}.
+ * * {@link Metrics.units} configures the Real-space unit type, which is {@link MetersUnit} by default.
+ * * {@link Metrics.scale} configures the number of Real-space units represented by each unit within the World-space 3D coordinate system. This is ````1.0```` by default.
+ * * {@link Metrics.origin} configures the 3D Real-space origin, in current Real-space units, at which this {@link View}'s World-space coordinate origin sits, This is ````[0,0,0]```` by default.
  *
  * ## Usage
  *
- * Let's load a model using an {@link TreeViewPlugin}, then configure the Real-space unit type and the coordinate
- * mapping between the Real-space and World-space 3D coordinate systems.
- *
  * ````JavaScript
- * import {Viewer, TreeViewPlugin} from "xeokit-viewer.es.js";
+ * import {Viewer, constants} from "xeokit-viewer.es.js";
  *
- * const viewer = new Viewer({
- *     canvasId: "myCanvas"
+ * const viewer = new Viewer();
+ *
+ * const view1 = myViewer.createView({
+ *      id: "myView",
+ *      canvasId: "myCanvas1"
  * });
  *
- * viewer.scene.camera.eye = [-2.37, 18.97, -26.12];
- * viewer.scene.camera.look = [10.97, 5.82, -11.22];
- * viewer.scene.camera.up = [0.36, 0.83, 0.40];
+ * const metrics = view1.metrics;
  *
- * const xktLoader = new TreeViewPlugin(viewer);
- *
- * const model = xktLoader.load({
- *     src: "./models/xkt/duplex/duplex.xkt"
- * });
- *
- * const metrics = viewer.scene.metrics;
- *
- * metrics.units = "meters";
+ * metrics.units = constants.MetersUnit;
  * metrics.scale = 10.0;
  * metrics.origin = [100.0, 0.0, 200.0];
  * ````
  */
 class Metrics extends Component {
 
-    #units: string;
+    #units: number;
     #scale: number;
     #origin: math.FloatArrayParam;
+
+    /**
+     * Emits an event each time {@link Metrics.units} changes.
+     *
+     * @event
+     */
+    readonly onUnits: EventEmitter<Metrics, number>;
+
+    /**
+     * Emits an event each time {@link Metrics.scale} changes.
+     *
+     * @event
+     */
+    readonly onScale: EventEmitter<Metrics, number>;
+
+    /**
+     * Emits an event each time {@link Metrics.origin} changes.
+     *
+     * @event
+     */
+    readonly onOrigin: EventEmitter<Metrics, math.FloatArrayParam>;
+
 
     /**
      * @private
@@ -88,16 +95,20 @@ class Metrics extends Component {
     constructor(view: View, cfg: {
         origin?: math.FloatArrayParam;
         scale?: number;
-        units?: string
+        units?: number
     } = {
-        units: "meters",
+        units: constants.MetersUnit,
         scale: 1.0,
         origin: [1, 1, 1]
     }) {
 
         super(view, cfg);
 
-        this.#units = "meters";
+        this.onUnits = new EventEmitter(new EventDispatcher<Metrics, number>());
+        this.onScale = new EventEmitter(new EventDispatcher<Metrics, number>());
+        this.onOrigin = new EventEmitter(new EventDispatcher<Metrics, math.FloatArrayParam>());
+
+        this.#units = constants.MetersUnit;
         this.#scale = 1.0;
         this.#origin = math.vec3([0, 0, 0]);
 
@@ -109,39 +120,28 @@ class Metrics extends Component {
     /**
      * Gets info about the supported Real-space unit types.
      *
-     * This will be:
+     * With {@link constants} indicating each unit type, the info will be:
      *
      * ````javascript
      * {
-     *      {
-     *          meters: {
-     *              abbrev: "m"
-     *          },
-     *          metres: {
-     *              abbrev: "m"
-     *          },
-     *          centimeters: {
-     *              abbrev: "cm"
-     *          },
-     *          centimetres: {
-     *              abbrev: "cm"
-     *          },
-     *          millimeters: {
-     *              abbrev: "mm"
-     *          },
-     *          millimetres: {
-     *              abbrev: "mm"
-     *          },
-     *          yards: {
-     *              abbrev: "yd"
-     *          },
-     *          feet: {
-     *              abbrev: "ft"
-     *          },
-     *          inches: {
-     *              abbrev: "in"
-     *          }
-     *      }
+     *     [constants.MetersUnit]: {
+     *         abbrev: "m"
+     *     },
+     *     [constants.CentimetersUnit]: {
+     *         abbrev: "cm"
+     *     },
+     *     [constants.MillimetersUnit]: {
+     *         abbrev: "mm"
+     *     },
+     *     [constants.YardsUnit]: {
+     *         abbrev: "yd"
+     *     },
+     *     [constants.FeetUnit]: {
+     *         abbrev: "ft"
+     *     },
+     *     [constants.InchesUnit]: {
+     *         abbrev: "in"
+     *     }
      * }
      * ````
      *
@@ -154,27 +154,27 @@ class Metrics extends Component {
     /**
      * Gets the {@link View}'s Real-space unit type.
      */
-    get units(): string {
+    get units(): number {
         return this.#units;
     }
 
     /**
      * Sets the {@link View}'s Real-space unit type.
      *
-     * Accepted values are ````"meters"````, ````"centimeters"````, ````"millimeters"````, ````"metres"````, ````"centimetres"````, ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
+     * Accepted values are {@link MetersUnit}, {@link CentimetersUnit}, {@link MillimetersUnit}, {@link YardsUnit}, {@link FeetUnit} and {@link InchesUnit}.
      */
-    set units(value: string|undefined) {
+    set units(value: number | undefined) {
         if (!value) {
-            value = "meters";
+            value = constants.MetersUnit;
         }
         // @ts-ignore
         const info = unitsInfo[value];
         if (!info) {
-            this.error("Unsupported value for 'units': " + value + " defaulting to 'meters'");
-            value = "meters";
+            this.error("Unsupported value for 'units': " + value + " defaulting to MetersUnit");
+            value = constants.MetersUnit;
         }
         this.#units = value;
-        this.events.fire("units", this.#units);
+        this.onUnits.dispatch(this, this.#units);
     }
 
     /**
@@ -187,16 +187,16 @@ class Metrics extends Component {
     /**
      * Sets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
      *
-     * For example, if {@link Metrics#units} is ````"meters"````, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
+     * For example, if {@link Metrics.units} is {@link MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
      */
-    set scale(value: number|undefined) {
+    set scale(value: number | undefined) {
         value = value || 1;
         if (value <= 0) {
             this.error("scale value should be larger than zero");
             return;
         }
         this.#scale = value;
-        this.events.fire("scale", this.#scale);
+        this.onScale.dispatch(this, this.#scale);
     }
 
     /**
@@ -209,7 +209,7 @@ class Metrics extends Component {
     /**
      * Sets the Real-space 3D origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
      */
-    set origin(value: math.FloatArrayParam|undefined) {
+    set origin(value: math.FloatArrayParam | undefined) {
         if (!value) {
             this.#origin[0] = 0;
             this.#origin[1] = 0;
@@ -219,7 +219,7 @@ class Metrics extends Component {
         this.#origin[0] = value[0];
         this.#origin[1] = value[1];
         this.#origin[2] = value[2];
-        this.events.fire("origin", this.#origin);
+        this.onOrigin.dispatch(this, this.#origin);
     }
 
     /**
@@ -252,6 +252,16 @@ class Metrics extends Component {
         worldPos[1] = (realPos[1] - this.#origin[1]) / this.#scale;
         worldPos[2] = (realPos[2] - this.#origin[2]) / this.#scale;
         return worldPos;
+    }
+
+    /**
+     * @private
+     */
+    destroy() {
+        super.destroy();
+        this.onUnits.clear();
+        this.onScale.clear();
+        this.onOrigin.clear();
     }
 }
 

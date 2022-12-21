@@ -89,7 +89,7 @@ class PointsMaterial extends Component {
             return;
         }
         this.#state.roundPoints = value;
-        this.view.recompile();
+        this.view.rebuild();
     }
 
     /**
@@ -102,7 +102,7 @@ class PointsMaterial extends Component {
     }
 
     /**
-     * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````"perspective"````.
+     * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
      *
      * Default is ````true````.
      */
@@ -111,11 +111,11 @@ class PointsMaterial extends Component {
             return;
         }
         this.#state.perspectivePoints = value;
-        this.view.recompile();
+        this.view.rebuild();
     }
 
     /**
-     * Gets if rendered point size reduces with distance when {@link Camera.projection} is set to "perspective".
+     * Gets if rendered point size reduces with distance when {@link Camera.projection} is set to PerspectiveProjectionType.
      *
      * Default is ````false````.
      */
@@ -133,7 +133,7 @@ class PointsMaterial extends Component {
             return;
         }
         this.#state.minPerspectivePointSize = value;
-        this.view.recompile();
+        this.view.rebuild();
     }
 
     /**
@@ -157,7 +157,7 @@ class PointsMaterial extends Component {
             return;
         }
         this.#state.maxPerspectivePointSize = value;
-        this.view.recompile();
+        this.view.rebuild();
     }
 
     /**
@@ -170,7 +170,7 @@ class PointsMaterial extends Component {
     }
 
     /**
-     * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````"perspective"````.
+     * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
      *
      * Default is ````false````.
      */
@@ -179,11 +179,11 @@ class PointsMaterial extends Component {
             return;
         }
         this.#state.filterIntensity = value;
-        this.view.recompile();
+        this.view.rebuild();
     }
 
     /**
-     * Gets if rendered point size reduces with distance when {@link Camera.projection} is set to "perspective".
+     * Gets if rendered point size reduces with distance when {@link Camera.projection} is set to PerspectiveProjectionType.
      *
      * Default is ````false````.
      */

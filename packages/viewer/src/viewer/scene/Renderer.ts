@@ -70,7 +70,7 @@ export interface Renderer {
      * Returns a new {@link SceneModel} that will be stored and rendered by this Renderer.
      *
      * The SceneModel provides an interface through which we can then build geometry and materials within
-     * it. Once we've built the SceneModel and called {@link SceneModel.finalize}, the Renderer will immediately begin
+     * it. Once we've built the SceneModel and called {@link SceneModel.build}, the Renderer will immediately begin
      * rendering it all {@link View|Views} that we registered previously with {@link Renderer.registerView}.
      *
      * When we've finished with the SceneModel, we then call {@link SceneModel.destroy} to destroy it.
@@ -129,6 +129,11 @@ export interface Renderer {
      * @param viewIndex
      */
     clear(viewIndex: number): any;
+
+    /**
+     * Sets TODO.
+     */
+    needsRebuild(viewIndex: number): void;
 
     /**
      * Gets if a new frame needs to be rendered for the given View.

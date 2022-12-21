@@ -1,7 +1,7 @@
 import type {DataObject} from "./DataObject";
 
 /**
- * A relationship between two {@link DataObject}s.
+ * A relationship between two {@link DataObject|DataObjects}.
  */
 class Relation {
 

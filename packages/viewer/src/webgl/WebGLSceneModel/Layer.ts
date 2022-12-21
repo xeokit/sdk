@@ -150,7 +150,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     #numMeshParts: number;
     #deferredSetFlagsActive: boolean;
     #deferredSetFlagsDirty: boolean;
-    #finalized: boolean;
+    #built: boolean;
 
     constructor(layerParams: LayerParams, renderers?: any) {
 
@@ -182,7 +182,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
 
         this.beginDeferredFlags();
 
-        this.#finalized = false;
+        this.#built = false;
     }
 
     get hash() {
@@ -190,8 +190,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     canCreateMesh(geometryCompressedParams: GeometryCompressedParams): boolean {
-        if (this.#finalized) {
-            throw "Already finalized";
+        if (this.#built) {
+            throw "Already built";
         }
         const renderState = this.renderState;
         const numGeometryBuckets = geometryCompressedParams.geometryBuckets.length;
@@ -219,8 +219,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams) {
-        if (this.#finalized) {
-            throw "Already finalized";
+        if (this.#built) {
+            throw "Already built";
         }
         const geometryBucketHandles = [];
         for (let i = 0, len = geometryCompressedParams.geometryBuckets.length; i < len; i++) {
@@ -306,8 +306,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     createMesh(meshParams: MeshParams): number {
-        if (this.#finalized) {
-            throw "Already finalized";
+        if (this.#built) {
+            throw "Already built";
         }
         // if (origin) {
         //     this.renderState.origin = origin;
@@ -443,9 +443,9 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         return meshPartId;
     }
 
-    finalize() {
-        if (this.#finalized) {
-            throw "Already finalized";
+    build() {
+        if (this.#built) {
+            throw "Already built";
         }
         const gl = this.#gl;
         const dataTextureFactory = new DataTextureFactory();
@@ -472,12 +472,12 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         // dataTextureSet.eachEdgeMesh16BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_16Bits);
         // dataTextureSet.eachEdgeMesh32BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_32Bits);
         dataTextureSet.eachEdgeOffset = dataTextureFactory.createEachEdgeOffsetDataTexture(gl, dataTextureBuffer.eachEdgeOffset);
-        dataTextureSet.finalize();
+        dataTextureSet.build();
         // @ts-ignore
         this.#dataTextureBuffer = null;
         this.#geometryHandles = {};
         this.#meshPartHandles = [];
-        this.#finalized = true;
+        this.#built = true;
     }
 
     isEmpty() {
@@ -543,8 +543,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshVisible(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
             debugger;
@@ -556,8 +556,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshHighlighted(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
             this.meshCounts.numHighlighted++;
@@ -568,8 +568,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshXRayed(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
             this.meshCounts.numXRayed++;
@@ -580,8 +580,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshSelected(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
             this.meshCounts.numSelected++;
@@ -592,8 +592,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshEdges(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (flags & SCENE_OBJECT_FLAGS.EDGES) {
             this.meshCounts.numEdges++;
@@ -604,8 +604,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshClippable(meshId: number, flags: number) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
             this.meshCounts.numClippable++;
@@ -616,8 +616,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshCulled(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (flags & SCENE_OBJECT_FLAGS.CULLED) {
             this.meshCounts.numCulled++;
@@ -628,14 +628,14 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshCollidable(meshId: number, flags: number) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
     }
 
     setMeshPickable(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
             this.meshCounts.numPickable++;
@@ -646,8 +646,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshColor(meshId: number, color: math.FloatArrayParam, transparent?: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         const dataTextureSet = this.renderState.dataTextureSet;
         const gl = this.#gl;
@@ -668,8 +668,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshTransparent(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         if (transparent) {
             this.meshCounts.numTransparent++;
@@ -682,8 +682,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     #setMeshFlags(meshId: number, flags: number, transparent: boolean) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         const visible = !!(flags & SCENE_OBJECT_FLAGS.VISIBLE);
         const xrayed = !!(flags & SCENE_OBJECT_FLAGS.XRAYED);
@@ -752,8 +752,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     #setMeshFlags2(meshId: number, flags: number) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         const clippable = !!(flags & SCENE_OBJECT_FLAGS.CLIPPABLE) ? 255 : 0;
         const dataTextureSet = this.renderState.dataTextureSet;
@@ -775,8 +775,8 @@ export class Layer { // A container of meshes within a WebGLSceneModel
     }
 
     setMeshOffset(meshId: number, offset: math.FloatArrayParam) {
-        if (!this.#finalized) {
-            throw "Not finalized";
+        if (!this.#built) {
+            throw "Not built";
         }
         const dataTextureSet = this.renderState.dataTextureSet;
         const gl = this.#gl;

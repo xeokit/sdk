@@ -7,6 +7,9 @@ import type {SceneModel} from "./SceneModel";
 import {createUUID} from "../utils/index";
 import type {SceneModelParams} from "./SceneModelParams";
 import {Tiles} from "./Tiles";
+import {EventEmitter, View} from "@xeokit-viewer/viewer";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math/index";
 
 /**
  * Contains geometric representations of the models and objects within a {@link Viewer}.
@@ -21,9 +24,165 @@ import {Tiles} from "./Tiles";
  * * Use {@link SceneModel.createObject} to create {@link SceneObject|SceneObjects}
  * * {@link View|Views} automatically contain {@link ViewObject|ViewObjects} to represent all existing {@link SceneObject|SceneObjects}
  *
- * ## Overview
+ * ## Examples
  *
+ * ### Example 1. Creating a SceneModel from Uncompressed Geometry
  *
+ * ````javascript
+ * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const myViewer = new Viewer({
+ *    id: "myViewer"
+ * });
+ *
+ * myViewer.createView({
+ *     id: "myView",
+ *     canvasId: "myCanvas"
+ * });
+ *
+ * myViewer.scene.onModelCreated.subscribe((scene, sceneModel)=>{
+ *      console.log(`SceneModel ${sceneModel.id} created`);
+ * });
+ *
+ * myViewer.scene.onModelDestroyed.subscribe((scene, sceneModel)=>{
+ *      console.log(`SceneModel ${sceneModel.id} destroyed`);
+ * });
+ *
+ * const mySceneModel = myViewer.scene.createModel({
+ *    id: "myModel"
+ * });
+ *
+ * mySceneModel.createGeometry({
+ *     id: "myBoxGeometry",
+ *     primitive: constants.TrianglesPrimitive,
+ *     positions: [
+ *         1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1
+ *     ],
+ *     indices: [
+ *         0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
+ *     ]
+ * });
+ *
+ * mySceneModel.createMesh({
+ *    id: "myMesh",
+ *    geometryId: "myGeometry"
+ * });
+ *
+ * mySceneModel.createObject({
+ *    id: "myObject",
+ *    meshIds: ["myMesh"]
+ * });
+ *
+ * mySceneModel.build();
+ * ````
+ *
+ * ### Example 2. Creating a SceneModel from Pre-Compressed Geometry
+ *
+ * ````javascript
+ * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const myViewer = new Viewer({
+ *    id: "myViewer"
+ * });
+ *
+ * myViewer.createView({
+ *     id: "myView",
+ *     canvasId: "myCanvas"
+ * });
+ *
+ * const mySceneModel = myViewer.scene.createModel({
+ *    id: "myModel"
+ * });
+ *
+ * mySceneModel.createGeometryCompressed({
+ *      id: "myBoxGeometry",
+ *      primitive: constants.TrianglesPrimitive,
+ *      positionsDecompressMatrix: [
+ *          0.00003052270125906143, 0, 0, 0,
+ *          0, 0.00003052270125906143, 0, 0,
+ *          0, 0, 0.00003052270125906143, 0,
+ *          -1, -1, -1, 1
+ *      ],
+ *      geometryBuckets: [
+ *          {
+ *              positionsCompressed: [
+ *                  65525, 65525, 65525, 0, 65525, 65525, 0, 0, 65525, 65525, 0, 65525, 65525, 0, 0, 65525, 65525, 0, 0, 65525, 0, 0, 0, 0
+ *              ],
+ *              indices: [
+ *                  0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6, 0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2, 4, 7, 6, 4, 6, 5
+ *              ]
+ *          }
+ *      ]
+ * });
+ *
+ * mySceneModel.createMesh({
+ *    id: "myMesh",
+ *    geometryId: "myGeometry"
+ * });
+ *
+ * mySceneModel.createObject({
+ *    id: "myObject",
+ *    meshIds: ["myMesh"]
+ * });
+ *
+ * mySceneModel.build();
+ * ````
+ *
+ * ### Example 3. Creating a SceneModel with a JPEG Texture
+ *
+ * ````javascript
+ * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
+ *
+ * const myViewer = new Viewer({
+ *    id: "myViewer"
+ * });
+ *
+ * const mySceneModel = myViewer.scene.createModel({
+ *    id: "myModel"
+ * });
+ *
+ * mySceneModel.createGeometry({
+ *     id: "myBoxGeometry",
+ *     primitive: constants.TrianglesPrimitive,
+ *     positions: [
+ *         1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1
+ *     ],
+ *     indices: [
+ *         0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
+ *     ]
+ * });
+ *
+ * mySceneGeometry.createTexture({
+ *      id: "myColorTexture",
+ *      src: "myColorTexture.jpeg",
+ *      preloadColor: [1,0,0,1],
+ *      encoding: constants.LinearEncoding,
+ *      flipY: false,
+ *      magFilter: constants.LinearFiler,
+ *      minFilter: constants.LinearFiler,
+ *      wrapR: constants.ClampToEdgeWrapping,
+ *      wrapS: constants.ClampToEdgeWrapping,
+ *      wrapT: constants.ClampToEdgeWrapping,
+ * });
+ *
+ * mySceneModel.createTextureSet({
+ *      id: "myTextureSet",
+ *      colorTextureId: "myColorTexture"
+ * });
+ *
+ * mySceneModel.createMesh({
+ *    id: "myMesh",
+ *    geometryId: "myGeometry",
+ *    textureSetId: "myTextureSet",
+ * });
+ *
+ * mySceneModel.createObject({
+ *    id: "myObject",
+ *    meshIds: ["myMesh"]
+ * });
+ *
+ * mySceneModel.build();
+ * ````
  */
 export class Scene extends Component {
 
@@ -47,9 +206,23 @@ export class Scene extends Component {
      */
     readonly objects: { [key: string]: SceneObject };
 
+    /**
+     * Emits an event each time a {@link SceneModel} is created.
+     *
+     * @event
+     */
+    readonly onModelCreated: EventEmitter<Scene, SceneModel>;
+
+    /**
+     * Emits an event each time a {@link SceneModel} is destroyed.
+     *
+     * @event
+     */
+    readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
+
     #center: Float64Array;
     #aabb: Float64Array;
-    
+
     #aabbDirty: boolean;
 
     /**
@@ -58,6 +231,9 @@ export class Scene extends Component {
     constructor(viewer: Viewer, params = {}) {
 
         super(null, params);
+
+        this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
 
         this.tiles = new Tiles(this);
         this.viewer = viewer;
@@ -90,7 +266,7 @@ export class Scene extends Component {
      *
      * When the Scene has no content, the boundary will be an inverted shape, ie. ````[-100,-100,-100,100,100,100]````.
      */
-    get aabb() : Float64Array {
+    get aabb(): Float64Array {
         if (this.#aabbDirty) {
             let xmin = math.MAX_DOUBLE;
             let ymin = math.MAX_DOUBLE;
@@ -154,7 +330,7 @@ export class Scene extends Component {
      * The SceneModel represents a new model within the Scene and provides an interface through which
      * we can then build geometry and materials within it.
      *
-     * When we've finished building our SceneModel, we then call {@link SceneModel.finalize}, which causes it to
+     * When we've finished building our SceneModel, we then call {@link SceneModel.build}, which causes it to
      * immediately begin rendering within all the {@link View|Views} we created previously with {@link Viewer.createView}.
      *
      * As that happens, each {@link View} automatically gets a {@link ViewObject} for each of the SceneModel's {@link SceneObject|SceneObjects}, to
@@ -174,7 +350,7 @@ export class Scene extends Component {
      * @param params SceneModel configuration
      * @seealso {@link Data.createModel}
      */
-    createModel(params: SceneModelParams): SceneModel|undefined {
+    createModel(params: SceneModelParams): SceneModel | undefined {
         this.log(`Creating SceneModel : ${params.id}`);
         if (this.viewer.viewList.length === 0) {
             throw "Please create a View with Viewer.createView() before creating a SceneModel";
@@ -186,15 +362,14 @@ export class Scene extends Component {
         }
         const sceneModel = this.viewer.renderer.createModel(params);
         this.models[sceneModel.id] = sceneModel;
-        sceneModel.events.on("finalized", (finalizedSceneModel) => {
-            this.#registerSceneObjects(finalizedSceneModel);
-            this.events.fire("sceneModelCreated", finalizedSceneModel);
-            this.log(`SceneModel created: ${finalizedSceneModel.id}`);
+        sceneModel.onBuilt.one(() => {
+            this.#registerSceneObjects(sceneModel);
+            this.onModelCreated.dispatch(this, sceneModel);
         });
-        sceneModel.events.on("destroyed", (destroyedSceneModel) => {
-            delete this.models[destroyedSceneModel.id];
-            this.#deregisterSceneObjects(destroyedSceneModel);
-            this.events.fire("sceneModelDestroyed", destroyedSceneModel);
+        sceneModel.onDestroyed.one(() => {
+            delete this.models[sceneModel.id];
+            this.#deregisterSceneObjects(sceneModel);
+            this.onModelDestroyed.dispatch(this, sceneModel);
         });
         return sceneModel;
     }
@@ -216,7 +391,7 @@ export class Scene extends Component {
     setAABBDirty() {
         if (!this.#aabbDirty) {
             this.#aabbDirty = true;
-            this.events.fire("aabb", true);
+            //this.events.fire("aabb", true);
         }
     }
 
@@ -249,6 +424,8 @@ export class Scene extends Component {
             }
         }
         super.destroy();
+        this.onModelCreated.clear();
+        this.onModelDestroyed.clear();
     }
 }
 

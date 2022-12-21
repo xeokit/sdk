@@ -28,7 +28,7 @@ class CameraUpdater {
         let dollyDistFactor = 1.0; // Calculated when countDown is zero
         let followPointerWorldPos: any = null; // Holds the pointer's World position when configs.followPointer is true
 
-        this.#onTick = view.events.on("tick", () => {
+        this.#onTick = view.viewer.onTick.subscribe(() => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -309,7 +309,7 @@ class CameraUpdater {
     }
 
     destroy() {
-        this.#view.events.off(this.#onTick);
+        this.#view.viewer.onTick.unsubscribe(this.#onTick);
     }
 }
 

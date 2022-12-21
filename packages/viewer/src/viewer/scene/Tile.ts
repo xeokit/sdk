@@ -69,7 +69,7 @@ export class Tile {
     registerSceneObject(sceneObject: SceneObject) {
         const sceneModel = sceneObject.model;
         if (!this.sceneModels[sceneModel.id]) {
-            sceneModel.events.on("destroyed", () => {
+            sceneModel.onDestroyed.one( () => {
                 delete this.sceneModels[sceneModel.id];
               //  this.numSceneModels--;
             });

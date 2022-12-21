@@ -7,6 +7,14 @@ import {CustomProjection} from './CustomProjection';
 import type {View} from "../View";
 import type {FloatArrayParam} from "../../math/index";
 import {RTCViewMat} from "./RTCViewMat";
+import {EventEmitter} from "../../EventEmitter";
+import {EventDispatcher} from "strongly-typed-events";
+import {
+    CustomProjectionType,
+    FrustumProjectionType,
+    OrthoProjectionType,
+    PerspectiveProjectionType
+} from "../../constants";
 
 
 const tempVec3 = math.vec3();
@@ -79,10 +87,10 @@ const offsetEye = math.vec3();
  * var viewNormalMatrix = camera.normalMatrix;
  * ````
  *
- * The Camera fires a ````"viewMatrix"```` event whenever the {@link Camera.viewMatrix} and {@link Camera.viewNormalMatrix} updates:
+ * {@link Camera.onViewMatrix} fires whenever {@link Camera.viewMatrix} and {@link Camera.viewNormalMatrix} update:
  *
  * ````javascript
- * camera.on("viewMatrix", function(matrix) { ... });
+ * camera.onViewMatrix.subscribe((camera, matrix) => { ... });
  * ````
  *
  * ## Rotating the Camera
@@ -147,12 +155,12 @@ const offsetEye = math.vec3();
  * camera.frustum.far = 1000.0;
  *
  * // Set the matrix property on CustomProjection
- * camera.customProjection.matrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+ * camera.customProjection.projMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
  *
  * // Switch between the projection types
- * camera.projection = "perspective"; // Switch to perspective
+ * camera.projection = PerspectiveProjectionType; // Switch to perspective
  * camera.projection = "frustum"; // Switch to frustum
- * camera.projection = "ortho"; // Switch to ortho
+ * camera.projection = OrthoProjectionType; // Switch to ortho
  * camera.projection = "customProjection"; // Switch to custom
  * ````
  *
@@ -167,7 +175,7 @@ const offsetEye = math.vec3();
  * Listen for projection matrix updates:
  *
  * ````javascript
- * camera.on("projMatrix", function(matrix) { ... });
+ * camera.onProjMatrix((camera, matrix) => { ... });
  * ````
  *
  * ## Configuring World up direction
@@ -226,10 +234,10 @@ class Camera extends Component {
 
     readonly #state: {
         deviceMatrix: math.FloatArrayParam,
-        normalMatrix: math.FloatArrayParam,
+        viewNormalMatrix: math.FloatArrayParam,
         hasDeviceMatrix: boolean,
-        matrix: math.FloatArrayParam,
-        inverseMatrix: math.FloatArrayParam,
+        viewMatrix: math.FloatArrayParam,
+        inverseViewMatrix: math.FloatArrayParam,
         eye: math.FloatArrayParam,
         look: math.FloatArrayParam,
         up: math.FloatArrayParam,
@@ -239,34 +247,34 @@ class Camera extends Component {
         worldForward: math.FloatArrayParam,
         gimbalLock: boolean,
         constrainPitch: boolean,
-        projectionType: string
+        projectionType: number
     };
 
     /**
      * The perspective projection.
      *
-     * The Camera uses this while {@link Camera.projection} equals "perspective".
+     * The Camera uses this while {@link Camera.projection} equals {@link PerspectiveProjectionType}.
      */
     public readonly perspective: Perspective;
 
     /**
      * The orthographic projection.
      *
-     * The Camera uses this while {@link Camera.projection} equals "ortho".
+     * The Camera uses this while {@link Camera.projection} equals {@link OrthoProjectionType}.
      */
     public readonly ortho: Ortho;
 
     /**
      * The frustum projection.
      *
-     * The Camera uses this while {@link Camera.projection} equals "frustum".
+     * The Camera uses this while {@link Camera.projection} equals {@link FrustumProjectionType}.
      */
     public readonly frustum: Frustum;
 
     /**
      * The custom projection.
      *
-     * The Camera uses this while {@link Camera.projection} equals "customProjection".
+     * The Camera uses this while {@link Camera.projection} equals {@link CustomProjectionType}.
      */
     public readonly customProjection: CustomProjection;
 
@@ -274,8 +282,54 @@ class Camera extends Component {
 
     /**
      * View matrices for relative-to-center (RTC) coordinate system origins.
+     *
+     * Created and destroyed with {@link Camera.getRTCViewMat} and {@link Camera.putRTCViewMat}.
      */
     public readonly rtcViewMats: { [key: string]: RTCViewMat };
+
+    /**
+     * Emits an event each time {@link Camera.projection} updates.
+     *
+     * ````javascript
+     * myView.camera.onProjType.subscribe((camera, projType) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onProjType: EventEmitter<Camera, number>;
+
+    /**
+     * Emits an event each time {@link Camera.viewMatrix} updates.
+     *
+     * ````javascript
+     * myView.camera.onViewMatrix.subscribe((camera, viewMatrix) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onViewMatrix: EventEmitter<Camera, FloatArrayParam>;
+
+    /**
+     * Emits an event each time {@link Camera.projMatrix} updates.
+     *
+     * ````javascript
+     * myView.camera.onProjMatrix.subscribe((camera, projMatrix) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onProjMatrix: EventEmitter<Camera, FloatArrayParam>;
+
+    /**
+     * Emits an event each time {@link Camera.worldAxis} updates.
+     *
+     * ````javascript
+     * myView.camera.onWorldAxis.subscribe((camera, worldAxis) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onWorldAxis: EventEmitter<Camera, FloatArrayParam>;
 
     /**
      * @private
@@ -287,12 +341,16 @@ class Camera extends Component {
         deviceMatrix?: math.FloatArrayParam;
         gimbalLock?: boolean;
         worldAxis?: math.FloatArrayParam;
-        projection?: string;
         constrainPitch?: boolean;
-        projectionType?: string
+        projectionType?: number
     } = {}) {
 
         super(view, cfg);
+
+        this.onProjType = new EventEmitter(new EventDispatcher<Camera, number>());
+        this.onViewMatrix = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
+        this.onProjMatrix = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
+        this.onWorldAxis = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
 
         this.view = view;
 
@@ -306,12 +364,12 @@ class Camera extends Component {
             worldAxis: new Float32Array(cfg.worldAxis || [1, 0, 0, 0, 1, 0, 0, 0, 1]),
             gimbalLock: cfg.gimbalLock !== false,
             constrainPitch: cfg.constrainPitch === true,
-            projectionType: cfg.projectionType || "perspective",
+            projectionType: cfg.projectionType || PerspectiveProjectionType,
             deviceMatrix: cfg.deviceMatrix ? math.mat4(cfg.deviceMatrix) : math.identityMat4(),
             hasDeviceMatrix: !!cfg.deviceMatrix,
-            matrix: math.mat4(),
-            normalMatrix: math.mat4(),
-            inverseMatrix: math.mat4()
+            viewMatrix: math.mat4(),
+            viewNormalMatrix: math.mat4(),
+            inverseViewMatrix: math.mat4()
         };
 
         this.rtcViewMats = {};
@@ -323,24 +381,27 @@ class Camera extends Component {
 
         this.#activeProjection = this.perspective;
 
-        this.perspective.events.on("matrix", () => {
-            if (this.#state.projectionType === "perspective") {
-                this.events.fire("projMatrix", this.perspective.matrix);
+        this.perspective.onProjMatrix.subscribe(() => {
+            if (this.#state.projectionType === PerspectiveProjectionType) {
+                this.onProjMatrix.dispatch(this, this.perspective.projMatrix);
             }
         });
-        this.ortho.events.on("matrix", () => {
-            if (this.#state.projectionType === "ortho") {
-                this.events.fire("projMatrix", this.ortho.matrix);
+
+        this.ortho.onProjMatrix.subscribe(() => {
+            if (this.#state.projectionType === OrthoProjectionType) {
+                this.onProjMatrix.dispatch(this, this.ortho.projMatrix);
             }
         });
-        this.frustum.events.on("matrix", () => {
-            if (this.#state.projectionType === "frustum") {
-                this.events.fire("projMatrix", this.frustum.matrix);
+
+        this.frustum.onProjMatrix.subscribe(() => {
+            if (this.#state.projectionType === FrustumProjectionType) {
+                this.onProjMatrix.dispatch(this, this.frustum.projMatrix);
             }
         });
-        this.customProjection.events.on("matrix", () => {
-            if (this.#state.projectionType === "customProjection") {
-                this.events.fire("projMatrix", this.customProjection.matrix);
+
+        this.customProjection.onProjMatrix.subscribe(() => {
+            if (this.#state.projectionType === CustomProjectionType) {
+                this.onProjMatrix.dispatch(this, this.customProjection.projMatrix);
             }
         });
     }
@@ -380,7 +441,6 @@ class Camera extends Component {
         // @ts-ignore
         this.#state.eye.set(eye);
         this.setDirty(); // Ensure matrix built on next "tick"
-        this.events.fire("eye", this.#state.eye);
     }
 
     /**
@@ -399,15 +459,12 @@ class Camera extends Component {
      *
      * Default value is ````[0,0,0]````.
      *
-     * @emits "look" event on change, with the value of this property.
-     *
      * @param look Camera look position.
      */
     set look(look: math.FloatArrayParam) {
         // @ts-ignore
         this.#state.look.set(look);
         this.setDirty(); // Ensure matrix built on next "tick"
-        this.events.fire("look", this.#state.look);
     }
 
     /**
@@ -422,15 +479,12 @@ class Camera extends Component {
     /**
      * Sets the direction of this Camera's {@link Camera.up} vector.
      *
-     * @emits "up" event on change, with the value of this property.
-     *
      * @param up Direction of "up".
      */
     set up(up: math.FloatArrayParam) {
         // @ts-ignore
         this.#state.up.set(up);
         this.setDirty();
-        this.events.fire("up", this.#state.up);
     }
 
     /**
@@ -490,15 +544,12 @@ class Camera extends Component {
      *
      * The camera is upside down when the angle between {@link Camera.up} and {@link Camera.worldUp} is less than one degree.
      *
-     * Fires a {@link Camera.constrainPitch:event} event on change.
-     *
      * Default value is ````false````.
      *
      * @param value Set ````true```` to contrain pitch rotation.
      */
     set constrainPitch(value: boolean) {
         this.#state.constrainPitch = value;
-        this.events.fire("constrainPitch", this.#state.constrainPitch);
     }
 
     /**
@@ -513,13 +564,10 @@ class Camera extends Component {
     /**
      * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
      *
-     * Fires a {@link Camera.gimbalLock:event} event on change.
-     *
      * @params {Boolean} gimbalLock Set true to lock gimbal.
      */
     set gimbalLock(value: boolean) {
         this.#state.gimbalLock = value;
-        this.events.fire("gimbalLock", this.#state.gimbalLock);
     }
 
     /**
@@ -557,11 +605,11 @@ class Camera extends Component {
         state.worldForward[0] = state.worldAxis[6];
         state.worldForward[1] = state.worldAxis[7];
         state.worldForward[2] = state.worldAxis[8];
-        this.events.fire("worldAxis", state.worldAxis);
+        this.onWorldAxis.dispatch(this, state.worldAxis);
     }
 
     /**
-     * Gets an optional matrix to premultiply into {@link Camera.matrix} matrix.
+     * Gets an optional matrix to premultiply into {@link Camera.projMatrix} matrix.
      *
      * @returns {Number[]} The matrix.
      */
@@ -571,7 +619,7 @@ class Camera extends Component {
     }
 
     /**
-     * Sets an optional matrix to premultiply into {@link Camera.matrix} matrix.
+     * Sets an optional matrix to premultiply into {@link Camera.projMatrix} matrix.
      *
      * This is intended to be used for stereo rendering with WebVR etc.
      *
@@ -582,7 +630,6 @@ class Camera extends Component {
         this.#state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
         this.#state.hasDeviceMatrix = !!matrix;
         this.setDirty();
-        this.events.fire("deviceMatrix", this.#state.deviceMatrix);
     }
 
     /**
@@ -621,49 +668,17 @@ class Camera extends Component {
     /**
      * Gets the Camera's viewing transformation matrix.
      *
-     * Fires a {@link Camera.matrix:event} event on change.
-     *
-     * @returns {Number[]} The viewing transform matrix.
-     */
-    get matrix(): math.FloatArrayParam {
-        if (this.dirty) {
-            this.cleanIfDirty();
-        }
-        return this.#state.matrix;
-    }
-
-    /**
-     * Gets the Camera's viewing transformation matrix.
-     *
-     * Fires a {@link Camera.matrix:event} event on change.
-     *
      * @returns {Number[]} The viewing transform matrix.
      */
     get viewMatrix(): math.FloatArrayParam {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.#state.matrix;
+        return this.#state.viewMatrix;
     }
 
     /**
      * The Camera's viewing normal transformation matrix.
-     *
-     * Fires a {@link Camera.matrix:event} event on change.
-     *
-     * @returns {Number[]} The viewing normal transform matrix.
-     */
-    get normalMatrix(): math.FloatArrayParam {
-        if (this.dirty) {
-            this.cleanIfDirty();
-        }
-        return this.#state.normalMatrix;
-    }
-
-    /**
-     * The Camera's viewing normal transformation matrix.
-     *
-     * Fires a {@link Camera.matrix:event} event on change.
      *
      * @returns {Number[]} The viewing normal transform matrix.
      */
@@ -671,13 +686,13 @@ class Camera extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.#state.normalMatrix;
+        return this.#state.viewNormalMatrix;
     }
 
     /**
      * Gets the inverse of the Camera's viewing transform matrix.
      *
-     * This has the same value as {@link Camera.normalMatrix}.
+     * This has the same value as {@link Camera.viewNormalMatrix}.
      *
      * @returns {Number[]} The inverse viewing transform matrix.
      */
@@ -685,69 +700,65 @@ class Camera extends Component {
         if (this.dirty) {
             this.cleanIfDirty();
         }
-        return this.#state.inverseMatrix;
+        return this.#state.inverseViewMatrix;
     }
 
     /**
      * Gets the Camera's projection transformation projMatrix.
      *
-     * Fires a {@link Camera.projMatrix:event} event on change.
-     *
      * @returns {Number[]} The projection matrix.
      */
     get projMatrix(): math.FloatArrayParam {
         // @ts-ignore
-        return this[this.projection].matrix;
+        return this[this.projection].projMatrix;
     }
 
     /**
      * Gets the active projection type.
      *
-     * Possible values are ````"perspective"````, ````"ortho"````, ````"frustum"```` and ````"customProjection"````.
+     * Possible values are ````PerspectiveProjectionType````, ````OrthoProjectionType````, ````"frustum"```` and ````"customProjection"````.
      *
-     * Default value is ````"perspective"````.
+     * Default value is ````PerspectiveProjectionType````.
      *
-     * @returns {String} Identifies the active projection type.
+     * @returns {number} Identifies the active projection type.
      */
-    get projection(): string {
+    get projection(): number {
         return this.#state.projectionType;
     }
 
     /**
      * Sets the active projection type.
      *
-     * Accepted values are ````"perspective"````, ````"ortho"````, ````"frustum"```` and ````"customProjection"````.
+     * Accepted values are ````PerspectiveProjectionType````, ````OrthoProjectionType````, ````"frustum"```` and ````"customProjection"````.
      *
-     * Default value is ````"perspective"````.
+     * Default value is ````PerspectiveProjectionType````.
      *
      * @param value Identifies the active projection type.
      */
-    set projection(value: string) {
-        value = value || "perspective";
+    set projection(value: number | undefined) {
+        value = value || PerspectiveProjectionType;
         if (this.#state.projectionType === value) {
             return;
         }
-        if (value === "perspective") {
+        if (value === PerspectiveProjectionType) {
             this.#activeProjection = this.perspective;
-        } else if (value === "ortho") {
+        } else if (value === OrthoProjectionType) {
             this.#activeProjection = this.ortho;
-        } else if (value === "frustum") {
+        } else if (value === FrustumProjectionType) {
             this.#activeProjection = this.frustum;
-        } else if (value === "customProjection") {
+        } else if (value === CustomProjectionType) {
             this.#activeProjection = this.customProjection;
         } else {
-            this.error("Unsupported value for 'projection': " + value + " defaulting to 'perspective'");
+            this.error("Unsupported value for 'projection': " + value + " defaulting to PerspectiveProjectionType");
             this.#activeProjection = this.perspective;
-            value = "perspective";
+            value = PerspectiveProjectionType;
         }
         this.#activeProjection.clean();
         this.#state.projectionType = value;
         this.view.redraw();
         this.clean(); // Need to rebuild lookat matrix with full eye, look & up
-        // @ts-ignore
-        this.events.fire("dirty");
-        this.events.fire("projection", this.#state.projectionType);
-        this.events.fire("projMatrix", this.#activeProjection.matrix);
+        this.onProjType.dispatch(this, this.#state.projectionType);
+        this.onProjMatrix.dispatch(this, this.#activeProjection.projMatrix);
     }
 
     clean() {
@@ -757,7 +768,7 @@ class Camera extends Component {
         // the front off the view (not a problem with perspective, since objects close enough
         // to be clipped by the front plane are usually too big to see anything of their cross-sections).
         let eye;
-        if (this.projection === "ortho") {
+        if (this.projection === OrthoProjectionType) {
             math.subVec3(this.#state.eye, this.#state.look, eyeLookVec);
             math.normalizeVec3(eyeLookVec, eyeLookVecNorm);
             math.mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
@@ -768,16 +779,15 @@ class Camera extends Component {
         }
         if (state.hasDeviceMatrix) {
             math.lookAtMat4v(eye, this.#state.look, this.#state.up, tempMatb);
-            math.mulMat4(state.deviceMatrix, tempMatb, state.matrix);
+            math.mulMat4(state.deviceMatrix, tempMatb, state.viewMatrix);
         } else {
-            math.lookAtMat4v(eye, this.#state.look, this.#state.up, state.matrix);
+            math.lookAtMat4v(eye, this.#state.look, this.#state.up, state.viewMatrix);
         }
-        math.inverseMat4(this.#state.matrix, this.#state.inverseMatrix);
-        math.transposeMat4(this.#state.inverseMatrix, this.#state.normalMatrix);
+        math.inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
+        math.transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
         this.#invalidateRTCViewMatrices();
         this.view.redraw();
-        this.events.fire("matrix", this.#state.matrix);
-        this.events.fire("viewMatrix", this.#state.matrix);
+        this.onViewMatrix.dispatch(this, this.#state.viewMatrix);
     }
 
     /**
@@ -906,9 +916,9 @@ class Camera extends Component {
      * Gets an RTC view matrix for the given relative-to-center (RTC) coordinate system origin.
      *
      * The RTCViewMat returned by this method will provide a dynamically-synchronized
-     * version of {@link Camera.viewMatrix} for the given RTC origin. Whenever {@link Camera.viewMatrix} 
+     * version of {@link Camera.viewMatrix} for the given RTC origin. Whenever {@link Camera.viewMatrix}
      * updates, {@link RTCViewMat.viewMatrix} will update also.
-     * 
+     *
      * Make sure to release it with {@link putRTCViewMat} or {@link RTCViewMat.release} when you no longer need it.
      *
      * @param origin The RTC coordinate origin.
@@ -942,6 +952,10 @@ class Camera extends Component {
      */
     destroy() {
         super.destroy();
+        this.onProjType.clear();
+        this.onViewMatrix.clear();
+        this.onProjMatrix.clear();
+        this.onWorldAxis.clear();
     }
 }
 

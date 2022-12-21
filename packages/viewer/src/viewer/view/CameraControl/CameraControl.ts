@@ -12,6 +12,8 @@ import {CameraUpdater} from "./lib/CameraUpdater";
 import {MouseMiscHandler} from "./lib/handlers/MouseMiscHandler";
 import {TouchPanRotateAndDollyHandler} from "./lib/handlers/TouchPanRotateAndDollyHandler";
 import {TouchPickHandler} from "./lib/handlers/TouchPickHandler";
+import {EventDispatcher, IEvent} from "strongly-typed-events";
+import {EventEmitter} from "./../../EventEmitter";
 
 import * as utils from "../../utils/index";
 import * as math from "../../math/index";
@@ -19,6 +21,13 @@ import type {View} from "../View";
 import type {Canvas} from "../Canvas";
 import type {Camera} from "../camera/index";
 import type {Scene} from "../../scene/Scene";
+import type {PickResult} from "../PickResult";
+
+import * as keycodes from "../../keycodes";
+
+
+class HoverEvent {
+}
 
 /**
  * Controls a {@link Camera} with user input.
@@ -35,7 +44,7 @@ import type {Scene} from "../../scene/Scene";
  * * Distance-scaled rate of movement
  * * Inertia
  */
-class CameraControl extends Component {
+export class CameraControl extends Component {
 
     /**
      * Identifies the *leftwards panning* action, in which the {@link Camera} moves leftwards along its local axis.
@@ -174,7 +183,9 @@ class CameraControl extends Component {
         dollyInertia: number;
         panRightClick: boolean;
         smartPivot: boolean;
-        doublePickFlyTo: boolean
+        doublePickFlyTo: boolean;
+        keyboardEnabled: boolean;
+        keyMap: { [key: number]: any };
     };
 
     readonly #states: {
@@ -190,7 +201,11 @@ class CameraControl extends Component {
         followPointerDirty: boolean;
         mouseDownClientX: number;
         mouseDownClientY: number;
-        touchStartTime: null
+        touchStartTime: null;
+        altDown: boolean ;
+        ctrlDown: boolean;
+        keyDown: boolean[];
+        shiftDown: boolean|undefined;
     };
 
     readonly #updates: {
@@ -218,7 +233,85 @@ class CameraControl extends Component {
 
     readonly #cameraUpdater: CameraUpdater;
 
-    #keyMap: { [key: number]: any };
+
+
+    /**
+     * Event fired when we right-click.
+     *
+     * @event
+     */
+    readonly onRightClick: EventEmitter<CameraControl, any>;
+
+    /**
+     * Event fired when the pointer moves while over a {@link ViewObject}.
+     *
+     * @event
+     */
+    readonly onHover: EventEmitter<CameraControl, HoverEvent>;
+
+    /**
+     * Event fired when the pointer moves while over a {@link ViewObject}.
+     *
+     * @event
+     */
+    readonly onHoverSurface: EventEmitter<CameraControl, HoverEvent>;
+
+    /**
+     * Event fired when the pointer moves while over empty space.
+     *
+     * @event
+     */
+    readonly onHoverOff: EventEmitter<CameraControl, HoverEvent>;
+
+    /**
+     * Event fired when the pointer moves onto a {@link ViewObject}.
+     *
+     * @event
+     */
+    readonly onHoverEnter: EventEmitter<CameraControl, HoverEvent>;
+
+    /**
+     * Event fired when the pointer moves off a {@link ViewObject}.
+     *
+     * @event
+     */
+    readonly onHoverOut: EventEmitter<CameraControl, HoverEvent>;
+
+    /**
+     * Event fired when a {@link ViewObject} is picked.
+     *
+     * @event
+     */
+    readonly onPicked: EventEmitter<CameraControl, PickResult>;
+
+    /**
+     * Event fired when empty space is picked.
+     *
+     * @event
+     */
+    readonly onPickedSurface: EventEmitter<CameraControl, PickResult>;
+
+    /**
+     * Event fired when empty space is picked.
+     *
+     * @event
+     */
+    readonly onPickedNothing: EventEmitter<CameraControl, null>;
+
+    /**
+     * Event fired when a surface is double-picked.
+     *
+     * @event
+     */
+    readonly onDoublePickedSurface: EventEmitter<CameraControl, PickResult>;
+
+    /**
+     * Event fired when empty space is double-picked.
+     *
+     * @event
+     */
+    readonly onDoublePickedNothing: EventEmitter<CameraControl, PickResult>;
+
 
     /**
      * @private
@@ -244,7 +337,8 @@ class CameraControl extends Component {
         constrainVertical?: boolean;
         planView?: any;
         navMode?: string;
-        doublePickFlyTo?: boolean
+        doublePickFlyTo?: boolean;
+        keyboardEnabled?: boolean;
     }) {
 
         super(view, cfg);
@@ -252,8 +346,6 @@ class CameraControl extends Component {
         this.view = view;
         this.canvas = canvas;
         this.camera = camera;
-
-        this.#keyMap = {}; // Maps key codes to the above actions
 
         canvas.canvas.oncontextmenu = (e) => {
             e.preventDefault();
@@ -291,7 +383,9 @@ class CameraControl extends Component {
             touchDollyRate: 0.2,
             dollyInertia: 0,
             dollyProximityThreshold: 30.0,
-            dollyMinSpeed: 0.04
+            dollyMinSpeed: 0.04,
+            keyboardEnabled: true,
+            keyMap: {}
         };
 
         this.#states = {
@@ -307,7 +401,11 @@ class CameraControl extends Component {
             tapStartPos: math.vec2(),
             tapStartTime: -1,
             lastTapTime: -1,
-            longTouchTimeout: null
+            longTouchTimeout: null,
+            altDown: false ,
+            ctrlDown: false,
+            keyDown: [],
+            shiftDown: false,
         };
 
         this.#updates = {
@@ -324,7 +422,7 @@ class CameraControl extends Component {
             pickController: new PickController(this, this.#configs),
             pivotController: new PivotController(this, this.#configs),
             panController: new PanController(this),
-            cameraFlight: new CameraFlightAnimation(this.view,{
+            cameraFlight: new CameraFlightAnimation(this.view, {
                 duration: 0.5
             })
         };
@@ -342,6 +440,11 @@ class CameraControl extends Component {
         // Applies scheduled updates to the Camera on each Scene "tick" event
 
         this.#cameraUpdater = new CameraUpdater(this, this.#controllers, this.#configs, this.#states, this.#updates);
+
+        this.onHover = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
+        this.onHoverOff = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
+        this.onHoverEnter = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
+        this.onHoverOut = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
 
         // Set initial user configurations
 
@@ -365,6 +468,7 @@ class CameraControl extends Component {
         this.pointerEnabled = true;
         this.keyboardDollyRate = cfg.keyboardDollyRate;
         this.mouseWheelDollyRate = cfg.mouseWheelDollyRate;
+        this.keyboardEnabled = cfg.keyboardEnabled;
     }
 
     /**
@@ -373,7 +477,7 @@ class CameraControl extends Component {
      * @returns Current key mappings.
      */
     get keyMap(): { [key: number]: number } {
-        return this.#keyMap;
+        return this.#configs.keyMap;
     }
 
     /**
@@ -384,10 +488,9 @@ class CameraControl extends Component {
      * @param value Either a set of new key mappings, or a string to select a keyboard layout,
      * which causes ````CameraControl```` to use the default key mappings for that layout.
      */
-    set keyMap(value: { [key: number]: number } | string|undefined) {
+    set keyMap(value: { [key: number]: number } | string | undefined) {
         value = value || "qwerty";
         if (utils.isString(value)) {
-            const input = this.view.input;
             const keyMap: { [key: number]: any } = {};
 
             switch (value) {
@@ -396,52 +499,52 @@ class CameraControl extends Component {
                     this.error("Unsupported value for 'keyMap': " + value + " defaulting to 'qwerty'");
                 // Intentional fall-through to "qwerty"
                 case "qwerty":
-                    keyMap[CameraControl.PAN_LEFT] = [input.KEY_A];
-                    keyMap[CameraControl.PAN_RIGHT] = [input.KEY_D];
-                    keyMap[CameraControl.PAN_UP] = [input.KEY_Z];
-                    keyMap[CameraControl.PAN_DOWN] = [input.KEY_X];
+                    keyMap[CameraControl.PAN_LEFT] = [keycodes.KEY_A];
+                    keyMap[CameraControl.PAN_RIGHT] = [keycodes.KEY_D];
+                    keyMap[CameraControl.PAN_UP] = [keycodes.KEY_Z];
+                    keyMap[CameraControl.PAN_DOWN] = [keycodes.KEY_X];
                     keyMap[CameraControl.PAN_BACKWARDS] = [];
                     keyMap[CameraControl.PAN_FORWARDS] = [];
-                    keyMap[CameraControl.DOLLY_FORWARDS] = [input.KEY_W, input.KEY_ADD];
-                    keyMap[CameraControl.DOLLY_BACKWARDS] = [input.KEY_S, input.KEY_SUBTRACT];
-                    keyMap[CameraControl.ROTATE_X_POS] = [input.KEY_DOWN_ARROW];
-                    keyMap[CameraControl.ROTATE_X_NEG] = [input.KEY_UP_ARROW];
-                    keyMap[CameraControl.ROTATE_Y_POS] = [input.KEY_Q, input.KEY_LEFT_ARROW];
-                    keyMap[CameraControl.ROTATE_Y_NEG] = [input.KEY_E, input.KEY_RIGHT_ARROW];
-                    keyMap[CameraControl.AXIS_VIEW_RIGHT] = [input.KEY_NUM_1];
-                    keyMap[CameraControl.AXIS_VIEW_BACK] = [input.KEY_NUM_2];
-                    keyMap[CameraControl.AXIS_VIEW_LEFT] = [input.KEY_NUM_3];
-                    keyMap[CameraControl.AXIS_VIEW_FRONT] = [input.KEY_NUM_4];
-                    keyMap[CameraControl.AXIS_VIEW_TOP] = [input.KEY_NUM_5];
-                    keyMap[CameraControl.AXIS_VIEW_BOTTOM] = [input.KEY_NUM_6];
+                    keyMap[CameraControl.DOLLY_FORWARDS] = [keycodes.KEY_W, keycodes.KEY_ADD];
+                    keyMap[CameraControl.DOLLY_BACKWARDS] = [keycodes.KEY_S, keycodes.KEY_SUBTRACT];
+                    keyMap[CameraControl.ROTATE_X_POS] = [keycodes.KEY_DOWN_ARROW];
+                    keyMap[CameraControl.ROTATE_X_NEG] = [keycodes.KEY_UP_ARROW];
+                    keyMap[CameraControl.ROTATE_Y_POS] = [keycodes.KEY_Q, keycodes.KEY_LEFT_ARROW];
+                    keyMap[CameraControl.ROTATE_Y_NEG] = [keycodes.KEY_E, keycodes.KEY_RIGHT_ARROW];
+                    keyMap[CameraControl.AXIS_VIEW_RIGHT] = [keycodes.KEY_NUM_1];
+                    keyMap[CameraControl.AXIS_VIEW_BACK] = [keycodes.KEY_NUM_2];
+                    keyMap[CameraControl.AXIS_VIEW_LEFT] = [keycodes.KEY_NUM_3];
+                    keyMap[CameraControl.AXIS_VIEW_FRONT] = [keycodes.KEY_NUM_4];
+                    keyMap[CameraControl.AXIS_VIEW_TOP] = [keycodes.KEY_NUM_5];
+                    keyMap[CameraControl.AXIS_VIEW_BOTTOM] = [keycodes.KEY_NUM_6];
                     break;
 
                 case "azerty":
-                    keyMap[CameraControl.PAN_LEFT] = [input.KEY_Q];
-                    keyMap[CameraControl.PAN_RIGHT] = [input.KEY_D];
-                    keyMap[CameraControl.PAN_UP] = [input.KEY_W];
-                    keyMap[CameraControl.PAN_DOWN] = [input.KEY_X];
+                    keyMap[CameraControl.PAN_LEFT] = [keycodes.KEY_Q];
+                    keyMap[CameraControl.PAN_RIGHT] = [keycodes.KEY_D];
+                    keyMap[CameraControl.PAN_UP] = [keycodes.KEY_W];
+                    keyMap[CameraControl.PAN_DOWN] = [keycodes.KEY_X];
                     keyMap[CameraControl.PAN_BACKWARDS] = [];
                     keyMap[CameraControl.PAN_FORWARDS] = [];
-                    keyMap[CameraControl.DOLLY_FORWARDS] = [input.KEY_Z, input.KEY_ADD];
-                    keyMap[CameraControl.DOLLY_BACKWARDS] = [input.KEY_S, input.KEY_SUBTRACT];
-                    keyMap[CameraControl.ROTATE_X_POS] = [input.KEY_DOWN_ARROW];
-                    keyMap[CameraControl.ROTATE_X_NEG] = [input.KEY_UP_ARROW];
-                    keyMap[CameraControl.ROTATE_Y_POS] = [input.KEY_A, input.KEY_LEFT_ARROW];
-                    keyMap[CameraControl.ROTATE_Y_NEG] = [input.KEY_E, input.KEY_RIGHT_ARROW];
-                    keyMap[CameraControl.AXIS_VIEW_RIGHT] = [input.KEY_NUM_1];
-                    keyMap[CameraControl.AXIS_VIEW_BACK] = [input.KEY_NUM_2];
-                    keyMap[CameraControl.AXIS_VIEW_LEFT] = [input.KEY_NUM_3];
-                    keyMap[CameraControl.AXIS_VIEW_FRONT] = [input.KEY_NUM_4];
-                    keyMap[CameraControl.AXIS_VIEW_TOP] = [input.KEY_NUM_5];
-                    keyMap[CameraControl.AXIS_VIEW_BOTTOM] = [input.KEY_NUM_6];
+                    keyMap[CameraControl.DOLLY_FORWARDS] = [keycodes.KEY_Z, keycodes.KEY_ADD];
+                    keyMap[CameraControl.DOLLY_BACKWARDS] = [keycodes.KEY_S, keycodes.KEY_SUBTRACT];
+                    keyMap[CameraControl.ROTATE_X_POS] = [keycodes.KEY_DOWN_ARROW];
+                    keyMap[CameraControl.ROTATE_X_NEG] = [keycodes.KEY_UP_ARROW];
+                    keyMap[CameraControl.ROTATE_Y_POS] = [keycodes.KEY_A, keycodes.KEY_LEFT_ARROW];
+                    keyMap[CameraControl.ROTATE_Y_NEG] = [keycodes.KEY_E, keycodes.KEY_RIGHT_ARROW];
+                    keyMap[CameraControl.AXIS_VIEW_RIGHT] = [keycodes.KEY_NUM_1];
+                    keyMap[CameraControl.AXIS_VIEW_BACK] = [keycodes.KEY_NUM_2];
+                    keyMap[CameraControl.AXIS_VIEW_LEFT] = [keycodes.KEY_NUM_3];
+                    keyMap[CameraControl.AXIS_VIEW_FRONT] = [keycodes.KEY_NUM_4];
+                    keyMap[CameraControl.AXIS_VIEW_TOP] = [keycodes.KEY_NUM_5];
+                    keyMap[CameraControl.AXIS_VIEW_BOTTOM] = [keycodes.KEY_NUM_6];
                     break;
             }
 
-            this.#keyMap = keyMap;
+            this.#configs.keyMap = keyMap;
         } else {
             const keyMap = value;
-            this.#keyMap = keyMap;
+            this.#configs.keyMap = keyMap;
         }
     }
 
@@ -478,7 +581,7 @@ class CameraControl extends Component {
      *
      * @param value Set ````true```` to activate this ````CameraControl````.
      */
-    set active(value: boolean|undefined) {
+    set active(value: boolean | undefined) {
         this.#configs.active = value !== false;
     }
 
@@ -504,7 +607,7 @@ class CameraControl extends Component {
      *
      * @param navMode The navigation mode: "orbit", "firstPerson" or "planView".
      */
-    set navMode(navMode: string|undefined) {
+    set navMode(navMode: string | undefined) {
         navMode = navMode || "orbit";
         if (navMode !== "firstPerson" && navMode !== "orbit" && navMode !== "planView") {
             this.error("Unsupported value for navMode: " + navMode + " - supported values are 'orbit', 'firstPerson' and 'planView' - defaulting to 'orbit'");
@@ -582,7 +685,7 @@ class CameraControl extends Component {
      *
      * @param value Set ````true```` to enable the Camera to follow the pointer.
      */
-    set followPointer(value: boolean|undefined) {
+    set followPointer(value: boolean | undefined) {
         this.#configs.followPointer = (value !== false);
     }
 
@@ -747,7 +850,7 @@ class CameraControl extends Component {
      *
      * @param value Set ````true```` to vertically constrain the Camera.
      */
-    set constrainVertical(value: boolean|undefined) {
+    set constrainVertical(value: boolean | undefined) {
         this.#configs.constrainVertical = !!value;
     }
 
@@ -769,7 +872,7 @@ class CameraControl extends Component {
      *
      * @param value Set ````true```` to enable double-pick-fly-to mode.
      */
-    set doublePickFlyTo(value: boolean|undefined) {
+    set doublePickFlyTo(value: boolean | undefined) {
         this.#configs.doublePickFlyTo = value !== false;
     }
 
@@ -791,7 +894,7 @@ class CameraControl extends Component {
      *
      * @param value Set ````false```` to disable pan on right-click.
      */
-    set panRightClick(value: boolean|undefined) {
+    set panRightClick(value: boolean | undefined) {
         this.#configs.panRightClick = value !== false;
     }
 
@@ -824,7 +927,7 @@ class CameraControl extends Component {
      *
      * @param rotationInertia New inertial factor.
      */
-    set rotationInertia(rotationInertia: number|undefined) {
+    set rotationInertia(rotationInertia: number | undefined) {
         this.#configs.rotationInertia = (rotationInertia !== undefined && rotationInertia !== null) ? rotationInertia : 0.0;
     }
 
@@ -844,7 +947,7 @@ class CameraControl extends Component {
      *
      * @param touchPanRate The new touch pan rate.
      */
-    set touchPanRate(touchPanRate: number|undefined) {
+    set touchPanRate(touchPanRate: number | undefined) {
         this.#configs.touchPanRate = (touchPanRate !== null && touchPanRate !== undefined) ? touchPanRate : 1.0;
     }
 
@@ -874,7 +977,7 @@ class CameraControl extends Component {
      *
      * @param keyboardPanRate The new keyboard pan rate.
      */
-    set keyboardPanRate(keyboardPanRate: number|undefined) {
+    set keyboardPanRate(keyboardPanRate: number | undefined) {
         this.#configs.keyboardPanRate = (keyboardPanRate !== null && keyboardPanRate !== undefined) ? keyboardPanRate : 5.0;
     }
 
@@ -898,7 +1001,7 @@ class CameraControl extends Component {
      *
      * @param keyboardRotationRate The new keyboard rotation rate.
      */
-    set keyboardRotationRate(keyboardRotationRate: number|undefined) {
+    set keyboardRotationRate(keyboardRotationRate: number | undefined) {
         this.#configs.keyboardRotationRate = (keyboardRotationRate !== null && keyboardRotationRate !== undefined) ? keyboardRotationRate : 90.0;
     }
 
@@ -929,7 +1032,7 @@ class CameraControl extends Component {
      *
      * @param dragRotationRate The new drag rotation rate.
      */
-    set dragRotationRate(dragRotationRate: number|undefined) {
+    set dragRotationRate(dragRotationRate: number | undefined) {
         this.#configs.dragRotationRate = (dragRotationRate !== null && dragRotationRate !== undefined) ? dragRotationRate : 360.0;
     }
 
@@ -952,7 +1055,7 @@ class CameraControl extends Component {
      *
      * @param keyboardDollyRate The new keyboard dolly rate.
      */
-    set keyboardDollyRate(keyboardDollyRate: number|undefined) {
+    set keyboardDollyRate(keyboardDollyRate: number | undefined) {
         this.#configs.keyboardDollyRate = (keyboardDollyRate !== null && keyboardDollyRate !== undefined) ? keyboardDollyRate : 15.0;
     }
 
@@ -974,7 +1077,7 @@ class CameraControl extends Component {
      *
      * @param touchDollyRate The new touch dolly rate.
      */
-    set touchDollyRate(touchDollyRate: number|undefined) {
+    set touchDollyRate(touchDollyRate: number | undefined) {
         this.#configs.touchDollyRate = (touchDollyRate !== null && touchDollyRate !== undefined) ? touchDollyRate : 0.2;
     }
 
@@ -997,7 +1100,7 @@ class CameraControl extends Component {
      *
      * @param mouseWheelDollyRate The new mouse wheel dolly rate.
      */
-    set mouseWheelDollyRate(mouseWheelDollyRate: number|undefined) {
+    set mouseWheelDollyRate(mouseWheelDollyRate: number | undefined) {
         this.#configs.mouseWheelDollyRate = (mouseWheelDollyRate !== null && mouseWheelDollyRate !== undefined) ? mouseWheelDollyRate : 100.0;
     }
 
@@ -1029,7 +1132,7 @@ class CameraControl extends Component {
      *
      * @param dollyInertia New dolly inertia factor.
      */
-    set dollyInertia(dollyInertia: number|undefined) {
+    set dollyInertia(dollyInertia: number | undefined) {
         this.#configs.dollyInertia = (dollyInertia !== undefined && dollyInertia !== null) ? dollyInertia : 0;
     }
 
@@ -1051,7 +1154,7 @@ class CameraControl extends Component {
      *
      * @param dollyProximityThreshold New dolly proximity threshold.
      */
-    set dollyProximityThreshold(dollyProximityThreshold: number|undefined) {
+    set dollyProximityThreshold(dollyProximityThreshold: number | undefined) {
         this.#configs.dollyProximityThreshold = (dollyProximityThreshold !== undefined && dollyProximityThreshold !== null) ? dollyProximityThreshold : 35.0;
     }
 
@@ -1073,7 +1176,7 @@ class CameraControl extends Component {
      *
      * @param dollyMinSpeed New dolly minimum speed.
      */
-    set dollyMinSpeed(dollyMinSpeed: number|undefined) {
+    set dollyMinSpeed(dollyMinSpeed: number | undefined) {
         this.#configs.dollyMinSpeed = (dollyMinSpeed !== undefined && dollyMinSpeed !== null) ? dollyMinSpeed : 0.04;
     }
 
@@ -1105,7 +1208,7 @@ class CameraControl extends Component {
      *
      * @param panInertia New pan inertia factor.
      */
-    set panInertia(panInertia: number|undefined) {
+    set panInertia(panInertia: number | undefined) {
         this.#configs.panInertia = (panInertia !== undefined && panInertia !== null) ? panInertia : 0.5;
     }
 
@@ -1135,7 +1238,7 @@ class CameraControl extends Component {
      * @deprecated
      * @param value Selects the keyboard layout.
      */
-    set keyboardLayout(value: string|undefined) {
+    set keyboardLayout(value: string | undefined) {
         // this.warn("keyboardLayout property is deprecated - use keyMap property instead");
         value = value || "qwerty";
         if (value !== "qwerty" && value !== "azerty") {
@@ -1174,8 +1277,22 @@ class CameraControl extends Component {
      *
      * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere, or ````false```` to pivot by default about {@link Camera.look}.
      */
-    set smartPivot(enabled: boolean|undefined) {
+    set smartPivot(enabled: boolean | undefined) {
         this.#configs.smartPivot = (enabled !== false);
+    }
+
+    /**
+     * Gets whether keyboard input is enabled.
+     */
+    get keyboardEnabled(): boolean {
+        return this.#configs.keyboardEnabled;
+    }
+
+    /**
+     * Sets whether keyboard input is enabled.
+     */
+    set keyboardEnabled(enabled: boolean | undefined) {
+        this.#configs.keyboardEnabled = (enabled !== false);
     }
 
     /**
@@ -1185,12 +1302,12 @@ class CameraControl extends Component {
      * @private
      */
     _isKeyDownForAction(action: number, keyDownMap: { [key: number]: boolean }) {
-        const keys = this.#keyMap[action];
+        const keys = this.#configs.keyMap[action];
         if (!keys) {
             return false;
         }
         if (!keyDownMap) {
-            keyDownMap = this.view.input.keyDown;
+            keyDownMap = this.#states.keyDown;
         }
         for (let i = 0, len = keys.length; i < len; i++) {
             const key = keys[i];
@@ -1224,6 +1341,10 @@ class CameraControl extends Component {
         this.#destroyHandlers();
         this.#destroyControllers();
         this.#cameraUpdater.destroy();
+        this.onHover.clear();
+        this.onHoverOff.clear();
+        this.onHoverEnter.clear();
+        this.onHoverOut.clear();
         super.destroy();
     }
 
@@ -1247,6 +1368,4 @@ class CameraControl extends Component {
     }
 }
 
-export {
-    CameraControl
-};
+

@@ -1,4 +1,4 @@
-import {Events} from "../Events";
+
 import type {ViewLayer} from "./ViewLayer";
 import type {SceneObject} from "../scene/index";
 import type * as math from '../math/index';
@@ -29,11 +29,6 @@ class ViewObject {
      * Unique ID of this ViewObject within {@link ViewLayer.objects}.
      */
     public readonly id: string;
-
-    /**
-     * Manages events on this ViewObject.
-     */
-    public readonly events: Events;
 
     /**
      * The ViewLayer to which this ViewObject belongs.
@@ -78,7 +73,6 @@ class ViewObject {
     } = {}) {
 
         this.id = sceneObject.id;
-        this.events = new Events();
         this.layer = layer;
         this.sceneObject = sceneObject;
 

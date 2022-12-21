@@ -22,7 +22,7 @@ export class DataTextureSet {
     eachEdgeMesh_16Bits: DataTexture | null;
     eachEdgeMesh_32Bits: DataTexture | null;
     eachEdgeMesh: { [key: number]: DataTexture | null } | null;
-    #finalized: boolean;
+    #built: boolean;
 
     constructor() {
         this.positions = null;
@@ -41,10 +41,10 @@ export class DataTextureSet {
         this.eachEdgeMesh_16Bits = null;
         this.eachEdgeMesh_32Bits = null;
         this.eachEdgeOffset = null;
-        this.#finalized = false;
+        this.#built = false;
     }
 
-    finalize() {
+    build() {
         this.indices = {
             8: this.indices_8Bits,
             16: this.indices_16Bits,
@@ -65,7 +65,7 @@ export class DataTextureSet {
             16: this.eachEdgeMesh_16Bits,
             32: this.eachEdgeMesh_32Bits,
         };
-        this.#finalized = true;
+        this.#built = true;
     }
 
     destroy() {

@@ -2,6 +2,8 @@ import * as utils from './utils/index';
 import {stats} from './stats';
 import type {Viewer} from "./Viewer";
 import {Map} from "./utils/Map";
+import {EventEmitter, ViewObject} from "@xeokit-viewer/viewer";
+import {EventDispatcher} from "strongly-typed-events";
 
 export interface TickEvent {
     viewerId: string;
@@ -88,7 +90,7 @@ class Scheduler {
                 tickEvent.viewerId = id;
                 tickEvent.startTime = viewer.startTime;
                 tickEvent.deltaTime = tickEvent.prevTime != null ? tickEvent.time - tickEvent.prevTime : 0;
-                viewer.events.fire("tick", tickEvent, true);
+                viewer.onTick.dispatch(viewer, tickEvent);
             }
         }
         tickEvent.prevTime = time;

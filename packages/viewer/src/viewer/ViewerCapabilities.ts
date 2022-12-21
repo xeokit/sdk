@@ -2,7 +2,7 @@
  * The capabilities of a {@link Viewer}.
  *
  * * Located at {@link Viewer.capabilities}
- *
+ * * Determined by the {@link Renderer} implementation, GPU, browser, O/S and other system resources
  */
 export interface ViewerCapabilities {
 
@@ -14,30 +14,34 @@ export interface ViewerCapabilities {
     maxViews: number;
 
     /**
-     * Flag set ````true```` if the {@link Viewer} supports ASTC texture compression.
+     * Flag set ````true```` if {@link SceneModel.createTexture} supports ASTC texture compression.
      *
-     * This will be determined by the {@link Renderer} implementation the Viewer is configured with.
+     * This capability would be supported by {@link SceneModel.createTexture},
+     * and is determined by the {@link Renderer} implementation the Viewer is configured with.
      */
     astcSupported: boolean;
 
     /**
      * Flag set ````true```` if the {@link Viewer} supports ETC1 texture compression.
      *
-     * This will be determined by the {@link Renderer} implementation the Viewer is configured with.
+     * This capability would be supported by {@link SceneModel.createTexture},
+     * and is determined by the {@link Renderer} implementation the Viewer is configured with.
      */
     etc1Supported: boolean;
 
     /**
      * Flag set ````true```` if the {@link Viewer} supports PVRTC texture compression.
      *
-     * This will be determined by the {@link Renderer} implementation the Viewer is configured with.
+     * This capability would be supported by {@link SceneModel.createTexture},
+     * and is determined by the {@link Renderer} implementation the Viewer is configured with.
      */
     pvrtcSupported: boolean;
 
     /**
      * Flag set ````true```` if the {@link Viewer} supports ETC2 texture compression.
      *
-     * This will be determined by the {@link Renderer} implementation the Viewer is configured with.
+     * This capability would be supported by {@link SceneModel.createTexture},
+     * and is determined by the {@link Renderer} implementation the Viewer is configured with.
      */
     etc2Supported: boolean;
 
@@ -51,7 +55,8 @@ export interface ViewerCapabilities {
     /**
      * Flag set ````true```` if the {@link Viewer} supports BPTC texture format(s).
      *
-     * This will be determined by the {@link Renderer} implementation the Viewer is configured with.
+     * This capability would be supported by {@link SceneModel.createTexture},
+     * and is determined by the {@link Renderer} implementation the Viewer is configured with.
      */
     bptcSupported: boolean;
 }

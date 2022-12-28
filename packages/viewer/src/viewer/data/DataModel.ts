@@ -5,6 +5,8 @@ import {DataObject} from "./DataObject";
 import type {DataModelParams} from "./DataModelParams";
 import type {DataObjectParams} from "./DataObjectParams";
 import type {PropertySetParams} from "./PropertySetParams";
+import {EventEmitter, SceneModel} from "@xeokit-viewer/viewer";
+import {EventDispatcher} from "strongly-typed-events";
 
 
 /**
@@ -88,6 +90,11 @@ class DataModel extends Component {
     public objects: { [key: string]: DataObject };
 
     /**
+     * The root {@link DataObject}s in this DataModel, mapped to {@link DataObject.id}.
+     */
+    public rootObjects: { [key: string]: DataObject };
+
+    /**
      * The {@link DataObject}s in this DataModel, mapped to {@link DataObject.type}, sub-mapped to {@link DataObject.id}.
      */
     public objectsByType: { [key: string]: { [key: string]: DataObject } };
@@ -97,6 +104,14 @@ class DataModel extends Component {
      */
     public typeCounts: { [key: string]: number };
 
+    /**
+     * Emits an event when the {@link DataModel} has been built.
+     *
+     * @event
+     */
+    readonly onBuilt: EventEmitter<DataModel, null>;
+
+    #built: boolean;
     #destroyed: boolean;
 
     /**
@@ -128,9 +143,13 @@ class DataModel extends Component {
         this.objectsByType = {};
         this.typeCounts = {};
         this.rootDataObject = null;
+        this.#built = false;
         this.#destroyed = false;
 
         if (dataModelParams.propertySets) {
+
+            // TODO: global property sets
+
             for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
                 this.createPropertySet(dataModelParams.propertySets[i]);
             }
@@ -140,24 +159,26 @@ class DataModel extends Component {
             for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
                 this.createObject(dataModelParams.objects[i]);
             }
-            for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
-                const dataObjectCfg = dataModelParams.objects[i];
-                const dataObject = this.objects[dataObjectCfg.id];
-                if (dataObject) {
-                    if (dataObjectCfg.parentId) {
-                        const parentDataObject = this.objects[dataObjectCfg.parentId];
-                        if (parentDataObject) {
-                            dataObject.parent = parentDataObject;
-                            parentDataObject.objects.push(dataObject);
-                        } else {
-                            this.rootDataObject = dataObject; // FIXME
-                        }
-                    } else {
-                        this.rootDataObject = dataObject; // FIXME
-                    }
-                }
-            }
+            // for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
+            //     const dataObjectCfg = dataModelParams.objects[i];
+            //     const dataObject = this.objects[dataObjectCfg.id];
+            //     if (dataObject) {
+            //         if (dataObjectCfg.parentId) {
+            //             const parentDataObject = this.objects[dataObjectCfg.parentId];
+            //             if (parentDataObject) {
+            //                 dataObject.parent = parentDataObject;
+            //                 parentDataObject.objects.push(dataObject);
+            //             } else {
+            //                 this.rootDataObject = dataObject; // FIXME
+            //             }
+            //         } else {
+            //             this.rootDataObject = dataObject; // FIXME
+            //         }
+            //     }
+            // }
         }
+
+        this.onBuilt = new EventEmitter(new EventDispatcher<DataModel, null>());
     }
 
     /**
@@ -175,10 +196,27 @@ class DataModel extends Component {
     }
 
     /**
-     * Creates a {@link DataObject} within this DataModel.
+     * Creates a {@link DataObject} in this DataModel.
+     *
+     * Each DataObject has a globally-unique ID in {@link DataObject.id}, with which it's registered
+     * in {@link Data.objects} and {@link DataModel.objects}.
+     *
+     * If {@link DataObjectParams.id} matches a DataObject that
+     * already exists (ie. already created for a different DataModel), then this method will reuse that DataObject for this DataModel,
+     * and will ignore any other {@link DataObjectParams} parameters that we provide. This makes the assumption that each
+     * value of {@link DataObjectParams.id} is associated with a single value for {@link DataObjectParams.type}
+     * and {@link DataObjectParams.name}. This aligns well with IFC, in which wewe never have two elements with the same
+     * ID but different types or names.
+     *
+     * Each DataObject automatically gets destroyed whenever all the {@link DataModel|DataModels} that share
+     * it have been destroyed.
+     *
+     * We can attach our DataObject as child of an existing parent DataObject. To do that, we provide the ID of the parent
+     * in {@link DataObjectParams.parentId}. Following the reuse mechanism just described, the parent is allowed to be a
+     * DataObject that we created in a different DataModel. If the parent does not exist yet, then our new DataObject will
+     * automatically become the parent's child when the parent is created later.
      *
      * @param dataObjectCfg
-     * @see {@link SceneModel.createObject}
      */
     createObject(dataObjectCfg: DataObjectParams): null | DataObject {
         if (this.#destroyed) {
@@ -189,27 +227,64 @@ class DataModel extends Component {
         let parentDataObject;
         if (dataObjectCfg.parentId) {
             parentDataObject = this.objects[dataObjectCfg.parentId];
-        }
-        const propertySets = [];
-        if (dataObjectCfg.propertySetIds) {
-            for (let i = 0, len = dataObjectCfg.propertySetIds.length; i < len; i++) {
-                const propertySetId = dataObjectCfg.propertySetIds[i];
-                const propertySet = this.propertySets[propertySetId];
-                if (!propertySet) {
-                    console.error(`PropertySet not found: "${propertySetId}"`);
-                } else {
-                    propertySets.push(propertySet);
-                }
+            if (!parentDataObject) {
+                // Warn?
+                // Or buffer the parent requirement and satisfy once parent created later
             }
         }
-        const dataObject = new DataObject(this, id, dataObjectCfg.originalSystemId || id, dataObjectCfg.name, dataObjectCfg.type, parentDataObject, propertySets);
-        this.objects[id] = dataObject;
-        if (!this.objectsByType[type]) {
-            this.objectsByType[type] = {};
+        let dataObject = this.data.objects[id];
+        if (!dataObject) {
+            const propertySets = [];
+            if (dataObjectCfg.propertySetIds) {
+                for (let i = 0, len = dataObjectCfg.propertySetIds.length; i < len; i++) {
+                    const propertySetId = dataObjectCfg.propertySetIds[i];
+                    const propertySet = this.propertySets[propertySetId];
+                    if (!propertySet) {
+                        console.error(`PropertySet not found: "${propertySetId}"`);
+                    } else {
+                        propertySets.push(propertySet);
+                    }
+                }
+            }
+            dataObject = new DataObject(this, id, dataObjectCfg.name, dataObjectCfg.type, propertySets);
+            if (parentDataObject) {
+                dataObject.parent = parentDataObject;
+                parentDataObject.objects.push(dataObject);
+            }
+            this.data.objects[id] = dataObject;
+            if (!this.data.objectsByType[type]) {
+                this.data.objectsByType[type] = {};
+            }
+            this.data.objectsByType[type][id] = dataObject;
+            this.data.typeCounts[type] = (this.data.typeCounts[type] === undefined) ? 1 : this.data.typeCounts[type] + 1;
+            dataObject.models.push(this);
+            this.data.onObjectCreated.dispatch(this.data, dataObject);
+        } else {
+            this.objects[id] = dataObject;
+            if (!this.objectsByType[type]) {
+                this.objectsByType[type] = {};
+            }
+            this.objectsByType[type][id] = dataObject;
+            this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
+            dataObject.models.push(this);
         }
-        this.objectsByType[type][id] = dataObject;
-        this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
         return dataObject;
+    }
+
+    /**
+     *
+     */
+    build() {
+        if (this.destroyed) {
+            this.log("DataModel already destroyed");
+            return;
+        }
+        if (this.#built) {
+            this.log("DataModel already built");
+            return;
+        }
+        this.#built = true;
+        this.onBuilt.dispatch(this, null);
     }
 
     /**
@@ -219,7 +294,42 @@ class DataModel extends Component {
         if (this.#destroyed) {
             return;
         }
+        for (let id in this.objects) {
+            const dataObject = this.objects[id];
+            if (dataObject.models.length > 1) {
+                this.#removeFromModels(dataObject);
+            } else {
+                delete this.data.objects[id];
+                const type = dataObject.type;
+                if ((--this.data.typeCounts[type]) === 0) {
+                    delete this.data.typeCounts[type];
+                    delete this.data.objectsByType[type];
+                    this.data.onObjectDestroyed.dispatch(this.data, dataObject);
+                }
+            }
+            if (dataObject.parent) {
+                const objects = dataObject.parent.objects;
+                objects.length--;
+                let f = false;
+                for (let i = 0, len = objects.length; i < len; i++) {
+                    if (f || (f = objects[i] === dataObject)) {
+                        objects[i] = objects[i + 1];
+                    }
+                }
+            }
+        }
         this.#destroyed = true;
+        this.onBuilt.clear();
+        super.destroy();
+    }
+
+    #removeFromModels(dataObject: DataObject) {
+        for (let i = 0, len = dataObject.models.length; i < len; i++) {
+            if (dataObject.models[i] === this) {
+                dataObject.models = dataObject.models.splice(i, 1);
+                break;
+            }
+        }
     }
 }
 

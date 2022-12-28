@@ -71,6 +71,7 @@ class FileLoader extends Loader {
                                 if (done) {
                                     controller.close();
                                 } else {
+                                    // @ts-ignore
                                     loaded += value.byteLength;
                                     const event = new ProgressEvent('progress', {lengthComputable, loaded, total});
                                     for (let i = 0, il = callbacks.length; i < il; i++) {

@@ -957,6 +957,7 @@ class View extends Component {
                     delete this.layers[viewLayer.id];
                     this.onLayerDestroyed.dispatch(this, viewLayer);
                 });
+                this.onLayerCreated.dispatch(this, viewLayer);
             }
             const viewObject = new ViewObject(viewLayer, sceneObject, {});
             viewLayer.registerViewObject(viewObject);

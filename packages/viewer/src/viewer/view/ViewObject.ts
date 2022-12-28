@@ -9,10 +9,9 @@ import {FloatArrayParam} from "../math/index";
  *
  * ## Summary
  *
- * * Contained in {@link View.objects} and {@link ViewLayer.objects}
- * * Created automatically for each existing {@link SceneObject}
- * * Registered by {@link ViewObject.id} in {@link View.objects}
- * * Use {@link ViewLayer|ViewLayers} to organize ViewObjects
+ * * Stored in {@link View.objects} and {@link ViewLayer.objects}
+ * * Viewer automatically creates one of these in each existing {@link View} for each {@link SceneObject} created
+ * * {@link SceneObject.viewLayerId} determines which of the View's {@link ViewLayer|ViewLayers} to put the ViewObject in
  *
  * ## Overview
  *

@@ -7,7 +7,7 @@ import type {DataModelParams} from "./DataModelParams";
 import {createUUID} from "../utils/index";
 import {EventEmitter, SceneModel} from "@xeokit-viewer/viewer";
 import {EventDispatcher} from "strongly-typed-events";
-import {scheduler} from "../scheduler";
+
 
 /**
  * Contains semantic data about the models within a {@link Viewer}.
@@ -278,6 +278,20 @@ export class Data extends Component {
     readonly onModelDestroyed: EventEmitter<Data, DataModel>;
 
     /**
+     * Emits an event each time a {@link DataObject} is created.
+     *
+     * @event
+     */
+    readonly onObjectCreated: EventEmitter<Data, DataObject>;
+
+    /**
+     * Emits an event each time a {@link DataObject} is destroyed.
+     *
+     * @event
+     */
+    readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
+
+    /**
      * The {@link DataModel}s belonging to this Data, each keyed to its {@link DataModel.id}.
      */
     public readonly models: { [key: string]: DataModel };
@@ -288,9 +302,16 @@ export class Data extends Component {
     public readonly propertySets: { [key: string]: PropertySet };
 
     /**
-     * The {@link DataObject}s belonging to this Data, each keyed to its {@link DataObject.id}.
+     * All {@link DataObject}s belonging to this Data, each keyed to its {@link DataObject.id}.
      */
     public readonly objects: { [key: string]: DataObject };
+
+    /**
+     * The root {@link DataObject}s belonging to this Data, each keyed to its {@link DataObject.id}.
+     *
+     * Root DataObjects are those with {@link DataObject.parent} set to ````null````.
+     */
+    public readonly rootObjects: { [key: string]: DataObject };
 
     /**
      * The {@link DataObject}s belonging to this Data, each map keyed to {@link DataObject.type}, containing {@link DataObject}s keyed to {@link DataObject.id}.
@@ -300,7 +321,7 @@ export class Data extends Component {
     /**
      * Tracks number of {@link DataObject}s of each type.
      */
-    private readonly typeCounts: { [key: string]: number };
+    readonly typeCounts: { [key: string]: number };
 
     /**
      * @private
@@ -313,11 +334,14 @@ export class Data extends Component {
         this.models = {};
         this.propertySets = {};
         this.objects = {};
+        this.rootObjects = {};
         this.objectsByType = {};
         this.typeCounts = {};
 
         this.onModelCreated = new EventEmitter(new EventDispatcher<Data, DataModel>());
         this.onModelDestroyed = new EventEmitter(new EventDispatcher<Data, DataModel>());
+        this.onObjectCreated = new EventEmitter(new EventDispatcher<Data, DataObject>());
+        this.onObjectDestroyed = new EventEmitter(new EventDispatcher<Data, DataObject>());
     }
 
     /**
@@ -345,9 +369,9 @@ export class Data extends Component {
             id = createUUID();
         }
         const dataModel = new DataModel(this, id, dataModelParams, options);
-        this.#registerDataModel(dataModel);
+        this.models[dataModel.id] = dataModel;
         dataModel.onDestroyed.one(() => { // DataModel#destroy() called
-            this.#deregisterDataModel(dataModel);
+           delete this.models[dataModel.id];
             this.onModelDestroyed.dispatch(this, dataModel);
         });
         this.onModelCreated.dispatch(this, dataModel);
@@ -423,71 +447,6 @@ export class Data extends Component {
             return;
         }
         dataObject.withObjectsInSubtree(callback);
-    }
-
-    #registerDataModel(dataModel: DataModel) {
-        const objects = this.objects;
-        const objectsByType = this.objectsByType;
-        let visit = (dataObject: DataObject) => {
-            if (!dataObject) {
-                return;
-            }
-            objects[dataObject.id] = dataObject;
-            const types = (objectsByType[dataObject.type] || (objectsByType[dataObject.type] = {}));
-            if (!types[dataObject.id]) {
-                types[dataObject.id] = dataObject;
-                this.typeCounts[dataObject.type]++;
-            }
-            const objects2 = dataObject.objects;
-            if (objects2) {
-                for (let i = 0, len = objects2.length; i < len; i++) {
-                    const childDataObject = objects2[i];
-                    visit(childDataObject);
-                }
-            }
-        };
-        if (dataModel.rootDataObject) {
-            visit(dataModel.rootDataObject);
-        }
-        for (let propertySetId in dataModel.propertySets) {
-            if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
-                this.propertySets[propertySetId] = dataModel.propertySets[propertySetId];
-            }
-        }
-        this.models[dataModel.id] = dataModel;
-    }
-
-    #deregisterDataModel(dataModel: DataModel) {
-        let visit = (dataObject: DataObject) => {
-            if (!dataObject) {
-                return;
-            }
-            delete this.objects[dataObject.id];
-            const types = this.objectsByType[dataObject.type];
-            if (types && types[dataObject.id]) {
-                delete types[dataObject.id];
-                if (--this.typeCounts[dataObject.type] === 0) {
-                    delete this.typeCounts[dataObject.type];
-                    delete this.objectsByType[dataObject.type];
-                }
-            }
-            const objects = dataObject.objects;
-            if (objects) {
-                for (let i = 0, len = objects.length; i < len; i++) {
-                    const childDataObject = objects[i];
-                    visit(childDataObject);
-                }
-            }
-        };
-        if (dataModel.rootDataObject) {
-            visit(dataModel.rootDataObject);
-            for (let propertySetId in dataModel.propertySets) {
-                if (dataModel.propertySets.hasOwnProperty(propertySetId)) {
-                    delete this.propertySets[propertySetId];
-                }
-            }
-        }
-        delete this.models[dataModel.id];
     }
 
     /**

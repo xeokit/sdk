@@ -182,12 +182,13 @@ export interface SceneModel {
      *      preloadColor: [1,0,0,1],
      *      encoding: constants.LinearEncoding,
      *      flipY: false,
-     *      magFilter: constants.LinearFiler,
-     *      minFilter: constants.LinearFiler,
+     *      magFilter: constants.LinearFilter,
+     *      minFilter: constants.LinearFilter,
      *      wrapR: constants.ClampToEdgeWrapping,
      *      wrapS: constants.ClampToEdgeWrapping,
      *      wrapT: constants.ClampToEdgeWrapping,
      * });
+     * ````
      *
      * @param params Texture configuration.
      */

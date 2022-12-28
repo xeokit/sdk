@@ -9,10 +9,9 @@ import type {FloatArrayParam} from "../math/math";
  *
  * ## Summary
  *
- * * Contained in a {@link SceneModel}
  * * Created with {@link SceneModel.createObject}
- * * Registered in {@link SceneModel.objects} and {@link Scene.objects}
- * * Has a {@link ViewObject} in each {@link View}
+ * * Stored in {@link SceneModel.objects} and {@link Scene.objects}
+ * * Automatically proxied by a {@link ViewObject} in each {@link View}
  */
 export interface SceneObject {
 

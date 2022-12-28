@@ -237,17 +237,17 @@ export class Scene extends Component {
 
         super(null, params);
 
-        this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
-        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
-
-        this.tiles = new Tiles(this);
-        this.viewer = viewer;
-        this.models = {};
-        this.objects = {};
-
         this.#center = math.vec3();
         this.#aabb = math.boundaries.AABB3();
         this.#aabbDirty = true;
+
+        this.viewer = viewer;
+        this.tiles = new Tiles(this);
+        this.models = {};
+        this.objects = {};
+
+        this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     }
 
     /**
@@ -255,7 +255,7 @@ export class Scene extends Component {
      */
     get center(): Float64Array {
         if (this.#aabbDirty) {
-            const aabb = this.aabb; // Lazy-build AABB
+            const aabb = this.aabb; // Lazy-build
             this.#center[0] = (aabb[0] + aabb[3]) / 2;
             this.#center[1] = (aabb[1] + aabb[4]) / 2;
             this.#center[2] = (aabb[2] + aabb[5]) / 2;

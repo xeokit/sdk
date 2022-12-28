@@ -2,6 +2,26 @@ export * from "./Viewer";
 
 /**
  * Viewer constants.
+ *
+ * ### Usage Example
+ *
+ * ````javascript
+ * import {Viewer, constants} from "xeokit-viewer.modern.js";
+ * const viewer = new Viewer();
+ * //...
+ * const mySceneMode = viewer.scene.createModel({...});
+ * mySceneMode.createTexture({
+ *      id: "myColorTexture",
+ *      src: "myTexture.jpg",
+ *      encoding: constants.LinearEncoding,
+ *      magFilter: constants.LinearFilter,
+ *      minFilter: constants.LinearFilter,
+ *      wrapR: constants.ClampToEdgeWrapping,
+ *      wrapS: constants.ClampToEdgeWrapping,
+ *      wrapT: constants.ClampToEdgeWrapping
+ * });
+ * //...
+ * ````
  */
 export * as constants from "./constants";
 
@@ -34,7 +54,7 @@ export * from "./view/index";
  * * **rays** - Utility functions for working with 3D rays.
  * * **rtc** - Utility functions for working with relative-to-center (RTC) coordinates.
  *
- * Use the math utilities library like this:
+ * ### Usage Example
  *
  * ````javascript
  * import {Viewer, math} from "xeokit-viewer.modern.js";

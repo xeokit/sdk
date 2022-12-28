@@ -4,16 +4,11 @@
 export interface DataObjectParams {
 
     /**
-     * Unique ID for the new {@link DataObject}.
+     * Globally-unique ID for the new {@link DataObject}.
      *
      * DataObject instances are registered by this ID in {@link Data.objects} and {@link DataModel.objects}.
      */
     id: string;
-
-    /**
-     * ID of the corresponding object within the originating system, if any.
-     */
-    originalSystemId?: string;
 
     /**
      * The {@link DataObject}'s type.

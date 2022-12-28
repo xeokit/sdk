@@ -9,16 +9,15 @@ import type {DataObjectParams} from "./DataObjectParams";
  *
  *  ## Summary
  *
- *  * Contained in a {@link DataModel}
- *  * Stored by {@link DataModel.id} in {@link DataModel.objects} and {@link Data.objects}
- *  * Created with {@link DataModel.createObject} or {@link DataObject.createObject}
+ *  * Created with {@link DataModel.createObject}
+ *  * Stored in {@link Data.objects} and {@link DataModel.objects}
  */
 class DataObject {
 
     /**
      * Model metadata.
      */
-    public readonly model: DataModel;
+    public models: DataModel[];
 
     /**
      * Globally-unique ID.
@@ -26,11 +25,6 @@ class DataObject {
      * DataObject instances are registered by this ID in {@link Data.objects} and {@link DataModel.objects}.
      */
     public readonly id: string;
-
-    /**
-     * ID of the corresponding object within the originating system, if any.
-     */
-    public readonly originalSystemId?: string;
 
     /**
      * Human-readable name.
@@ -52,7 +46,7 @@ class DataObject {
      *
      * Undefined when this is the root of its structure.
      */
-    public parent?: DataObject;
+    #parent: DataObject | null;
 
     /**
      * Child DataObject instances within the structure hierarchy.
@@ -62,48 +56,70 @@ class DataObject {
     public readonly objects: DataObject[];
 
     /**
-     * External application-specific metadata
-     *
-     * Undefined when there are is no external application-specific metadata.
-     */
-    public readonly external?: { [key: string]: any };
-
-    /**
      * @private
      */
     constructor(
         model: DataModel,
         id: string,
-        originalSystemId: string,
         name: string,
         type: string,
-        parent?: DataObject,
         propertySets?: PropertySet[]) {
 
-        this.model = model;
+        this.models = [model];
         this.id = id;
-        this.originalSystemId = originalSystemId;
         this.name = name;
         this.type = type;
         this.propertySets = propertySets || [];
-        this.parent = parent;
+        this.parent = null;
         this.objects = [];
     }
 
     /**
-     * Creates a child DataObject.
-     *
-     * @param cfg - DataObject configs
-     * @param cfg.id - ID for the DataObject, unique within the {@link Data}
-     * @param cfg.type - Type for the DataObject
-     * @param cfg.name - Human-readable name of the DataObject
-     * @param cfg.parentId - ID of optional parent DataObject
-     * @param cfg.propertySetIds - ID of one or more {@link PropertySet}s in {@link DataModel.propertySets}
+     * Sets the parent DataObject within the structure hierarchy.
+     * @param parent
      */
-    createObject(cfg: DataObjectParams): DataObject | null {
-        cfg.parentId = this.id;
-        return this.model.createObject(cfg);
+    set parent(parent: DataObject | null) {
+        this.#parent = parent;
+        if (parent) {
+            delete this.models[0].data.rootObjects[this.id];
+        } else {
+            this.models[0].data.rootObjects[this.id] = this;
+        }
+        for (let i = 0, len = this.models.length; i < len; i++) {
+            if (parent) {
+                delete this.models[i].rootObjects[this.id];
+            } else {
+                this.models[i].rootObjects[this.id] = this;
+            }
+        }
     }
+
+    /**
+     * Gets the parent DataObject within the structure hierarchy.
+     */
+    get parent(): DataObject | null {
+        return this.#parent;
+    }
+
+    // /**
+    //  * Creates a child DataObject of this.
+    //  *
+    //  * Ignores {@link DataObjectParams.parentId} if given, effectively
+    //  * replacing that parameter with this DataObject's {@link DataObject.id}, in order to
+    //  * create the new DataObject as a child.
+    //  *
+    //  * This will cause every DataModel that contains this DataObject to also get the new child DataObject.
+    //  *
+    //  * @param dataObjectCfg
+    //  */
+    // createObject(dataObjectCfg: DataObjectParams): DataObject | null {
+    //     dataObjectCfg.parentId = this.id;
+    //     let dataObject: DataObject | null = null;
+    //     for (let i = 0, len = this.models.length; i < len; i++) {
+    //         dataObject = this.models[i].createObject(dataObjectCfg); // Only one instance created
+    //     }
+    //     return dataObject;
+    // }
 
     /**
      * Gets the {@link DataObject.id}s of the {@link DataObject}s within the subtree.

@@ -21,12 +21,12 @@ export interface DataObjectParams {
     name: string;
 
     /**
-     * ID of the parent {@link DataObject}, if any.
-     */
-    parentId?: string,
-
-    /**
      * IDs of associated {@link PropertySet}s, if any.
      */
-    propertySetIds?: string[]
+    propertySetIds?: string[];
+
+    /**
+     * Relationships with other DataObjects.
+     */
+    relations: { [key: number]: (string[]) }
 }

@@ -2,43 +2,42 @@ import type {DataObject} from "./DataObject";
 
 /**
  * A relationship between two {@link DataObject|DataObjects}.
+ *
+ * * {@link Relation.type} indicates the type of the relationship. Conceptually this is a verb
+ * * {@link Relation.relating} holds the DataObject that is
+ * * {@link Relation.related} holds the DataObject that is
+
  */
-class Relation {
-
-    /**
-     * Containment relationship.
-     */
-    public static ContainedBy = 0;
-
-    /**
-     * Adjacency relationship.
-     */
-    public static AdjacentTo = 1;
+export class Relation {
 
     /**
      * The type of this Relation.
+     *
+     * This can be any value that identifies the Relation type within your DataModel.
      */
     public readonly type: number;
 
     /**
-     * The source DataObject.
+     * The relating {@link DataObject} in this Relation.
+     *
+     * This Relation will be stored by {@link DataObject.type} in the DataObject's {@link DataObject.related} attribute.
      */
-    public readonly source: DataObject;
+    readonly relating: DataObject;
 
     /**
-     * The target DataObject.
+     * The related {@link DataObject} in this Relation.
+     *
+     * This Relation will be stored by {@link DataObject.type} in the DataObject's {@link DataObject.relating} attribute.
      */
-    public readonly target: DataObject;
+    readonly related: DataObject;
 
     /**
      * @private
      * @ignore
      */
-    constructor(type: number, source: DataObject, target: DataObject) {
+    constructor(type: number, relating: DataObject, related: DataObject) {
         this.type = type;
-        this.source = source;
-        this.target = target;
+        this.relating = relating;
+        this.related = related;
     }
 }
-
-export {Relation};

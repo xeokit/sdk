@@ -102,35 +102,45 @@ import {EventDispatcher} from "strongly-typed-events";
  *             id: "redLeg",
  *             name: "Red table Leg",
  *             type: "leg",
- *             parentId: "table",
+ *             relations: {
+ *                 [Relation.AggregatedBy]: "table
+ *             },
  *             propertySetIds: ["tableLegPropertySet"]
  *         },
  *         {
  *             id: "greenLeg",
  *             name: "Green table leg",
  *             type: "leg",
- *             parentId: "table",
+ *             relations: {
+ *                 [Relation.AggregatedBy]: "table
+ *             },
  *             propertySetIds: ["tableLegPropertySet"]
  *         },
  *         {
  *             id: "blueLeg",
  *             name: "Blue table leg",
  *             type: "leg",
- *             parentId: "table",
+ *             relations: {
+ *                 [Relation.AggregatedBy]: "table
+ *             },
  *             propertySetIds: ["tableLegPropertySet"]
  *         },
  *         {
  *             id: "yellowLeg",
  *             name: "Yellow table leg",
- *             type: "leg",
- *             parentId: "table",
+ *             type: "leg"
+ *             relations: {
+ *                 [Relation.AggregatedBy]: "table
+ *             },
  *             propertySetIds: ["tableLegPropertySet"]
  *         },
  *         {
  *             id: "tableTop",
  *             name: "Purple table top",
- *             type: "surface",
- *             parentId: "table",
+ *             type: "surface"
+ *             relations: {
+ *                 [Relation.AggregatedBy]: "table
+ *             },
  *             propertySetIds: ["tableTopPropertySet"]
  *         }
  *     ]
@@ -349,8 +359,8 @@ export class Data extends Component {
      *
      * @param  dataModelParams Data for the {@link DataModel}.
      * @param [options] Options for creating the {@link DataModel}.
-     * @param [options.includeTypes] When provided, only create {@link DataObject}s with types in this list.
-     * @param  [options.excludeTypes] When provided, never create {@link DataObject}s with types in this list.
+     * @param [options.includeRelating] When provided, only create {@link DataObject}s with types in this list.
+     * @param  [options.excludeRelating] When provided, never create {@link DataObject}s with types in this list.
      * @param [options.globalizeObjectIds=false] Whether to globalize each {@link DataObject.id}. Set this ````true```` when you need to load multiple instances of the same meta model, to avoid ID clashes between the meta objects in the different instances.
      * @returns The new DataModel.
      * @see {@link Scene.createModel}
@@ -358,8 +368,8 @@ export class Data extends Component {
     createModel(
         dataModelParams: DataModelParams,
         options?: {
-            includeTypes?: string[],
-            excludeTypes?: string[],
+            includeRelating?: string[],
+            excludeRelating?: string[],
             globalizeObjectIds?: boolean
         }
     ): DataModel {
@@ -371,7 +381,7 @@ export class Data extends Component {
         const dataModel = new DataModel(this, id, dataModelParams, options);
         this.models[dataModel.id] = dataModel;
         dataModel.onDestroyed.one(() => { // DataModel#destroy() called
-           delete this.models[dataModel.id];
+            delete this.models[dataModel.id];
             this.onModelDestroyed.dispatch(this, dataModel);
         });
         this.onModelCreated.dispatch(this, dataModel);
@@ -390,66 +400,6 @@ export class Data extends Component {
     }
 
     /**
-     * Gets the {@link DataObject.id}s of the {@link DataObject}s within the given subtree.
-     *
-     * @param id  ID of the root {@link DataObject} of the given subtree.
-     * @param  [includeTypes] Optional list of types to include.
-     * @param  [excludeTypes] Optional list of types to exclude.
-     * @returns  Array of {@link DataObject.id}s.
-     */
-    getObjectIdsInSubtree(id: string, includeTypes: string[], excludeTypes: string[]): string[] {
-
-        const list: string[] = [];
-        const dataObject = this.objects[id];
-        if (!dataObject) {
-            return list;
-        }
-        const includeMask = (includeTypes && includeTypes.length > 0) ? arrayToMap(includeTypes) : null;
-        const excludeMask = (excludeTypes && excludeTypes.length > 0) ? arrayToMap(excludeTypes) : null;
-
-        function visit(_dataObject: DataObject) {
-            if (!_dataObject) {
-                return;
-            }
-            let include = true;
-            // @ts-ignore
-            if (excludeMask && excludeMask[_dataObject.type]) {
-                include = false;
-            } else { // @ts-ignore
-                if (includeMask && (!includeMask[_dataObject.type])) {
-                    include = false;
-                }
-            }
-            if (include) {
-                list.push(_dataObject.id);
-            }
-            const objects = _dataObject.objects;
-            if (objects) {
-                for (let i = 0, len = objects.length; i < len; i++) {
-                    visit(objects[i]);
-                }
-            }
-        }
-
-        visit(dataObject);
-        return list;
-    }
-
-    /**
-     * Iterates over the {@link DataObject}s within the subtree.
-     *
-     * @param id ID of root {@link DataObject}.
-     * @param callback Callback fired at each {@link DataObject}.
-     */
-    withObjectsInSubtree(id: string, callback: (arg0: DataObject) => void) {
-        const dataObject = this.objects[id];
-        if (!dataObject) {
-            return;
-        }
-        dataObject.withObjectsInSubtree(callback);
-    }
-
-    /**
      * @private
      */
     destroy(): void {
@@ -457,12 +407,4 @@ export class Data extends Component {
         this.onModelDestroyed.clear();
         super.destroy();
     }
-}
-
-function arrayToMap(array: any[]): { [key: string]: any } {
-    const map: { [key: string]: any } = {};
-    for (let i = 0, len = array.length; i < len; i++) {
-        map[array[i]] = true;
-    }
-    return map;
 }

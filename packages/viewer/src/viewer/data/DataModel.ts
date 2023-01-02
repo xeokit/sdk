@@ -7,7 +7,7 @@ import type {DataObjectParams} from "./DataObjectParams";
 import type {PropertySetParams} from "./PropertySetParams";
 import {EventEmitter} from "@xeokit-viewer/viewer";
 import {EventDispatcher} from "strongly-typed-events";
-import {Relation} from "./Relation";
+import {Relationship} from "./Relationship";
 
 
 /**
@@ -257,10 +257,10 @@ class DataModel extends Component {
                         const relatedObjectId = relatedObjectIds[j];
                         const relatedObject = this.data.objects[relatedObjectId];
                         if (!relatedObject) {
-                            this.error(`[createObject] Can't create Relation - DataObject not found: ${relatedObjectId}`);
+                            this.error(`[createObject] Can't create Relationship - DataObject not found: ${relatedObjectId}`);
                         } else {
                             // @ts-ignore
-                            const relation = new Relation(relationType, this, relatedObject);
+                            const relation = new Relationship(relationType, this, relatedObject);
                             relatedObject.relating[relationType].push(relation);
                             dataObject.related[relationType].push(relation);
                         }
@@ -281,13 +281,13 @@ class DataModel extends Component {
     }
 
     /**
-     * Creates a {@link Relation} between two {@link DataObject}s.
+     * Creates a {@link Relationship} between two {@link DataObject}s.
      *
-     * @param relationType The relation type
+     * @param relationType The relationship type
      * @param relatingObjectId ID of the relating DataObject
      * @param relatedObjectId ID of the related DataObject
      */
-    createRelation(relationType: number, relatingObjectId: string, relatedObjectId: string) {
+    createRelationship(relationType: number, relatingObjectId: string, relatedObjectId: string) {
         const relatingObject = this.data.objects[relatingObjectId];
         if (!relatingObject) {
             this.error(`[createRelation] DataObject not found: ${relatingObjectId}`);
@@ -298,7 +298,7 @@ class DataModel extends Component {
             this.error(`[createRelation] DataObject not found: ${relatedObjectId}`);
             return;
         }
-        const relation = new Relation(relationType, relatingObject, relatedObject);
+        const relation = new Relationship(relationType, relatingObject, relatedObject);
         relatedObject.relating[relationType].push(relation);
         relatingObject.related[relationType].push(relation);
     }

@@ -1,6 +1,6 @@
 import type {PropertySet} from "./PropertySet";
 import type {DataModel} from "./DataModel";
-import  {Relation} from "./Relation";
+import  {Relationship} from "./Relationship";
 
 /**
  *  Semantic data about an object in a {@link DataModel}.
@@ -42,21 +42,21 @@ export class DataObject {
     public readonly propertySets?: PropertySet[];
 
     /**
-     * {@link Relation|Relations} in which this DataObject is the {@link Relation.relating} participant.
+     * {@link Relationship|Relations} in which this DataObject is the {@link Relationship.relating} participant.
      *
-     * Each DataObject is mapped here by {@link Relation.type} and sub-mapped by {@link Relation.relating}.
+     * Each DataObject is mapped here by {@link Relationship.type} and sub-mapped by {@link Relationship.relating}.
      */
     public readonly relating: {
-        [key: number]: Relation[]
+        [key: number]: Relationship[]
     }
 
     /**
-     * {@link Relation|Relations} in which this DataObject is the {@link Relation.related} participant.
+     * {@link Relationship|Relations} in which this DataObject is the {@link Relationship.related} participant.
      *
-     * Each DataObject is mapped here by {@link Relation.type} and sub-mapped by {@link Relation.related}.
+     * Each DataObject is mapped here by {@link Relationship.type} and sub-mapped by {@link Relationship.related}.
      */
     public readonly related: {
-        [key: number]: Relation[]
+        [key: number]: Relationship[]
     }
 
     /**
@@ -79,9 +79,9 @@ export class DataObject {
     }
 
     /**
-     * Creates a {@link Relation} with another {@link DataObject}.
+     * Creates a {@link Relationship} with another {@link DataObject}.
      *
-     * @param relationType The relation type
+     * @param relationType The relationship type
      * @param relatedObjectId ID of the related DataObject.
      */
     createRelation(relationType: number, relatedObjectId: string) {
@@ -90,7 +90,7 @@ export class DataObject {
             console.error(`[createRelation] DataObject not found: ${relatedObjectId}`);
             return;
         }
-        const relation = new Relation(relationType, this, relatedObject);
+        const relation = new Relationship(relationType, this, relatedObject);
         relatedObject.relating[relationType].push(relation);
         this.related[relationType].push(relation);
     }
@@ -99,11 +99,11 @@ export class DataObject {
     // /**
     //  * Creates a relationship with another {@link DataObject}.
     //  *
-    //  * @param relationType The relation type
+    //  * @param relationType The relationship type
     //  * @param relatedObjectId The related DataObject
     //  */
     // createRelationship(relationType: number, relatedObjectId: string) {
-    //     const relation = new Relation(this.models[0].data, relationType, this, relatedObjectId);
+    //     const relation = new Relationship(this.models[0].data, relationType, this, relatedObjectId);
     //     if (!this.related[relationType]) {
     //         this.related[relationType] = [];
     //     }

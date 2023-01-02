@@ -146,7 +146,8 @@ class ModelMemento {
             return;
         }
 
-        const objectIds = rootDataObject.getObjectIdsInSubtree();
+       // const objectIds = rootDataObject.getObjectIdsInSubtree();
+        const objectIds: string | any[] = [];
 
         this.#numViewObjects = 0;
 
@@ -218,7 +219,8 @@ class ModelMemento {
             return;
         }
 
-        const objectIds = rootDataObject.getObjectIdsInSubtree();
+      //  const objectIds = rootDataObject.getObjectIdsInSubtree();
+const objectIds: string | any[] = [];
 
         const mask = this.#mask;
 

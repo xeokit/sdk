@@ -13,7 +13,7 @@ export interface DataObjectParams {
     /**
      * The {@link DataObject}'s type.
      */
-    type: string;
+    type: number;
 
     /**
      * Human-readable name.

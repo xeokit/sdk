@@ -4,7 +4,7 @@ import * as math from '../math/index';
 import {EventDispatcher, IEvent} from "strongly-typed-events";
 import {EventEmitter} from "./../EventEmitter";
 import type {FloatArrayParam} from "../math/index";
-import {ViewObject} from "@xeokit-viewer/viewer";
+
 
 
 /**

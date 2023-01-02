@@ -19,17 +19,24 @@ const foo = {
 }
 
 /**
- * Parameters for making a query with {@link Data.query}.
+ * Parameters for finding {@link DataObject|DataObjects} with {@link Data.searchDataObjects}.
+ *
+ * These are parameters configure the depth-first-search that {@link Data.searchDataObjects} will perform
+ * to find the DataObjects.
  */
 export interface SearchParams {
 
     /**
-     * DataObject to begin traversal at.
-     */
+     * ID of the DataObject to begin traversal at.
+     *
+     * Overridden by {@link SearchParams.startObject}.
+     * */
     startObjectId?: string;
 
     /**
+     * The {@link DataObject} to begin traversal at.
      *
+     * Overrides {@link SearchParams.startObjectId}.
      */
     startObject?:DataObject;
 
@@ -51,22 +58,22 @@ export interface SearchParams {
     excludeObjects?: number[];
 
     /**
-     * Which {@link Relation} types to exclusively follow in each {@link DataObject.relating}.
+     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.relating}.
      */
     includeRelating?: number[];
 
     /**
-     * Which {@link Relation} types to never follow in each {@link DataObject.related}.
+     * Which {@link Relationship} types to never follow in each {@link DataObject.related}.
      */
     excludeRelating?: number[];
 
     /**
-     * Which {@link Relation} types to exclusively follow in each {@link DataObject.related}.
+     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.related}.
      */
     includeRelated?: number[];
 
     /**
-     * Which {@link Relation} types to never follow in each {@link DataObject.relating}.
+     * Which {@link Relationship} types to never follow in each {@link DataObject.relating}.
      */
     excludeRelated?: number[];
 

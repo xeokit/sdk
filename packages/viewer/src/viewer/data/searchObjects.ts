@@ -34,23 +34,23 @@ export function searchDataObjects(searchParams: SearchParams, data: Data) {
                 }
             }
         }
-        const relations = dataObject.related[searchParams.type];
-        if (relations) {
-            for (let i = 0, len = relations.length; i < len; i++) {
-                let includeRelation = true;
-                // @ts-ignore
-                if (excludeRelating && excludeRelating[dataObject.type]) {
-                    includeRelation = false;
-                } else { // @ts-ignore
-                    if (includeRelating && (!includeRelating[dataObject.type])) {
-                        includeRelation = false;
-                    }
-                }
-                if (includeRelation) {
-                    visit(relations[i].related);
-                }
-            }
-        }
+        // const relations = dataObject.related[searchParams.type];
+        // if (relations) {
+        //     for (let i = 0, len = relations.length; i < len; i++) {
+        //         let includeRelation = true;
+        //         // @ts-ignore
+        //         if (excludeRelating && excludeRelating[dataObject.type]) {
+        //             includeRelation = false;
+        //         } else { // @ts-ignore
+        //             if (includeRelating && (!includeRelating[dataObject.type])) {
+        //                 includeRelation = false;
+        //             }
+        //         }
+        //         if (includeRelation) {
+        //             visit(relations[i].related);
+        //         }
+        //     }
+        // }
     }
 
     if (searchParams.startObjectId) {

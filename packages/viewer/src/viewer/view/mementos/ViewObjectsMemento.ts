@@ -16,7 +16,7 @@ const color = new Float32Array(3);
  *
  * ## Usage
  *
- * In the example below, we'll create a {@link Viewer} and use an {@link TreeViewPlugin} to load an ````.xkt```` model. When the model has loaded, we'll hide a couple of {@link ViewObject}s and save a snapshot of the visual states of all the ViewObjects in an ViewObjectsMemento. Then we'll show all the ViewObjects
+ * In the example below, we'll create a {@link Viewer} and use an {@link TreeViewPlugin} to load an ````.xkt```` model. When the model has loaded, we'll hide a couple of {@link ViewObject|ViewObjects} and save a snapshot of the visual states of all the ViewObjects in an ViewObjectsMemento. Then we'll show all the ViewObjects
  * again, and then we'll restore the visual states of all the ViewObjects again from the ViewObjectsMemento, which will hide those two ViewObjects again.
  *
  * ````javascript

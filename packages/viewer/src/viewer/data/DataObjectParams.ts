@@ -1,5 +1,7 @@
 /**
- * Used to create a {@link DataObject} with {@link DataModel.createObject}.
+ * Parameters to create a {@link DataObject} with {@link DataModel.createObject}.
+ *
+ * Also the element type in {@link DataModelParams.objects}.
  */
 export interface DataObjectParams {
 
@@ -21,7 +23,7 @@ export interface DataObjectParams {
     name: string;
 
     /**
-     * IDs of associated {@link PropertySet}s, if any.
+     * IDs of associated {@link PropertySet|PropertySets}, if any.
      */
     propertySetIds?: string[];
 

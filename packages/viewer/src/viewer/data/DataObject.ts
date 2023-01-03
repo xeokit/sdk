@@ -1,9 +1,9 @@
 import type {PropertySet} from "./PropertySet";
 import type {DataModel} from "./DataModel";
-import  {Relationship} from "./Relationship";
+import {Relationship} from "./Relationship";
 
 /**
- *  Semantic data about an object in a {@link DataModel}.
+ *  An object in a {@link DataModel}.
  *
  *  See {@link Data} for usage examples.
  *
@@ -22,7 +22,7 @@ export class DataObject {
     /**
      * Globally-unique ID.
      *
-     * DataObject instances are registered by this ID in {@link Data.objects} and {@link DataModel.objects}.
+     * DataObjects are stored by ID in {@link Data.objects} and {@link DataModel.objects}.
      */
     public readonly id: string;
 
@@ -37,27 +37,34 @@ export class DataObject {
     public readonly type: number;
 
     /**
-     * Optional {@link PropertySet}s used by this DataObject.
+     * Optional {@link PropertySet|PropertySets} used by this DataObject.
      */
     public readonly propertySets?: PropertySet[];
 
     /**
-     * {@link Relationship|Relations} in which this DataObject is the {@link Relationship.relating} participant.
+     * The {@link Relationship|Relations} in which this DataObject is the {@link Relationship.relating} participant.
      *
      * Each DataObject is mapped here by {@link Relationship.type} and sub-mapped by {@link Relationship.relating}.
      */
     public readonly relating: {
         [key: number]: Relationship[]
-    }
+    };
 
     /**
-     * {@link Relationship|Relations} in which this DataObject is the {@link Relationship.related} participant.
+     * The {@link Relationship|Relations} in which this DataObject is the {@link Relationship.related} participant.
      *
      * Each DataObject is mapped here by {@link Relationship.type} and sub-mapped by {@link Relationship.related}.
      */
     public readonly related: {
         [key: number]: Relationship[]
-    }
+    };
+
+    // /**
+    //  * IDs of one or more {@link SceneObject|SceneObjects} / {@link ViewObject|ViewObjects} that represent this DataObject.
+    //  *
+    //  * Only DataObjects that represent some physical object, such as a wall or a roof, will have a representation.
+    //  */
+    // public readonly representation: string[] | null;
 
     /**
      * @private
@@ -76,6 +83,7 @@ export class DataObject {
         this.propertySets = propertySets || [];
         this.related = {};
         this.relating = {};
+    //    this.representation = null;
     }
 
     /**
@@ -94,19 +102,4 @@ export class DataObject {
         relatedObject.relating[relationType].push(relation);
         this.related[relationType].push(relation);
     }
-
-    //
-    // /**
-    //  * Creates a relationship with another {@link DataObject}.
-    //  *
-    //  * @param relationType The relationship type
-    //  * @param relatedObjectId The related DataObject
-    //  */
-    // createRelationship(relationType: number, relatedObjectId: string) {
-    //     const relation = new Relationship(this.models[0].data, relationType, this, relatedObjectId);
-    //     if (!this.related[relationType]) {
-    //         this.related[relationType] = [];
-    //     }
-    //     this.related[relationType].push(relation);
-    // }
 }

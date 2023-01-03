@@ -3,7 +3,7 @@ import {Component} from "../../Component";
 import type * as math from '../../math/index';
 
 /**
- * Configures the appearance of {@link ViewObject}s when they are xrayed, highlighted or selected.
+ * Configures the appearance of {@link ViewObject|ViewObjects} when they are xrayed, highlighted or selected.
  *
  * ## Summary
  *
@@ -61,7 +61,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Sets if the surfaces of emphasized {@link ViewObject}s are filled with color.
+     * Sets if the surfaces of emphasized {@link ViewObject|ViewObjects} are filled with color.
      *
      * Default is ````true````.
      */
@@ -74,7 +74,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Gets if the surfaces of emphasized {@link ViewObject}s are filled with color.
+     * Gets if the surfaces of emphasized {@link ViewObject|ViewObjects} are filled with color.
      *
      * Default is ````true````.
      */
@@ -83,7 +83,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Sets the RGB surface fill color for the surfaces of emphasized {@link ViewObject}s.
+     * Sets the RGB surface fill color for the surfaces of emphasized {@link ViewObject|ViewObjects}.
      *
      * Default is ````[0.4, 0.4, 0.4]````.
      */
@@ -99,7 +99,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Gets the RGB surface fill color for the surfaces of emphasized {@link ViewObject}s.
+     * Gets the RGB surface fill color for the surfaces of emphasized {@link ViewObject|ViewObjects}.
      *
      * Default is ````[0.4, 0.4, 0.4]````.
      */
@@ -108,7 +108,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Sets the transparency of the surfaces of emphasized {@link ViewObject}s.
+     * Sets the transparency of the surfaces of emphasized {@link ViewObject|ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -123,7 +123,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Gets the transparency of the surfaces of emphasized {@link ViewObject}s.
+     * Gets the transparency of the surfaces of emphasized {@link ViewObject|ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -134,7 +134,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Sets if the edges on emphasized {@link ViewObject}s are visible.
+     * Sets if the edges on emphasized {@link ViewObject|ViewObjects} are visible.
      *
      * Default is ````true````.
      */
@@ -147,7 +147,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Gets if the edges on emphasized {@link ViewObject}s are visible.
+     * Gets if the edges on emphasized {@link ViewObject|ViewObjects} are visible.
      *
      * Default is ````true````.
      */
@@ -156,7 +156,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Sets the RGB color of the edges of emphasized {@link ViewObject}s.
+     * Sets the RGB color of the edges of emphasized {@link ViewObject|ViewObjects}.
      *
      * Default is ```` [0.2, 0.2, 0.2]````.
      */
@@ -172,7 +172,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Gets the RGB color of the edges of emphasized {@link ViewObject}s.
+     * Gets the RGB color of the edges of emphasized {@link ViewObject|ViewObjects}.
      *
      * Default is ```` [0.2, 0.2, 0.2]````.
      */
@@ -181,7 +181,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Sets the transparency of the edges of emphasized {@link ViewObject}s.
+     * Sets the transparency of the edges of emphasized {@link ViewObject|ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -196,7 +196,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Gets the transparency of the edges of emphasized {@link ViewObject}s.
+     * Gets the transparency of the edges of emphasized {@link ViewObject|ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -207,7 +207,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Sets the width of the edges of emphasized {@link ViewObject}s.
+     * Sets the width of the edges of emphasized {@link ViewObject|ViewObjects}.
      *
      * Default value is ````1.0```` pixels.
      */
@@ -217,7 +217,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Gets the width of the edges of emphasized {@link ViewObject}s.
+     * Gets the width of the edges of emphasized {@link ViewObject|ViewObjects}.
      *
      * This is not supported by WebGL implementations based on DirectX [2019].
      *
@@ -228,7 +228,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Sets whether to render backfaces of emphasized {@link ViewObject}s when {@link EmphasisMaterial.fill} is ````true````.
+     * Sets whether to render backfaces of emphasized {@link ViewObject|ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
      *
      * Default is ````false````.
      */
@@ -241,7 +241,7 @@ class EmphasisMaterial extends Component {
     }
 
     /**
-     * Gets whether to render backfaces of emphasized {@link ViewObject}s when {@link EmphasisMaterial.fill} is ````true````.
+     * Gets whether to render backfaces of emphasized {@link ViewObject|ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
      *
      * Default is ````false````.
      */

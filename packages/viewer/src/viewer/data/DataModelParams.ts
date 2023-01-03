@@ -1,6 +1,7 @@
 
 import type {PropertySetParams} from "./PropertySetParams";
 import type {DataObjectParams} from "./DataObjectParams";
+import type {RelationshipParams} from "./RelationshipParams";
 
 /**
  * Parameters for creating a {@link DataModel} with {@link Data.createModel}.
@@ -9,6 +10,8 @@ export interface DataModelParams {
 
     /**
      * Unique ID of the DataModel.
+     *
+     * The DataModel is stored in {@link Data.models} under this ID.
      */
     id?: string,
 
@@ -18,12 +21,12 @@ export interface DataModelParams {
     projectId?: string | number,
 
     /**
-     * The model ID, if available.
+     * The data model model ID, if available.
      */
     revisionId?: string | number,
 
     /**
-     * The author, if available.
+     * The data model author, if available.
      */
     author?: string,
 
@@ -33,22 +36,27 @@ export interface DataModelParams {
     createdAt?: string,
 
     /**
-     * The application that created the model, if known.
+     * The application that created the data model, if known.
      */
     creatingApplication?: string,
 
     /**
-     * The model schema version, if available.
+     * The data model schema version, if available.
      */
     schema?: string,
 
     /**
-     * The {@link PropertySet}s in the DataModel.
+     * The {@link PropertySet|PropertySets} in the DataModel.
      */
     propertySets?: PropertySetParams[],
 
     /**
-     * The {@link DataObject}s in the DataModel.
+     * The {@link DataObject|DataObjects} in the DataModel.
      */
-    objects?: DataObjectParams[]
+    objects?: DataObjectParams[],
+
+    /**
+     * The {@link Relationship|Relationships} in the DataModel.
+     */
+    relationships?: RelationshipParams[],
 }

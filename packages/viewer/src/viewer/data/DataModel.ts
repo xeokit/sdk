@@ -5,21 +5,22 @@ import {DataObject} from "./DataObject";
 import type {DataModelParams} from "./DataModelParams";
 import type {DataObjectParams} from "./DataObjectParams";
 import type {PropertySetParams} from "./PropertySetParams";
-import {EventEmitter} from "@xeokit-viewer/viewer";
+import {EventEmitter} from "../EventEmitter";
 import {EventDispatcher} from "strongly-typed-events";
 import {Relationship} from "./Relationship";
-
+import type {RelationshipParams} from "./RelationshipParams";
 
 /**
- * A buildable semantic data model within {@link Data}.
+ * A buildable entity-relationship semantic data model, stored in {@link Data}.
  *
  * See {@link Data} for usage examples.
  *
  * ## Summary
  *
+ *  * A DataModel is a generic entity-relationship graph of {@link DataObject|DataObjects}, {@link PropertySet|PropertySets} and {@link Relationship|Relationships}
+ *  * Can be used for IFC and all other schemas that are expressable as an ER graph
  *  * Created with {@link Data.createModel}
  *  * Stored in {@link Data.models}
- *  * Contains {@link DataObject|DataObjects} and {@link PropertySet|PropertySets}
  */
 class DataModel extends Component {
 
@@ -76,7 +77,7 @@ class DataModel extends Component {
     public readonly schema?: string;
 
     /**
-     * The {@link PropertySet}s in this DataModel, mapped to {@link PropertySet.id}.
+     * The {@link PropertySet|PropertySets} in this DataModel, mapped to {@link PropertySet.id}.
      */
     public readonly propertySets: { [key: string]: PropertySet };
 
@@ -86,17 +87,17 @@ class DataModel extends Component {
     public rootDataObject: null | DataObject;
 
     /**
-     * The {@link DataObject}s in this DataModel, mapped to {@link DataObject.id}.
+     * The {@link DataObject|DataObjects} in this DataModel, mapped to {@link DataObject.id}.
      */
     public objects: { [key: string]: DataObject };
 
     /**
-     * The root {@link DataObject}s in this DataModel, mapped to {@link DataObject.id}.
+     * The root {@link DataObject|DataObjects} in this DataModel, mapped to {@link DataObject.id}.
      */
     public rootObjects: { [key: string]: DataObject };
 
     /**
-     * The {@link DataObject}s in this DataModel, mapped to {@link DataObject.type}, sub-mapped to {@link DataObject.id}.
+     * The {@link DataObject|DataObjects} in this DataModel, mapped to {@link DataObject.type}, sub-mapped to {@link DataObject.id}.
      */
     public objectsByType: { [key: string]: { [key: string]: DataObject } };
 
@@ -281,26 +282,24 @@ class DataModel extends Component {
     }
 
     /**
-     * Creates a {@link Relationship} between two {@link DataObject}s.
+     * Creates a {@link Relationship} between two {@link DataObject|DataObjects}.
      *
-     * @param relationType The relationship type
-     * @param relatingObjectId ID of the relating DataObject
-     * @param relatedObjectId ID of the related DataObject
+     * @param relationshipParams
      */
-    createRelationship(relationType: number, relatingObjectId: string, relatedObjectId: string) {
-        const relatingObject = this.data.objects[relatingObjectId];
+    createRelationship(relationshipParams: RelationshipParams) {
+        const relatingObject = this.data.objects[relationshipParams.relatingObjectId];
         if (!relatingObject) {
-            this.error(`[createRelation] DataObject not found: ${relatingObjectId}`);
+            this.error(`[createRelation] DataObject not found: ${relationshipParams.relatingObjectId}`);
             return;
         }
-        const relatedObject = this.data.objects[relatedObjectId];
+        const relatedObject = this.data.objects[relationshipParams.relatedObjectId];
         if (!relatedObject) {
-            this.error(`[createRelation] DataObject not found: ${relatedObjectId}`);
+            this.error(`[createRelation] DataObject not found: ${relationshipParams.relatedObjectId}`);
             return;
         }
-        const relation = new Relationship(relationType, relatingObject, relatedObject);
-        relatedObject.relating[relationType].push(relation);
-        relatingObject.related[relationType].push(relation);
+        const relation = new Relationship(relationshipParams.relationType, relatingObject, relatedObject);
+        relatedObject.relating[relationshipParams.relationType].push(relation);
+        relatingObject.related[relationshipParams.relationType].push(relation);
     }
 
     /**
@@ -339,11 +338,11 @@ class DataModel extends Component {
                     this.data.onObjectDestroyed.dispatch(this.data, dataObject);
                     for (let type in dataObject.relating) {
                         const relations = dataObject.relating[type];
-                        for (let i =0, len = relations.length; i < len; i++) {
+                        for (let i = 0, len = relations.length; i < len; i++) {
                             const relation = relations[i];
                             const related = relation.related;
                             const list = related.relating[type];
-                            for (let j =0, k =0, lenj = list.length; j < lenj; j++) {
+                            for (let j = 0, k = 0, lenj = list.length; j < lenj; j++) {
                                 if (list[k].relating === dataObject) {
                                     // Splice j from related.relating[type]
                                     list[j] = list[j]

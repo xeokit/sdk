@@ -4,7 +4,7 @@ import type * as math from '../../math/index';
 import {QualityRender} from "../../constants";
 
 /**
- * Configures the appearance of {@link ViewObject}s when their edges are emphasised.
+ * Configures the appearance of {@link ViewObject|ViewObjects} when their edges are emphasised.
  *
  * ## Summary
  *

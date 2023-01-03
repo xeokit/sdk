@@ -406,7 +406,7 @@ export class Viewer {
     }
 
     /**
-     * Destroys this Viewer and all {@link View|Views}, {@link SceneModel|SceneModels}, {@link DataModel}s and {@link Plugin}s we've created within it.
+     * Destroys this Viewer and all {@link View|Views}, {@link SceneModel|SceneModels}, {@link DataModel|DataModels} and {@link Plugin}s we've created within it.
      */
     destroy(): void {
         if (this.destroyed) {

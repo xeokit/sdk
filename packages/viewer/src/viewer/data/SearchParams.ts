@@ -1,59 +1,61 @@
 import type {DataObject} from "./DataObject";
 
-const foo = {
-    startAt: "myObject",
-    include: {
-        relations: {
-            relating: [0, 2],
-            related: [1]
-        },
-        objectTypes: [4]
-    },
-    exclude: {
-        relations: {
-            relating: [3],
-            related: [2]
-        },
-        objectTypes: [4]
-    }
-}
+// const foo = {
+//     startAt: "myObject",
+//     include: {
+//         relations: {
+//             relating: [0, 2],
+//             related: [1]
+//         },
+//         objectTypes: [4]
+//     },
+//     exclude: {
+//         relations: {
+//             relating: [3],
+//             related: [2]
+//         },
+//         objectTypes: [4]
+//     }
+// }
 
 /**
  * Parameters for finding {@link DataObject|DataObjects} with {@link Data.searchDataObjects}.
  *
- * These are parameters configure the depth-first-search that {@link Data.searchDataObjects} will perform
- * to find the DataObjects.
+ * These parameters configure the way that {@link Data.searchDataObjects} performs its depth-first
+ * search to find our {@link DataObject|DataObjects}.
+ *
+ * See {@link Data} for usage.
  */
 export interface SearchParams {
 
     /**
-     * ID of the DataObject to begin traversal at.
+     * ID of the DataObject to start traversal at.
      *
      * Overridden by {@link SearchParams.startObject}.
      * */
     startObjectId?: string;
 
     /**
-     * The {@link DataObject} to begin traversal at.
+     * The {@link DataObject} to start traversal at.
      *
      * Overrides {@link SearchParams.startObjectId}.
      */
     startObject?:DataObject;
 
     /**
-     * Include {@link SearchParams.startObjectId} in results?
+     * Indicates whether to include the {@link SearchParams.startObjectId} or {@link SearchParams.startObject} in search results.
      *
      * Default is true.
      */
     includeStart?:boolean;
 
     /**
-     * Which {@link DataObject} types to exclusively include in results.
+     * Which {@link DataObject} types to exclusively include in search results.
      */
     includeObjects?: number[];
 
     /**
-     * Which {@link DataObject} types to never include in results.
+     * Which {@link DataObject} types to never include in search results.
      */
     excludeObjects?: number[];
 
@@ -78,23 +80,23 @@ export interface SearchParams {
     excludeRelated?: number[];
 
     /**
-     * Collects the query results as a list of {@link DataObject} IDs.
+     * Collects the search results in a list of {@link DataObject} IDs.
      *
-     * This is mutually exclusive with {@link SearchParams.objects} and {@link SearchParams.withObjects}.
+     * This is mutually exclusive with {@link SearchParams.resultObjects} and {@link SearchParams.resultCallback}.
      */
     resultObjectIds?: string[];
 
     /**
-     * Collects the query results as a list of {@link DataObject|DataObjects}.
+     * Collects the search results in a list of {@link DataObject|DataObjects}.
      *
-     * This is mutually exclusive with {@link SearchParams.objectIds} and {@link SearchParams.withObjects}.
+     * This is mutually exclusive with {@link SearchParams.resultObjectIds} and {@link SearchParams.resultCallback}.
      */
     resultObjects?: DataObject[];
 
     /**
-     * Collects the query results via a callback that's executed on each matching {@link DataObject}.
+     * Collects the search results via a callback that's executed on each matching {@link DataObject}.
      *
-     * This is mutually exclusive with {@link SearchParams.objects} and {@link SearchParams.objectIds}.
+     * This is mutually exclusive with {@link SearchParams.resultObjects} and {@link SearchParams.resultObjectIds}.
      */
     resultCallback?: (dataObject: DataObject) => boolean;
 }

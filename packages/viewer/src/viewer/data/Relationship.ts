@@ -18,7 +18,7 @@ export class Relationship {
      *
      * This can be any value that identifies the Relationship type within your DataModel.
      */
-    public readonly type: number;
+    readonly type: number;
 
     /**
      * The relating {@link DataObject} in this Relationship.

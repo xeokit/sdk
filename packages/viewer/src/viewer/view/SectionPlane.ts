@@ -13,7 +13,7 @@ import type {FloatArrayParam} from "../math/index";
  * ## Summary
  *
  * * Belongs to a {@link View}.
- * * Slices portions off {@link ViewObject}s to create cross-section views or reveal interiors.
+ * * Slices portions off {@link ViewObject|ViewObjects} to create cross-section views or reveal interiors.
  * * Registered by {@link SectionPlane.id} in {@link View.sectionPlanes}.
  * * Indicates its World-space position in {@link SectionPlane.pos} and orientation vector in {@link SectionPlane.dir}.
  * * Discards elements from the half-space in the direction of {@link SectionPlane.dir}.

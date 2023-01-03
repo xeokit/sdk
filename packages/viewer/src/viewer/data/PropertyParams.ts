@@ -1,5 +1,7 @@
 /**
  * Parameters for creating a {@link Property} with {@link PropertySet.createProperty}.
+ *
+ * Also the array element type in {@link PropertySetParams.properties}.
  */
 export interface PropertyParams {
 

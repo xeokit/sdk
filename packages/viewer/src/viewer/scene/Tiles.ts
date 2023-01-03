@@ -4,10 +4,10 @@ import type {Scene} from "./Scene";
 import {Tile} from "./Tile";
 
 /**
- * The {@link Tile}s within a {@link Scene}.
+ * The {@link Tile|Tiles} within a {@link Scene}.
  *
  * * Located at {@link Scene.tiles}
- * * Contains {@link Tile}s
+ * * Contains {@link Tile|Tiles}
  */
 class Tiles extends Component {
 
@@ -16,7 +16,7 @@ class Tiles extends Component {
      */
     readonly scene: Scene;
 
-    /** The {@link Tile}s.
+    /** The {@link Tile|Tiles}.
      */
     public readonly tiles: {[key: string]: Tile };
 

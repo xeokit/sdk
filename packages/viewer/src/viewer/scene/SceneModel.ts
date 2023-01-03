@@ -14,7 +14,7 @@ import type {Component} from "../Component";
 
 
 /**
- *  A buildable representation of geometry and materials for a model within a {@link Viewer}.
+ *  A buildable model representation containing geometry and materiels, stored in {@link Scene}.
  *
  * See {@link Scene} for usage examples.
  *

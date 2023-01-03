@@ -5,28 +5,23 @@ import type {PropertySet} from "./PropertySet";
 import type {Viewer} from "../Viewer";
 import type {DataModelParams} from "./DataModelParams";
 import {createUUID} from "../utils/index";
-import {EventEmitter, SceneModel} from "@xeokit-viewer/viewer";
+import {EventEmitter} from "../EventEmitter";
 import {EventDispatcher} from "strongly-typed-events";
 import type {SearchParams} from "./SearchParams";
 
 
 /**
- * Contains semantic data about the models within a {@link Viewer}.
+ * Contains semantic data for the models in a {@link Viewer}, represented as an entity-relationship graph.
  *
- * Represents semantic data as a generic entity-relationship graph, with optional sets of properties to attach to
- * entities. This can be used to represent IFC models, as well as any other semantic model that can be represented
- * using an entity-relationship graph. We can also load and merge multiple models, and query them using custom
- * depth-first traversals.
+ * Can be used to represent IFC models, as well as any other schema that can be represented as an ER graph. Supports
+ * incremental loading of multiple models that share objects, which enables it to support federated IFC models. Also
+ * supports simple queries for objects using depth-first graph traversal.
  *
  * ## Summary
  *
  * * Located at {@link Viewer.data}
- * * Contains {@link DataModel}s to classify the {@link SceneModel|SceneModels} in the {@link Scene}
- * * Contains {@link DataObject}s to classify the {@link SceneObject|SceneObjects} in the Scene
  * * Use {@link Data.createModel} to create {@link DataModel|DataModels}
- * * Use {@link DataModel.createObject} to create {@link DataObject|DataObjects}
- * * Use {@link DataModel.createPropertySet} to create {@link PropertySet|PropertySets}
- * * Use {@link DataModel.createRelationship} to create {@link Relationship|Relationships} between the DataObjects
+ * * Contains {@link DataModel|DataModels}, {@link DataObject|DataObjects}, {@link PropertySet|PropertySets} and {@link Relationship|Relationships}
  *
  * <br>
  *
@@ -43,19 +38,89 @@ import type {SearchParams} from "./SearchParams";
  *   id: "myViewer"
  * });
  * 
- * const myTypes = {
+ * const mySchema = {
  *     FURNITURE_TYPE: 0,
  *     AGGREGATES_REL: 1
  * };
  *
  * myViewer.data.createModel({
+ *
  *     id: "myTableModel",
+ *
  *     projectId: "024120003",
  *     revisionId: "902344223",
  *     author: "xeolabs",
  *     createdAt: "Jan 26 2022",
  *     creatingApplication: "WebStorm",
  *     schema: "ifc4",
+ *
+ *     objects: [
+ *         {
+ *             id: "table",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             name: "Table",
+ *             propertySetIds: ["tablePropertySet"]
+ *         },
+ *         {
+ *             id: "redLeg",
+ *             name: "Red table Leg",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "greenLeg",
+ *             name: "Green table leg",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "blueLeg",
+ *             name: "Blue table leg",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "yellowLeg",
+ *             name: "Yellow table leg",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "tableTop",
+ *             name: "Purple table top",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableTopPropertySet"]
+ *         }
+ *     ],
+ *
+ *     relationships: [
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "table",
+ *             related: "tableTop"
+ *         },
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "tableTop",
+ *             related: "redLeg"
+ *         },
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "tableTop",
+ *             related: "greenLeg"
+ *         },
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "tableTop",
+ *             related: "blueLeg"
+ *         },
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "tableTop",
+ *             related: "yellowLeg"
+ *         }
+ *     ],
+ *
  *     propertySets: [
  *         {
  *             id: "tablePropertySet",
@@ -101,72 +166,6 @@ import type {SearchParams} from "./SearchParams";
  *                 }
  *             ]
  *         }
- *     ],
- *     objects: [
- *         {
- *             id: "table",
- *             originalSystemId: "table",
- *             type: myTypes.FURNITURE_TYPE,
- *             name: "Table",
- *             propertySetIds: ["tablePropertySet"]
- *         },
- *         {
- *             id: "redLeg",
- *             name: "Red table Leg",
- *             type: myTypes.FURNITURE_TYPE,
- *             propertySetIds: ["tableLegPropertySet"]
- *         },
- *         {
- *             id: "greenLeg",
- *             name: "Green table leg",
- *             type: myTypes.FURNITURE_TYPE,
- *             propertySetIds: ["tableLegPropertySet"]
- *         },
- *         {
- *             id: "blueLeg",
- *             name: "Blue table leg",
- *             type: myTypes.FURNITURE_TYPE,
- *             propertySetIds: ["tableLegPropertySet"]
- *         },
- *         {
- *             id: "yellowLeg",
- *             name: "Yellow table leg",
- *             type: myTypes.FURNITURE_TYPE,
- *             propertySetIds: ["tableLegPropertySet"]
- *         },
- *         {
- *             id: "tableTop",
- *             name: "Purple table top",
- *             type: myTypes.FURNITURE_TYPE,
- *             propertySetIds: ["tableTopPropertySet"]
- *         }
- *     ],
- *     relationships: [
- *         {
- *             type: myTypes.AGGREGATES_REL,
- *             relating: "table",
- *             related: "tableTop"
- *         },
- *         {
- *             type: myTypes.AGGREGATES_REL,
- *             relating: "tableTop",
- *             related: "redLeg"
- *         },
- *         {
- *             type: myTypes.AGGREGATES_REL,
- *             relating: "tableTop",
- *             related: "greenLeg"
- *         },
- *         {
- *             type: myTypes.AGGREGATES_REL,
- *             relating: "tableTop",
- *             related: "blueLeg"
- *         },
- *         {
- *             type: myTypes.AGGREGATES_REL,
- *             relating: "tableTop",
- *             related: "yellowLeg"
- *         }
  *     ]
  * });
  * ````
@@ -187,7 +186,7 @@ import type {SearchParams} from "./SearchParams";
  *      canvas: myCanvas
  * });
  *
- * const myTypes = {
+ * const mySchema = {
  *     FURNITURE_TYPE: 0,
  *     AGGREGATES_REL: 1
  * };
@@ -289,36 +288,36 @@ import type {SearchParams} from "./SearchParams";
  * });
  *
  * myDataModel.createRelationship({
- *     type: myTypes.AGGREGATES_REL,
+ *     type: mySchema.AGGREGATES_REL,
  *     relating: "table",
  *     related: "tableTop"
  * });
  *
  * myDataModel.createRelationship({
- *     type: myTypes.AGGREGATES_REL,
+ *     type: mySchema.AGGREGATES_REL,
  *     relating: "tableTop",
  *     related: "redLeg"
  * });
  *
  * myDataModel.createRelationship({
- *     type: myTypes.AGGREGATES_REL,
+ *     type: mySchema.AGGREGATES_REL,
  *     relating: "tableTop",
  *     related: "greenLeg"
  * });
  *
  * myDataModel.createRelationship({
- *     type: myTypes.AGGREGATES_REL,
+ *     type: mySchema.AGGREGATES_REL,
  *     relating: "tableTop",
  *     related: "blueLeg"
  * });
  *
  * myDataModel.createRelationship({
- *     type: myTypes.AGGREGATES_REL,
+ *     type: mySchema.AGGREGATES_REL,
  *     relating: "tableTop",
  *     related: "yellowLeg"
  * });
  *
- * * ### Example 3. Querying DataObjects
+ * ### Example 3. Querying DataObjects
  *
  * In our third example, we'll extend our previous example to use the {@link Data.searchDataObjects} method to
  * traverse our data graph and fetch the IDs of the {@link DataObject|DataObjects} we find on that path.
@@ -331,8 +330,8 @@ import type {SearchParams} from "./SearchParams";
  *
  * myViewer.data.searchDataObjects({
  *     startObjectId: "table",
- *     includeObjects: [myTypes.FURNITURE_TYPE],
- *     includeRelated: [myTypes.AGGREGATES_REL],
+ *     includeObjects: [mySchema.FURNITURE_TYPE],
+ *     includeRelated: [mySchema.AGGREGATES_REL],
  *     objectIds
  * });
  *
@@ -352,15 +351,15 @@ import type {SearchParams} from "./SearchParams";
  * ````javascript
  * const table = myViewer.data.objects["table"];
  *
- * const tableTop = table.related[myTypes[myTypes.AGGREGATES_REL]["tableTop"];
+ * const tableTop = table.related[mySchema[mySchema.AGGREGATES_REL]["tableTop"];
  * const tableTop = myViewer.data.objects["tableTop"];
  *
  * const objectIds = [];
  *
  * myViewer.data.searchDataObjects({
  *     startObjectId: "table",
- *     includeObjects: [myTypes.FURNITURE_TYPE],
- *     includeRelated: [myTypes.AGGREGATES_REL],
+ *     includeObjects: [mySchema.FURNITURE_TYPE],
+ *     includeRelated: [mySchema.AGGREGATES_REL],
  *     objectIds
  * });
  *
@@ -407,34 +406,34 @@ export class Data extends Component {
     readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
 
     /**
-     * The {@link DataModel}s belonging to this Data, each keyed to its {@link DataModel.id}.
+     * The {@link DataModel|DataModels} belonging to this Data, each keyed to its {@link DataModel.id}.
      */
     public readonly models: { [key: string]: DataModel };
 
     /**
-     * The {@link PropertySet}s belonging to this Data, each keyed to its {@link PropertySet.id}.
+     * The {@link PropertySet|PropertySets} belonging to this Data, each keyed to its {@link PropertySet.id}.
      */
     public readonly propertySets: { [key: string]: PropertySet };
 
     /**
-     * All {@link DataObject}s belonging to this Data, each keyed to its {@link DataObject.id}.
+     * All {@link DataObject|DataObjects} belonging to this Data, each keyed to its {@link DataObject.id}.
      */
     public readonly objects: { [key: string]: DataObject };
 
     /**
-     * The root {@link DataObject}s belonging to this Data, each keyed to its {@link DataObject.id}.
+     * The root {@link DataObject|DataObjects} belonging to this Data, each keyed to its {@link DataObject.id}.
      *
      * Root DataObjects are those with {@link DataObject.parent} set to ````null````.
      */
     public readonly rootObjects: { [key: string]: DataObject };
 
     /**
-     * The {@link DataObject}s belonging to this Data, each map keyed to {@link DataObject.type}, containing {@link DataObject}s keyed to {@link DataObject.id}.
+     * The {@link DataObject|DataObjects} belonging to this Data, each map keyed to {@link DataObject.type}, containing {@link DataObject|DataObjects} keyed to {@link DataObject.id}.
      */
     public readonly objectsByType: { [key: string]: { [key: string]: DataObject } };
 
     /**
-     * Tracks number of {@link DataObject}s of each type.
+     * Tracks number of {@link DataObject|DataObjects} of each type.
      */
     readonly typeCounts: { [key: string]: number };
 
@@ -464,8 +463,8 @@ export class Data extends Component {
      *
      * @param  dataModelParams Data for the {@link DataModel}.
      * @param [options] Options for creating the {@link DataModel}.
-     * @param [options.includeRelating] When provided, only create {@link DataObject}s with types in this list.
-     * @param  [options.excludeRelating] When provided, never create {@link DataObject}s with types in this list.
+     * @param [options.includeRelating] When provided, only create {@link DataObject|DataObjects} with types in this list.
+     * @param  [options.excludeRelating] When provided, never create {@link DataObject|DataObjects} with types in this list.
      * @param [options.globalizeObjectIds=false] Whether to globalize each {@link DataObject.id}. Set this ````true```` when you need to load multiple instances of the same meta model, to avoid ID clashes between the meta objects in the different instances.
      * @returns The new DataModel.
      * @see {@link Scene.createModel}
@@ -494,7 +493,7 @@ export class Data extends Component {
     }
 
     /**
-     * Gets the {@link DataObject.id}s of the {@link DataObject}s that have the given {@link DataObject.type}.
+     * Gets the {@link DataObject.id}s of the {@link DataObject|DataObjects} that have the given {@link DataObject.type}.
      *
      * @param type The type.
      * @returns Array of {@link DataObject.id}s.
@@ -505,7 +504,12 @@ export class Data extends Component {
     }
 
     /**
-     * Finds {@link DataObject|DataObjects} using a depth-first traversal.
+     * Finds {@link DataObject|DataObjects} using a customized depth-first traversal.
+     *
+     * Usually we use this method to recursively find DataObjects of specific {@link DataObject.type|types} within
+     * a hierarchy.
+     *
+     * See {@link Data} for usage examples.
      *
      * @param searchParams
      */

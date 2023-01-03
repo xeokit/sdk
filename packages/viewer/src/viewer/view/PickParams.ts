@@ -21,12 +21,12 @@ export interface PickParams  {
     pickSurfaceNormal?: boolean;
 
     /**
-     * Don't pick {@link ViewObject}s with these IDs.
+     * Don't pick {@link ViewObject|ViewObjects} with these IDs.
      */
     excludeViewObjectIds?: string[];
 
     /**
-     * Only pick from among {@link ViewObject}s with these IDs.
+     * Only pick from among {@link ViewObject|ViewObjects} with these IDs.
      */
     includeViewObjectIds?: string[];
 

@@ -2,7 +2,7 @@ import type {PropertySet} from "./PropertySet";
 import type {PropertyParams} from "./PropertyParams";
 
 /**
- * A property within a {@link PropertySet}.
+ * A property in a {@link PropertySet}.
  *
  * See {@link Data} for usage examples.
  *

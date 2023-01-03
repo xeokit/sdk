@@ -3,7 +3,7 @@ import type {View} from "../View";
 import {Component} from "../../Component";
 
 /**
- * Configures the size and shape of {@link ViewObject}s that represent clouds of points.
+ * Configures the size and shape of {@link ViewObject|ViewObjects} that represent clouds of points.
  *
  * ## Summary
  *

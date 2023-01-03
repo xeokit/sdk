@@ -9,7 +9,6 @@ import type {SceneModelParams} from "./SceneModelParams";
 import {Tiles} from "./Tiles";
 import {EventEmitter, View} from "@xeokit-viewer/viewer";
 import {EventDispatcher} from "strongly-typed-events";
-import type {FloatArrayParam} from "../math/index";
 
 /**
  * Contains geometric representations of the models and objects within a {@link Viewer}.
@@ -353,7 +352,6 @@ export class Scene extends Component {
      * ````
      *
      * @param params SceneModel configuration
-     * @seealso {@link Data.createModel}
      */
     createModel(params: SceneModelParams): SceneModel | undefined {
         this.log(`Creating SceneModel : ${params.id}`);

@@ -4,7 +4,7 @@ import type {PropertyParams} from "./PropertyParams";
 import type {PropertySetParams} from "./PropertySetParams";
 
 /**
- * A set of {@link Property|Properties} within a {@link DataModel}.
+ * A set of {@link Property|Properties} in a {@link DataModel}.
  *
  * See {@link Data} for usage examples.
  *

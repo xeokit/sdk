@@ -264,7 +264,7 @@ class ViewLayer extends Component {
     declare readonly view: View;
 
     /**
-     * Map of the all {@link ViewObject}s in this ViewLayer.
+     * Map of the all {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * These are the ViewObjects for which {@link ViewObject.viewLayerId} has the same value as {@link ViewLayer.id}.
      *
@@ -276,7 +276,7 @@ class ViewLayer extends Component {
     readonly objects: { [key: string]: ViewObject };
 
     /**
-     * Map of the currently visible {@link ViewObject}s in this ViewLayer.
+     * Map of the currently visible {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * A ViewObject is visible when {@link ViewObject.visible} is true.
      *
@@ -285,7 +285,7 @@ class ViewLayer extends Component {
     readonly visibleObjects: { [key: string]: ViewObject };
 
     /**
-     * Map of currently x-rayed {@link ViewObject}s in this ViewLayer.
+     * Map of currently x-rayed {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
      *
@@ -294,7 +294,7 @@ class ViewLayer extends Component {
     readonly xrayedObjects: { [key: string]: ViewObject };
 
     /**
-     * Map of currently highlighted {@link ViewObject}s in this ViewLayer.
+     * Map of currently highlighted {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
      *
@@ -303,7 +303,7 @@ class ViewLayer extends Component {
     readonly highlightedObjects: { [key: string]: ViewObject };
 
     /**
-     * Map of currently selected {@link ViewObject}s in this ViewLayer.
+     * Map of currently selected {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * A ViewObject is selected when {@link ViewObject.selected} is true.
      *
@@ -312,14 +312,14 @@ class ViewLayer extends Component {
     readonly selectedObjects: { [key: string]: ViewObject };
 
     /**
-     * Map of currently colorized {@link ViewObject}s in this ViewLayer.
+     * Map of currently colorized {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly colorizedObjects: { [key: string]: ViewObject };
 
     /**
-     * Map of {@link ViewObject}s in this ViewLayer whose opacity has been updated.
+     * Map of {@link ViewObject|ViewObjects} in this ViewLayer whose opacity has been updated.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
@@ -429,14 +429,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets the number of {@link ViewObject}s in this ViewLayer.
+     * Gets the number of {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get numObjects(): number {
         return this.#numObjects;
     }
 
     /**
-     * Gets the IDs of the {@link ViewObject}s in this ViewLayer.
+     * Gets the IDs of the {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get objectIds(): string[] {
         if (!this.#objectIds) {
@@ -446,14 +446,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets the number of visible {@link ViewObject}s in this ViewLayer.
+     * Gets the number of visible {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get numVisibleObjects(): number {
         return this.#numVisibleObjects;
     }
 
     /**
-     * Gets the IDs of the visible {@link ViewObject}s in this ViewLayer.
+     * Gets the IDs of the visible {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get visibleObjectIds(): string[] {
         if (!this.#visibleObjectIds) {
@@ -463,14 +463,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets the number of X-rayed {@link ViewObject}s in this ViewLayer.
+     * Gets the number of X-rayed {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get numXRayedObjects(): number {
         return this.#numXRayedObjects;
     }
 
     /**
-     * Gets the IDs of the X-rayed {@link ViewObject}s in this ViewLayer.
+     * Gets the IDs of the X-rayed {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get xrayedObjectIds(): string[] {
         if (!this.#xrayedObjectIds) {
@@ -480,14 +480,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets the number of highlighted {@link ViewObject}s in this ViewLayer.
+     * Gets the number of highlighted {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get numHighlightedObjects(): number {
         return this.#numHighlightedObjects;
     }
 
     /**
-     * Gets the IDs of the highlighted {@link ViewObject}s in this ViewLayer.
+     * Gets the IDs of the highlighted {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get highlightedObjectIds(): string[] {
         if (!this.#highlightedObjectIds) {
@@ -497,14 +497,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets the number of selected {@link ViewObject}s in this ViewLayer.
+     * Gets the number of selected {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get numSelectedObjects(): number {
         return this.#numSelectedObjects;
     }
 
     /**
-     * Gets the IDs of the selected {@link ViewObject}s in this ViewLayer.
+     * Gets the IDs of the selected {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get selectedObjectIds(): string[] {
         if (!this.#selectedObjectIds) {
@@ -514,14 +514,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets the number of colorized {@link ViewObject}s in this ViewLayer.
+     * Gets the number of colorized {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get numColorizedObjects(): number {
         return this.#numColorizedObjects;
     }
 
     /**
-     * Gets the IDs of the colorized {@link ViewObject}s in this ViewLayer.
+     * Gets the IDs of the colorized {@link ViewObject|ViewObjects} in this ViewLayer.
      */
     get colorizedObjectIds(): string[] {
         if (!this.#colorizedObjectIds) {
@@ -531,7 +531,7 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets the IDs of the {@link ViewObject}s in this ViewLayer that have updated opacities.
+     * Gets the IDs of the {@link ViewObject|ViewObjects} in this ViewLayer that have updated opacities.
      */
     get opacityObjectIds(): string[] {
         if (!this.#opacityObjectIds) {
@@ -541,7 +541,7 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets the number of {@link ViewObject}s in this ViewLayer that have updated opacities.
+     * Gets the number of {@link ViewObject|ViewObjects} in this ViewLayer that have updated opacities.
      */
     get numOpacityObjects(): number {
         return this.#numOpacityObjects;
@@ -672,14 +672,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Updates the visibility of the given {@link ViewObject}s in this ViewLayer.
+     * Updates the visibility of the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
      * - Updates {@link ViewLayer.visibleObjects} and {@link ViewLayer.numVisibleObjects}.
      *
      * @param {String[]} ids Array of {@link ViewObject.id} values.
      * @param visible Whether or not to cull.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     setObjectsVisible(ids: string[] | string, visible: boolean): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -690,13 +690,13 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Updates the collidability of the given {@link ViewObject}s in this ViewLayer.
+     * Updates the collidability of the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
      *
      * @param {String[]} ids Array of {@link ViewObject.id} values.
      * @param collidable Whether or not to cull.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     setObjectsCollidable(ids: string[] | string, collidable: boolean): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -707,13 +707,13 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Updates the culled status of the given {@link ViewObject}s in this ViewLayer.
+     * Updates the culled status of the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * Updates {@link ViewObject.culled} on the Objects with the given IDs.
      *
      * @param {String[]} ids Array of {@link ViewObject.id} values.
      * @param culled Whether or not to cull.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     setObjectsCulled(ids: string[] | string, culled: boolean): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -724,14 +724,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Selects or deselects the given {@link ViewObject}s in this ViewLayer.
+     * Selects or deselects the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
      * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
      *
      * @param  ids One or more {@link ViewObject.id} values.
      * @param selected Whether or not to select.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     setObjectsSelected(ids: string[] | string, selected: boolean): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -742,14 +742,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Highlights or un-highlights the given {@link ViewObject}s in this ViewLayer.
+     * Highlights or un-highlights the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
      * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
      *
      * @param  ids One or more {@link ViewObject.id} values.
      * @param highlighted Whether or not to highlight.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     setObjectsHighlighted(ids: string[] | string, highlighted: boolean): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -760,14 +760,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Applies or removes X-ray rendering for the given {@link ViewObject}s in this ViewLayer.
+     * Applies or removes X-ray rendering for the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
      * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
      *
      * @param  ids One or more {@link ViewObject.id} values.
      * @param xrayed Whether or not to xray.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     setObjectsXRayed(ids: string[] | string, xrayed: boolean): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -780,14 +780,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Colorizes the given {@link ViewObject}s in this ViewLayer.
+     * Colorizes the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
      * - Updates {@link ViewLayer.colorizedObjects} and {@link ViewLayer.numColorizedObjects}.
      *
      * @param  ids One or more {@link ViewObject.id} values.
      * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-     * @returns True if any {@link ViewObject}s changed opacity, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} changed opacity, else false if all updates were redundant and not applied.
      */
     setObjectsColorized(ids: string[] | string, colorize: number[]) {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -796,14 +796,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Sets the opacity of the given {@link ViewObject}s in this ViewLayer.
+     * Sets the opacity of the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
      * - Updates {@link ViewLayer.opacityObjects} and {@link ViewLayer.numOpacityObjects}.
      *
      * @param  ids - One or more {@link ViewObject.id} values.
      * @param opacity - Opacity factor in range ````[0..1]````.
-     * @returns True if any {@link ViewObject}s changed opacity, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} changed opacity, else false if all updates were redundant and not applied.
      */
     setObjectsOpacity(ids: string[] | string, opacity: number): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -816,14 +816,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Sets the pickability of the given {@link ViewObject}s in this ViewLayer.
+     * Sets the pickability of the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
      * - Enables or disables the ability to pick the given Objects with {@link ViewLayer.pick}.
      *
      * @param {String[]} ids Array of {@link ViewObject.id} values.
      * @param pickable Whether or not to set pickable.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     setObjectsPickable(ids: string[] | string, pickable: boolean): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -836,14 +836,14 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Sets the clippability of the given {@link ViewObject}s in this ViewLayer.
+     * Sets the clippability of the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
      * - Enables or disables the ability to pick the given Objects with {@link ViewLayer.pick}.
      *
      * @param {String[]} ids Array of {@link ViewObject.id} values.
      * @param clippable Whether or not to set clippable.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     setObjectsClippable(ids: string[] | string, clippable: boolean): boolean {
         return this.withObjects(ids, (viewObject: ViewObject) => {
@@ -856,11 +856,11 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Iterates with a callback over the given {@link ViewObject}s in this ViewLayer.
+     * Iterates with a callback over the given {@link ViewObject|ViewObjects} in this ViewLayer.
      *
      * @param  ids One or more {@link ViewObject.id} values.
      * @param callback Callback to execute on each {@link ViewObject}.
-     * @returns True if any {@link ViewObject}s were updated, else false if all updates were redundant and not applied.
+     * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
     withObjects(ids: string[] | string, callback: Function): boolean {
         if (utils.isString(ids)) {

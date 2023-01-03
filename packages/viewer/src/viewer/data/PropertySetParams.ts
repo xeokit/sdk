@@ -2,11 +2,15 @@ import type {PropertyParams} from "./PropertyParams";
 
 /**
  * Parameters for creating a {@link PropertySet} with {@link DataModel.createPropertySet}.
+ *
+ * Also the array element type in {@link DataModelParams.propertySets}.
  */
 export interface PropertySetParams {
 
     /**
      * Unique ID of each PropertySet.
+     *
+     * PropertySets are stored by ID in {@link Data.propertySets} and {@link DataModel.propertySets}.
      */
     id: string;
 
@@ -26,7 +30,7 @@ export interface PropertySetParams {
     type: string;
 
     /**
-     * The {@link Property}'s with each PropertySet.
+     * The {@link Property|Properties} with each PropertySet.
      */
     properties?: PropertyParams[]
 }

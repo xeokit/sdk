@@ -20,29 +20,29 @@ class TickParams {
 /**
  * An extensible browser-based 3D viewer for AECO applications.
  *
- * ## Summary
+ * ## Features
  *
  * * Fast, double precision 3D rendering, in all major browsers
- * * Fast model loading from binary format
+ * * Multiple, federated models
  * * Multiple canvases
+ * * Semantic ER data model
+ * * Fast model loading from binary format
  * * Super low memory footprint
- * * Semantic data model
  * * Open architecture
+ * * Written in TypeScript
  *
  * ## Overview
  *
  * A ````Viewer```` has three main components:
  *
- *  * {@link Scene} - Contains geometric representations of models, with materials, textures, transforms etc.
- *  * {@link Data} - Contains optional semantic data models (e.g. IFC elements and property sets).
- *  * {@link View|Views} - One or more independently-configurable canvases viewing the models in {@link Scene}.
+ *  * {@link Scene} - Contains geometric representations of models, (meshes, materials, textures, transforms etc.)
+ *  * {@link Data} - Contains optional semantic data for models (eg. IFC elements, relationships, properties etc.)
+ *  * {@link View|Views} - Multiple independently-configurable canvases viewing the models in {@link Scene}
  *
- * We can also configure a ````Viewer```` with a custom {@link Renderer} strategy, in case we need to customize the way
+ * We can also configure a ````Viewer```` with a custom {@link Renderer}, in case we need to customize the way
  * the Viewer uses the underlying browser graphics API (e.g. WebGL, WebGPU) to create and render models.
  *
- * ## Examples
- *
- * ### Example 1: Basic Viewer
+ * ## Example
  *
  * Create a viewer:
  *
@@ -54,7 +54,7 @@ class TickParams {
  * });
  * ````
  *
- * Create a view:
+ * Create a view with its own HTML canvas:
  *
  * ````javascript
  * const view1 = myViewer.createView({
@@ -65,11 +65,13 @@ class TickParams {
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
+ *
  * view1.camera.projection = PerspectiveProjectionType;
+ *
  * view1.cameraControl.navMode = "orbit";
  * ````
  *
- * Create a geometric model representation:
+ * Create a geometric model representation with a couple of objects:
  *
  * ````javascript
  * const mySceneModel = myViewer.scene.createModel({
@@ -91,7 +93,14 @@ class TickParams {
  * });
  *
  * mySceneModel.createObject({
- *     id: "myObject",
+ *     id: "myObject1",
+ *     meshIds: ["myMesh"],
+ *     viewLayerId: "main"
+ *     //...
+ * });
+ *
+ * mySceneModel.createObject({
+ *     id: "myObject2",
  *     meshIds: ["myMesh"],
  *     viewLayerId: "main"
  *     //...
@@ -100,24 +109,47 @@ class TickParams {
  * mySceneModel.build();
  * ````
  *
- * Define optional semantic representation for the model:
+ * Create a semantic entity-relationship data model, with two objects and one relation between them:
  *
  * ````javascript
+ * const mySchema = {
+ *     MY_OBJECT_TYPE: 0,
+ *     MY_RELATIONSHIP_TYPE: 1
+ * }
+ *
  * const myDataModel = myViewer.data.createModel({
  *     id: "myModel"
  * });
  *
  * myDataModel.createObject({
- *     id: "myObject",
+ *     id: "myObject1",
  *     name: "Some object",
- *     type: "MyType"
+ *     type: mySchema.MY_OBJECT_TYPE
  * });
+ *
+ * myDataModel.createObject({
+ *     id: "myObject2",
+ *     name: "Some object",
+ *     type: mySchema.MY_OBJECT_TYPE
+ * });
+ *
+ * myDataModel.createRelationship({
+ *     relating: "myObject1",
+ *     related: "myObject2",
+ *     type: mySchema.MY_RELATION_TYPE
+ * });
+ *
+ * myDataModel.build();
  * ````
  *
- * Customize the view:
+ * Customize the view - highlight one of the objects and reposition the camera:
  *
  * ````javascript
- * view1.viewObjects["myObject"].highlighted = true;
+ * view1.viewObjects["myObject1"].highlighted = true;
+ *
+ * view1.camera.eye = [0, 0, 20];
+ * view1.camera.look = [0, 0, 0];
+ * view1.camera.up = [0, 1, 0];
  * ````
  */
 export class Viewer {

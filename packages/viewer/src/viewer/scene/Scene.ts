@@ -11,17 +11,30 @@ import {EventEmitter, View} from "@xeokit-viewer/viewer";
 import {EventDispatcher} from "strongly-typed-events";
 
 /**
- * Contains geometric representations of the models and objects within a {@link Viewer}.
+ * Contains the geometric representations of the models in a {@link Viewer}.
  *
- * ## Summary
+ * ## Features
+ *
+ * * Multiple models
+ * * Compressed, double-precision geometry
+ * * Triangle, line and point primitives
+ * * KTX2 compressed textures
+ * * Transform hierarchies
+ * * Moveable objects
+ * * Object boundary tracking
+ * * Physically-based materials
+ *
+ * ## Quickstart
  *
  * * Located at {@link Viewer.scene}
- * * Stores {@link SceneModel|SceneModels} in {@link Scene.models}
- * * Stores {@link SceneObject|SceneObjects} in {@link Scene.objects}
- * * 3D center and boundary in {@link Scene.center} and {@link Scene.aabb}
- * * Use {@link Scene.createModel} to create {@link SceneModel|SceneModels}
- * * Use {@link SceneModel.createObject} to create {@link SceneObject|SceneObjects}
- * * {@link View|Views} automatically contain {@link ViewObject|ViewObjects} to represent all existing {@link SceneObject|SceneObjects}
+ * * Create {@link SceneModel|SceneModels} with {@link Scene.createModel}
+ * * Create {@link SceneObject|SceneObjects} with {@link SceneModel.createObject}
+ * * Create reusable geometries with {@link SceneModel.createGeometry}
+ * * Create reusable textures with {@link SceneModel.createTexture} and {@link SceneModel.createTextureSet}
+ * * Create transform hierarchies with {@link SceneModel.createTransform}
+ * * Track object boundaries with {@link Scene.aabb}, {@link SceneModel.aabb} and {@link SceneObject.aabb}
+ * * When built, be sure to finalize each SceneModel with {@link SceneModel.build}
+ * * When no longer needed, be sure to destroy each SceneModel with {@link SceneModel.destroy}
  *
  * <br>
  *

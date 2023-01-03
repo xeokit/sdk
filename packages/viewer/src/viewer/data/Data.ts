@@ -11,25 +11,35 @@ import type {SearchParams} from "./SearchParams";
 
 
 /**
- * Contains semantic data for the models in a {@link Viewer}, represented as an entity-relationship graph.
+ * Contains semantic data for the models in a {@link Viewer}.
  *
- * Can be used to represent IFC models, as well as any other schema that can be represented as an ER graph. Supports
- * incremental loading of multiple models that share objects, which enables it to support federated IFC models. Also
- * supports simple queries for objects using depth-first graph traversal.
+ * ## Features
  *
- * ## Summary
+ * * Generic entity-relationship graph
+ * * Supports multiple, federated data models
+ * * Supports any schema that's expressable as an ER graph
+ * * Supports IFC models
+ * * Graph traversals to query objects
+ *
+ * ## Quickstart
  *
  * * Located at {@link Viewer.data}
- * * Use {@link Data.createModel} to create {@link DataModel|DataModels}
- * * Contains {@link DataModel|DataModels}, {@link DataObject|DataObjects}, {@link PropertySet|PropertySets} and {@link Relationship|Relationships}
+ * * Create {@link DataModel|DataModels} with {@link Data.createModel}
+ * * Create {@link DataObject|DataObjects} with {@link DataModel.createObject}
+ * * Create {@link PropertySet|PropertySets} with {@link DataModel.createPropertySet}
+ * * Create {@link Relationship|Relationships} with {@link DataModel.createRelationship}
+ * * Query with {@link Data.searchDataObjects}
+ * * When built, be sure to finalize each DataModel with {@link DataModel.build}
+ * * When no longer needed, be sure to destroy each DataModel with {@link DataModel.destroy}
  *
  * <br>
  *
  * ## Examples
  *
- * ### Example 1. Creating a DataModel from JSON Data
+ * ### Example 1. Creating a DataModel from a JSON object
  *
- * Creating a {@link DataModel} within our Data, from a JSON object:
+ * In this example, we'll create a {@link DataModel} from a JSON object which conforms to the schema defined by
+ * {@link DataModelParams}.
  *
  * ````javascript
  * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
@@ -43,7 +53,7 @@ import type {SearchParams} from "./SearchParams";
  *     AGGREGATES_REL: 1
  * };
  *
- * myViewer.data.createModel({
+ * const myDataModel = myViewer.data.createModel({
  *
  *     id: "myTableModel",
  *
@@ -170,10 +180,10 @@ import type {SearchParams} from "./SearchParams";
  * });
  * ````
  *
- * ### Example 2. Creating a DataModel using Builder Methods
+ * ### Example 2. Creating a DataModel using builder methods
  *
  * In our second example, we'll create another {@link DataModel}, this time instantiating the {@link PropertySet},
- * {@link Property}, {@link DataObject} and {@link Relationship} components ourselves, using builder methods.
+ * {@link Property}, {@link DataObject} and {@link Relationship} components ourselves, using the DataModel's builder methods.
  *
  * ````javascript
  * import {Viewer, constants} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
@@ -316,6 +326,7 @@ import type {SearchParams} from "./SearchParams";
  *     relating: "tableTop",
  *     related: "yellowLeg"
  * });
+ * ````
  *
  * ### Example 3. Querying DataObjects
  *
@@ -340,7 +351,7 @@ import type {SearchParams} from "./SearchParams";
  * view.setObjectsHighlighted(objectIds, true);
  * ````
  *
- * * ### Example 4. Querying DataObjects
+ * * ### Example 4. Traversing DataObjects
  *
  * In our fourth example, we'll extend our previous example to use the {@link Data.searchDataObjects} method to
  * traverse our data graph and fetch the IDs of the {@link DataObject|DataObjects} we find on that path.

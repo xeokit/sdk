@@ -26,16 +26,7 @@ import {apply, createUUID} from "../utils/index";
 
 
 /**
- * An independently-configurable view of the {@link SceneObject | SceneObjects} in a {@link Viewer | Viewer's} {@link Scene}.
- *
- * ## Summary
- *
- * * Created with {@link Viewer.createView}
- * * Registered in {@link Viewer.views}
- * * Has own HTML canvas, {@link Camera}, {@link SectionPlane|SectionPlanes} and light sources
- * * Automatically maintains {@link ViewObject|ViewObjects} that represent and control the appearance of {@link SceneObject|SceneObjects} in its canvas
- * * Uses {@link ViewLayer|ViewLayers} to organize the ViewObjects into layers
- * * Optionally uses ViewLayers to mask which ViewObjects are automatically maintained
+ * An independently-configurable view of the models in a {@link Viewer}.
  *
  * ## Overview
  *
@@ -46,6 +37,18 @@ import {apply, createUUID} from "../utils/index";
  *
  * Using Views, we can essentially have multiple canvases viewing the same model, each canvas perhaps showing a different subset
  * of the objects, with different visual effects, camera position etc.
+ *
+ * ## Quickstart
+ *
+ * * Create a View with {@link Viewer.createView}
+ * * Control the View's viewpoint and projection with {@link View.camera}
+ * * Create light sources with {@link View.createLightSource}
+ * * Create slicing planes with {@link View createSectionPlane}
+ * * Each View automatically has a {@link ViewObject} for every {@link SceneObject}
+ * * Uses {@link ViewLayer|ViewLayers} to organize ViewObjects into layers
+ * * Optionally uses ViewLayers to mask which ViewObjects are automatically maintained
+ * * Control the visibility of ViewObjects with {@link View.setObjectsVisible}
+ * * Emphasise ViewObjects with {@link View.setObjectsHighlighted}, {@link View.setObjectsSelected}, {@link View.setObjectsXRayed} and {@link View.setObjectsColorized}
  *
  * ## Examples
  *

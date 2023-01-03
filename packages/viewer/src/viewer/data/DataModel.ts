@@ -21,6 +21,7 @@ import type {RelationshipParams} from "./RelationshipParams";
  *  * Can be used for IFC and all other schemas that are expressable as an ER graph
  *  * Created with {@link Data.createModel}
  *  * Stored in {@link Data.models}
+ *
  */
 class DataModel extends Component {
 
@@ -303,7 +304,7 @@ class DataModel extends Component {
     }
 
     /**
-     *
+     * Builds this DataModel, readying it for use.
      */
     build() {
         if (this.destroyed) {

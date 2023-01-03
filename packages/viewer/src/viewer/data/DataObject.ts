@@ -37,7 +37,7 @@ export class DataObject {
     public readonly type: number;
 
     /**
-     * Optional {@link PropertySet|PropertySets} used by this DataObject.
+     * {@link PropertySet|PropertySets} used by this DataObject.
      */
     public readonly propertySets?: PropertySet[];
 

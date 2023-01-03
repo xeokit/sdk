@@ -14,23 +14,17 @@ import type {Component} from "../Component";
 
 
 /**
- *  A buildable model representation containing geometry and materiels, stored in {@link Scene}.
+ *  A buildable model representation, stored in {@link Scene}.
  *
  * See {@link Scene} for usage examples.
  *
- *  ## Summary
+ * ## Summary
  *
- * * Created by {@link Scene.createModel}
- * * Contained in {@link Scene.models}
- * * Contains {@link SceneObject|SceneObjects} in {@link SceneModel.objects}
- * * Use {@link SceneModel.createObject} to create {@link SceneObject|SceneObjects}
- * * Use {@link SceneModel.createMesh} to create meshes
- * * Use {@link SceneModel.createGeometry} to create geometries
- * * Use {@link SceneModel.createTexture} to create textures
- * * Provides the boundary of all contained {@link SceneObject|SceneObjects} in {@link SceneModel.aabb}
- * * Creates geometry from {@link GeometryCompressedParams|compressed} and {@link GeometryParams|uncompressed} formats
- * * Supports KTX compressed textures
- * * A {@link ViewObject} will automatically exist in each {@link View} for every {@link SceneObject} that exists
+ * * A SceneModel is a container of {@link SceneObject|SceneObjects}
+ * * Used to represent 3D and 2D models, with meshes, materials, textures, transforms etc.
+ * * Created with {@link Scene.createModel}
+ * * Stored in {@link Scene.models}
+ * * The Viewer automatically represents each {@link SceneObject} with a corresponding {@link ViewObject} in each {@link View}
  */
 export interface SceneModel {
 
@@ -249,7 +243,7 @@ export interface SceneModel {
     createObject(params: SceneObjectParams): SceneObject;
 
     /**
-     * Builds this SceneModel and prepares it for use.
+     * Builds this SceneModel, readying it for use.
      */
     build(): void;
 

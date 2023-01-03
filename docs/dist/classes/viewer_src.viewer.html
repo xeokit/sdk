@@ -73,33 +73,32 @@
 					<div class="lead">
 						<p>An extensible browser-based 3D viewer for AECO applications.</p>
 					</div>
-					<a href="#summary" id="summary" style="color: inherit; text-decoration: none;">
-						<h2>Summary</h2>
+					<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+						<h2>Features</h2>
 					</a>
 					<ul>
 						<li>Fast, double precision 3D rendering, in all major browsers</li>
-						<li>Fast model loading from binary format</li>
+						<li>Multiple, federated models</li>
 						<li>Multiple canvases</li>
+						<li>Semantic ER data model</li>
+						<li>Fast model loading from binary format</li>
 						<li>Super low memory footprint</li>
-						<li>Semantic data model</li>
 						<li>Open architecture</li>
+						<li>Written in TypeScript</li>
 					</ul>
 					<a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
 						<h2>Overview</h2>
 					</a>
 					<p>A <code>Viewer</code> has three main components:</p>
 					<ul>
-						<li><a href="viewer_src.scene.html">Scene</a> - Contains geometric representations of models, with materials, textures, transforms etc.</li>
-						<li><a href="viewer_src.data.html">Data</a> - Contains optional semantic data models (e.g. IFC elements and property sets).</li>
-						<li><a href="viewer_src.view.html">Views</a> - One or more independently-configurable canvases viewing the models in <a href="viewer_src.scene.html">Scene</a>.</li>
+						<li><a href="viewer_src.scene.html">Scene</a> - Contains geometric representations of models, (meshes, materials, textures, transforms etc.)</li>
+						<li><a href="viewer_src.data.html">Data</a> - Contains optional semantic data for models (eg. IFC elements, relationships, properties etc.)</li>
+						<li><a href="viewer_src.view.html">Views</a> - Multiple independently-configurable canvases viewing the models in <a href="viewer_src.scene.html">Scene</a></li>
 					</ul>
-					<p>We can also configure a <code>Viewer</code> with a custom <a href="../interfaces/viewer_src.renderer.html">Renderer</a> strategy, in case we need to customize the way
+					<p>We can also configure a <code>Viewer</code> with a custom <a href="../interfaces/viewer_src.renderer.html">Renderer</a>, in case we need to customize the way
 					the Viewer uses the underlying browser graphics API (e.g. WebGL, WebGPU) to create and render models.</p>
-					<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
-						<h2>Examples</h2>
-					</a>
-					<a href="#example-1-basic-viewer" id="example-1-basic-viewer" style="color: inherit; text-decoration: none;">
-						<h3>Example 1: Basic Viewer</h3>
+					<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+						<h2>Example</h2>
 					</a>
 					<p>Create a viewer:</p>
 					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">constants</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js&quot;</span><span style="color: #000000">;</span>
@@ -108,7 +107,7 @@
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span>
 <span style="color: #000000">});</span>
 </code></pre>
-					<p>Create a view:</p>
+					<p>Create a view with its own HTML canvas:</p>
 					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span>
@@ -117,10 +116,12 @@
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
+
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">projection</span><span style="color: #000000"> = </span><span style="color: #001080">PerspectiveProjectionType</span><span style="color: #000000">;</span>
+
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">cameraControl</span><span style="color: #000000">.</span><span style="color: #001080">navMode</span><span style="color: #000000"> = </span><span style="color: #A31515">&quot;orbit&quot;</span><span style="color: #000000">;</span>
 </code></pre>
-					<p>Create a geometric model representation:</p>
+					<p>Create a geometric model representation with a couple of objects:</p>
 					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mySceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
 <span style="color: #000000">});</span>
@@ -140,7 +141,14 @@
 <span style="color: #000000">});</span>
 
 <span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
-<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject1&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">],</span>
+<span style="color: #000000">    </span><span style="color: #001080">viewLayerId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;main&quot;</span>
+<span style="color: #000000">    </span><span style="color: #008000">//...</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject2&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">],</span>
 <span style="color: #000000">    </span><span style="color: #001080">viewLayerId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;main&quot;</span>
 <span style="color: #000000">    </span><span style="color: #008000">//...</span>
@@ -148,19 +156,42 @@
 
 <span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
 </code></pre>
-					<p>Define optional semantic representation for the model:</p>
-					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myDataModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">data</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+					<p>Create a semantic entity-relationship data model, with two objects and one relation between them:</p>
+					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mySchema</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">MY_OBJECT_TYPE:</span><span style="color: #000000"> </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">MY_RELATIONSHIP_TYPE:</span><span style="color: #000000"> </span><span style="color: #098658">1</span>
+<span style="color: #000000">}</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myDataModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">data</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
 <span style="color: #000000">});</span>
 
 <span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
-<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject1&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Some object&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;MyType&quot;</span>
+<span style="color: #000000">    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">MY_OBJECT_TYPE</span>
 <span style="color: #000000">});</span>
+
+<span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject2&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Some object&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">MY_OBJECT_TYPE</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">createRelationship</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">relating:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject1&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">related:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject2&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">MY_RELATION_TYPE</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
 </code></pre>
-					<p>Customize the view:</p>
-					<pre><code class="language-javascript"><span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">viewObjects</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;myObject&quot;</span><span style="color: #000000">].</span><span style="color: #001080">highlighted</span><span style="color: #000000"> = </span><span style="color: #0000FF">true</span><span style="color: #000000">;</span>
+					<p>Customize the view - highlight one of the objects and reposition the camera:</p>
+					<pre><code class="language-javascript"><span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">viewObjects</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;myObject1&quot;</span><span style="color: #000000">].</span><span style="color: #001080">highlighted</span><span style="color: #000000"> = </span><span style="color: #0000FF">true</span><span style="color: #000000">;</span>
+
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">20</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
 </code></pre>
 				</div>
 			</section>
@@ -227,7 +258,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L216">viewer/src/viewer/Viewer.ts:216</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L248">viewer/src/viewer/Viewer.ts:248</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -259,7 +290,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Tick<span class="tsd-signature-symbol">:</span> <a href="viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="viewer_src.viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">TickParams</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L147">viewer/src/viewer/Viewer.ts:147</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L179">viewer/src/viewer/Viewer.ts:179</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -274,7 +305,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>View<wbr>Created<span class="tsd-signature-symbol">:</span> <a href="viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="viewer_src.viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a><span class="tsd-signature-symbol">, </span><a href="viewer_src.view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L154">viewer/src/viewer/Viewer.ts:154</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L186">viewer/src/viewer/Viewer.ts:186</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -289,7 +320,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>View<wbr>Destroyed<span class="tsd-signature-symbol">:</span> <a href="viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="viewer_src.viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a><span class="tsd-signature-symbol">, </span><a href="viewer_src.view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L161">viewer/src/viewer/Viewer.ts:161</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L193">viewer/src/viewer/Viewer.ts:193</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -307,7 +338,7 @@
 					<div class="tsd-signature tsd-kind-icon">capabilities<span class="tsd-signature-symbol">:</span> <a href="../interfaces/viewer_src.viewercapabilities.html" class="tsd-signature-type" data-tsd-kind="Interface">ViewerCapabilities</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L140">viewer/src/viewer/Viewer.ts:140</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L172">viewer/src/viewer/Viewer.ts:172</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -322,7 +353,7 @@
 					<div class="tsd-signature tsd-kind-icon">data<span class="tsd-signature-symbol">:</span> <a href="viewer_src.data.html" class="tsd-signature-type" data-tsd-kind="Class">Data</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L176">viewer/src/viewer/Viewer.ts:176</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L208">viewer/src/viewer/Viewer.ts:208</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -337,7 +368,7 @@
 					<div class="tsd-signature tsd-kind-icon">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L135">viewer/src/viewer/Viewer.ts:135</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L167">viewer/src/viewer/Viewer.ts:167</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -353,7 +384,7 @@
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L128">viewer/src/viewer/Viewer.ts:128</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L160">viewer/src/viewer/Viewer.ts:160</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -368,7 +399,7 @@
 					<div class="tsd-signature tsd-kind-icon">locale<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="viewer_src.localeservice.html" class="tsd-signature-type" data-tsd-kind="Class">LocaleService</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L171">viewer/src/viewer/Viewer.ts:171</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L203">viewer/src/viewer/Viewer.ts:203</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -386,7 +417,7 @@
 					<div class="tsd-signature tsd-kind-icon">num<wbr>Views<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L200">viewer/src/viewer/Viewer.ts:200</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L232">viewer/src/viewer/Viewer.ts:232</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -401,7 +432,7 @@
 					<div class="tsd-signature tsd-kind-icon">scene<span class="tsd-signature-symbol">:</span> <a href="viewer_src.scene.html" class="tsd-signature-type" data-tsd-kind="Class">Scene</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L181">viewer/src/viewer/Viewer.ts:181</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L213">viewer/src/viewer/Viewer.ts:213</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -416,7 +447,7 @@
 					<div class="tsd-signature tsd-kind-icon">start<wbr>Time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L211">viewer/src/viewer/Viewer.ts:211</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L243">viewer/src/viewer/Viewer.ts:243</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -431,7 +462,7 @@
 					<div class="tsd-signature tsd-kind-icon">view<wbr>List<span class="tsd-signature-symbol">:</span> <a href="viewer_src.view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L195">viewer/src/viewer/Viewer.ts:195</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L227">viewer/src/viewer/Viewer.ts:227</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -447,7 +478,7 @@
 					<div class="tsd-signature tsd-kind-icon">views<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L188">viewer/src/viewer/Viewer.ts:188</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L220">viewer/src/viewer/Viewer.ts:220</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -478,7 +509,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L296">viewer/src/viewer/Viewer.ts:296</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L328">viewer/src/viewer/Viewer.ts:328</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -528,7 +559,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/Viewer.ts#L411">viewer/src/viewer/Viewer.ts:411</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Viewer.ts#L443">viewer/src/viewer/Viewer.ts:443</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

@@ -71,24 +71,18 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p> A buildable model representation containing geometry and materiels, stored in <a href="../classes/viewer_src.scene.html">Scene</a>.</p>
+						<p> A buildable model representation, stored in <a href="../classes/viewer_src.scene.html">Scene</a>.</p>
 					</div>
 					<p>See <a href="../classes/viewer_src.scene.html">Scene</a> for usage examples.</p>
 					<a href="#summary" id="summary" style="color: inherit; text-decoration: none;">
 						<h2>Summary</h2>
 					</a>
 					<ul>
-						<li>Created by <a href="../classes/viewer_src.scene.html#createmodel">Scene.createModel</a></li>
-						<li>Contained in <a href="../classes/viewer_src.scene.html#models">Scene.models</a></li>
-						<li>Contains <a href="viewer_src.sceneobject.html">SceneObjects</a> in <a href="viewer_src.scenemodel.html#objects">SceneModel.objects</a></li>
-						<li>Use <a href="viewer_src.scenemodel.html#createobject">SceneModel.createObject</a> to create <a href="viewer_src.sceneobject.html">SceneObjects</a></li>
-						<li>Use <a href="viewer_src.scenemodel.html#createmesh">SceneModel.createMesh</a> to create meshes</li>
-						<li>Use <a href="viewer_src.scenemodel.html#creategeometry">SceneModel.createGeometry</a> to create geometries</li>
-						<li>Use <a href="viewer_src.scenemodel.html#createtexture">SceneModel.createTexture</a> to create textures</li>
-						<li>Provides the boundary of all contained <a href="viewer_src.sceneobject.html">SceneObjects</a> in <a href="viewer_src.scenemodel.html#aabb">SceneModel.aabb</a></li>
-						<li>Creates geometry from <a href="viewer_src.geometrycompressedparams.html">compressed</a> and <a href="viewer_src.geometryparams.html">uncompressed</a> formats</li>
-						<li>Supports KTX compressed textures</li>
-						<li>A <a href="../classes/viewer_src.viewobject.html">ViewObject</a> will automatically exist in each <a href="../classes/viewer_src.view.html">View</a> for every <a href="viewer_src.sceneobject.html">SceneObject</a> that exists</li>
+						<li>A SceneModel is a container of <a href="viewer_src.sceneobject.html">SceneObjects</a></li>
+						<li>Used to represent 3D and 2D models, with meshes, materials, textures, transforms etc.</li>
+						<li>Created with <a href="../classes/viewer_src.scene.html#createmodel">Scene.createModel</a></li>
+						<li>Stored in <a href="../classes/viewer_src.scene.html#models">Scene.models</a></li>
+						<li>The Viewer automatically represents each <a href="viewer_src.sceneobject.html">SceneObject</a> with a corresponding <a href="../classes/viewer_src.viewobject.html">ViewObject</a> in each <a href="../classes/viewer_src.view.html">View</a></li>
 					</ul>
 				</div>
 			</section>
@@ -150,7 +144,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Built<span class="tsd-signature-symbol">:</span> <a href="../classes/viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="viewer_src.scenemodel.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneModel</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L88">viewer/src/viewer/scene/SceneModel.ts:88</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L82">viewer/src/viewer/scene/SceneModel.ts:82</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -165,7 +159,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Destroyed<span class="tsd-signature-symbol">:</span> <a href="../classes/viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/viewer_src.component.html" class="tsd-signature-type" data-tsd-kind="Class">Component</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L95">viewer/src/viewer/scene/SceneModel.ts:95</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L89">viewer/src/viewer/scene/SceneModel.ts:89</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -183,7 +177,7 @@
 					<div class="tsd-signature tsd-kind-icon">aabb<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">FloatArrayParam</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L59">viewer/src/viewer/scene/SceneModel.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L53">viewer/src/viewer/scene/SceneModel.ts:53</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -198,7 +192,7 @@
 					<div class="tsd-signature tsd-kind-icon">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L81">viewer/src/viewer/scene/SceneModel.ts:81</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L75">viewer/src/viewer/scene/SceneModel.ts:75</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -213,7 +207,7 @@
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L39">viewer/src/viewer/scene/SceneModel.ts:39</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L33">viewer/src/viewer/scene/SceneModel.ts:33</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -228,7 +222,7 @@
 					<div class="tsd-signature tsd-kind-icon">object<wbr>List<span class="tsd-signature-symbol">:</span> <a href="viewer_src.sceneobject.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneObject</a><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L54">viewer/src/viewer/scene/SceneModel.ts:54</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L48">viewer/src/viewer/scene/SceneModel.ts:48</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -243,7 +237,7 @@
 					<div class="tsd-signature tsd-kind-icon">objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L49">viewer/src/viewer/scene/SceneModel.ts:49</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L43">viewer/src/viewer/scene/SceneModel.ts:43</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -266,7 +260,7 @@
 					<div class="tsd-signature tsd-kind-icon">origin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">FloatArrayParam</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L64">viewer/src/viewer/scene/SceneModel.ts:64</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L58">viewer/src/viewer/scene/SceneModel.ts:58</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -281,7 +275,7 @@
 					<div class="tsd-signature tsd-kind-icon">quality<wbr>Render<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L76">viewer/src/viewer/scene/SceneModel.ts:76</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L70">viewer/src/viewer/scene/SceneModel.ts:70</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -297,7 +291,7 @@
 					<div class="tsd-signature tsd-kind-icon">scene<span class="tsd-signature-symbol">:</span> <a href="../classes/viewer_src.scene.html" class="tsd-signature-type" data-tsd-kind="Class">Scene</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L44">viewer/src/viewer/scene/SceneModel.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L38">viewer/src/viewer/scene/SceneModel.ts:38</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -312,7 +306,7 @@
 					<div class="tsd-signature tsd-kind-icon">world<wbr>Matrix<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">FloatArrayParam</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L69">viewer/src/viewer/scene/SceneModel.ts:69</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L63">viewer/src/viewer/scene/SceneModel.ts:63</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -334,12 +328,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L254">viewer/src/viewer/scene/SceneModel.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L248">viewer/src/viewer/scene/SceneModel.ts:248</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Builds this SceneModel and prepares it for use.</p>
+									<p>Builds this SceneModel, readying it for use.</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -356,7 +350,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L131">viewer/src/viewer/scene/SceneModel.ts:131</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L125">viewer/src/viewer/scene/SceneModel.ts:125</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -407,7 +401,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L169">viewer/src/viewer/scene/SceneModel.ts:169</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L163">viewer/src/viewer/scene/SceneModel.ts:163</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -467,7 +461,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L232">viewer/src/viewer/scene/SceneModel.ts:232</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L226">viewer/src/viewer/scene/SceneModel.ts:226</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -511,7 +505,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L249">viewer/src/viewer/scene/SceneModel.ts:249</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L243">viewer/src/viewer/scene/SceneModel.ts:243</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -551,7 +545,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L195">viewer/src/viewer/scene/SceneModel.ts:195</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L189">viewer/src/viewer/scene/SceneModel.ts:189</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -600,7 +594,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L211">viewer/src/viewer/scene/SceneModel.ts:211</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L205">viewer/src/viewer/scene/SceneModel.ts:205</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -639,7 +633,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L103">viewer/src/viewer/scene/SceneModel.ts:103</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L97">viewer/src/viewer/scene/SceneModel.ts:97</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -671,7 +665,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/26fe5aa/packages/viewer/src/viewer/scene/SceneModel.ts#L261">viewer/src/viewer/scene/SceneModel.ts:261</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/scene/SceneModel.ts#L255">viewer/src/viewer/scene/SceneModel.ts:255</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

@@ -1,8 +1,8 @@
 {
-  "name": "@xeokit/viewer-converter",
-  "version": "0.0.1",
-  "description": "",
-  "module": "dist/viewer-converter.es.js",
+  "name": "@xeokit/converter",
+  "version": "0.0.0",
+  "description": "NodeJS-based CLI utility and library for converting various AECO formats into xeokit's native XKT format",
+  "module": "dist/xeokit-converter.modern.js",
   "source": "src/index.ts",
   "scripts": {
     "dist": "microbundle --format modern,cjs --define PACKAGE_VERSION=$npm_package_version",
@@ -11,16 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeokit/xeokit-viewer-converter.git"
+    "url": "git+https://github.com/xeokit/xeokit-webviewer.git"
   },
   "author": "Lindsay Kay",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "AGPL3",
   "bugs": {
-    "url": "https://github.com/xeokit/xeokit-viewer-converter/issues"
+    "url": "https://github.com/xeokit/xeokit-webviewer/issues"
   },
   "homepage": "https://xeokit.io",
   "dependencies": {
-
   },
   "files": [
     "dist/",
@@ -51,5 +50,5 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-viewer-converter.es.js"
+  "main": "dist/xeokit-converter.modern.js"
 }

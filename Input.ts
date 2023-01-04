@@ -15,9 +15,9 @@ import * as math from '../math/index';
  * Subscribing to mouse events on the canvas:
  *
  * ````javascript
- * import {Viewer} from "xeokit-viewer.es.js";
+ * import {WebViewer} from "xeokit-viewer.es.js";
  *
- * const viewer = new Viewer({
+ * const viewer = new WebViewer({
  *      canvasId: "myCanvas"
  * });
  *

@@ -7,7 +7,7 @@
 high-detail, full-precision 3D engineering and BIM models in the browser.
 <br><br>
 
-# Features
+## Features
 
 * A next generation browser-based viewer from @xeolabs
 * Designed for BIM & AEC applications
@@ -18,10 +18,23 @@ high-detail, full-precision 3D engineering and BIM models in the browser.
 * Pluggable graphics engine (WebGL, WebGPU..)
 * Written in TypeScript
 
-# Concepts
+## Modules
 
-The [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) class is the core component of
-xeokit-viewer. The Viewer has the following main components:
+@xeokit/webviewer is modular:
+
+| Package                       | Contents                                                                            | Description                                                                                                |
+|-------------------------------|:------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| `@xeokit/webviewer`           | [WebViewer](./docs/dist/classes/webviewer_src.webviewer.html)                       | An extensible browser-based 3D viewer for AEC applications.                                                |
+| `@xeokit/webviewer-xktloader` | [XKTLoaderPlugin](./docs/dist/classes/webviewer_xktloader_src.xktloaderplugin.html) | A WebViewer plugin to load models from our native, supercompressed XKT format.                             |
+| `@xeokit/webviewer-treeview`  | [TreeViewPlugin](./docs/dist/classes/webviewer_xktloader_src.treeviewplugin.html)   | A WebViewer plugin that provides an HTML tree view widget to navigate viewer objects.                      |
+| `@xeokit/webviewer-navcube`   | [NavCubePlugin](./docs/dist/classes/webviewer_navcube_src.navcubeplugin.html)       | A WebViewer plugin that provides an interactive NavCube control to assist camera navigation                |
+| `@xeokit/convert2xkt`         | [convert2xkt](./docs/dist/classes/webviewer_navcube_src.navcubeplugin.html)         | NodeJS-based CLI tool and library for converting various AEC file formats into xeokit's native XKT format. |
+
+
+## Concepts
+
+The [WebViewer](https://xeokit.github.io/xeokit-viewer/docs/classes/WebViewer.html) class is the core component of
+xeokit-viewer. The WebViewer has the following main components:
 
 - A [Scene](https://xeokit.github.io/xeokit-viewer/docs/classes/Scene.html)
   containing [SceneModels](https://xeokit.github.io/xeokit-viewer/docs/classes/SceneModel.html)
@@ -46,9 +59,9 @@ representation, allowing the possibility to have more types of metadata structur
 
 ### Example 1
 
-Let's create a [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) with
+Let's create a [WebViewer](https://xeokit.github.io/xeokit-viewer/docs/classes/WebViewer.html) with
 a [WebIFCLoaderPlugin](https://xeokit.github.io/xeokit-viewer/docs/classes/WebIFCLoaderPlugin.html)
-to view a IFC model in the browser. We'll configure our Viewer with
+to view a IFC model in the browser. We'll configure our WebViewer with
 two [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html), and a then view a sample IFC model from
 the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Details/274).
 
@@ -92,12 +105,12 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
 </body>
 <script id="source" type="module">
 
-    import {Viewer, WebGL2Renderer} from
+    import {WebViewer, WebGL2Renderer} from
                 "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
 
-    // Create a Viewer with two Views
+    // Create a WebViewer with two Views
 
-    const viewer = new Viewer({
+    const viewer = new WebViewer({
         renderer: new WebGL2Renderer({})
     });
 
@@ -201,9 +214,9 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
 ### Example 2
 
 Let's go a little deeper and build some content directly within
-a [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) using its JavaScript API.
+a [WebViewer](https://xeokit.github.io/xeokit-viewer/docs/classes/WebViewer.html) using its JavaScript API.
 
-In our second example, we'll create a Viewer with
+In our second example, we'll create a WebViewer with
 two [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html) like before, but this time we'll create our
 model metadata and geometry programmatically, using builder methods within the API.
 
@@ -247,10 +260,10 @@ model metadata and geometry programmatically, using builder methods within the A
 </body>
 <script id="source" type="module">
 
-    import {Viewer, WebGL2Renderer, constants} from
+    import {WebViewer, WebGL2Renderer, constants} from
                 "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
 
-    const viewer = new Viewer({
+    const viewer = new WebViewer({
         renderer: new WebGL2Renderer({})
     });
 

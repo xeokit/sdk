@@ -1,10 +1,10 @@
 {
   "private": true,
-  "name": "xeokit-sdk",
+  "name": "xeokit-webviewer",
   "author": "Lindsay Kay <xeolabs.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeokit/xeokit-sdk.git"
+    "url": "git+https://github.com/xeokit/xeokit-webviewer.git"
   },
   "license": "AGPL3",
   "workspaces": [
@@ -16,7 +16,8 @@
     "watch:debug": "lerna run watch:debug --parallel --stream",
     "clean:dist": "rm -rf packages/*/dist/**",
     "clean:deps": "rm -rf packages/*/node_modules/**",
-    "docs": "typedoc packages/viewer/src/index.ts packages/viewer-navcube/src/index.ts packages/viewer-treeview/src/index.ts packages/viewer-xktloader/src/index.ts --out docs/ --name xeokit-sdk  --disableOutputCheck --excludeInternal --excludeNotDocumented  --theme docs/theme --media docs/media --readme docs/INDEX.md --includes docs",
+    "test": "ts-node node_modules/tape/bin/tape packages/*/test/{*/,}*.test.ts | tap-spec",
+    "docs": "typedoc packages/webviewer/src/index.ts packages/webviewer-navcube/src/index.ts packages/webviewer-treeview/src/index.ts packages/webviewer-xktloader/src/index.ts --out docs/dist --name xeokit-webviewer  --disableOutputCheck --excludeInternal --excludeNotDocumented --media docs/media --readme ./README.md --includes docs",
     "publish": "npm publish --access public"
   },
   "devDependencies": {

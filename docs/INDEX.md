@@ -8,14 +8,15 @@
 
 ## Introduction
 
-TODO
+@xeokit/webviewer is modular:
 
-xeokit-sdk is modular:
-
-- `@xeokit-sdk/viewer`: [Viewer](/viewer.html) An extensible, high-performance browser-based AECO model viewer.
-- `@xeokit-sdk/viewer-xktloader`: A [viewer plugin](/xktloader.html) to load models from our native XKT format.
-- `@xeokit-sdk/viewer-treeview`: A [viewer plugin](/treevew.html) that provides a tree view UI to navigate viewer objects.
-- `@xeokit-sdk/viewer-navcube`: A [viewer plugin](/navcube.html) that provides a 3D cube widget to help navigate the camera.
+| Package                       | Contents                                                                  | Description                                                                                                |
+|-------------------------------|:--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| `@xeokit/webviewer`           | [WebViewer](./classes/webviewer_src.webviewer.html)                       | An extensible browser-based 3D viewer for AEC applications.                                                |
+| `@xeokit/webviewer-xktloader` | [XKTLoaderPlugin](./classes/webviewer_xktloader_src.xktloaderplugin.html) | A WebViewer plugin to load models from our native, supercompressed XKT format.                             |
+| `@xeokit/webviewer-treeview`  | [TreeViewPlugin](./classes/webviewer_xktloader_src.treeviewplugin.html)   | A WebViewer plugin that provides an HTML tree view widget to navigate viewer objects.                      |
+| `@xeokit/webviewer-navcube`   | [NavCubePlugin](./classes/webviewer_navcube_src.navcubeplugin.html)       | A WebViewer plugin that provides an interactive NavCube control to assist camera navigation                |
+| `@xeokit/convert2xkt`         | [convert2xkt](./classes/webviewer_navcube_src.navcubeplugin.html)         | NodeJS-based CLI tool and library for converting various AEC file formats into xeokit's native XKT format. |
 
 ## Getting started
 
@@ -23,20 +24,20 @@ To learn how xeokit-sdk works, see [Concepts](/concepts.html). To get started de
 
 ### SDK Installation
 
-Install the core SDK for programmatic use:
+Install the core WebViewer for programmatic use:
 
 ```shell
-npm install --save @xeokit-sdk/core
+npm install --save @xeokit/webviewer
 ```
 
 Then, import some modules:
 
 ```typescript
 // ES Modules.
-import { Viewer } from '@xeokit-sdk/viewer';
+import { WebViewer } from '@xeokit/webviewer';
 
 // CommonJS.
-const { Viewer } = require('@xeokit-sdk/viewer');
+const { WebViewer } = require('@xeokit/webviewer');
 ```
 
 ## License

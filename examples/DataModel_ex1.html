@@ -54,6 +54,12 @@
 
     // Create a semantic data model
 
+    const myTypes = {
+        FURNITURE_TYPE: 0,
+        FURNITURE_PART_TYPE: 1,
+        AGGREGATES_REL: 2
+    };
+
     viewer.data.createModel({
         id: "myTableModel",
         projectId: "024120003",
@@ -112,49 +118,71 @@
             {
                 id: "table",
                 originalSystemId: "table",
-                type: "furniture",
+                type: myTypes.FURNITURE_TYPE,
                 name: "Table",
                 propertySetIds: ["tablePropertySet"]
             },
             {
                 id: "redLeg",
                 name: "Red table Leg",
-                type: "leg",
-                parentId: "table",
+                type: myTypes.FURNITURE_PART_TYPE,
                 propertySetIds: ["tableLegPropertySet"]
             },
             {
                 id: "greenLeg",
                 name: "Green table leg",
-                type: "leg",
-                parentId: "table",
+                type: myTypes.FURNITURE_PART_TYPE,
                 propertySetIds: ["tableLegPropertySet"]
             },
             {
                 id: "blueLeg",
                 name: "Blue table leg",
-                type: "leg",
-                parentId: "table",
+                type: myTypes.FURNITURE_PART_TYPE,
                 propertySetIds: ["tableLegPropertySet"]
             },
             {
                 id: "yellowLeg",
                 name: "Yellow table leg",
-                type: "leg",
-                parentId: "table",
+                type: myTypes.FURNITURE_PART_TYPE,
                 propertySetIds: ["tableLegPropertySet"]
             },
             {
                 id: "tableTop",
                 name: "Purple table top",
-                type: "surface",
-                parentId: "table",
+                type: myTypes.FURNITURE_PART_TYPE,
                 propertySetIds: ["tableTopPropertySet"]
+            }
+        ],
+        relationships: [
+            {
+                type: myTypes.AGGREGATES_REL,
+                relating: "table",
+                related: "tableTop"
+            },
+            {
+                type: myTypes.AGGREGATES_REL,
+                relating: "tableTop",
+                related: "redLeg"
+            },
+            {
+                type: myTypes.AGGREGATES_REL,
+                relating: "tableTop",
+                related: "greenLeg"
+            },
+            {
+                type: myTypes.AGGREGATES_REL,
+                relating: "tableTop",
+                related: "blueLeg"
+            },
+            {
+                type: myTypes.AGGREGATES_REL,
+                relating: "tableTop",
+                related: "yellowLeg"
             }
         ]
     });
 
-    // Create a scene model
+    // Create a 3D scene representation
 
     const sceneModel = viewer.scene.createModel({
         id: "myTable",
@@ -262,7 +290,7 @@
 
     sceneModel.finalize();
 
-    window.viewer = viewer;
+    window.viewer = viewer; // For debugging
 
 
 </script>

@@ -13,21 +13,33 @@
 <label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
 <canvas id="myCanvas"></canvas>
 <div class="slideout-sidebar">
-    <h1>SceneModel</h1>
-    <p>Buidling a simple SceneModel.</p>
+    <h1>ViewLayer Example 1</h1>
+    <p>ViewLayers allow us to partition our viewer objects into layers, according to their purpose. They make it
+        possible
+        for us to batch-apply our visual state updates only to the layers we specify. In this example, we show the
+        primary
+        use case for ViewLayers; we put all the building objects in one ViewLayer and put environmental objects, like
+        the
+        ground plane, in a second ViewLayer. Then we can freely batch-apply visual state updates (show/hide/hight etc)
+        to the
+        building objects in the first ViewLayer, without interfering with the environmental objects in the second ViewLayer.
+    </p>
     <h3>Components used</h3>
     <ul>
         <li>
-            <a href="../docs/class/src/viewer/Viewer.js~Viewer.html" target="_other">Viewer</a>
+            <a href="../docs/dist/classes/webviewer_src.webviewer.html" target="_other">WebViewer</a>
         </li>
         <li>
-            <a href="../docs/class/src/viewer/scene/mesh/Mesh.js~Mesh.html" target="_other">WebGL2Renderer</a>
+            <a href="../docs/dist/classes/webviewer_src.webglrenderer.html" target="_other">WebGLRenderer</a>
         </li>
         <li>
-            <a href="../docs/class/src/viewer/scene/geometry/ReadableGeometry.js~ReadableGeometry.html" target="_other">DataModel</a>
+            <a href="../docs/dist/classes/webviewer_src.view.html" target="_other">View</a>
         </li>
         <li>
-            <a href="../docs/class/src/viewer/scene/geometry/ReadableGeometry.js~ReadableGeometry.html" target="_other">SceneModel</a>
+            <a href="../docs/dist/classes/webviewer_src.viewlayer.html" target="_other">ViewLayer</a>
+        </li>
+        <li>
+            <a href="../docs/dist/interfaces/webviewer_src.scenemodel.html" target="_other">SceneModel</a>
         </li>
     </ul>
 </div>
@@ -35,9 +47,9 @@
 
 <script id="source" type="module">
 
-    import {Viewer, constants} from "../dist/xeokit-viewer.es.js";
+    import {WebViewer, constants} from "../packages/webviewer/dist/xeokit-webviewer.modern.js";
 
-    const viewer = new Viewer();
+    const viewer = new WebViewer();
 
     //-------------------------------------------------------------------------------------
     // Create a view
@@ -181,7 +193,7 @@
         meshIds: ["tableTopMesh"]
     });
 
-    sceneModel.finalize();
+    sceneModel.build();
 
     //------------------------------------------------------------------------------------------
     // Create a scene representation for the ground plane.
@@ -227,7 +239,7 @@
         meshIds: ["groundPlaneMesh"]
     });
 
-    groundPlaneSceneModel.finalize();
+    groundPlaneSceneModel.build();
 
     //------------------------------------------------------------------------------------------------------
     // Now we can batch-update the ViewObjects for each ViewLayer, independently.

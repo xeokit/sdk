@@ -14,7 +14,7 @@
     "url": "git+https://github.com/xeokit/xeokit-webviewer.git"
   },
   "author": "Lindsay Kay",
-  "license": "AGPL3",
+    "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
     "url": "https://github.com/xeokit/xeokit-webviewer/issues"
   },

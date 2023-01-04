@@ -58,31 +58,31 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#xeokit-viewer" id="xeokit-viewer" style="color: inherit; text-decoration: none;">
-					<h1>xeokit-viewer</h1>
+				<a href="#xeokit-webviewer" id="xeokit-webviewer" style="color: inherit; text-decoration: none;">
+					<h1>xeokit-webviewer</h1>
 				</a>
-				<p><a href="https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer"><img src="https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer.svg" alt="npm version"></a>
-				<a href="https://www.jsdelivr.com/package/npm/@xeokit/xeokit-webviewer"><img src="https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-webviewer/badge" alt=""></a></p>
-				<p><a href="https://xeokit.github.io/xeokit-webviewer/docs/index.html">xeokit-webviewer</a> is a viewer library from <a href="http://xeolabs.com">xeolabs</a> for viewing
-					high-detail, full-precision 3D engineering and BIM models in the browser.
-				<br><br></p>
+				<p><a href="https://www.npmjs.com/package/@xeokit-sdk/core"><img src="https://img.shields.io/npm/v/@xeokit-sdk/core.svg" alt="Latest NPM release"></a>
+					<a href="https://bundlephobia.com/result?p=@xeokit-sdk/core"><img src="https://badgen.net/bundlephobia/minzip/@xeokit-sdk/core" alt="Minzipped size"></a>
+				<a href="https://github.com/xeolabs/xeokit-sdk/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-007ec6.svg" alt="License"></a></p>
+				<p><em>Graphics SDK for browser-based AECO visualization.</em></p>
 				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
 					<h2>Features</h2>
 				</a>
 				<ul>
-					<li>A next generation browser-based viewer from @xeolabs</li>
-					<li>Designed for BIM &amp; AEC applications</li>
-					<li>Compact model memory footprint</li>
-					<li>Super fast rendering</li>
+					<li>Next-generation browser-based 3D/2D viewer from @xeolabs</li>
+					<li>For BIM &amp; AEC applications</li>
+					<li>Fast rendering</li>
+					<li>Compact memory footprint</li>
 					<li>Multiple canvases</li>
-					<li>Semantic data model </li>
-					<li>Pluggable graphics engine (WebGL, WebGPU..)</li>
-					<li>Written in TypeScript</li>
+					<li>Semantic ER data model</li>
+					<li>Pluggable graphics (WebGL, WebGPU..)</li>
+					<li>Natively TypeScript</li>
+					<li>Strongly-typed events</li>
 				</ul>
 				<a href="#modules" id="modules" style="color: inherit; text-decoration: none;">
 					<h2>Modules</h2>
 				</a>
-				<p>@xeokit/webviewer is modular:</p>
+				<p>xeokit-webviewer is modular:</p>
 				<table>
 					<thead>
 						<tr>
@@ -93,512 +93,88 @@
 					</thead>
 					<tbody><tr>
 							<td><code>@xeokit/webviewer</code></td>
-							<td align="left"><a href="/docs/dist/classes/webviewer_src.webviewer.html">WebViewer</a></td>
+							<td align="left"><a href="./classes/webviewer_src.webviewer.html">WebViewer</a></td>
 							<td>An extensible browser-based 3D viewer for AEC applications.</td>
 						</tr>
 						<tr>
 							<td><code>@xeokit/webviewer-xktloader</code></td>
-							<td align="left"><a href="/docs/dist/classes/webviewer_xktloader_src.xktloaderplugin.html">XKTLoaderPlugin</a></td>
+							<td align="left"><a href="./classes/webviewer_xktloader_src.xktloaderplugin.html">XKTLoaderPlugin</a></td>
 							<td>A WebViewer plugin to load models from our native, supercompressed XKT format.</td>
 						</tr>
 						<tr>
 							<td><code>@xeokit/webviewer-treeview</code></td>
-							<td align="left"><a href="/docs/dist/classes/webviewer_xktloader_src.treeviewplugin.html">TreeViewPlugin</a></td>
+							<td align="left"><a href="./classes/webviewer_xktloader_src.treeviewplugin.html">TreeViewPlugin</a></td>
 							<td>A WebViewer plugin that provides an HTML tree view widget to navigate viewer objects.</td>
 						</tr>
 						<tr>
 							<td><code>@xeokit/webviewer-navcube</code></td>
-							<td align="left"><a href="/docs/dist/classes/webviewer_navcube_src.navcubeplugin.html">NavCubePlugin</a></td>
+							<td align="left"><a href="./classes/webviewer_navcube_src.navcubeplugin.html">NavCubePlugin</a></td>
+							<td>A WebViewer plugin that provides an interactive NavCube control to assist camera navigation</td>
+						</tr>
+						<tr>
+							<td><code>@xeokit/webviewer-bcf </code></td>
+							<td align="left"><a href="./classes/webviewer_bcf_src.bcfplugin.html">NavCubePlugin</a></td>
 							<td>A WebViewer plugin that provides an interactive NavCube control to assist camera navigation</td>
 						</tr>
 						<tr>
 							<td><code>@xeokit/convert2xkt</code></td>
-							<td align="left"><a href="/docs/dist/classes/webviewer_navcube_src.navcubeplugin.html">convert2xkt</a></td>
+							<td align="left"><a href="./classes/webviewer_navcube_src.navcubeplugin.html">convert2xkt</a></td>
 							<td>NodeJS-based CLI tool and library for converting various AEC file formats into xeokit&#39;s native XKT format.</td>
 						</tr>
 				</tbody></table>
+				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
+					<h2>Getting started</h2>
+				</a>
+				<p>To learn how xeokit-webviewer works, see <a href="/concepts.html">Concepts</a>. To get started developing with the SDK,
+					see <a href="#sdk-installation">SDK Installation</a> below. Find <a href="/functions.html">Functions</a> for example scripts created with the
+					SDK already. To use the commandline interface, see <a href="/cli.html">Commandline (CLI)</a>. If you&#39;re interested in contributing
+				to or customizing the project, see <a href="/contributing.html">contributing</a>.</p>
+				<a href="#sdk-installation" id="sdk-installation" style="color: inherit; text-decoration: none;">
+					<h3>SDK Installation</h3>
+				</a>
+				<p>Install the core WebViewer for programmatic use:</p>
+				<pre><code class="language-shell"><span style="color: #000000">npm install --save @xeokit/webviewer</span>
+</code></pre>
+				<p>Then, import some modules:</p>
+				<pre><code class="language-typescript"><span style="color: #008000">// ES Modules.</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebViewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@xeokit/webviewer&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #008000">// CommonJS.</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> {</span><span style="color: #0070C1">WebViewer</span><span style="color: #000000">} = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;@xeokit/webviewer&#039;</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#concepts" id="concepts" style="color: inherit; text-decoration: none;">
 					<h2>Concepts</h2>
 				</a>
-				<p>The <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/WebViewer.html">WebViewer</a> class is the core component of
+				<p>The <a href="./classes/webviewer_src.webviewer.html">WebViewer</a> class is the core component of
 				xeokit-webviewer. The WebViewer has the following main components:</p>
 				<ul>
-					<li>A <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/Scene.html">Scene</a>
-						containing <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/SceneModel.html">SceneModels</a>
-						and <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/SceneObject.html">objects</a>, which define the geometry
+					<li>A <a href="./classes/webviewer_src.scene.html">Scene</a> containing <a href="./interfaces/webviewer_src.scene.html">SceneModels</a>
+						and <a href="./classes/SceneObject.html">SceneObjects</a>, which define the geometry
 					and materials of our models.</li>
-					<li>A <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/SceneData.html">Data</a>
-						containing <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/DataModel.html">DataModels</a>
-						and <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/DataObject.html">objects</a>, which describe the semantics
+					<li>A <a href="./classes/Data.html">Data</a>
+						containing <a href="./classes/DataModel.html">DataModels</a>
+						and <a href="./classes/DataObject.html">DataObjects</a>, which describe the semantics
 					and structure of our models.</li>
-					<li>One or more <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/View.html">Views</a>, that each create an independent
+					<li>One or more <a href="./classes/View.html">Views</a>, that each create an independent
 						view of the Scene. Each View has its own
-						canvas, <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/Camera.html">Camera</a>,
-						and <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/ViewObject.html">ViewObjects</a>, which define the appearance of
+						canvas, <a href="./classes/Camera.html">Camera</a>,
+						and <a href="./classes/ViewObject.html">ViewObjects</a>, which define the appearance
+						of
 					each SceneObject in that particular View.</li>
-					<li>A <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/LocaleService.html">LocaleService</a> that provides locale
+					<li>A <a href="./docs/classes/LocaleService.html">LocaleService</a> that provides locale
 					translations for UI elements.</li>
 				</ul>
 				<p>A key goodness of this architecture is <a href="https://en.wikipedia.org/wiki/Separation_of_concerns"><em>separation of concerns</em></a>,
 					where we have separate data structures for metadata, geometry and views. This decouples the metadata from the scene
 				representation, allowing the possibility to have more types of metadata structure in the future.</p>
-				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
-					<h2>Usage</h2>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h2>License</h2>
 				</a>
-				<a href="#example-1" id="example-1" style="color: inherit; text-decoration: none;">
-					<h3>Example 1</h3>
+				<p>Copyright 2020, AGPL3 License.</p>
+				<a href="#credits" id="credits" style="color: inherit; text-decoration: none;">
+					<h2>Credits</h2>
 				</a>
-				<p>Let&#39;s create a <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/WebViewer.html">WebViewer</a> with
-					a <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/WebIFCLoaderPlugin.html">WebIFCLoaderPlugin</a>
-					to view a IFC model in the browser. We&#39;ll configure our WebViewer with
-					two <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/View.html">Views</a>, and a then view a sample IFC model from
-				the <a href="http://openifcmodel.cs.auckland.ac.nz/Model/Details/274">Open IFC Model Database</a>.</p>
-				<p><img src="https://xeokit.io/img/docs/WebIFCLoaderPlugin/WebIFCLoaderPluginBig.png" alt=""></p>
-				<pre><code class="language-html"><span style="color: #800000">&lt;!doctype</span><span style="color: #000000"> </span><span style="color: #FF0000">html</span><span style="color: #800000">&gt;</span>
-<span style="color: #800000">&lt;html&gt;</span>
-<span style="color: #800000">&lt;head&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;meta</span><span style="color: #000000"> </span><span style="color: #FF0000">charset</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;utf-8&quot;</span><span style="color: #800000">&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;meta</span><span style="color: #000000"> </span><span style="color: #FF0000">http-equiv</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;X-UA-Compatible&quot;</span><span style="color: #000000"> </span><span style="color: #FF0000">content</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;IE=edge,chrome=1&quot;</span><span style="color: #800000">&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;meta</span><span style="color: #000000"> </span><span style="color: #FF0000">name</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;viewport&quot;</span><span style="color: #000000"> </span><span style="color: #FF0000">content</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;width=device-width, initial-scale=1&quot;</span><span style="color: #800000">&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;title&gt;</span><span style="color: #000000">xeokit Example</span><span style="color: #800000">&lt;/title&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;style&gt;</span>
-<span style="color: #000000FF">        </span><span style="color: #800000">body</span><span style="color: #000000FF"> {</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">margin</span><span style="color: #000000FF">: </span><span style="color: #098658">0</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">width</span><span style="color: #000000FF">: </span><span style="color: #098658">100%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">height</span><span style="color: #000000FF">: </span><span style="color: #098658">100%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">user-select</span><span style="color: #000000FF">: </span><span style="color: #0451A5">none</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">        }</span>
-
-<span style="color: #000000FF">        </span><span style="color: #800000">#myCanvas1</span><span style="color: #000000FF"> {</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">width</span><span style="color: #000000FF">: </span><span style="color: #098658">70%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">height</span><span style="color: #000000FF">: </span><span style="color: #098658">100%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">position</span><span style="color: #000000FF">: </span><span style="color: #0451A5">absolute</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">background</span><span style="color: #000000FF">: </span><span style="color: #0451A5">lightblue</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">background-image</span><span style="color: #000000FF">: </span><span style="color: #795E26">linear-gradient</span><span style="color: #000000FF">(</span><span style="color: #0451A5">lightblue</span><span style="color: #000000FF">, </span><span style="color: #0451A5">white</span><span style="color: #000000FF">);</span>
-<span style="color: #000000FF">        }</span>
-
-<span style="color: #000000FF">        </span><span style="color: #800000">#myCanvas2</span><span style="color: #000000FF"> {</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">width</span><span style="color: #000000FF">: </span><span style="color: #098658">30%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">height</span><span style="color: #000000FF">: </span><span style="color: #098658">100%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">position</span><span style="color: #000000FF">: </span><span style="color: #0451A5">absolute</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">background</span><span style="color: #000000FF">: </span><span style="color: #0451A5">white</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">        }</span>
-<span style="color: #000000FF">    </span><span style="color: #800000">&lt;/style&gt;</span>
-<span style="color: #800000">&lt;/head&gt;</span>
-<span style="color: #800000">&lt;body&gt;</span>
-<span style="color: #800000">&lt;canvas</span><span style="color: #000000"> </span><span style="color: #FF0000">id</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;myCanvas1&quot;</span><span style="color: #800000">&gt;&lt;/canvas&gt;</span>
-<span style="color: #800000">&lt;canvas</span><span style="color: #000000"> </span><span style="color: #FF0000">id</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;myCanvas2&quot;</span><span style="color: #800000">&gt;&lt;/canvas&gt;</span>
-<span style="color: #800000">&lt;/body&gt;</span>
-<span style="color: #800000">&lt;script</span><span style="color: #000000FF"> </span><span style="color: #FF0000">id</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;source&quot;</span><span style="color: #000000FF"> </span><span style="color: #FF0000">type</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;module&quot;</span><span style="color: #800000">&gt;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #AF00DB">import</span><span style="color: #000000FF"> {</span><span style="color: #001080">WebViewer</span><span style="color: #000000FF">, </span><span style="color: #001080">WebGL2Renderer</span><span style="color: #000000FF">} </span><span style="color: #AF00DB">from</span>
-<span style="color: #000000FF">                </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webviewer/dist/xeokit-webviewer.es.min.js&quot;</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Create a WebViewer with two Views</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #795E26">WebViewer</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">renderer:</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #795E26">WebGL2Renderer</span><span style="color: #000000FF">({})</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">view1</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #795E26">createView</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">viewId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myView1&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">canvasId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">eye</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">3.933</span><span style="color: #000000FF">, </span><span style="color: #098658">2.855</span><span style="color: #000000FF">, </span><span style="color: #098658">27.018</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">look</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #098658">4.400</span><span style="color: #000000FF">, </span><span style="color: #098658">3.724</span><span style="color: #000000FF">, </span><span style="color: #098658">8.899</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">up</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">0.018</span><span style="color: #000000FF">, </span><span style="color: #098658">0.999</span><span style="color: #000000FF">, </span><span style="color: #098658">0.039</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">projection</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;perspective&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">cameraControl</span><span style="color: #000000FF">.</span><span style="color: #001080">navMode</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;orbit&quot;</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">view2</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #795E26">createView</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">viewId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myView2&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">canvasId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myCanvas2&quot;</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">eye</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">3.933</span><span style="color: #000000FF">, </span><span style="color: #098658">2.855</span><span style="color: #000000FF">, </span><span style="color: #098658">27.018</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">look</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #098658">4.400</span><span style="color: #000000FF">, </span><span style="color: #098658">3.724</span><span style="color: #000000FF">, </span><span style="color: #098658">8.899</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">up</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">0.018</span><span style="color: #000000FF">, </span><span style="color: #098658">0.999</span><span style="color: #000000FF">, </span><span style="color: #098658">0.039</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">projection</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;ortho&quot;</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">cameraControl</span><span style="color: #000000FF">.</span><span style="color: #001080">navMode</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;planView&quot;</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Load a model from IFC</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">webIFCLoader</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #795E26">WebIFCLoaderPlugin</span><span style="color: #000000FF">(</span><span style="color: #001080">viewer</span><span style="color: #000000FF">, {</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">wasmPath:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webviewer/dist/&quot;</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">sceneModel</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">webIFCLoader</span><span style="color: #000000FF">.</span><span style="color: #795E26">load</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myModel&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">src:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Duplex.ifc&quot;</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Click the View #1 canvas to pick ViewObjects</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">input</span><span style="color: #000000FF">.</span><span style="color: #001080">events</span><span style="color: #000000FF">.</span><span style="color: #795E26">on</span><span style="color: #000000FF">(</span><span style="color: #A31515">&quot;click&quot;</span><span style="color: #000000FF">, (</span><span style="color: #001080">mouseCanvasPos</span><span style="color: #000000FF">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000FF"> {</span>
-
-<span style="color: #000000FF">        </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">pickResult</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #795E26">pick</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">            </span><span style="color: #001080">canvasPos:</span><span style="color: #000000FF"> </span><span style="color: #001080">mouseCanvasPos</span>
-<span style="color: #000000FF">        });</span>
-
-<span style="color: #000000FF">        </span><span style="color: #AF00DB">if</span><span style="color: #000000FF"> (</span><span style="color: #001080">pickResult</span><span style="color: #000000FF">) {</span>
-
-<span style="color: #000000FF">            </span><span style="color: #008000">// Picked a ViewObject</span>
-
-<span style="color: #000000FF">            </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">viewObject</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">pickResult</span><span style="color: #000000FF">.</span><span style="color: #001080">viewObject</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">            </span><span style="color: #008000">// Get geometry of the picked ViewObject</span>
-
-<span style="color: #000000FF">            </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">sceneObject</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #001080">scene</span><span style="color: #000000FF">.</span><span style="color: #001080">objects</span><span style="color: #000000FF">[</span><span style="color: #001080">viewObject</span><span style="color: #000000FF">.</span><span style="color: #001080">id</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">            </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">aabb</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">sceneObject</span><span style="color: #000000FF">.</span><span style="color: #001080">aabb</span><span style="color: #000000FF">; </span><span style="color: #008000">// 3D axis-aligned boundary</span>
-<span style="color: #000000FF">            </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">center</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">sceneObject</span><span style="color: #000000FF">.</span><span style="color: #001080">center</span><span style="color: #000000FF">; </span><span style="color: #008000">// 3D center</span>
-
-<span style="color: #000000FF">            </span><span style="color: #008000">// Get metadata for the picked ViewObject</span>
-
-<span style="color: #000000FF">            </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">dataObject</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #001080">data</span><span style="color: #000000FF">.</span><span style="color: #001080">objects</span><span style="color: #000000FF">[</span><span style="color: #001080">viewObject</span><span style="color: #000000FF">.</span><span style="color: #001080">id</span><span style="color: #000000FF">];</span>
-
-<span style="color: #000000FF">            </span><span style="color: #AF00DB">if</span><span style="color: #000000FF"> (</span><span style="color: #001080">dataObject</span><span style="color: #000000FF">) {</span>
-
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">name</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataObject</span><span style="color: #000000FF">.</span><span style="color: #001080">name</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">type</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataObject</span><span style="color: #000000FF">.</span><span style="color: #001080">type</span><span style="color: #000000FF">; </span><span style="color: #008000">// Eg. &quot;IfcWall&quot;, &quot;IfcBuildingStorey&quot;</span>
-
-<span style="color: #000000FF">                </span><span style="color: #AF00DB">for</span><span style="color: #000000FF"> (</span><span style="color: #0000FF">let</span><span style="color: #000000FF"> </span><span style="color: #001080">propertySet</span><span style="color: #000000FF"> </span><span style="color: #0000FF">of</span><span style="color: #000000FF"> </span><span style="color: #001080">dataObject</span><span style="color: #000000FF">.</span><span style="color: #001080">propertySets</span><span style="color: #000000FF">) {</span>
-
-<span style="color: #000000FF">                    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">propertySetId</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">propertySet</span><span style="color: #000000FF">.</span><span style="color: #001080">id</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">propertySetName</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">propertySet</span><span style="color: #000000FF">.</span><span style="color: #001080">name</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">propertySetType</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">propertySet</span><span style="color: #000000FF">.</span><span style="color: #001080">type</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">                    </span><span style="color: #AF00DB">for</span><span style="color: #000000FF"> (</span><span style="color: #0000FF">let</span><span style="color: #000000FF"> </span><span style="color: #001080">property</span><span style="color: #000000FF"> </span><span style="color: #0000FF">of</span><span style="color: #000000FF"> </span><span style="color: #001080">propertySet</span><span style="color: #000000FF">) {</span>
-
-<span style="color: #000000FF">                        </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">propertyId</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">property</span><span style="color: #000000FF">.</span><span style="color: #001080">id</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                        </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">propertyName</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">property</span><span style="color: #000000FF">.</span><span style="color: #001080">name</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                        </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">propertyType</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">property</span><span style="color: #000000FF">.</span><span style="color: #001080">type</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">                        </span><span style="color: #008000">//...</span>
-<span style="color: #000000FF">                    }</span>
-<span style="color: #000000FF">                }</span>
-
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">dataModel</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataObject</span><span style="color: #000000FF">.</span><span style="color: #001080">dataModel</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">projectId</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataModel</span><span style="color: #000000FF">.</span><span style="color: #001080">projectId</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">revisionId</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataModel</span><span style="color: #000000FF">.</span><span style="color: #001080">revisionId</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">author</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataModel</span><span style="color: #000000FF">.</span><span style="color: #001080">author</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">createdAt</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataModel</span><span style="color: #000000FF">.</span><span style="color: #001080">createdAt</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">creatingApplication</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataModel</span><span style="color: #000000FF">.</span><span style="color: #001080">creatingApplication</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">schema</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">dataModel</span><span style="color: #000000FF">.</span><span style="color: #001080">schema</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">                </span><span style="color: #008000">//...</span>
-<span style="color: #000000FF">            }</span>
-<span style="color: #000000FF">        }</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #800000">&lt;/script&gt;</span>
-<span style="color: #800000">&lt;/html&gt;</span>
-</code></pre>
-				<a href="#example-2" id="example-2" style="color: inherit; text-decoration: none;">
-					<h3>Example 2</h3>
-				</a>
-				<p>Let&#39;s go a little deeper and build some content directly within
-				a <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/WebViewer.html">WebViewer</a> using its JavaScript API.</p>
-				<p>In our second example, we&#39;ll create a WebViewer with
-					two <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/View.html">Views</a> like before, but this time we&#39;ll create our
-				model metadata and geometry programmatically, using builder methods within the API.</p>
-				<p><img src="http://xeokit.io/img/docs/sceneGraph.png" alt=""></p>
-				<pre><code class="language-html"><span style="color: #800000">&lt;!doctype</span><span style="color: #000000"> </span><span style="color: #FF0000">html</span><span style="color: #800000">&gt;</span>
-<span style="color: #800000">&lt;html&gt;</span>
-<span style="color: #800000">&lt;head&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;meta</span><span style="color: #000000"> </span><span style="color: #FF0000">charset</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;utf-8&quot;</span><span style="color: #800000">&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;meta</span><span style="color: #000000"> </span><span style="color: #FF0000">http-equiv</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;X-UA-Compatible&quot;</span><span style="color: #000000"> </span><span style="color: #FF0000">content</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;IE=edge,chrome=1&quot;</span><span style="color: #800000">&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;meta</span><span style="color: #000000"> </span><span style="color: #FF0000">name</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;viewport&quot;</span><span style="color: #000000"> </span><span style="color: #FF0000">content</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;width=device-width, initial-scale=1&quot;</span><span style="color: #800000">&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;title&gt;</span><span style="color: #000000">xeokit Example</span><span style="color: #800000">&lt;/title&gt;</span>
-<span style="color: #000000">    </span><span style="color: #800000">&lt;style&gt;</span>
-<span style="color: #000000FF">        </span><span style="color: #800000">body</span><span style="color: #000000FF"> {</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">margin</span><span style="color: #000000FF">: </span><span style="color: #098658">0</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">width</span><span style="color: #000000FF">: </span><span style="color: #098658">100%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">height</span><span style="color: #000000FF">: </span><span style="color: #098658">100%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">user-select</span><span style="color: #000000FF">: </span><span style="color: #0451A5">none</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">        }</span>
-
-<span style="color: #000000FF">        </span><span style="color: #800000">#myCanvas1</span><span style="color: #000000FF"> {</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">width</span><span style="color: #000000FF">: </span><span style="color: #098658">70%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">height</span><span style="color: #000000FF">: </span><span style="color: #098658">100%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">position</span><span style="color: #000000FF">: </span><span style="color: #0451A5">absolute</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">background</span><span style="color: #000000FF">: </span><span style="color: #0451A5">lightblue</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">background-image</span><span style="color: #000000FF">: </span><span style="color: #795E26">linear-gradient</span><span style="color: #000000FF">(</span><span style="color: #0451A5">lightblue</span><span style="color: #000000FF">, </span><span style="color: #0451A5">white</span><span style="color: #000000FF">);</span>
-<span style="color: #000000FF">        }</span>
-
-<span style="color: #000000FF">        </span><span style="color: #800000">#myCanvas2</span><span style="color: #000000FF"> {</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">width</span><span style="color: #000000FF">: </span><span style="color: #098658">30%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">height</span><span style="color: #000000FF">: </span><span style="color: #098658">100%</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">position</span><span style="color: #000000FF">: </span><span style="color: #0451A5">absolute</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">            </span><span style="color: #FF0000">background</span><span style="color: #000000FF">: </span><span style="color: #0451A5">white</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">        }</span>
-<span style="color: #000000FF">    </span><span style="color: #800000">&lt;/style&gt;</span>
-<span style="color: #800000">&lt;/head&gt;</span>
-<span style="color: #800000">&lt;body&gt;</span>
-<span style="color: #800000">&lt;canvas</span><span style="color: #000000"> </span><span style="color: #FF0000">id</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;myCanvas1&quot;</span><span style="color: #800000">&gt;&lt;/canvas&gt;</span>
-<span style="color: #800000">&lt;canvas</span><span style="color: #000000"> </span><span style="color: #FF0000">id</span><span style="color: #000000">=</span><span style="color: #0000FF">&quot;myCanvas2&quot;</span><span style="color: #800000">&gt;&lt;/canvas&gt;</span>
-<span style="color: #800000">&lt;/body&gt;</span>
-<span style="color: #800000">&lt;script</span><span style="color: #000000FF"> </span><span style="color: #FF0000">id</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;source&quot;</span><span style="color: #000000FF"> </span><span style="color: #FF0000">type</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;module&quot;</span><span style="color: #800000">&gt;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #AF00DB">import</span><span style="color: #000000FF"> {</span><span style="color: #001080">WebViewer</span><span style="color: #000000FF">, </span><span style="color: #001080">WebGL2Renderer</span><span style="color: #000000FF">, </span><span style="color: #001080">constants</span><span style="color: #000000FF">} </span><span style="color: #AF00DB">from</span>
-<span style="color: #000000FF">                </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webviewer/dist/xeokit-webviewer.es.min.js&quot;</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #795E26">WebViewer</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">renderer:</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #795E26">WebGL2Renderer</span><span style="color: #000000FF">({})</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Create a couple of independent views</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">view1</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #795E26">createView</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">viewId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myView1&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">canvasId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">eye</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">3.933</span><span style="color: #000000FF">, </span><span style="color: #098658">2.855</span><span style="color: #000000FF">, </span><span style="color: #098658">27.018</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">look</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #098658">4.400</span><span style="color: #000000FF">, </span><span style="color: #098658">3.724</span><span style="color: #000000FF">, </span><span style="color: #098658">8.899</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">up</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">0.018</span><span style="color: #000000FF">, </span><span style="color: #098658">0.999</span><span style="color: #000000FF">, </span><span style="color: #098658">0.039</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">projection</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;perspective&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view1</span><span style="color: #000000FF">.</span><span style="color: #001080">cameraControl</span><span style="color: #000000FF">.</span><span style="color: #001080">navMode</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;orbit&quot;</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">view2</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #795E26">createView</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">viewId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myView2&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">canvasId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myCanvas2&quot;</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">eye</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">3.933</span><span style="color: #000000FF">, </span><span style="color: #098658">2.855</span><span style="color: #000000FF">, </span><span style="color: #098658">27.018</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">look</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #098658">4.400</span><span style="color: #000000FF">, </span><span style="color: #098658">3.724</span><span style="color: #000000FF">, </span><span style="color: #098658">8.899</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">up</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">0.018</span><span style="color: #000000FF">, </span><span style="color: #098658">0.999</span><span style="color: #000000FF">, </span><span style="color: #098658">0.039</span><span style="color: #000000FF">];</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">camera</span><span style="color: #000000FF">.</span><span style="color: #001080">projection</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;ortho&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">    </span><span style="color: #001080">view2</span><span style="color: #000000FF">.</span><span style="color: #001080">cameraControl</span><span style="color: #000000FF">.</span><span style="color: #001080">navMode</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;planView&quot;</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">scene</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #001080">scene</span><span style="color: #000000FF">;</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Create model metadata</span>
-
-<span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">dataModel</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #001080">data</span><span style="color: #000000FF">.</span><span style="color: #795E26">createModel</span><span style="color: #000000FF">(</span><span style="color: #A31515">&quot;myTableModel&quot;</span><span style="color: #000000FF">, {</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">projectId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;024120003&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">revisionId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;902344223&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">author:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;xeolabs&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">createdAt:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Jan 26 2022&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">creatingApplication:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;WebStorm&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">schema:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;ifc4&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">propertySets:</span><span style="color: #000000FF"> [</span>
-<span style="color: #000000FF">            {</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;tablePropertySet&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">originalSystemId</span><span style="color: #000000FF">: </span><span style="color: #A31515">&quot;tablePropertySet&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">name</span><span style="color: #000000FF">: </span><span style="color: #A31515">&quot;Table properties&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">type</span><span style="color: #000000FF">: </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">properties</span><span style="color: #000000FF">: [</span>
-<span style="color: #000000FF">                    {</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Weight&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">value:</span><span style="color: #000000FF"> </span><span style="color: #098658">5</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">valueType:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">description:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Weight of the thing&quot;</span>
-<span style="color: #000000FF">                    },</span>
-<span style="color: #000000FF">                    {</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Height&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">value:</span><span style="color: #000000FF"> </span><span style="color: #098658">12</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">valueType:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">description:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Height of the thing&quot;</span>
-<span style="color: #000000FF">                    }</span>
-<span style="color: #000000FF">            },</span>
-<span style="color: #000000FF">            {</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;legPropertySet&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">originalSystemId</span><span style="color: #000000FF">: </span><span style="color: #A31515">&quot;legPropertySet&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">name</span><span style="color: #000000FF">: </span><span style="color: #A31515">&quot;Table leg properties&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">type</span><span style="color: #000000FF">: </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">;</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">properties</span><span style="color: #000000FF">: [</span>
-<span style="color: #000000FF">                    {</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Weight&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">value:</span><span style="color: #000000FF"> </span><span style="color: #098658">5</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">valueType:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">description:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Weight of the thing&quot;</span>
-<span style="color: #000000FF">                    },</span>
-<span style="color: #000000FF">                    {</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Height&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">value:</span><span style="color: #000000FF"> </span><span style="color: #098658">12</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">valueType:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                        </span><span style="color: #001080">description:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Height of the thing&quot;</span>
-<span style="color: #000000FF">                    }</span>
-<span style="color: #000000FF">            }</span>
-<span style="color: #000000FF">        ],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">objects:</span><span style="color: #000000FF"> [</span>
-<span style="color: #000000FF">            {</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">originalSystemId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;furniture&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Table&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;tablePropertySet&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">            },</span>
-<span style="color: #000000FF">            {</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;redLeg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Red table Leg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;leg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">parent:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;tableLegPropertySet&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">            },</span>
-<span style="color: #000000FF">            {</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;greenLeg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Green table leg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;leg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">parent:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;tableLegPropertySet&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">            },</span>
-<span style="color: #000000FF">            {</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;blueLeg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Blue table leg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;leg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">parent:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;tableLegPropertySet&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">            },</span>
-<span style="color: #000000FF">            {</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;yellowLeg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Yellow table leg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;leg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">parent:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;tableLegPropertySet&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">            },</span>
-<span style="color: #000000FF">            {</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">name:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;Purple table top&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">type:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;surface&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">parent:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">                </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;tableTopPropertySet&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">            }</span>
-<span style="color: #000000FF">        ]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Create model scene representation</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">const</span><span style="color: #000000FF"> </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">viewer</span><span style="color: #000000FF">.</span><span style="color: #001080">scene</span><span style="color: #000000FF">.</span><span style="color: #795E26">createModel</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myTable&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">position:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">scale:</span><span style="color: #000000FF"> [</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">rotation:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">primitive:</span><span style="color: #000000FF"> </span><span style="color: #001080">constants</span><span style="color: #000000FF">.</span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">positions:</span><span style="color: #000000FF"> [</span>
-<span style="color: #000000FF">            </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #008000">// v0-v1-v2-v3 front</span>
-<span style="color: #000000FF">            </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #008000">// v0-v3-v4-v1 right</span>
-<span style="color: #000000FF">            </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #008000">// v0-v1-v6-v1 top</span>
-<span style="color: #000000FF">            </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #008000">// v1-v6-v7-v2 left</span>
-<span style="color: #000000FF">            </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">,</span><span style="color: #008000">// v7-v4-v3-v2 bottom</span>
-<span style="color: #000000FF">            </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">1</span><span style="color: #000000FF"> </span><span style="color: #008000">// v4-v7-v6-v1 back</span>
-<span style="color: #000000FF">        ],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">indices:</span><span style="color: #000000FF"> [</span>
-<span style="color: #000000FF">            </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">2</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">2</span><span style="color: #000000FF">, </span><span style="color: #098658">3</span><span style="color: #000000FF">, </span><span style="color: #098658">4</span><span style="color: #000000FF">, </span><span style="color: #098658">5</span><span style="color: #000000FF">, </span><span style="color: #098658">6</span><span style="color: #000000FF">, </span><span style="color: #098658">4</span><span style="color: #000000FF">, </span><span style="color: #098658">6</span><span style="color: #000000FF">, </span><span style="color: #098658">7</span><span style="color: #000000FF">, </span><span style="color: #098658">8</span><span style="color: #000000FF">, </span><span style="color: #098658">9</span><span style="color: #000000FF">, </span><span style="color: #098658">10</span><span style="color: #000000FF">, </span><span style="color: #098658">8</span><span style="color: #000000FF">, </span><span style="color: #098658">10</span><span style="color: #000000FF">, </span><span style="color: #098658">11</span><span style="color: #000000FF">, </span><span style="color: #098658">12</span><span style="color: #000000FF">, </span><span style="color: #098658">13</span><span style="color: #000000FF">, </span><span style="color: #098658">14</span><span style="color: #000000FF">, </span><span style="color: #098658">12</span><span style="color: #000000FF">, </span><span style="color: #098658">14</span><span style="color: #000000FF">, </span><span style="color: #098658">15</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">            </span><span style="color: #098658">16</span><span style="color: #000000FF">, </span><span style="color: #098658">17</span><span style="color: #000000FF">, </span><span style="color: #098658">18</span><span style="color: #000000FF">, </span><span style="color: #098658">16</span><span style="color: #000000FF">, </span><span style="color: #098658">18</span><span style="color: #000000FF">, </span><span style="color: #098658">19</span><span style="color: #000000FF">, </span><span style="color: #098658">20</span><span style="color: #000000FF">, </span><span style="color: #098658">21</span><span style="color: #000000FF">, </span><span style="color: #098658">22</span><span style="color: #000000FF">, </span><span style="color: #098658">20</span><span style="color: #000000FF">, </span><span style="color: #098658">22</span><span style="color: #000000FF">, </span><span style="color: #098658">23</span>
-<span style="color: #000000FF">        ]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Red table leg object</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;redLegMesh&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">geometryId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">position:</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">4</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">6</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">4</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">scale:</span><span style="color: #000000FF"> [</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">3</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">rotation:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">color:</span><span style="color: #000000FF"> [</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">0.3</span><span style="color: #000000FF">, </span><span style="color: #098658">0.3</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createObject</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;redLeg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">meshIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;redLegMesh&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Green table leg object</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;greenLegMesh&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">geometryId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">position:</span><span style="color: #000000FF"> [</span><span style="color: #098658">4</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">6</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">4</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">scale:</span><span style="color: #000000FF"> [</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">3</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">rotation:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">color:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0.3</span><span style="color: #000000FF">, </span><span style="color: #098658">1.0</span><span style="color: #000000FF">, </span><span style="color: #098658">0.3</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createObject</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;greenLeg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">meshIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;greenLegMesh&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Blue table leg</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;blueLegMesh&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">geometryId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">position:</span><span style="color: #000000FF"> [</span><span style="color: #098658">4</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">6</span><span style="color: #000000FF">, </span><span style="color: #098658">4</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">scale:</span><span style="color: #000000FF"> [</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">3</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">rotation:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">color:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0.3</span><span style="color: #000000FF">, </span><span style="color: #098658">0.3</span><span style="color: #000000FF">, </span><span style="color: #098658">1.0</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createObject</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;blueLeg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">meshIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;blueLegMesh&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Yellow table leg</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;yellowLegMesh&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">geometryId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">position:</span><span style="color: #000000FF"> [</span><span style="color: #000000">-</span><span style="color: #098658">4</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">6</span><span style="color: #000000FF">, </span><span style="color: #098658">4</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">scale:</span><span style="color: #000000FF"> [</span><span style="color: #098658">1</span><span style="color: #000000FF">, </span><span style="color: #098658">3</span><span style="color: #000000FF">, </span><span style="color: #098658">1</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">rotation:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">color:</span><span style="color: #000000FF"> [</span><span style="color: #098658">1.0</span><span style="color: #000000FF">, </span><span style="color: #098658">1.0</span><span style="color: #000000FF">, </span><span style="color: #098658">0.0</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createObject</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;yellowLeg&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">meshIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;yellowLegMesh&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #008000">// Purple table top</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000FF">({</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;tableTopMesh&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">geometryId:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">position:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #000000">-</span><span style="color: #098658">3</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">scale:</span><span style="color: #000000FF"> [</span><span style="color: #098658">6</span><span style="color: #000000FF">, </span><span style="color: #098658">0.5</span><span style="color: #000000FF">, </span><span style="color: #098658">6</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">rotation:</span><span style="color: #000000FF"> [</span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">, </span><span style="color: #098658">0</span><span style="color: #000000FF">],</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">color:</span><span style="color: #000000FF"> [</span><span style="color: #098658">1.0</span><span style="color: #000000FF">, </span><span style="color: #098658">0.3</span><span style="color: #000000FF">, </span><span style="color: #098658">1.0</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">createObject</span><span style="color: #000000FF">({ </span><span style="color: #008000">// Create object</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">id:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000FF">,</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">meshIds:</span><span style="color: #000000FF"> [</span><span style="color: #A31515">&quot;tableTopMesh&quot;</span><span style="color: #000000FF">]</span>
-<span style="color: #000000FF">    });</span>
-
-<span style="color: #000000FF">    </span><span style="color: #001080">sceneModel</span><span style="color: #000000FF">.</span><span style="color: #795E26">finalize</span><span style="color: #000000FF">();</span>
-
-<span style="color: #000000">&lt;/</span><span style="color: #001080">script</span><span style="color: #000000">&gt;</span>
-<span style="color: #000000">&lt;/</span><span style="color: #001080">html</span><span style="color: #000000">&gt;</span>
-</code></pre>
-				<a href="#resources" id="resources" style="color: inherit; text-decoration: none;">
-					<h2>Resources</h2>
-				</a>
-				<ul>
-					<li><a href="https://xeokit.io/">xeokit.io</a></li>
-					<li><a href="http://xeokit.github.io/xeokit-webviewer/examples/">Examples</a></li>
-					<li><a href="https://www.notion.so/xeokit/xeokit-Documentation-4598591fcedb4889bf8896750651f74e">Guides</a></li>
-					<li><a href="https://xeokit.github.io/xeokit-webviewer/docs/dist">API Docs</a></li>
-					<li><a href="https://xeokit.github.io/xeokit-webviewer/CHANGE_LOG">Changelog</a></li>
-					<li><a href="https://xeokit.io/index.html?foo=1#features">Features</a></li>
-					<li><a href="https://xeokit.io/index.html?foo=1#faq">FAQ</a></li>
-					<li><a href="https://xeokit.io/blog.html">Blog</a></li>
-					<li><a href="https://xeokit.io/index.html#pricing">License</a></li>
-				</ul>
+				<p>See <a href="/credits.html"><em>Credits</em></a>.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">

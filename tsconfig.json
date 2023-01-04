@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./packages",
     "paths": {
-      "@xeokit-viewer/*": ["*/src"]
+      "@xeokit-webviewer/*": ["*/src"]
     },
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -21,6 +21,7 @@
   },
   "include": [
     "packages/*/src/**/*.ts",
+    "node_modules/strongly-typed-events",
     // Included to allow TypeDoc to find `pages.ts` content.
     "docs/*.ts"
   ]

@@ -11,7 +11,7 @@ import {apply, createUUID} from "./utils/index";
 import type {WebViewerCapabilities} from "./WebViewerCapabilities";
 import type {ViewParams} from "./ViewParams";
 import {WebGLRenderer} from "../webgl/WebGLRenderer";
-import {EventDispatcher, IEvent} from "strongly-typed-events";
+import {EventDispatcher} from "strongly-typed-events";
 import {EventEmitter} from "./EventEmitter";
 
 class TickParams {

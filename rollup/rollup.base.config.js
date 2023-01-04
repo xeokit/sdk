@@ -8,7 +8,7 @@ function buildBaseConfig(input, name) {
         input: input,
         output: [
             {
-                file: `./dist/${name}.es.js`,
+                file: `./packages/${name}/dist/${name}.es.js`,
                 format: 'esm',
                 //exports: 'named',
                 sourcemap: true,

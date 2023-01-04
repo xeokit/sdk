@@ -62,8 +62,8 @@
 					<h1>xeokit-viewer</h1>
 				</a>
 				<p><a href="https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer"><img src="https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer.svg" alt="npm version"></a>
-				<a href="https://www.jsdelivr.com/package/npm/@xeokit/xeokit-viewer"><img src="https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-viewer/badge" alt=""></a></p>
-				<p><a href="https://xeokit.github.io/xeokit-viewer/docs/index.html">xeokit-viewer</a> is a viewer library from <a href="http://xeolabs.com">xeolabs</a> for viewing
+				<a href="https://www.jsdelivr.com/package/npm/@xeokit/xeokit-webviewer"><img src="https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-webviewer/badge" alt=""></a></p>
+				<p><a href="https://xeokit.github.io/xeokit-webviewer/docs/index.html">xeokit-webviewer</a> is a viewer library from <a href="http://xeolabs.com">xeolabs</a> for viewing
 					high-detail, full-precision 3D engineering and BIM models in the browser.
 				<br><br></p>
 				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
@@ -93,50 +93,50 @@
 					</thead>
 					<tbody><tr>
 							<td><code>@xeokit/webviewer</code></td>
-							<td align="left"><a href="./docs/dist/classes/webviewer_src.webviewer.html">WebViewer</a></td>
+							<td align="left"><a href="/docs/dist/classes/webviewer_src.webviewer.html">WebViewer</a></td>
 							<td>An extensible browser-based 3D viewer for AEC applications.</td>
 						</tr>
 						<tr>
 							<td><code>@xeokit/webviewer-xktloader</code></td>
-							<td align="left"><a href="./docs/dist/classes/webviewer_xktloader_src.xktloaderplugin.html">XKTLoaderPlugin</a></td>
+							<td align="left"><a href="/docs/dist/classes/webviewer_xktloader_src.xktloaderplugin.html">XKTLoaderPlugin</a></td>
 							<td>A WebViewer plugin to load models from our native, supercompressed XKT format.</td>
 						</tr>
 						<tr>
 							<td><code>@xeokit/webviewer-treeview</code></td>
-							<td align="left"><a href="./docs/dist/classes/webviewer_xktloader_src.treeviewplugin.html">TreeViewPlugin</a></td>
+							<td align="left"><a href="/docs/dist/classes/webviewer_xktloader_src.treeviewplugin.html">TreeViewPlugin</a></td>
 							<td>A WebViewer plugin that provides an HTML tree view widget to navigate viewer objects.</td>
 						</tr>
 						<tr>
 							<td><code>@xeokit/webviewer-navcube</code></td>
-							<td align="left"><a href="./docs/dist/classes/webviewer_navcube_src.navcubeplugin.html">NavCubePlugin</a></td>
+							<td align="left"><a href="/docs/dist/classes/webviewer_navcube_src.navcubeplugin.html">NavCubePlugin</a></td>
 							<td>A WebViewer plugin that provides an interactive NavCube control to assist camera navigation</td>
 						</tr>
 						<tr>
 							<td><code>@xeokit/convert2xkt</code></td>
-							<td align="left"><a href="./docs/dist/classes/webviewer_navcube_src.navcubeplugin.html">convert2xkt</a></td>
+							<td align="left"><a href="/docs/dist/classes/webviewer_navcube_src.navcubeplugin.html">convert2xkt</a></td>
 							<td>NodeJS-based CLI tool and library for converting various AEC file formats into xeokit&#39;s native XKT format.</td>
 						</tr>
 				</tbody></table>
 				<a href="#concepts" id="concepts" style="color: inherit; text-decoration: none;">
 					<h2>Concepts</h2>
 				</a>
-				<p>The <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/WebViewer.html">WebViewer</a> class is the core component of
-				xeokit-viewer. The WebViewer has the following main components:</p>
+				<p>The <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/WebViewer.html">WebViewer</a> class is the core component of
+				xeokit-webviewer. The WebViewer has the following main components:</p>
 				<ul>
-					<li>A <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/Scene.html">Scene</a>
-						containing <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/SceneModel.html">SceneModels</a>
-						and <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/SceneObject.html">objects</a>, which define the geometry
+					<li>A <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/Scene.html">Scene</a>
+						containing <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/SceneModel.html">SceneModels</a>
+						and <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/SceneObject.html">objects</a>, which define the geometry
 					and materials of our models.</li>
-					<li>A <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/SceneData.html">Data</a>
-						containing <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/DataModel.html">DataModels</a>
-						and <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/DataObject.html">objects</a>, which describe the semantics
+					<li>A <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/SceneData.html">Data</a>
+						containing <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/DataModel.html">DataModels</a>
+						and <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/DataObject.html">objects</a>, which describe the semantics
 					and structure of our models.</li>
-					<li>One or more <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/View.html">Views</a>, that each create an independent
+					<li>One or more <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/View.html">Views</a>, that each create an independent
 						view of the Scene. Each View has its own
-						canvas, <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/Camera.html">Camera</a>,
-						and <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/ViewObject.html">ViewObjects</a>, which define the appearance of
+						canvas, <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/Camera.html">Camera</a>,
+						and <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/ViewObject.html">ViewObjects</a>, which define the appearance of
 					each SceneObject in that particular View.</li>
-					<li>A <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/LocaleService.html">LocaleService</a> that provides locale
+					<li>A <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/LocaleService.html">LocaleService</a> that provides locale
 					translations for UI elements.</li>
 				</ul>
 				<p>A key goodness of this architecture is <a href="https://en.wikipedia.org/wiki/Separation_of_concerns"><em>separation of concerns</em></a>,
@@ -148,10 +148,10 @@
 				<a href="#example-1" id="example-1" style="color: inherit; text-decoration: none;">
 					<h3>Example 1</h3>
 				</a>
-				<p>Let&#39;s create a <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/WebViewer.html">WebViewer</a> with
-					a <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/WebIFCLoaderPlugin.html">WebIFCLoaderPlugin</a>
+				<p>Let&#39;s create a <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/WebViewer.html">WebViewer</a> with
+					a <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/WebIFCLoaderPlugin.html">WebIFCLoaderPlugin</a>
 					to view a IFC model in the browser. We&#39;ll configure our WebViewer with
-					two <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/View.html">Views</a>, and a then view a sample IFC model from
+					two <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/View.html">Views</a>, and a then view a sample IFC model from
 				the <a href="http://openifcmodel.cs.auckland.ac.nz/Model/Details/274">Open IFC Model Database</a>.</p>
 				<p><img src="https://xeokit.io/img/docs/WebIFCLoaderPlugin/WebIFCLoaderPluginBig.png" alt=""></p>
 				<pre><code class="language-html"><span style="color: #800000">&lt;!doctype</span><span style="color: #000000"> </span><span style="color: #FF0000">html</span><span style="color: #800000">&gt;</span>
@@ -192,7 +192,7 @@
 <span style="color: #800000">&lt;script</span><span style="color: #000000FF"> </span><span style="color: #FF0000">id</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;source&quot;</span><span style="color: #000000FF"> </span><span style="color: #FF0000">type</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;module&quot;</span><span style="color: #800000">&gt;</span>
 
 <span style="color: #000000FF">    </span><span style="color: #AF00DB">import</span><span style="color: #000000FF"> {</span><span style="color: #001080">WebViewer</span><span style="color: #000000FF">, </span><span style="color: #001080">WebGL2Renderer</span><span style="color: #000000FF">} </span><span style="color: #AF00DB">from</span>
-<span style="color: #000000FF">                </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js&quot;</span><span style="color: #000000FF">;</span>
+<span style="color: #000000FF">                </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webviewer/dist/xeokit-webviewer.es.min.js&quot;</span><span style="color: #000000FF">;</span>
 
 <span style="color: #000000FF">    </span><span style="color: #008000">// Create a WebViewer with two Views</span>
 
@@ -226,7 +226,7 @@
 <span style="color: #000000FF">    </span><span style="color: #008000">// Load a model from IFC</span>
 
 <span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">webIFCLoader</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #795E26">WebIFCLoaderPlugin</span><span style="color: #000000FF">(</span><span style="color: #001080">viewer</span><span style="color: #000000FF">, {</span>
-<span style="color: #000000FF">        </span><span style="color: #001080">wasmPath:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/&quot;</span>
+<span style="color: #000000FF">        </span><span style="color: #001080">wasmPath:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webviewer/dist/&quot;</span>
 <span style="color: #000000FF">    });</span>
 
 <span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">sceneModel</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #001080">webIFCLoader</span><span style="color: #000000FF">.</span><span style="color: #795E26">load</span><span style="color: #000000FF">({</span>
@@ -300,9 +300,9 @@
 					<h3>Example 2</h3>
 				</a>
 				<p>Let&#39;s go a little deeper and build some content directly within
-				a <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/WebViewer.html">WebViewer</a> using its JavaScript API.</p>
+				a <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/WebViewer.html">WebViewer</a> using its JavaScript API.</p>
 				<p>In our second example, we&#39;ll create a WebViewer with
-					two <a href="https://xeokit.github.io/xeokit-viewer/docs/classes/View.html">Views</a> like before, but this time we&#39;ll create our
+					two <a href="https://xeokit.github.io/xeokit-webviewer/docs/classes/View.html">Views</a> like before, but this time we&#39;ll create our
 				model metadata and geometry programmatically, using builder methods within the API.</p>
 				<p><img src="http://xeokit.io/img/docs/sceneGraph.png" alt=""></p>
 				<pre><code class="language-html"><span style="color: #800000">&lt;!doctype</span><span style="color: #000000"> </span><span style="color: #FF0000">html</span><span style="color: #800000">&gt;</span>
@@ -343,7 +343,7 @@
 <span style="color: #800000">&lt;script</span><span style="color: #000000FF"> </span><span style="color: #FF0000">id</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;source&quot;</span><span style="color: #000000FF"> </span><span style="color: #FF0000">type</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;module&quot;</span><span style="color: #800000">&gt;</span>
 
 <span style="color: #000000FF">    </span><span style="color: #AF00DB">import</span><span style="color: #000000FF"> {</span><span style="color: #001080">WebViewer</span><span style="color: #000000FF">, </span><span style="color: #001080">WebGL2Renderer</span><span style="color: #000000FF">, </span><span style="color: #001080">constants</span><span style="color: #000000FF">} </span><span style="color: #AF00DB">from</span>
-<span style="color: #000000FF">                </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js&quot;</span><span style="color: #000000FF">;</span>
+<span style="color: #000000FF">                </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-webviewer/dist/xeokit-webviewer.es.min.js&quot;</span><span style="color: #000000FF">;</span>
 
 <span style="color: #000000FF">    </span><span style="color: #0000FF">const</span><span style="color: #000000FF"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #795E26">WebViewer</span><span style="color: #000000FF">({</span>
 <span style="color: #000000FF">        </span><span style="color: #001080">renderer:</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #795E26">WebGL2Renderer</span><span style="color: #000000FF">({})</span>
@@ -590,10 +590,10 @@
 				</a>
 				<ul>
 					<li><a href="https://xeokit.io/">xeokit.io</a></li>
-					<li><a href="http://xeokit.github.io/xeokit-viewer/examples/">Examples</a></li>
+					<li><a href="http://xeokit.github.io/xeokit-webviewer/examples/">Examples</a></li>
 					<li><a href="https://www.notion.so/xeokit/xeokit-Documentation-4598591fcedb4889bf8896750651f74e">Guides</a></li>
-					<li><a href="https://xeokit.github.io/xeokit-viewer/docs/">API Docs</a></li>
-					<li><a href="https://xeokit.github.io/xeokit-viewer/CHANGE_LOG">Changelog</a></li>
+					<li><a href="https://xeokit.github.io/xeokit-webviewer/docs/dist">API Docs</a></li>
+					<li><a href="https://xeokit.github.io/xeokit-webviewer/CHANGE_LOG">Changelog</a></li>
 					<li><a href="https://xeokit.io/index.html?foo=1#features">Features</a></li>
 					<li><a href="https://xeokit.io/index.html?foo=1#faq">FAQ</a></li>
 					<li><a href="https://xeokit.io/blog.html">Blog</a></li>

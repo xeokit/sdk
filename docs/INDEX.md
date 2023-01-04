@@ -12,7 +12,7 @@
 
 | Package                       | Contents                                                                  | Description                                                                                                |
 |-------------------------------|:--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| `@xeokit/webviewer`           | [WebViewer](./classes/webviewer_src.webviewer.html)                       | An extensible browser-based 3D viewer for AEC applications.                                                |
+| `@xeokit/webviewer`           | [WebViewer](/docs/dist/classes/webviewer_src.webviewer.html)              | An extensible browser-based 3D viewer for AEC applications.                                                |
 | `@xeokit/webviewer-xktloader` | [XKTLoaderPlugin](./classes/webviewer_xktloader_src.xktloaderplugin.html) | A WebViewer plugin to load models from our native, supercompressed XKT format.                             |
 | `@xeokit/webviewer-treeview`  | [TreeViewPlugin](./classes/webviewer_xktloader_src.treeviewplugin.html)   | A WebViewer plugin that provides an HTML tree view widget to navigate viewer objects.                      |
 | `@xeokit/webviewer-navcube`   | [NavCubePlugin](./classes/webviewer_navcube_src.navcubeplugin.html)       | A WebViewer plugin that provides an interactive NavCube control to assist camera navigation                |

@@ -105,7 +105,7 @@
 					</a>
 					<p>In this example, we&#39;ll create a <a href="viewer_src.datamodel.html">DataModel</a> from a JSON object which conforms to the schema defined by
 					<a href="../interfaces/viewer_src.datamodelparams.html">DataModelParams</a>.</p>
-					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">constants</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js&quot;</span><span style="color: #000000">;</span>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">constants</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
 <span style="color: #000000">  </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span>
@@ -247,7 +247,7 @@
 					</a>
 					<p>In our second example, we&#39;ll create another <a href="viewer_src.datamodel.html">DataModel</a>, this time instantiating the <a href="viewer_src.propertyset.html">PropertySet</a>,
 					<a href="viewer_src.property.html">Property</a>, <a href="viewer_src.dataobject.html">DataObject</a> and <a href="viewer_src.relationship.html">Relationship</a> components ourselves, using the DataModel&#39;s builder methods.</p>
-					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">constants</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js&quot;</span><span style="color: #000000">;</span>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">constants</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
 <span style="color: #000000">  </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span>
@@ -415,28 +415,26 @@
 							</a>
 						</li>
 					</ul>
-					<p>In our fourth example, we&#39;ll extend our previous example to use the <a href="viewer_src.data.html#searchdataobjects">Data.searchDataObjects</a> method to
-					traverse our data graph and fetch the IDs of the <a href="viewer_src.dataobject.html">DataObjects</a> we find on that path.</p>
-					<p>One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
-					a tree view of an IFC element hierarchy.</p>
+					<p>TODO</p>
 					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">table</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">data</span><span style="color: #000000">.</span><span style="color: #001080">objects</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000">];</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">tableTop</span><span style="color: #000000"> = </span><span style="color: #001080">table</span><span style="color: #000000">.</span><span style="color: #001080">related</span><span style="color: #000000">[</span><span style="color: #001080">mySchema</span><span style="color: #000000">[</span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">][</span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000">];</span>
-<span style="color: #001080">const</span><span style="color: #000000"> </span><span style="color: #001080">tableTop</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">data</span><span style="color: #000000">.</span><span style="color: #001080">objects</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000">];</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">relations</span><span style="color: #000000"> = </span><span style="color: #001080">table</span><span style="color: #000000">.</span><span style="color: #001080">related</span><span style="color: #000000">[</span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">];</span>
 
-<span style="color: #001080">const</span><span style="color: #000000"> </span><span style="color: #001080">objectIds</span><span style="color: #000000"> = [];</span>
+<span style="color: #AF00DB">for</span><span style="color: #000000"> (</span><span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">i</span><span style="color: #000000"> = </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #001080">len</span><span style="color: #000000"> = </span><span style="color: #001080">relations</span><span style="color: #000000">.</span><span style="color: #001080">length</span><span style="color: #000000">; </span><span style="color: #001080">i</span><span style="color: #000000"> &lt; </span><span style="color: #001080">len</span><span style="color: #000000">; </span><span style="color: #001080">i</span><span style="color: #000000">++) {</span>
 
-<span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">data</span><span style="color: #000000">.</span><span style="color: #795E26">searchDataObjects</span><span style="color: #000000">({</span>
-<span style="color: #000000">    </span><span style="color: #001080">startObjectId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">includeObjects:</span><span style="color: #000000"> [</span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">FURNITURE_TYPE</span><span style="color: #000000">],</span>
-<span style="color: #000000">    </span><span style="color: #001080">includeRelated:</span><span style="color: #000000"> [</span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">],</span>
-<span style="color: #000000">    </span><span style="color: #001080">objectIds</span>
-<span style="color: #000000">});</span>
+<span style="color: #000000">     </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">relation</span><span style="color: #000000"> = </span><span style="color: #001080">relations</span><span style="color: #000000">[</span><span style="color: #001080">i</span><span style="color: #000000">];</span>
+<span style="color: #000000">     </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">dataObject</span><span style="color: #000000"> = </span><span style="color: #001080">relation</span><span style="color: #000000">.</span><span style="color: #001080">related</span><span style="color: #000000">;</span>
+<span style="color: #000000">     </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewObject</span><span style="color: #000000"> = </span><span style="color: #001080">view</span><span style="color: #000000">.</span><span style="color: #001080">objects</span><span style="color: #000000">[</span><span style="color: #001080">dataObject</span><span style="color: #000000">.</span><span style="color: #001080">id</span><span style="color: #000000">];</span>
 
-<span style="color: #008000">// objectIds == [&quot;table&quot;, &quot;tableTop&quot;, &quot;redLeg&quot;, &quot;greenLeg&quot;, &quot;blueLeg&quot;, &quot;yellowLeg&quot;];</span>
-
-<span style="color: #001080">view</span><span style="color: #000000">.</span><span style="color: #795E26">setObjectsHighlighted</span><span style="color: #000000">(</span><span style="color: #001080">objectIds</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+<span style="color: #000000">     </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">viewObject</span><span style="color: #000000">) {</span>
+<span style="color: #000000">         </span><span style="color: #001080">viewObject</span><span style="color: #000000">.</span><span style="color: #001080">highlighted</span><span style="color: #000000"> = </span><span style="color: #0000FF">true</span><span style="color: #000000">;</span>
+<span style="color: #000000">     }</span>
+<span style="color: #000000">}</span>
 </code></pre>
+					<a href="#example-5-handling-data-events" id="example-5-handling-data-events" style="color: inherit; text-decoration: none;">
+						<h3>Example 5. Handling data events</h3>
+					</a>
+					<p>TODO</p>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -503,7 +501,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#ondestroyed">onDestroyed</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Component.ts#L45">viewer/src/viewer/Component.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/Component.ts#L45">viewer/src/viewer/Component.ts:45</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -518,7 +516,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Model<wbr>Created<span class="tsd-signature-symbol">:</span> <a href="viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="viewer_src.data.html" class="tsd-signature-type" data-tsd-kind="Class">Data</a><span class="tsd-signature-symbol">, </span><a href="viewer_src.datamodel.html" class="tsd-signature-type" data-tsd-kind="Class">DataModel</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L396">viewer/src/viewer/data/Data.ts:396</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L395">viewer/src/viewer/data/Data.ts:395</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -533,7 +531,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Model<wbr>Destroyed<span class="tsd-signature-symbol">:</span> <a href="viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="viewer_src.data.html" class="tsd-signature-type" data-tsd-kind="Class">Data</a><span class="tsd-signature-symbol">, </span><a href="viewer_src.datamodel.html" class="tsd-signature-type" data-tsd-kind="Class">DataModel</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L403">viewer/src/viewer/data/Data.ts:403</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L402">viewer/src/viewer/data/Data.ts:402</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -548,7 +546,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Object<wbr>Created<span class="tsd-signature-symbol">:</span> <a href="viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="viewer_src.data.html" class="tsd-signature-type" data-tsd-kind="Class">Data</a><span class="tsd-signature-symbol">, </span><a href="viewer_src.dataobject.html" class="tsd-signature-type" data-tsd-kind="Class">DataObject</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L410">viewer/src/viewer/data/Data.ts:410</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L409">viewer/src/viewer/data/Data.ts:409</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -563,7 +561,7 @@
 					<div class="tsd-signature tsd-kind-icon">on<wbr>Object<wbr>Destroyed<span class="tsd-signature-symbol">:</span> <a href="viewer_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="viewer_src.data.html" class="tsd-signature-type" data-tsd-kind="Class">Data</a><span class="tsd-signature-symbol">, </span><a href="viewer_src.dataobject.html" class="tsd-signature-type" data-tsd-kind="Class">DataObject</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L417">viewer/src/viewer/data/Data.ts:417</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L416">viewer/src/viewer/data/Data.ts:416</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -582,7 +580,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#destroyed">destroyed</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Component.ts#L32">viewer/src/viewer/Component.ts:32</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/Component.ts#L32">viewer/src/viewer/Component.ts:32</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -599,7 +597,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#id">id</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Component.ts#L25">viewer/src/viewer/Component.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/Component.ts#L25">viewer/src/viewer/Component.ts:25</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -614,7 +612,7 @@
 					<div class="tsd-signature tsd-kind-icon">models<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L422">viewer/src/viewer/data/Data.ts:422</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L421">viewer/src/viewer/data/Data.ts:421</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -637,7 +635,7 @@
 					<div class="tsd-signature tsd-kind-icon">objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L432">viewer/src/viewer/data/Data.ts:432</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L431">viewer/src/viewer/data/Data.ts:431</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -660,7 +658,7 @@
 					<div class="tsd-signature tsd-kind-icon">objects<wbr>ByType<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L444">viewer/src/viewer/data/Data.ts:444</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L443">viewer/src/viewer/data/Data.ts:443</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -688,7 +686,7 @@
 					<div class="tsd-signature tsd-kind-icon">property<wbr>Sets<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L427">viewer/src/viewer/data/Data.ts:427</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L426">viewer/src/viewer/data/Data.ts:426</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -711,7 +709,7 @@
 					<div class="tsd-signature tsd-kind-icon">root<wbr>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L439">viewer/src/viewer/data/Data.ts:439</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L438">viewer/src/viewer/data/Data.ts:438</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -735,7 +733,7 @@
 					<div class="tsd-signature tsd-kind-icon">type<wbr>Counts<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L449">viewer/src/viewer/data/Data.ts:449</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L448">viewer/src/viewer/data/Data.ts:448</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -759,7 +757,7 @@
 					<aside class="tsd-sources">
 						<p>Overrides <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#viewer">viewer</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L389">viewer/src/viewer/data/Data.ts:389</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L388">viewer/src/viewer/data/Data.ts:388</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -782,7 +780,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L483">viewer/src/viewer/data/Data.ts:483</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L482">viewer/src/viewer/data/Data.ts:482</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -825,7 +823,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#error">error</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Component.ts#L120">viewer/src/viewer/Component.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/Component.ts#L120">viewer/src/viewer/Component.ts:120</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -858,7 +856,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L512">viewer/src/viewer/data/Data.ts:512</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L511">viewer/src/viewer/data/Data.ts:511</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -891,7 +889,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#log">log</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Component.ts#L88">viewer/src/viewer/Component.ts:88</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/Component.ts#L88">viewer/src/viewer/Component.ts:88</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -924,7 +922,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/data/Data.ts#L527">viewer/src/viewer/data/Data.ts:527</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/data/Data.ts#L526">viewer/src/viewer/data/Data.ts:526</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -958,7 +956,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="viewer_src.component.html">Component</a>.<a href="viewer_src.component.html#warn">warn</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a407e69/packages/viewer/src/viewer/Component.ts#L104">viewer/src/viewer/Component.ts:104</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d28688d/packages/viewer/src/viewer/Component.ts#L104">viewer/src/viewer/Component.ts:104</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

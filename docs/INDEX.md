@@ -21,14 +21,22 @@
 
 xeokit-webviewer is modular:
 
-| Package                       | Contents                                                                  | Description                                                                                                |
-|-------------------------------|:--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| `@xeokit/webviewer`           | [WebViewer](./classes/webviewer_src.webviewer.html)                       | An extensible browser-based 3D viewer for AEC applications.                                                |
-| `@xeokit/webviewer-xktloader` | [XKTLoaderPlugin](./classes/webviewer_xktloader_src.xktloaderplugin.html) | A WebViewer plugin to load models from our native, supercompressed XKT format.                             |
-| `@xeokit/webviewer-treeview`  | [TreeViewPlugin](./classes/webviewer_xktloader_src.treeviewplugin.html)   | A WebViewer plugin that provides an HTML tree view widget to navigate viewer objects.                      |
-| `@xeokit/webviewer-navcube`   | [NavCubePlugin](./classes/webviewer_navcube_src.navcubeplugin.html)       | A WebViewer plugin that provides an interactive NavCube control to assist camera navigation                |
-| `@xeokit/webviewer-bcf `      | [BCFPlugin](./classes/webviewer_bcf_src.bcfplugin.html)                   | A WebViewer plugin that saves and loads viewer state as BCF viewpoints.                                    |
-| `@xeokit/convert2xkt`         | [convert2xkt](./classes/webviewer_navcube_src.navcubeplugin.html)         | NodeJS-based CLI tool and library for converting various AEC file formats into xeokit's native XKT format. |
+
+| Package          | Modules                                                                                                            | Description                                                           |
+|------------------|:-------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| `@xeokit/viewer` | [`@xeokit/viewer`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_viewer.html)                     | Browser-based model viewer                                            |
+| `@xeokit/webgl`  | [`@xeokit/webgl`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_webgl.html)                       | Configures a viewer to use WebGL(2)                                   |
+| `@xeokit/data`   | [`@xeokit/data`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_data.html)                         | Optional entity-relationship semantic data model to use with a viewer |
+| `@xeokit/core`   | [`@xeokit/core/components`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_components.html)   | Base component classes                                                |
+|                  | [`@xeokit/core/constants`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_constants.html)     | Global constants                                                      |
+|                  | [`@xeokit/core/utils`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_utils.html)             | General utilities library                                             |
+| `@xeokit/math`   | [`@xeokit/math/math`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_math.html)               | General math definitions and constants                                |
+|                  | [`@xeokit/math/boundaries`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_boundaries.html)   | Spatial boundary math utilities library                               |
+|                  | [`@xeokit/math/compression`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_compression.html) | Geometry de/compression utilities library                             |
+|                  | [`@xeokit/math/curves`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_curves.html)           | Spline curve utilities library                                        |
+|                  | [`@xeokit/math/geometry`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_geometry.html)       | Mesh generation utilities library                                     |
+|                  | [`@xeokit/math/matrix`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_matrix.html)           | Matrix and vector math utilities library                              |
+|                  | [`@xeokit/math/rtc`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_rtc.html)                 | RTC coordinate math utilities library                                 |
 
 ## Getting started
 

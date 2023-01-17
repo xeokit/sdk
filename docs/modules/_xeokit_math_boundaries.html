@@ -91,15 +91,15 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#aabb2" class="tsd-kind-icon">AABB2</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#aabb3" class="tsd-kind-icon">AABB3</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#abb3toobb3" class="tsd-kind-icon">ABB3<wbr>ToOBB3</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#obb2" class="tsd-kind-icon">OBB2</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#obb3" class="tsd-kind-icon">OBB3</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#obb3toaabb3" class="tsd-kind-icon">OBB3<wbr>ToAABB3</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#sphere3" class="tsd-kind-icon">Sphere3</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#collapseaabb3" class="tsd-kind-icon">collapseAABB3</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#containsaabb3" class="tsd-kind-icon">containsAABB3</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#createaabb2" class="tsd-kind-icon">createAABB2</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#createaabb3" class="tsd-kind-icon">createAABB3</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#createobb2" class="tsd-kind-icon">createOBB2</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#createobb3" class="tsd-kind-icon">createOBB3</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#createsphere3" class="tsd-kind-icon">create<wbr>Sphere3</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#expandaabb3" class="tsd-kind-icon">expandAABB3</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#expandaabb3point3" class="tsd-kind-icon">expandAABB3<wbr>Point3</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_boundaries.html#expandaabb3points3" class="tsd-kind-icon">expandAABB3<wbr>Points3</a></li>
@@ -126,74 +126,18 @@
 					<div class="tsd-signature tsd-kind-icon">getAABB3<wbr>Diag<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L128">math/src/boundaries.ts:128</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L128">math/src/boundaries.ts:128</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Gets the diagonal size of an AABB3 given as minima and maxima.</p>
+							<p>Gets the diagonal size of an createAABB3 given as minima and maxima.</p>
 						</div>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="aabb2" class="tsd-anchor"></a>
-					<h3>AABB2</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">AABB2<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L32">math/src/boundaries.ts:32</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns a new, uninitialized 2D axis-aligned bounding box.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> values: <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="aabb3" class="tsd-anchor"></a>
-					<h3>AABB3</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">AABB3<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float64Array</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L24">math/src/boundaries.ts:24</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns a new, uninitialized 3D axis-aligned bounding box.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> values: <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Float64Array</span></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="abb3toobb3" class="tsd-anchor"></a>
 					<h3>ABB3<wbr>ToOBB3</h3>
@@ -204,7 +148,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L372">math/src/boundaries.ts:372</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L372">math/src/boundaries.ts:372</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -227,62 +171,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="obb2" class="tsd-anchor"></a>
-					<h3>OBB2</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">OBB2<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L48">math/src/boundaries.ts:48</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns a new, uninitialized 2D oriented bounding box (OBB).</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> values: <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="obb3" class="tsd-anchor"></a>
-					<h3>OBB3</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">OBB3<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L40">math/src/boundaries.ts:40</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns a new, uninitialized 3D oriented bounding box (OBB).</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> values: <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="obb3toaabb3" class="tsd-anchor"></a>
 					<h3>OBB3<wbr>ToAABB3</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
@@ -292,7 +180,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L499">math/src/boundaries.ts:499</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L499">math/src/boundaries.ts:499</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -314,43 +202,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="sphere3" class="tsd-anchor"></a>
-					<h3>Sphere3</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">Sphere3<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, r<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L54">math/src/boundaries.ts:54</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns a new 3D bounding sphere</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>x: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>y: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>z: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>r: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="collapseaabb3" class="tsd-anchor"></a>
 					<h3>collapseAABB3</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
@@ -360,7 +211,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L217">math/src/boundaries.ts:217</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L217">math/src/boundaries.ts:217</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -389,7 +240,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L111">math/src/boundaries.ts:111</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L111">math/src/boundaries.ts:111</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -411,6 +262,155 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createaabb2" class="tsd-anchor"></a>
+					<h3>createAABB2</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">createAABB2<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L32">math/src/boundaries.ts:32</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a new, uninitialized 2D axis-aligned bounding box.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> values: <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createaabb3" class="tsd-anchor"></a>
+					<h3>createAABB3</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">createAABB3<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float64Array</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L24">math/src/boundaries.ts:24</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a new, uninitialized 3D axis-aligned bounding box.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> values: <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Float64Array</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createobb2" class="tsd-anchor"></a>
+					<h3>createOBB2</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">createOBB2<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L48">math/src/boundaries.ts:48</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a new, uninitialized 2D oriented bounding box (OBB).</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> values: <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createobb3" class="tsd-anchor"></a>
+					<h3>createOBB3</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">createOBB3<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L40">math/src/boundaries.ts:40</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a new, uninitialized 3D oriented bounding box (OBB).</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> values: <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createsphere3" class="tsd-anchor"></a>
+					<h3>create<wbr>Sphere3</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Sphere3<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, r<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L54">math/src/boundaries.ts:54</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a new 3D bounding sphere</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>x: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>y: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>z: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>r: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="expandaabb3" class="tsd-anchor"></a>
 					<h3>expandAABB3</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
@@ -420,7 +420,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L280">math/src/boundaries.ts:280</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L280">math/src/boundaries.ts:280</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -451,7 +451,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L306">math/src/boundaries.ts:306</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L306">math/src/boundaries.ts:306</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -482,7 +482,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L338">math/src/boundaries.ts:338</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L338">math/src/boundaries.ts:338</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -513,7 +513,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L737">math/src/boundaries.ts:737</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L737">math/src/boundaries.ts:737</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -546,7 +546,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L204">math/src/boundaries.ts:204</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L204">math/src/boundaries.ts:204</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -577,7 +577,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L181">math/src/boundaries.ts:181</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L181">math/src/boundaries.ts:181</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -605,7 +605,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L191">math/src/boundaries.ts:191</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L191">math/src/boundaries.ts:191</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -636,7 +636,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L147">math/src/boundaries.ts:147</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L147">math/src/boundaries.ts:147</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -667,7 +667,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L615">math/src/boundaries.ts:615</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L615">math/src/boundaries.ts:615</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -698,7 +698,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L557">math/src/boundaries.ts:557</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L557">math/src/boundaries.ts:557</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -729,7 +729,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L422">math/src/boundaries.ts:422</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L422">math/src/boundaries.ts:422</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -763,7 +763,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L706">math/src/boundaries.ts:706</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L706">math/src/boundaries.ts:706</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -799,12 +799,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/boundaries.ts#L66">math/src/boundaries.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/0fe873c/packages/math/src/boundaries.ts#L66">math/src/boundaries.ts:66</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Transforms an OBB3 by a 4x4 matrix.</p>
+									<p>Transforms an createOBB3 by a 4x4 matrix.</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -878,31 +878,31 @@
 						<a href="_xeokit_math_boundaries.html#getaabb3diag" class="tsd-kind-icon">getAABB3<wbr>Diag</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_xeokit_math_boundaries.html#aabb2" class="tsd-kind-icon">AABB2</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_xeokit_math_boundaries.html#aabb3" class="tsd-kind-icon">AABB3</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_xeokit_math_boundaries.html#abb3toobb3" class="tsd-kind-icon">ABB3<wbr>ToOBB3</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_xeokit_math_boundaries.html#obb2" class="tsd-kind-icon">OBB2</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_xeokit_math_boundaries.html#obb3" class="tsd-kind-icon">OBB3</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_xeokit_math_boundaries.html#obb3toaabb3" class="tsd-kind-icon">OBB3<wbr>ToAABB3</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_xeokit_math_boundaries.html#sphere3" class="tsd-kind-icon">Sphere3</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_xeokit_math_boundaries.html#collapseaabb3" class="tsd-kind-icon">collapseAABB3</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_xeokit_math_boundaries.html#containsaabb3" class="tsd-kind-icon">containsAABB3</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_boundaries.html#createaabb2" class="tsd-kind-icon">createAABB2</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_boundaries.html#createaabb3" class="tsd-kind-icon">createAABB3</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_boundaries.html#createobb2" class="tsd-kind-icon">createOBB2</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_boundaries.html#createobb3" class="tsd-kind-icon">createOBB3</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_boundaries.html#createsphere3" class="tsd-kind-icon">create<wbr>Sphere3</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_xeokit_math_boundaries.html#expandaabb3" class="tsd-kind-icon">expandAABB3</a>

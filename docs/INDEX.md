@@ -1,4 +1,4 @@
-# xeokit-webviewer
+# @xeokit
 
 [![Latest NPM release](https://img.shields.io/npm/v/@xeokit-sdk/core.svg)](https://www.npmjs.com/package/@xeokit-sdk/core)
 [![Minzipped size](https://badgen.net/bundlephobia/minzip/@xeokit-sdk/core)](https://bundlephobia.com/result?p=@xeokit-sdk/core)
@@ -19,7 +19,7 @@
 
 ## Modules
 
-xeokit-webviewer is modular:
+@xeokit is modular:
 
 
 | Package          | Modules                                                                                                            | Description                                                           |
@@ -40,7 +40,7 @@ xeokit-webviewer is modular:
 
 ## Getting started
 
-To learn how xeokit-webviewer works, see [Concepts](/concepts.html). To get started developing with the SDK,
+To learn how @xeokit works, see [Concepts](/concepts.html). To get started developing with the SDK,
 see [SDK Installation](#sdk-installation) below. Find [Functions](/functions.html) for example scripts created with the
 SDK already. To use the commandline interface, see [Commandline (CLI)](/cli.html). If you're interested in contributing
 to or customizing the project, see [contributing](/contributing.html).
@@ -66,7 +66,7 @@ const {WebViewer} = require('@xeokit/webviewer');
 ## Concepts
 
 The [WebViewer](./classes/webviewer_src.webviewer.html) class is the core component of
-xeokit-webviewer. The WebViewer has the following main components:
+@xeokit. The WebViewer has the following main components:
 
 - A [Scene](./classes/webviewer_src.scene.html) containing [SceneModels](./interfaces/webviewer_src.scene.html)
   and [SceneObjects](./classes/SceneObject.html), which define the geometry

@@ -3,8 +3,8 @@ import {EventDispatcher} from "strongly-typed-events";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
 import {createUUID} from "@xeokit/core/utils";
-import {vec3} from "@xeokit/math/matrix";
-import {AABB3} from "@xeokit/math/boundaries";
+import {createVec3} from "@xeokit/math/matrix";
+import {createAABB3} from "@xeokit/math/boundaries";
 
 import type {Viewer} from "../Viewer";
 import type {SceneObject} from "./SceneObject";
@@ -252,8 +252,8 @@ export class Scene extends Component {
 
         super(null, params);
 
-        this.#center = vec3();
-        this.#aabb = AABB3();
+        this.#center = createVec3();
+        this.#aabb = createAABB3();
         this.#aabbDirty = true;
 
         this.viewer = viewer;

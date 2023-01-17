@@ -5,7 +5,7 @@ import type {Camera} from "./Camera";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {CustomProjectionType} from "@xeokit/core/constants";
-import {identityMat4, inverseMat4, mat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/math/matrix";
+import {identityMat4, inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/math/matrix";
 
 /**
  * Configures a custom projection for a {@link Camera}.
@@ -53,9 +53,9 @@ class CustomProjection extends Component {
         this.camera = camera;
 
         this.#state = {
-            projMatrix: mat4(cfg.projMatrix || identityMat4()),
-            inverseProjMatrix: mat4(),
-            transposedProjMatrix: mat4()
+            projMatrix: createMat4(cfg.projMatrix || identityMat4()),
+            inverseProjMatrix: createMat4(),
+            transposedProjMatrix: createMat4()
         };
 
         this.onProjMatrix = new EventEmitter(new EventDispatcher<CustomProjection, FloatArrayParam>());

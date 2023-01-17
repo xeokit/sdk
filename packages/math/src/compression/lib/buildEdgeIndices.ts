@@ -1,6 +1,6 @@
 import {DEGTORAD, FloatArrayParam, IntArrayParam} from "../../math";
 import {decompressPosition} from "../compression";
-import {cross3Vec3, dotVec3, normalizeVec3, subVec3, vec3} from "../../matrix";
+import {cross3Vec3, dotVec3, normalizeVec3, subVec3, createVec3} from "../../matrix";
 
 const uniquePositions: number[] = [];
 const indicesLookup: number[] = [];
@@ -14,13 +14,13 @@ let numFaces = 0;
 const compa = new Uint16Array(3);
 const compb = new Uint16Array(3);
 const compc = new Uint16Array(3);
-const a = vec3();
-const b = vec3();
-const c = vec3();
-const cb = vec3();
-const ab = vec3();
-const cross = vec3();
-const normal = vec3();
+const a = createVec3();
+const b = createVec3();
+const c = createVec3();
+const cb = createVec3();
+const ab = createVec3();
+const cross = createVec3();
+const normal = createVec3();
 
 function weldVertices(positions: FloatArrayParam, indices: IntArrayParam) {
     const positionsMap = {}; // Hashmap for looking up vertices by position coordinates (and making sure they are unique)
@@ -91,7 +91,7 @@ function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayPar
         cross3Vec3(cb, ab, cross);
         normalizeVec3(cross, normal);
         // @ts-ignore
-        const face = faces[numFaces] || (faces[numFaces] = {normal: vec3()});
+        const face = faces[numFaces] || (faces[numFaces] = {normal: createVec3()});
         face.normal[0] = normal[0];
         face.normal[1] = normal[1];
         face.normal[2] = normal[2];

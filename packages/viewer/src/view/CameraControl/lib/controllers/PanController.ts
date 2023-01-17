@@ -2,20 +2,20 @@
 
 import type {View} from "../../../View";
 import type {CameraControl} from "../../CameraControl";
-import {addVec3, dotVec4, lenVec3, mulVec3Scalar, normalizeVec3, subVec3, vec3, vec4} from "@xeokit/math/matrix";
+import {addVec3, dotVec4, lenVec3, mulVec3Scalar, normalizeVec3, subVec3, createVec3, createVec4} from "@xeokit/math/matrix";
 import {OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/core/constants";
 import {FloatArrayParam} from "@xeokit/math/math";
 
-const screenPos = vec4();
-const viewPos = vec4();
+const screenPos = createVec4();
+const viewPos = createVec4();
 
-const tempVec3a = vec3();
-const tempVec3b = vec3();
-const tempVec3c = vec3();
+const tempVec3a = createVec3();
+const tempVec3b = createVec3();
+const tempVec3c = createVec3();
 
-const tempVec4a = vec4();
-const tempVec4b = vec4();
-const tempVec4c = vec4();
+const tempVec4a = createVec4();
+const tempVec4b = createVec4();
+const tempVec4c = createVec4();
 
 /**
  * @private

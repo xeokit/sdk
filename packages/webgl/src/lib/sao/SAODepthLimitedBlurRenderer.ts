@@ -1,5 +1,5 @@
 import {CustomProjection, View} from "@xeokit/viewer";
-import {inverseMat4, mat4} from "@xeokit/math/matrix";
+import {inverseMat4, createMat4} from "@xeokit/math/matrix";
 
 import {Program} from "../Program";
 import {ArrayBuf} from "../ArrayBuf";
@@ -217,7 +217,7 @@ export class SAODepthLimitedBlurRenderer {
                 this.#view.camera.onProjMatrix.subscribe(()=> {
                     projMatDirty = true;
                 });
-                const inverseProjectMat = mat4();
+                const inverseProjectMat = createMat4();
                 return () => {
                     if (projMatDirty) {
                         inverseMat4(view.camera.projMatrix, inverseProjectMat);

@@ -1,4 +1,4 @@
-import {identityMat4, transformPoint4, vec3, vec4} from "@xeokit/math/matrix";
+import {identityMat4, transformPoint4, createVec3, createVec4} from "@xeokit/math/matrix";
 import {GeometryCompressedParams, GeometryBucketParams, MeshParams, RTCViewMat, View} from "@xeokit/viewer";
 import {FloatArrayParam} from "@xeokit/math/math";
 
@@ -17,9 +17,9 @@ const MAX_DATATEXTURE_HEIGHT = (1 << 11); // 2048
 const INDICES_EDGE_INDICES_ALIGNMENT_SIZE = 8;
 
 const identityMatrix = identityMat4();
-const tempVec4a = vec4([0, 0, 0, 1]);
-const tempVec4b = vec4([0, 0, 0, 1]);
-const tempVec4c = vec4([0, 0, 0, 1]);
+const tempVec4a = createVec4([0, 0, 0, 1]);
+const tempVec4b = createVec4([0, 0, 0, 1]);
+const tempVec4c = createVec4([0, 0, 0, 1]);
 const tempUint8Array4 = new Uint8Array(4);
 const tempFloat32Array3 = new Float32Array(3);
 
@@ -156,7 +156,7 @@ export class Layer { // A container of meshes within a WebGLSceneModel
         this.renderState = <LayerRenderState>{
             primitive: layerParams.primitive,
             dataTextureSet: new DataTextureSet(),
-            origin: vec3(layerParams.origin),
+            origin: createVec3(layerParams.origin),
             numIndices8Bits: 0,
             numIndices16Bits: 0,
             numIndices32Bits: 0,

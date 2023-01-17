@@ -1,6 +1,6 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {Component, EventEmitter} from "@xeokit/core/components";
-import {vec2} from "@xeokit/math/matrix";
+import {createVec2} from "@xeokit/math/matrix";
 import {isString} from "@xeokit/core/utils";
 import {FloatArrayParam} from "@xeokit/math/math"
 
@@ -390,7 +390,7 @@ export class CameraControl extends Component {
         };
 
         this.#states = {
-            pointerCanvasPos: vec2(),
+            pointerCanvasPos: createVec2(),
             mouseover: false,
             followPointerDirty: true,
             mouseDownClientX: 0,
@@ -399,7 +399,7 @@ export class CameraControl extends Component {
             mouseDownCursorY: 0,
             touchStartTime: null,
             activeTouches: [],
-            tapStartPos: vec2(),
+            tapStartPos: createVec2(),
             tapStartTime: -1,
             lastTapTime: -1,
             longTouchTimeout: null,

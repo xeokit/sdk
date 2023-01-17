@@ -1,5 +1,5 @@
-import {AABB3} from "@xeokit/math/boundaries";
-import {vec3} from "@xeokit/math/matrix";
+import {createAABB3} from "@xeokit/math/boundaries";
+import {createVec3} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 
 
@@ -46,8 +46,8 @@ class WebGLSceneObject implements SceneObject {
         this.#meshes = params.meshes || [];
         this.#flags = 0;
         this.#aabb = params.aabb;
-        this.#offsetAABB = AABB3(params.aabb);
-        this.#offset = vec3();
+        this.#offsetAABB = createAABB3(params.aabb);
+        this.#offset = createVec3();
         this.#colorizeUpdated = false;
         this.#opacityUpdated = false;
 

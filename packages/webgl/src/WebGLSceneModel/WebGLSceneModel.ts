@@ -15,7 +15,7 @@ import {
 import {compressGeometryParams} from "@xeokit/math/compression";
 import {createUUID, loadArraybuffer} from "@xeokit/core/utils";
 import {collapseAABB3, expandAABB3} from "@xeokit/math/boundaries";
-import {vec3, mat4, identityQuaternion, vec4, eulerToQuaternion, composeMat4, mulMat4} from "@xeokit/math/matrix";
+import {createVec3, createMat4, identityQuaternion, createVec4, eulerToQuaternion, composeMat4, mulMat4} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 
 import type {
@@ -44,12 +44,12 @@ import {Texture} from "./Texture";
 import {WebGLSceneObject} from "./WebGLSceneObject";
 import type {RenderContext} from "../RenderContext";
 
-const tempVec3a = vec3();
-const tempMat4 = mat4();
+const tempVec3a = createVec3();
+const tempMat4 = createMat4();
 
-const defaultScale = vec3([1, 1, 1]);
-const defaultPosition = vec3([0, 0, 0]);
-const defaultRotation = vec3([0, 0, 0]);
+const defaultScale = createVec3([1, 1, 1]);
+const defaultPosition = createVec3([0, 0, 0]);
+const defaultRotation = createVec3([0, 0, 0]);
 const defaultQuaternion = identityQuaternion();
 
 const defaultColorTextureId = "defaultColorTexture";
@@ -167,19 +167,19 @@ export class WebGLSceneModel extends Component implements SceneModel {
 
         // Build static matrix
 
-        this.#origin = vec3(params.origin || [0, 0, 0]);
-        this.#position = vec3(params.position || [0, 0, 0]);
-        this.#rotation = vec3(params.rotation || [0, 0, 0]);
-        this.#quaternion = vec4(params.quaternion || [0, 0, 0, 1]);
+        this.#origin = createVec3(params.origin || [0, 0, 0]);
+        this.#position = createVec3(params.position || [0, 0, 0]);
+        this.#rotation = createVec3(params.rotation || [0, 0, 0]);
+        this.#quaternion = createVec4(params.quaternion || [0, 0, 0, 1]);
         if (params.rotation) {
             eulerToQuaternion(this.#rotation, "XYZ", this.#quaternion);
         }
-        this.#scale = vec3(params.scale || [1, 1, 1]);
-        this.#worldMatrix = mat4();
+        this.#scale = createVec3(params.scale || [1, 1, 1]);
+        this.#worldMatrix = createMat4();
         composeMat4(this.#position, this.#quaternion, this.#scale, this.#worldMatrix);
 
         if (params.matrix || params.position || params.rotation || params.scale || params.quaternion) {
-            this.#viewMatrix = mat4();
+            this.#viewMatrix = createMat4();
             this.#viewMatrixDirty = true;
             this.#worldMatrixNonIdentity = true;
         }

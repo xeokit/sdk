@@ -6,9 +6,9 @@ import {
     transformPoint3,
     transformPoint4,
     transformVec3,
-    vec2,
-    vec3,
-    vec4
+    createVec2,
+    createVec3,
+    createVec4
 } from "@xeokit/math/matrix";
 import {clamp, FloatArrayParam} from "@xeokit/math/math";
 
@@ -16,13 +16,13 @@ import {clamp, FloatArrayParam} from "@xeokit/math/math";
 import type {View} from "../../../View";
 import type {CameraControl} from "../../CameraControl";
 
-const tempVec3a = vec3();
-const tempVec3b = vec3();
-const tempVec3c = vec3();
+const tempVec3a = createVec3();
+const tempVec3b = createVec3();
+const tempVec3c = createVec3();
 
-const tempVec4a = vec4();
-const tempVec4b = vec4();
-const tempVec4c = vec4();
+const tempVec4a = createVec4();
+const tempVec4b = createVec4();
+const tempVec4c = createVec4();
 
 /**
  * @private
@@ -56,17 +56,17 @@ class PivotController {
 
         this.#view = cameraControl.view;
         this.#configs = configs;
-        this.#pivotWorldPos = vec3();
-        this.#cameraOffset = vec3();
+        this.#pivotWorldPos = createVec3();
+        this.#cameraOffset = createVec3();
         this.#azimuth = 0;
         this.#polar = 0;
         this.#radius = 0;
         this.#pivotPosSet = false; // Initially false, true as soon as #pivotWorldPos has been set to some value
         this.#pivoting = false; // True while pivoting
         this.#shown = false;
-        this.#pivotViewPos = vec4();
-        this.#pivotProjPos = vec4();
-        this.#pivotCanvasPos = vec2();
+        this.#pivotViewPos = createVec4();
+        this.#pivotProjPos = createVec4();
+        this.#pivotCanvasPos = createVec2();
         this.#cameraDirty = true;
 
         this.#onViewMatrix = this.#view.camera.onViewMatrix.subscribe(() => {
@@ -128,7 +128,7 @@ class PivotController {
         this.#cameraOffset[2] += distVec3(camera.eye, pivotPos);
         lookat = inverseMat4(lookat);
         const offset = transformVec3(lookat, this.#cameraOffset);
-        const diff = vec3();
+        const diff = createVec3();
         subVec3(camera.eye, pivotPos, diff);
         addVec3(diff, offset);
         if (camera.zUp) {
@@ -226,7 +226,7 @@ class PivotController {
             pos[2] = t;
         }
         // Preserve the eye->look distance, since in xeokit "look" is the point-of-interest, not the direction vector.
-        const eyeLookLen = lenVec3(subVec3(camera.look, camera.eye, vec3()));
+        const eyeLookLen = lenVec3(subVec3(camera.look, camera.eye, createVec3()));
         const pivotPos = this.getPivotPos();
         addVec3(pos, pivotPos);
         let lookat = lookAtMat4v(pos, pivotPos, camera.worldUp);

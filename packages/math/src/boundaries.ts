@@ -14,14 +14,14 @@ import * as math from "./math";
 import * as matrix from "./matrix";
 import * as compression from "./compression";
 
-const tempVec3a = matrix.vec3();
-const tempVec3b = matrix.vec3();
-const tempMat4a = matrix.mat4();
+const tempVec3a = matrix.createVec3();
+const tempVec3b = matrix.createVec3();
+const tempMat4a = matrix.createMat4();
 
 /**
  * Returns a new, uninitialized 3D axis-aligned bounding box.
  */
-export function AABB3(values?: math.FloatArrayParam): Float64Array {
+export function createAABB3(values?: math.FloatArrayParam): Float64Array {
     // @ts-ignore
     return new Float64Array(values || 6);
 }
@@ -29,7 +29,7 @@ export function AABB3(values?: math.FloatArrayParam): Float64Array {
 /**
  * Returns a new, uninitialized 2D axis-aligned bounding box.
  */
-export function AABB2(values?: math.FloatArrayParam): math.FloatArrayParam {
+export function createAABB2(values?: math.FloatArrayParam): math.FloatArrayParam {
     // @ts-ignore
     return newFloatArray(values || 4);
 }
@@ -37,7 +37,7 @@ export function AABB2(values?: math.FloatArrayParam): math.FloatArrayParam {
 /**
  * Returns a new, uninitialized 3D oriented bounding box (OBB).
  */
-export function OBB3(values?: math.FloatArrayParam): math.FloatArrayParam {
+export function createOBB3(values?: math.FloatArrayParam): math.FloatArrayParam {
     // @ts-ignore
     return newFloatArray(values || 32);
 }
@@ -45,13 +45,13 @@ export function OBB3(values?: math.FloatArrayParam): math.FloatArrayParam {
 /**
  * Returns a new, uninitialized 2D oriented bounding box (OBB).
  */
-export function OBB2(values?: math.FloatArrayParam): math.FloatArrayParam {
+export function createOBB2(values?: math.FloatArrayParam): math.FloatArrayParam {
     // @ts-ignore
     return newFloatArray(values || 16);
 }
 
 /** Returns a new 3D bounding sphere */
-export function Sphere3(
+export function createSphere3(
     x: number,
     y: number,
     z: number,
@@ -61,7 +61,7 @@ export function Sphere3(
 }
 
 /**
- * Transforms an OBB3 by a 4x4 matrix.
+ * Transforms an createOBB3 by a 4x4 matrix.
  */
 export function transformOBB3(
     m: math.FloatArrayParam,
@@ -123,7 +123,7 @@ export function containsAABB3(
 }
 
 /**
- * Gets the diagonal size of an AABB3 given as minima and maxima.
+ * Gets the diagonal size of an createAABB3 given as minima and maxima.
  */
 export const getAABB3Diag: Function = (() => {
     const min = math.newFloatArray(3);
@@ -190,7 +190,7 @@ export function getAABB3Area(aabb: math.FloatArrayParam): number {
  */
 export function getAABB3Center(
     aabb: math.FloatArrayParam,
-    dest: math.FloatArrayParam = matrix.vec3()
+    dest: math.FloatArrayParam = matrix.createVec3()
 ): math.FloatArrayParam {
     dest[0] = (aabb[0] + aabb[3]) / 2;
     dest[1] = (aabb[1] + aabb[4]) / 2;
@@ -203,7 +203,7 @@ export function getAABB3Center(
  */
 export function getAABB2Center(
     aabb: math.FloatArrayParam,
-    dest: math.FloatArrayParam = matrix.vec2()
+    dest: math.FloatArrayParam = matrix.createVec2()
 ): math.FloatArrayParam {
     dest[0] = (aabb[2] + aabb[0]) / 2;
     dest[1] = (aabb[3] + aabb[1]) / 2;
@@ -214,7 +214,7 @@ export function getAABB2Center(
  * Collapses a 3D axis-aligned boundary, ready to expand to fit 3D points.
  * Creates new AABB if none supplied.
  */
-export function collapseAABB3(aabb: math.FloatArrayParam = AABB3()): math.FloatArrayParam {
+export function collapseAABB3(aabb: math.FloatArrayParam = createAABB3()): math.FloatArrayParam {
     aabb[0] = math.MAX_DOUBLE;
     aabb[1] = math.MAX_DOUBLE;
     aabb[2] = math.MAX_DOUBLE;
@@ -230,7 +230,7 @@ export function collapseAABB3(aabb: math.FloatArrayParam = AABB3()): math.FloatA
  *
  * @private
  */
-export function AABB3ToOBB3(aabb: math.FloatArrayParam = AABB3(), obb = OBB3()): math.FloatArrayParam {
+export function AABB3ToOBB3(aabb: math.FloatArrayParam = createAABB3(), obb = createOBB3()): math.FloatArrayParam {
     obb[0] = aabb[0];
     obb[1] = aabb[1];
     obb[2] = aabb[2];
@@ -371,7 +371,7 @@ export function expandAABB3Points3(aabb: math.FloatArrayParam, positions: math.F
  */
 export function ABB3ToOBB3(
     aabb: math.FloatArrayParam,
-    obb: math.FloatArrayParam = OBB3()
+    obb: math.FloatArrayParam = createOBB3()
 ): math.FloatArrayParam {
     obb[0] = aabb[0];
     obb[1] = aabb[1];
@@ -427,7 +427,7 @@ export const positions3ToAABB3 = (() => {
         aabb: math.FloatArrayParam,
         positionsDecompressMatrix: math.FloatArrayParam
     ): math.FloatArrayParam => {
-        aabb = aabb || AABB3();
+        aabb = aabb || createAABB3();
 
         let xmin = math.MAX_DOUBLE;
         let ymin = math.MAX_DOUBLE;
@@ -498,7 +498,7 @@ export const positions3ToAABB3 = (() => {
  */
 export function OBB3ToAABB3(
     obb: math.FloatArrayParam,
-    aabb: math.FloatArrayParam = AABB3()
+    aabb: math.FloatArrayParam = createAABB3()
 ): math.FloatArrayParam {
     let xmin = math.MAX_DOUBLE;
     let ymin = math.MAX_DOUBLE;
@@ -556,7 +556,7 @@ export function OBB3ToAABB3(
  */
 export function points3ToAABB3(
     points: number[][],
-    aabb: math.FloatArrayParam = AABB3()
+    aabb: math.FloatArrayParam = createAABB3()
 ): math.FloatArrayParam {
     let xmin = math.MAX_DOUBLE;
     let ymin = math.MAX_DOUBLE;
@@ -614,7 +614,7 @@ export function points3ToAABB3(
  */
 export function getPositionsCenter(
     positions: math.FloatArrayParam,
-    center: math.FloatArrayParam = matrix.vec3()
+    center: math.FloatArrayParam = matrix.createVec3()
 ): math.FloatArrayParam {
     let xCenter = 0;
     let yCenter = 0;
@@ -645,9 +645,9 @@ class FrustumPlane {
      * Creates a new frustum plane.
      */
     constructor() {
-        this.normal = matrix.vec3();
+        this.normal = matrix.createVec3();
         this.offset = 0;
-        this.testVertex = matrix.vec3();
+        this.testVertex = matrix.createVec3();
     }
 
     /**

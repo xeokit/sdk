@@ -1,4 +1,4 @@
-import {vec4} from "@xeokit/math/matrix";
+import {createVec4} from "@xeokit/math/matrix";
 import {OrthoProjectionType} from "@xeokit/core/constants";
 import {AmbientLight, DirLight, Perspective, PointLight} from "@xeokit/viewer";
 
@@ -8,7 +8,7 @@ import {Program} from "../lib/Program";
 import type {Sampler} from "../lib/Sampler";
 import type {Layer} from "../WebGLSceneModel/Layer";
 
-const tempVec4 = vec4();
+const tempVec4 = createVec4();
 
 /**
  * @private

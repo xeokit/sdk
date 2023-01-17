@@ -126,8 +126,8 @@ export class QualityColorTrianglesRenderer extends LayerRenderer {
 
     // get lambertianLighting() : string{
     //     const src = [];
-    //     src.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);");
-    //     src.push("vec3 viewLightDir = vec3(0.0, 0.0, -1.0);");
+    //     src.push("createVec3 reflectedColor = createVec3(0.0, 0.0, 0.0);");
+    //     src.push("createVec3 viewLightDir = createVec3(0.0, 0.0, -1.0);");
     //     src.push("float lambertian = 1.0;");
     //     for (let i = 0, len = this.view.lightsList.length; i < len; i++) {
     //         const light = this.view.lightsList[i];
@@ -135,7 +135,7 @@ export class QualityColorTrianglesRenderer extends LayerRenderer {
     //             continue;
     //         }
     //         if (light.type === "dir") {
-    //             src.push("viewLightDir = normalize((viewMatrix * vec4(lightDir" + i + ", 0.0)).xyz);");
+    //             src.push("viewLightDir = normalize((viewMatrix * createVec4(lightDir" + i + ", 0.0)).xyz);");
     //         } else {
     //             continue;
     //         }

@@ -1,7 +1,7 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {
-    vec3,
-    mat4,
+    createVec3,
+    createMat4,
     identityMat4,
     lenVec3,
     subVec3,
@@ -28,18 +28,18 @@ import {
 
 
 
-const tempVec3 = vec3();
-const tempVec3b = vec3();
-const tempVec3c = vec3();
-const tempVec3d = vec3();
-const tempVec3e = vec3();
-const tempVec3f = vec3();
-const tempMat = mat4();
-const tempMatb = mat4();
-const eyeLookVec = vec3();
-const eyeLookVecNorm = vec3();
-const eyeLookOffset = vec3();
-const offsetEye = vec3();
+const tempVec3 = createVec3();
+const tempVec3b = createVec3();
+const tempVec3c = createVec3();
+const tempVec3d = createVec3();
+const tempVec3e = createVec3();
+const tempVec3f = createVec3();
+const tempMat = createMat4();
+const tempMatb = createMat4();
+const eyeLookVec = createVec3();
+const eyeLookVecNorm = createVec3();
+const eyeLookOffset = createVec3();
+const offsetEye = createVec3();
 
 
 /**
@@ -366,21 +366,21 @@ class Camera extends Component {
         this.view = view;
 
         this.#state = {
-            eye: vec3(cfg.eye || [0, 0, 10]),
-            look: vec3(cfg.look || [0, 0, 0]),
-            up: vec3(cfg.up || [0, 1, 0]),
-            worldUp: vec3([0, 1, 0]),
-            worldRight: vec3([1, 0, 0]),
-            worldForward: vec3([0, 0, -1]),
+            eye: createVec3(cfg.eye || [0, 0, 10]),
+            look: createVec3(cfg.look || [0, 0, 0]),
+            up: createVec3(cfg.up || [0, 1, 0]),
+            worldUp: createVec3([0, 1, 0]),
+            worldRight: createVec3([1, 0, 0]),
+            worldForward: createVec3([0, 0, -1]),
             worldAxis: new Float32Array(cfg.worldAxis || [1, 0, 0, 0, 1, 0, 0, 0, 1]),
             gimbalLock: cfg.gimbalLock !== false,
             constrainPitch: cfg.constrainPitch === true,
             projectionType: cfg.projectionType || PerspectiveProjectionType,
-            deviceMatrix: cfg.deviceMatrix ? mat4(cfg.deviceMatrix) : identityMat4(),
+            deviceMatrix: cfg.deviceMatrix ? createMat4(cfg.deviceMatrix) : identityMat4(),
             hasDeviceMatrix: !!cfg.deviceMatrix,
-            viewMatrix: mat4(),
-            viewNormalMatrix: mat4(),
-            inverseViewMatrix: mat4()
+            viewMatrix: createMat4(),
+            viewNormalMatrix: createMat4(),
+            inverseViewMatrix: createMat4()
         };
 
         this.rtcViewMats = {};

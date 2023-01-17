@@ -1,13 +1,13 @@
-import {addVec3, mulVec3Scalar, normalizeVec3, vec3} from "@xeokit/math/matrix";
+import {addVec3, mulVec3Scalar, normalizeVec3, createVec3} from "@xeokit/math/matrix";
 import {getAABB3Center, getAABB3Diag} from "@xeokit/math/boundaries";
 import {DEGTORAD} from "@xeokit/math/math";
 
 
-const center = vec3();
-const tempVec3a = vec3();
-const tempVec3b = vec3();
-const tempVec3c = vec3();
-const tempVec3d = vec3();
+const center = createVec3();
+const tempVec3a = createVec3();
+const tempVec3b = createVec3();
+const tempVec3c = createVec3();
+const tempVec3d = createVec3();
 
 const tempCameraTarget = {
     eye: new Float64Array(3),

@@ -5,7 +5,7 @@ import type {Camera} from "./Camera";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {PerspectiveProjectionType} from "@xeokit/core/constants";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {inverseMat4, mat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "@xeokit/math/matrix";
+import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "@xeokit/math/matrix";
 
 /**
  * Perspective projection configuration for a {@link Camera}.
@@ -69,9 +69,9 @@ class Perspective extends Component {
             far: cfg.far || 2000.0,
             fov: cfg.fov || 60.0,
             fovAxis: cfg.fovAxis || "min",
-            projMatrix: mat4(),
-            inverseProjMatrix: mat4(),
-            transposedProjMatrix: mat4()
+            projMatrix: createMat4(),
+            inverseProjMatrix: createMat4(),
+            transposedProjMatrix: createMat4()
         };
 
         this.#inverseMatrixDirty = true;

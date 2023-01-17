@@ -3,7 +3,7 @@ import {CentimetersUnit, FeetUnit, InchesUnit, MetersUnit, MillimetersUnit, Yard
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {EventDispatcher} from "strongly-typed-events";
-import {vec3} from "@xeokit/math/matrix";
+import {createVec3} from "@xeokit/math/matrix";
 
 
 const unitsInfo = {
@@ -106,7 +106,7 @@ class Metrics extends Component {
 
         this.#units = MetersUnit;
         this.#scale = 1.0;
-        this.#origin = vec3([0, 0, 0]);
+        this.#origin = createVec3([0, 0, 0]);
 
         this.units = cfg.units;
         this.scale = cfg.scale;
@@ -227,7 +227,7 @@ class Metrics extends Component {
      * @param [realPos] Destination for Real-space 3D position.
      * @returns  Real-space 3D position, in units indicated by {@link Metrics#units}.
      */
-    worldToRealPos(worldPos: FloatArrayParam, realPos: FloatArrayParam = vec3()): FloatArrayParam {
+    worldToRealPos(worldPos: FloatArrayParam, realPos: FloatArrayParam = createVec3()): FloatArrayParam {
         realPos[0] = this.#origin[0] + (this.#scale * worldPos[0]);
         realPos[1] = this.#origin[1] + (this.#scale * worldPos[1]);
         realPos[2] = this.#origin[2] + (this.#scale * worldPos[2]);
@@ -243,7 +243,7 @@ class Metrics extends Component {
      * @param [worldPos] Destination for World-space 3D position.
      * @returns  World-space 3D position.
      */
-    realToWorldPos(realPos: FloatArrayParam, worldPos: FloatArrayParam = vec3()): FloatArrayParam {
+    realToWorldPos(realPos: FloatArrayParam, worldPos: FloatArrayParam = createVec3()): FloatArrayParam {
         worldPos[0] = (realPos[0] - this.#origin[0]) / this.#scale;
         worldPos[1] = (realPos[1] - this.#origin[1]) / this.#scale;
         worldPos[2] = (realPos[2] - this.#origin[2]) / this.#scale;

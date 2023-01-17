@@ -24,7 +24,7 @@ import * as matrix from "./matrix";
 import * as math from "./math";
 import * as boundaries from "./boundaries";
 
-const tempVec3a = matrix.vec3();
+const tempVec3a = matrix.createVec3();
 
 
 const tempMat = new Float32Array(16);

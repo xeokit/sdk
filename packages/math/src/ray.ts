@@ -1,20 +1,20 @@
 import type {FloatArrayParam} from "./math";
-import {transformVec3, transformVec4, cross3Vec3, dotVec3, normalizeVec3, subVec3, vec3, vec4} from "./matrix";
+import {transformVec3, transformVec4, cross3Vec3, dotVec3, normalizeVec3, subVec3, createVec3, createVec4} from "./matrix";
 
-const tempVec3 = vec3();
-const tempVec3b = vec3();
-const tempVec3c = vec3();
-const tempVec3d = vec3();
-const tempVec3e = vec3();
+const tempVec3 = createVec3();
+const tempVec3b = createVec3();
+const tempVec3c = createVec3();
+const tempVec3d = createVec3();
+const tempVec3e = createVec3();
 
-const tempVec4a = vec4();
-const tempVec4b = vec4();
+const tempVec4a = createVec4();
+const tempVec4b = createVec4();
 
 /**
  * Finds the intersection of a 3D ray with a 3D triangle.
  */
 export function rayTriangleIntersect(origin: FloatArrayParam, dir: FloatArrayParam, a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam, isect: FloatArrayParam): FloatArrayParam|null {
-    isect = isect || vec3();
+    isect = isect || createVec3();
     const EPSILON = 0.000001;
     const edge1 = subVec3(b, a, tempVec3);
     const edge2 = subVec3(c, a, tempVec3b);

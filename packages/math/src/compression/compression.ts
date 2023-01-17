@@ -13,11 +13,11 @@ import {collapseAABB3, expandAABB3Points3, getPositionsCenter} from "../boundari
 import {GeometryParams} from "./GeometryParams";
 import {GeometryCompressedParams} from "./GeometryCompressedParams";
 
-const translate = matrix.mat4();
-const scale = matrix.mat4();
+const translate = matrix.createMat4();
+const scale = matrix.createMat4();
 
-const tempVec3 = matrix.vec3();
-const tempVec3b = matrix.vec3();
+const tempVec3 = matrix.createVec3();
+const tempVec3b = matrix.createVec3();
 
 /**
  * Compresses {@link GeometryParams} into {@link GeometryCompressedParams}.
@@ -116,7 +116,7 @@ const tempVec3b = matrix.vec3();
  * @returns Compressed geometry params.
  */
 export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
-    const positionsDecompressMatrix = matrix.mat4();
+    const positionsDecompressMatrix = matrix.createMat4();
     const rtcPositions = new Float32Array(geometryParams.positions.length);
     worldToRTCPositions(geometryParams.positions, geometryParams.origin, rtcPositions, tempVec3);
     const aabb = collapseAABB3();
@@ -212,7 +212,7 @@ export function getPositionsBounds(array: math.FloatArrayParam, min?: math.Float
  * Creates a de-quantization matrix from a boundary.
  */
 export function createPositionsDecompressMatrix(aabb: math.FloatArrayParam, positionsDecompressMatrix: math.FloatArrayParam): math.FloatArrayParam {
-    positionsDecompressMatrix = positionsDecompressMatrix || matrix.mat4();
+    positionsDecompressMatrix = positionsDecompressMatrix || matrix.createMat4();
     const xmin = aabb[0];
     const ymin = aabb[1];
     const zmin = aabb[2];
@@ -349,8 +349,8 @@ export function getUVBounds(array: math.FloatArrayParam): { min: math.FloatArray
  * Compresses a flat array of UV coordinates
  */
 export var compressUVs = (function () {
-    const translate = matrix.mat3();
-    const scale = matrix.mat3();
+    const translate = matrix.createMat3();
+    const scale = matrix.createMat3();
     return function (array: math.FloatArrayParam, min: math.FloatArrayParam, max: math.FloatArrayParam): {
         quantized: Uint16Array,
         decompressMatrix: math.FloatArrayParam | Float64Array
@@ -443,8 +443,8 @@ function octEncodeNormalFromArray(array: math.FloatArrayParam, i: number, xfunc:
 /**
  * Dot product of a normal in an array against a candidate decoding
  */
-function dot(array: math.FloatArrayParam, i: number, vec3: math.FloatArrayParam): number {
-    return array[i] * vec3[0] + array[i + 1] * vec3[1] + array[i + 2] * vec3[2];
+function dot(array: math.FloatArrayParam, i: number, createVec3: math.FloatArrayParam): number {
+    return array[i] * createVec3[0] + array[i + 1] * createVec3[1] + array[i + 2] * createVec3[2];
 }
 
 /**
@@ -513,7 +513,7 @@ export function decompressNormals(octs: string | any[], result: math.FloatArrayP
  * @param oct
  * @param result
  */
-function octDecodeVec2(oct: Int8Array, result: math.FloatArrayParam = matrix.vec3()): math.FloatArrayParam {
+function octDecodeVec2(oct: Int8Array, result: math.FloatArrayParam = matrix.createVec3()): math.FloatArrayParam {
     let x = oct[0];
     let y = oct[1];
     x = (2 * x + 1) / 255;
@@ -588,8 +588,8 @@ export function quantizePositions(positions: math.FloatArrayParam, aabb: math.Fl
  */
 export function transformAndOctEncodeNormals(worldNormalMatrix: math.FloatArrayParam, normals: math.FloatArrayParam, lenNormals: number, compressedNormals: math.FloatArrayParam, lenCompressedNormals: number) {
 
-    function dot(p: math.FloatArrayParam, vec3: math.FloatArrayParam) { // Dot product of a normal in an array against a candidate decoding
-        return p[0] * vec3[0] + p[1] * vec3[1] + p[2] * vec3[2];
+    function dot(p: math.FloatArrayParam, createVec3: math.FloatArrayParam) { // Dot product of a normal in an array against a candidate decoding
+        return p[0] * createVec3[0] + p[1] * createVec3[1] + p[2] * createVec3[2];
     }
 
     // http://jcgt.org/published/0003/02/01/

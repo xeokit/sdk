@@ -4,7 +4,7 @@ import type {Camera} from "./Camera";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {OrthoProjectionType} from "@xeokit/core/constants";
-import {inverseMat4, mat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "@xeokit/math/matrix";
+import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "@xeokit/math/matrix";
 
 /**
  * Orthographic projection configuration for a {@link Camera}.
@@ -65,9 +65,9 @@ class Ortho extends Component {
             near: cfg.near || 0.1,
             far: cfg.far || 2000.0,
             scale: cfg.scale || 1.0,
-            projMatrix: mat4(),
-            inverseProjMatrix: mat4(),
-            transposedProjMatrix: mat4()
+            projMatrix: createMat4(),
+            inverseProjMatrix: createMat4(),
+            transposedProjMatrix: createMat4()
         };
 
         this.onProjMatrix = new EventEmitter(new EventDispatcher<Ortho, FloatArrayParam>());

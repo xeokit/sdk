@@ -5,7 +5,7 @@ import type {Camera} from "./Camera";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {FrustumProjectionType} from "@xeokit/core/constants";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {frustumMat4, inverseMat4, mat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/math/matrix";
+import {frustumMat4, inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/math/matrix";
 
 /**
  *  Frustum-based perspective projection configuration for a {@link Camera}.
@@ -66,9 +66,9 @@ class Frustum extends Component {
         this.camera = camera;
 
         this.#state = {
-            projMatrix: mat4(),
-            inverseProjMatrix: mat4(),
-            transposedProjMatrix: mat4(),
+            projMatrix: createMat4(),
+            inverseProjMatrix: createMat4(),
+            transposedProjMatrix: createMat4(),
             near: 0.1,
             far: 10000.0,
             left: (cfg.left !== undefined && cfg.left !== null) ? cfg.left : -1.0,

@@ -2,7 +2,7 @@
 
 
 import type {View} from "../../../View";
-import {distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3, vec2} from "@xeokit/math/matrix";
+import {distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3, createVec2} from "@xeokit/math/matrix";
 import {PerspectiveProjectionType} from "@xeokit/core/constants";
 
 
@@ -42,10 +42,10 @@ class TouchPanRotateAndDollyHandler {
         const pickController = controllers.pickController;
         const pivotController = controllers.pivotController;
 
-        const tapStartCanvasPos = vec2();
-        const tapCanvasPos0 = vec2();
-        const tapCanvasPos1 = vec2();
-        const touch0Vec = vec2();
+        const tapStartCanvasPos = createVec2();
+        const tapCanvasPos0 = createVec2();
+        const tapCanvasPos1 = createVec2();
+        const touch0Vec = createVec2();
 
         const lastCanvasTouchPosList: any[] = [];
         const canvas = this.#view.canvas.canvas;
@@ -113,7 +113,7 @@ class TouchPanRotateAndDollyHandler {
             }
 
             while (lastCanvasTouchPosList.length < touches.length) {
-                lastCanvasTouchPosList.push(vec2());
+                lastCanvasTouchPosList.push(createVec2());
             }
 
             for (let i = 0, len = touches.length; i < len; ++i) {
@@ -210,7 +210,7 @@ class TouchPanRotateAndDollyHandler {
                 const lastMiddleTouch = geometricMeanVec2(lastCanvasTouchPosList[0], lastCanvasTouchPosList[1]);
                 const currentMiddleTouch = geometricMeanVec2(tapCanvasPos0, tapCanvasPos1);
 
-                const touchDelta = vec2();
+                const touchDelta = createVec2();
 
                 subVec2(lastMiddleTouch, currentMiddleTouch, touchDelta);
 

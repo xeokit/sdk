@@ -1,10 +1,10 @@
 
 import type {View} from "../../../View";
 import * as keycodes from "../../../../keycodes";
-import {lenVec3, subVec3, vec2} from "@xeokit/math/matrix";
+import {lenVec3, subVec3, createVec2} from "@xeokit/math/matrix";
 import {PerspectiveProjectionType} from "@xeokit/core/constants";
 
-const canvasPos = vec2();
+const canvasPos = createVec2();
 
 /**
  * @private

@@ -1,6 +1,6 @@
 import {apply, Map} from "@xeokit/core/utils";
 import {Component} from "@xeokit/core/components";
-import {vec3} from "@xeokit/math/matrix";
+import {createVec3} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {
     LinesPrimitive,
@@ -120,7 +120,7 @@ export class WebGLRenderer implements Renderer {
         this.#edgesEnabled = true;
         this.#saoEnabled = true;
         this.#pbrEnabled = true;
-        this.#backgroundColor = vec3();
+        this.#backgroundColor = createVec3();
         this.#occlusionTester = null; // Lazy-created in #addMarker()
 
         // this.#saoDepthRenderBuffer = null;

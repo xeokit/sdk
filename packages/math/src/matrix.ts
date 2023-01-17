@@ -4,7 +4,7 @@
  * ````javascript
  * import * as matrix from "@xeokit/math/matrix";
  *
- * const viewMat = matrix.lookAtMat4v([0,0,0], [0,0,-20], [0,-1,0], matrix.mat4());
+ * const viewMat = matrix.lookAtMat4v([0,0,0], [0,0,-20], [0,-1,0], matrix.createMat4());
  *
  * //...
  * ````
@@ -14,7 +14,7 @@
 
 import {clamp, DEGTORAD, FloatArrayParam, newFloatArray} from "./math";
 
-const tempVec4a: FloatArrayParam = vec4();
+const tempVec4a: FloatArrayParam = createVec4();
 
 /**
  * Returns the dot product of two three-element vectors.
@@ -26,7 +26,7 @@ export function dotVec3(u: FloatArrayParam, v: FloatArrayParam): number {
 /**
  * Returns a new, uninitialized two-element vector.
  */
-export function vec2(values?: FloatArrayParam): FloatArrayParam {
+export function createVec2(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return new FloatArrayClass(values || 2);
 }
@@ -34,7 +34,7 @@ export function vec2(values?: FloatArrayParam): FloatArrayParam {
 /**
  * Returns a new, uninitialized three-element vector.
  */
-export function vec3(values?: FloatArrayParam): Float64Array {
+export function createVec3(values?: FloatArrayParam): Float64Array {
     // @ts-ignore
     return new Float64Array(values || 3);
 }
@@ -42,7 +42,7 @@ export function vec3(values?: FloatArrayParam): Float64Array {
 /**
  * Returns a new, uninitialized four-element vector.
  */
-export function vec4(values?: FloatArrayParam): FloatArrayParam {
+export function createVec4(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return new FloatArrayClass(values || 4);
 }
@@ -440,7 +440,7 @@ export function lenVec3(v: FloatArrayParam): number {
 }
 
 export const distVec3 = ((() => {
-    const vec = vec3();
+    const vec = createVec3();
     return (v: FloatArrayParam, w: FloatArrayParam) => lenVec3(subVec3(v, w, vec));
 }))()
 
@@ -455,7 +455,7 @@ export function lenVec2(v: FloatArrayParam): number {
  * Linearly interpolates between two 3D vectors.
  */
 export function lerpVec3(t: number, t1: number, t2: number, p1: FloatArrayParam, p2: FloatArrayParam, dest: any) {
-    const result = dest || vec3();
+    const result = dest || createVec3();
     const f = (t - t1) / (t2 - t1);
     result[0] = p1[0] + (f * (p2[0] - p1[0]));
     result[1] = p1[1] + (f * (p2[1] - p1[1]));
@@ -464,15 +464,15 @@ export function lerpVec3(t: number, t1: number, t2: number, p1: FloatArrayParam,
 }
 
 export const distVec2 = ((() => {
-    const vec = vec2();
+    const vec = createVec2();
     return (v: FloatArrayParam, w: FloatArrayParam) => lenVec2(subVec2(v, w, vec));
 }))();
 
 /**
  * @method rcpVec3
  * @static
- * @param v vec3
- * @param dest vec3 - optional destination
+ * @param v createVec3
+ * @param dest createVec3 - optional destination
  * @return [] dest if specified, v otherwise
  *
  */
@@ -521,7 +521,7 @@ export function angleVec3(v: FloatArrayParam, w: FloatArrayParam) {
  */
 export const vec3FromMat4Scale: Function = ((() => {
 
-    const tempVec3 = vec3();
+    const tempVec3 = createVec3();
 
     return function (m: FloatArrayParam, dest: FloatArrayParam) {
 
@@ -567,7 +567,7 @@ function trunc(v: number) {
 /**
  * Calculates the normal vector of a triangle.
  */
-export function triangleNormal(a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam, normal: FloatArrayParam = vec3()): FloatArrayParam {
+export function triangleNormal(a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam, normal: FloatArrayParam = createVec3()): FloatArrayParam {
     const p1x = b[0] - a[0];
     const p1y = b[1] - a[1];
     const p1z = b[2] - a[2];
@@ -598,7 +598,7 @@ export function triangleNormal(a: FloatArrayParam, b: FloatArrayParam, c: FloatA
 /**
  * Returns a new, uninitialized 3x3 matrix.
  */
-export function mat3(values?: FloatArrayParam): FloatArrayParam {
+export function createMat3(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return new newFloatArray(values || 9);
 }
@@ -606,13 +606,13 @@ export function mat3(values?: FloatArrayParam): FloatArrayParam {
 /**
  * Returns a new, uninitialized 4x4 matrix.
  */
-export function mat4(values?: FloatArrayParam): FloatArrayParam {
+export function createMat4(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
     return newFloatArray(values || 16);
 }
 
-const tempMat4a = mat4();
-const tempMat4b = mat4();
+const tempMat4a = createMat4();
+const tempMat4b = createMat4();
 
 /**
  * Returns true if the two 4x4 matrices are the same.
@@ -659,7 +659,7 @@ export function perspectiveMat4(fovyrad: number, aspectratio: number, znear: num
  */
 export function frustumMat4v(fmin: FloatArrayParam, fmax: FloatArrayParam, m?: FloatArrayParam): FloatArrayParam {
     if (!m) {
-        m = mat4();
+        m = createMat4();
     }
     const fmin4 = [fmin[0], fmin[1], fmin[2], 0.0];
     const fmax4 = [fmax[0], fmax[1], fmax[2], 0.0];
@@ -700,7 +700,7 @@ export function orthoMat4c(
     far: number,
     dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
-        dest = mat4();
+        dest = createMat4();
     }
     const rl = (right - left);
     const tb = (top - bottom);
@@ -736,7 +736,7 @@ export function frustumMat4(
     far: number,
     dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
-        dest = mat4();
+        dest = createMat4();
     }
     const rl = (right - left);
     const tb = (top - bottom);
@@ -766,7 +766,7 @@ export function frustumMat4(
  */
 export function identityMat4(dest?: FloatArrayParam) {
     if (!dest) {
-        dest = mat4();
+        dest = createMat4();
     }
     dest[0] = 1.0;
     dest[1] = 0.0;
@@ -792,7 +792,7 @@ export function identityMat4(dest?: FloatArrayParam) {
  */
 export function identityMat3(dest?: FloatArrayParam) {
     if (!dest) {
-        dest = mat4();
+        dest = createMat4();
     }
     dest[0] = 1.0;
     dest[1] = 0.0;
@@ -824,7 +824,7 @@ export function isIdentityMat4(m: FloatArrayParam): boolean {
  */
 export function rotationMat4v(anglerad: number, axis: FloatArrayParam, m?: FloatArrayParam): FloatArrayParam {
     if (!m) {
-        m = mat4();
+        m = createMat4();
     }
     const ax = normalizeVec4([axis[0], axis[1], axis[2], 0.0], []);
     const s = Math.sin(anglerad);
@@ -869,7 +869,7 @@ export function rotationMat4v(anglerad: number, axis: FloatArrayParam, m?: Float
  */
 export function lookAtMat4v(pos: FloatArrayParam, target: FloatArrayParam, up: FloatArrayParam, dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
-        dest = mat4();
+        dest = createMat4();
     }
     const posx = pos[0];
     const posy = pos[1];
@@ -893,7 +893,7 @@ export function lookAtMat4v(pos: FloatArrayParam, target: FloatArrayParam, up: F
     let y1;
     let y2;
     let len;
-    //vec3.direction(eye, center, z);
+    //createVec3.direction(eye, center, z);
     z0 = posx - targetx;
     z1 = posy - targety;
     z2 = posz - targetz;
@@ -902,7 +902,7 @@ export function lookAtMat4v(pos: FloatArrayParam, target: FloatArrayParam, up: F
     z0 *= len;
     z1 *= len;
     z2 *= len;
-    //vec3.normalize(vec3.cross(up, z, x));
+    //createVec3.normalize(createVec3.cross(up, z, x));
     x0 = upy * z2 - upz * z1;
     x1 = upz * z0 - upx * z2;
     x2 = upx * z1 - upy * z0;
@@ -917,7 +917,7 @@ export function lookAtMat4v(pos: FloatArrayParam, target: FloatArrayParam, up: F
         x1 *= len;
         x2 *= len;
     }
-    //vec3.normalize(vec3.cross(z, x, y));
+    //createVec3.normalize(createVec3.cross(z, x, y));
     y0 = z1 * x2 - z2 * x1;
     y1 = z2 * x0 - z0 * x2;
     y2 = z0 * x1 - z1 * x0;
@@ -1354,7 +1354,7 @@ export function transformVec3(m: FloatArrayParam, v: FloatArrayParam, dest?: Flo
     const v0 = v[0];
     const v1 = v[1];
     const v2 = v[2];
-    dest = dest || vec3();
+    dest = dest || createVec3();
     dest[0] = (m[0] * v0) + (m[4] * v1) + (m[8] * v2);
     dest[1] = (m[1] * v0) + (m[5] * v1) + (m[9] * v2);
     dest[2] = (m[2] * v0) + (m[6] * v1) + (m[10] * v2);
@@ -1371,7 +1371,7 @@ export function transformVec4(m: FloatArrayParam, v: FloatArrayParam, dest?: Flo
     const v1 = v[1];
     const v2 = v[2];
     const v3 = v[3];
-    dest = dest || vec4();
+    dest = dest || createVec4();
     dest[0] = m[0] * v0 + m[4] * v1 + m[8] * v2 + m[12] * v3;
     dest[1] = m[1] * v0 + m[5] * v1 + m[9] * v2 + m[13] * v3;
     dest[2] = m[2] * v0 + m[6] * v1 + m[10] * v2 + m[14] * v3;
@@ -1479,7 +1479,7 @@ export function composeMat4(
     position: FloatArrayParam,
     quaternion: FloatArrayParam,
     scale: FloatArrayParam,
-    mat: FloatArrayParam = mat4()): FloatArrayParam {
+    mat: FloatArrayParam = createMat4()): FloatArrayParam {
     quaternionToRotationMat4(quaternion, mat);
     scaleMat4v(scale, mat);
     translateMat4v(position, mat);
@@ -1490,8 +1490,8 @@ export function composeMat4(
  * Decomposes a 4x4 matrix into position, quaternion and scale.
  */
 export const decomposeMat4 = (() => {
-    const vec = vec3();
-    const matrix = mat4();
+    const vec = createVec3();
+    const matrix = createMat4();
     return function decompose(mat: FloatArrayParam, position: FloatArrayParam, quaternion: FloatArrayParam, scale: FloatArrayParam)  {
         vec[0] = mat[0];
         vec[1] = mat[1];
@@ -1672,7 +1672,7 @@ export function determinantMat4(mat: FloatArrayParam): number {
  * @param [dest] Destination Euler angles, created by default.
  * @returns  The Euler angles.
  */
-export function mat4ToEuler(mat: FloatArrayParam, order: string, dest: FloatArrayParam = vec3()) {
+export function mat4ToEuler(mat: FloatArrayParam, order: string, dest: FloatArrayParam = createVec3()) {
     // Assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
     const m11 = mat[0];
     const m12 = mat[4];
@@ -1745,7 +1745,7 @@ export function mat4ToEuler(mat: FloatArrayParam, order: string, dest: FloatArra
  * Linearly interpolates between two 4x4 matrices.
  */
 export function lerpMat4(t: number, t1: number, t2: number, m1: FloatArrayParam, m2: FloatArrayParam, dest?: FloatArrayParam) {
-    const result = dest || mat4();
+    const result = dest || createMat4();
     const f = (t - t1) / (t2 - t1);
     result[0] = m1[0] + (f * (m2[0] - m1[0]));
     result[1] = m1[1] + (f * (m2[1] - m1[1]));
@@ -1773,7 +1773,7 @@ export function lerpMat4(t: number, t1: number, t2: number, m1: FloatArrayParam,
  * @returns New quaternion
  */
 export function identityQuaternion(
-    dest: FloatArrayParam = vec4()
+    dest: FloatArrayParam = createVec4()
 ): FloatArrayParam {
     dest[0] = 0.0;
     dest[1] = 0.0;
@@ -1793,7 +1793,7 @@ export function identityQuaternion(
 export function eulerToQuaternion(
     euler: FloatArrayParam,
     order: string,
-    dest: FloatArrayParam = vec4()
+    dest: FloatArrayParam = createVec4()
 ): FloatArrayParam {
     // http://www.mathworks.com/matlabcentral/fileexchange/20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/content/SpinCalc.m
 
@@ -1850,7 +1850,7 @@ export function eulerToQuaternion(
  */
 export function mat4ToQuaternion(
     m: FloatArrayParam,
-    dest: FloatArrayParam = vec4()
+    dest: FloatArrayParam = createVec4()
 ): FloatArrayParam {
     // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
@@ -1911,7 +1911,7 @@ export function mat4ToQuaternion(
 export function vec3PairToQuaternion(
     u: FloatArrayParam,
     v: FloatArrayParam,
-    dest: FloatArrayParam = vec4()
+    dest: FloatArrayParam = createVec4()
 ): FloatArrayParam {
     const norm_u_norm_v = Math.sqrt(dotVec3(u, u) * dotVec3(v, v));
     let real_part = norm_u_norm_v + dotVec3(u, v);
@@ -1949,7 +1949,7 @@ export function vec3PairToQuaternion(
  */
 export function angleAxisToQuaternion(
     angleAxis: FloatArrayParam,
-    dest: FloatArrayParam = vec4()
+    dest: FloatArrayParam = createVec4()
 ): FloatArrayParam {
     const halfAngle = angleAxis[3] / 2.0;
     const fsin = Math.sin(halfAngle);
@@ -1969,7 +1969,7 @@ export function angleAxisToQuaternion(
 export function quaternionToEuler(
     q: FloatArrayParam,
     order: string,
-    dest: FloatArrayParam = vec3()
+    dest: FloatArrayParam = createVec3()
 ) {
     quaternionToRotationMat4(q, tempMat4a);
     mat4ToEuler(tempMat4a, order, dest);
@@ -1985,7 +1985,7 @@ export function quaternionToEuler(
 export function mulQuaternions(
     p: FloatArrayParam,
     q: FloatArrayParam,
-    dest: FloatArrayParam = vec4()
+    dest: FloatArrayParam = createVec4()
 ): FloatArrayParam {
     const p0 = p[0];
     const p1 = p[1];
@@ -2011,7 +2011,7 @@ export function mulQuaternions(
 export function vec3ApplyQuaternion(
     q: FloatArrayParam,
     vec: FloatArrayParam,
-    dest: FloatArrayParam = vec3()
+    dest: FloatArrayParam = createVec3()
 ): FloatArrayParam {
     const x = vec[0];
     const y = vec[1];
@@ -2192,7 +2192,7 @@ export function inverseQuaternion(q: FloatArrayParam, dest: FloatArrayParam) {
  */
 export function quaternionToAngleAxis(
     q: FloatArrayParam,
-    angleAxis: FloatArrayParam = vec4()
+    angleAxis: FloatArrayParam = createVec4()
 ) {
     q = normalizeQuaternion(q, tempVec4a);
     const q3 = q[3];

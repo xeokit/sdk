@@ -2,11 +2,11 @@ import { FloatArrayParam } from "./math";
 /**
  * Returns a new, uninitialized 3x3 matrix.
  */
-export declare function mat3(values?: FloatArrayParam): FloatArrayParam;
+export declare function createMat3(values?: FloatArrayParam): FloatArrayParam;
 /**
  * Returns a new, uninitialized 4x4 matrix.
  */
-export declare function mat4(values?: FloatArrayParam): FloatArrayParam;
+export declare function createMat4(values?: FloatArrayParam): FloatArrayParam;
 /**
  * Returns true if the two 4x4 matrices are the same.
  * @param m1

@@ -1,4 +1,4 @@
-import {inverseMat4, mat4, vec2} from "@xeokit/math/matrix";
+import {inverseMat4, createMat4, createVec2} from "@xeokit/math/matrix";
 import {CustomProjection, View} from "@xeokit/viewer";
 
 import {Program} from "../Program";
@@ -10,7 +10,7 @@ import {PerspectiveProjectionType} from "@xeokit/core/constants";
 
 
 
-const tempVec2 = vec2();
+const tempVec2 = createVec2();
 
 /**
  * SAO implementation inspired from previous SAO work in THREE.js by ludobaka / ludobaka.github.io and bhouston
@@ -283,7 +283,7 @@ export class SAOOcclusionRenderer {
                 this.#view.camera.onProjMatrix.subscribe(()=> {
                     projMatDirty = true;
                 });
-                const inverseProjectMat = mat4();
+                const inverseProjectMat = createMat4();
                 return () => {
                     if (projMatDirty) {
                         inverseMat4(view.camera.projMatrix, inverseProjectMat);

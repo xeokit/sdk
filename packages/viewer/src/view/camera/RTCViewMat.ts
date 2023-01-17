@@ -1,6 +1,6 @@
 import type {Camera} from "./Camera";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {mat4} from "@xeokit/math/matrix";
+import {createMat4} from "@xeokit/math/matrix";
 import {createRTCViewMat} from "@xeokit/math/rtc";
 
 /**
@@ -59,7 +59,7 @@ export class RTCViewMat {
         this.camera = camera;
         this.id = id;
         this.origin = new Float64Array(origin);
-        this.#viewMatrix = mat4();
+        this.#viewMatrix = createMat4();
         this.useCount = 0;
         this.dirty = true;
     }

@@ -3,7 +3,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import type {View} from "./View";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
-import {vec3} from "@xeokit/math/matrix";
+import {createVec3} from "@xeokit/math/matrix";
 
 /**
  * Manages the HTML canvas belonging to a {@link View}.
@@ -54,7 +54,7 @@ class Canvas extends Component {
         this.onBoundary = new EventEmitter(new EventDispatcher<Canvas, IntArrayParam>());
 
         this.#resolutionScale = 1;
-        this.#backgroundColor = vec3([
+        this.#backgroundColor = createVec3([
             cfg.backgroundColor ? cfg.backgroundColor[0] : 1,
             cfg.backgroundColor ? cfg.backgroundColor[1] : 1,
             cfg.backgroundColor ? cfg.backgroundColor[2] : 1]);

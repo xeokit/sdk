@@ -2,30 +2,30 @@ import { FloatArrayParam } from "./math";
 /**
  * Returns a new, uninitialized 3D axis-aligned bounding box.
  */
-export declare function AABB3(values?: FloatArrayParam): Float64Array;
+export declare function createAABB3(values?: FloatArrayParam): Float64Array;
 /**
  * Returns a new, uninitialized 2D axis-aligned bounding box.
  */
-export declare function AABB2(values?: FloatArrayParam): FloatArrayParam;
+export declare function createAABB2(values?: FloatArrayParam): FloatArrayParam;
 /**
  * Returns a new, uninitialized 3D oriented bounding box (OBB).
  */
-export declare function OBB3(values?: FloatArrayParam): FloatArrayParam;
+export declare function createOBB3(values?: FloatArrayParam): FloatArrayParam;
 /**
  * Returns a new, uninitialized 2D oriented bounding box (OBB).
  */
-export declare function OBB2(values?: FloatArrayParam): FloatArrayParam;
+export declare function createOBB2(values?: FloatArrayParam): FloatArrayParam;
 /** Returns a new 3D bounding sphere */
-export declare function Sphere3(x: number, y: number, z: number, r: number): FloatArrayParam;
+export declare function createSphere3(x: number, y: number, z: number, r: number): FloatArrayParam;
 /**
- * Transforms an OBB3 by a 4x4 matrix.
+ * Transforms an createOBB3 by a 4x4 matrix.
  */
 export declare function transformOBB3(m: FloatArrayParam, p: FloatArrayParam, p2?: FloatArrayParam): FloatArrayParam;
 /** Returns true if the first AABB contains the second AABB.
  */
 export declare function containsAABB3(aabb1: FloatArrayParam, aabb2: FloatArrayParam): boolean;
 /**
- * Gets the diagonal size of an AABB3 given as minima and maxima.
+ * Gets the diagonal size of an createAABB3 given as minima and maxima.
  */
 export declare const getAABB3Diag: Function;
 /**

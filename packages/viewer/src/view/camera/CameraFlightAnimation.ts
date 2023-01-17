@@ -4,17 +4,17 @@ import {EventDispatcher} from "strongly-typed-events";
 import {scheduler} from '../../scheduler';
 import type {View} from "../View";
 import type {Camera} from "./Camera";
-import {addVec3, lenVec3, lerpMat4, lerpVec3, mulVec3Scalar, normalizeVec3, subVec3, vec3} from "@xeokit/math/matrix";
+import {addVec3, lenVec3, lerpMat4, lerpVec3, mulVec3Scalar, normalizeVec3, subVec3, createVec3} from "@xeokit/math/matrix";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {DEGTORAD, FloatArrayParam} from "@xeokit/math/math";
 import {getAABB3Center, getAABB3Diag, getAABB3DiagPoint} from "@xeokit/math/boundaries";
 import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/core/constants";
 
-const tempVec3 = vec3();
-const newLook = vec3();
-const newEye = vec3();
-const newUp = vec3();
-const newLookEyeVec = vec3();
+const tempVec3 = createVec3();
+const newLook = createVec3();
+const newEye = createVec3();
+const newUp = createVec3();
+const newLookEyeVec = createVec3();
 
 /**
  * Animates its {@link View|View's} {@link Camera} to look at specified objects, boundaries or locations.
@@ -100,12 +100,12 @@ class CameraFlightAnimation extends Component {
         this.view = view;
         this.camera = view.camera;
 
-        this.#look1 = vec3();
-        this.#eye1 = vec3();
-        this.#up1 = vec3();
-        this.#look2 = vec3();
-        this.#eye2 = vec3();
-        this.#up2 = vec3();
+        this.#look1 = createVec3();
+        this.#eye1 = createVec3();
+        this.#up1 = createVec3();
+        this.#look2 = createVec3();
+        this.#eye2 = createVec3();
+        this.#up2 = createVec3();
         this.#orthoScale1 = 1;
         this.#orthoScale2 = 1;
         this.#flying = false;

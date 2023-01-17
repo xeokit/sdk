@@ -1,7 +1,7 @@
 
 import type {View} from "../../../View";
 import type {CameraControl} from "../../CameraControl";
-import {vec2} from "@xeokit/math/matrix";
+import {createVec2} from "@xeokit/math/matrix";
 
 /**
  * @private
@@ -52,7 +52,7 @@ class PickController {
         this.#config = configs;
         this.schedulePickEntity = false;
         this.schedulePickSurface = false;
-        this.pickCursorPos = vec2();
+        this.pickCursorPos = createVec2();
         this.picked = false;
         this.pickedSurface = false;
         this.pickResult = null;

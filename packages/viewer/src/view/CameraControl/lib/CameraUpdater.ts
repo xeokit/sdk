@@ -1,10 +1,10 @@
 
 import type {View} from "../../View";
-import {lenVec3, subVec3, vec3} from "@xeokit/math/matrix";
+import {lenVec3, subVec3, createVec3} from "@xeokit/math/matrix";
 
 const SCALE_DOLLY_EACH_FRAME = 1; // Recalculate dolly speed for eye->target distance on each Nth frame
 const EPSILON = 0.001;
-const tempVec3 = vec3();
+const tempVec3 = createVec3();
 
 /**
  * Handles camera updates on each "tick" that were scheduled by the various controllers.
@@ -166,7 +166,7 @@ class CameraUpdater {
 
             if (updates.panDeltaX !== 0 || updates.panDeltaY !== 0 || updates.panDeltaZ !== 0) {
 
-                const vec = vec3();
+                const vec = createVec3();
 
                 vec[0] = updates.panDeltaX;
                 vec[1] = updates.panDeltaY;

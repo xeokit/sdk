@@ -1,5 +1,5 @@
 import {FloatArrayParam} from "@xeokit/math/math";
-import {AABB3} from "@xeokit/math/boundaries";
+import {createAABB3} from "@xeokit/math/boundaries";
 
 import type {Pickable} from "../Pickable";
 import type {WebGLSceneObject} from "./WebGLSceneObject";
@@ -34,7 +34,7 @@ class Mesh implements Pickable {
         this.transparent = (params.opacity < 255);
         this.sceneObject = null;
         this.layer = params.layer;
-        this.aabb = AABB3();
+        this.aabb = createAABB3();
     }
 
     setSceneObject(sceneObject: WebGLSceneObject) {

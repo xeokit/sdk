@@ -7,7 +7,7 @@
  * * Compressed geometry
  * * Double-precision rendering
  *
- * Configure your {@link Viewer} with a {@link WebGLRenderer} if you want your Viewer to use the browser's WebGL
+ * Configure your {@link Viewer} with a {@link WebGLRenderer} to use the browser's WebGL
  * graphics API for storing and rendering meshes.
  *
  * ````javascript
@@ -24,7 +24,6 @@
  * });
  *
  * //...
- *
  * ````
  *
  * @module @xeokit/webgl

@@ -1,9 +1,9 @@
 import * as math from "./math";
 import * as matrix from "./matrix";
 
-const tempVec3a = matrix.vec3();
-const tempVec3b = matrix.vec3();
-const tempMat4a = matrix.mat4();
+const tempVec3a = matrix.createVec3();
+const tempVec3b = matrix.createVec3();
+const tempMat4a = matrix.createMat4();
 
 /**
  * A plane within a {@link Frustum}.
@@ -18,9 +18,9 @@ class FrustumPlane {
      * Creates a new frustum plane.
      */
     constructor() {
-        this.normal = matrix.vec3();
+        this.normal = matrix.createVec3();
         this.offset = 0;
-        this.testVertex = matrix.vec3();
+        this.testVertex = matrix.createVec3();
     }
 
     /**

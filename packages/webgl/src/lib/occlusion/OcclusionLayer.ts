@@ -29,8 +29,8 @@
 //     constructor(scene: Scene, origin: math.FloatArrayParam) {
 //
 //         this.scene = scene;
-//         this.aabb = math.boundaries.AABB3();
-//         this.origin = math.vec3(origin);
+//         this.aabb = math.boundaries.createAABB3();
+//         this.origin = math.createVec3(origin);
 //         this.originHash = this.origin.join();
 //         this.numMarkers = 0;
 //         this.markers = {};

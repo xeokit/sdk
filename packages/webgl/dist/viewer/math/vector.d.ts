@@ -6,15 +6,15 @@ export declare function dotVec3(u: FloatArrayParam, v: FloatArrayParam): number;
 /**
  * Returns a new, uninitialized two-element vector.
  */
-export declare function vec2(values?: FloatArrayParam): FloatArrayParam;
+export declare function createVec2(values?: FloatArrayParam): FloatArrayParam;
 /**
  * Returns a new, uninitialized three-element vector.
  */
-export declare function vec3(values?: FloatArrayParam): Float64Array;
+export declare function createVec3(values?: FloatArrayParam): Float64Array;
 /**
  * Returns a new, uninitialized four-element vector.
  */
-export declare function vec4(values?: FloatArrayParam): FloatArrayParam;
+export declare function createVec4(values?: FloatArrayParam): FloatArrayParam;
 /**
  * Negates a three-element vector.
  */
@@ -156,8 +156,8 @@ export declare const distVec2: (v: FloatArrayParam, w: FloatArrayParam) => numbe
 /**
  * @method rcpVec3
  * @static
- * @param v vec3
- * @param dest vec3 - optional destination
+ * @param v createVec3
+ * @param dest createVec3 - optional destination
  * @return [] dest if specified, v otherwise
  *
  */

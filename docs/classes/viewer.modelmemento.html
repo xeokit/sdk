@@ -1,0 +1,376 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ModelMemento | xeokit-viewer</title>
+	<meta name="description" content="Documentation for xeokit-viewer">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">xeokit-viewer</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">xeokit-viewer</a>
+				</li>
+				<li>
+					<a href="../modules/viewer.html">Viewer</a>
+				</li>
+				<li>
+					<a href="viewer.modelmemento.html">ModelMemento</a>
+				</li>
+			</ul>
+			<h1>Class ModelMemento</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Saves and restores a snapshot of the visual state of the <a href="viewer.viewobject.html">ViewObject</a>&#39;s of a model within a <a href="viewer.scene.html">Scene</a>.</p>
+					</div>
+					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+						<h2>Usage</h2>
+					</a>
+					<p>In the example below, we&#39;ll create a <a href="viewer.viewer-1.html">Viewer</a> and use an {@link TreeViewPlugin} to load an <code>.xkt</code> model. When the model has loaded, we&#39;ll hide a couple of {@link Entity}s and save a snapshot of the visual states of all its Entitys in an ModelMemento. Then we&#39;ll show all the Entitys
+					again, and then we&#39;ll restore the visual states of all the Entitys again from the ModelMemento, which will hide those two Entitys again.</p>
+					<a href="#see-also" id="see-also" style="color: inherit; text-decoration: none;">
+						<h2>See Also</h2>
+					</a>
+					<ul>
+						<li><a href="viewer.cameramemento.html">CameraMemento</a> - Saves and restores the state of a <a href="viewer.scene.html">Scene</a>&#39;s <a href="viewer.camera.html">Camera</a>.</li>
+						<li><a href="viewer.viewobjectsmemento.html">ViewObjectsMemento</a> - Saves and restores a snapshot of the visual state of the {@link Entity}&#39;s that represent objects within a <a href="viewer.scene.html">Scene</a>.</li>
+					</ul>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">TreeViewPlugin</span><span style="color: #000000">,  </span><span style="color: #001080">ModelMemento</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;xeokit-viewer.es.js&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">// Load a model</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">xktLoader</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">TreeViewPlugin</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">model</span><span style="color: #000000"> = </span><span style="color: #001080">xktLoader</span><span style="color: #000000">.</span><span style="color: #795E26">load</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;./models/xkt/schependomlaan/schependomlaan.xkt&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">model</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;loaded&quot;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+
+<span style="color: #000000">     </span><span style="color: #008000">// Model has loaded</span>
+
+<span style="color: #000000">     </span><span style="color: #008000">// Hide a couple of objects</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">objects</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;0u4wgLe6n0ABVaiXyikbkA&quot;</span><span style="color: #000000">].</span><span style="color: #001080">visible</span><span style="color: #000000"> = </span><span style="color: #0000FF">false</span><span style="color: #000000">;</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">objects</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;3u4wgLe3n0AXVaiXyikbYO&quot;</span><span style="color: #000000">].</span><span style="color: #001080">visible</span><span style="color: #000000"> = </span><span style="color: #0000FF">false</span><span style="color: #000000">;</span>
+
+<span style="color: #000000">     </span><span style="color: #008000">// Save memento of all object states, which includes those two hidden objects</span>
+<span style="color: #000000">     </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ModelMemento</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ModelMemento</span><span style="color: #000000">();</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">dataModel</span><span style="color: #000000"> = </span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">data</span><span style="color: #000000">.</span><span style="color: #001080">models</span>
+<span style="color: #000000">     </span><span style="color: #001080">ModelMemento</span><span style="color: #000000">.</span><span style="color: #795E26">saveObjects</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">     </span><span style="color: #008000">// Show all objects</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">setObjectsVisible</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">objectIds</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">     </span><span style="color: #008000">// Restore the objects states again, which involves hiding those two objects again</span>
+<span style="color: #000000">     </span><span style="color: #001080">ModelMemento</span><span style="color: #000000">.</span><span style="color: #795E26">restoreViewObjects</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">);</span>
+<span style="color: #000000">});</span>
+</code></pre>
+					<a href="#masking-saved-state" id="masking-saved-state" style="color: inherit; text-decoration: none;">
+						<h2>Masking Saved State</h2>
+					</a>
+					<p>We can optionally supply a mask to focus what state we save and restore.</p>
+					<p>For example, to save and restore only the {@link Entity#visible} and {@link Entity#clippable} states:</p>
+					<pre><code class="language-javascript"><span style="color: #001080">ModelMemento</span><span style="color: #000000">.</span><span style="color: #795E26">saveObjects</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">    </span><span style="color: #001080">visible:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">clippable:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">//...</span>
+
+<span style="color: #008000">// Restore the objects states again</span>
+<span style="color: #001080">ModelMemento</span><span style="color: #000000">.</span><span style="color: #795E26">restoreViewObjects</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">);</span>
+</code></pre>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">ModelMemento</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="viewer.modelmemento.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="viewer.modelmemento.html#restoreviewobjects" class="tsd-kind-icon">restore<wbr>View<wbr>Objects</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="viewer.modelmemento.html#saveobjects" class="tsd-kind-icon">save<wbr>Objects</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Model<wbr>Memento<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="viewer.modelmemento.html" class="tsd-signature-type" data-tsd-kind="Class">ModelMemento</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/viewer/src/view/mementos/ModelMemento.ts#L97">viewer/src/view/mementos/ModelMemento.ts:97</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a ModelMemento.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="viewer.modelmemento.html" class="tsd-signature-type" data-tsd-kind="Class">ModelMemento</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="restoreviewobjects" class="tsd-anchor"></a>
+					<h3>restore<wbr>View<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">restore<wbr>View<wbr>Objects<span class="tsd-signature-symbol">(</span>view<span class="tsd-signature-symbol">: </span><a href="viewer.view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a>, dataModel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/viewer/src/view/mementos/ModelMemento.ts#L215">viewer/src/view/mementos/ModelMemento.ts:215</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Restores a <a href="viewer.view.html">View</a>&#39;s <a href="viewer.viewobject.html">ViewObject</a>&#39;s to their state previously captured with {@link ModelMemento#saveObjects}.</p>
+								</div>
+								<p>Assumes that the model has not been destroyed or modified since saving.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>view: <a href="viewer.view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The View that was given to {@link ModelMemento#saveObjects}.</p>
+									</div>
+								</li>
+								<li>
+									<h5>dataModel: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The metamodel that was given to {@link ModelMemento#saveObjects}.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="saveobjects" class="tsd-anchor"></a>
+					<h3>save<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">save<wbr>Objects<span class="tsd-signature-symbol">(</span>view<span class="tsd-signature-symbol">: </span><a href="viewer.view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a>, dataModel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, mask<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/viewer/src/view/mementos/ModelMemento.ts#L132">viewer/src/view/mementos/ModelMemento.ts:132</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Saves a snapshot of the visual state of the <a href="viewer.viewobject.html">ViewObject</a>&#39;s that represent objects within a model.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>view: <a href="viewer.view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The View.</p>
+									</div>
+								</li>
+								<li>
+									<h5>dataModel: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Represents the model. Corresponds with an <a href="viewer.viewobject.html">ViewObject</a> that represents the model in the view.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mask: <span class="tsd-signature-symbol">{}</span></h5>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_compression.html">@xeokit/math/compression</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/boundaries.html">Boundaries</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/viewer.html">Viewer</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/webgl.html">WebGL</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/components.html">components</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/constants.html">constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/curves.html">curves</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/data.html">data</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/geometry.html">geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/math.html">math</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/matrix.html">matrix</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/rtc.html">rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/utils.html">utils</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module">
+						<a href="viewer.modelmemento.html" class="tsd-kind-icon">Model<wbr>Memento</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="viewer.modelmemento.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="viewer.modelmemento.html#restoreviewobjects" class="tsd-kind-icon">restore<wbr>View<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="viewer.modelmemento.html#saveobjects" class="tsd-kind-icon">save<wbr>Objects</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

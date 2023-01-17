@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Component | xeokit-viewer</title>
-	<meta name="description" content="Documentation for xeokit-viewer">
+	<title>Component | @xeokit/core</title>
+	<meta name="description" content="Documentation for @xeokit/core">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<script async src="../assets/js/search.js" id="search-script"></script>
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">xeokit-viewer</a>
+					<a href="../index.html" class="title">@xeokit/core</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -52,7 +52,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../modules.html">xeokit-viewer</a>
+					<a href="../modules.html">@xeokit/core</a>
 				</li>
 				<li>
 					<a href="component.html">Component</a>
@@ -68,13 +68,12 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>The base class for xeokit <a href="viewer.html">Viewer</a> components.</p>
+						<p>The base class for xeokit components.</p>
 					</div>
 					<a href="#summary" id="summary" style="color: inherit; text-decoration: none;">
 						<h2>Summary</h2>
 					</a>
 					<ul>
-						<li>Handles events with an <a href="events.html">Events</a> in <a href="component.html#events">Component.events</a></li>
 						<li>Has logging methods</li>
 						<li>Optionally manages lifecycle of owned Components</li>
 					</ul>
@@ -85,77 +84,6 @@
 				<ul class="tsd-hierarchy">
 					<li>
 						<span class="target">Component</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<a href="scene.html" class="tsd-signature-type" data-tsd-kind="Class">Scene</a>
-							</li>
-							<li>
-								<a href="canvas.html" class="tsd-signature-type" data-tsd-kind="Class">Canvas</a>
-							</li>
-							<li>
-								<a href="input.html" class="tsd-signature-type" data-tsd-kind="Class">Input</a>
-							</li>
-							<li>
-								<a href="metrics.html" class="tsd-signature-type" data-tsd-kind="Class">Metrics</a>
-							</li>
-							<li>
-								<a href="view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a>
-							</li>
-							<li>
-								<a href="viewlayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a>
-							</li>
-							<li>
-								<a href="sectionplane.html" class="tsd-signature-type" data-tsd-kind="Class">SectionPlane</a>
-							</li>
-							<li>
-								<a href="sao.html" class="tsd-signature-type" data-tsd-kind="Class">SAO</a>
-							</li>
-							<li>
-								<a href="camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a>
-							</li>
-							<li>
-								<a href="frustum.html" class="tsd-signature-type" data-tsd-kind="Class">Frustum</a>
-							</li>
-							<li>
-								<a href="ortho.html" class="tsd-signature-type" data-tsd-kind="Class">Ortho</a>
-							</li>
-							<li>
-								<a href="perspective.html" class="tsd-signature-type" data-tsd-kind="Class">Perspective</a>
-							</li>
-							<li>
-								<a href="customprojection.html" class="tsd-signature-type" data-tsd-kind="Class">CustomProjection</a>
-							</li>
-							<li>
-								<a href="cameraflightanimation.html" class="tsd-signature-type" data-tsd-kind="Class">CameraFlightAnimation</a>
-							</li>
-							<li>
-								<a href="cameracontrol.html" class="tsd-signature-type" data-tsd-kind="Class">CameraControl</a>
-							</li>
-							<li>
-								<a href="ambientlight.html" class="tsd-signature-type" data-tsd-kind="Class">AmbientLight</a>
-							</li>
-							<li>
-								<a href="dirlight.html" class="tsd-signature-type" data-tsd-kind="Class">DirLight</a>
-							</li>
-							<li>
-								<a href="pointlight.html" class="tsd-signature-type" data-tsd-kind="Class">PointLight</a>
-							</li>
-							<li>
-								<a href="emphasismaterial.html" class="tsd-signature-type" data-tsd-kind="Class">EmphasisMaterial</a>
-							</li>
-							<li>
-								<a href="edgematerial.html" class="tsd-signature-type" data-tsd-kind="Class">EdgeMaterial</a>
-							</li>
-							<li>
-								<a href="pointsmaterial.html" class="tsd-signature-type" data-tsd-kind="Class">PointsMaterial</a>
-							</li>
-							<li>
-								<a href="data.html" class="tsd-signature-type" data-tsd-kind="Class">Data</a>
-							</li>
-							<li>
-								<a href="datamodel.html" class="tsd-signature-type" data-tsd-kind="Class">DataModel</a>
-							</li>
-						</ul>
 					</li>
 				</ul>
 			</section>
@@ -170,20 +98,27 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Events</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="component.html#ondestroyed" class="tsd-kind-icon">on<wbr>Destroyed</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="component.html#destroyed" class="tsd-kind-icon">destroyed</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="component.html#events" class="tsd-kind-icon">events</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="component.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="component.html#viewer" class="tsd-kind-icon">viewer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="component.html#id" class="tsd-kind-icon">id</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-private-protected">
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="component.html#destroy" class="tsd-kind-icon">destroy</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="component.html#clean" class="tsd-kind-icon">clean</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="component.html#cleanifdirty" class="tsd-kind-icon">clean<wbr>IfDirty</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="component.html#destroy" class="tsd-kind-icon">destroy</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="component.html#error" class="tsd-kind-icon">error</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="component.html#log" class="tsd-kind-icon">log</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="component.html#setdirty" class="tsd-kind-icon">set<wbr>Dirty</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="component.html#warn" class="tsd-kind-icon">warn</a></li>
 							</ul>
 						</section>
@@ -202,7 +137,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L44">viewer/Component.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L37">Component.ts:37</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -214,15 +149,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>owner: <a href="component.html" class="tsd-signature-type" data-tsd-kind="Class">Component</a></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>An optional owner component; when the owner is destroyed, this component will be automatically destroyed also.</p>
-									</div>
 								</li>
 								<li>
 									<h5>cfg: <span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> = {}</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Component configuration</p>
-									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-index-signature">
 											<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></h5>
@@ -236,6 +165,24 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Events</h2>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="ondestroyed" class="tsd-anchor"></a>
+					<h3>on<wbr>Destroyed</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Destroyed<span class="tsd-signature-symbol">:</span> <a href="eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="component.html" class="tsd-signature-type" data-tsd-kind="Class">Component</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L37">Component.ts:37</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Emits an event when the <a href="component.html">Component</a> has been destroyed.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 					<a name="destroyed" class="tsd-anchor"></a>
@@ -243,7 +190,7 @@
 					<div class="tsd-signature tsd-kind-icon">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L32">viewer/Component.ts:32</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L25">Component.ts:25</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -254,68 +201,78 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="events" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> events</h3>
-					<div class="tsd-signature tsd-kind-icon">events<span class="tsd-signature-symbol">:</span> <a href="events.html" class="tsd-signature-type" data-tsd-kind="Class">Events</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L38">viewer/Component.ts:38</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Manages events on this component.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>eventproperty</dt>
-							<dd></dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 					<a name="id" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> id</h3>
+					<h3>id</h3>
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L25">viewer/Component.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L18">Component.ts:18</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>ID of this Component, unique within the <a href="viewer.html">Viewer</a>.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="viewer" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> viewer</h3>
-					<div class="tsd-signature tsd-kind-icon">viewer<span class="tsd-signature-symbol">:</span> <a href="viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L20">viewer/Component.ts:20</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The Viewer to which this Component belongs.</p>
+							<p>Unique ID of this Component.</p>
 						</div>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-private-protected">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+					<a name="clean" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> clean</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">clean<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L116">Component.ts:116</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Forces this component to action any deferred state updates.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+					<a name="cleanifdirty" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> clean<wbr>IfDirty</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">clean<wbr>IfDirty<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L106">Component.ts:106</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gives this component an opportunity to action any defered state updates.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="destroy" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> destroy</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<h3>destroy</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">destroy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L151">viewer/Component.ts:151</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L128">Component.ts:128</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -324,6 +281,7 @@
 								</div>
 								<p>Also destroys any components owned by this one.</p>
 								<p>Sets <a href="component.html#destroyed">Component.destroyed</a> <code>true</code>.</p>
+								<p>Cancels any deferred state updates.</p>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
@@ -339,7 +297,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L119">viewer/Component.ts:119</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L88">Component.ts:88</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -347,7 +305,6 @@
 									<p>Logs an error for this component to the JavaScript console.</p>
 								</div>
 								<p>The console message will have this format: <em><code>[ERROR] [&lt;component type&gt; =&lt;component id&gt;: &lt;message&gt;</code></em></p>
-								<p>Also fires the message as an &quot;error&quot; event on the <a href="viewer.html">Viewer</a>.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -372,15 +329,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L87">viewer/Component.ts:87</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L62">Component.ts:62</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Logs a console debugging message for this component.</p>
+									<p>Logs a message for this component.</p>
 								</div>
-								<p>The console message will have this format: <em><code>[LOG] [&lt;component type&gt; &lt;component id&gt;: &lt;message&gt;</code></em></p>
-								<p>Also fires the message as a &quot;log&quot; event on the parent <a href="viewer.html">Viewer</a>.</p>
+								<p>The message will have this format: <em><code>[LOG] [&lt;component type&gt; &lt;component id&gt;: &lt;message&gt;</code></em></p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -396,6 +352,28 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+					<a name="setdirty" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> set<wbr>Dirty</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Dirty<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L96">Component.ts:96</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Flags this component as having a defered state updates it needs to perform.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 					<a name="warn" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> warn</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -405,7 +383,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/Component.ts#L103">viewer/Component.ts:103</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L75">Component.ts:75</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -413,7 +391,6 @@
 									<p>Logs a warning for this component to the JavaScript console.</p>
 								</div>
 								<p>The console message will have this format: <em><code>[WARN] [&lt;component type&gt; =&lt;component id&gt;: &lt;message&gt;</code></em></p>
-								<p>Also fires the message as a &quot;warn&quot; event on the parent <a href="viewer.html">Viewer</a>.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -448,19 +425,22 @@
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="component.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="component.html#ondestroyed" class="tsd-kind-icon">on<wbr>Destroyed</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 								<a href="component.html#destroyed" class="tsd-kind-icon">destroyed</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="component.html#events" class="tsd-kind-icon">events</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 								<a href="component.html#id" class="tsd-kind-icon">id</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="component.html#viewer" class="tsd-kind-icon">viewer</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="component.html#clean" class="tsd-kind-icon">clean</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="component.html#cleanifdirty" class="tsd-kind-icon">clean<wbr>IfDirty</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="component.html#destroy" class="tsd-kind-icon">destroy</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
@@ -470,12 +450,18 @@
 								<a href="component.html#log" class="tsd-kind-icon">log</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="component.html#setdirty" class="tsd-kind-icon">set<wbr>Dirty</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 								<a href="component.html#warn" class="tsd-kind-icon">warn</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="eventemitter.html" class="tsd-kind-icon">Event<wbr>Emitter</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -489,25 +475,10 @@
 				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
 			</ul>
 		</div>
 	</div>

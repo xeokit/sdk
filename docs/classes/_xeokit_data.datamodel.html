@@ -1,0 +1,995 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>DataModel | xeokit-viewer</title>
+	<meta name="description" content="Documentation for xeokit-viewer">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">xeokit-viewer</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">xeokit-viewer</a>
+				</li>
+				<li>
+					<a href="../modules/_xeokit_data.html">@xeokit/data</a>
+				</li>
+				<li>
+					<a href="_xeokit_data.datamodel.html">DataModel</a>
+				</li>
+			</ul>
+			<h1>Class DataModel</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A buildable entity-relationship semantic data model, stored in <a href="_xeokit_data.data.html">Data</a>.</p>
+					</div>
+					<p>See <a href="_xeokit_data.data.html">Data</a> for usage examples.</p>
+					<a href="#summary" id="summary" style="color: inherit; text-decoration: none;">
+						<h2>Summary</h2>
+					</a>
+					<ul>
+						<li>A DataModel is a generic entity-relationship graph of <a href="_xeokit_data.dataobject.html">DataObjects</a>, <a href="_xeokit_data.propertyset.html">PropertySets</a> and <a href="_xeokit_data.relationship.html">Relationships</a></li>
+						<li>Can be used for IFC and all other schemas that are expressable as an ER graph</li>
+						<li>Created with <a href="_xeokit_data.data.html#createmodel">Data.createModel</a></li>
+						<li>Stored in <a href="_xeokit_data.data.html#models">Data.models</a></li>
+					</ul>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="_xeokit_core_components.component.html" class="tsd-signature-type" data-tsd-kind="Class">Component</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">DataModel</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Events</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#onbuilt" class="tsd-kind-icon">on<wbr>Built</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class tsd-is-inherited"><a href="_xeokit_data.datamodel.html#ondestroyed" class="tsd-kind-icon">on<wbr>Destroyed</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#author" class="tsd-kind-icon">author</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#createdat" class="tsd-kind-icon">created<wbr>At</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#creatingapplication" class="tsd-kind-icon">creating<wbr>Application</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#data" class="tsd-kind-icon">data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_xeokit_data.datamodel.html#destroyed" class="tsd-kind-icon">destroyed</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite"><a href="_xeokit_data.datamodel.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#objects" class="tsd-kind-icon">objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#objectsbytype" class="tsd-kind-icon">objects<wbr>ByType</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#projectid" class="tsd-kind-icon">project<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#propertysets" class="tsd-kind-icon">property<wbr>Sets</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#revisionid" class="tsd-kind-icon">revision<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#rootdataobject" class="tsd-kind-icon">root<wbr>Data<wbr>Object</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#rootobjects" class="tsd-kind-icon">root<wbr>Objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#schema" class="tsd-kind-icon">schema</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#typecounts" class="tsd-kind-icon">type<wbr>Counts</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#build" class="tsd-kind-icon">build</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_xeokit_data.datamodel.html#clean" class="tsd-kind-icon">clean</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_xeokit_data.datamodel.html#cleanifdirty" class="tsd-kind-icon">clean<wbr>IfDirty</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#createobject" class="tsd-kind-icon">create<wbr>Object</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#createpropertyset" class="tsd-kind-icon">create<wbr>Property<wbr>Set</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_data.datamodel.html#createrelationship" class="tsd-kind-icon">create<wbr>Relationship</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_xeokit_data.datamodel.html#destroy" class="tsd-kind-icon">destroy</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_xeokit_data.datamodel.html#error" class="tsd-kind-icon">error</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_xeokit_data.datamodel.html#log" class="tsd-kind-icon">log</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_xeokit_data.datamodel.html#setdirty" class="tsd-kind-icon">set<wbr>Dirty</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_xeokit_data.datamodel.html#warn" class="tsd-kind-icon">warn</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Events</h2>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onbuilt" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> on<wbr>Built</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Built<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_data.datamodel.html" class="tsd-signature-type" data-tsd-kind="Class">DataModel</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L115">data/src/DataModel.ts:115</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Emits an event when the <a href="_xeokit_data.datamodel.html">DataModel</a> has been built.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class tsd-is-inherited">
+					<a name="ondestroyed" class="tsd-anchor"></a>
+					<h3>on<wbr>Destroyed</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Destroyed<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_core_components.component.html" class="tsd-signature-type" data-tsd-kind="Class">Component</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#ondestroyed">onDestroyed</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L37">core/src/Component.ts:37</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Emits an event when the <a href="_xeokit_core_components.component.html">Component</a> has been destroyed.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="author" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> author</h3>
+					<div class="tsd-signature tsd-kind-icon">author<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L57">data/src/DataModel.ts:57</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The model author, if available.</p>
+						</div>
+						<p>Will be undefined if not available.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="createdat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> created<wbr>At</h3>
+					<div class="tsd-signature tsd-kind-icon">created<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L64">data/src/DataModel.ts:64</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The date the model was created, if available.</p>
+						</div>
+						<p>Will be undefined if not available.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="creatingapplication" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> creating<wbr>Application</h3>
+					<div class="tsd-signature tsd-kind-icon">creating<wbr>Application<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L71">data/src/DataModel.ts:71</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The application that created the model, if available.</p>
+						</div>
+						<p>Will be undefined if not available.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="data" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> data</h3>
+					<div class="tsd-signature tsd-kind-icon">data<span class="tsd-signature-symbol">:</span> <a href="_xeokit_data.data.html" class="tsd-signature-type" data-tsd-kind="Class">Data</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L31">data/src/DataModel.ts:31</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The data to which this DataModel belongs.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="destroyed" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> destroyed</h3>
+					<div class="tsd-signature tsd-kind-icon">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#destroyed">destroyed</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L25">core/src/Component.ts:25</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>True once this Component has been destroyed.</p>
+						</div>
+						<p>Don&#39;t use this Component if this is <code>true</code>.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+					<a name="id" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#id">id</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L38">data/src/DataModel.ts:38</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Unique ID of this DataModel.</p>
+						</div>
+						<p>MetaModels are registered by ID in <a href="_xeokit_data.data.html#models">Data.models</a>.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="objects" class="tsd-anchor"></a>
+					<h3>objects</h3>
+					<div class="tsd-signature tsd-kind-icon">objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L93">data/src/DataModel.ts:93</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <a href="_xeokit_data.dataobject.html">DataObjects</a> in this DataModel, mapped to <a href="_xeokit_data.dataobject.html#id">DataObject.id</a>.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_data.dataobject.html" class="tsd-signature-type" data-tsd-kind="Class">DataObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="objectsbytype" class="tsd-anchor"></a>
+					<h3>objects<wbr>ByType</h3>
+					<div class="tsd-signature tsd-kind-icon">objects<wbr>ByType<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L103">data/src/DataModel.ts:103</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <a href="_xeokit_data.dataobject.html">DataObjects</a> in this DataModel, mapped to <a href="_xeokit_data.dataobject.html#type">DataObject.type</a>, sub-mapped to <a href="_xeokit_data.dataobject.html#id">DataObject.id</a>.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-symbol">{}</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter-index-signature">
+										<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_data.dataobject.html" class="tsd-signature-type" data-tsd-kind="Class">DataObject</a></h5>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="projectid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> project<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">project<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L43">data/src/DataModel.ts:43</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The project ID, if available.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="propertysets" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> property<wbr>Sets</h3>
+					<div class="tsd-signature tsd-kind-icon">property<wbr>Sets<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L83">data/src/DataModel.ts:83</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <a href="_xeokit_data.propertyset.html">PropertySets</a> in this DataModel, mapped to <a href="_xeokit_data.propertyset.html#id">PropertySet.id</a>.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_data.propertyset.html" class="tsd-signature-type" data-tsd-kind="Class">PropertySet</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="revisionid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> revision<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">revision<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L50">data/src/DataModel.ts:50</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The revision ID, if available.</p>
+						</div>
+						<p>Will be undefined if not available.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="rootdataobject" class="tsd-anchor"></a>
+					<h3>root<wbr>Data<wbr>Object</h3>
+					<div class="tsd-signature tsd-kind-icon">root<wbr>Data<wbr>Object<span class="tsd-signature-symbol">:</span> <a href="_xeokit_data.dataobject.html" class="tsd-signature-type" data-tsd-kind="Class">DataObject</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L88">data/src/DataModel.ts:88</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The root <a href="_xeokit_data.dataobject.html">DataObject</a> in this DataModel&#39;s composition hierarchy.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="rootobjects" class="tsd-anchor"></a>
+					<h3>root<wbr>Objects</h3>
+					<div class="tsd-signature tsd-kind-icon">root<wbr>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L98">data/src/DataModel.ts:98</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The root <a href="_xeokit_data.dataobject.html">DataObjects</a> in this DataModel, mapped to <a href="_xeokit_data.dataobject.html#id">DataObject.id</a>.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_data.dataobject.html" class="tsd-signature-type" data-tsd-kind="Class">DataObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="schema" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> schema</h3>
+					<div class="tsd-signature tsd-kind-icon">schema<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L78">data/src/DataModel.ts:78</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The model schema version, if available.</p>
+						</div>
+						<p>Will be undefined if not available.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="typecounts" class="tsd-anchor"></a>
+					<h3>type<wbr>Counts</h3>
+					<div class="tsd-signature tsd-kind-icon">type<wbr>Counts<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L108">data/src/DataModel.ts:108</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The count of each type of <a href="_xeokit_data.dataobject.html">DataObject</a> in this DataModel, mapped to <a href="_xeokit_data.dataobject.html#type">DataObject.type</a>.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">number</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="build" class="tsd-anchor"></a>
+					<h3>build</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">build<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L309">data/src/DataModel.ts:309</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Builds this DataModel, readying it for use.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="clean" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> clean</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">clean<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#clean">clean</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L116">core/src/Component.ts:116</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Forces this component to action any deferred state updates.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="cleanifdirty" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> clean<wbr>IfDirty</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">clean<wbr>IfDirty<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#cleanifdirty">cleanIfDirty</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L106">core/src/Component.ts:106</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gives this component an opportunity to action any defered state updates.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createobject" class="tsd-anchor"></a>
+					<h3>create<wbr>Object</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Object<span class="tsd-signature-symbol">(</span>dataObjectParams<span class="tsd-signature-symbol">: </span><a href="../interfaces/_xeokit_data.dataobjectparams.html" class="tsd-signature-type" data-tsd-kind="Interface">DataObjectParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_data.dataobject.html" class="tsd-signature-type" data-tsd-kind="Class">DataObject</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L224">data/src/DataModel.ts:224</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a <a href="_xeokit_data.dataobject.html">DataObject</a> in this DataModel.</p>
+								</div>
+								<p>Each DataObject has a globally-unique ID in <a href="_xeokit_data.dataobject.html#id">DataObject.id</a>, with which it&#39;s registered
+								in <a href="_xeokit_data.data.html#objects">Data.objects</a> and <a href="_xeokit_data.datamodel.html#objects">DataModel.objects</a>.</p>
+								<p>If <a href="../interfaces/_xeokit_data.dataobjectparams.html#id">DataObjectParams.id</a> matches a DataObject that
+									already exists (ie. already created for a different DataModel), then this method will reuse that DataObject for this DataModel,
+									and will ignore any other <a href="../interfaces/_xeokit_data.dataobjectparams.html">DataObjectParams</a> parameters that we provide. This makes the assumption that each
+									value of <a href="../interfaces/_xeokit_data.dataobjectparams.html#id">DataObjectParams.id</a> is associated with a single value for <a href="../interfaces/_xeokit_data.dataobjectparams.html#type">DataObjectParams.type</a>
+									and <a href="../interfaces/_xeokit_data.dataobjectparams.html#name">DataObjectParams.name</a>. This aligns well with IFC, in which wewe never have two elements with the same
+								ID but different types or names.</p>
+								<p>Each DataObject automatically gets destroyed whenever all the <a href="_xeokit_data.datamodel.html">DataModels</a> that share
+								it have been destroyed.</p>
+								<p>We can attach our DataObject as child of an existing parent DataObject. To do that, we provide the ID of the parent
+									in {@link DataObjectParams.parentId}. Following the reuse mechanism just described, the parent is allowed to be a
+									DataObject that we created in a different DataModel. If the parent does not exist yet, then our new DataObject will
+								automatically become the parent&#39;s child when the parent is created later.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>dataObjectParams: <a href="../interfaces/_xeokit_data.dataobjectparams.html" class="tsd-signature-type" data-tsd-kind="Interface">DataObjectParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_data.dataobject.html" class="tsd-signature-type" data-tsd-kind="Class">DataObject</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createpropertyset" class="tsd-anchor"></a>
+					<h3>create<wbr>Property<wbr>Set</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Property<wbr>Set<span class="tsd-signature-symbol">(</span>propertySetCfg<span class="tsd-signature-symbol">: </span><a href="../interfaces/_xeokit_data.propertysetparams.html" class="tsd-signature-type" data-tsd-kind="Interface">PropertySetParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_data.propertyset.html" class="tsd-signature-type" data-tsd-kind="Class">PropertySet</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L192">data/src/DataModel.ts:192</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a <a href="_xeokit_data.propertyset.html">PropertySet</a> within this DataModel.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>propertySetCfg: <a href="../interfaces/_xeokit_data.propertysetparams.html" class="tsd-signature-type" data-tsd-kind="Interface">PropertySetParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_data.propertyset.html" class="tsd-signature-type" data-tsd-kind="Class">PropertySet</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createrelationship" class="tsd-anchor"></a>
+					<h3>create<wbr>Relationship</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Relationship<span class="tsd-signature-symbol">(</span>relationshipParams<span class="tsd-signature-symbol">: </span><a href="../interfaces/_xeokit_data.relationshipparams.html" class="tsd-signature-type" data-tsd-kind="Interface">RelationshipParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L290">data/src/DataModel.ts:290</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a <a href="_xeokit_data.relationship.html">Relationship</a> between two <a href="_xeokit_data.dataobject.html">DataObjects</a>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>relationshipParams: <a href="../interfaces/_xeokit_data.relationshipparams.html" class="tsd-signature-type" data-tsd-kind="Interface">RelationshipParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+					<a name="destroy" class="tsd-anchor"></a>
+					<h3>destroy</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">destroy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#destroy">destroy</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/data/src/DataModel.ts#L325">data/src/DataModel.ts:325</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Destroys this DataModel.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="error" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> error</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">error<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#error">error</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L88">core/src/Component.ts:88</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Logs an error for this component to the JavaScript console.</p>
+								</div>
+								<p>The console message will have this format: <em><code>[ERROR] [&lt;component type&gt; =&lt;component id&gt;: &lt;message&gt;</code></em></p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The error message to log</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="log" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> log</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">log<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#log">log</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L62">core/src/Component.ts:62</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Logs a message for this component.</p>
+								</div>
+								<p>The message will have this format: <em><code>[LOG] [&lt;component type&gt; &lt;component id&gt;: &lt;message&gt;</code></em></p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The message to log</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="setdirty" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> set<wbr>Dirty</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Dirty<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#setdirty">setDirty</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L96">core/src/Component.ts:96</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Flags this component as having a defered state updates it needs to perform.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="warn" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> warn</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">warn<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_xeokit_core_components.component.html">Component</a>.<a href="_xeokit_core_components.component.html#warn">warn</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L75">core/src/Component.ts:75</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Logs a warning for this component to the JavaScript console.</p>
+								</div>
+								<p>The console message will have this format: <em><code>[WARN] [&lt;component type&gt; =&lt;component id&gt;: &lt;message&gt;</code></em></p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The warning message to log</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_core_utils.html">@xeokit/core/utils</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/_xeokit_data.html">@xeokit/data</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_boundaries.html">@xeokit/math/boundaries</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_compression.html">@xeokit/math/compression</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_curves.html">@xeokit/math/curves</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_geometry.html">@xeokit/math/geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_math.html">@xeokit/math/math</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_matrix.html">@xeokit/math/matrix</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_webgl.html">@xeokit/webgl</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_data.data.html" class="tsd-kind-icon">Data</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_data.datamodel.html" class="tsd-kind-icon">Data<wbr>Model</a>
+						<ul>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#onbuilt" class="tsd-kind-icon">on<wbr>Built</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class tsd-is-inherited">
+								<a href="_xeokit_data.datamodel.html#ondestroyed" class="tsd-kind-icon">on<wbr>Destroyed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#author" class="tsd-kind-icon">author</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#createdat" class="tsd-kind-icon">created<wbr>At</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#creatingapplication" class="tsd-kind-icon">creating<wbr>Application</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#data" class="tsd-kind-icon">data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_xeokit_data.datamodel.html#destroyed" class="tsd-kind-icon">destroyed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_xeokit_data.datamodel.html#id" class="tsd-kind-icon">id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#objects" class="tsd-kind-icon">objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#objectsbytype" class="tsd-kind-icon">objects<wbr>ByType</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#projectid" class="tsd-kind-icon">project<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#propertysets" class="tsd-kind-icon">property<wbr>Sets</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#revisionid" class="tsd-kind-icon">revision<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#rootdataobject" class="tsd-kind-icon">root<wbr>Data<wbr>Object</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#rootobjects" class="tsd-kind-icon">root<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#schema" class="tsd-kind-icon">schema</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#typecounts" class="tsd-kind-icon">type<wbr>Counts</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#build" class="tsd-kind-icon">build</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_xeokit_data.datamodel.html#clean" class="tsd-kind-icon">clean</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_xeokit_data.datamodel.html#cleanifdirty" class="tsd-kind-icon">clean<wbr>IfDirty</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#createobject" class="tsd-kind-icon">create<wbr>Object</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#createpropertyset" class="tsd-kind-icon">create<wbr>Property<wbr>Set</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_xeokit_data.datamodel.html#createrelationship" class="tsd-kind-icon">create<wbr>Relationship</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_xeokit_data.datamodel.html#destroy" class="tsd-kind-icon">destroy</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_xeokit_data.datamodel.html#error" class="tsd-kind-icon">error</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_xeokit_data.datamodel.html#log" class="tsd-kind-icon">log</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_xeokit_data.datamodel.html#setdirty" class="tsd-kind-icon">set<wbr>Dirty</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_xeokit_data.datamodel.html#warn" class="tsd-kind-icon">warn</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_data.dataobject.html" class="tsd-kind-icon">Data<wbr>Object</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_data.property.html" class="tsd-kind-icon">Property</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_data.propertyset.html" class="tsd-kind-icon">Property<wbr>Set</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_data.relationship.html" class="tsd-kind-icon">Relationship</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_data.datamodelparams.html" class="tsd-kind-icon">Data<wbr>Model<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_data.dataobjectparams.html" class="tsd-kind-icon">Data<wbr>Object<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_data.propertyparams.html" class="tsd-kind-icon">Property<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_data.propertysetparams.html" class="tsd-kind-icon">Property<wbr>Set<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_data.relationshipparams.html" class="tsd-kind-icon">Relationship<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_data.searchparams.html" class="tsd-kind-icon">Search<wbr>Params</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

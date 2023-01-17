@@ -1,0 +1,759 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Compression | xeokit-viewer</title>
+	<meta name="description" content="Documentation for xeokit-viewer">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">xeokit-viewer</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">xeokit-viewer</a>
+				</li>
+				<li>
+					<a href="compression.html">Compression</a>
+				</li>
+			</ul>
+			<h1>Module Compression</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<a href="#geometry-decompression-utilities-library" id="geometry-decompression-utilities-library" style="color: inherit; text-decoration: none;">
+							<h4>Geometry de/compression utilities library</h4>
+						</a>
+					</div>
+					<ul>
+						<li>Used internally within <a href="../interfaces/viewer.scenemodel.html#creategeometry">SceneModel.createGeometry</a> to compress geometry and use less GPU memory</li>
+						<li>Provided here for when we want to pre-compress our geometry offline and use <a href="../interfaces/viewer.scenemodel.html#creategeometrycompressed">SceneModel.createGeometryCompressed</a> instead</li>
+						<li>Combines duplicate positions</li>
+						<li>Converts positions to relative-to-center (RTC) coordinates</li>
+						<li>Quantizes positions and UVs as 16-bit unsigned ints</li>
+						<li>Splits geometry into buckets to enable indices to use minimum bits for storage</li>
+						<li>Generates indices for wireframe edge rendering</li>
+						<li>Ignores normals (auto-generated in our shaders)</li>
+					</ul>
+					<p>See below for a brief idea of how we use this library in context. See <a href="compression.html#compressgeometryparams">compressGeometryParams</a> for full usage.</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebGLRenderer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/webgl&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/core/constants&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">compressGeometryParams</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/math/compression&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">renderer:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">WebGLRenderer</span><span style="color: #000000">({</span>
+<span style="color: #000000">        </span><span style="color: #008000">//...</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mySceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">compressedGeometryParams</span><span style="color: #000000"> = </span><span style="color: #795E26">compressGeometryParams</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">positions:</span><span style="color: #000000"> [</span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">     </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, ...]</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometryCompressed</span><span style="color: #000000">(</span><span style="color: #001080">compressedGeometryParams</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #008000">//...</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject1&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">],</span>
+<span style="color: #000000">    </span><span style="color: #008000">//...</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject2&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">],</span>
+<span style="color: #000000">    </span><span style="color: #008000">//...</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+</code></pre>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/compression.geometrybucketparams.html" class="tsd-kind-icon">Geometry<wbr>Bucket<wbr>Params</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/compression.geometrycompressedparams.html" class="tsd-kind-icon">Geometry<wbr>Compressed<wbr>Params</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/compression.geometryparams.html" class="tsd-kind-icon">Geometry<wbr>Params</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#compressgeometryparams" class="tsd-kind-icon">compress<wbr>Geometry<wbr>Params</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#compressnormals" class="tsd-kind-icon">compress<wbr>Normals</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#compressposition" class="tsd-kind-icon">compress<wbr>Position</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#compresspositions" class="tsd-kind-icon">compress<wbr>Positions</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#compressuvs" class="tsd-kind-icon">compressUVs</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#createpositionsdecompressmatrix" class="tsd-kind-icon">create<wbr>Positions<wbr>Decompress<wbr>Matrix</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#decompressaabb" class="tsd-kind-icon">decompressAABB</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#decompressposition" class="tsd-kind-icon">decompress<wbr>Position</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#decompresspositions" class="tsd-kind-icon">decompress<wbr>Positions</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#getpositionsbounds" class="tsd-kind-icon">get<wbr>Positions<wbr>Bounds</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="compression.html#getuvbounds" class="tsd-kind-icon">getUVBounds</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="compressgeometryparams" class="tsd-anchor"></a>
+					<h3>compress<wbr>Geometry<wbr>Params</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">compress<wbr>Geometry<wbr>Params<span class="tsd-signature-symbol">(</span>geometryParams<span class="tsd-signature-symbol">: </span><a href="../interfaces/compression.geometryparams.html" class="tsd-signature-type" data-tsd-kind="Interface">GeometryParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/compression.geometrycompressedparams.html" class="tsd-signature-type" data-tsd-kind="Interface">GeometryCompressedParams</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L118">math/src/compression/compression.ts:118</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compresses <a href="../interfaces/compression.geometryparams.html">GeometryParams</a> into <a href="../interfaces/compression.geometrycompressedparams.html">GeometryCompressedParams</a>.</p>
+								</div>
+								<ul>
+									<li>Simplifies geometry by combining duplicate positions and adjusting indices</li>
+									<li>Generates edge indices for triangle meshes</li>
+									<li>Ignores normals (our shaders auto-generate them)</li>
+									<li>Converts positions to relative-to-center (RTC) coordinates</li>
+									<li>Quantizes positions and UVs as 16-bit unsigned integers</li>
+									<li>Splits geometry into <a href="../interfaces/compression.geometrybucketparams.html">buckets</a> to enable indices to use the minimum bits for storage</li>
+								</ul>
+								<p>The GeometryCompressedParams can then be given to <a href="../interfaces/viewer.scenemodel.html#creategeometrycompressed">SceneModel.createGeometryCompressed</a>.</p>
+								<a href="#special-consideration-for-solidprimitive" id="special-consideration-for-solidprimitive" style="color: inherit; text-decoration: none;">
+									<h4>Special Consideration for SolidPrimitive</h4>
+								</a>
+								<p>Note that if <a href="../interfaces/compression.geometryparams.html#primitive">GeometryParams.primitive</a> is <a href="constants.html#solidprimitive">constants.SolidPrimitive</a> and <a href="../interfaces/compression.geometrycompressedparams.html#geometrybuckets">GeometryCompressedParams.geometryBuckets</a>
+									contains more than one <a href="../interfaces/compression.geometrybucketparams.html">GeometryBucketParams</a>, then <a href="../interfaces/compression.geometrycompressedparams.html#primitive">GeometryCompressedParams.primitive</a> will become
+									<a href="constants.html#surfaceprimitive">constants.SurfacePrimitive</a>, in the assumption that bucketing has split open a closed (solid) triangle mesh, which
+								can therefore no longer be treated as a solid.</p>
+								<a href="#example-1-compressing-parameters-for-a-small-geometry" id="example-1-compressing-parameters-for-a-small-geometry" style="color: inherit; text-decoration: none;">
+									<h3>Example 1: Compressing parameters for a small geometry</h3>
+								</a>
+								<p>The example below demonstrates compression of <a href="../interfaces/compression.geometryparams.html">GeometryParams</a> for a simple geometry that only requires a
+								single <a href="../interfaces/compression.geometrybucketparams.html">bucket</a>.</p>
+								<p>Note that if the <a href="../interfaces/compression.geometryparams.html#positions">GeometryParams.positions</a> array was large enough to require some indices to use more than 16 bits
+									for storage, then that&#39;s when the bucketing would kick in, to split the mesh into smaller buckets, each with smaller
+								indices that index a subset of the positions.</p>
+								<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">math</span><span style="color: #000000">, </span><span style="color: #001080">constants</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">compressedGeometry</span><span style="color: #000000"> = </span><span style="color: #001080">math</span><span style="color: #000000">.</span><span style="color: #001080">compression</span><span style="color: #000000">.</span><span style="color: #795E26">compressGeometryParams</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">positions:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">         </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span>
+<span style="color: #000000">     ],</span>
+<span style="color: #000000">     </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">         </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">8</span><span style="color: #000000">, </span><span style="color: #098658">9</span><span style="color: #000000">, </span><span style="color: #098658">10</span><span style="color: #000000">, </span><span style="color: #098658">8</span><span style="color: #000000">, </span><span style="color: #098658">10</span><span style="color: #000000">, </span><span style="color: #098658">11</span><span style="color: #000000">, </span><span style="color: #098658">12</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">13</span><span style="color: #000000">, </span><span style="color: #098658">14</span><span style="color: #000000">, </span><span style="color: #098658">12</span><span style="color: #000000">, </span><span style="color: #098658">14</span><span style="color: #000000">, </span><span style="color: #098658">15</span><span style="color: #000000">, </span><span style="color: #098658">16</span><span style="color: #000000">, </span><span style="color: #098658">17</span><span style="color: #000000">, </span><span style="color: #098658">18</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">16</span><span style="color: #000000">, </span><span style="color: #098658">18</span><span style="color: #000000">, </span><span style="color: #098658">19</span><span style="color: #000000">, </span><span style="color: #098658">20</span><span style="color: #000000">, </span><span style="color: #098658">21</span><span style="color: #000000">, </span><span style="color: #098658">22</span><span style="color: #000000">, </span><span style="color: #098658">20</span><span style="color: #000000">, </span><span style="color: #098658">22</span><span style="color: #000000">, </span><span style="color: #098658">23</span>
+<span style="color: #000000">     ]</span>
+<span style="color: #000000"> });</span>
+</code></pre>
+								<p>The value of <code>compressedGeometry</code> is:</p>
+								<pre><code class="language-javascript"><span style="color: #000000">{</span>
+<span style="color: #000000">     id: </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     primitive: </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
+<span style="color: #000000">     origin: [</span><span style="color: #098658">200</span><span style="color: #000000">,</span><span style="color: #098658">200</span><span style="color: #000000">,</span><span style="color: #098658">200</span><span style="color: #000000">],</span>
+<span style="color: #000000">     positionsDecompressMatrix: [</span>
+<span style="color: #000000">         </span><span style="color: #098658">0.00003052270125906143</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0.00003052270125906143</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0.00003052270125906143</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span>
+<span style="color: #000000">     ],</span>
+<span style="color: #000000">     geometryBuckets: [</span>
+<span style="color: #000000">         {</span>
+<span style="color: #000000">             </span><span style="color: #001080">positionsCompressed:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">                 </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span>
+<span style="color: #000000">             ],</span>
+<span style="color: #000000">             </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">                 </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">5</span>
+<span style="color: #000000">             ],</span>
+<span style="color: #000000">             </span><span style="color: #001080">edgeIndices:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">                 </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">6</span>
+<span style="color: #000000">             ]</span>
+<span style="color: #000000">         }</span>
+<span style="color: #000000">     ]</span>
+<span style="color: #000000">}</span>
+</code></pre>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>geometryParams: <a href="../interfaces/compression.geometryparams.html" class="tsd-signature-type" data-tsd-kind="Interface">GeometryParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Uncompressed geometry params.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/compression.geometrycompressedparams.html" class="tsd-signature-type" data-tsd-kind="Interface">GeometryCompressedParams</a></h4>
+							<p>Compressed geometry params.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="compressnormals" class="tsd-anchor"></a>
+					<h3>compress<wbr>Normals</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">compress<wbr>Normals<span class="tsd-signature-symbol">(</span>array<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Int8Array</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L387">math/src/compression/compression.ts:387</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Oct-encodes a flat array of normal vectors</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>array: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Int8Array</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="compressposition" class="tsd-anchor"></a>
+					<h3>compress<wbr>Position</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">compress<wbr>Position<span class="tsd-signature-symbol">(</span>p<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, aabb<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, dest<span class="tsd-signature-symbol">?: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L268">math/src/compression/compression.ts:268</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compresses a 3D position</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>p: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>aabb: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>dest: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol"> = ...</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="compresspositions" class="tsd-anchor"></a>
+					<h3>compress<wbr>Positions</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">compress<wbr>Positions<span class="tsd-signature-symbol">(</span>array<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, min<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, max<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L234">math/src/compression/compression.ts:234</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compresses a flat positions array</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>array: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>min: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>max: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{}</span></h4>
+							<ul class="tsd-parameters">
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="compressuvs" class="tsd-anchor"></a>
+					<h3>compressUVs</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">compressUVs<span class="tsd-signature-symbol">(</span>array<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, min<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, max<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L351">math/src/compression/compression.ts:351</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compresses a flat array of UV coordinates</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>array: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>min: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>max: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{}</span></h4>
+							<ul class="tsd-parameters">
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createpositionsdecompressmatrix" class="tsd-anchor"></a>
+					<h3>create<wbr>Positions<wbr>Decompress<wbr>Matrix</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Positions<wbr>Decompress<wbr>Matrix<span class="tsd-signature-symbol">(</span>aabb<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, positionsDecompressMatrix<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L214">math/src/compression/compression.ts:214</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a de-quantization matrix from a boundary.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>aabb: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>positionsDecompressMatrix: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="decompressaabb" class="tsd-anchor"></a>
+					<h3>decompressAABB</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">decompressAABB<span class="tsd-signature-symbol">(</span>aabb<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, decompressMatrix<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, dest<span class="tsd-signature-symbol">?: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L299">math/src/compression/compression.ts:299</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Decompresses an axis-aligned 3D boundary</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>aabb: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>decompressMatrix: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>dest: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="decompressposition" class="tsd-anchor"></a>
+					<h3>decompress<wbr>Position</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">decompress<wbr>Position<span class="tsd-signature-symbol">(</span>position<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, decompressMatrix<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, dest<span class="tsd-signature-symbol">?: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L286">math/src/compression/compression.ts:286</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Decompresses a 3D position</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>position: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>decompressMatrix: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>dest: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="decompresspositions" class="tsd-anchor"></a>
+					<h3>decompress<wbr>Positions</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">decompress<wbr>Positions<span class="tsd-signature-symbol">(</span>positions<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, decompressMatrix<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, dest<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float32Array</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L315">math/src/compression/compression.ts:315</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Decompresses a flat array of positions</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>positions: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>decompressMatrix: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5>dest: <span class="tsd-signature-type">Float32Array</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Float32Array</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="getpositionsbounds" class="tsd-anchor"></a>
+					<h3>get<wbr>Positions<wbr>Bounds</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Positions<wbr>Bounds<span class="tsd-signature-symbol">(</span>array<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, min<span class="tsd-signature-symbol">?: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a>, max<span class="tsd-signature-symbol">?: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L191">math/src/compression/compression.ts:191</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the boundary of a flat positions array.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>array: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> min: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> max: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{}</span></h4>
+							<ul class="tsd-parameters">
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="getuvbounds" class="tsd-anchor"></a>
+					<h3>getUVBounds</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">getUVBounds<span class="tsd-signature-symbol">(</span>array<span class="tsd-signature-symbol">: </span><a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/compression/compression.ts#L328">math/src/compression/compression.ts:328</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the 2D min/max boundary of a flat array of UV coordinate</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>array: <a href="math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{}</span></h4>
+							<ul class="tsd-parameters">
+							</ul>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="boundaries.html">Boundaries</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="compression.html">Compression</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="viewer.html">Viewer</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="webgl.html">WebGL</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="components.html">components</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="constants.html">constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="curves.html">curves</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="data.html">data</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="geometry.html">geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="math.html">math</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="matrix.html">matrix</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="rtc.html">rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="utils.html">utils</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/compression.geometrybucketparams.html" class="tsd-kind-icon">Geometry<wbr>Bucket<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/compression.geometrycompressedparams.html" class="tsd-kind-icon">Geometry<wbr>Compressed<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/compression.geometryparams.html" class="tsd-kind-icon">Geometry<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#compressgeometryparams" class="tsd-kind-icon">compress<wbr>Geometry<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#compressnormals" class="tsd-kind-icon">compress<wbr>Normals</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#compressposition" class="tsd-kind-icon">compress<wbr>Position</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#compresspositions" class="tsd-kind-icon">compress<wbr>Positions</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#compressuvs" class="tsd-kind-icon">compressUVs</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#createpositionsdecompressmatrix" class="tsd-kind-icon">create<wbr>Positions<wbr>Decompress<wbr>Matrix</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#decompressaabb" class="tsd-kind-icon">decompressAABB</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#decompressposition" class="tsd-kind-icon">decompress<wbr>Position</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#decompresspositions" class="tsd-kind-icon">decompress<wbr>Positions</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#getpositionsbounds" class="tsd-kind-icon">get<wbr>Positions<wbr>Bounds</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="compression.html#getuvbounds" class="tsd-kind-icon">getUVBounds</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

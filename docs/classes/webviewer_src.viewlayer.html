@@ -1,0 +1,1918 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ViewLayer | xeokit-webviewer</title>
+	<meta name="description" content="Documentation for xeokit-webviewer">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">xeokit-webviewer</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">xeokit-webviewer</a>
+				</li>
+				<li>
+					<a href="../modules/webviewer_src.html">webviewer/src</a>
+				</li>
+				<li>
+					<a href="webviewer_src.viewlayer.html">ViewLayer</a>
+				</li>
+			</ul>
+			<h1>Class ViewLayer</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A layer of <a href="webviewer_src.viewobject.html">ViewObjects</a> in a <a href="webviewer_src.view.html">View</a>.</p>
+					</div>
+					<a href="#summary" id="summary" style="color: inherit; text-decoration: none;">
+						<h2>Summary</h2>
+					</a>
+					<ul>
+						<li>Useful for segreggating <a href="webviewer_src.viewobject.html">ViewObjects</a> so we don&#39;t get our model objects mixed up with our UI and environment objects</li>
+						<li>Created automatically or manually (see <a href="webviewer_src.view.html#createlayer">View.createLayer</a>)</li>
+						<li>Registered in <a href="webviewer_src.view.html#layers">View.layers</a></li>
+						<li>Contains ViewObjects for <a href="../interfaces/webviewer_src.sceneobject.html">SceneObjects</a> that have matching <a href="../interfaces/webviewer_src.sceneobject.html#viewlayerid">SceneObject.viewLayerId</a></li>
+					</ul>
+					<a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
+						<h2>Overview</h2>
+					</a>
+					<p>ViewLayers organize a <a href="webviewer_src.view.html">View&#39;s</a> <a href="webviewer_src.viewobject.html">ViewObjects</a> into layers, according to which aspects of
+						the view they represent. They make it easier for us to focus our interactions on the ViewObjects that are relevant
+					to the particular aspects we&#39;re interested in.</p>
+					<a href="#typical-use-case-segregating-model-objects-from-environment-objects" id="typical-use-case-segregating-model-objects-from-environment-objects" style="color: inherit; text-decoration: none;">
+						<h3>Typical use case: segregating model objects from environment objects</h3>
+					</a>
+					<p>A typical use case for this feature is to group environmental <a href="webviewer_src.viewobject.html">ViewObjects</a> (e.g. ground, skybox) in an &quot;environment&quot; ViewLayer,
+						and group model ViewObjects in a &quot;model&quot; ViewLayer. Then we can focus our model interactions (show, hide, highlight,
+						save/load BCF viewpoints, etc.) on the ViewObjects in the &quot;model&quot; ViewLayer, without involving the &quot;environment&quot;
+						ViewObjects at all, which are effectively in the background. We can basically ignore the environment objects as we
+					do various batch operations on our model objects, i.e. &quot;X-ray all&quot;, &quot;X-ray everything except for walls&quot; and so on.</p>
+					<a href="#automatic-viewlayers" id="automatic-viewlayers" style="color: inherit; text-decoration: none;">
+						<h3>Automatic ViewLayers</h3>
+					</a>
+					<p>By default, each <a href="webviewer_src.view.html">View</a> automatically lazy-creates ViewLayers within itself as required. As <a href="../interfaces/webviewer_src.sceneobject.html">SceneObjects</a> appear in the
+					<a href="webviewer_src.scene.html">Scene</a>, <a href="webviewer_src.viewobject.html">ViewObjects</a> and Viewlayers magically appear in each existing View.</p>
+					<p>Recall that, whenever a <a href="../interfaces/webviewer_src.sceneobject.html">SceneObject</a> is created, each existing <a href="webviewer_src.view.html">View</a> will automatically create a
+					corresponding <a href="webviewer_src.viewobject.html">ViewObject</a> to represent and control that SceneObject&#39;s appearance within the View&#39;s canvas.</p>
+					<p>If the <a href="../interfaces/webviewer_src.sceneobject.html">SceneObject</a> also happens to have a value set on its <a href="../interfaces/webviewer_src.sceneobject.html#viewlayerid">SceneObject.viewLayerId</a> ID property, then the View
+						will also automatically ensure that it contains a matching <a href="webviewer_src.viewlayer.html">ViewLayer</a>, and will register the new ViewObject
+					in that ViewLayer. Note that each ViewObject can belong to a maximum of one ViewLayer.</p>
+					<p>When a <a href="webviewer_src.view.html">View</a> automatically creates Viewlayers, it will also automatically destroy them again whenever
+					their <a href="../interfaces/webviewer_src.sceneobject.html">SceneObjects</a> have all been destroyed.</p>
+					<a href="#manual-viewlayers" id="manual-viewlayers" style="color: inherit; text-decoration: none;">
+						<h3>Manual ViewLayers</h3>
+					</a>
+					<p>We can configure a <a href="webviewer_src.view.html">View</a> to <strong>not</strong> automatically create ViewLayers, and instead rely on us to manually create them.</p>
+					<p>When we do that, the View will only create the <a href="webviewer_src.viewobject.html">ViewObjects</a> within itself for the ViewLayers that we created. The
+						View will ignore all SceneObjects that don&#39;t have <a href="../interfaces/webviewer_src.sceneobject.html#viewlayerid">SceneObject.viewLayerId</a> values that match the IDs of our
+					manually-created ViewLayers.</p>
+					<p>This feature is useful for ensuring that aspect-focused Views don&#39;t contain huge numbers of unused ViewObjects for
+					SceneObjects that they never need to show.</p>
+					<p>When we manually create ViewLayers like this, then the View will not automatically destroy them whenever
+						their <a href="../interfaces/webviewer_src.sceneobject.html">SceneObjects</a> have all been destroyed. This keeps the ViewLayers around, in case
+					we create matching SceneObjects again in future.</p>
+					<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+						<h2>Examples</h2>
+					</a>
+					<a href="#exampe-1-automatic-viewlayers" id="exampe-1-automatic-viewlayers" style="color: inherit; text-decoration: none;">
+						<h3>Exampe 1: Automatic ViewLayers</h3>
+					</a>
+					<p>Create a <a href="webviewer_src.webviewer.html">WebViewer</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebViewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/webviewer&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">WebViewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span>
+<span style="color: #000000">});</span>
+</code></pre>
+					<p>Create a <a href="webviewer_src.view.html">View</a>, with the default setting of <code>false</code> for <a href="../interfaces/webviewer_src.viewparams.html#autolayers">ViewParams.autoLayers</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">autoLayers:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;----------- Default</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
+</code></pre>
+					<p>Next, we&#39;ll create a <a href="../interfaces/webviewer_src.scenemodel.html">SceneModel</a> containing two model <a href="../interfaces/webviewer_src.sceneobject.html">SceneObjects</a> that represent a building
+					foundation and walls, along with two environmental SceneObjects that represent a skybox and ground plane.</p>
+					<p>The ground and skybox SceneObjects specify that their <a href="webviewer_src.viewobject.html">ViewObjects</a> belong
+					to &quot;environment&quot; ViewLayers, while the model SceneObjects specify that their ViewObjects belong to &quot;model&quot; ViewLayers.</p>
+					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mySceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">// (calls to SceneModel createGeometry and</span>
+<span style="color: #008000">// createMesh omitted for brevity)</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;ground&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;groundMesh}]</span><span style="color: #CD3131">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewLayerId</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;environment&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;skyBox&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;skyBoxMesh}]</span><span style="color: #CD3131">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewLayerId</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;environment&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;houseFoundation&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh}]</span><span style="color: #CD3131">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewLayerId</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;model&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;houseWalls&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh}]</span><span style="color: #CD3131">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewLayerId</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;model&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">myModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+</code></pre>
+					<p>Our <a href="webviewer_src.view.html">View</a> has now automatically created an &quot;environment&quot; <a href="webviewer_src.viewlayer.html">ViewLayer</a>, which contains <a href="webviewer_src.viewobject.html">ViewObjects</a> for the skybox and
+					ground plane SceneObjects, and a &quot;model&quot; ViewLayer, which contains ViewObjects for the house foundation and walls.</p>
+					<p>We can now batch-update the ViewObjects in each ViewLayer independently. As mentioned, this is useful when we need to ignore things
+					like UI or environmental objects in batch-updates, BCF viewpoints etc.</p>
+					<pre><code class="language-javascript"><span style="color: #008000">// viewer.scene.objects contains four SceneObjects with IDs &quot;ground&quot;, &quot;skyBox&quot;, &quot;houseFoundation&quot; and &quot;houseWalls&quot;</span>
+
+<span style="color: #008000">// viewer.views.view1.objects contains four ViewObjects with IDs &quot;ground&quot;, &quot;skyBox&quot;, &quot;houseFoundation&quot; and &quot;houseWalls&quot;</span>
+
+<span style="color: #008000">// viewer.views.view1.layers contains two ViewLayers with IDs &quot;environment&quot; and &quot;model&quot;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">environmentLayer</span><span style="color: #000000"> = </span><span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">layers</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;environment&quot;</span><span style="color: #000000">];</span>
+<span style="color: #001080">environmentLayer</span><span style="color: #000000">.</span><span style="color: #795E26">setObjectsVisible</span><span style="color: #000000">(</span><span style="color: #001080">environmentLayer</span><span style="color: #000000">.</span><span style="color: #001080">objectIds</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">modelLayer</span><span style="color: #000000"> = </span><span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">layers</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;model&quot;</span><span style="color: #000000">];</span>
+<span style="color: #001080">modelLayer</span><span style="color: #000000">.</span><span style="color: #795E26">setObjectsVisible</span><span style="color: #000000">(</span><span style="color: #001080">modelLayer</span><span style="color: #000000">.</span><span style="color: #001080">objectIds</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+</code></pre>
+					<a href="#example-2-manual-viewlayers" id="example-2-manual-viewlayers" style="color: inherit; text-decoration: none;">
+						<h3>Example 2: Manual ViewLayers</h3>
+					</a>
+					<p>Create a <a href="webviewer_src.webviewer.html">WebViewer</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebViewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/webviewer&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">WebViewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span>
+<span style="color: #000000">});</span>
+</code></pre>
+					<p>Create a <a href="webviewer_src.view.html">View</a>, this time with <code>false</code> for <a href="../interfaces/webviewer_src.viewparams.html#autolayers">ViewParams.autoLayers</a>, in order to <strong>not</strong>
+					automatically create ViewLayers on demand:</p>
+					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">autoLayers:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;----------- Override default</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
+</code></pre>
+					<p>We&#39;ll manually create the &quot;model&quot; ViewLayer, and won&#39;t create an &quot;environment&quot; ViewLayer:</p>
+					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">modelViewLayer</span><span style="color: #000000"> = </span><span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #795E26">createLayer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;model&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">visible:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span>
+<span style="color: #000000">});</span>
+</code></pre>
+					<p>As we did in the previous example, we&#39;ll now create a <a href="../interfaces/webviewer_src.scenemodel.html">SceneModel</a> containing two model
+						<a href="../interfaces/webviewer_src.sceneobject.html">SceneObjects</a> that represent a building foundation and walls, along with two environmental
+					SceneObjects that represent a skybox and ground plane.</p>
+					<p>As before, the ground and skybox SceneObjects specify that their <a href="webviewer_src.viewobject.html">ViewObjects</a> belong to &quot;environment&quot; ViewLayers,
+					while the model SceneObjects specify that their ViewObjects belong to &quot;model&quot; ViewLayers.</p>
+					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mySceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">// (calls to SceneModel createGeometry and</span>
+<span style="color: #008000">// createMesh omitted for brevity)</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;ground&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;groundMesh}]</span><span style="color: #CD3131">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewLayerId</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;environment&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;skyBox&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;skyBoxMesh}]</span><span style="color: #CD3131">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewLayerId</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;environment&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;houseFoundation&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh}]</span><span style="color: #CD3131">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewLayerId</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;model&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;houseWalls&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh}]</span><span style="color: #CD3131">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewLayerId</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;model&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">myModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+</code></pre>
+					<p>This time, however, our <a href="webviewer_src.view.html">View</a> has now created <a href="webviewer_src.viewobject.html">ViewObjects</a> for the &quot;model&quot; SceneObjects, while
+					ignoring the &quot;environment&quot; SceneObjects.</p>
+					<p>As far as this View is converned, the &quot;environment&quot; SceneObjects do not exist.</p>
+					<pre><code class="language-javascript"><span style="color: #008000">// viewer.scene.objects contains four SceneObjects with IDs &quot;ground&quot;, &quot;skyBox&quot;, &quot;houseFoundation&quot; and &quot;houseWalls&quot;</span>
+
+<span style="color: #008000">// viewer.views.view1.objects contains two ViewObjects with IDs &quot;houseFoundation&quot; and &quot;houseWalls&quot;</span>
+
+<span style="color: #008000">// viewer.views.view1.layers contains one ViewLayer with ID &quot;model&quot;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">modelLayer</span><span style="color: #000000"> = </span><span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">layers</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;model&quot;</span><span style="color: #000000">];</span>
+<span style="color: #001080">modelLayer</span><span style="color: #000000">.</span><span style="color: #795E26">setObjectsVisible</span><span style="color: #000000">(</span><span style="color: #001080">modelLayer</span><span style="color: #000000">.</span><span style="color: #001080">objectIds</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+</code></pre>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="core_src.component.html" class="tsd-signature-type" data-tsd-kind="Class">Component</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">ViewLayer</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="webviewer_src.viewlayer.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Events</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-event tsd-parent-kind-class tsd-is-inherited"><a href="webviewer_src.viewlayer.html#ondestroyed" class="tsd-kind-icon">on<wbr>Destroyed</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#onobjectvisibility" class="tsd-kind-icon">on<wbr>Object<wbr>Visibility</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#colorizedobjects" class="tsd-kind-icon">colorized<wbr>Objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="webviewer_src.viewlayer.html#destroyed" class="tsd-kind-icon">destroyed</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#highlightedobjects" class="tsd-kind-icon">highlighted<wbr>Objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite"><a href="webviewer_src.viewlayer.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#objects" class="tsd-kind-icon">objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#opacityobjects" class="tsd-kind-icon">opacity<wbr>Objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#selectedobjects" class="tsd-kind-icon">selected<wbr>Objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#view" class="tsd-kind-icon">view</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#viewer" class="tsd-kind-icon">viewer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#visibleobjects" class="tsd-kind-icon">visible<wbr>Objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#xrayedobjects" class="tsd-kind-icon">xrayed<wbr>Objects</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#colorizedobjectids" class="tsd-kind-icon">colorized<wbr>Object<wbr>Ids</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#gammafactor" class="tsd-kind-icon">gamma<wbr>Factor</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#highlightedobjectids" class="tsd-kind-icon">highlighted<wbr>Object<wbr>Ids</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#numcolorizedobjects" class="tsd-kind-icon">num<wbr>Colorized<wbr>Objects</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#numhighlightedobjects" class="tsd-kind-icon">num<wbr>Highlighted<wbr>Objects</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#numobjects" class="tsd-kind-icon">num<wbr>Objects</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#numopacityobjects" class="tsd-kind-icon">num<wbr>Opacity<wbr>Objects</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#numselectedobjects" class="tsd-kind-icon">num<wbr>Selected<wbr>Objects</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#numvisibleobjects" class="tsd-kind-icon">num<wbr>Visible<wbr>Objects</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#numxrayedobjects" class="tsd-kind-icon">numXRayed<wbr>Objects</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#objectids" class="tsd-kind-icon">object<wbr>Ids</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#opacityobjectids" class="tsd-kind-icon">opacity<wbr>Object<wbr>Ids</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#qualityrender" class="tsd-kind-icon">quality<wbr>Render</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#selectedobjectids" class="tsd-kind-icon">selected<wbr>Object<wbr>Ids</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#visibleobjectids" class="tsd-kind-icon">visible<wbr>Object<wbr>Ids</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#xrayedobjectids" class="tsd-kind-icon">xrayed<wbr>Object<wbr>Ids</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="webviewer_src.viewlayer.html#clean" class="tsd-kind-icon">clean</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="webviewer_src.viewlayer.html#cleanifdirty" class="tsd-kind-icon">clean<wbr>IfDirty</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="webviewer_src.viewlayer.html#destroy" class="tsd-kind-icon">destroy</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="webviewer_src.viewlayer.html#error" class="tsd-kind-icon">error</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="webviewer_src.viewlayer.html#log" class="tsd-kind-icon">log</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="webviewer_src.viewlayer.html#setdirty" class="tsd-kind-icon">set<wbr>Dirty</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectsclippable" class="tsd-kind-icon">set<wbr>Objects<wbr>Clippable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectscollidable" class="tsd-kind-icon">set<wbr>Objects<wbr>Collidable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectscolorized" class="tsd-kind-icon">set<wbr>Objects<wbr>Colorized</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectsculled" class="tsd-kind-icon">set<wbr>Objects<wbr>Culled</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectshighlighted" class="tsd-kind-icon">set<wbr>Objects<wbr>Highlighted</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectsopacity" class="tsd-kind-icon">set<wbr>Objects<wbr>Opacity</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectspickable" class="tsd-kind-icon">set<wbr>Objects<wbr>Pickable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectsselected" class="tsd-kind-icon">set<wbr>Objects<wbr>Selected</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectsvisible" class="tsd-kind-icon">set<wbr>Objects<wbr>Visible</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#setobjectsxrayed" class="tsd-kind-icon">set<wbr>ObjectsXRayed</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="webviewer_src.viewlayer.html#warn" class="tsd-kind-icon">warn</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="webviewer_src.viewlayer.html#withobjects" class="tsd-kind-icon">with<wbr>Objects</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>View<wbr>Layer<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="webviewer_src.viewlayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#constructor">constructor</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L363">webviewer/src/viewer/view/ViewLayer.ts:363</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a new component.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <span class="tsd-signature-symbol">{}</span></h5>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="webviewer_src.viewlayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Events</h2>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class tsd-is-inherited">
+					<a name="ondestroyed" class="tsd-anchor"></a>
+					<h3>on<wbr>Destroyed</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Destroyed<span class="tsd-signature-symbol">:</span> <a href="core_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="core_src.component.html" class="tsd-signature-type" data-tsd-kind="Class">Component</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#ondestroyed">onDestroyed</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L37">core/src/Component.ts:37</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Emits an event when the <a href="core_src.component.html">Component</a> has been destroyed.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onobjectvisibility" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> on<wbr>Object<wbr>Visibility</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Object<wbr>Visibility<span class="tsd-signature-symbol">:</span> <a href="core_src.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="webviewer_src.viewlayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a><span class="tsd-signature-symbol">, </span><a href="webviewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L344">webviewer/src/viewer/view/ViewLayer.ts:344</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Emits an event each time the visibility of a <a href="webviewer_src.viewobject.html">ViewObject</a> changes.</p>
+						</div>
+						<p>ViewObjects are shown and hidden with <a href="webviewer_src.view.html#setobjectsvisible">View.setObjectsVisible</a>, <a href="webviewer_src.viewlayer.html#setobjectsvisible">ViewLayer.setObjectsVisible</a> or <a href="webviewer_src.viewobject.html#visible">ViewObject.visible</a>.</p>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="colorizedobjects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> colorized<wbr>Objects</h3>
+					<div class="tsd-signature tsd-kind-icon">colorized<wbr>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L321">webviewer/src/viewer/view/ViewLayer.ts:321</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Map of currently colorized <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+						</div>
+						<p>Each <a href="webviewer_src.viewobject.html">ViewObject</a> is mapped here by <a href="webviewer_src.viewobject.html#id">ViewObject.id</a>.</p>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="webviewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="destroyed" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> destroyed</h3>
+					<div class="tsd-signature tsd-kind-icon">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#destroyed">destroyed</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L25">core/src/Component.ts:25</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>True once this Component has been destroyed.</p>
+						</div>
+						<p>Don&#39;t use this Component if this is <code>true</code>.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="highlightedobjects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> highlighted<wbr>Objects</h3>
+					<div class="tsd-signature tsd-kind-icon">highlighted<wbr>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L305">webviewer/src/viewer/view/ViewLayer.ts:305</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Map of currently highlighted <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+						</div>
+						<p>A ViewObject is highlighted when <a href="webviewer_src.viewobject.html#highlighted">ViewObject.highlighted</a> is true.</p>
+						<p>Each <a href="webviewer_src.viewobject.html">ViewObject</a> is mapped here by <a href="webviewer_src.viewobject.html#id">ViewObject.id</a>.</p>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="webviewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+					<a name="id" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#id">id</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L256">webviewer/src/viewer/view/ViewLayer.ts:256</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>ID of this ViewLayer, unique within the <a href="webviewer_src.view.html">View</a>.</p>
+						</div>
+						<p>This ViewLayer is mapped by this ID in <a href="webviewer_src.view.html#layers">View.layers</a>.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="objects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> objects</h3>
+					<div class="tsd-signature tsd-kind-icon">objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L278">webviewer/src/viewer/view/ViewLayer.ts:278</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Map of the all <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+						</div>
+						<p>These are the ViewObjects for which {@link ViewObject.viewLayerId} has the same value as <a href="webviewer_src.viewlayer.html#id">ViewLayer.id</a>.</p>
+						<p>Each <a href="webviewer_src.viewobject.html">ViewObject</a> is mapped here by <a href="webviewer_src.viewobject.html#id">ViewObject.id</a>.</p>
+						<p>The ViewLayer automatically ensures that there is a <a href="webviewer_src.viewobject.html">ViewObject</a> here for
+						each <a href="../interfaces/webviewer_src.sceneobject.html">SceneObject</a> in the <a href="webviewer_src.webviewer.html">WebViewer</a>&#39;s <a href="webviewer_src.scene.html">Scene</a>.</p>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="webviewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="opacityobjects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> opacity<wbr>Objects</h3>
+					<div class="tsd-signature tsd-kind-icon">opacity<wbr>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L328">webviewer/src/viewer/view/ViewLayer.ts:328</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Map of <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer whose opacity has been updated.</p>
+						</div>
+						<p>Each <a href="webviewer_src.viewobject.html">ViewObject</a> is mapped here by <a href="webviewer_src.viewobject.html#id">ViewObject.id</a>.</p>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="webviewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="selectedobjects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> selected<wbr>Objects</h3>
+					<div class="tsd-signature tsd-kind-icon">selected<wbr>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L314">webviewer/src/viewer/view/ViewLayer.ts:314</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Map of currently selected <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+						</div>
+						<p>A ViewObject is selected when <a href="webviewer_src.viewobject.html#selected">ViewObject.selected</a> is true.</p>
+						<p>Each <a href="webviewer_src.viewobject.html">ViewObject</a> is mapped here by <a href="webviewer_src.viewobject.html#id">ViewObject.id</a>.</p>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="webviewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="view" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> view</h3>
+					<div class="tsd-signature tsd-kind-icon">view<span class="tsd-signature-symbol">:</span> <a href="webviewer_src.view.html" class="tsd-signature-type" data-tsd-kind="Class">View</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L266">webviewer/src/viewer/view/ViewLayer.ts:266</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The View to which this ViewLayer belongs.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="viewer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> viewer</h3>
+					<div class="tsd-signature tsd-kind-icon">viewer<span class="tsd-signature-symbol">:</span> <a href="webviewer_src.webviewer.html" class="tsd-signature-type" data-tsd-kind="Class">WebViewer</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L261">webviewer/src/viewer/view/ViewLayer.ts:261</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The WebViewer to which this ViewLayer belongs.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="visibleobjects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> visible<wbr>Objects</h3>
+					<div class="tsd-signature tsd-kind-icon">visible<wbr>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L287">webviewer/src/viewer/view/ViewLayer.ts:287</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Map of the currently visible <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+						</div>
+						<p>A ViewObject is visible when <a href="webviewer_src.viewobject.html#visible">ViewObject.visible</a> is true.</p>
+						<p>Each <a href="webviewer_src.viewobject.html">ViewObject</a> is mapped here by <a href="webviewer_src.viewobject.html#id">ViewObject.id</a>.</p>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="webviewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="xrayedobjects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> xrayed<wbr>Objects</h3>
+					<div class="tsd-signature tsd-kind-icon">xrayed<wbr>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L296">webviewer/src/viewer/view/ViewLayer.ts:296</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Map of currently x-rayed <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+						</div>
+						<p>A ViewObject is x-rayed when <a href="webviewer_src.viewobject.html#xrayed">ViewObject.xrayed</a> is true.</p>
+						<p>Each <a href="webviewer_src.viewobject.html">ViewObject</a> is mapped here by <a href="webviewer_src.viewobject.html#id">ViewObject.id</a>.</p>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="webviewer_src.viewobject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="colorizedobjectids" class="tsd-anchor"></a>
+					<h3>colorized<wbr>Object<wbr>Ids</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> colorizedObjectIds<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L528">webviewer/src/viewer/view/ViewLayer.ts:528</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the IDs of the colorized <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="gammafactor" class="tsd-anchor"></a>
+					<h3>gamma<wbr>Factor</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> gammaFactor<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L407">webviewer/src/viewer/view/ViewLayer.ts:407</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the gamma factor.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="highlightedobjectids" class="tsd-anchor"></a>
+					<h3>highlighted<wbr>Object<wbr>Ids</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> highlightedObjectIds<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L494">webviewer/src/viewer/view/ViewLayer.ts:494</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the IDs of the highlighted <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="numcolorizedobjects" class="tsd-anchor"></a>
+					<h3>num<wbr>Colorized<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> numColorizedObjects<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L521">webviewer/src/viewer/view/ViewLayer.ts:521</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the number of colorized <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="numhighlightedobjects" class="tsd-anchor"></a>
+					<h3>num<wbr>Highlighted<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> numHighlightedObjects<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L487">webviewer/src/viewer/view/ViewLayer.ts:487</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the number of highlighted <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="numobjects" class="tsd-anchor"></a>
+					<h3>num<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> numObjects<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L436">webviewer/src/viewer/view/ViewLayer.ts:436</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the number of <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="numopacityobjects" class="tsd-anchor"></a>
+					<h3>num<wbr>Opacity<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> numOpacityObjects<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L548">webviewer/src/viewer/view/ViewLayer.ts:548</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the number of <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer that have updated opacities.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="numselectedobjects" class="tsd-anchor"></a>
+					<h3>num<wbr>Selected<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> numSelectedObjects<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L504">webviewer/src/viewer/view/ViewLayer.ts:504</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the number of selected <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="numvisibleobjects" class="tsd-anchor"></a>
+					<h3>num<wbr>Visible<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> numVisibleObjects<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L453">webviewer/src/viewer/view/ViewLayer.ts:453</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the number of visible <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="numxrayedobjects" class="tsd-anchor"></a>
+					<h3>numXRayed<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> numXRayedObjects<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L470">webviewer/src/viewer/view/ViewLayer.ts:470</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the number of X-rayed <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="objectids" class="tsd-anchor"></a>
+					<h3>object<wbr>Ids</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> objectIds<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L443">webviewer/src/viewer/view/ViewLayer.ts:443</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the IDs of the <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="opacityobjectids" class="tsd-anchor"></a>
+					<h3>opacity<wbr>Object<wbr>Ids</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> opacityObjectIds<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L538">webviewer/src/viewer/view/ViewLayer.ts:538</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the IDs of the <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer that have updated opacities.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+					<a name="qualityrender" class="tsd-anchor"></a>
+					<h3>quality<wbr>Render</h3>
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> qualityRender<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> qualityRender<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L429">webviewer/src/viewer/view/ViewLayer.ts:429</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets whether quality rendering is enabled for this ViewLayer.</p>
+								</div>
+								<p>Default is <code>false</code>.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L416">webviewer/src/viewer/view/ViewLayer.ts:416</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets whether quality rendering is enabled for this ViewLayer.</p>
+								</div>
+								<p>Default is <code>false</code>.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>value: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="selectedobjectids" class="tsd-anchor"></a>
+					<h3>selected<wbr>Object<wbr>Ids</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> selectedObjectIds<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L511">webviewer/src/viewer/view/ViewLayer.ts:511</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the IDs of the selected <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="visibleobjectids" class="tsd-anchor"></a>
+					<h3>visible<wbr>Object<wbr>Ids</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> visibleObjectIds<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L460">webviewer/src/viewer/view/ViewLayer.ts:460</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the IDs of the visible <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="xrayedobjectids" class="tsd-anchor"></a>
+					<h3>xrayed<wbr>Object<wbr>Ids</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> xrayedObjectIds<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L477">webviewer/src/viewer/view/ViewLayer.ts:477</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the IDs of the X-rayed <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="clean" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> clean</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">clean<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#clean">clean</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L116">core/src/Component.ts:116</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Forces this component to action any deferred state updates.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="cleanifdirty" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> clean<wbr>IfDirty</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">clean<wbr>IfDirty<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#cleanifdirty">cleanIfDirty</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L106">core/src/Component.ts:106</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gives this component an opportunity to action any defered state updates.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+					<a name="destroy" class="tsd-anchor"></a>
+					<h3>destroy</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">destroy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#destroy">destroy</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L927">webviewer/src/viewer/view/ViewLayer.ts:927</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Destroys this ViewLayer.</p>
+								</div>
+								<p>Causes <a href="webviewer_src.webviewer.html">WebViewer</a> to fire a &quot;viewDestroyed&quot; event.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="error" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> error</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">error<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#error">error</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L88">core/src/Component.ts:88</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Logs an error for this component to the JavaScript console.</p>
+								</div>
+								<p>The console message will have this format: <em><code>[ERROR] [&lt;component type&gt; =&lt;component id&gt;: &lt;message&gt;</code></em></p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The error message to log</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="log" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> log</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">log<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#log">log</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L62">core/src/Component.ts:62</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Logs a message for this component.</p>
+								</div>
+								<p>The message will have this format: <em><code>[LOG] [&lt;component type&gt; &lt;component id&gt;: &lt;message&gt;</code></em></p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The message to log</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="setdirty" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> set<wbr>Dirty</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Dirty<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#setdirty">setDirty</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L96">core/src/Component.ts:96</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Flags this component as having a defered state updates it needs to perform.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectsclippable" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Clippable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Clippable<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, clippable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L850">webviewer/src/viewer/view/ViewLayer.ts:850</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets the clippability of the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<ul>
+									<li>Updates <a href="webviewer_src.viewobject.html#clippable">ViewObject.clippable</a> on the Objects with the given IDs.</li>
+									<li>Enables or disables the ability to pick the given Objects with {@link ViewLayer.pick}.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Array of <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>clippable: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether or not to set clippable.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectscollidable" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Collidable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Collidable<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, collidable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L703">webviewer/src/viewer/view/ViewLayer.ts:703</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Updates the collidability of the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<p>Updates <a href="webviewer_src.viewobject.html#collidable">ViewObject.collidable</a> on the Objects with the given IDs.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Array of <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>collidable: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether or not to cull.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectscolorized" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Colorized</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Colorized<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, colorize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L794">webviewer/src/viewer/view/ViewLayer.ts:794</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Colorizes the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<ul>
+									<li>Updates <a href="webviewer_src.viewobject.html#colorize">ViewObject.colorize</a> on the Objects with the given IDs.</li>
+									<li>Updates <a href="webviewer_src.viewlayer.html#colorizedobjects">ViewLayer.colorizedObjects</a> and <a href="webviewer_src.viewlayer.html#numcolorizedobjects">ViewLayer.numColorizedObjects</a>.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>One or more <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>colorize: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>RGB colorize factors in range <code>[0..1,0..1,0..1]</code>.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> changed opacity, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectsculled" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Culled</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Culled<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, culled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L720">webviewer/src/viewer/view/ViewLayer.ts:720</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Updates the culled status of the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<p>Updates <a href="webviewer_src.viewobject.html#culled">ViewObject.culled</a> on the Objects with the given IDs.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Array of <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>culled: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether or not to cull.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectshighlighted" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Highlighted</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Highlighted<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, highlighted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L756">webviewer/src/viewer/view/ViewLayer.ts:756</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Highlights or un-highlights the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<ul>
+									<li>Updates <a href="webviewer_src.viewobject.html#highlighted">ViewObject.highlighted</a> on the Objects with the given IDs.</li>
+									<li>Updates <a href="webviewer_src.viewlayer.html#highlightedobjects">ViewLayer.highlightedObjects</a> and <a href="webviewer_src.viewlayer.html#numhighlightedobjects">ViewLayer.numHighlightedObjects</a>.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>One or more <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>highlighted: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether or not to highlight.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectsopacity" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Opacity</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Opacity<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, opacity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L810">webviewer/src/viewer/view/ViewLayer.ts:810</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets the opacity of the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<ul>
+									<li>Updates <a href="webviewer_src.viewobject.html#opacity">ViewObject.opacity</a> on the Objects with the given IDs.</li>
+									<li>Updates <a href="webviewer_src.viewlayer.html#opacityobjects">ViewLayer.opacityObjects</a> and <a href="webviewer_src.viewlayer.html#numopacityobjects">ViewLayer.numOpacityObjects</a>.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>One or more <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>opacity: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Opacity factor in range <code>[0..1]</code>.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> changed opacity, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectspickable" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Pickable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Pickable<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, pickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L830">webviewer/src/viewer/view/ViewLayer.ts:830</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets the pickability of the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<ul>
+									<li>Updates <a href="webviewer_src.viewobject.html#pickable">ViewObject.pickable</a> on the Objects with the given IDs.</li>
+									<li>Enables or disables the ability to pick the given Objects with {@link ViewLayer.pick}.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Array of <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>pickable: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether or not to set pickable.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectsselected" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Selected</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Selected<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, selected<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L738">webviewer/src/viewer/view/ViewLayer.ts:738</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Selects or deselects the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<ul>
+									<li>Updates <a href="webviewer_src.viewobject.html#selected">ViewObject.selected</a> on the Objects with the given IDs.</li>
+									<li>Updates <a href="webviewer_src.viewlayer.html#selectedobjects">ViewLayer.selectedObjects</a> and <a href="webviewer_src.viewlayer.html#numselectedobjects">ViewLayer.numSelectedObjects</a>.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>One or more <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>selected: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether or not to select.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectsvisible" class="tsd-anchor"></a>
+					<h3>set<wbr>Objects<wbr>Visible</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Objects<wbr>Visible<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, visible<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L686">webviewer/src/viewer/view/ViewLayer.ts:686</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Updates the visibility of the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<ul>
+									<li>Updates <a href="webviewer_src.viewobject.html#visible">ViewObject.visible</a> on the Objects with the given IDs.</li>
+									<li>Updates <a href="webviewer_src.viewlayer.html#visibleobjects">ViewLayer.visibleObjects</a> and <a href="webviewer_src.viewlayer.html#numvisibleobjects">ViewLayer.numVisibleObjects</a>.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Array of <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>visible: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether or not to cull.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setobjectsxrayed" class="tsd-anchor"></a>
+					<h3>set<wbr>ObjectsXRayed</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>ObjectsXRayed<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, xrayed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L774">webviewer/src/viewer/view/ViewLayer.ts:774</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Applies or removes X-ray rendering for the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+								<ul>
+									<li>Updates <a href="webviewer_src.viewobject.html#xrayed">ViewObject.xrayed</a> on the Objects with the given IDs.</li>
+									<li>Updates <a href="webviewer_src.viewlayer.html#xrayedobjects">ViewLayer.xrayedObjects</a> and <a href="webviewer_src.viewlayer.html#numxrayedobjects">ViewLayer.numXRayedObjects</a>.</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>One or more <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>xrayed: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether or not to xray.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<a name="warn" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> warn</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">warn<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="core_src.component.html">Component</a>.<a href="core_src.component.html#warn">warn</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/core/src/Component.ts#L75">core/src/Component.ts:75</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Logs a warning for this component to the JavaScript console.</p>
+								</div>
+								<p>The console message will have this format: <em><code>[WARN] [&lt;component type&gt; =&lt;component id&gt;: &lt;message&gt;</code></em></p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The warning message to log</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="withobjects" class="tsd-anchor"></a>
+					<h3>with<wbr>Objects</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">with<wbr>Objects<span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/webviewer/src/viewer/view/ViewLayer.ts#L867">webviewer/src/viewer/view/ViewLayer.ts:867</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Iterates with a callback over the given <a href="webviewer_src.viewobject.html">ViewObjects</a> in this ViewLayer.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ids: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>One or more <a href="webviewer_src.viewobject.html#id">ViewObject.id</a> values.</p>
+									</div>
+								</li>
+								<li>
+									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Callback to execute on each <a href="webviewer_src.viewobject.html">ViewObject</a>.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if any <a href="webviewer_src.viewobject.html">ViewObjects</a> were updated, else false if all updates were redundant and not applied.</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/core_src.html">core/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/data_src.html">data/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/math_src.html">math/src</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/webviewer_src.html">webviewer/src</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module">
+						<a href="webviewer_src.viewlayer.html" class="tsd-kind-icon">View<wbr>Layer</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+								<a href="webviewer_src.viewlayer.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class tsd-is-inherited">
+								<a href="webviewer_src.viewlayer.html#ondestroyed" class="tsd-kind-icon">on<wbr>Destroyed</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#onobjectvisibility" class="tsd-kind-icon">on<wbr>Object<wbr>Visibility</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#colorizedobjects" class="tsd-kind-icon">colorized<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="webviewer_src.viewlayer.html#destroyed" class="tsd-kind-icon">destroyed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#highlightedobjects" class="tsd-kind-icon">highlighted<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+								<a href="webviewer_src.viewlayer.html#id" class="tsd-kind-icon">id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#objects" class="tsd-kind-icon">objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#opacityobjects" class="tsd-kind-icon">opacity<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#selectedobjects" class="tsd-kind-icon">selected<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#view" class="tsd-kind-icon">view</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#viewer" class="tsd-kind-icon">viewer</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#visibleobjects" class="tsd-kind-icon">visible<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#xrayedobjects" class="tsd-kind-icon">xrayed<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#colorizedobjectids" class="tsd-kind-icon">colorized<wbr>Object<wbr>Ids</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#gammafactor" class="tsd-kind-icon">gamma<wbr>Factor</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#highlightedobjectids" class="tsd-kind-icon">highlighted<wbr>Object<wbr>Ids</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#numcolorizedobjects" class="tsd-kind-icon">num<wbr>Colorized<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#numhighlightedobjects" class="tsd-kind-icon">num<wbr>Highlighted<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#numobjects" class="tsd-kind-icon">num<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#numopacityobjects" class="tsd-kind-icon">num<wbr>Opacity<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#numselectedobjects" class="tsd-kind-icon">num<wbr>Selected<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#numvisibleobjects" class="tsd-kind-icon">num<wbr>Visible<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#numxrayedobjects" class="tsd-kind-icon">numXRayed<wbr>Objects</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#objectids" class="tsd-kind-icon">object<wbr>Ids</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#opacityobjectids" class="tsd-kind-icon">opacity<wbr>Object<wbr>Ids</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#qualityrender" class="tsd-kind-icon">quality<wbr>Render</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#selectedobjectids" class="tsd-kind-icon">selected<wbr>Object<wbr>Ids</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#visibleobjectids" class="tsd-kind-icon">visible<wbr>Object<wbr>Ids</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#xrayedobjectids" class="tsd-kind-icon">xrayed<wbr>Object<wbr>Ids</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="webviewer_src.viewlayer.html#clean" class="tsd-kind-icon">clean</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="webviewer_src.viewlayer.html#cleanifdirty" class="tsd-kind-icon">clean<wbr>IfDirty</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="webviewer_src.viewlayer.html#destroy" class="tsd-kind-icon">destroy</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="webviewer_src.viewlayer.html#error" class="tsd-kind-icon">error</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="webviewer_src.viewlayer.html#log" class="tsd-kind-icon">log</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="webviewer_src.viewlayer.html#setdirty" class="tsd-kind-icon">set<wbr>Dirty</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectsclippable" class="tsd-kind-icon">set<wbr>Objects<wbr>Clippable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectscollidable" class="tsd-kind-icon">set<wbr>Objects<wbr>Collidable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectscolorized" class="tsd-kind-icon">set<wbr>Objects<wbr>Colorized</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectsculled" class="tsd-kind-icon">set<wbr>Objects<wbr>Culled</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectshighlighted" class="tsd-kind-icon">set<wbr>Objects<wbr>Highlighted</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectsopacity" class="tsd-kind-icon">set<wbr>Objects<wbr>Opacity</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectspickable" class="tsd-kind-icon">set<wbr>Objects<wbr>Pickable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectsselected" class="tsd-kind-icon">set<wbr>Objects<wbr>Selected</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectsvisible" class="tsd-kind-icon">set<wbr>Objects<wbr>Visible</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#setobjectsxrayed" class="tsd-kind-icon">set<wbr>ObjectsXRayed</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="webviewer_src.viewlayer.html#warn" class="tsd-kind-icon">warn</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="webviewer_src.viewlayer.html#withobjects" class="tsd-kind-icon">with<wbr>Objects</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

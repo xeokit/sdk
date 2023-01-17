@@ -27,7 +27,7 @@ xeokit-webviewer is modular:
 | `@xeokit/webviewer-xktloader` | [XKTLoaderPlugin](./classes/webviewer_xktloader_src.xktloaderplugin.html) | A WebViewer plugin to load models from our native, supercompressed XKT format.                             |
 | `@xeokit/webviewer-treeview`  | [TreeViewPlugin](./classes/webviewer_xktloader_src.treeviewplugin.html)   | A WebViewer plugin that provides an HTML tree view widget to navigate viewer objects.                      |
 | `@xeokit/webviewer-navcube`   | [NavCubePlugin](./classes/webviewer_navcube_src.navcubeplugin.html)       | A WebViewer plugin that provides an interactive NavCube control to assist camera navigation                |
-| `@xeokit/webviewer-bcf `      | [NavCubePlugin](./classes/webviewer_bcf_src.bcfplugin.html)               | A WebViewer plugin that provides an interactive NavCube control to assist camera navigation                |
+| `@xeokit/webviewer-bcf `      | [BCFPlugin](./classes/webviewer_bcf_src.bcfplugin.html)                   | A WebViewer plugin that saves and loads viewer state as BCF viewpoints.                                    |
 | `@xeokit/convert2xkt`         | [convert2xkt](./classes/webviewer_navcube_src.navcubeplugin.html)         | NodeJS-based CLI tool and library for converting various AEC file formats into xeokit's native XKT format. |
 
 ## Getting started

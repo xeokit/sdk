@@ -1,0 +1,648 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>@xeokit/math/geometry | xeokit-viewer</title>
+	<meta name="description" content="Documentation for xeokit-viewer">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">xeokit-viewer</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">xeokit-viewer</a>
+				</li>
+				<li>
+					<a href="_xeokit_math_geometry.html">@xeokit/math/geometry</a>
+				</li>
+			</ul>
+			<h1>Module @xeokit/math/geometry</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<a href="#mesh-generation-functions" id="mesh-generation-functions" style="color: inherit; text-decoration: none;">
+							<h4>Mesh generation functions</h4>
+						</a>
+					</div>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">buildBoxGeometry</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/math/geometry&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">geometryArrays</span><span style="color: #000000"> = </span><span style="color: #795E26">buildBoxGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">center:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">    </span><span style="color: #001080">xSize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span><span style="color: #000000">,  </span><span style="color: #008000">// Half-size on each axis</span>
+<span style="color: #000000">    </span><span style="color: #001080">ySize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">zSize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span>
+<span style="color: #000000">});</span>
+</code></pre>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Type aliases</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-kind-icon">Geometry<wbr>Arrays</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_geometry.html#buildboxgeometry" class="tsd-kind-icon">build<wbr>Box<wbr>Geometry</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_geometry.html#buildboxlinesgeometry" class="tsd-kind-icon">build<wbr>Box<wbr>Lines<wbr>Geometry</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_geometry.html#buildcylindergeometry" class="tsd-kind-icon">build<wbr>Cylinder<wbr>Geometry</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_geometry.html#buildspheregeometry" class="tsd-kind-icon">build<wbr>Sphere<wbr>Geometry</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_geometry.html#buildtorusgeometry" class="tsd-kind-icon">build<wbr>Torus<wbr>Geometry</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_geometry.html#buildvectortextgeometry" class="tsd-kind-icon">build<wbr>Vector<wbr>Text<wbr>Geometry</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="geometryarrays" class="tsd-anchor"></a>
+					<h3>Geometry<wbr>Arrays</h3>
+					<div class="tsd-signature tsd-kind-icon">Geometry<wbr>Arrays<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/geometry/GeometryArrays.ts#L7">math/src/geometry/GeometryArrays.ts:7</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>GeometryBucketHandle data arrays.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="buildboxgeometry" class="tsd-anchor"></a>
+					<h3>build<wbr>Box<wbr>Geometry</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Box<wbr>Geometry<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/geometry/buildBoxGeometry.ts#L48">math/src/geometry/buildBoxGeometry.ts:48</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates box-shaped geometry arrays.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h2>Usage</h2>
+								</a>
+								<p>In the example below we&#39;ll create a {@link Mesh} with a box-shaped {@link GeometryBucketHandle}.</p>
+								<p>[<a href="http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildBoxGeometry">Run this example</a>]</p>
+								<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">Mesh</span><span style="color: #000000">, </span><span style="color: #001080">buildBoxGeometry</span><span style="color: #000000">, </span><span style="color: #001080">GeometryBucketHandle</span><span style="color: #000000">, </span><span style="color: #001080">PhongMaterial</span><span style="color: #000000">, </span><span style="color: #001080">Texture</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;xeokit-viewer.es.js&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">        </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Mesh</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometry:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">GeometryBucketHandle</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, </span><span style="color: #795E26">buildBoxGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">        </span><span style="color: #001080">center:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">        </span><span style="color: #001080">xSize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span><span style="color: #000000">,  </span><span style="color: #008000">// Half-size on each axis</span>
+<span style="color: #000000">        </span><span style="color: #001080">ySize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">zSize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span>
+<span style="color: #000000">     }),</span>
+<span style="color: #000000">     </span><span style="color: #001080">material</span><span style="color: #000000">: </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">PhongMaterial</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">        </span><span style="color: #001080">diffuseMap:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Texture</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">            </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;textures/diffuse/uvGrid2.jpg&quot;</span>
+<span style="color: #000000">        })</span>
+<span style="color: #000000">     })</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>function</dt>
+									<dd><p>buildBoxGeometry</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cfg: <span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Configs</p>
+									</div>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></h4>
+							<p>GeometryBucketHandle arrays.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="buildboxlinesgeometry" class="tsd-anchor"></a>
+					<h3>build<wbr>Box<wbr>Lines<wbr>Geometry</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Box<wbr>Lines<wbr>Geometry<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/geometry/buildBoxLinesGeometry.ts#L49">math/src/geometry/buildBoxLinesGeometry.ts:49</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a box-shaped lines {@link Geometry}.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h2>Usage</h2>
+								</a>
+								<p>In the example below we&#39;ll create a {@link Mesh} with a box-shaped {@link ReadableGeometry} that has lines primitives.</p>
+								<p>[<a href="http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildBoxLinesGeometry">Run this example</a>]</p>
+								<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">Mesh</span><span style="color: #000000">, </span><span style="color: #001080">buildBoxLinesGeometry</span><span style="color: #000000">, </span><span style="color: #001080">ReadableGeometry</span><span style="color: #000000">, </span><span style="color: #001080">PhongMaterial</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;xeokit-viewer.es.js&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">        </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Mesh</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometry:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ReadableGeometry</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, </span><span style="color: #795E26">buildBoxLinesGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">        </span><span style="color: #001080">center:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">        </span><span style="color: #001080">xSize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span><span style="color: #000000">,  </span><span style="color: #008000">// Half-size on each axis</span>
+<span style="color: #000000">        </span><span style="color: #001080">ySize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">zSize:</span><span style="color: #000000"> </span><span style="color: #098658">1</span>
+<span style="color: #000000">     }),</span>
+<span style="color: #000000">     </span><span style="color: #001080">material</span><span style="color: #000000">: </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">PhongMaterial</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">        </span><span style="color: #001080">emissive:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">1</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">]</span>
+<span style="color: #000000">     })</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>function</dt>
+									<dd><p>buildBoxLinesGeometry</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cfg: <span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Configs</p>
+									</div>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></h4>
+							<p>Configuration for a {@link Geometry} subtype.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="buildcylindergeometry" class="tsd-anchor"></a>
+					<h3>build<wbr>Cylinder<wbr>Geometry</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Cylinder<wbr>Geometry<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/geometry/buildCylinderGeometry.ts#L55">math/src/geometry/buildCylinderGeometry.ts:55</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a cylinder-shaped {@link GeometryBucketHandle}.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h2>Usage</h2>
+								</a>
+								<p>Creating a {@link Mesh} with a cylinder-shaped {@link GeometryBucketHandle} :</p>
+								<p>[<a href="http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildCylinderGeometry">Run this example</a>]</p>
+								<pre><code class="language-javascript">
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">Mesh</span><span style="color: #000000">, </span><span style="color: #001080">buildCylinderGeometry</span><span style="color: #000000">, </span><span style="color: #001080">GeometryBucketHandle</span><span style="color: #000000">, </span><span style="color: #001080">PhongMaterial</span><span style="color: #000000">, </span><span style="color: #001080">Texture</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;xeokit-viewer.es.js&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas&quot;</span>
+<span style="color: #000000"> });</span>
+
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Mesh</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometry:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ReadableGeometry</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, </span><span style="color: #795E26">buildCylinderGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">         </span><span style="color: #001080">center:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">         </span><span style="color: #001080">radiusTop:</span><span style="color: #000000"> </span><span style="color: #098658">2.0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">radiusBottom:</span><span style="color: #000000"> </span><span style="color: #098658">2.0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">height:</span><span style="color: #000000"> </span><span style="color: #098658">5.0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">radialSegments:</span><span style="color: #000000"> </span><span style="color: #098658">20</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">heightSegments:</span><span style="color: #000000"> </span><span style="color: #098658">1</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">openEnded:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span>
+<span style="color: #000000">     }),</span>
+<span style="color: #000000">     </span><span style="color: #001080">material</span><span style="color: #000000">: </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">PhongMaterial</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">        </span><span style="color: #001080">diffuseMap:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Texture</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">            </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;textures/diffuse/uvGrid2.jpg&quot;</span>
+<span style="color: #000000">        })</span>
+<span style="color: #000000">     })</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>function</dt>
+									<dd><p>buildCylinderGeometry</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cfg: <span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Configs</p>
+									</div>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></h4>
+							<p>Configuration for a {@link GeometryBucketHandle} subtype.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="buildspheregeometry" class="tsd-anchor"></a>
+					<h3>build<wbr>Sphere<wbr>Geometry</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Sphere<wbr>Geometry<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/geometry/buildSphereGeometry.ts#L48">math/src/geometry/buildSphereGeometry.ts:48</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a sphere-shaped {@link GeometryBucketHandle}.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h2>Usage</h2>
+								</a>
+								<p>Creating a {@link Mesh} with a sphere-shaped {@link GeometryBucketHandle} :</p>
+								<p>[<a href="http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildSphereGeometry">Run this example</a>]</p>
+								<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">Mesh</span><span style="color: #000000">, </span><span style="color: #001080">buildSphereGeometry</span><span style="color: #000000">, </span><span style="color: #001080">GeometryBucketHandle</span><span style="color: #000000">, </span><span style="color: #001080">PhongMaterial</span><span style="color: #000000">, </span><span style="color: #001080">Texture</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;xeokit-viewer.es.js&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Mesh</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometry:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">GeometryBucketHandle</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, </span><span style="color: #795E26">buildSphereGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">         </span><span style="color: #001080">center:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">         </span><span style="color: #001080">radius:</span><span style="color: #000000"> </span><span style="color: #098658">1.5</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">heightSegments:</span><span style="color: #000000"> </span><span style="color: #098658">60</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">widthSegments:</span><span style="color: #000000"> </span><span style="color: #098658">60</span>
+<span style="color: #000000">     }),</span>
+<span style="color: #000000">     </span><span style="color: #001080">material</span><span style="color: #000000">: </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">PhongMaterial</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">        </span><span style="color: #001080">diffuseMap:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Texture</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">            </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;textures/diffuse/uvGrid2.jpg&quot;</span>
+<span style="color: #000000">        })</span>
+<span style="color: #000000">     })</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>function</dt>
+									<dd><p>buildSphereGeometry</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cfg: <span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Configs</p>
+									</div>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></h4>
+							<p>Configuration for a {@link GeometryBucketHandle} subtype.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="buildtorusgeometry" class="tsd-anchor"></a>
+					<h3>build<wbr>Torus<wbr>Geometry</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Torus<wbr>Geometry<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/geometry/buildTorusGeometry.ts#L53">math/src/geometry/buildTorusGeometry.ts:53</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a torus-shaped {@link GeometryBucketHandle}.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h2>Usage</h2>
+								</a>
+								<p>Creating a {@link Mesh} with a torus-shaped {@link GeometryBucketHandle} :</p>
+								<p>[<a href="http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildTorusGeometry">Run this example</a>]</p>
+								<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">Mesh</span><span style="color: #000000">, </span><span style="color: #001080">buildTorusGeometry</span><span style="color: #000000">, </span><span style="color: #001080">GeometryBucketHandle</span><span style="color: #000000">, </span><span style="color: #001080">PhongMaterial</span><span style="color: #000000">, </span><span style="color: #001080">Texture</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;xeokit-viewer.es.js&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Mesh</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometry:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">GeometryBucketHandle</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, </span><span style="color: #795E26">buildTorusGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">         </span><span style="color: #001080">center:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">         </span><span style="color: #001080">radius:</span><span style="color: #000000"> </span><span style="color: #098658">1.0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">tube:</span><span style="color: #000000"> </span><span style="color: #098658">0.5</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">radialSegments:</span><span style="color: #000000"> </span><span style="color: #098658">32</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">tubeSegments:</span><span style="color: #000000"> </span><span style="color: #098658">24</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #001080">arc:</span><span style="color: #000000"> </span><span style="color: #267F99">Math</span><span style="color: #000000">.PI * </span><span style="color: #098658">2.0</span>
+<span style="color: #000000">     }),</span>
+<span style="color: #000000">     </span><span style="color: #001080">material</span><span style="color: #000000">: </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">PhongMaterial</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">        </span><span style="color: #001080">diffuseMap:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Texture</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">            </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;textures/diffuse/uvGrid2.jpg&quot;</span>
+<span style="color: #000000">        })</span>
+<span style="color: #000000">     })</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>function</dt>
+									<dd><p>buildTorusGeometry</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cfg: <span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Configs</p>
+									</div>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></h4>
+							<p>Configuration for a {@link GeometryBucketHandle} subtype.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="buildvectortextgeometry" class="tsd-anchor"></a>
+					<h3>build<wbr>Vector<wbr>Text<wbr>Geometry</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Vector<wbr>Text<wbr>Geometry<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/8d53fd7/packages/math/src/geometry/buildVectorTextGeometry.ts#L1623">math/src/geometry/buildVectorTextGeometry.ts:1623</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates wireframe vector text {@link Geometry}.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h2>Usage</h2>
+								</a>
+								<p>Creating a {@link Mesh} with vector text {@link ReadableGeometry} :</p>
+								<p>[<a href="http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildVectorTextGeometry">Run this example</a>]</p>
+								<pre><code class="language-javascript">
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">Mesh</span><span style="color: #000000">, </span><span style="color: #001080">buildVectorTextGeometry</span><span style="color: #000000">, </span><span style="color: #001080">ReadableGeometry</span><span style="color: #000000">, </span><span style="color: #001080">PhongMaterial</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;xeokit-viewer.es.js&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">100</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+<span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Mesh</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometry:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ReadableGeometry</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, </span><span style="color: #795E26">buildVectorTextGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">         </span><span style="color: #001080">origin:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">         </span><span style="color: #001080">text:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;On the other side of the screen, it all looked so easy&quot;</span>
+<span style="color: #000000">     }),</span>
+<span style="color: #000000">     </span><span style="color: #001080">material</span><span style="color: #000000">: </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">PhongMaterial</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">        </span><span style="color: #001080">diffuseMap:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Texture</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">, {</span>
+<span style="color: #000000">            </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;textures/diffuse/uvGrid2.jpg&quot;</span>
+<span style="color: #000000">        })</span>
+<span style="color: #000000">     })</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>function</dt>
+									<dd><p>buildVectorTextGeometry</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cfg: <span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Configs</p>
+									</div>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-signature-type" data-tsd-kind="Type alias">GeometryArrays</a></h4>
+							<p>Configuration for a {@link Geometry} subtype.</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_core_components.html">@xeokit/core/components</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_core_constants.html">@xeokit/core/constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_core_utils.html">@xeokit/core/utils</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_data.html">@xeokit/data</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_math_boundaries.html">@xeokit/math/boundaries</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_math_compression.html">@xeokit/math/compression</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_math_curves.html">@xeokit/math/curves</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="_xeokit_math_geometry.html">@xeokit/math/geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_math_math.html">@xeokit/math/math</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_math_matrix.html">@xeokit/math/matrix</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_viewer.html">@xeokit/viewer</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_webgl.html">@xeokit/webgl</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="_xeokit_math_geometry.html#geometryarrays" class="tsd-kind-icon">Geometry<wbr>Arrays</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_geometry.html#buildboxgeometry" class="tsd-kind-icon">build<wbr>Box<wbr>Geometry</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_geometry.html#buildboxlinesgeometry" class="tsd-kind-icon">build<wbr>Box<wbr>Lines<wbr>Geometry</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_geometry.html#buildcylindergeometry" class="tsd-kind-icon">build<wbr>Cylinder<wbr>Geometry</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_geometry.html#buildspheregeometry" class="tsd-kind-icon">build<wbr>Sphere<wbr>Geometry</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_geometry.html#buildtorusgeometry" class="tsd-kind-icon">build<wbr>Torus<wbr>Geometry</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_geometry.html#buildvectortextgeometry" class="tsd-kind-icon">build<wbr>Vector<wbr>Text<wbr>Geometry</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

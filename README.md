@@ -1,4 +1,4 @@
-# xeokit-viewer
+# xeokit
 
 [![npm version](https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer.svg)](https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer)
 [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-viewer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/xeokit-viewer)
@@ -26,21 +26,26 @@ xeokit embraces the Open-Closed Principle of design, which makes it modular and 
 The SDK contains the following modules:
 
 
-| Package          | Modules                                                                                                            | Description                                                           |
-|------------------|:-------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| `@xeokit/viewer` | [`@xeokit/viewer`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_viewer.html)                     | Browser-based model viewer                                            |
-| `@xeokit/webgl`  | [`@xeokit/webgl`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_webgl.html)                       | Configures a viewer to use WebGL(2)                                   |
-| `@xeokit/data`   | [`@xeokit/data`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_data.html)                         | Optional entity-relationship semantic data model to use with a viewer |
-| `@xeokit/core`   | [`@xeokit/core/components`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_components.html)   | Base component classes                                                |
-|                  | [`@xeokit/core/constants`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_constants.html)     | Global constants                                                      |
-|                  | [`@xeokit/core/utils`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_utils.html)             | General utilities library                                             |
-| `@xeokit/math`   | [`@xeokit/math/math`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_math.html)               | General math definitions and constants                                |
-|                  | [`@xeokit/math/boundaries`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_boundaries.html)   | Spatial boundary math utilities library                               |
-|                  | [`@xeokit/math/compression`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_compression.html) | Geometry de/compression utilities library                             |
-|                  | [`@xeokit/math/curves`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_curves.html)           | Spline curve utilities library                                        |
-|                  | [`@xeokit/math/geometry`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_geometry.html)       | Mesh generation utilities library                                     |
-|                  | [`@xeokit/math/matrix`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_matrix.html)           | Matrix and vector math utilities library                              |
-|                  | [`@xeokit/math/rtc`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_rtc.html)                 | RTC coordinate math utilities library                                 |
+| Package                                                          | Modules                                                                                                            | Description                                                               |
+|------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| [`@xeokit/viewer`](https://www.npmjs.com/package/@xeokit/viewer) | [`@xeokit/viewer`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_viewer.html)                     | Browser-based model viewer                                                |
+| [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webgl)   | [`@xeokit/webgl`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_webgl.html)                       | Extends the viewer to use WebGL2                                          |
+| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)     | [`@xeokit/data`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_data.html)                         | Entity-relationship semantic data model to use with a viewer              |
+| [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)     | [`@xeokit/core/components`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_components.html)   | Component base class, event dispatcher class                              |
+|                                                                  | [`@xeokit/core/constants`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_constants.html)     | Global constants                                                          |
+|                                                                  | [`@xeokit/core/utils`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_utils.html)             | General utilities library                                                 |
+| [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)     | [`@xeokit/math/math`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_math.html)               | General math definitions and constants                                    |
+|                                                                  | [`@xeokit/math/boundaries`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_boundaries.html)   | Spatial boundary math utilities library                                   |
+|                                                                  | [`@xeokit/math/compression`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_compression.html) | Geometry de/compression utilities library                                 |
+|                                                                  | [`@xeokit/math/curves`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_curves.html)           | Spline curve utilities library                                            |
+|                                                                  | [`@xeokit/math/geometry`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_geometry.html)       | Mesh generation utilities library                                         |
+|                                                                  | [`@xeokit/math/matrix`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_matrix.html)           | Matrix and vector math utilities library                                  |
+|                                                                  | [`@xeokit/math/rtc`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_rtc.html)                 | RTC coordinate math utilities library                                     |
+| [`@xeokit/model`](https://www.npmjs.com/package/@xeokit/model)   | [`@xeokit/model`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_model.html)                       | Buildable, memory-resident, offline, Viewer-agnostic model representation |
+| [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)       | [`@xeokit/xkt`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_xkt.html)                           | Loads and saves models as XKT                                             |
+| [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)     | [`@xeokit/gltf`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_gltf.html)                         | Loads models from glTF                                                    |
+| [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)       | [`@xeokit/las`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_las.html)                           | Loads models from LAS ad LAZ                                              |
+
 
 ## Usage
 
@@ -50,7 +55,7 @@ Let's create a [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/View
 a [WebIFCLoaderPlugin](https://xeokit.github.io/xeokit-viewer/docs/classes/WebIFCLoaderPlugin.html)
 to view a IFC model in the browser. We'll configure our Viewer with
 two [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html), and a then view a sample IFC model from
-the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Details/274).
+the [Open IFC ScratchModel Database](http://openifcmodel.cs.auckland.ac.nz/Model/Details/274).
 
 ![](https://xeokit.io/img/docs/WebIFCLoaderPlugin/WebIFCLoaderPluginBig.png)
 
@@ -70,7 +75,7 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
             user-select: none;
         }
 
-        #myCanvas1 {
+        #myView1 {
             width: 70%;
             height: 100%;
             position: absolute;
@@ -78,7 +83,7 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
             background-image: linear-gradient(lightblue, white);
         }
 
-        #myCanvas2 {
+        #myView2 {
             width: 30%;
             height: 100%;
             position: absolute;
@@ -87,8 +92,8 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
     </style>
 </head>
 <body>
-<canvas id="myCanvas1"></canvas>
-<canvas id="myCanvas2"></canvas>
+<canvas id="myView1"></canvas>
+<canvas id="myView2"></canvas>
 </body>
 <script id="source" type="module">
 
@@ -103,7 +108,7 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
 
     const view1 = viewer.createView({
         viewId: "myView1",
-        canvasId: "myCanvas1"
+        canvasId: "myView1"
     });
 
     view1.camera.eye = [-3.933, 2.855, 27.018];
@@ -114,7 +119,7 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
 
     const view2 = viewer.createView({
         viewId: "myView2",
-        canvasId: "myCanvas2"
+        canvasId: "myView2"
     });
 
     view2.camera.eye = [-3.933, 2.855, 27.018];
@@ -137,10 +142,10 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
 
     // Click the View #1 canvas to pick ViewObjects
 
-    view1.input.events.on("click", (mouseCanvasPos) => {
+    view1.input.events.on("click", (mouseViewPos) => {
 
         const pickResult = view1.pick({
-            canvasPos: mouseCanvasPos
+            canvasPos: mouseViewPos
         });
 
         if (pickResult) {
@@ -151,9 +156,9 @@ the [Open IFC Model Database](http://openifcmodel.cs.auckland.ac.nz/Model/Detail
 
             // Get geometry of the picked ViewObject
 
-            const sceneObject = viewer.scene.objects[viewObject.id];
-            const aabb = sceneObject.aabb; // 3D axis-aligned boundary
-            const center = sceneObject.center; // 3D center
+            const viewerObject = viewer.scene.objects[viewObject.id];
+            const aabb = viewerObject.aabb; // 3D axis-aligned boundary
+            const center = viewerObject.center; // 3D center
 
             // Get metadata for the picked ViewObject
 
@@ -225,7 +230,7 @@ model metadata and geometry programmatically, using builder methods within the A
             user-select: none;
         }
 
-        #myCanvas1 {
+        #myView1 {
             width: 70%;
             height: 100%;
             position: absolute;
@@ -233,7 +238,7 @@ model metadata and geometry programmatically, using builder methods within the A
             background-image: linear-gradient(lightblue, white);
         }
 
-        #myCanvas2 {
+        #myView2 {
             width: 30%;
             height: 100%;
             position: absolute;
@@ -242,8 +247,8 @@ model metadata and geometry programmatically, using builder methods within the A
     </style>
 </head>
 <body>
-<canvas id="myCanvas1"></canvas>
-<canvas id="myCanvas2"></canvas>
+<canvas id="myView1"></canvas>
+<canvas id="myView2"></canvas>
 </body>
 <script id="source" type="module">
 
@@ -258,7 +263,7 @@ model metadata and geometry programmatically, using builder methods within the A
 
     const view1 = viewer.createView({
         viewId: "myView1",
-        canvasId: "myCanvas1"
+        canvasId: "myView1"
     });
 
     view1.camera.eye = [-3.933, 2.855, 27.018];
@@ -269,7 +274,7 @@ model metadata and geometry programmatically, using builder methods within the A
 
     const view2 = viewer.createView({
         viewId: "myView2",
-        canvasId: "myCanvas2"
+        canvasId: "myView2"
     });
 
     view2.camera.eye = [-3.933, 2.855, 27.018];

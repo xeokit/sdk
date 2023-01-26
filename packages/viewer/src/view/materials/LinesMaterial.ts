@@ -6,7 +6,6 @@ import type {View} from "../View";
  * Configures the shape of "lines" geometry primitives.
  *
  * * Located at {@link View#linesMaterial}.
- * * Globally configures "lines" primitives for all {@link WebGLSceneModel}s.
  */
 class LinesMaterial extends Component {
 

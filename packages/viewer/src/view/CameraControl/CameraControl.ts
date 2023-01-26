@@ -16,16 +16,10 @@ import {CameraUpdater} from "./lib/CameraUpdater";
 import {MouseMiscHandler} from "./lib/handlers/MouseMiscHandler";
 import {TouchPanRotateAndDollyHandler} from "./lib/handlers/TouchPanRotateAndDollyHandler";
 import {TouchPickHandler} from "./lib/handlers/TouchPickHandler";
-
 import type {View} from "../View";
-import type {Canvas} from "../Canvas";
 import type {Camera} from "../camera/index";
-import type {Scene} from "../../scene/Scene";
 import type {PickResult} from "../PickResult";
-
 import * as keycodes from "../../keycodes";
-
-;
 
 
 class HoverEvent {
@@ -144,9 +138,9 @@ export class CameraControl extends Component {
     public readonly view: View;
 
     /**
-     * The Canvas where this CameraContol listens for input.
+     * The View where this CameraContol listens for input.
      */
-    public readonly canvas: Canvas;
+    public readonly canvasElement: HTMLCanvasElement;
 
     /**
      * The Camera this CameraControl controls.
@@ -155,7 +149,6 @@ export class CameraControl extends Component {
 
     readonly #components: {
         view: View;
-        canvas: Canvas;
         camera: Camera;
     };
 
@@ -317,7 +310,7 @@ export class CameraControl extends Component {
     /**
      * @private
      */
-    constructor(view: View, canvas: Canvas, camera: Camera, cfg: {
+    constructor(view: View, camera: Camera, cfg: {
         mouseWheelDollyRate?: number;
         keyboardDollyRate?: number;
         panInertia?: number;
@@ -345,16 +338,14 @@ export class CameraControl extends Component {
         super(view, cfg);
 
         this.view = view;
-        this.canvas = canvas;
         this.camera = camera;
 
-        canvas.canvas.oncontextmenu = (e) => {
+        view.canvasElement.oncontextmenu = (e) => {
             e.preventDefault();
         };
 
         this.#components = {
             view,
-            canvas,
             camera
         }
 

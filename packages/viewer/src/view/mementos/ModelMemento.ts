@@ -34,11 +34,11 @@ const color = new Float32Array(3);
  *
  * model.on("loaded", () => {
  *
- *      // Model has loaded
+ *      // ScratchModel has loaded
  *
  *      // Hide a couple of objects
- *      viewer.scene.objects["0u4wgLe6n0ABVaiXyikbkA"].visible = false;
- *      viewer.scene.objects["3u4wgLe3n0AXVaiXyikbYO"].visible = false;
+ *      viewer.objects["0u4wgLe6n0ABVaiXyikbkA"].visible = false;
+ *      viewer.objects["3u4wgLe3n0AXVaiXyikbYO"].visible = false;
  *
  *      // Save memento of all object states, which includes those two hidden objects
  *      const ModelMemento = new ModelMemento();
@@ -47,7 +47,7 @@ const color = new Float32Array(3);
  *      ModelMemento.saveObjects(viewer.scene);
  *
  *      // Show all objects
- *      viewer.scene.setObjectsVisible(viewer.scene.objectIds, true);
+ *      viewer.setObjectsVisible(viewer.objectIds, true);
  *
  *      // Restore the objects states again, which involves hiding those two objects again
  *      ModelMemento.restoreViewObjects(viewer.scene);

@@ -3,7 +3,6 @@ import {Component, EventEmitter} from "@xeokit/core/components";
 import {createUUID, isString} from "@xeokit/core/utils";
 
 import {Camera, CameraFlightAnimation} from "./camera/index";
-import {Canvas} from "./Canvas";
 import {CameraControl} from "./CameraControl/index";
 import {ViewObject} from "./ViewObject";
 import {SectionPlane} from "./SectionPlane";
@@ -11,23 +10,24 @@ import type {AmbientLight, DirLight, PointLight} from "./lights/index";
 import {EdgeMaterial, EmphasisMaterial, PointsMaterial} from "./materials/index";
 import type {Viewer} from "../Viewer";
 import {Metrics} from "./Metriqs";
-import type {Scene, SceneModel} from "../scene/index";
+import type { ViewerModel} from "../ViewerModel";
 import {SAO} from "./SAO";
 import {LinesMaterial} from "./materials/LinesMaterial";
 import {ViewLayer} from "./ViewLayer";
 import type {ViewLayerParams} from "./ViewLayerParams";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
 import {QualityRender} from "@xeokit/core/constants";
-import {FloatArrayParam} from "@xeokit/math/math";
+import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
+import {createVec3} from "@xeokit/math/matrix";
 
 /**
  * An independently-configurable view of the models in a {@link Viewer}.
  *
  * ## Overview
  *
- * A View is an independently-configurable view of the {@link SceneObject|SceneObjects} existing within a Viewer, with
- * its own HTML canvas. A View automatically contains a {@link ViewObject} for each existing SceneObject. ViewObjects
- * function as a kind of proxy for the SceneObjects, through which we control their appearance
+ * A View is an independently-configurable view of the {@link ViewerObject|ViewerObjects} existing within a Viewer, with
+ * its own HTML canvas. A View automatically contains a {@link ViewObject} for each existing ViewerObject. ViewObjects
+ * function as a kind of proxy for the ViewerObjects, through which we control their appearance
  * (show/hide/highlight etc.) within that particular View's canvas.
  *
  * Using Views, we can essentially have multiple canvases viewing the same model, each canvas perhaps showing a different subset
@@ -39,7 +39,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
  * * Control the View's viewpoint and projection with {@link View.camera}
  * * Create light sources with {@link View.createLightSource}
  * * Create slicing planes with {@link View createSectionPlane}
- * * Each View automatically has a {@link ViewObject} for every {@link SceneObject}
+ * * Each View automatically has a {@link ViewObject} for every {@link ViewerObject}
  * * Uses {@link ViewLayer|ViewLayers} to organize ViewObjects into layers
  * * Optionally uses ViewLayers to mask which ViewObjects are automatically maintained
  * * Control the visibility of ViewObjects with {@link View.setObjectsVisible}
@@ -52,7 +52,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
  * ````javascript
  * const view1 = myViewer.createView({
  *      id: "myView",
- *      canvasId: "myCanvas1"
+ *      canvasId: "myView1"
  * });
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
@@ -68,7 +68,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
  * ```` javascript
  * const view2 = myViewer.createView({
  *      id: "myView2",
- *      canvasId: "myCanvas2"
+ *      canvasId: "myView2"
  * });
  *
  * view2.camera.eye = [-1.4, 1.5, 15.8];
@@ -103,9 +103,26 @@ class View extends Component {
     readonly camera: Camera;
 
     /**
-     * Manages the HTML canvas for this View.
+     * The HTML canvas.
      */
-    readonly canvas: Canvas;
+    public canvasElement: HTMLCanvasElement;
+
+    /**
+     * Indicates if this View is transparent.
+     */
+    public readonly transparent: boolean;
+
+    /**
+     * Boundary of the canvas in absolute browser window coordinates.
+     * Format is ````[xmin, ymin, xwidth, ywidth]````.
+     */
+    public readonly boundary: number[];
+
+    #onTick: () => void;
+
+    #backgroundColor: FloatArrayParam;
+    #backgroundColorFromAmbientLight: boolean;
+    #resolutionScale: number;
 
     /**
      * Whether the logarithmic depth buffer is enabled for this View.
@@ -165,10 +182,10 @@ class View extends Component {
     /**
      * Map of the all {@link ViewObject|ViewObjects} in this View.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
      *
      * The View automatically ensures that there is a {@link ViewObject} here for
-     * each {@link SceneObject} in the {@link Viewer}'s {@link Scene}.
+     * each {@link ViewerObject} in the {@link Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
 
@@ -177,7 +194,7 @@ class View extends Component {
      *
      * A ViewObject is visible when {@link ViewObject.visible} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
      */
     readonly visibleObjects: { [key: string]: ViewObject };
 
@@ -186,7 +203,7 @@ class View extends Component {
      *
      * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
      */
     readonly xrayedObjects: { [key: string]: ViewObject };
 
@@ -195,7 +212,7 @@ class View extends Component {
      *
      * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
      */
     readonly highlightedObjects: { [key: string]: ViewObject };
 
@@ -204,21 +221,21 @@ class View extends Component {
      *
      * A ViewObject is selected when {@link ViewObject.selected} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
      */
     readonly selectedObjects: { [key: string]: ViewObject };
 
     /**
      * Map of currently colorized {@link ViewObject|ViewObjects} in this View.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
      */
     readonly colorizedObjects: { [key: string]: ViewObject };
 
     /**
      * Map of {@link ViewObject|ViewObjects} in this View whose opacity has been updated.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
      */
     readonly opacityObjects: { [key: string]: ViewObject };
 
@@ -253,20 +270,27 @@ class View extends Component {
 
     /**
      * Whether the View will automatically create {@link ViewLayer|ViewLayers} on-demand
-     * as {@link SceneObject|SceneObjects} are created.
+     * as {@link ViewerObject|ViewerObjects} are created.
      *
      * When ````true```` (default), the View will automatically create {@link ViewLayer|ViewLayers} as needed for each new
-     * {@link SceneObject.viewLayerId} encountered, including a "default" ViewLayer for SceneObjects that have no
-     * viewLayerId. This default setting therefore ensures that a ViewObject is created in the View for every SceneObject that is created.
+     * {@link ViewerObject.viewLayerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+     * viewLayerId. This default setting therefore ensures that a ViewObject is created in the View for every ViewerObject that is created.
      *
-     * If you set this ````false````, however, then the View will only create {@link ViewObject|ViewObjects} for {@link SceneObject|SceneObjects} that have
-     * a {@link SceneObject.viewLayerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
+     * If you set this ````false````, however, then the View will only create {@link ViewObject|ViewObjects} for {@link ViewerObject|ViewerObjects} that have
+     * a {@link ViewerObject.viewLayerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
      *
      * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
-     * SceneObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for SceneObjects
+     * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
      * that it never needs to show.
      */
     readonly autoLayers: boolean;
+
+    /**
+     * Emits an event each time the canvas boundary changes.
+     *
+     * @event
+     */
+    readonly onBoundary: EventEmitter<View, IntArrayParam>;
 
     /**
      * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
@@ -280,7 +304,7 @@ class View extends Component {
     /**
      * Emits an event each time a {@link ViewLayer} is created in this View.
      *
-     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link Scene.createModel} and {@link SceneModelParams.viewLayerId}.
+     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link View.createModel} and {@link ViewerModelParams.viewLayerId}.
      *
      * @event
      */
@@ -389,23 +413,99 @@ class View extends Component {
         this.#sectionPlanesHash = null;
         this.#lightsHash = null;
 
-        this.canvas = new Canvas(this, {
-            canvas: canvas,
-            transparent: !!options.transparent,
-            backgroundColor: options.backgroundColor,
-            backgroundColorFromAmbientLight: !!options.backgroundColorFromAmbientLight,
-            premultipliedAlpha: !!options.premultipliedAlpha
-        });
+        // this.canvas = new View(this, {
+        //     canvas: canvas,
+        //     transparent: !!options.transparent,
+        //     backgroundColor: options.backgroundColor,
+        //     backgroundColorFromAmbientLight: !!options.backgroundColorFromAmbientLight,
+        //     premultipliedAlpha: !!options.premultipliedAlpha
+        // });
+        //
+        // this.canvas.onBoundary.subscribe(() => {
+        //     this.redraw();
+        // });
 
-        this.canvas.onBoundary.subscribe(() => {
-            this.redraw();
+        this.onBoundary = new EventEmitter(new EventDispatcher<View, IntArrayParam>());
+
+        this.#resolutionScale = 1;
+        this.#backgroundColor = createVec3([
+            options.backgroundColor ? options.backgroundColor[0] : 1,
+            options.backgroundColor ? options.backgroundColor[1] : 1,
+            options.backgroundColor ? options.backgroundColor[2] : 1]);
+        this.#backgroundColorFromAmbientLight = !!options.backgroundColorFromAmbientLight;
+
+        this.canvasElement = options.canvasElement;
+        this.transparent = !!options.transparent;
+        this.canvasElement.width = this.canvasElement.clientWidth;
+        this.canvasElement.height = this.canvasElement.clientHeight;
+        this.boundary = [
+            this.canvasElement.offsetLeft, this.canvasElement.offsetTop,
+            this.canvasElement.clientWidth, this.canvasElement.clientHeight
+        ];
+
+        // Publish canvasElement size and position changes on each scene tick
+
+        let lastWindowWidth = 0;
+        let lastWindowHeight = 0;
+        let lastViewWidth = 0;
+        let lastViewHeight = 0;
+        let lastViewOffsetLeft = 0;
+        let lastViewOffsetTop = 0;
+        let lastParent: null | HTMLElement = null;
+
+        let lastResolutionScale: null | number = null;
+
+        this.#onTick = this.viewer.onTick.subscribe(() => {
+
+            const canvasElement = this.canvasElement;
+            const newResolutionScale = (this.#resolutionScale !== lastResolutionScale);
+            const newWindowSize = (window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight);
+            const newViewSize = (canvasElement.clientWidth !== lastViewWidth || canvasElement.clientHeight !== lastViewHeight);
+            const newViewPos = (canvasElement.offsetLeft !== lastViewOffsetLeft || canvasElement.offsetTop !== lastViewOffsetTop);
+            const parent = canvasElement.parentElement;
+            const newParent = (parent !== lastParent);
+
+            if (newResolutionScale || newWindowSize || newViewSize || newViewPos || newParent) {
+                //   this._spinner._adjustPosition();
+                if (newResolutionScale || newViewSize || newViewPos) {
+                    const newWidth = canvasElement.clientWidth;
+                    const newHeight = canvasElement.clientHeight;
+                    if (newResolutionScale || newViewSize) {
+                        canvasElement.width = Math.round(canvasElement.clientWidth * this.#resolutionScale);
+                        canvasElement.height = Math.round(canvasElement.clientHeight * this.#resolutionScale);
+                    }
+                    const boundary = this.boundary;
+                    boundary[0] = canvasElement.offsetLeft;
+                    boundary[1] = canvasElement.offsetTop;
+                    boundary[2] = newWidth;
+                    boundary[3] = newHeight;
+                    if (!newResolutionScale || newViewSize) {
+                        this.onBoundary.dispatch(this, boundary);
+                    }
+                    lastViewWidth = newWidth;
+                    lastViewHeight = newHeight;
+                }
+
+                if (newResolutionScale) {
+                    lastResolutionScale = this.#resolutionScale;
+                }
+                if (newWindowSize) {
+                    lastWindowWidth = window.innerWidth;
+                    lastWindowHeight = window.innerHeight;
+                }
+                if (newViewPos) {
+                    lastViewOffsetLeft = canvasElement.offsetLeft;
+                    lastViewOffsetTop = canvasElement.offsetTop;
+                }
+                lastParent = parent;
+            }
         });
 
         this.camera = new Camera(this);
 
         this.sao = new SAO(this, {});
 
-        this.cameraControl = new CameraControl(this, this.canvas, this.camera, {
+        this.cameraControl = new CameraControl(this, this.camera, {
             doublePickFlyTo: true
         });
 
@@ -487,6 +587,95 @@ class View extends Component {
         this.onSectionPlaneDestroyed = new EventEmitter(new EventDispatcher<View, SectionPlane>());
 
         this.#initObjects();
+    }
+
+    /**
+     * Gets the canvas clear color.
+     *
+     * Default value is ````[1, 1, 1]````.
+     */
+    get backgroundColor(): FloatArrayParam {
+        return this.#backgroundColor;
+    }
+
+    /**
+     * Sets the canvas clear color.
+     *
+     * Default value is ````[1, 1, 1]````.
+     */
+    set backgroundColor(value: FloatArrayParam) {
+        if (value) {
+            this.#backgroundColor[0] = value[0];
+            this.#backgroundColor[1] = value[1];
+            this.#backgroundColor[2] = value[2];
+        } else {
+            this.#backgroundColor[0] = 1.0;
+            this.#backgroundColor[1] = 1.0;
+            this.#backgroundColor[2] = 1.0;
+        }
+        this.redraw();
+    }
+
+    /**
+     * Gets whether the canvas clear color will be derived from {@link AmbientLight} or {@link View#backgroundColor}
+     * when {@link View#transparent} is ```true```.
+     *
+     * When {@link View#transparent} is ```true``` and this is ````true````, then the canvas clear color will
+     * be taken from the ambient light color.
+     *
+     * When {@link View#transparent} is ```true``` and this is ````false````, then the canvas clear color will
+     * be taken from {@link View#backgroundColor}.
+     *
+     * Default value is ````true````.
+     */
+    get backgroundColorFromAmbientLight(): boolean {
+        return this.#backgroundColorFromAmbientLight;
+    }
+
+    /**
+     * Sets if the canvas background color is derived from an {@link AmbientLight}.
+     *
+     * This only has effect when the canvas is not transparent. When not enabled, the background color
+     * will be the canvas element's HTML/CSS background color.
+     *
+     * Default value is ````true````.
+     */
+    set backgroundColorFromAmbientLight(backgroundColorFromAmbientLight: boolean) {
+        this.#backgroundColorFromAmbientLight = (backgroundColorFromAmbientLight !== false);
+    }
+
+    /**
+     * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+     *
+     * This is a common way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
+     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+     * a performance boost.
+     *
+     * @returns  The resolution scale.
+     */
+    get resolutionScale(): number {
+        return this.#resolutionScale;
+    }
+
+    /**
+     * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+     *
+     * This is a common way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
+     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+     * a performance boost.
+     *
+     * @param resolutionScale The resolution scale.
+     */
+    set resolutionScale(resolutionScale: number) {
+        resolutionScale = resolutionScale || 1.0;
+        if (resolutionScale === this.#resolutionScale) {
+            return;
+        }
+        this.#resolutionScale = resolutionScale;
+        const canvasElement = this.canvasElement;
+        canvasElement.width = Math.round(canvasElement.clientWidth * this.#resolutionScale);
+        canvasElement.height = Math.round(canvasElement.clientHeight * this.#resolutionScale);
+        this.redraw();
     }
 
     /**
@@ -641,7 +830,7 @@ class View extends Component {
      * @private
      */
     registerViewObject(viewObject: ViewObject) {
-        this.objects[viewObject.id] = viewObject;
+        this.objects[viewObject.objectId] = viewObject;
         this.#numObjects++;
         this.#objectIds = null; // Lazy regenerate
     }
@@ -650,13 +839,13 @@ class View extends Component {
      * @private
      */
     deregisterViewObject(viewObject: ViewObject) {
-        delete this.objects[viewObject.id];
-        delete this.visibleObjects[viewObject.id];
-        delete this.xrayedObjects[viewObject.id];
-        delete this.highlightedObjects[viewObject.id];
-        delete this.selectedObjects[viewObject.id];
-        delete this.colorizedObjects[viewObject.id];
-        delete this.opacityObjects[viewObject.id];
+        delete this.objects[viewObject.objectId];
+        delete this.visibleObjects[viewObject.objectId];
+        delete this.xrayedObjects[viewObject.objectId];
+        delete this.highlightedObjects[viewObject.objectId];
+        delete this.selectedObjects[viewObject.objectId];
+        delete this.colorizedObjects[viewObject.objectId];
+        delete this.opacityObjects[viewObject.objectId];
         this.#numObjects--;
         this.#objectIds = null; // Lazy regenerate
     }
@@ -666,10 +855,10 @@ class View extends Component {
      */
     objectVisibilityUpdated(viewObject: ViewObject, visible: boolean, notify: boolean = true) {
         if (visible) {
-            this.visibleObjects[viewObject.id] = viewObject;
+            this.visibleObjects[viewObject.objectId] = viewObject;
             this.#numVisibleObjects++;
         } else {
-            delete this.visibleObjects[viewObject.id];
+            delete this.visibleObjects[viewObject.objectId];
             this.#numVisibleObjects--;
         }
         this.#visibleObjectIds = null; // Lazy regenerate
@@ -683,10 +872,10 @@ class View extends Component {
      */
     objectXRayedUpdated(viewObject: ViewObject, xrayed: boolean) {
         if (xrayed) {
-            this.xrayedObjects[viewObject.id] = viewObject;
+            this.xrayedObjects[viewObject.objectId] = viewObject;
             this.#numXRayedObjects++;
         } else {
-            delete this.xrayedObjects[viewObject.id];
+            delete this.xrayedObjects[viewObject.objectId];
             this.#numXRayedObjects--;
         }
         this.#xrayedObjectIds = null; // Lazy regenerate
@@ -697,10 +886,10 @@ class View extends Component {
      */
     objectHighlightedUpdated(viewObject: ViewObject, highlighted: boolean) {
         if (highlighted) {
-            this.highlightedObjects[viewObject.id] = viewObject;
+            this.highlightedObjects[viewObject.objectId] = viewObject;
             this.#numHighlightedObjects++;
         } else {
-            delete this.highlightedObjects[viewObject.id];
+            delete this.highlightedObjects[viewObject.objectId];
             this.#numHighlightedObjects--;
         }
         this.#highlightedObjectIds = null; // Lazy regenerate
@@ -711,10 +900,10 @@ class View extends Component {
      */
     objectSelectedUpdated(viewObject: ViewObject, selected: boolean) {
         if (selected) {
-            this.selectedObjects[viewObject.id] = viewObject;
+            this.selectedObjects[viewObject.objectId] = viewObject;
             this.#numSelectedObjects++;
         } else {
-            delete this.selectedObjects[viewObject.id];
+            delete this.selectedObjects[viewObject.objectId];
             this.#numSelectedObjects--;
         }
         this.#selectedObjectIds = null; // Lazy regenerate
@@ -725,10 +914,10 @@ class View extends Component {
      */
     objectColorizeUpdated(viewObject: ViewObject, colorized: boolean) {
         if (colorized) {
-            this.colorizedObjects[viewObject.id] = viewObject;
+            this.colorizedObjects[viewObject.objectId] = viewObject;
             this.#numColorizedObjects++;
         } else {
-            delete this.colorizedObjects[viewObject.id];
+            delete this.colorizedObjects[viewObject.objectId];
             this.#numColorizedObjects--;
         }
         this.#colorizedObjectIds = null; // Lazy regenerate
@@ -739,10 +928,10 @@ class View extends Component {
      */
     objectOpacityUpdated(viewObject: ViewObject, opacityUpdated: boolean) {
         if (opacityUpdated) {
-            this.opacityObjects[viewObject.id] = viewObject;
+            this.opacityObjects[viewObject.objectId] = viewObject;
             this.#numOpacityObjects++;
         } else {
-            delete this.opacityObjects[viewObject.id];
+            delete this.opacityObjects[viewObject.objectId];
             this.#numOpacityObjects--;
         }
         this.#opacityObjectIds = null; // Lazy regenerate
@@ -771,9 +960,9 @@ class View extends Component {
      * Destroys the {@link SectionPlane}s in this View.
      */
     clearSectionPlanes(): void {
-        const ids = Object.keys(this.sectionPlanes);
-        for (let i = 0, len = ids.length; i < len; i++) {
-            this.sectionPlanes[ids[i]].destroy();
+        const objectIds = Object.keys(this.sectionPlanes);
+        for (let i = 0, len = objectIds.length; i < len; i++) {
+            this.sectionPlanes[objectIds[i]].destroy();
         }
         this.sectionPlanesList.length = 0;
         this.#sectionPlanesHash = null;
@@ -854,9 +1043,9 @@ class View extends Component {
      * Destroys the light sources in this View.
      */
     clearLights(): void {
-        const ids = Object.keys(this.lights);
-        for (let i = 0, len = ids.length; i < len; i++) {
-            this.lights[ids[i]].destroy();
+        const objectIds = Object.keys(this.lights);
+        for (let i = 0, len = objectIds.length; i < len; i++) {
+            this.lights[objectIds[i]].destroy();
         }
     }
 
@@ -912,6 +1101,7 @@ class View extends Component {
      * Causes {@link Viewer} to fire a "viewDestroyed" event.
      */
     destroy() {
+        this.viewer.onTick.unsubscribe(this.#onTick);
         super.destroy();
         this.onObjectVisibility.clear();
         this.onLayerCreated.clear();
@@ -921,25 +1111,22 @@ class View extends Component {
     }
 
     #initObjects() {
-        const scene = this.viewer.scene;
-        const sceneModels = scene.models;
-        for (const id in sceneModels) {
-            const sceneModel = sceneModels[id];
-            this.#createObjects(sceneModel);
+        for (const id in this.viewer.models) {
+            this.#createObjects(this.viewer.models[id]);
         }
-        scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.#createObjects(sceneModel);
+        this.viewer.onModelCreated.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
+            this.#createObjects(viewerModel);
         });
-        scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.#destroyObjects(sceneModel);
+        this.viewer.onModelDestroyed.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
+            this.#destroyObjects(viewerModel);
         });
     }
 
-    #createObjects(sceneModel: SceneModel) {
-        const sceneObjects = sceneModel.objects;
-        for (let id in sceneObjects) {
-            const sceneObject = sceneObjects[id];
-            const viewLayerId = sceneObject.viewLayerId || "default";
+    #createObjects(viewerModel: ViewerModel) {
+        const viewerObjects = viewerModel.objects;
+        for (let id in viewerObjects) {
+            const viewerObject = viewerObjects[id];
+            const viewLayerId = viewerObject.viewLayerId || "default";
             let viewLayer = this.layers[viewLayerId];
             if (!viewLayer) {
                 if (!this.autoLayers) {
@@ -957,19 +1144,19 @@ class View extends Component {
                 });
                 this.onLayerCreated.dispatch(this, viewLayer);
             }
-            const viewObject = new ViewObject(viewLayer, sceneObject, {});
+            const viewObject = new ViewObject(viewLayer, viewerObject, {});
             viewLayer.registerViewObject(viewObject);
             this.registerViewObject(viewObject);
         }
     }
 
-    #destroyObjects(sceneModel: SceneModel) {
-        const sceneObjects = sceneModel.objects;
-        for (let id in sceneObjects) {
-            const sceneObject = sceneObjects[id];
-            const viewLayerId = sceneObject.viewLayerId || "main";
+    #destroyObjects(viewerModel: ViewerModel) {
+        const viewerObjects = viewerModel.objects;
+        for (let id in viewerObjects) {
+            const viewerObject = viewerObjects[id];
+            const viewLayerId = viewerObject.viewLayerId || "main";
             let viewLayer = this.layers[viewLayerId];
-            const viewObject = this.objects[sceneObject.id];
+            const viewObject = this.objects[viewerObject.objectId];
             this.deregisterViewObject(viewObject);
             if (viewLayer) {
                 viewLayer.deregisterViewObject(viewObject);
@@ -993,12 +1180,12 @@ class View extends Component {
      * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
      * - Updates {@link View.visibleObjects} and {@link View.numVisibleObjects}.
      *
-     * @param {String[]} ids Array of {@link ViewObject.id} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
      * @param visible Whether or not to cull.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    setObjectsVisible(ids: string[] | string, visible: boolean): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsVisible(objectIds: string[], visible: boolean): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.visible !== visible);
             viewObject.visible = visible;
             return changed;
@@ -1010,12 +1197,12 @@ class View extends Component {
      *
      * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
      *
-     * @param {String[]} ids Array of {@link ViewObject.id} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
      * @param collidable Whether or not to cull.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    setObjectsCollidable(ids: string[] | string, collidable: boolean): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsCollidable(objectIds: string[], collidable: boolean): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.collidable !== collidable);
             viewObject.collidable = collidable;
             return changed;
@@ -1027,12 +1214,12 @@ class View extends Component {
      *
      * Updates {@link ViewObject.culled} on the Objects with the given IDs.
      *
-     * @param {String[]} ids Array of {@link ViewObject.id} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
      * @param culled Whether or not to cull.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    setObjectsCulled(ids: string[] | string, culled: boolean): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsCulled(objectIds: string[], culled: boolean): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.culled !== culled);
             viewObject.culled = culled;
             return changed;
@@ -1045,12 +1232,12 @@ class View extends Component {
      * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
      * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
      *
-     * @param  ids One or more {@link ViewObject.id} values.
+     * @param  objectIds One or more {@link ViewObject.objectId} values.
      * @param selected Whether or not to select.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    setObjectsSelected(ids: string[] | string, selected: boolean): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsSelected(objectIds: string[], selected: boolean): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.selected !== selected);
             viewObject.selected = selected;
             return changed;
@@ -1063,12 +1250,12 @@ class View extends Component {
      * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
      * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
      *
-     * @param  ids One or more {@link ViewObject.id} values.
+     * @param  objectIds One or more {@link ViewObject.objectId} values.
      * @param highlighted Whether or not to highlight.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    setObjectsHighlighted(ids: string[] | string, highlighted: boolean): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsHighlighted(objectIds: string[], highlighted: boolean): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.highlighted !== highlighted);
             viewObject.highlighted = highlighted;
             return changed;
@@ -1081,12 +1268,12 @@ class View extends Component {
      * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
      * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
      *
-     * @param  ids One or more {@link ViewObject.id} values.
+     * @param  objectIds One or more {@link ViewObject.objectId} values.
      * @param xrayed Whether or not to xray.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    setObjectsXRayed(ids: string[] | string, xrayed: boolean): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsXRayed(objectIds: string[], xrayed: boolean): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.xrayed !== xrayed);
             if (changed) {
                 viewObject.xrayed = xrayed;
@@ -1101,12 +1288,12 @@ class View extends Component {
      * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
      * - Updates {@link View.colorizedObjects} and {@link View.numColorizedObjects}.
      *
-     * @param  ids One or more {@link ViewObject.id} values.
+     * @param  objectIds One or more {@link ViewObject.objectId} values.
      * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
      * @returns True if any {@link ViewObject|ViewObjects} changed opacity, else false if all updates were redundant and not applied.
      */
-    setObjectsColorized(ids: string[] | string, colorize: number[]) {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsColorized(objectIds: string[], colorize: number[]) {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             viewObject.colorize = colorize;
         });
     }
@@ -1117,12 +1304,12 @@ class View extends Component {
      * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
      * - Updates {@link View.opacityObjects} and {@link View.numOpacityObjects}.
      *
-     * @param  ids - One or more {@link ViewObject.id} values.
+     * @param  objectIds - One or more {@link ViewObject.objectId} values.
      * @param opacity - Opacity factor in range ````[0..1]````.
      * @returns True if any {@link ViewObject|ViewObjects} changed opacity, else false if all updates were redundant and not applied.
      */
-    setObjectsOpacity(ids: string[] | string, opacity: number): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsOpacity(objectIds: string[], opacity: number): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.opacity !== opacity);
             if (changed) {
                 viewObject.opacity = opacity;
@@ -1137,12 +1324,12 @@ class View extends Component {
      * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
      * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
      *
-     * @param {String[]} ids Array of {@link ViewObject.id} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
      * @param pickable Whether or not to set pickable.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    setObjectsPickable(ids: string[] | string, pickable: boolean): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsPickable(objectIds: string[], pickable: boolean): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.pickable !== pickable);
             if (changed) {
                 viewObject.pickable = pickable;
@@ -1155,14 +1342,14 @@ class View extends Component {
      * Sets the clippability of the given {@link ViewObject|ViewObjects} in this View.
      *
      * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
-     * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
+     * - Enables or disables the ability to clip the given Objects with {@link SectionPlane}.
      *
-     * @param {String[]} ids Array of {@link ViewObject.id} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
      * @param clippable Whether or not to set clippable.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    setObjectsClippable(ids: string[] | string, clippable: boolean): boolean {
-        return this.withObjects(ids, (viewObject: ViewObject) => {
+    setObjectsClippable(objectIds: string[], clippable: boolean): boolean {
+        return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.clippable !== clippable);
             if (changed) {
                 viewObject.clippable = clippable;
@@ -1174,18 +1361,14 @@ class View extends Component {
     /**
      * Iterates with a callback over the given {@link ViewObject|ViewObjects} in this View.
      *
-     * @param  ids One or more {@link ViewObject.id} values.
+     * @param  objectIds One or more {@link ViewObject.objectId} values.
      * @param callback Callback to execute on each {@link ViewObject}.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
-    withObjects(ids: string[] | string, callback: Function): boolean {
-        if (isString(ids)) {
-            // @ts-ignore
-            ids = [ids];
-        }
+    withObjects(objectIds: string[], callback: Function): boolean {
         let changed = false;
-        for (let i = 0, len = ids.length; i < len; i++) {
-            const id = ids[i];
+        for (let i = 0, len = objectIds.length; i < len; i++) {
+            const id = objectIds[i];
             let viewObject = this.objects[id];
             if (viewObject) {
                 changed = callback(viewObject) || changed;

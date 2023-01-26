@@ -32,12 +32,13 @@ export class Component {
 
     /**
      * Emits an event when the {@link Component} has been destroyed.
+     *
      * @event
      */
     onDestroyed: EventEmitter<Component, null>;
 
     /**
-     Creates a new component.
+     * Creates a new component.
      */
     constructor(owner: null | Component, cfg: { id?: string, [key: string]: any } = {}) {
         this.#owner = owner;

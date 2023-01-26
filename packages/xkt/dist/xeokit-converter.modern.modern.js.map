@@ -1,0 +1,1 @@
+{"version":3,"file":"xeokit-converter.modern.modern.js","sources":["../src/convert2xkt.ts"],"sourcesContent":["// @ts-ignore\nimport { Plugin } from '../../../dist/xeokit-viewer.es.js';\n\n/**\n * Wow it's the NavCube!\n */\nexport function convert2xkt() {\n\n}"],"names":["convert2xkt"],"mappings":"irjBAMgBA,SAAAA,KAAW"}

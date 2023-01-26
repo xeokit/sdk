@@ -5,7 +5,7 @@ import type {CompressedTextureParams} from "./CompressedTextureParams";
  * Texture data transcoding strategy.
  *
  * A {@link Renderer} implementation usually has one of these, so that it can create compressed textures from transcoded
- * texture data (eg KTX2) via {@link SceneModel.createTexture}.
+ * texture data (eg KTX2) via {@link ViewerModel.createTexture}.
  */
 export interface TextureTranscoder {
 

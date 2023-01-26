@@ -15,7 +15,7 @@ import {Relationship} from "./Relationship";
 export class DataObject {
 
     /**
-     * Model metadata.
+     * ScratchModel metadata.
      */
     public models: DataModel[];
 
@@ -60,7 +60,7 @@ export class DataObject {
     };
 
     // /**
-    //  * IDs of one or more {@link SceneObject|SceneObjects} / {@link ViewObject|ViewObjects} that represent this DataObject.
+    //  * IDs of one or more {@link ViewerObject|ViewerObjects} / {@link ViewObject|ViewObjects} that represent this DataObject.
     //  *
     //  * Only DataObjects that represent some physical object, such as a wall or a roof, will have a representation.
     //  */

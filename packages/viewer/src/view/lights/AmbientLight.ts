@@ -1,8 +1,4 @@
 import {Component} from "@xeokit/core/components";
-
-
-
-import type {Scene} from "../../scene/Scene";
 import type {View} from "../View";
 import {FloatArrayParam} from "@xeokit/math/math";
 
@@ -38,7 +34,7 @@ class AmbientLight extends Component {
      * @param cfg AmbientLight configuration
      */
     constructor(view: View, cfg: {
-        /** Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.*/
+        /** Optional ID, generated automatically when omitted.*/
         id?: string;
         /** Intensity factor in range ````[0..1]````.  Default is ````1````.*/
         intensity?: number;

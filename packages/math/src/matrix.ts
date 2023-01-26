@@ -2045,7 +2045,7 @@ export function vec3ApplyQuaternion(
  */
 export function quaternionToMat4(
     q: FloatArrayParam,
-    dest: FloatArrayParam
+    dest?: FloatArrayParam
 ): FloatArrayParam {
     dest = identityMat4(dest);
 

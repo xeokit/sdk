@@ -41,7 +41,7 @@ import {Perspective} from "../camera/index";
  *
  * model.on("loaded", () => {
  *
- *      // Model has loaded
+ *      // ScratchModel has loaded
  *
  *      // Save memento of camera state
  *      const cameraMemento = new CameraMemento();

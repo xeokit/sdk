@@ -1,6 +1,4 @@
 
-
-
 import type {View} from "../../../View";
 import {distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3, createVec2} from "@xeokit/math/matrix";
 import {PerspectiveProjectionType} from "@xeokit/core/constants";
@@ -48,7 +46,7 @@ class TouchPanRotateAndDollyHandler {
         const touch0Vec = createVec2();
 
         const lastCanvasTouchPosList: any[] = [];
-        const canvas = this.#view.canvas.canvas;
+        const canvasElement = this.#view.canvasElement;
 
         let numTouches = 0;
         let tapStartTime = -1;
@@ -58,7 +56,7 @@ class TouchPanRotateAndDollyHandler {
             waitForTick = false;
         });
 
-        canvas.addEventListener("touchstart", this.#canvasTouchStartHandler = (event) => {
+        canvasElement.addEventListener("touchstart", this.#canvasTouchStartHandler = (event) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -123,7 +121,7 @@ class TouchPanRotateAndDollyHandler {
             numTouches = touches.length;
         });
 
-        canvas.addEventListener("touchmove", this.#canvasTouchMoveHandler = (event) => {
+        canvasElement.addEventListener("touchmove", this.#canvasTouchMoveHandler = (event) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -141,7 +139,7 @@ class TouchPanRotateAndDollyHandler {
 
             // Scaling drag-rotate to canvas boundary
 
-            const canvasBoundary = this.#view.canvas.boundary;
+            const canvasBoundary = this.#view.boundary;
             const canvasWidth = canvasBoundary[0];
             const canvasHeight = canvasBoundary[1];
 
@@ -233,7 +231,7 @@ class TouchPanRotateAndDollyHandler {
                     // We use only canvasHeight here so that aspect ratio does not distort speed
 
                     if (camera.projection === PerspectiveProjectionType) {
-                        const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : this.#view.viewer.scene.center;
+                        const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : this.#view.viewer.center;
 
                         const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, this.#view.camera.eye, [])));
                         const targetDistance = depth * Math.tan((camera.perspective.fov / 2) * Math.PI / 180.0);
@@ -262,9 +260,9 @@ class TouchPanRotateAndDollyHandler {
     }
 
     destroy() {
-        const canvas = this.#view.canvas.canvas;
-        canvas.removeEventListener("touchstart", this.#canvasTouchStartHandler);
-        canvas.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
+        const canvasElement = this.#view.canvasElement;
+        canvasElement.removeEventListener("touchstart", this.#canvasTouchStartHandler);
+        canvasElement.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
         this.#view.viewer.onTick.unsubscribe(this.#onTick);
     }
 }

@@ -48,7 +48,7 @@ class Perspective extends Component {
 
     #inverseMatrixDirty: boolean;
     #transposedProjMatrixDirty: boolean;
-    #onCanvasBoundary: any;
+    #onViewBoundary: any;
 
     /**
      * @private
@@ -77,7 +77,7 @@ class Perspective extends Component {
         this.#inverseMatrixDirty = true;
         this.#transposedProjMatrixDirty = true;
 
-        this.#onCanvasBoundary = this.camera.view.canvas.onBoundary.subscribe( () => {
+        this.#onViewBoundary = this.camera.view.onBoundary.subscribe( () => {
             this.setDirty();
         });
 
@@ -245,7 +245,7 @@ class Perspective extends Component {
     clean() {
         const WIDTH_INDEX = 2;
         const HEIGHT_INDEX = 3;
-        const boundary = this.camera.view.canvas.boundary;
+        const boundary = this.camera.view.boundary;
         const aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
         const fovAxis = this.#state.fovAxis;
         let fov = this.#state.fov;
@@ -261,9 +261,9 @@ class Perspective extends Component {
     }
 
     /**
-     * Un-projects the given Canvas-space coordinates and Screen-space depth, using this Perspective projection.
+     * Un-projects the given View-space coordinates and Screen-space depth, using this Perspective projection.
      *
-     * @param canvasPos Inputs 2D Canvas-space coordinates.
+     * @param canvasPos Inputs 2D View-space coordinates.
      * @param screenZ Inputs Screen-space Z coordinate.
      * @param screenPos Outputs 3D Screen/Clip-space coordinates.
      * @param viewPos Outputs un-projected 3D View-space coordinates.
@@ -271,12 +271,12 @@ class Perspective extends Component {
      */
     unproject(canvasPos: FloatArrayParam, screenZ: number, screenPos: FloatArrayParam, viewPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
 
-        const canvas = this.camera.view.canvas.canvas;
-        const halfCanvasWidth = canvas.offsetWidth / 2.0;
-        const halfCanvasHeight = canvas.offsetHeight / 2.0;
+        const canvasElement = this.camera.view.canvasElement;
+        const halfViewWidth = canvasElement.offsetWidth / 2.0;
+        const halfViewHeight = canvasElement.offsetHeight / 2.0;
 
-        screenPos[0] = (canvasPos[0] - halfCanvasWidth) / halfCanvasWidth;
-        screenPos[1] = (canvasPos[1] - halfCanvasHeight) / halfCanvasHeight;
+        screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+        screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
         screenPos[2] = screenZ;
         screenPos[3] = 1.0;
 
@@ -296,7 +296,7 @@ class Perspective extends Component {
      */
     destroy() {
         super.destroy();
-        this.camera.view.canvas.onBoundary.unsubscribe(this.#onCanvasBoundary);
+        this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);
         this.onProjMatrix.clear();
     }
 }

@@ -12,7 +12,7 @@ class MousePickHandler {
     #view: View;
     #clicks: number;
     #timeout: any;
-    #lastPickedEntityId: any;
+    #lastPickedobjectId: any;
     #canvasMouseMoveHandler: (e: any) => void;
     #canvasMouseDownHandler: (e: any) => void;
     #documentMouseUpHandler: (e: any) => void;
@@ -28,12 +28,12 @@ class MousePickHandler {
 
         this.#clicks = 0;
         this.#timeout = null;
-        this.#lastPickedEntityId = null;
+        this.#lastPickedobjectId = null;
 
         let leftDown = false;
         let rightDown = false;
 
-        const canvas = this.#view.canvas.canvas;
+        const canvasElement = this.#view.canvasElement;
 
         const flyCameraTo = (pickResult?: PickResult) => {
             let pos;
@@ -41,8 +41,8 @@ class MousePickHandler {
                 pos = pickResult.worldPos
             }
             const aabb = pickResult && pickResult.viewObject
-                ? pickResult.viewObject.sceneObject.aabb
-                : this.#view.viewer.scene.aabb;
+                ? pickResult.viewObject.viewerObject.aabb
+                : this.#view.viewer.aabb;
             if (pos) { // Fly to look at point, don't change eye->look dist
                 const camera = this.#view.camera;
                 const diff = subVec3(camera.eye, camera.look, []);
@@ -60,7 +60,7 @@ class MousePickHandler {
             }
         };
 
-        canvas.addEventListener("mousemove", this.#canvasMouseMoveHandler = (e) => {
+        canvasElement.addEventListener("mousemove", this.#canvasMouseMoveHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -77,7 +77,7 @@ class MousePickHandler {
 
             if (hoverSubs || hoverOutSubs || hoverOffSubs || hoverSurfaceSubs) {
 
-                pickController.pickCursorPos = states.pointerCanvasPos;
+                pickController.pickCursorPos = states.pointerViewPos;
                 pickController.schedulePickEntity = true;
                 pickController.schedulePickSurface = hoverSurfaceSubs;
 
@@ -85,20 +85,20 @@ class MousePickHandler {
 
                 if (pickController.pickResult) {
 
-                    const pickedEntityId = pickController.pickResult.entity.id;
+                    const pickedobjectId = pickController.pickResult.entity.id;
 
-                    if (this.#lastPickedEntityId !== pickedEntityId) {
+                    if (this.#lastPickedobjectId !== pickedobjectId) {
 
-                        if (this.#lastPickedEntityId !== undefined) {
+                        if (this.#lastPickedobjectId !== undefined) {
 
                             cameraControl.events.fire("hoverOut", { // Hovered off an entity
-                                entity: this.#view.objects[this.#lastPickedEntityId]
+                                entity: this.#view.objects[this.#lastPickedobjectId]
                             }, true);
                         }
 
                         cameraControl.events.fire("hoverEnter", pickController.pickResult, true); // Hovering over a new entity
 
-                        this.#lastPickedEntityId = pickedEntityId;
+                        this.#lastPickedobjectId = pickedobjectId;
                     }
 
                     cameraControl.events.fire("hover", pickController.pickResult, true);
@@ -109,13 +109,13 @@ class MousePickHandler {
 
                 } else {
 
-                    if (this.#lastPickedEntityId !== undefined) {
+                    if (this.#lastPickedobjectId !== undefined) {
 
                         cameraControl.events.fire("hoverOut", { // Hovered off an entity
-                            entity: this.#view.objects[this.#lastPickedEntityId]
+                            entity: this.#view.objects[this.#lastPickedobjectId]
                         }, true);
 
-                        this.#lastPickedEntityId = undefined;
+                        this.#lastPickedobjectId = undefined;
                     }
 
                     cameraControl.events.fire("hoverOff", { // Not hovering on any entity
@@ -125,7 +125,7 @@ class MousePickHandler {
             }
         });
 
-        canvas.addEventListener('mousedown', this.#canvasMouseDownHandler = (e) => {
+        canvasElement.addEventListener('mousedown', this.#canvasMouseDownHandler = (e) => {
 
             if (e.which === 1) {
                 leftDown = true;
@@ -149,12 +149,12 @@ class MousePickHandler {
 
             states.mouseDownClientX = e.clientX;
             states.mouseDownClientY = e.clientY;
-            states.mouseDownCursorX = states.pointerCanvasPos[0];
-            states.mouseDownCursorY = states.pointerCanvasPos[1];
+            states.mouseDownCursorX = states.pointerViewPos[0];
+            states.mouseDownCursorY = states.pointerViewPos[1];
 
             if ((!configs.firstPerson) && configs.followPointer) {
 
-                pickController.pickCursorPos = states.pointerCanvasPos;
+                pickController.pickCursorPos = states.pointerViewPos;
                 pickController.schedulePickSurface = true;
 
                 pickController.update();
@@ -166,7 +166,7 @@ class MousePickHandler {
                         pivotController.startPivot();
                     } else {
                         if (configs.smartPivot) {
-                            pivotController.setCanvasPivotPos(states.pointerCanvasPos);
+                            pivotController.setViewPivotPos(states.pointerViewPos);
                         } else {
                             pivotController.setPivotPos(this.#view.camera.look);
                         }
@@ -187,7 +187,7 @@ class MousePickHandler {
             }
         });
 
-        canvas.addEventListener('mouseup', this.#canvasMouseUpHandler = (e) => {
+        canvasElement.addEventListener('mouseup', this.#canvasMouseUpHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -223,7 +223,7 @@ class MousePickHandler {
 
                 if (pickedSubs || pickedNothingSubs || pickedSurfaceSubs) {
 
-                    pickController.pickCursorPos = states.pointerCanvasPos;
+                    pickController.pickCursorPos = states.pointerViewPos;
                     pickController.schedulePickEntity = true;
                     pickController.schedulePickSurface = pickedSurfaceSubs;
                     pickController.update();
@@ -237,7 +237,7 @@ class MousePickHandler {
                         }
                     } else {
                         cameraControl.events.fire("pickedNothing", {
-                            canvasPos: states.pointerCanvasPos
+                            canvasPos: states.pointerViewPos
                         }, true);
                     }
                 }
@@ -253,7 +253,7 @@ class MousePickHandler {
 
                 this.#timeout = setTimeout(() => {
 
-                    pickController.pickCursorPos = states.pointerCanvasPos;
+                    pickController.pickCursorPos = states.pointerViewPos;
                     pickController.schedulePickEntity = configs.doublePickFlyTo;
                     pickController.schedulePickSurface = pickedSurfaceSubs;
                     pickController.update();
@@ -275,7 +275,7 @@ class MousePickHandler {
                         }
                     } else {
                         cameraControl.events.fire("pickedNothing", {
-                            canvasPos: states.pointerCanvasPos
+                            canvasPos: states.pointerViewPos
                         }, true);
                     }
 
@@ -290,7 +290,7 @@ class MousePickHandler {
                     this.#timeout = null;
                 }
 
-                pickController.pickCursorPos = states.pointerCanvasPos;
+                pickController.pickCursorPos = states.pointerViewPos;
                 pickController.schedulePickEntity = configs.doublePickFlyTo || doublePickedSubs || doublePickedSurfaceSubs;
                 pickController.schedulePickSurface = pickController.schedulePickEntity && doublePickedSurfaceSubs;
                 pickController.update();
@@ -323,7 +323,7 @@ class MousePickHandler {
                 } else {
 
                     cameraControl.events.fire("doublePickedNothing", {
-                        canvasPos: states.pointerCanvasPos
+                        canvasPos: states.pointerViewPos
                     }, true);
 
                     if (configs.doublePickFlyTo) {
@@ -332,7 +332,7 @@ class MousePickHandler {
 
                         if ((!configs.firstPerson) && configs.followPointer) {
 
-                            const viewAABB = this.#view.viewer.scene.aabb;
+                            const viewAABB = this.#view.viewer.aabb;
                             const viewCenterPos = getAABB3Center(viewAABB);
 
                             controllers.pivotController.setPivotPos(viewCenterPos);
@@ -351,7 +351,7 @@ class MousePickHandler {
 
     reset() {
         this.#clicks = 0;
-        this.#lastPickedEntityId = null;
+        this.#lastPickedobjectId = null;
         if (this.#timeout) {
             window.clearTimeout(this.#timeout);
             this.#timeout = null;
@@ -359,11 +359,11 @@ class MousePickHandler {
     }
 
     destroy() {
-        const canvas = this.#view.canvas.canvas;
-        canvas.removeEventListener("mousemove", this.#canvasMouseMoveHandler);
-        canvas.removeEventListener("mousedown", this.#canvasMouseDownHandler);
+        const canvasElement = this.#view.canvasElement;
+        canvasElement.removeEventListener("mousemove", this.#canvasMouseMoveHandler);
+        canvasElement.removeEventListener("mousedown", this.#canvasMouseDownHandler);
         document.removeEventListener("mouseup", this.#documentMouseUpHandler);
-        canvas.removeEventListener("mouseup", this.#canvasMouseUpHandler);
+        canvasElement.removeEventListener("mouseup", this.#canvasMouseUpHandler);
         if (this.#timeout) {
             window.clearTimeout(this.#timeout);
             this.#timeout = null;

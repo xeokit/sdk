@@ -40,13 +40,13 @@ class PickController {
     #view: View;
     #cameraControl: CameraControl;
     #config: any;
-    #lastPickedEntityId: any;
+    #lastPickedobjectId: any;
     #needFireEvents: boolean;
 
     constructor(cameraControl: CameraControl, configs: any) {
         this.#view = cameraControl.view;
         this.#cameraControl = cameraControl;
-        this.#view.canvas.canvas.oncontextmenu = (e) => {
+        this.#view.canvasElement.oncontextmenu = (e) => {
             e.preventDefault();
         };
         this.#config = configs;
@@ -56,7 +56,7 @@ class PickController {
         this.picked = false;
         this.pickedSurface = false;
         this.pickResult = null;
-        this.#lastPickedEntityId = null;
+        this.#lastPickedobjectId = null;
         this.#needFireEvents = false;
     }
 
@@ -82,8 +82,8 @@ class PickController {
         if (this.schedulePickSurface) {
             // @ts-ignore
             if (this.pickResult && this.pickResult.worldPos) {
-                const pickResultCanvasPos = this.pickResult.canvasPos;
-                if (pickResultCanvasPos[0] === this.pickCursorPos[0] && pickResultCanvasPos[1] === this.pickCursorPos[1]) {
+                const pickResultViewPos = this.pickResult.canvasPos;
+                if (pickResultViewPos[0] === this.pickCursorPos[0] && pickResultViewPos[1] === this.pickCursorPos[1]) {
                     this.picked = true;
                     this.pickedSurface = true;
                     this.#needFireEvents = hasHoverSurfaceSubs;
@@ -96,8 +96,8 @@ class PickController {
 
         if (this.schedulePickEntity) {
             if (this.pickResult) {
-                const pickResultCanvasPos = this.pickResult.canvasPos;
-                if (pickResultCanvasPos[0] === this.pickCursorPos[0] && pickResultCanvasPos[1] === this.pickCursorPos[1]) {
+                const pickResultViewPos = this.pickResult.canvasPos;
+                if (pickResultViewPos[0] === this.pickCursorPos[0] && pickResultViewPos[1] === this.pickCursorPos[1]) {
                     this.picked = true;
                     this.pickedSurface = false;
                     this.#needFireEvents = false;
@@ -147,18 +147,18 @@ class PickController {
 
         if (this.picked && this.pickResult && this.pickResult.entity) {
 
-            const pickedEntityId = this.pickResult.entity.id;
+            const pickedobjectId = this.pickResult.entity.id;
 
-            if (this.#lastPickedEntityId !== pickedEntityId) {
+            if (this.#lastPickedobjectId !== pickedobjectId) {
 
-                if (this.#lastPickedEntityId !== undefined && this.#lastPickedEntityId !== null) {
+                if (this.#lastPickedobjectId !== undefined && this.#lastPickedobjectId !== null) {
                     this.#cameraControl.onHoverOut.dispatch(this.#cameraControl, {
-                        entity: this.#view.objects[this.#lastPickedEntityId]
+                        entity: this.#view.objects[this.#lastPickedobjectId]
                     });
                 }
 
                 this.#cameraControl.onHoverOut.dispatch(this.#cameraControl, this.pickResult);
-                this.#lastPickedEntityId = pickedEntityId;
+                this.#lastPickedobjectId = pickedobjectId;
             }
 
             this.#cameraControl.onHover.dispatch(this.#cameraControl,  this.pickResult);
@@ -170,11 +170,11 @@ class PickController {
 
         } else {
 
-            if (this.#lastPickedEntityId !== undefined && this.#lastPickedEntityId !== null) {
+            if (this.#lastPickedobjectId !== undefined && this.#lastPickedobjectId !== null) {
                 this.#cameraControl.onHoverOut.dispatch(this.#cameraControl, {
-                    entity: this.#view.objects[this.#lastPickedEntityId]
+                    entity: this.#view.objects[this.#lastPickedobjectId]
                 });
-                this.#lastPickedEntityId = undefined;
+                this.#lastPickedobjectId = undefined;
             }
 
             this.#cameraControl.onHoverOff.dispatch(this.#cameraControl, {

@@ -125,9 +125,9 @@ class CustomProjection extends Component {
     }
 
     /**
-     * Un-projects the given Canvas-space coordinates, using this CustomProjection.
+     * Un-projects the given View-space coordinates, using this CustomProjection.
      *
-     * @param canvasPos Inputs 2D Canvas-space coordinates.
+     * @param canvasPos Inputs 2D View-space coordinates.
      * @param screenZ Inputs Screen-space Z coordinate.
      * @param screenPos Outputs 3D Screen/Clip-space coordinates.
      * @param viewPos Outputs un-projected 3D View-space coordinates.
@@ -139,11 +139,11 @@ class CustomProjection extends Component {
         screenPos: FloatArrayParam,
         viewPos: FloatArrayParam,
         worldPos: FloatArrayParam) {
-        const canvas = this.camera.view.canvas.canvas;
-        const halfCanvasWidth = canvas.offsetWidth / 2.0;
-        const halfCanvasHeight = canvas.offsetHeight / 2.0;
-        screenPos[0] = (canvasPos[0] - halfCanvasWidth) / halfCanvasWidth;
-        screenPos[1] = (canvasPos[1] - halfCanvasHeight) / halfCanvasHeight;
+        const canvasElement = this.camera.view.canvasElement;
+        const halfViewWidth = canvasElement.offsetWidth / 2.0;
+        const halfViewHeight = canvasElement.offsetHeight / 2.0;
+        screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+        screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
         screenPos[2] = screenZ;
         screenPos[3] = 1.0;
         mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);

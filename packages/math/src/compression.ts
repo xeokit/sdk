@@ -1,8 +1,8 @@
 /**
- * #### Geometry de/compression utilities library
+ * #### GeometryImpl de/compression utilities library
  *
- * * Used internally within {@link SceneModel.createGeometry} to compress geometry and use less GPU memory
- * * Provided here for when we want to pre-compress our geometry offline and use {@link SceneModel.createGeometryCompressed} instead
+ * * Used internally within {@link ViewerModel.createGeometry} to compress geometry and use less GPU memory
+ * * Provided here for when we want to pre-compress our geometry offline and use {@link ViewerModel.createGeometryCompressed} instead
  * * Combines duplicate positions
  * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned ints
@@ -27,14 +27,14 @@
  *
  * const view1 = myViewer.createView({
  *     id: "myView",
- *     canvasId: "myCanvas1"
+ *     canvasId: "myView1"
  * });
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
  *
- * const mySceneModel = myViewer.scene.createModel({
+ * const myViewerModel = myViewer.createModel({
  *     id: "myModel"
  * });
  *
@@ -45,32 +45,30 @@
  *      indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
  * });
  *
- * mySceneModel.createGeometryCompressed(compressedGeometryParams);
+ * myViewerModel.createGeometryCompressed(compressedGeometryParams);
  *
- * mySceneModel.createMesh({
+ * myViewerModel.createMesh({
  *     id: "myMesh",
  *     geometryId: "myGeometry",
  *     //...
  * });
  *
- * mySceneModel.createObject({
+ * myViewerModel.createObject({
  *     id: "myObject1",
  *     meshIds: ["myMesh"],
  *     //...
  * });
  *
- * mySceneModel.createObject({
+ * myViewerModel.createObject({
  *     id: "myObject2",
  *     meshIds: ["myMesh"],
  *     //...
  * });
  *
- * mySceneModel.build();
+ * myViewerModel.build();
  * ````
  *
  * @module @xeokit/math/compression
  */
-export * from "./compression/GeometryBucketParams";
-export * from "./compression/GeometryCompressedParams";
-export * from "./compression/GeometryParams";
+
 export * from "./compression/compression";

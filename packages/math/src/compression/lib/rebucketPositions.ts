@@ -3,7 +3,6 @@
  * @license MIT
  **/
 
-import {GeometryParams} from "../GeometryParams";
 import type {IntArrayParam} from "../../math";
 
 const MAX_RE_BUCKET_FAN_OUT = 8;

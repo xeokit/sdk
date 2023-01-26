@@ -83,7 +83,7 @@ class CameraUpdater {
 
                             if (configs.followPointer && states.followPointerDirty) {
 
-                                pickController.pickCursorPos = states.pointerCanvasPos;
+                                pickController.pickCursorPos = states.pointerViewPos;
                                 pickController.schedulePickSurface = true;
                                 pickController.update();
 
@@ -249,7 +249,7 @@ class CameraUpdater {
                     }
 
                     if (configs.followPointer) {
-                        const dolliedThroughSurface = panController.dollyToCanvasPos(followPointerWorldPos, states.pointerCanvasPos, -dollyDeltaForDist);
+                        const dolliedThroughSurface = panController.dollyToViewPos(followPointerWorldPos, states.pointerViewPos, -dollyDeltaForDist);
                         if (dolliedThroughSurface) {
                             states.followPointerDirty = true;
                         }
@@ -278,7 +278,7 @@ class CameraUpdater {
                 } else if (configs.planView) {
 
                     if (configs.followPointer) {
-                        const dolliedThroughSurface = panController.dollyToCanvasPos(followPointerWorldPos, states.pointerCanvasPos, -dollyDeltaForDist);
+                        const dolliedThroughSurface = panController.dollyToViewPos(followPointerWorldPos, states.pointerViewPos, -dollyDeltaForDist);
                         if (dolliedThroughSurface) {
                             states.followPointerDirty = true;
                         }
@@ -290,7 +290,7 @@ class CameraUpdater {
                 } else { // Orbiting
 
                     if (configs.followPointer) {
-                        const dolliedThroughSurface = panController.dollyToCanvasPos(followPointerWorldPos, states.pointerCanvasPos, -dollyDeltaForDist);
+                        const dolliedThroughSurface = panController.dollyToViewPos(followPointerWorldPos, states.pointerViewPos, -dollyDeltaForDist);
                         if (dolliedThroughSurface) {
                             states.followPointerDirty = true;
                         }

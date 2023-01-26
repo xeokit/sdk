@@ -8,10 +8,9 @@ import {uniquifyPositions} from "./lib/calculateUniquePositions";
 import {rebucketPositions} from "./lib/rebucketPositions";
 import {buildEdgeIndices} from "./lib/buildEdgeIndices";
 import {collapseAABB3, expandAABB3Points3, getPositionsCenter} from "../boundaries";
+import {GeometryCompressedParams, GeometryParams} from "@xeokit/core/components";
+import {createVec3} from "../matrix";
 
-
-import {GeometryParams} from "./GeometryParams";
-import {GeometryCompressedParams} from "./GeometryCompressedParams";
 
 const translate = matrix.createMat4();
 const scale = matrix.createMat4();
@@ -29,7 +28,7 @@ const tempVec3b = matrix.createVec3();
  * * Quantizes positions and UVs as 16-bit unsigned integers
  * * Splits geometry into {@link GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
- * The GeometryCompressedParams can then be given to {@link SceneModel.createGeometryCompressed}.
+ * The GeometryCompressedParams can then be given to {@link ViewerModel.createGeometryCompressed}.
  *
  * #### Special Consideration for SolidPrimitive
  *
@@ -118,7 +117,8 @@ const tempVec3b = matrix.createVec3();
 export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
     const positionsDecompressMatrix = matrix.createMat4();
     const rtcPositions = new Float32Array(geometryParams.positions.length);
-    worldToRTCPositions(geometryParams.positions, geometryParams.origin, rtcPositions, tempVec3);
+    const origin = createVec3();
+    worldToRTCPositions(geometryParams.positions, geometryParams.origin, rtcPositions, origin);
     const aabb = collapseAABB3();
     expandAABB3Points3(aabb, rtcPositions);
     const positionsCompressed = quantizePositions(rtcPositions, aabb, positionsDecompressMatrix);
@@ -147,11 +147,11 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
         edgeIndices: uniqueEdgeIndices,
     }, (numUniquePositions > (1 << 16)) ? 16 : 8);
     return {
-        id: geometryParams.id,
+        geometryId: geometryParams.geometryId,
         primitive: (geometryParams.primitive === constants.SolidPrimitive && geometryBuckets.length > 1) // Assume that closed triangle mesh is decomposed into open surfaces
             ? constants.TrianglesPrimitive
             : geometryParams.primitive,
-        origin: tempVec3,
+        origin,
         aabb,
         positionsDecompressMatrix,
         uvsDecompressMatrix: undefined,

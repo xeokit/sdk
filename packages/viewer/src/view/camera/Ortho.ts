@@ -46,7 +46,7 @@ class Ortho extends Component {
 
     #inverseMatrixDirty: boolean;
     #transposedProjMatrixDirty: boolean;
-    #onCanvasBoundary: any;
+    #onViewBoundary: any;
 
     /**
      * @private
@@ -75,7 +75,7 @@ class Ortho extends Component {
         this.#inverseMatrixDirty = true;
         this.#transposedProjMatrixDirty = true;
 
-        this.#onCanvasBoundary = this.camera.view.canvas.onBoundary.subscribe(() => {
+        this.#onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
             this.setDirty();
         });
     }
@@ -219,7 +219,7 @@ class Ortho extends Component {
         const scale = this.#state.scale;
         const halfSize = 0.5 * scale;
 
-        const boundary = view.canvas.boundary;
+        const boundary = view.boundary;
         const boundaryWidth = boundary[WIDTH_INDEX];
         const boundaryHeight = boundary[HEIGHT_INDEX];
         const aspect = boundaryWidth / boundaryHeight;
@@ -253,9 +253,9 @@ class Ortho extends Component {
     }
 
     /**
-     * Un-projects the given Canvas-space coordinates, using this Ortho projection.
+     * Un-projects the given View-space coordinates, using this Ortho projection.
      *
-     * @param canvasPos Inputs 2D Canvas-space coordinates.
+     * @param canvasPos Inputs 2D View-space coordinates.
      * @param screenZ Inputs Screen-space Z coordinate.
      * @param screenPos Outputs 3D Screen/Clip-space coordinates.
      * @param viewPos Outputs un-projected 3D View-space coordinates.
@@ -268,13 +268,13 @@ class Ortho extends Component {
         viewPos: FloatArrayParam,
         worldPos: FloatArrayParam): FloatArrayParam {
 
-        const canvas = this.camera.view.canvas.canvas;
+        const canvas = this.camera.view.canvasElement;
 
-        const halfCanvasWidth = canvas.offsetWidth / 2.0;
-        const halfCanvasHeight = canvas.offsetHeight / 2.0;
+        const halfViewWidth = canvas.offsetWidth / 2.0;
+        const halfViewHeight = canvas.offsetHeight / 2.0;
 
-        screenPos[0] = (canvasPos[0] - halfCanvasWidth) / halfCanvasWidth;
-        screenPos[1] = (canvasPos[1] - halfCanvasHeight) / halfCanvasHeight;
+        screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+        screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
         screenPos[2] = screenZ;
         screenPos[3] = 1.0;
 
@@ -294,7 +294,7 @@ class Ortho extends Component {
      */
     destroy() {
         super.destroy();
-        this.camera.view.canvas.onBoundary.unsubscribe(this.#onCanvasBoundary);
+        this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);
         this.onProjMatrix.clear();
     }
 }

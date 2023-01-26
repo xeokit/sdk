@@ -23,7 +23,6 @@ const color = new Float32Array(3);
  * import {Viewer, TreeViewPlugin, ViewObjectsMemento} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
- *     canvasId: "myCanvas"
  * });
  *
  * // Load a model
@@ -36,7 +35,7 @@ const color = new Float32Array(3);
  *
  * model.on("loaded", () => {
  *
- *      // Model has loaded
+ *      // ScratchModel has loaded
  *
  *      // Hide a couple of objects
  *      viewer.view.objects["0u4wgLe6n0ABVaiXyikbkA"].visible = false;

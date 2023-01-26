@@ -58,7 +58,7 @@ const EngineFormat = {
  * KTX2 texture data transcoding strategy.
  *
  * A {@link Renderer} implementation usually has one of these, so that it can create compressed textures from transcoded
- * KTX2 texture data via {@link SceneModel.createTexture}.
+ * KTX2 texture data via {@link ViewerModel.createTexture}.
  *
  * ## Overview
  *
@@ -98,13 +98,13 @@ const EngineFormat = {
  *
  * const xktLoader = new TreeViewPlugin(viewer);
  *
- * const sceneModel = xktLoader.load({
+ * const viewerModel = xktLoader.load({
  *     id: "myModel",
  *     src: "./HousePlan.xkt" // <<------ XKT file with KTX2 textures
  * });
  * ````
  *
- * ## Loading KTX2 files into a SceneModel
+ * ## Loading KTX2 files into a ViewerModel
  *
  * ````javascript
  * const myViewer = new Viewer({
@@ -118,34 +118,34 @@ const EngineFormat = {
  *
  * const view1 = myViewer.createView({
  *     id: "myView",
- *     canvasId: "myCanvas1"
+ *     canvasId: "myView1"
  * });
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
  *
- * const sceneModel = myViewer.scene.createModel({
+ * const viewerModel = myViewer.createModel({
  *      id: "myModel"
  *  });
  *
- * sceneModel.createTexture({
+ * viewerModel.createTexture({
  *      id: "myColorTexture",
  *      src: "sample_uastc_zstd.ktx2" // <<----- KTX2 texture asset
  * });
  *
- * sceneModel.createTexture({
+ * viewerModel.createTexture({
  *      id: "myMetallicRoughnessTexture",
  *      src: "crosshatchAlphaMap.jpg" // <<----- JPEG texture asset
  * });
  *
- * sceneModel.createTextureSet({
+ * viewerModel.createTextureSet({
  *      id: "myTextureSet",
  *      colorTextureId: "myColorTexture",
  *      metallicRoughnessTextureId: "myMetallicRoughnessTexture"
  *  });
  *
- * sceneModel.createGeometry({
+ * viewerModel.createGeometry({
  *     id: "myGeometry",
  *     primitive: TrianglesPrimitive,
  *     positions: [1, 1, 1, ...],
@@ -154,21 +154,21 @@ const EngineFormat = {
  *     indices: [0, 1, 2, ...],
  * });
  *
- * sceneModel.createMesh({
+ * viewerModel.createMesh({
  *      id: "myMesh",
  *      textureSetId: "myTextureSet",
  *      geometryId: "myGeometry"
  *  });
  *
- * sceneModel.createObject({
+ * viewerModel.createObject({
  *      id: "myObject",
  *      meshIds: ["myMesh"]
  *  });
  *
- * sceneModel.build();
+ * viewerModel.build();
  * ````
  *
- * ## Loading KTX2 ArrayBuffers into a SceneModel
+ * ## Loading KTX2 ArrayBuffers into a ViewerModel
  *
  * ````javascript
  * const myViewer = new Viewer({
@@ -182,36 +182,36 @@ const EngineFormat = {
  *
  * const view1 = myViewer.createView({
  *     id: "myView",
- *     canvasId: "myCanvas1"
+ *     canvasId: "myView1"
  * });
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
  *
- * const sceneModel = myViewer.scene.createModel({
+ * const viewerModel = myViewer.createModel({
  *      id: "myModel"
  * });
  *
  * utils.loadArraybuffer("sample_uastc_zstd.ktx2",(arrayBuffer) => {
  *
- *      sceneModel.createTexture({
+ *      viewerModel.createTexture({
  *         id: "myColorTexture",
  *         buffers: [arrayBuffer] // <<----- KTX2 texture asset
  *      });
  *
- *      sceneModel.createTexture({
+ *      viewerModel.createTexture({
  *         id: "myMetallicRoughnessTexture",
  *         src: "../assets/textures/alpha/crosshatchAlphaMap.jpg" // <<----- JPEG texture asset
  *      });
  *
- *      sceneModel.createTextureSet({
+ *      viewerModel.createTextureSet({
  *        id: "myTextureSet",
  *        colorTextureId: "myColorTexture",
  *        metallicRoughnessTextureId: "myMetallicRoughnessTexture"
  *      });
  *
- *      sceneModel.createGeometry({
+ *      viewerModel.createGeometry({
  *          id: "myGeometry",
  *          primitive: TrianglesPrimitive,
  *          positions: [1, 1, 1, ...],
@@ -220,18 +220,18 @@ const EngineFormat = {
  *          indices: [0, 1, 2, ...],
  *      });
  *
- *      sceneModel.createMesh({
+ *      viewerModel.createMesh({
  *          id: "myMesh",
  *          textureSetId: "myTextureSet",
  *          geometryId: "myGeometry"
  *      });
  *
- *      sceneModel.createObject({
+ *      viewerModel.createObject({
  *          id: "myObject",
  *          meshIds: ["myMesh"]
  *      });
  *
- *      sceneModel.build();
+ *      viewerModel.build();
  * });
  * ````
  */

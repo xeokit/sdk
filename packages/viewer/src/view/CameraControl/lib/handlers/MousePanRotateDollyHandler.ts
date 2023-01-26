@@ -43,9 +43,9 @@ export class MousePanRotateDollyHandler {
         let mouseDownPicked = false;
         const pickedWorldPos = new Float64Array(3);
 
-        let mouseMovedOnCanvasSinceLastWheel = true;
+        let mouseMovedOnViewSinceLastWheel = true;
 
-        const canvas = this.#view.canvas.canvas;
+        const canvasElement = this.#view.canvasElement;
 
         const keyDown: any[] = [];
 
@@ -66,7 +66,7 @@ export class MousePanRotateDollyHandler {
         });
 
         function setMousedownState(pick = true) {
-            canvas.style.cursor = "move";
+            canvasElement.style.cursor = "move";
             setMousedownPositions();
             if (pick) {
                 setMousedownPick();
@@ -76,14 +76,14 @@ export class MousePanRotateDollyHandler {
         function setMousedownPositions() {
             xRotateDelta = 0;
             yRotateDelta = 0;
-            lastX = states.pointerCanvasPos[0];
-            lastY = states.pointerCanvasPos[1];
-            lastXDown = states.pointerCanvasPos[0];
-            lastYDown = states.pointerCanvasPos[1];
+            lastX = states.pointerViewPos[0];
+            lastY = states.pointerViewPos[1];
+            lastXDown = states.pointerViewPos[0];
+            lastYDown = states.pointerViewPos[1];
         }
 
         function setMousedownPick() {
-            pickController.pickCursorPos = states.pointerCanvasPos;
+            pickController.pickCursorPos = states.pointerViewPos;
             pickController.schedulePickSurface = true;
             pickController.update();
             if (pickController.picked && pickController.pickedSurface && pickController.pickResult && pickController.pickResult.worldPos) {
@@ -94,7 +94,7 @@ export class MousePanRotateDollyHandler {
             }
         }
 
-        canvas.addEventListener("mousedown", this.#mouseDownHandler = (e) => {
+        canvasElement.addEventListener("mousedown", this.#mouseDownHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
@@ -135,11 +135,11 @@ export class MousePanRotateDollyHandler {
 
             // Scaling drag-rotate to canvas boundary
 
-            const canvasBoundary = this.#view.canvas.boundary;
+            const canvasBoundary = this.#view.boundary;
             const canvasWidth = canvasBoundary[0];
             const canvasHeight = canvasBoundary[1];
-            const x = states.pointerCanvasPos[0];
-            const y = states.pointerCanvasPos[1];
+            const x = states.pointerViewPos[0];
+            const y = states.pointerViewPos[1];
 
             const panning = keyDown[keycodes.KEY_SHIFT] || configs.planView || (!configs.panRightClick && mouseDownMiddle) || (configs.panRightClick && mouseDownRight);
 
@@ -185,7 +185,7 @@ export class MousePanRotateDollyHandler {
             lastY = y;
         });
 
-        canvas.addEventListener("mousemove", this.#canvasMouseMoveHandler = (e) => {
+        canvasElement.addEventListener("mousemove", this.#canvasMouseMoveHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -195,7 +195,7 @@ export class MousePanRotateDollyHandler {
                 return;
             }
 
-            mouseMovedOnCanvasSinceLastWheel = true;
+            mouseMovedOnViewSinceLastWheel = true;
         });
 
         document.addEventListener("mouseup", this.#documentMouseUpHandler = (e) => {
@@ -225,13 +225,13 @@ export class MousePanRotateDollyHandler {
             yRotateDelta = 0;
         });
 
-        canvas.addEventListener("mouseup", this.#mouseUpHandler = (e) => {
+        canvasElement.addEventListener("mouseup", this.#mouseUpHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
             switch (e.which) {
                 case 3: // Right button
-                    getCanvasPosFromEvent(e, canvasPos);
+                    getViewPosFromEvent(e, canvasPos);
                     const x = canvasPos[0];
                     const y = canvasPos[1];
                     if (Math.abs(x - lastXDown) < 3 && Math.abs(y - lastYDown) < 3) {
@@ -245,10 +245,10 @@ export class MousePanRotateDollyHandler {
                 default:
                     break;
             }
-            canvas.style.removeProperty("cursor");
+            canvasElement.style.removeProperty("cursor");
         });
 
-        canvas.addEventListener("mouseenter", this.#mouseEnterHandler = () => {
+        canvasElement.addEventListener("mouseenter", this.#mouseEnterHandler = () => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
@@ -261,7 +261,7 @@ export class MousePanRotateDollyHandler {
 
         let secsNowLast: number|null = null;
 
-        canvas.addEventListener("wheel", this.#mouseWheelHandler = (e: { deltaY: number; preventDefault: () => void; }) => {
+        canvasElement.addEventListener("wheel", this.#mouseWheelHandler = (e: { deltaY: number; preventDefault: () => void; }) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
@@ -281,9 +281,9 @@ export class MousePanRotateDollyHandler {
             const normalizedDelta = delta / Math.abs(delta);
             updates.dollyDelta += -normalizedDelta * secsElapsed * configs.mouseWheelDollyRate;
 
-            if (mouseMovedOnCanvasSinceLastWheel) {
+            if (mouseMovedOnViewSinceLastWheel) {
                 states.followPointerDirty = true;
-                mouseMovedOnCanvasSinceLastWheel = false;
+                mouseMovedOnViewSinceLastWheel = false;
             }
 
             e.preventDefault();
@@ -295,21 +295,21 @@ export class MousePanRotateDollyHandler {
 
     destroy() {
 
-        const canvas = this.#view.canvas.canvas;
+        const canvasElement = this.#view.canvasElement;
 
         document.removeEventListener("keydown", this.#documentKeyDownHandler);
         document.removeEventListener("keyup", this.#documentKeyUpHandler);
-        canvas.removeEventListener("mousedown", this.#mouseDownHandler);
+        canvasElement.removeEventListener("mousedown", this.#mouseDownHandler);
         document.removeEventListener("mousemove", this.#documentMouseMoveHandler);
-        canvas.removeEventListener("mousemove", this.#canvasMouseMoveHandler);
+        canvasElement.removeEventListener("mousemove", this.#canvasMouseMoveHandler);
         document.removeEventListener("mouseup", this.#documentMouseUpHandler);
-        canvas.removeEventListener("mouseup", this.#mouseUpHandler);
-        canvas.removeEventListener("mouseenter", this.#mouseEnterHandler);
-        canvas.removeEventListener("wheel", this.#mouseWheelHandler);
+        canvasElement.removeEventListener("mouseup", this.#mouseUpHandler);
+        canvasElement.removeEventListener("mouseenter", this.#mouseEnterHandler);
+        canvasElement.removeEventListener("wheel", this.#mouseWheelHandler);
     }
 }
 
-const getCanvasPosFromEvent = function (event:any, canvasPos:any) {
+const getViewPosFromEvent = function (event:any, canvasPos:any) {
     if (!event) {
         event = window.event;
         canvasPos[0] = event.x;

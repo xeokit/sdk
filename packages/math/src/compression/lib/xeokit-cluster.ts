@@ -89,10 +89,10 @@ export function makeClusters(inputData: any) {
     function getMaxCellsPerEntity(minPercentOfClusteredPolygons: any, cellsByEntity: any) {
         const trianglesForEntityCellsCount: any = {};
         let totalTriangles = 0;
-        Object.keys(cellsByEntity).forEach(function (entityId) {
-            const entityCells = cellsByEntity[entityId].cells;
+        Object.keys(cellsByEntity).forEach(function (objectId) {
+            const entityCells = cellsByEntity[objectId].cells;
             const numCellsForEntity = entityCells.length;
-            const entity = cellsByEntity[entityId].entity;
+            const entity = cellsByEntity[objectId].entity;
             let numTriangles = countEntityTriangles(entity);
             trianglesForEntityCellsCount [numCellsForEntity] = (trianglesForEntityCellsCount [numCellsForEntity] || 0) + numTriangles;
             totalTriangles += numTriangles;
@@ -247,9 +247,9 @@ export function makeClusters(inputData: any) {
         // Create shared clusters for unclustered entities
         const unClusteredEntities: any = [];
 
-        Object.keys(cellsByEntity).forEach(function (entityId) {
-            if (!(entityId in processedEntities)) {
-                unClusteredEntities.push(cellsByEntity[entityId].entity);
+        Object.keys(cellsByEntity).forEach(function (objectId) {
+            if (!(objectId in processedEntities)) {
+                unClusteredEntities.push(cellsByEntity[objectId].entity);
             }
         });
 
@@ -272,17 +272,17 @@ export function makeClusters(inputData: any) {
         }
 
         // Prepare return value
-        const entityIdToClusterIdMapping: any = {};
+        const objectIdToClusterIdMapping: any = {};
 
         entityClusters.forEach(function (cluster, clusterIndex) {
             cluster.forEach(function (entity: any) {
-                entityIdToClusterIdMapping [entity.id] = clusterIndex;
+                objectIdToClusterIdMapping [entity.id] = clusterIndex;
             });
         });
 
         return {
             clusters: entityClusters,
-            entityIdToClusterIdMapping: entityIdToClusterIdMapping,
+            objectIdToClusterIdMapping: objectIdToClusterIdMapping,
         };
     }
 
@@ -319,15 +319,15 @@ export function makeClusters(inputData: any) {
     // totalVisibleClusters += generateClustersResult.clusters.visible;
     totalClusters += generateClustersResult.clusters.total;
 
-    const orderedEntityIds: any = [];
+    const orderedobjectIds: any = [];
 
     generateClustersResult.clusteringResult.clusters.forEach(function (cluster: any) {
         cluster.forEach(function (item: any) {
-            orderedEntityIds.push(item.id);
+            orderedobjectIds.push(item.id);
         });
     });
 
-    generateClustersResult.orderedEntityIds = orderedEntityIds;
+    generateClustersResult.orderedobjectIds = orderedobjectIds;
 
     return generateClustersResult;
 }

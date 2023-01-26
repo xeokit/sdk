@@ -108,7 +108,7 @@ class DataModel extends Component {
     public typeCounts: { [key: string]: number };
 
     /**
-     * Emits an event when the {@link DataModel} has been built.
+     * Emits an event when the {@link DataModel} has already been built.
      *
      * @event
      */
@@ -131,6 +131,8 @@ class DataModel extends Component {
         }) {
 
         super(data);
+
+        this.onBuilt = new EventEmitter(new EventDispatcher<DataModel, null>());
 
         this.data = data;
 
@@ -180,8 +182,6 @@ class DataModel extends Component {
             //     }
             // }
         }
-
-        this.onBuilt = new EventEmitter(new EventDispatcher<DataModel, null>());
     }
 
     /**

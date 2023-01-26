@@ -23,7 +23,7 @@ const newLookEyeVec = createVec3();
  *
  * * Belongs to a {@link View}, and is located at {@link View.cameraFlight}
  * * Controls the View's {@link Camera}, which is located at {@link View.camera}
- * * Navigates the Camera to look at a {@link SceneModel}, {@link SceneObject} or boundary
+ * * Navigates the Camera to look at a {@link ViewerObject} or boundary
  * * Navigates the Camera to an explicit position given as ````eye````, ````look```` and ````up```` vectors
  * * Jumps or flies the Camera
  * * Smoothly transitions between projections
@@ -143,7 +143,7 @@ class CameraFlightAnimation extends Component {
      * @param [params.up] Position to fly the up vector to.
      * @param [params.projection] Projection type to transition into as we fly. Can be any of the values of {@link Camera.projection}.
      * @param [params.fit=true] Whether to fit the target to the view volume. Overrides {@link CameraFlightAnimation.fit}.
-     * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link SceneObject} or its AABB should
+     * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link ViewerObject} or its AABB should
      * fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
      * @param [params.duration] Flight duration in seconds.  Overrides {@link CameraFlightAnimation.duration}.
      * @param [params.orthoScale] Animate the Camera's orthographic scale to this target value. See {@link Ortho.scale}.
@@ -219,7 +219,7 @@ class CameraFlightAnimation extends Component {
 
         } else {
             if (!flyToProjection) {
-                aabb = this.view.viewer.scene.aabb;
+                aabb = this.view.viewer.aabb;
             }
         }
 
@@ -330,7 +330,7 @@ class CameraFlightAnimation extends Component {
      * @param [params.look]  Position to fly the look position to.
      * @param [params.up] Position to fly the up vector to.
      * @param [params.projection] Projection type to transition into. Can be any of the values of {@link Camera.projection}.
-     * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link SceneObject} or its AABB should fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
+     * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link ViewerObject} or its AABB should fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
      * @param [params.fit] Whether to fit the target to the view volume. Overrides {@link CameraFlightAnimation.fit}.
      */
     jumpTo(params: any) {
@@ -357,7 +357,7 @@ class CameraFlightAnimation extends Component {
             newLook = params.look;
             newUp = params.up;
         } else {
-            aabb = this.view.viewer.scene.aabb;
+            aabb = this.view.viewer.aabb;
         }
 
         const poi = params.poi;
@@ -537,7 +537,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * When flying to a {@link SceneModel}, {@link SceneObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+     * When flying to a {@link ViewerModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
      * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.
@@ -549,7 +549,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * When flying to a {@link SceneModel}, {@link SceneObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+     * When flying to a {@link ViewerModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
      * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.
@@ -561,7 +561,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * Sets how much of the perspective field-of-view, in degrees, that a target {@link SceneObject.aabb} should
+     * Sets how much of the perspective field-of-view, in degrees, that a target {@link ViewerObject.aabb} should
      * fill the canvas when calling {@link CameraFlightAnimation.flyTo} or {@link CameraFlightAnimation.jumpTo}.
      *
      * Default value is ````45````.
@@ -571,7 +571,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * Gets how much of the perspective field-of-view, in degrees, that a target {@link SceneObject.aabb} should
+     * Gets how much of the perspective field-of-view, in degrees, that a target {@link ViewerObject.aabb} should
      * fill the canvas when calling {@link CameraFlightAnimation.flyTo} or {@link CameraFlightAnimation.jumpTo}.
      *
      * Default value is ````45````.

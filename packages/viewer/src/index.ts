@@ -28,18 +28,18 @@
  *
  * const view1 = myViewer.createView({
  *     id: "myView",
- *     canvasId: "myCanvas1"
+ *     canvasId: "myView1"
  * });
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
  *
- * const mySceneModel = myViewer.scene.createModel({
+ * const myViewerModel = myViewer.createModel({
  *     id: "myModel"
  * });
  *
- * mySceneModel.createGeometry({
+ * myViewerModel.createGeometry({
  *     id: "myGeometry",
  *     primitive: TrianglesPrimitive,
  *     positions: [...],
@@ -47,25 +47,25 @@
  *     //...
  * });
  *
- * mySceneModel.createMesh({
+ * myViewerModel.createMesh({
  *     id: "myMesh",
  *     geometryId: "myGeometry",
  *     //...
  * });
  *
- * mySceneModel.createObject({
+ * myViewerModel.createObject({
  *     id: "myObject1",
  *     meshIds: ["myMesh"],
  *     //...
  * });
  *
- * mySceneModel.createObject({
+ * myViewerModel.createObject({
  *     id: "myObject2",
  *     meshIds: ["myMesh"],
  *     //...
  * });
  *
- * mySceneModel.build();
+ * myViewerModel.build();
  * ````
  *
  * @packageDocumentation
@@ -78,11 +78,6 @@ export * from "./Viewer";
  * Key codes.
  */
 export * as keycodes from "./keycodes";
-
-/**
- * Geometry and materials
- */
-export * from "./scene/index";
 
 /**
  * Interactive views
@@ -98,3 +93,7 @@ export * from "./ViewerCapabilities";
 export * from "./Plugin";
 export * from "./localization/index";
 export * from "./ViewParams";
+export * from "./ViewerModel";
+export * from "./ViewerModelParams";
+export * from "./ViewerObject";
+export * from "./Renderer";

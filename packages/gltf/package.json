@@ -1,0 +1,63 @@
+{
+  "name": "@xeokit/gltf",
+  "version": "0.0.0",
+  "description": "glTF tools for xeokit",
+  "module": "dist/xeokit-gltf.modern.js",
+  "source": "src/index.ts",
+  "scripts": {
+    "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
+    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=gltf INPUT=./index.js rollup -c ../../rollup/rollup.gltf.config.js",
+    "publish": "npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xeokit/xeokit-viewer.git"
+  },
+  "author": "Lindsay Kay",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/xeokit/xeokit-viewer/issues"
+  },
+  "homepage": "https://xeokit.io",
+  "files": [
+    "dist/",
+    "src/",
+    "README.md",
+    "package.json",
+    "package-lock.json"
+  ],
+  "keywords": [
+    "webgl",
+    "webgpu",
+    "javascript",
+    "xeokit",
+    "xeolabs",
+    "creoox",
+    "ifc",
+    "bcf",
+    "bim",
+    "gis",
+    "cad",
+    "openbim",
+    "opensource",
+    "gltf",
+    "3dxml",
+    "obj",
+    "stl",
+    "las",
+    "pointcloud",
+    "3d-viewer"
+  ],
+  "main": "dist/xeokit-xkt.modern.js",
+  "dependencies": {
+    "@xeokit/core": "^0.0.1",
+    "@xeokit/math": "^0.0.1",
+    "pako": "^2.0.4",
+    "@loaders.gl/core": "^3.2.6",
+    "@loaders.gl/gltf": "^3.2.6",
+    "@loaders.gl/polyfills": "^3.2.6",
+    "@loaders.gl/textures": "^3.2.6"
+  },
+  "devDependencies": {
+  }
+}

@@ -87,7 +87,7 @@ import {EventEmitter} from "@xeokit/core/components";
   });
 
  const view = new View(viewer, {
-     canvasId: "myCanvas"
+     canvasId: "myView"
  });
 
  view.camera.eye = [-3.93, 2.85, 27.01];
@@ -95,7 +95,7 @@ import {EventEmitter} from "@xeokit/core/components";
  view.camera.up = [-0.01, 0.99, 0.03];
 
  const navCubePlugin = new TreeViewPlugin(viewer, {
-      canvasID: "myNavCubeCanvas",
+      canvasID: "myNavCubeView",
       view: view
   });
 

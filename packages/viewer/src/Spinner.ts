@@ -136,16 +136,16 @@ const defaultCSS = ".sk-fading-circle {\
     }";
 
 /**
- * Displays a progress animation at the center of its {@link Canvas} while things are loading or otherwise busy.
+ * Displays a progress animation at the center of its {@link View} while things are loading or otherwise busy.
  *
  *
- * * Located at {@link Canvas#spinner}.
+ * * Located at {@link View#spinner}.
  * * Automatically shown while things are loading, however may also be shown by application code wanting to indicate busyness.
  * * {@link Spinner#processes} holds the count of active processes. As a process starts, it increments {@link Spinner#processes}, then decrements it on completion or failure.
  * * A Spinner is only visible while {@link Spinner#processes} is greater than zero.
  *
  * ````javascript
- * var spinner = viewer.scene.canvas.spinner;
+ * var spinner = viewer.canvas.spinner;
  *
  * // Increment count of busy processes represented by the spinner;
  * // assuming the count was zero, this now shows the spinner
@@ -262,7 +262,7 @@ class Spinner extends Component {
     /**
      * @private
      */
-    _adjustPosition() { // (Re)positions spinner DIV over the center of the canvas - called by Canvas
+    _adjustPosition() { // (Re)positions spinner DIV over the center of the canvas - called by View
         if (this._isCustom) {
             return;
         }

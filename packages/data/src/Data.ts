@@ -190,7 +190,7 @@ import type {SearchParams} from "./SearchParams";
  * });
  *
  * const view = myViewer.createView({
- *      canvas: myCanvas
+ *      canvas: myView
  * });
  *
  * const mySchema = {
@@ -465,7 +465,7 @@ export class Data extends Component {
      * @param [options.includeTypes] When provided, only create {@link DataObject|DataObjects} with types in this list.
      * @param  [options.excludeRelating] When provided, never create {@link DataObject|DataObjects} with types in this list.
      * @returns The new DataModel.
-     * @see {@link Scene.createModel}
+     * @see {@link View.createModel}
      */
     createModel(
         dataModelParams: DataModelParams,

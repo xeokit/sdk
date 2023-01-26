@@ -20,7 +20,7 @@ class KeyboardPanRotateDollyHandler {
         this.#view = components.view;
 
         const keyDownMap: any[] = [];
-        const canvas = components.view.canvas.canvas;
+        const canvasElement = components.view.canvasElement;
 
         let mouseMovedSinceLastKeyboardDolly = true;
 
@@ -38,7 +38,7 @@ class KeyboardPanRotateDollyHandler {
             const keyCode = e.keyCode;
             keyDownMap[keyCode] = true;
             if (keyCode === keycodes.KEY_SHIFT) {
-                canvas.style.cursor = "move";
+                canvasElement.style.cursor = "move";
             }
         });
 
@@ -52,7 +52,7 @@ class KeyboardPanRotateDollyHandler {
             const keyCode = e.keyCode;
             keyDownMap[keyCode] = false;
             if (keyCode === keycodes.KEY_SHIFT) {
-                canvas.style.cursor = null;
+                canvasElement.style.cursor = null;
             }
         });
 

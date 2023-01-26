@@ -66,7 +66,7 @@ class PivotController {
         this.#shown = false;
         this.#pivotViewPos = createVec4();
         this.#pivotProjPos = createVec4();
-        this.#pivotCanvasPos = createVec2();
+        this.#pivotViewPos = createVec2();
         this.#cameraDirty = true;
 
         this.#onViewMatrix = this.#view.camera.onViewMatrix.subscribe(() => {
@@ -84,21 +84,20 @@ class PivotController {
 
     updatePivotElement() {
         const camera = this.#view.camera;
-        const canvas = this.#view.canvas;
+        const canvasElement = this.#view.canvasElement;
         if (this.#pivoting && this.#cameraDirty) {
             transformPoint3(camera.viewMatrix, this.getPivotPos(), this.#pivotViewPos);
             this.#pivotViewPos[3] = 1;
             transformPoint4(camera.projMatrix, this.#pivotViewPos, this.#pivotProjPos);
-            const canvasAABB = canvas.boundary;
+            const canvasAABB = this.#view.boundary;
             const canvasWidth = canvasAABB[2];
             const canvasHeight = canvasAABB[3];
-            this.#pivotCanvasPos[0] = Math.floor((1 + this.#pivotProjPos[0] / this.#pivotProjPos[3]) * canvasWidth / 2);
-            this.#pivotCanvasPos[1] = Math.floor((1 - this.#pivotProjPos[1] / this.#pivotProjPos[3]) * canvasHeight / 2);
-            const canvasElem = canvas.canvas;
-            const canvasBoundingRect = canvasElem.getBoundingClientRect();
+            this.#pivotViewPos[0] = Math.floor((1 + this.#pivotProjPos[0] / this.#pivotProjPos[3]) * canvasWidth / 2);
+            this.#pivotViewPos[1] = Math.floor((1 - this.#pivotProjPos[1] / this.#pivotProjPos[3]) * canvasHeight / 2);
+            const canvasBoundingRect = canvasElement.getBoundingClientRect();
             if (this.#pivotElement) {
-                this.#pivotElement.style.left = (Math.floor(canvasBoundingRect.left + this.#pivotCanvasPos[0]) - (this.#pivotElement.clientWidth / 2) + window.scrollX) + "px";
-                this.#pivotElement.style.top = (Math.floor(canvasBoundingRect.top + this.#pivotCanvasPos[1]) - (this.#pivotElement.clientHeight / 2) + window.scrollY) + "px";
+                this.#pivotElement.style.left = (Math.floor(canvasBoundingRect.left + this.#pivotViewPos[0]) - (this.#pivotElement.clientWidth / 2) + window.scrollX) + "px";
+                this.#pivotElement.style.top = (Math.floor(canvasBoundingRect.top + this.#pivotViewPos[1]) - (this.#pivotElement.clientHeight / 2) + window.scrollY) + "px";
             }
             this.#cameraDirty = false;
         }
@@ -170,7 +169,7 @@ class PivotController {
      */
     setCanvasPivotPos(canvasPos: FloatArrayParam) {
         const camera = this.#view.camera;
-        const pivotShereRadius = Math.abs(distVec3(this.#view.viewer.scene.center, camera.eye));
+        const pivotShereRadius = Math.abs(distVec3(this.#view.viewer.center, camera.eye));
         const transposedProjectMat = camera.project.transposedProjMatrix;
         // @ts-ignore
         const Pt3 = transposedProjectMat.subarray(8, 12);

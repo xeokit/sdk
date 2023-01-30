@@ -64,7 +64,7 @@ export function rebucketPositions(
                  *
                  * Alternative to {@link GeometryParams.colorsCompressed}.
                  *
-                 * Ignored when {@link GeometryParams.geometryId} is defined.
+                 * Ignored when {@link GeometryParams.id} is defined.
                  */
             }
         }

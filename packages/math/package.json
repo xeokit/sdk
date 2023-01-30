@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/math",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Common xeokit math types and utilities",
   "module": "dist/xeokit-math.modern.js",
   "source": "src/index.ts",

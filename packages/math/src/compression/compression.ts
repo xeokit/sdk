@@ -147,7 +147,7 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
         edgeIndices: uniqueEdgeIndices,
     }, (numUniquePositions > (1 << 16)) ? 16 : 8);
     return {
-        geometryId: geometryParams.geometryId,
+        id: geometryParams.id,
         primitive: (geometryParams.primitive === constants.SolidPrimitive && geometryBuckets.length > 1) // Assume that closed triangle mesh is decomposed into open surfaces
             ? constants.TrianglesPrimitive
             : geometryParams.primitive,

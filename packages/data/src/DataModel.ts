@@ -11,7 +11,7 @@ import type {RelationshipParams} from "./RelationshipParams";
 import {EventDispatcher} from "strongly-typed-events";
 
 /**
- * A buildable entity-relationship semantic data model, stored in {@link Data}.
+ * A buildable entity-relationship semantic data model.
  *
  * See {@link Data} for usage examples.
  *

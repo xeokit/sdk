@@ -83,7 +83,7 @@ export class DataObject {
         this.propertySets = propertySets || [];
         this.related = {};
         this.relating = {};
-    //    this.representation = null;
+        //    this.representation = null;
     }
 
     /**

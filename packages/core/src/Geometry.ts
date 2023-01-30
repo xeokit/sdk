@@ -9,7 +9,7 @@ export interface Geometry {
     /**
      * ID for the geometry.
      */
-    geometryId: string;
+    id: string;
 
     /**
      * Primitive type.

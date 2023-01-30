@@ -10,7 +10,7 @@ export * from "./EventEmitter";
 export * from "./ParseParams";
 
 export * from "./BuildableModel";
-export * from "./ReadableModel";
+export * from "./Model";
 
 export * from "./ObjectParams";
 export * from "./XKTObject";

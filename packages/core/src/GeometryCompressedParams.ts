@@ -21,7 +21,7 @@ export interface GeometryCompressedParams {
     /**
      * ID for the geometry.
      */
-    geometryId: string;
+    id: string;
 
     /**
      * Primitive type.

@@ -6,7 +6,7 @@ export interface TextureSetParams {
     /**
      * ID for the texture set.
      */
-    textureSetId: string;
+    id: string;
 
     /**
      * ID of a color texture created previously with {@link BuildableModel.createTexture}.

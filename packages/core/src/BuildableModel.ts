@@ -15,7 +15,7 @@ export interface BuildableModel {
     /**
      * The BuildableModel's ID.
      */
-    readonly modelId: string;
+    readonly id: string;
 
     /**
      * Indicates if this BuildableModel has already been built.
@@ -72,7 +72,7 @@ export interface BuildableModel {
      *
      * ````javascript
      * myBuildableModel.createGeometry({
-     *      geometryId: "myBoxGeometry",
+     *      id: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positions: [
      *          1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
@@ -99,7 +99,7 @@ export interface BuildableModel {
      *
      * ````javascript
      * myBuildableModel.createGeometryCompressed({
-     *      geometryId: "myBoxGeometry",
+     *      id: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positionsDecompressMatrix: [
      *          0.00003052270125906143, 0, 0, 0,
@@ -175,7 +175,7 @@ export interface BuildableModel {
      * ````javascript
      * myBuildableModel.createMesh({
      *      meshId: "redLegMesh",
-     *      geometryId: "myBoxGeometry",
+     *      id: "myBoxGeometry",
      *      textureSetId: "myTextureSet",
      *      position: [-4, -6, -4],
      *      scale: [1, 3, 1],

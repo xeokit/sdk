@@ -8,7 +8,7 @@ export interface TransformParams {
     /**
      * ID for the transform.
      */
-    transformId: string,
+    id: string,
 
     /**
      * ID of the parent transform.

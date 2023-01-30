@@ -3,7 +3,7 @@ import type {Geometry} from "./Geometry";
 import type {TextureSet} from "./TextureSet";
 
 export interface Mesh {
-    meshId: string;
+    id: string;
     geometry: Geometry;
     textureSet?: TextureSet;
     matrix: FloatArrayParam;

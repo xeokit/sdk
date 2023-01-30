@@ -1,7 +1,7 @@
 import type {Texture} from "./Texture";
 
 export interface TextureSet {
-    textureSetId: string;
+    id: string;
     colorTexture?: Texture;
     metallicRoughnessTexture?: Texture
     occlusionTexture?: Texture;

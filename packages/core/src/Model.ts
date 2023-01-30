@@ -7,7 +7,12 @@ import type {XKTObject} from "./XKTObject";
 /**
  *
  */
-export interface ReadableModel {
+export interface Model {
+
+    /**
+     * The Model's ID.
+     */
+    readonly id: string;
 
     /**
      * The geometries in this model.

@@ -6,7 +6,7 @@ export interface ObjectParams {
     /**
      * Unique ID for the ViewerObject.
      */
-    objectId: string;
+    id: string;
 
     /**
      * IDs of meshes previously created with {@link BuildableModel.createMesh}.

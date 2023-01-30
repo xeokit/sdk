@@ -8,7 +8,7 @@ export interface MeshParams {
     /**
      * ID for the mesh, unique within the {@link BuildableModel}.
      */
-    meshId: string;
+    id: string;
 
     /**
      * ID of a texture set that was created previously with {@link BuildableModel.createTextureSet}.

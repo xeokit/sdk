@@ -8,7 +8,7 @@ export interface TextureParams {
     /**
      * ID for the texture.
      */
-    textureId: string;
+    id: string;
 
     /**
      * Path to an image file.
@@ -33,7 +33,7 @@ export interface TextureParams {
     /**
      * Media type.
      */
-    mediaType: any;
+    mediaType?: any;
 
     /**
      * How the texture is sampled when a texel covers more than one pixel.

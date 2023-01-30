@@ -8,7 +8,7 @@ export interface XKTObject  {
     /**
      *
      */
-    objectId: string;
+    id: string;
 
     /**
      *

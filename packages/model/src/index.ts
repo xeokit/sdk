@@ -13,11 +13,11 @@
  * import {compressGeometryParams} from "@xeokit/math/compression";
  *
  * const myScratchModel = new ScratchModel({
- *     modelId: "myModel"
+ *     id: "myModel"
  * });
  *
  * const compressedGeometryParams = compressGeometryParams({
- *      geometryId: "myBoxGeometry",
+ *      id: "myBoxGeometry",
  *      primitive: TrianglesPrimitive,
  *      positions: [202, 202, 202, 200, 202, 202, ...],
  *      indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
@@ -26,7 +26,7 @@
  * myScratchModel.createGeometryCompressed(compressedGeometryParams);
  *
  * myScratchModel.createTexture({
- *      textureId: "myColorTexture",
+ *      id: "myColorTexture",
  *      src: // Path to JPEG, PNG, KTX2,
  *      image: // HTMLImageElement,
  *      buffers: // ArrayBuffer[] containing KTX2 MIP levels
@@ -41,25 +41,25 @@
  * });
  *
  * myScratchModel.createTextureSet({
- *      textureSetId: "myTextureSet",
+ *      id: "myTextureSet",
  *      colorTextureId: "myColorTexture"
  * });
  *
  * myScratchModel.createMesh({
- *     meshId: "myMesh",
+ *     id: "myMesh",
  *     geometryId: "myGeometry",
  *     textureSetId: "myTextureSet",
  *     //...
  * });
  *
  * myScratchModel.createObject({
- *     objectId: "myObject1",
+ *     id: "myObject1",
  *     meshIds: ["myMesh"],
  *     //...
  * });
  *
  * myScratchModel.createObject({
- *     objectId: "myObject2",
+ *     id: "myObject2",
  *     meshIds: ["myMesh"],
  *     //...
  * });

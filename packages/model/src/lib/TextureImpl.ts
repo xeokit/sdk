@@ -7,9 +7,9 @@ import {Texture, TextureParams} from "@xeokit/core/components";
 export class TextureImpl implements Texture {
 
     /**
-     * Unique ID of this Texture in {@link Model#textures}.
+     * Unique ID of this Texture in {@link ViewerModel.textures}.
      */
-    textureId: string;
+    id: string;
 
     /**
      * Texture image data.
@@ -78,16 +78,16 @@ export class TextureImpl implements Texture {
     /**
      * @private
      */
-    constructor(textureParams: TextureParams) {
-        this.textureId = textureParams.textureId;
-        this.imageData = textureParams.imageData;
-        this.src = textureParams.src;
-        this.mediaType = textureParams.mediaType;
-        this.minFilter = textureParams.minFilter || LinearMipMapNearestFilter;
-        this.magFilter = textureParams.magFilter || LinearMipMapNearestFilter;
-        this.wrapS = textureParams.wrapS || RepeatWrapping;
-        this.wrapT = textureParams.wrapT || RepeatWrapping;
-        this.wrapR = textureParams.wrapR || RepeatWrapping
+    constructor(params: TextureParams) {
+        this.id = params.id;
+        this.imageData = params.imageData;
+        this.src = params.src;
+        this.mediaType = params.mediaType;
+        this.minFilter = params.minFilter || LinearMipMapNearestFilter;
+        this.magFilter = params.magFilter || LinearMipMapNearestFilter;
+        this.wrapS = params.wrapS || RepeatWrapping;
+        this.wrapT = params.wrapT || RepeatWrapping;
+        this.wrapR = params.wrapR || RepeatWrapping
     }
 }
 

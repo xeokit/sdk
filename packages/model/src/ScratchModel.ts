@@ -9,8 +9,8 @@ import {
     GeometryParams,
     Mesh,
     MeshParams,
+    Model,
     ObjectParams,
-    ReadableModel,
     Texture,
     TextureParams,
     TextureSet,
@@ -97,12 +97,12 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  * * Compressed geometry
  * * Compressed textures
  */
-class ScratchModel extends Component implements BuildableModel, ReadableModel {
+class ScratchModel extends Component implements Model, BuildableModel {
 
     /**
      * The ScratchModel's ID.
      */
-    readonly modelId: string;
+    readonly id: string;
 
     /**
      * Indicates if this ScratchModel has already been built.
@@ -128,35 +128,35 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
     readonly edgeThreshold: number;
 
     /**
-     * {@link Geometry|Geometries} within this ScratchModel, each mapped to {@link GeometryImpl.geometryId}.
+     * {@link Geometry|Geometries} within this ScratchModel, each mapped to {@link GeometryImpl.id}.
      *
      * Created by {@link ScratchModel.createGeometry}.
      */
     readonly geometries: { [key: string]: Geometry };
 
     /**
-     * {@link Texture|Textures} within this ScratchModel, each mapped to {@link Texture.textureId}.
+     * {@link Texture|Textures} within this ScratchModel, each mapped to {@link Texture.id}.
      *
      * Created by {@link ScratchModel.createTexture}.
      */
     readonly textures: { [key: string]: Texture };
 
     /**
-     * {@link TextureSet|TextureSets} within this ScratchModel, each mapped to {@link TextureSetImpl.textureSetId}.
+     * {@link TextureSet|TextureSets} within this ScratchModel, each mapped to {@link TextureSetImpl.id}.
      *
      * Created by {@link ScratchModel.createTextureSet}.
      */
     readonly textureSets: { [key: string]: TextureSet };
 
     /**
-     * {@link Mesh|Meshes} within this ScratchModel, each mapped to {@link Mesh.meshId}.
+     * {@link Mesh|Meshes} within this ScratchModel, each mapped to {@link Mesh.id}.
      *
      * Created by {@link ScratchModel.createMesh}.
      */
     readonly meshes: { [key: string]: Mesh };
 
     /**
-     * {@link XKTObject|XKTObjects} within this ScratchModel, each mapped to {@link XKTObject.objectId}.
+     * {@link XKTObject|XKTObjects} within this ScratchModel, each mapped to {@link XKTObject.id}.
      *
      * Created by {@link ScratchModel.createObject}.
      */
@@ -187,11 +187,11 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      */
     readonly onDestroyed: EventEmitter<ScratchModel, null>;
 
-    #meshUsedByObject: { [key:string]:boolean };
+    #meshUsedByObject: { [key: string]: boolean };
 
     /**
      * Constructs a new ScratchModel.
-     * 
+     *
      * ````javascript
      * const myScratchModel = new ScratchModel();
      * ````
@@ -200,11 +200,11 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      * @param {Number} [cfg.edgeThreshold=10]
      */
     constructor(cfg = {
-        modelId: "default",
+        id: "default",
         edgeThreshold: 10
     }) {
         super(null, {
-            id: cfg.modelId
+            id: cfg.id
         });
 
         this.#meshUsedByObject = {};
@@ -212,7 +212,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
         this.onBuilt = new EventEmitter(new EventDispatcher<ScratchModel, null>());
         this.onDestroyed = new EventEmitter(new EventDispatcher<ScratchModel, null>());
 
-        this.modelId = cfg.modelId || "default";
+        this.id = cfg.id || "default";
         this.edgeThreshold = cfg.edgeThreshold || 10;
         this.geometries = {};
         this.textures = {};
@@ -230,7 +230,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *
      * ````javascript
      * myScratchModel.createTransform({
-     *      transformId: "myTransform",
+     *      id: "myTransform",
      *      //...
      * });
      *
@@ -251,9 +251,10 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
         if (!transformParams) {
             throw new Error("Parameters expected: transformParams");
         }
-        if (transformParams.transformId === null || transformParams.transformId === undefined) {
+        if (transformParams.id === null || transformParams.id === undefined) {
             throw new Error("Parameter expected: params.transformId");
-        }    }
+        }
+    }
 
     /**
      * Creates a new {@link Texture} within this ScratchModel.
@@ -262,7 +263,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *
      * ````javascript
      * myScratchModel.createTexture({
-     *      textureId: "myColorTexture",
+     *      id: "myColorTexture",
      *      src: // Path to JPEG, PNG, KTX2,
      *      image: // HTMLImageElement,
      *      buffers: // ArrayBuffer[] containing KTX2 MIP levels
@@ -293,24 +294,24 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
         if (!textureParams) {
             throw new Error("Parameters expected: textureParams");
         }
-        if (textureParams.textureId === null || textureParams.textureId === undefined) {
-            throw new Error("Parameter expected: textureParams.textureId");
+        if (textureParams.id === null || textureParams.id === undefined) {
+            throw new Error("Parameter expected: textureParams.id");
         }
         if (!textureParams.imageData && !textureParams.src && !textureParams.buffers) {
             throw new Error("Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers");
         }
-        if (this.textures[textureParams.textureId]) {
-            console.error("Texture already exists with this ID: " + textureParams.textureId);
+        if (this.textures[textureParams.id]) {
+            console.error("Texture already exists with this ID: " + textureParams.id);
             return;
         }
         if (textureParams.src) {
             const fileExt = textureParams.src.split('.').pop();
             if (fileExt !== "jpg" && fileExt !== "jpeg" && fileExt !== "png") {
-                console.error(`Model does not support image files with extension '${fileExt}' - won't create texture '${textureParams.textureId}`);
+                console.error(`Model does not support image files with extension '${fileExt}' - won't create texture '${textureParams.id}`);
                 return;
             }
         }
-        this.textures[textureParams.textureId] = new TextureImpl(textureParams);
+        this.textures[textureParams.id] = new TextureImpl(textureParams);
     }
 
     /**
@@ -320,11 +321,11 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *
      * ````javascript
      * myScratchModel.createTextureSet({
-     *      textureSetId: "myTextureSet",
+     *      id: "myTextureSet",
      *      colorTextureId: "myColorTexture"
      * });
      *
-     * // ScratchModel is a ReadableModel, so we can access the TextureSet we just created
+     * // ScratchModel is a Model, so we can access the TextureSet we just created
      * const textureSet = myScratchModel.textureSets["myTextureSet"];
      * ````
      *
@@ -341,11 +342,11 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
         if (!textureSetParams) {
             throw "Parameters expected: textureSetParams";
         }
-        if (textureSetParams.textureSetId === null || textureSetParams.textureSetId === undefined) {
-            throw "Parameter expected: textureSetParams.textureSetId";
+        if (textureSetParams.id === null || textureSetParams.id === undefined) {
+            throw "Parameter expected: textureSetParams.id";
         }
-        if (this.textureSets[textureSetParams.textureSetId]) {
-            console.error("TextureSetImpl already exists with this ID: " + textureSetParams.textureSetId);
+        if (this.textureSets[textureSetParams.id]) {
+            console.error("TextureSetImpl already exists with this ID: " + textureSetParams.id);
             return;
         }
         let colorTexture;
@@ -393,7 +394,12 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
             }
             occlusionTexture.channel = OCCLUSION_TEXTURE;
         }
-        this.textureSets[textureSetParams.colorTextureId] = new TextureSetImpl(textureSetParams);
+        this.textureSets[textureSetParams.colorTextureId] = new TextureSetImpl(textureSetParams, {
+            emissiveTexture,
+            occlusionTexture,
+            metallicRoughnessTexture,
+            colorTexture
+        });
     }
 
     /**
@@ -403,7 +409,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *
      * ````javascript
      * myScratchModel.createGeometry({
-     *      geometryId: "myBoxGeometry",
+     *      id: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positions: [
      *          1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
@@ -419,7 +425,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *      ]
      *  });
      *
-     * // ScratchModel is a ReadableModel, so we can access the Geometry we just created
+     * // ScratchModel is a Model, so we can access the Geometry we just created
      * const geometry = myScratchModel.geometries["myBoxGeometry"];
      * ````
      *
@@ -437,11 +443,11 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
             this.error("[createGeometry] Parameters expected: geometryParams");
             return;
         }
-        if (geometryParams.geometryId === null || geometryParams.geometryId === undefined) {
-            this.error("[createGeometry] Parameter expected: geometryParams.geometryId");
+        if (geometryParams.id === null || geometryParams.id === undefined) {
+            this.error("[createGeometry] Parameter expected: geometryParams.id");
             return;
         }
-        const geometryId = geometryParams.geometryId;
+        const geometryId = geometryParams.id;
         if (this.geometries[geometryId]) {
             this.error(`[createGeometry] Geometry with this ID already created: ${geometryId}`);
             return;
@@ -469,7 +475,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *
      * ````javascript
      * myScratchModel.createGeometryCompressed({
-     *      geometryId: "myBoxGeometry",
+     *      id: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positionsDecompressMatrix: [
      *          0.00003052270125906143, 0, 0, 0,
@@ -493,7 +499,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *      ]
      * });
      *
-     * // ScratchModel is a ReadableModel, so we can access the Geometry we just created
+     * // ScratchModel is a Model, so we can access the Geometry we just created
      * const geometry = myScratchModel.geometries["myBoxGeometry"];
      * ````
      *
@@ -511,11 +517,11 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
             this.error("[createGeometryCompressed] Parameters expected: geometryCompressedParams");
             return;
         }
-        if (geometryCompressedParams.geometryId === null || geometryCompressedParams.geometryId === undefined) {
+        if (geometryCompressedParams.id === null || geometryCompressedParams.id === undefined) {
             this.error("[createGeometryCompressed] Parameter expected: geometryCompressedParams.geometryId");
             return;
         }
-        const geometryId = geometryCompressedParams.geometryId;
+        const geometryId = geometryCompressedParams.id;
         if (this.geometries[geometryId]) {
             this.error(`[createGeometryCompressed] Geometry with this ID already created: ${geometryId}`);
             return;
@@ -533,7 +539,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *
      * ````javascript
      * myScratchModel.createMesh({
-     *      meshId: "redLegMesh",
+     *      id: "redLegMesh",
      *      geometryId: "myBoxGeometry",
      *      textureSetId: "myTextureSet",
      *      position: [-4, -6, -4],
@@ -542,7 +548,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
      *      color: [1, 0.3, 0.3]
      * });
      *
-     * // ScratchModel is a ReadableModel, so we can access the Mesh we just created
+     * // ScratchModel is a Model, so we can access the Mesh we just created
      * const mesh = myScratchModel.meshes["redLegMesh"];
      * ````
      *
@@ -558,16 +564,16 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
         if (this.built) {
             throw new Error("ScratchModel already built");
         }
-        if (meshParams.meshId === null || meshParams.meshId === undefined) {
-            this.error("Parameter expected: meshParams.meshId");
+        if (meshParams.id === null || meshParams.id === undefined) {
+            this.error("Parameter expected: meshParams.id");
             return;
         }
         if (meshParams.geometryId === null || meshParams.geometryId === undefined) {
             this.error("Parameter expected: meshParams.geometryId");
             return;
         }
-        if (this.meshes[meshParams.meshId]) {
-            this.error("Mesh already exists with this ID: " + meshParams.meshId);
+        if (this.meshes[meshParams.id]) {
+            this.error("Mesh already exists with this ID: " + meshParams.id);
             return;
         }
         const geometry = this.geometries[meshParams.geometryId];
@@ -575,12 +581,11 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
             this.error("Geometry not found: " + meshParams.geometryId);
             return;
         }
-        if (meshParams.textureSetId) {
-            if (!this.textureSets[meshParams.textureSetId]) {
-                this.error("TextureSetImpl not found: " + meshParams.textureSetId);
-                return;
-            }
+        const textureSet = meshParams.textureSetId ? this.textureSets[meshParams.textureSetId] : null;
+        if (meshParams.textureSetId && !textureSet) {
+            this.error("TextureSet not found: " + meshParams.textureSetId);
         }
+
         // geometry.numInstances++;
         // let matrix = meshParams.matrix;
         // if (!matrix) {
@@ -596,7 +601,17 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
         //     }
         // }
         // const meshIndex = this.meshesList.length;
-        this.meshes[meshParams.meshId] = new MeshImpl(meshParams);
+
+        this.meshes[meshParams.id] = new MeshImpl( {
+            id: meshParams.id,
+            geometry,
+            textureSet,
+            matrix: meshParams.matrix,
+            color: meshParams.color,
+            opacity: meshParams.opacity,
+            roughness: meshParams.roughness,
+            metallic: meshParams.metallic
+        });
     }
 
     /**
@@ -617,22 +632,22 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
         if (!objectParams) {
             throw new Error("Parameters expected: objectParams");
         }
-        if (objectParams.objectId === null || objectParams.objectId === undefined) {
-            throw new Error("Parameter expected: objectParams.objectId");
+        if (objectParams.id === null || objectParams.id === undefined) {
+            throw new Error("Parameter expected: objectParams.id");
         }
         if (!objectParams.meshIds) {
             throw new Error("Parameter expected: objectParams.meshIds");
         }
         if (objectParams.meshIds.length === 0) {
-            this.warn("XKTObject has no meshes - won't create: " + objectParams.objectId);
+            this.warn("XKTObject has no meshes - won't create: " + objectParams.id);
             return;
         }
-        let objectId = objectParams.objectId;
+        let objectId = objectParams.id;
         if (this.objects[objectId]) {
             while (this.objects[objectId]) {
                 objectId = createUUID();
             }
-            this.error("XKTObject already exists with this ID: " + objectParams.objectId + " - substituting random ID instead: " + objectId);
+            this.error("XKTObject already exists with this ID: " + objectParams.id + " - substituting random ID instead: " + objectId);
         }
         const meshIds = objectParams.meshIds;
         const meshes = [];
@@ -643,16 +658,18 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
                 this.error("Mesh found: " + meshId);
                 continue;
             }
-
             // TODO
-            if (this.#meshUsedByObject[mesh.meshId]) {
+            if (this.#meshUsedByObject[meshId]) {
                 this.error(`Mesh ${meshId} already used by another XKTObject - will ignore`);
                 continue;
             }
             meshes.push(mesh);
-            this.#meshUsedByObject[mesh.meshId] = true;
+            this.#meshUsedByObject[mesh.id] = true;
         }
-        const object = new ObjectImpl(objectParams);
+        const object = new ObjectImpl({
+            id: objectId,
+            meshes
+        });
         for (let i = 0, len = meshes.length; i < len; i++) {
             const mesh = meshes[i];
             mesh.object = object;
@@ -691,7 +708,7 @@ class ScratchModel extends Component implements BuildableModel, ReadableModel {
         //     if (texture.channel !== null) {
         //         texture.textureIndex = texturesList.length;
         //         texturesList.push(texture);
-        //         textures[texture.textureId] = texture;
+        //         textures[texture.id] = texture;
         //     }
         // }
         // this.texturesList = texturesList;

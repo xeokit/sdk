@@ -1,15 +1,20 @@
-import {Mesh, XKTObject} from "@xeokit/core/components";
+import {XKTObject} from "@xeokit/core/components";
+import {MeshImpl} from "./MeshImpl";
 
 /**
  * @private
  */
 export class ObjectImpl implements XKTObject {
 
-    objectId: string;
-    meshes: Mesh[];
+    id: string;
 
-    constructor(cfg: any) {
-        this.objectId = cfg.objectId;
+    meshes: MeshImpl[];
+
+    constructor(cfg: {
+        meshes: MeshImpl[];
+        id: string;
+    }) {
+        this.id = cfg.id;
         this.meshes = cfg.meshes;
     }
 }

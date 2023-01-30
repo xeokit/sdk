@@ -1,21 +1,33 @@
-import {TextureSetParams} from "@xeokit/core/components";
+import {TextureSet, TextureSetParams} from "@xeokit/core/components";
+import {TextureImpl} from "./TextureImpl";
 
 /**
  * @private
  */
-export class TextureSetImpl implements TextureSetParams {
+export class TextureSetImpl implements TextureSet {
 
-    textureSetId: string;
-    colorTextureId: string;
-    metallicRoughnessTextureId: string;
-    occlusionTextureId: string;
-    emissiveTextureId: string;
+    id: string;
 
-    constructor(textureSetParams: TextureSetParams) {
-        this.textureSetId = textureSetParams.textureSetId;
-        this.colorTextureId = textureSetParams.colorTextureId;
-        this.metallicRoughnessTextureId = textureSetParams.metallicRoughnessTextureId;
-        this.occlusionTextureId = textureSetParams.occlusionTextureId;
-        this.emissiveTextureId = textureSetParams.emissiveTextureId;
+    colorTexture?: TextureImpl;
+
+    metallicRoughnessTexture?: TextureImpl
+
+    occlusionTexture?: TextureImpl;
+
+    emissiveTexture?: TextureImpl;
+
+    constructor(textureSetParams: TextureSetParams,
+                textures: {
+                    emissiveTexture?: TextureImpl;
+                    occlusionTexture?: TextureImpl;
+                    metallicRoughnessTexture?: TextureImpl;
+                    colorTexture?: TextureImpl;
+                }) {
+
+        this.id = textureSetParams.id;
+        this.colorTexture = textures.colorTexture;
+        this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
+        this.occlusionTexture = textures.occlusionTexture;
+        this.emissiveTexture = textures.emissiveTexture;
     }
 }

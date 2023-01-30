@@ -7,7 +7,7 @@ import {Geometry, Mesh, TextureSet} from "@xeokit/core/components";
  */
 export class MeshImpl implements Mesh {
 
-    meshId: string;
+    id: string;
     geometry: Geometry;
     textureSet?: TextureSet;
     color: FloatArrayParam;
@@ -16,8 +16,17 @@ export class MeshImpl implements Mesh {
     roughness: number;
     opacity: number;
 
-    constructor(meshParams: any) {
-        this.meshId = meshParams.meshId;
+    constructor(meshParams: {
+        id: string;
+        geometry: Geometry;
+        textureSet: TextureSet;
+        matrix: FloatArrayParam;
+        color: FloatArrayParam;
+        opacity: number;
+        roughness: number;
+        metallic: number;
+    }) {
+        this.id = meshParams.id;
         this.matrix = meshParams.matrix;
         this.geometry = meshParams.geometry;
         this.color = meshParams.color || createVec3([1, 1, 1]);

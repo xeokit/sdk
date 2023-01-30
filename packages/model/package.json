@@ -1,7 +1,7 @@
 {
   "name": "@xeokit/model",
-  "version": "0.0.0",
-  "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
+  "version": "0.0.1",
+  "description": "A buldable, loadable, savable, viewer-agnostic JavaScript data structure to represent a xeokit geometric model in NodeJS or Browser memory. Use this to generate xeokit models, or as an intermediate in-memory representation within a conversion process. ",
   "module": "dist/xeokit-model.modern.js",
   "source": "src/index.ts",
   "scripts": {

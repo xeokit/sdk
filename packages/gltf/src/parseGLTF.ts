@@ -15,7 +15,7 @@ import {
     RepeatWrapping,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-import {BuildableModel, GeometryParams, MeshParams, ParseParams} from "@xeokit/core/components";
+import {BuildableModel, GeometryParams, MeshParams, ParseParams, TextureSetParams} from "@xeokit/core/components";
 import {isString} from "@xeokit/core/utils";
 import {createMat4, identityMat4, mulMat4, quaternionToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
@@ -43,7 +43,7 @@ interface ParsingContext {
  * import {ScratchModel} from "@xeokit/xkt";
  * import {parseGLTF} from "@xeokit/gltf";
  *
- * const myModel = new ScratchModel(); // Implements BuildableModel and ReadableModel
+ * const myModel = new ScratchModel(); // Implements BuildableModel and Model
  *
  * utils.loadArraybuffer("../assets/models/gltf/HousePlan/glTF-Binary/HousePlan.glb", async (data) => {
  *
@@ -116,7 +116,7 @@ export function parseGLTF(params: ParseParams): Promise<any> {
             parseDefaultScene(ctx);
             resolve();
         }, (errMsg) => {
-            reject(`[parseGLTF] ${errMsg}`);
+            reject(`Error parsing glTF: ${errMsg}`);
         });
     });
 }
@@ -233,13 +233,12 @@ function parseMaterials(ctx: ParsingContext): void {
 }
 
 function parseTextureSet(ctx: ParsingContext, material: any): null | string {
-    const textureSetCfg = {
-        normalTextureId: undefined,
-        occlusionTextureId: undefined,
-        emissiveTextureId: undefined,
-        colorTextureId: undefined,
-        metallicRoughnessTextureId: undefined,
-        textureSetId: undefined
+    const textureSetCfg: TextureSetParams = {
+        id: null,
+        occlusionTextureId: null,
+        emissiveTextureId: null,
+        colorTextureId: null,
+        metallicRoughnessTextureId: null
     };
     if (material.occlusionTexture) {
         textureSetCfg.occlusionTextureId = material.occlusionTexture.texture._textureId;
@@ -297,9 +296,9 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | string {
         textureSetCfg.emissiveTextureId !== undefined ||
         textureSetCfg.colorTextureId !== undefined ||
         textureSetCfg.metallicRoughnessTextureId !== undefined) {
-        textureSetCfg.textureSetId = `textureSet-${ctx.nextId++};`
+        textureSetCfg.id = `textureSet-${ctx.nextId++};`
         ctx.buildableModel.createTextureSet(textureSetCfg);
-        return textureSetCfg.textureSetId;
+        return textureSetCfg.id;
     }
     return null;
 }
@@ -436,7 +435,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                 if (!primitive._geometryId) {
                     const geometryId = "geometry-" + ctx.nextId++;
                     const geometryParams: GeometryParams = {
-                        geometryId: geometryId,
+                        id: geometryId,
                         primitive: 0,
                         positions: undefined
                     };
@@ -485,7 +484,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
 
                 const meshId = `${ctx.nextId++}`;
                 const meshParams: MeshParams = {
-                    meshId: meshId,
+                    id: meshId,
                     geometryId: primitive._geometryId,
                     matrix: matrix ? matrix.slice() : identityMat4(),
                     textureSetId: undefined
@@ -532,7 +531,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
             objectId = "object-" + ctx.nextId++;
         }
         ctx.buildableModel.createObject({
-            objectId,
+            id: objectId,
             meshIds: deferredMeshIds
         });
         ctx.objectCreated[objectId] = true;

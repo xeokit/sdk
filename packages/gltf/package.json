@@ -48,10 +48,9 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-xkt.modern.js",
+  "main": "dist/xeokit-gltf.modern.js",
   "dependencies": {
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/math": "^0.0.1",
+
     "pako": "^2.0.4",
     "@loaders.gl/core": "^3.2.6",
     "@loaders.gl/gltf": "^3.2.6",

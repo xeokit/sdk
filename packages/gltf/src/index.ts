@@ -1,6 +1,6 @@
 /**
- * glTF parsing u.
+ * glTF utilities for xeokit.
  *
- * @module @xeokit/model
+ * @module @xeokit/gltf
  */
 export * from "./parseGLTF";

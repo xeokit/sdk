@@ -84,7 +84,7 @@ class View extends Component {
     /**
      ID of this View, unique within the {@link Viewer}.
      */
-    declare id: string;
+    declare viewId: string;
 
     /**
      * The Viewer to which this View belongs.
@@ -182,7 +182,7 @@ class View extends Component {
     /**
      * Map of the all {@link ViewObject|ViewObjects} in this View.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
      * The View automatically ensures that there is a {@link ViewObject} here for
      * each {@link ViewerObject} in the {@link Viewer}
@@ -194,7 +194,7 @@ class View extends Component {
      *
      * A ViewObject is visible when {@link ViewObject.visible} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly visibleObjects: { [key: string]: ViewObject };
 
@@ -203,7 +203,7 @@ class View extends Component {
      *
      * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly xrayedObjects: { [key: string]: ViewObject };
 
@@ -212,7 +212,7 @@ class View extends Component {
      *
      * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly highlightedObjects: { [key: string]: ViewObject };
 
@@ -221,21 +221,21 @@ class View extends Component {
      *
      * A ViewObject is selected when {@link ViewObject.selected} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly selectedObjects: { [key: string]: ViewObject };
 
     /**
      * Map of currently colorized {@link ViewObject|ViewObjects} in this View.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly colorizedObjects: { [key: string]: ViewObject };
 
     /**
      * Map of {@link ViewObject|ViewObjects} in this View whose opacity has been updated.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.objectId}.
+     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly opacityObjects: { [key: string]: ViewObject };
 
@@ -830,7 +830,7 @@ class View extends Component {
      * @private
      */
     registerViewObject(viewObject: ViewObject) {
-        this.objects[viewObject.objectId] = viewObject;
+        this.objects[viewObject.id] = viewObject;
         this.#numObjects++;
         this.#objectIds = null; // Lazy regenerate
     }
@@ -839,13 +839,13 @@ class View extends Component {
      * @private
      */
     deregisterViewObject(viewObject: ViewObject) {
-        delete this.objects[viewObject.objectId];
-        delete this.visibleObjects[viewObject.objectId];
-        delete this.xrayedObjects[viewObject.objectId];
-        delete this.highlightedObjects[viewObject.objectId];
-        delete this.selectedObjects[viewObject.objectId];
-        delete this.colorizedObjects[viewObject.objectId];
-        delete this.opacityObjects[viewObject.objectId];
+        delete this.objects[viewObject.id];
+        delete this.visibleObjects[viewObject.id];
+        delete this.xrayedObjects[viewObject.id];
+        delete this.highlightedObjects[viewObject.id];
+        delete this.selectedObjects[viewObject.id];
+        delete this.colorizedObjects[viewObject.id];
+        delete this.opacityObjects[viewObject.id];
         this.#numObjects--;
         this.#objectIds = null; // Lazy regenerate
     }
@@ -855,10 +855,10 @@ class View extends Component {
      */
     objectVisibilityUpdated(viewObject: ViewObject, visible: boolean, notify: boolean = true) {
         if (visible) {
-            this.visibleObjects[viewObject.objectId] = viewObject;
+            this.visibleObjects[viewObject.id] = viewObject;
             this.#numVisibleObjects++;
         } else {
-            delete this.visibleObjects[viewObject.objectId];
+            delete this.visibleObjects[viewObject.id];
             this.#numVisibleObjects--;
         }
         this.#visibleObjectIds = null; // Lazy regenerate
@@ -872,10 +872,10 @@ class View extends Component {
      */
     objectXRayedUpdated(viewObject: ViewObject, xrayed: boolean) {
         if (xrayed) {
-            this.xrayedObjects[viewObject.objectId] = viewObject;
+            this.xrayedObjects[viewObject.id] = viewObject;
             this.#numXRayedObjects++;
         } else {
-            delete this.xrayedObjects[viewObject.objectId];
+            delete this.xrayedObjects[viewObject.id];
             this.#numXRayedObjects--;
         }
         this.#xrayedObjectIds = null; // Lazy regenerate
@@ -886,10 +886,10 @@ class View extends Component {
      */
     objectHighlightedUpdated(viewObject: ViewObject, highlighted: boolean) {
         if (highlighted) {
-            this.highlightedObjects[viewObject.objectId] = viewObject;
+            this.highlightedObjects[viewObject.id] = viewObject;
             this.#numHighlightedObjects++;
         } else {
-            delete this.highlightedObjects[viewObject.objectId];
+            delete this.highlightedObjects[viewObject.id];
             this.#numHighlightedObjects--;
         }
         this.#highlightedObjectIds = null; // Lazy regenerate
@@ -900,10 +900,10 @@ class View extends Component {
      */
     objectSelectedUpdated(viewObject: ViewObject, selected: boolean) {
         if (selected) {
-            this.selectedObjects[viewObject.objectId] = viewObject;
+            this.selectedObjects[viewObject.id] = viewObject;
             this.#numSelectedObjects++;
         } else {
-            delete this.selectedObjects[viewObject.objectId];
+            delete this.selectedObjects[viewObject.id];
             this.#numSelectedObjects--;
         }
         this.#selectedObjectIds = null; // Lazy regenerate
@@ -914,10 +914,10 @@ class View extends Component {
      */
     objectColorizeUpdated(viewObject: ViewObject, colorized: boolean) {
         if (colorized) {
-            this.colorizedObjects[viewObject.objectId] = viewObject;
+            this.colorizedObjects[viewObject.id] = viewObject;
             this.#numColorizedObjects++;
         } else {
-            delete this.colorizedObjects[viewObject.objectId];
+            delete this.colorizedObjects[viewObject.id];
             this.#numColorizedObjects--;
         }
         this.#colorizedObjectIds = null; // Lazy regenerate
@@ -928,10 +928,10 @@ class View extends Component {
      */
     objectOpacityUpdated(viewObject: ViewObject, opacityUpdated: boolean) {
         if (opacityUpdated) {
-            this.opacityObjects[viewObject.objectId] = viewObject;
+            this.opacityObjects[viewObject.id] = viewObject;
             this.#numOpacityObjects++;
         } else {
-            delete this.opacityObjects[viewObject.objectId];
+            delete this.opacityObjects[viewObject.id];
             this.#numOpacityObjects--;
         }
         this.#opacityObjectIds = null; // Lazy regenerate
@@ -1156,7 +1156,7 @@ class View extends Component {
             const viewerObject = viewerObjects[id];
             const viewLayerId = viewerObject.viewLayerId || "main";
             let viewLayer = this.layers[viewLayerId];
-            const viewObject = this.objects[viewerObject.objectId];
+            const viewObject = this.objects[viewerObject.id];
             this.deregisterViewObject(viewObject);
             if (viewLayer) {
                 viewLayer.deregisterViewObject(viewObject);
@@ -1180,7 +1180,7 @@ class View extends Component {
      * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
      * - Updates {@link View.visibleObjects} and {@link View.numVisibleObjects}.
      *
-     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
      * @param visible Whether or not to cull.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1197,7 +1197,7 @@ class View extends Component {
      *
      * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
      *
-     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
      * @param collidable Whether or not to cull.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1214,7 +1214,7 @@ class View extends Component {
      *
      * Updates {@link ViewObject.culled} on the Objects with the given IDs.
      *
-     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
      * @param culled Whether or not to cull.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1232,7 +1232,7 @@ class View extends Component {
      * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
      * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
      *
-     * @param  objectIds One or more {@link ViewObject.objectId} values.
+     * @param  objectIds One or more {@link ViewObject.id} values.
      * @param selected Whether or not to select.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1250,7 +1250,7 @@ class View extends Component {
      * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
      * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
      *
-     * @param  objectIds One or more {@link ViewObject.objectId} values.
+     * @param  objectIds One or more {@link ViewObject.id} values.
      * @param highlighted Whether or not to highlight.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1268,7 +1268,7 @@ class View extends Component {
      * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
      * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
      *
-     * @param  objectIds One or more {@link ViewObject.objectId} values.
+     * @param  objectIds One or more {@link ViewObject.id} values.
      * @param xrayed Whether or not to xray.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1288,7 +1288,7 @@ class View extends Component {
      * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
      * - Updates {@link View.colorizedObjects} and {@link View.numColorizedObjects}.
      *
-     * @param  objectIds One or more {@link ViewObject.objectId} values.
+     * @param  objectIds One or more {@link ViewObject.id} values.
      * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
      * @returns True if any {@link ViewObject|ViewObjects} changed opacity, else false if all updates were redundant and not applied.
      */
@@ -1304,7 +1304,7 @@ class View extends Component {
      * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
      * - Updates {@link View.opacityObjects} and {@link View.numOpacityObjects}.
      *
-     * @param  objectIds - One or more {@link ViewObject.objectId} values.
+     * @param  objectIds - One or more {@link ViewObject.id} values.
      * @param opacity - Opacity factor in range ````[0..1]````.
      * @returns True if any {@link ViewObject|ViewObjects} changed opacity, else false if all updates were redundant and not applied.
      */
@@ -1324,7 +1324,7 @@ class View extends Component {
      * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
      * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
      *
-     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
      * @param pickable Whether or not to set pickable.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1344,7 +1344,7 @@ class View extends Component {
      * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
      * - Enables or disables the ability to clip the given Objects with {@link SectionPlane}.
      *
-     * @param {String[]} objectIds Array of {@link ViewObject.objectId} values.
+     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
      * @param clippable Whether or not to set clippable.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1361,7 +1361,7 @@ class View extends Component {
     /**
      * Iterates with a callback over the given {@link ViewObject|ViewObjects} in this View.
      *
-     * @param  objectIds One or more {@link ViewObject.objectId} values.
+     * @param  objectIds One or more {@link ViewObject.id} values.
      * @param callback Callback to execute on each {@link ViewObject}.
      * @returns True if any {@link ViewObject|ViewObjects} were updated, else false if all updates were redundant and not applied.
      */

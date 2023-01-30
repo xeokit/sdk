@@ -380,23 +380,23 @@ export class Viewer extends Component {
      * //...
      * ````
      *
-     * @param params
+     * @param params View configuration.
      */
     createView(params: ViewParams): View  {
         if (this.viewList.length >= this.capabilities.maxViews) {
             throw new Error(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
         }
-        let id = params.id || utils.createUUID();
-        if (this.views[id]) {
-            this.error(`View with ID "${id}" already exists - will randomly-generate ID`);
-            id = utils.createUUID();
+        let viewId = params.viewId || utils.createUUID();
+        if (this.views[viewId]) {
+            this.error(`View with ID "${viewId}" already exists - will randomly-generate ID`);
+            viewId = utils.createUUID();
         }
         // @ts-ignore
         const canvasElement = params.canvasElement || document.getElementById(params.canvasId);
         if (!(canvasElement instanceof HTMLCanvasElement)) {
             throw new Error("Mandatory View config expected: valid canvasId or canvasElement");
         }
-        const view = new View(utils.apply({id, viewer: this}, params));
+        const view = new View(utils.apply({viewId, viewer: this}, params));
         this.#registerView(view);
         view.viewIndex = this.renderer.registerView(view);
         view.onDestroyed.one(() => {
@@ -405,7 +405,7 @@ export class Viewer extends Component {
             this.onViewDestroyed.dispatch(this, view);
         });
         this.onViewCreated.dispatch(this, view);
-        this.log(`View created: ${view.id}`);
+        this.log(`View created: ${view.viewId}`);
         return view;
     }
 
@@ -456,7 +456,6 @@ export class Viewer extends Component {
         });
         return viewerModel;
     }
-
 
     /**
      * Gets the World-space 3D center of this Viewer.
@@ -597,8 +596,8 @@ export class Viewer extends Component {
      @private
      */
     redraw(): void {
-        for (let id in this.views) {
-            this.views[id].redraw();
+        for (let viewId in this.views) {
+            this.views[viewId].redraw();
         }
     }
 
@@ -656,8 +655,8 @@ export class Viewer extends Component {
         for (let id in this.views) {
             this.views[id].destroy();
         }
-        for (let modelId in this.models) {
-            this.models[modelId].destroy();
+        for (let id in this.models) {
+            this.models[id].destroy();
         }
         this.onTick.clear();
         this.onViewCreated.clear();
@@ -680,7 +679,7 @@ export class Viewer extends Component {
         const objects = viewerModel.objects;
         for (let id in objects) {
             const viewerObject = objects[id];
-            this.objects[viewerObject.objectId] = viewerObject;
+            this.objects[viewerObject.id] = viewerObject;
         }
         this.#aabbDirty = true;
     }
@@ -689,7 +688,7 @@ export class Viewer extends Component {
         const objects = viewerModel.objects;
         for (let id in objects) {
             const viewerObject = objects[id];
-            delete this.objects[viewerObject.objectId];
+            delete this.objects[viewerObject.id];
         }
         this.#aabbDirty = true;
     }

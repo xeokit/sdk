@@ -2,11 +2,16 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {
     BuildableModel,
     EventEmitter,
+    Geometry,
     GeometryCompressedParams,
     GeometryParams,
+    Mesh,
     MeshParams,
+    Model,
     ObjectParams,
+    Texture,
     TextureParams,
+    TextureSet,
     TextureSetParams,
     TransformParams
 } from "@xeokit/core/components";
@@ -26,20 +31,14 @@ import {Viewer} from "./Viewer";
  * * Created with {@link Viewer.createModel}
  * * Stored in {@link Viewer.models}
  * * The Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link View}
- *
- * Note that ViewerModel does not allow us to read back the elements that we create within it (ie. it does not
- * implement {@link ReadableModel}). This is by design. By not retaining those elements in Browser memory as JavaScript objects,
- * we are able to fit larger models into the Viewer, at the cost of not being able to read back the geometry, textures etc. This
- * is fine for most use cases, where we want to just view our models, without needing to edit or finely analyze them.
- *
  */
-export interface ViewerModel extends BuildableModel {
+export interface ViewerModel extends Model, BuildableModel {
 
     /** Unique ID of this ViewerModel.
      *
      * Find the ViewerModel mapped to this ID in {@link Viewer.models}.
      */
-    readonly modelId: string;
+    readonly id: string;
 
     /**
      * Indicates if this ViewerModel has already been built.
@@ -63,6 +62,31 @@ export interface ViewerModel extends BuildableModel {
      * The owner Viewer.
      */
     readonly viewer: Viewer;
+
+    /**
+     * TODO
+     */
+    readonly readable: boolean;
+
+    /**
+     * The {@link Geometry|Geometries} in this model.
+     */
+    readonly geometries: { [key: string]: Geometry };
+
+    /**
+     * The {@link Texture|Textures} in this model.
+     */
+    readonly textures: { [key: string]: Texture };
+
+    /**
+     * {@link TextureSet|TextureSets} in this model.
+     */
+    readonly textureSets: { [key: string]: TextureSet };
+
+    /**
+     * {@link Mesh|Meshes} in this model
+     */
+    readonly meshes: { [key: string]: Mesh };
 
     /**
      * The {@link ViewerObject|ViewerObjects} in this ViewerModel, each mapped to {@link ViewerObject.id}.
@@ -90,7 +114,6 @@ export interface ViewerModel extends BuildableModel {
      * Default is ````true````.
      */
     qualityRender: boolean;
-
 
     /**
      * Emits an event when the {@link ViewerModel} has already been built.
@@ -251,7 +274,7 @@ export interface ViewerModel extends BuildableModel {
     /**
      * Creates a {@link ViewerObject} within this ViewerModel.
      *
-     * The ViewerObject is then registered in {@link Viewer.objects} by {@link ViewerObject.objectId}.
+     * The ViewerObject is then registered in {@link Viewer.objects} by {@link ViewerObject.id}.
      *
      * ### Usage
      *

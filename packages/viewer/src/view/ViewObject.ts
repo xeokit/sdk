@@ -27,7 +27,7 @@ export class ViewObject {
   /**
    * Unique ID of this ViewObject within {@link ViewLayer.objects}.
    */
-  public readonly objectId: string;
+  public readonly id: string;
 
   /**
    * The ViewLayer to which this ViewObject belongs.
@@ -74,7 +74,7 @@ export class ViewObject {
         visible?: boolean;
       } = {}) {
 
-    this.objectId = viewerObject.objectId;
+    this.id = viewerObject.id;
     this.layer = layer;
     this.viewerObject = viewerObject;
 
@@ -112,7 +112,7 @@ export class ViewObject {
   /**
    * Gets if this ViewObject is visible.
    *
-   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.objectId} in {@link ViewLayer.visibleObjects}.
+   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
    * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
    * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
    */
@@ -123,7 +123,7 @@ export class ViewObject {
   /**
    * Sets if this ViewObject is visible.
    *
-   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.objectId} in {@link ViewLayer.visibleObjects}.
+   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
    * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
    * * Fires an "objectVisibility" event on associated {@link ViewLayer}s.
    * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
@@ -141,7 +141,7 @@ export class ViewObject {
   /**
    * Gets if this ViewObject is X-rayed.
    *
-   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.objectId} in {@link ViewLayer.xrayedViewObjects}.
+   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedViewObjects}.
    * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
    */
   get xrayed(): boolean {
@@ -151,7 +151,7 @@ export class ViewObject {
   /**
    * Sets if this ViewObject is X-rayed.
    *
-   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.objectId} in {@link ViewLayer.xrayedViewObjects}.
+   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedViewObjects}.
    * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
    */
   set xrayed(xrayed: boolean) {
@@ -186,7 +186,7 @@ export class ViewObject {
   /**
    * Gets if this ViewObject is highlighted.
    *
-   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.objectId} in {@link ViewLayer.highlightedViewObjects}.
+   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedViewObjects}.
    * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
    */
   get highlighted(): boolean {
@@ -196,7 +196,7 @@ export class ViewObject {
   /**
    * Sets if this ViewObject is highlighted.
    *
-   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.objectId} in {@link ViewLayer.highlightedViewObjects}.
+   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedViewObjects}.
    * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
    */
   set highlighted(highlighted: boolean) {
@@ -215,7 +215,7 @@ export class ViewObject {
   /**
    * Gets if this ViewObject is selected.
    *
-   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.objectId} in {@link ViewLayer.selectedViewObjects}.
+   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedViewObjects}.
    * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
    */
   get selected(): boolean {
@@ -225,7 +225,7 @@ export class ViewObject {
   /**
    * Sets if this ViewObject is selected.
    *
-   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.objectId} in {@link ViewLayer.selectedViewObjects}.
+   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedViewObjects}.
    * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
    */
   set selected(selected: boolean) {

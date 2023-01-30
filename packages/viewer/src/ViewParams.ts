@@ -1,4 +1,5 @@
 import * as math from "@xeokit/math/math"
+import {FloatArrayParam} from "@xeokit/math/math";
 
 /**
  * {@link View} creation parameters for {@link Viewer.createView}.
@@ -8,7 +9,7 @@ export interface ViewParams {
     /**
      * ID for the new View.
      */
-    id?: string;
+    viewId?: string;
 
     /**
      * The Real-space 3D origin, in Real-space units, at which the {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
@@ -38,11 +39,17 @@ export interface ViewParams {
      *
      */
     canvasElement?: HTMLCanvasElement;
-    backgroundColor?: any[];
+
+    backgroundColor?: FloatArrayParam;
+
     backgroundColorFromAmbientLight?: boolean;
+
     premultipliedAlpha?: boolean;
+
     transparent?: boolean;
+
     pbrEnabled?: boolean;
+
     colorTextureEnabled?: boolean;
 
     /**

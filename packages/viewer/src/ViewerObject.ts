@@ -1,6 +1,6 @@
-
 import type {ViewerModel} from "./ViewerModel";
 import {FloatArrayParam} from "@xeokit/math/math";
+import {Mesh, XKTObject} from "@xeokit/core/components";
 
 
 /**
@@ -14,17 +14,22 @@ import {FloatArrayParam} from "@xeokit/math/math";
  * * Stored in {@link ViewerModel.objects} and {@link View.objects}
  * * Automatically proxied by a {@link ViewObject} in each {@link View}
  */
-export interface ViewerObject {
+export interface ViewerObject extends XKTObject {
+
+    /**
+     * Unique ID of this ViewerObject.
+     */
+    readonly id: string;
+
+    /**
+     *
+     */
+    readonly meshes: Mesh[];
 
     /**
      * The {@link ViewerModel} that contains this ViewerObject.
      */
     readonly model: ViewerModel;
-
-    /**
-     * Unique ID of this ViewerObject.
-     */
-    readonly objectId: string;
 
     /**
      * The axis-aligned World-space 3D boundary of this ViewerObject.

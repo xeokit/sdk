@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/viewer",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
   "module": "dist/xeokit-viewer.modern.js",
   "source": "src/index.ts",
@@ -55,6 +55,5 @@
     "strongly-typed-events": "3.0.7"
   },
   "devDependencies": {
-    "jest": "^29.3.1"
   }
 }

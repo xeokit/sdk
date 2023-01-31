@@ -68,13 +68,13 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<a href="#geometryimpl-decompression-utilities-library" id="geometryimpl-decompression-utilities-library" style="color: inherit; text-decoration: none;">
-							<h4>GeometryImpl de/compression utilities library</h4>
+						<a href="#geometry-decompression-utilities-library" id="geometry-decompression-utilities-library" style="color: inherit; text-decoration: none;">
+							<h4>Geometry de/compression utilities library</h4>
 						</a>
 					</div>
 					<ul>
-						<li>Used internally within <a href="../interfaces/_xeokit_viewer.viewermodel.html#creategeometry">ViewerModel.createGeometry</a> to compress geometry and use less GPU memory</li>
-						<li>Provided here for when we want to pre-compress our geometry offline and use <a href="../interfaces/_xeokit_viewer.viewermodel.html#creategeometrycompressed">ViewerModel.createGeometryCompressed</a> instead</li>
+						<li>Used internally within <a href="../interfaces/_xeokit_core_components.buildablemodel.html#creategeometry">BuildableModel.createGeometry</a> to compress geometry and use less GPU memory</li>
+						<li>Provided here for when we want to pre-compress our geometry offline and use <a href="../interfaces/_xeokit_core_components.buildablemodel.html#creategeometrycompressed">BuildableModel.createGeometryCompressed</a> instead</li>
 						<li>Combines duplicate positions</li>
 						<li>Converts positions to relative-to-center (RTC) coordinates</li>
 						<li>Quantizes positions and UVs as 16-bit unsigned ints</li>
@@ -174,7 +174,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L117">math/src/compression/compression.ts:117</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L118">math/src/compression/compression.ts:118</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -205,11 +205,12 @@
 								<p>Note that if the <a href="../interfaces/_xeokit_core_components.geometryparams.html#positions">GeometryParams.positions</a> array was large enough to require some indices to use more than 16 bits
 									for storage, then that&#39;s when the bucketing would kick in, to split the mesh into smaller buckets, each with smaller
 								indices that index a subset of the positions.</p>
-								<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">math</span><span style="color: #000000">, </span><span style="color: #001080">constants</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+								<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">compressGeometryParams</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/math/compression&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/core/constants&quot;</span><span style="color: #000000">;</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">compressedGeometry</span><span style="color: #000000"> = </span><span style="color: #001080">math</span><span style="color: #000000">.</span><span style="color: #001080">compression</span><span style="color: #000000">.</span><span style="color: #795E26">compressGeometryParams</span><span style="color: #000000">({</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">compressedGeometry</span><span style="color: #000000"> = </span><span style="color: #795E26">compressGeometryParams</span><span style="color: #000000">({</span>
 <span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">     </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
 <span style="color: #000000">     </span><span style="color: #001080">positions:</span><span style="color: #000000"> [</span>
 <span style="color: #000000">         </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">,</span>
 <span style="color: #000000">         </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">, </span><span style="color: #098658">200</span><span style="color: #000000">, </span><span style="color: #098658">202</span><span style="color: #000000">,</span>
@@ -235,7 +236,7 @@
 								<p>The value of <code>compressedGeometry</code> is:</p>
 								<pre><code class="language-javascript"><span style="color: #000000">{</span>
 <span style="color: #000000">     id: </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">     primitive: </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
+<span style="color: #000000">     primitive: </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
 <span style="color: #000000">     origin: [</span><span style="color: #098658">200</span><span style="color: #000000">,</span><span style="color: #098658">200</span><span style="color: #000000">,</span><span style="color: #098658">200</span><span style="color: #000000">],</span>
 <span style="color: #000000">     positionsDecompressMatrix: [</span>
 <span style="color: #000000">         </span><span style="color: #098658">0.00003052270125906143</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
@@ -290,7 +291,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L387">math/src/compression/compression.ts:387</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L388">math/src/compression/compression.ts:388</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -320,7 +321,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L268">math/src/compression/compression.ts:268</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L269">math/src/compression/compression.ts:269</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -354,7 +355,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L234">math/src/compression/compression.ts:234</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L235">math/src/compression/compression.ts:235</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -390,7 +391,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L351">math/src/compression/compression.ts:351</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L352">math/src/compression/compression.ts:352</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -426,7 +427,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L214">math/src/compression/compression.ts:214</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L215">math/src/compression/compression.ts:215</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -457,7 +458,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L299">math/src/compression/compression.ts:299</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L300">math/src/compression/compression.ts:300</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -493,7 +494,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L286">math/src/compression/compression.ts:286</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L287">math/src/compression/compression.ts:287</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -529,7 +530,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L315">math/src/compression/compression.ts:315</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L316">math/src/compression/compression.ts:316</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -565,7 +566,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L191">math/src/compression/compression.ts:191</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L192">math/src/compression/compression.ts:192</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -603,7 +604,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9021014/packages/math/src/compression/compression.ts#L328">math/src/compression/compression.ts:328</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/06fd816/packages/math/src/compression/compression.ts#L329">math/src/compression/compression.ts:329</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

@@ -25,8 +25,12 @@
 | Package          | Modules                                                                                                            | Description                                                           |
 |------------------|:-------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
 | `@xeokit/viewer` | [`@xeokit/viewer`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_viewer.html)                     | Browser-based model viewer                                            |
-| `@xeokit/webgl`  | [`@xeokit/webgl`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_webgl.html)                       | Configures a viewer to use WebGL(2)                                   |
+| `@xeokit/webgl`  | [`@xeokit/webgl`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_webgl.html)                       | Configures a viewer to use WebGL2                                     |
 | `@xeokit/data`   | [`@xeokit/data`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_data.html)                         | Optional entity-relationship semantic data model to use with a viewer |
+| `@xeokit/model`  | [`@xeokit/model`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_model.html)                       | Viewer-agnostic model representation                                  |
+| `@xeokit/xkt`    | [`@xeokit/xkt`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_xkt.html)                           | Import/export XKT (xeokit's native format)                            |
+| `@xeokit/gltf`   | [`@xeokit/gltf`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_gltf.html)                         | Import/export glTF                                                    |
+| `@xeokit/las`    | [`@xeokit/las`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_las.html)                           | Import LAS                                                            |
 | `@xeokit/core`   | [`@xeokit/core/components`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_components.html)   | Base component classes                                                |
 |                  | [`@xeokit/core/constants`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_constants.html)     | Global constants                                                      |
 |                  | [`@xeokit/core/utils`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_utils.html)             | General utilities library                                             |

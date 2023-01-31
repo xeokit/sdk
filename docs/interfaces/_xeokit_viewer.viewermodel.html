@@ -1,0 +1,1150 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ViewerModel | xeokit-viewer</title>
+	<meta name="description" content="Documentation for xeokit-viewer">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">xeokit-viewer</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">xeokit-viewer</a>
+				</li>
+				<li>
+					<a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a>
+				</li>
+				<li>
+					<a href="_xeokit_viewer.viewermodel.html">ViewerModel</a>
+				</li>
+			</ul>
+			<h1>Interface ViewerModel</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A model representation within a <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a>.</p>
+					</div>
+					<p>See <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> for usage examples.</p>
+					<a href="#summary" id="summary" style="color: inherit; text-decoration: none;">
+						<h2>Summary</h2>
+					</a>
+					<ul>
+						<li>Stored in <a href="../classes/_xeokit_viewer.viewer.html#models">Viewer.models</a></li>
+						<li>Created with <a href="../classes/_xeokit_viewer.viewer.html#createmodel">Viewer.createModel</a></li>
+						<li>Contains <a href="_xeokit_viewer.viewerobject.html">ViewerObjects</a></li>
+						<li>Viewer automatically represents each <a href="_xeokit_viewer.viewerobject.html">ViewerObject</a> with a corresponding <a href="../classes/_xeokit_viewer.viewobject.html">ViewObject</a> in each <a href="../classes/_xeokit_viewer.view.html">View</a></li>
+					</ul>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="_xeokit_core_components.model.html" class="tsd-signature-type" data-tsd-kind="Interface">Model</a>
+					</li>
+					<li>
+						<a href="_xeokit_core_components.buildablemodel.html" class="tsd-signature-type" data-tsd-kind="Interface">BuildableModel</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">ViewerModel</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Events</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-event tsd-parent-kind-interface tsd-is-inherited"><a href="_xeokit_viewer.viewermodel.html#onbuilt" class="tsd-kind-icon">on<wbr>Built</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-interface tsd-is-inherited"><a href="_xeokit_viewer.viewermodel.html#ondestroyed" class="tsd-kind-icon">on<wbr>Destroyed</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewermodel.html#aabb" class="tsd-kind-icon">aabb</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#built" class="tsd-kind-icon">built</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#destroyed" class="tsd-kind-icon">destroyed</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#geometries" class="tsd-kind-icon">geometries</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#meshes" class="tsd-kind-icon">meshes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#objects" class="tsd-kind-icon">objects</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewermodel.html#origin" class="tsd-kind-icon">origin</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewermodel.html#qualityrender" class="tsd-kind-icon">quality<wbr>Render</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewermodel.html#readable" class="tsd-kind-icon">readable</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#texturesets" class="tsd-kind-icon">texture<wbr>Sets</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#textures" class="tsd-kind-icon">textures</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewermodel.html#viewer" class="tsd-kind-icon">viewer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewermodel.html#worldmatrix" class="tsd-kind-icon">world<wbr>Matrix</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#build" class="tsd-kind-icon">build</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#creategeometry" class="tsd-kind-icon">create<wbr>Geometry</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#creategeometrycompressed" class="tsd-kind-icon">create<wbr>Geometry<wbr>Compressed</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#createmesh" class="tsd-kind-icon">create<wbr>Mesh</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#createobject" class="tsd-kind-icon">create<wbr>Object</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#createtexture" class="tsd-kind-icon">create<wbr>Texture</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#createtextureset" class="tsd-kind-icon">create<wbr>Texture<wbr>Set</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#createtransform" class="tsd-kind-icon">create<wbr>Transform</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="_xeokit_viewer.viewermodel.html#destroy" class="tsd-kind-icon">destroy</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Events</h2>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-interface tsd-is-inherited">
+					<a name="onbuilt" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> on<wbr>Built</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Built<span class="tsd-signature-symbol">:</span> <a href="../classes/_xeokit_core_components.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.viewermodel.html" class="tsd-signature-type" data-tsd-kind="Interface">ViewerModel</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#onbuilt">onBuilt</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L122">viewer/src/ViewerModel.ts:122</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Emits an event when the <a href="_xeokit_viewer.viewermodel.html">ViewerModel</a> has already been built.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-interface tsd-is-inherited">
+					<a name="ondestroyed" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> on<wbr>Destroyed</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Destroyed<span class="tsd-signature-symbol">:</span> <a href="../classes/_xeokit_core_components.eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.viewermodel.html" class="tsd-signature-type" data-tsd-kind="Interface">ViewerModel</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#ondestroyed">onDestroyed</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L129">viewer/src/ViewerModel.ts:129</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Emits an event when the <a href="_xeokit_viewer.viewermodel.html">ViewerModel</a> has been destroyed.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="aabb" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> aabb</h3>
+					<div class="tsd-signature tsd-kind-icon">aabb<span class="tsd-signature-symbol">:</span> <a href="../modules/_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L98">viewer/src/ViewerModel.ts:98</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The axis-aligned World-space 3D boundary of this ViewerModel.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="built" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> built</h3>
+					<div class="tsd-signature tsd-kind-icon">built<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#built">built</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L49">viewer/src/ViewerModel.ts:49</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Indicates if this ViewerModel has already been built.</p>
+						</div>
+						<p>Set <code>true</code> by <a href="_xeokit_viewer.viewermodel.html#build">ViewerModel.build</a>.</p>
+						<p>Don&#39;t create anything more in this ViewerModel once it&#39;s built.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="destroyed" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> destroyed</h3>
+					<div class="tsd-signature tsd-kind-icon">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#destroyed">destroyed</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L58">viewer/src/ViewerModel.ts:58</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Indicates if this ViewerModel has been destroyed.</p>
+						</div>
+						<p>Set <code>true</code> by <a href="_xeokit_viewer.viewermodel.html#destroy">ViewerModel.destroy</a>.</p>
+						<p>Don&#39;t create anything more in this ScratchModel once it&#39;s destroyed.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="geometries" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> geometries</h3>
+					<div class="tsd-signature tsd-kind-icon">geometries<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_xeokit_core_components.model.html">Model</a>.<a href="_xeokit_core_components.model.html#geometries">geometries</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L73">viewer/src/ViewerModel.ts:73</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <a href="_xeokit_core_components.geometry.html">Geometries</a> in this model.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_core_components.geometry.html" class="tsd-signature-type" data-tsd-kind="Interface">Geometry</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="id" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#id">id</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L40">viewer/src/ViewerModel.ts:40</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Unique ID of this ViewerModel.</p>
+						</div>
+						<p>Find the ViewerModel mapped to this ID in <a href="../classes/_xeokit_viewer.viewer.html#models">Viewer.models</a>.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="meshes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> meshes</h3>
+					<div class="tsd-signature tsd-kind-icon">meshes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_xeokit_core_components.model.html">Model</a>.<a href="_xeokit_core_components.model.html#meshes">meshes</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L88">viewer/src/ViewerModel.ts:88</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p><a href="_xeokit_core_components.mesh.html">Meshes</a> in this model</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_core_components.mesh.html" class="tsd-signature-type" data-tsd-kind="Interface">Mesh</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="objects" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> objects</h3>
+					<div class="tsd-signature tsd-kind-icon">objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides Model.objects</p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L93">viewer/src/ViewerModel.ts:93</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <a href="_xeokit_viewer.viewerobject.html">ViewerObjects</a> in this ViewerModel, each mapped to <a href="_xeokit_viewer.viewerobject.html#id">ViewerObject.id</a>.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.viewerobject.html" class="tsd-signature-type" data-tsd-kind="Interface">ViewerObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="origin" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> origin</h3>
+					<div class="tsd-signature tsd-kind-icon">origin<span class="tsd-signature-symbol">:</span> <a href="../modules/_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L103">viewer/src/ViewerModel.ts:103</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The 3D World-space coordinate origin of this ViewerModel.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="qualityrender" class="tsd-anchor"></a>
+					<h3>quality<wbr>Render</h3>
+					<div class="tsd-signature tsd-kind-icon">quality<wbr>Render<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L115">viewer/src/ViewerModel.ts:115</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Whether quality rendering is enabled for this ViewerModel.</p>
+						</div>
+						<p>Default is <code>true</code>.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="readable" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> readable</h3>
+					<div class="tsd-signature tsd-kind-icon">readable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L68">viewer/src/ViewerModel.ts:68</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>TODO</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="texturesets" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> texture<wbr>Sets</h3>
+					<div class="tsd-signature tsd-kind-icon">texture<wbr>Sets<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_xeokit_core_components.model.html">Model</a>.<a href="_xeokit_core_components.model.html#texturesets">textureSets</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L83">viewer/src/ViewerModel.ts:83</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p><a href="_xeokit_core_components.textureset.html">TextureSets</a> in this model.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_core_components.textureset.html" class="tsd-signature-type" data-tsd-kind="Interface">TextureSet</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="textures" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> textures</h3>
+					<div class="tsd-signature tsd-kind-icon">textures<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_xeokit_core_components.model.html">Model</a>.<a href="_xeokit_core_components.model.html#textures">textures</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L78">viewer/src/ViewerModel.ts:78</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <a href="_xeokit_core_components.texture.html">Textures</a> in this model.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_core_components.texture.html" class="tsd-signature-type" data-tsd-kind="Interface">Texture</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="viewer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> viewer</h3>
+					<div class="tsd-signature tsd-kind-icon">viewer<span class="tsd-signature-symbol">:</span> <a href="../classes/_xeokit_viewer.viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L63">viewer/src/ViewerModel.ts:63</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The owner Viewer.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="worldmatrix" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> world<wbr>Matrix</h3>
+					<div class="tsd-signature tsd-kind-icon">world<wbr>Matrix<span class="tsd-signature-symbol">:</span> <a href="../modules/_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L108">viewer/src/ViewerModel.ts:108</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The 3D World-space transform matrix of this ViewerModel.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="build" class="tsd-anchor"></a>
+					<h3>build</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">build<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#build">build</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L303">viewer/src/ViewerModel.ts:303</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Builds this ViewerModel.</p>
+								</div>
+								<p>Sets <a href="_xeokit_viewer.viewermodel.html#built">ViewerModel.built</a> <code>true</code>.</p>
+								<p>Once built, you cannot add any more components to this ViewerModel.</p>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been built or destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="creategeometry" class="tsd-anchor"></a>
+					<h3>create<wbr>Geometry</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Geometry<span class="tsd-signature-symbol">(</span>geometryParams<span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.geometryparams.html" class="tsd-signature-type" data-tsd-kind="Interface">GeometryParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#creategeometry">createGeometry</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L166">viewer/src/ViewerModel.ts:166</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a geometry within this ViewerModel, from non-compressed geometry parameters.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h3>Usage</h3>
+								</a>
+								<pre><code class="language-javascript"><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">, </span><span style="color: #008000">// @xeokit/core/constants</span>
+<span style="color: #000000">     </span><span style="color: #001080">positions:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">         </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #008000">// v0-v1-v2-v3 front</span>
+<span style="color: #000000">         </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #008000">// v0-v3-v4-v1 right</span>
+<span style="color: #000000">         </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #008000">// v0-v1-v6-v1 top</span>
+<span style="color: #000000">         -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #008000">// v1-v6-v7-v2 left</span>
+<span style="color: #000000">         -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">,</span><span style="color: #008000">// v7-v4-v3-v2 bottom</span>
+<span style="color: #000000">         </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000"> </span><span style="color: #008000">// v4-v7-v6-v1 back</span>
+<span style="color: #000000">     ],</span>
+<span style="color: #000000">     </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">         </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">8</span><span style="color: #000000">, </span><span style="color: #098658">9</span><span style="color: #000000">, </span><span style="color: #098658">10</span><span style="color: #000000">, </span><span style="color: #098658">8</span><span style="color: #000000">, </span><span style="color: #098658">10</span><span style="color: #000000">, </span><span style="color: #098658">11</span><span style="color: #000000">, </span><span style="color: #098658">12</span><span style="color: #000000">, </span><span style="color: #098658">13</span><span style="color: #000000">, </span><span style="color: #098658">14</span><span style="color: #000000">, </span><span style="color: #098658">12</span><span style="color: #000000">, </span><span style="color: #098658">14</span><span style="color: #000000">, </span><span style="color: #098658">15</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">16</span><span style="color: #000000">, </span><span style="color: #098658">17</span><span style="color: #000000">, </span><span style="color: #098658">18</span><span style="color: #000000">, </span><span style="color: #098658">16</span><span style="color: #000000">, </span><span style="color: #098658">18</span><span style="color: #000000">, </span><span style="color: #098658">19</span><span style="color: #000000">, </span><span style="color: #098658">20</span><span style="color: #000000">, </span><span style="color: #098658">21</span><span style="color: #000000">, </span><span style="color: #098658">22</span><span style="color: #000000">, </span><span style="color: #098658">20</span><span style="color: #000000">, </span><span style="color: #098658">22</span><span style="color: #000000">, </span><span style="color: #098658">23</span>
+<span style="color: #000000">     ]</span>
+<span style="color: #000000"> });</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been built or destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>geometryParams: <a href="_xeokit_core_components.geometryparams.html" class="tsd-signature-type" data-tsd-kind="Interface">GeometryParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Non-compressed geometry parameters.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="creategeometrycompressed" class="tsd-anchor"></a>
+					<h3>create<wbr>Geometry<wbr>Compressed</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Geometry<wbr>Compressed<span class="tsd-signature-symbol">(</span>geometryCompressedParams<span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.geometrycompressedparams.html" class="tsd-signature-type" data-tsd-kind="Interface">GeometryCompressedParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#creategeometrycompressed">createGeometryCompressed</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L205">viewer/src/ViewerModel.ts:205</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a geometry within this ViewerModel, from pre-compressed geometry parameters.</p>
+								</div>
+								<p>Use <a href="../modules/_xeokit_math_compression.html#compressgeometryparams">compressGeometryParams</a> to pre-compress <a href="_xeokit_core_components.geometryparams.html">GeometryParams</a> into <a href="_xeokit_core_components.geometrycompressedparams.html">GeometryCompressedParams</a>.</p>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h3>Usage</h3>
+								</a>
+								<pre><code class="language-javascript"><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometryCompressed</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">, </span><span style="color: #008000">// @xeokit/core/constants</span>
+<span style="color: #000000">     </span><span style="color: #001080">positionsDecompressMatrix:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">         </span><span style="color: #098658">0.00003052270125906143</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0.00003052270125906143</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0.00003052270125906143</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">         -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span>
+<span style="color: #000000">     ],</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometryBuckets:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">         {</span>
+<span style="color: #000000">             </span><span style="color: #001080">positionsCompressed:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">                 </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">65525</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span>
+<span style="color: #000000">             ],</span>
+<span style="color: #000000">             </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">                 </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">7</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">, </span><span style="color: #098658">5</span>
+<span style="color: #000000">             ]</span>
+<span style="color: #000000">         }</span>
+<span style="color: #000000">     ]</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been built or destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>geometryCompressedParams: <a href="_xeokit_core_components.geometrycompressedparams.html" class="tsd-signature-type" data-tsd-kind="Interface">GeometryCompressedParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Pre-compressed geometry parameters.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="createmesh" class="tsd-anchor"></a>
+					<h3>create<wbr>Mesh</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Mesh<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.meshparams.html" class="tsd-signature-type" data-tsd-kind="Interface">MeshParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#createmesh">createMesh</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L271">viewer/src/ViewerModel.ts:271</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a mesh within this ViewerModel.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h3>Usage</h3>
+								</a>
+								<pre><code class="language-javascript"><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;redLegMesh&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myBoxGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">textureSetId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">position:</span><span style="color: #000000"> [-</span><span style="color: #098658">4</span><span style="color: #000000">, -</span><span style="color: #098658">6</span><span style="color: #000000">, -</span><span style="color: #098658">4</span><span style="color: #000000">],</span>
+<span style="color: #000000">     </span><span style="color: #001080">scale:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">],</span>
+<span style="color: #000000">     </span><span style="color: #001080">rotation:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">],</span>
+<span style="color: #000000">     </span><span style="color: #001080">color:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0.3</span><span style="color: #000000">, </span><span style="color: #098658">0.3</span><span style="color: #000000">]</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been built or destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>params: <a href="_xeokit_core_components.meshparams.html" class="tsd-signature-type" data-tsd-kind="Interface">MeshParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Mesh configuration.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="createobject" class="tsd-anchor"></a>
+					<h3>create<wbr>Object</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Object<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.objectparams.html" class="tsd-signature-type" data-tsd-kind="Interface">ObjectParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#createobject">createObject</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L292">viewer/src/ViewerModel.ts:292</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a <a href="_xeokit_viewer.viewerobject.html">ViewerObject</a> within this ViewerModel.</p>
+								</div>
+								<p>The ViewerObject is then registered in <a href="../classes/_xeokit_viewer.viewer.html#objects">Viewer.objects</a> by <a href="_xeokit_viewer.viewerobject.html#id">ViewerObject.id</a>.</p>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h3>Usage</h3>
+								</a>
+								<pre><code class="language-javascript"><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">objectId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;redLeg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;redLegMesh&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewerObject</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">objects</span><span style="color: #000000">[</span><span style="color: #A31515">&quot;redLeg&quot;</span><span style="color: #000000">];</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been built or destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>params: <a href="_xeokit_core_components.objectparams.html" class="tsd-signature-type" data-tsd-kind="Interface">ObjectParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>ViewerObject configuration.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="createtexture" class="tsd-anchor"></a>
+					<h3>create<wbr>Texture</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Texture<span class="tsd-signature-symbol">(</span>textureParams<span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.textureparams.html" class="tsd-signature-type" data-tsd-kind="Interface">TextureParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#createtexture">createTexture</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L232">viewer/src/ViewerModel.ts:232</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a texture within this ViewerModel.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h3>Usage</h3>
+								</a>
+								<pre><code class="language-javascript"><span style="color: #001080">mySceneMode</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">textureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #008000">// Path to JPEG, PNG, KTX2,</span>
+<span style="color: #000000">     </span><span style="color: #001080">image</span><span style="color: #000000">: </span><span style="color: #008000">// HTMLImageElement,</span>
+<span style="color: #000000">     </span><span style="color: #001080">buffers</span><span style="color: #000000">: </span><span style="color: #008000">// ArrayBuffer[] containing KTX2 MIP levels</span>
+<span style="color: #000000">     </span><span style="color: #001080">preloadColor</span><span style="color: #000000">: [</span><span style="color: #098658">1</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">1</span><span style="color: #000000">],</span>
+<span style="color: #000000">     </span><span style="color: #001080">encoding:</span><span style="color: #000000"> </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">LinearEncoding</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">flipY:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">magFilter:</span><span style="color: #000000"> </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">LinearFilter</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">minFilter:</span><span style="color: #000000"> </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">LinearFilter</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">wrapR:</span><span style="color: #000000"> </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">ClampToEdgeWrapping</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">wrapS:</span><span style="color: #000000"> </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">ClampToEdgeWrapping</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">wrapT:</span><span style="color: #000000"> </span><span style="color: #001080">constants</span><span style="color: #000000">.</span><span style="color: #001080">ClampToEdgeWrapping</span><span style="color: #000000">,</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been built or destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>textureParams: <a href="_xeokit_core_components.textureparams.html" class="tsd-signature-type" data-tsd-kind="Interface">TextureParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Texture configuration.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="createtextureset" class="tsd-anchor"></a>
+					<h3>create<wbr>Texture<wbr>Set</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Texture<wbr>Set<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.texturesetparams.html" class="tsd-signature-type" data-tsd-kind="Interface">TextureSetParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#createtextureset">createTextureSet</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L249">viewer/src/ViewerModel.ts:249</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a texture set within this ViewerModel.</p>
+								</div>
+								<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+									<h3>Usage</h3>
+								</a>
+								<pre><code class="language-javascript"><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTextureSet</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">textureSetId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">colorTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span>
+<span style="color: #000000">});</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been built or destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>params: <a href="_xeokit_core_components.texturesetparams.html" class="tsd-signature-type" data-tsd-kind="Interface">TextureSetParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Texture set configuration.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="createtransform" class="tsd-anchor"></a>
+					<h3>create<wbr>Transform</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Transform<span class="tsd-signature-symbol">(</span>transformParams<span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.transformparams.html" class="tsd-signature-type" data-tsd-kind="Interface">TransformParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#createtransform">createTransform</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L137">viewer/src/ViewerModel.ts:137</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a Transform within this ViewerModel.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been built or destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>transformParams: <a href="_xeokit_core_components.transformparams.html" class="tsd-signature-type" data-tsd-kind="Interface">TransformParams</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Transform parameters.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="destroy" class="tsd-anchor"></a>
+					<h3>destroy</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">destroy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_xeokit_core_components.buildablemodel.html">BuildableModel</a>.<a href="_xeokit_core_components.buildablemodel.html#destroy">destroy</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewerModel.ts#L312">viewer/src/ViewerModel.ts:312</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Destroys this ViewerModel.</p>
+								</div>
+								<p>Sets <a href="_xeokit_viewer.viewermodel.html#built">ViewerModel.built</a> true.</p>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If ViewerModel has already been destroyed.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_core_utils.html">@xeokit/core/utils</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_data.html">@xeokit/data</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_boundaries.html">@xeokit/math/boundaries</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_compression.html">@xeokit/math/compression</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_curves.html">@xeokit/math/curves</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_geometry.html">@xeokit/math/geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_math.html">@xeokit/math/math</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_matrix.html">@xeokit/math/matrix</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_model.html">@xeokit/model</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_xkt.html">@xeokit/xkt</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.ambientlight.html" class="tsd-kind-icon">Ambient<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.camera.html" class="tsd-kind-icon">Camera</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.cameracontrol.html" class="tsd-kind-icon">Camera<wbr>Control</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.cameraflightanimation.html" class="tsd-kind-icon">Camera<wbr>Flight<wbr>Animation</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.cameramemento.html" class="tsd-kind-icon">Camera<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.customprojection.html" class="tsd-kind-icon">Custom<wbr>Projection</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.dirlight.html" class="tsd-kind-icon">Dir<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.edgematerial.html" class="tsd-kind-icon">Edge<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.emphasismaterial.html" class="tsd-kind-icon">Emphasis<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.frustum.html" class="tsd-kind-icon">Frustum</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.ktx2texturetranscoder.html" class="tsd-kind-icon">KTX2<wbr>Texture<wbr>Transcoder</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.localeservice.html" class="tsd-kind-icon">Locale<wbr>Service</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.metrics.html" class="tsd-kind-icon">Metrics</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.modelmemento.html" class="tsd-kind-icon">Model<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.ortho.html" class="tsd-kind-icon">Ortho</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.perspective.html" class="tsd-kind-icon">Perspective</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.pickresult.html" class="tsd-kind-icon">Pick<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.plugin.html" class="tsd-kind-icon">Plugin</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.pointlight.html" class="tsd-kind-icon">Point<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.pointsmaterial.html" class="tsd-kind-icon">Points<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.rtcviewmat.html" class="tsd-kind-icon">RTCView<wbr>Mat</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.sao.html" class="tsd-kind-icon">SAO</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.sectionplane.html" class="tsd-kind-icon">Section<wbr>Plane</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.view.html" class="tsd-kind-icon">View</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.viewlayer.html" class="tsd-kind-icon">View<wbr>Layer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.viewobject.html" class="tsd-kind-icon">View<wbr>Object</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.viewobjectsmemento.html" class="tsd-kind-icon">View<wbr>Objects<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.viewer.html" class="tsd-kind-icon">Viewer</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.compressedtextureparams.html" class="tsd-kind-icon">Compressed<wbr>Texture<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.renderer.html" class="tsd-kind-icon">Renderer</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.texturetranscoder.html" class="tsd-kind-icon">Texture<wbr>Transcoder</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewlayerparams.html" class="tsd-kind-icon">View<wbr>Layer<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewparams.html" class="tsd-kind-icon">View<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewercapabilities.html" class="tsd-kind-icon">Viewer<wbr>Capabilities</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewermodel.html" class="tsd-kind-icon">Viewer<wbr>Model</a>
+						<ul>
+							<li class=" tsd-kind-event tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_xeokit_viewer.viewermodel.html#onbuilt" class="tsd-kind-icon">on<wbr>Built</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_xeokit_viewer.viewermodel.html#ondestroyed" class="tsd-kind-icon">on<wbr>Destroyed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_xeokit_viewer.viewermodel.html#aabb" class="tsd-kind-icon">aabb</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#built" class="tsd-kind-icon">built</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#destroyed" class="tsd-kind-icon">destroyed</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#geometries" class="tsd-kind-icon">geometries</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#id" class="tsd-kind-icon">id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#meshes" class="tsd-kind-icon">meshes</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#objects" class="tsd-kind-icon">objects</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_xeokit_viewer.viewermodel.html#origin" class="tsd-kind-icon">origin</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_xeokit_viewer.viewermodel.html#qualityrender" class="tsd-kind-icon">quality<wbr>Render</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_xeokit_viewer.viewermodel.html#readable" class="tsd-kind-icon">readable</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#texturesets" class="tsd-kind-icon">texture<wbr>Sets</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#textures" class="tsd-kind-icon">textures</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_xeokit_viewer.viewermodel.html#viewer" class="tsd-kind-icon">viewer</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_xeokit_viewer.viewermodel.html#worldmatrix" class="tsd-kind-icon">world<wbr>Matrix</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#build" class="tsd-kind-icon">build</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#creategeometry" class="tsd-kind-icon">create<wbr>Geometry</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#creategeometrycompressed" class="tsd-kind-icon">create<wbr>Geometry<wbr>Compressed</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#createmesh" class="tsd-kind-icon">create<wbr>Mesh</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#createobject" class="tsd-kind-icon">create<wbr>Object</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#createtexture" class="tsd-kind-icon">create<wbr>Texture</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#createtextureset" class="tsd-kind-icon">create<wbr>Texture<wbr>Set</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#createtransform" class="tsd-kind-icon">create<wbr>Transform</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_xeokit_viewer.viewermodel.html#destroy" class="tsd-kind-icon">destroy</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewermodelparams.html" class="tsd-kind-icon">Viewer<wbr>Model<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewerobject.html" class="tsd-kind-icon">Viewer<wbr>Object</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

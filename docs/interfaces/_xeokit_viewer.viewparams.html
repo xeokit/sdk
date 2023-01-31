@@ -92,10 +92,10 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewparams.html#autolayers" class="tsd-kind-icon">auto<wbr>Layers</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewparams.html#canvasid" class="tsd-kind-icon">canvas<wbr>Id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewparams.html#id" class="tsd-kind-icon">id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewparams.html#origin" class="tsd-kind-icon">origin</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewparams.html#scale" class="tsd-kind-icon">scale</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewparams.html#units" class="tsd-kind-icon">units</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_viewer.viewparams.html#viewid" class="tsd-kind-icon">view<wbr>Id</a></li>
 							</ul>
 						</section>
 					</div>
@@ -109,21 +109,21 @@
 					<div class="tsd-signature tsd-kind-icon">auto<wbr>Layers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/ViewParams.ts#L63">viewer/src/ViewParams.ts:63</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewParams.ts#L70">viewer/src/ViewParams.ts:70</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Whether the <a href="../classes/_xeokit_viewer.view.html">View</a> will automatically create <a href="../classes/_xeokit_viewer.viewlayer.html">ViewLayers</a> on-demand
-							as <a href="_xeokit_viewer.sceneobject.html">SceneObjects</a> are created.</p>
+							as <a href="_xeokit_viewer.viewerobject.html">ViewerObjects</a> are created.</p>
 						</div>
 						<p>When <code>true</code> (default), the <a href="../classes/_xeokit_viewer.view.html">View</a> will automatically create <a href="../classes/_xeokit_viewer.viewlayer.html">ViewLayers</a> as needed for each new
-							<a href="_xeokit_viewer.sceneobject.html#viewlayerid">SceneObject.viewLayerId</a> encountered, including a &quot;default&quot; ViewLayer for SceneObjects that have no
-						viewLayerId. This default setting therefore ensures that a ViewObject is created in the <a href="../classes/_xeokit_viewer.view.html">View</a> for every SceneObject that is created.</p>
-						<p>If you set this <code>false</code>, however, then the <a href="../classes/_xeokit_viewer.view.html">View</a> will only create <a href="../classes/_xeokit_viewer.viewobject.html">ViewObjects</a> for <a href="_xeokit_viewer.sceneobject.html">SceneObjects</a> that have
-						a <a href="_xeokit_viewer.sceneobject.html#viewlayerid">SceneObject.viewLayerId</a> that matches the ID of a <a href="../classes/_xeokit_viewer.viewlayer.html">ViewLayer</a> that you have explicitly created previously with <a href="../classes/_xeokit_viewer.view.html#createlayer">View.createLayer</a>.</p>
+							<a href="_xeokit_viewer.viewerobject.html#viewlayerid">ViewerObject.viewLayerId</a> encountered, including a &quot;default&quot; ViewLayer for ViewerObjects that have no
+						viewLayerId. This default setting therefore ensures that a ViewObject is created in the <a href="../classes/_xeokit_viewer.view.html">View</a> for every ViewerObject that is created.</p>
+						<p>If you set this <code>false</code>, however, then the <a href="../classes/_xeokit_viewer.view.html">View</a> will only create <a href="../classes/_xeokit_viewer.viewobject.html">ViewObjects</a> for <a href="_xeokit_viewer.viewerobject.html">ViewerObjects</a> that have
+						a <a href="_xeokit_viewer.viewerobject.html#viewlayerid">ViewerObject.viewLayerId</a> that matches the ID of a <a href="../classes/_xeokit_viewer.viewlayer.html">ViewLayer</a> that you have explicitly created previously with <a href="../classes/_xeokit_viewer.view.html#createlayer">View.createLayer</a>.</p>
 						<p>Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
-							SceneObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for SceneObjects
+							ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
 						that it never needs to show.</p>
 					</div>
 				</section>
@@ -133,7 +133,7 @@
 					<div class="tsd-signature tsd-kind-icon">canvas<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/ViewParams.ts#L35">viewer/src/ViewParams.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewParams.ts#L36">viewer/src/ViewParams.ts:36</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -143,27 +143,12 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="id" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/ViewParams.ts#L11">viewer/src/ViewParams.ts:11</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>ID for the new View.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="origin" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> origin</h3>
 					<div class="tsd-signature tsd-kind-icon">origin<span class="tsd-signature-symbol">:</span> <a href="../modules/_xeokit_math_math.html#floatarrayparam" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/ViewParams.ts#L16">viewer/src/ViewParams.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewParams.ts#L17">viewer/src/ViewParams.ts:17</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -178,7 +163,7 @@
 					<div class="tsd-signature tsd-kind-icon">scale<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/ViewParams.ts#L24">viewer/src/ViewParams.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewParams.ts#L25">viewer/src/ViewParams.ts:25</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -195,13 +180,28 @@
 					<div class="tsd-signature tsd-kind-icon">units<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/ViewParams.ts#L30">viewer/src/ViewParams.ts:30</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewParams.ts#L31">viewer/src/ViewParams.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>The unit of measurement for the <a href="../classes/_xeokit_viewer.view.html">View</a>. Accepted values are <a href="../modules/_xeokit_core_constants.html#metersunit">MetersUnit</a>, <a href="../modules/_xeokit_core_constants.html#centimetersunit">CentimetersUnit</a>,
 							<a href="../modules/_xeokit_core_constants.html#millimetersunit">MillimetersUnit</a>, <a href="../modules/_xeokit_core_constants.html#yardsunit">YardsUnit</a>, <a href="../modules/_xeokit_core_constants.html#feetunit">FeetUnit</a> and <a href="../modules/_xeokit_core_constants.html#inchesunit">InchesUnit</a>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="viewid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> view<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">view<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/ViewParams.ts#L12">viewer/src/ViewParams.ts:12</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>ID for the new View.</p>
 						</div>
 					</div>
 				</section>
@@ -246,16 +246,115 @@
 					<li class=" tsd-kind-module">
 						<a href="../modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a>
 					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_model.html">@xeokit/model</a>
+					</li>
 					<li class="current tsd-kind-module">
 						<a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/_xeokit_webgl.html">@xeokit/webgl</a>
+						<a href="../modules/_xeokit_xkt.html">@xeokit/xkt</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.ambientlight.html" class="tsd-kind-icon">Ambient<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.camera.html" class="tsd-kind-icon">Camera</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.cameracontrol.html" class="tsd-kind-icon">Camera<wbr>Control</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.cameraflightanimation.html" class="tsd-kind-icon">Camera<wbr>Flight<wbr>Animation</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.cameramemento.html" class="tsd-kind-icon">Camera<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.customprojection.html" class="tsd-kind-icon">Custom<wbr>Projection</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.dirlight.html" class="tsd-kind-icon">Dir<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.edgematerial.html" class="tsd-kind-icon">Edge<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.emphasismaterial.html" class="tsd-kind-icon">Emphasis<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.frustum.html" class="tsd-kind-icon">Frustum</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.ktx2texturetranscoder.html" class="tsd-kind-icon">KTX2<wbr>Texture<wbr>Transcoder</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.localeservice.html" class="tsd-kind-icon">Locale<wbr>Service</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.metrics.html" class="tsd-kind-icon">Metrics</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.modelmemento.html" class="tsd-kind-icon">Model<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.ortho.html" class="tsd-kind-icon">Ortho</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.perspective.html" class="tsd-kind-icon">Perspective</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.pickresult.html" class="tsd-kind-icon">Pick<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.plugin.html" class="tsd-kind-icon">Plugin</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.pointlight.html" class="tsd-kind-icon">Point<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.pointsmaterial.html" class="tsd-kind-icon">Points<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.rtcviewmat.html" class="tsd-kind-icon">RTCView<wbr>Mat</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.sao.html" class="tsd-kind-icon">SAO</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.sectionplane.html" class="tsd-kind-icon">Section<wbr>Plane</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.view.html" class="tsd-kind-icon">View</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.viewlayer.html" class="tsd-kind-icon">View<wbr>Layer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.viewobject.html" class="tsd-kind-icon">View<wbr>Object</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.viewobjectsmemento.html" class="tsd-kind-icon">View<wbr>Objects<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_xeokit_viewer.viewer.html" class="tsd-kind-icon">Viewer</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.compressedtextureparams.html" class="tsd-kind-icon">Compressed<wbr>Texture<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.renderer.html" class="tsd-kind-icon">Renderer</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.texturetranscoder.html" class="tsd-kind-icon">Texture<wbr>Transcoder</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewlayerparams.html" class="tsd-kind-icon">View<wbr>Layer<wbr>Params</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-module">
@@ -268,9 +367,6 @@
 								<a href="_xeokit_viewer.viewparams.html#canvasid" class="tsd-kind-icon">canvas<wbr>Id</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_xeokit_viewer.viewparams.html#id" class="tsd-kind-icon">id</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_xeokit_viewer.viewparams.html#origin" class="tsd-kind-icon">origin</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
@@ -279,10 +375,25 @@
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_xeokit_viewer.viewparams.html#units" class="tsd-kind-icon">units</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_xeokit_viewer.viewparams.html#viewid" class="tsd-kind-icon">view<wbr>Id</a>
+							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewercapabilities.html" class="tsd-kind-icon">Viewer<wbr>Capabilities</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewermodel.html" class="tsd-kind-icon">Viewer<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewermodelparams.html" class="tsd-kind-icon">Viewer<wbr>Model<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewerobject.html" class="tsd-kind-icon">Viewer<wbr>Object</a>
+					</li>
 				</ul>
 			</nav>
 		</div>

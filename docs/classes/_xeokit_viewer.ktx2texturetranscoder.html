@@ -74,7 +74,7 @@
 						<p>KTX2 texture data transcoding strategy.</p>
 					</div>
 					<p>A <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a> implementation usually has one of these, so that it can create compressed textures from transcoded
-					KTX2 texture data via <a href="../interfaces/_xeokit_viewer.scenemodel.html#createtexture">SceneModel.createTexture</a>.</p>
+					KTX2 texture data via <a href="../interfaces/_xeokit_viewer.viewermodel.html#createtexture">ViewerModel.createTexture</a>.</p>
 					<a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
 						<h2>Overview</h2>
 					</a>
@@ -115,13 +115,13 @@
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">xktLoader</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">TreeViewPlugin</span><span style="color: #000000">(</span><span style="color: #001080">viewer</span><span style="color: #000000">);</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">xktLoader</span><span style="color: #000000">.</span><span style="color: #795E26">load</span><span style="color: #000000">({</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewerModel</span><span style="color: #000000"> = </span><span style="color: #001080">xktLoader</span><span style="color: #000000">.</span><span style="color: #795E26">load</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;./HousePlan.xkt&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;------ XKT file with KTX2 textures</span>
 <span style="color: #000000">});</span>
 </code></pre>
-					<a href="#loading-ktx2-files-into-a-scenemodel" id="loading-ktx2-files-into-a-scenemodel" style="color: inherit; text-decoration: none;">
-						<h2>Loading KTX2 files into a SceneModel</h2>
+					<a href="#loading-ktx2-files-into-a-viewermodel" id="loading-ktx2-files-into-a-viewermodel" style="color: inherit; text-decoration: none;">
+						<h2>Loading KTX2 files into a ViewerModel</h2>
 					</a>
 					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span><span style="color: #000000">,</span>
@@ -134,34 +134,34 @@
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView1&quot;</span>
 <span style="color: #000000">});</span>
 
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewerModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
 <span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
 <span style="color: #000000"> });</span>
 
-<span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
 <span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">     </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;sample_uastc_zstd.ktx2&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;----- KTX2 texture asset</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
 <span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMetallicRoughnessTexture&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">     </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;crosshatchAlphaMap.jpg&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;----- JPEG texture asset</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTextureSet</span><span style="color: #000000">({</span>
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTextureSet</span><span style="color: #000000">({</span>
 <span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">     </span><span style="color: #001080">colorTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">     </span><span style="color: #001080">metallicRoughnessTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMetallicRoughnessTexture&quot;</span>
 <span style="color: #000000"> });</span>
 
-<span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">positions:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, ...],</span>
@@ -170,21 +170,21 @@
 <span style="color: #000000">    </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, ...],</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
 <span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">     </span><span style="color: #001080">textureSetId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">     </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span>
 <span style="color: #000000"> });</span>
 
-<span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
 <span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">]</span>
 <span style="color: #000000"> });</span>
 
-<span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
 </code></pre>
-					<a href="#loading-ktx2-arraybuffers-into-a-scenemodel" id="loading-ktx2-arraybuffers-into-a-scenemodel" style="color: inherit; text-decoration: none;">
-						<h2>Loading KTX2 ArrayBuffers into a SceneModel</h2>
+					<a href="#loading-ktx2-arraybuffers-into-a-viewermodel" id="loading-ktx2-arraybuffers-into-a-viewermodel" style="color: inherit; text-decoration: none;">
+						<h2>Loading KTX2 ArrayBuffers into a ViewerModel</h2>
 					</a>
 					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span><span style="color: #000000">,</span>
@@ -197,36 +197,36 @@
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView1&quot;</span>
 <span style="color: #000000">});</span>
 
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewerModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
 <span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
 <span style="color: #000000">});</span>
 
 <span style="color: #001080">utils</span><span style="color: #000000">.</span><span style="color: #795E26">loadArraybuffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;sample_uastc_zstd.ktx2&quot;</span><span style="color: #000000">,(</span><span style="color: #001080">arrayBuffer</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
 
-<span style="color: #000000">     </span><span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
 <span style="color: #000000">        </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">        </span><span style="color: #001080">buffers:</span><span style="color: #000000"> [</span><span style="color: #001080">arrayBuffer</span><span style="color: #000000">] </span><span style="color: #008000">// &lt;&lt;----- KTX2 texture asset</span>
 <span style="color: #000000">     });</span>
 
-<span style="color: #000000">     </span><span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
 <span style="color: #000000">        </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMetallicRoughnessTexture&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">        </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;../assets/textures/alpha/crosshatchAlphaMap.jpg&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;----- JPEG texture asset</span>
 <span style="color: #000000">     });</span>
 
-<span style="color: #000000">     </span><span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTextureSet</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTextureSet</span><span style="color: #000000">({</span>
 <span style="color: #000000">       </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">       </span><span style="color: #001080">colorTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">       </span><span style="color: #001080">metallicRoughnessTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMetallicRoughnessTexture&quot;</span>
 <span style="color: #000000">     });</span>
 
-<span style="color: #000000">     </span><span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
 <span style="color: #000000">         </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">         </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
 <span style="color: #000000">         </span><span style="color: #001080">positions:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, ...],</span>
@@ -235,18 +235,18 @@
 <span style="color: #000000">         </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, ...],</span>
 <span style="color: #000000">     });</span>
 
-<span style="color: #000000">     </span><span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
 <span style="color: #000000">         </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">         </span><span style="color: #001080">textureSetId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">         </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span>
 <span style="color: #000000">     });</span>
 
-<span style="color: #000000">     </span><span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
 <span style="color: #000000">         </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">         </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">]</span>
 <span style="color: #000000">     });</span>
 
-<span style="color: #000000">     </span><span style="color: #001080">sceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+<span style="color: #000000">     </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
 <span style="color: #000000">});</span>
 </code></pre>
 				</div>
@@ -298,7 +298,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts#L247">viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts:247</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts#L247">viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts:247</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -332,7 +332,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.texturetranscoder.html">TextureTranscoder</a>.<a href="../interfaces/_xeokit_viewer.texturetranscoder.html#destroy">destroy</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts#L378">viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts:378</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts#L378">viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts:378</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -355,7 +355,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.texturetranscoder.html">TextureTranscoder</a>.<a href="../interfaces/_xeokit_viewer.texturetranscoder.html#init">init</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts#L280">viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts:280</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts#L280">viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts:280</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -386,7 +386,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.texturetranscoder.html">TextureTranscoder</a>.<a href="../interfaces/_xeokit_viewer.texturetranscoder.html#transcode">transcode</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/639d978/packages/viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts#L298">viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts:298</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts#L298">viewer/src/textureTranscoders/KTX2TextureTranscoder/KTX2TextureTranscoder.ts:298</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -457,16 +457,49 @@
 					<li class=" tsd-kind-module">
 						<a href="../modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a>
 					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_model.html">@xeokit/model</a>
+					</li>
 					<li class="current tsd-kind-module">
 						<a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/_xeokit_webgl.html">@xeokit/webgl</a>
+						<a href="../modules/_xeokit_xkt.html">@xeokit/xkt</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.ambientlight.html" class="tsd-kind-icon">Ambient<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.camera.html" class="tsd-kind-icon">Camera</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.cameracontrol.html" class="tsd-kind-icon">Camera<wbr>Control</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.cameraflightanimation.html" class="tsd-kind-icon">Camera<wbr>Flight<wbr>Animation</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.cameramemento.html" class="tsd-kind-icon">Camera<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.customprojection.html" class="tsd-kind-icon">Custom<wbr>Projection</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.dirlight.html" class="tsd-kind-icon">Dir<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.edgematerial.html" class="tsd-kind-icon">Edge<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.emphasismaterial.html" class="tsd-kind-icon">Emphasis<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.frustum.html" class="tsd-kind-icon">Frustum</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-module">
@@ -488,6 +521,84 @@
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.localeservice.html" class="tsd-kind-icon">Locale<wbr>Service</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.metrics.html" class="tsd-kind-icon">Metrics</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.modelmemento.html" class="tsd-kind-icon">Model<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.ortho.html" class="tsd-kind-icon">Ortho</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.perspective.html" class="tsd-kind-icon">Perspective</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.pickresult.html" class="tsd-kind-icon">Pick<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.plugin.html" class="tsd-kind-icon">Plugin</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.pointlight.html" class="tsd-kind-icon">Point<wbr>Light</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.pointsmaterial.html" class="tsd-kind-icon">Points<wbr>Material</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.rtcviewmat.html" class="tsd-kind-icon">RTCView<wbr>Mat</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.sao.html" class="tsd-kind-icon">SAO</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.sectionplane.html" class="tsd-kind-icon">Section<wbr>Plane</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.view.html" class="tsd-kind-icon">View</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewlayer.html" class="tsd-kind-icon">View<wbr>Layer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewobject.html" class="tsd-kind-icon">View<wbr>Object</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewobjectsmemento.html" class="tsd-kind-icon">View<wbr>Objects<wbr>Memento</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="_xeokit_viewer.viewer.html" class="tsd-kind-icon">Viewer</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.compressedtextureparams.html" class="tsd-kind-icon">Compressed<wbr>Texture<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.renderer.html" class="tsd-kind-icon">Renderer</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.texturetranscoder.html" class="tsd-kind-icon">Texture<wbr>Transcoder</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewlayerparams.html" class="tsd-kind-icon">View<wbr>Layer<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewparams.html" class="tsd-kind-icon">View<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewercapabilities.html" class="tsd-kind-icon">Viewer<wbr>Capabilities</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewermodel.html" class="tsd-kind-icon">Viewer<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewermodelparams.html" class="tsd-kind-icon">Viewer<wbr>Model<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewerobject.html" class="tsd-kind-icon">Viewer<wbr>Object</a>
+					</li>
 				</ul>
 			</nav>
 		</div>

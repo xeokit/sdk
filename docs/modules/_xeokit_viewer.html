@@ -98,18 +98,18 @@
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView1&quot;</span>
 <span style="color: #000000">});</span>
 
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
 <span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mySceneModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #001080">scene</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewerModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
+<span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">positions:</span><span style="color: #000000"> [...],</span>
@@ -117,25 +117,25 @@
 <span style="color: #000000">    </span><span style="color: #008000">//...</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
+<span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #008000">//...</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject1&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">],</span>
 <span style="color: #000000">    </span><span style="color: #008000">//...</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject2&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">],</span>
 <span style="color: #000000">    </span><span style="color: #008000">//...</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">mySceneModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+<span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
 </code></pre>
 				</div>
 			</section>
@@ -151,7 +151,6 @@
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.cameracontrol.html" class="tsd-kind-icon">Camera<wbr>Control</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.cameraflightanimation.html" class="tsd-kind-icon">Camera<wbr>Flight<wbr>Animation</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.cameramemento.html" class="tsd-kind-icon">Camera<wbr>Memento</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.canvas.html" class="tsd-kind-icon">Canvas</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.customprojection.html" class="tsd-kind-icon">Custom<wbr>Projection</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.dirlight.html" class="tsd-kind-icon">Dir<wbr>Light</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.edgematerial.html" class="tsd-kind-icon">Edge<wbr>Material</a></li>
@@ -169,9 +168,7 @@
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.pointsmaterial.html" class="tsd-kind-icon">Points<wbr>Material</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.rtcviewmat.html" class="tsd-kind-icon">RTCView<wbr>Mat</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.sao.html" class="tsd-kind-icon">SAO</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.scene.html" class="tsd-kind-icon">Scene</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.sectionplane.html" class="tsd-kind-icon">Section<wbr>Plane</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.transform.html" class="tsd-kind-icon">Transform</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.view.html" class="tsd-kind-icon">View</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.viewlayer.html" class="tsd-kind-icon">View<wbr>Layer</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.viewobject.html" class="tsd-kind-icon">View<wbr>Object</a></li>
@@ -183,19 +180,14 @@
 							<h3>Interfaces</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.compressedtextureparams.html" class="tsd-kind-icon">Compressed<wbr>Texture<wbr>Params</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.geometrybucketparams.html" class="tsd-kind-icon">Geometry<wbr>Bucket<wbr>Params</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.geometrycompressedparams.html" class="tsd-kind-icon">Geometry<wbr>Compressed<wbr>Params</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.geometryparams.html" class="tsd-kind-icon">Geometry<wbr>Params</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.renderer.html" class="tsd-kind-icon">Renderer</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.scenemodel.html" class="tsd-kind-icon">Scene<wbr>Model</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.sceneobject.html" class="tsd-kind-icon">Scene<wbr>Object</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.sceneobjectparams.html" class="tsd-kind-icon">Scene<wbr>Object<wbr>Params</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.texturesetparams.html" class="tsd-kind-icon">Texture<wbr>Set<wbr>Params</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.texturetranscoder.html" class="tsd-kind-icon">Texture<wbr>Transcoder</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.transformparams.html" class="tsd-kind-icon">Transform<wbr>Params</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewlayerparams.html" class="tsd-kind-icon">View<wbr>Layer<wbr>Params</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewparams.html" class="tsd-kind-icon">View<wbr>Params</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewercapabilities.html" class="tsd-kind-icon">Viewer<wbr>Capabilities</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewermodel.html" class="tsd-kind-icon">Viewer<wbr>Model</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewermodelparams.html" class="tsd-kind-icon">Viewer<wbr>Model<wbr>Params</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewerobject.html" class="tsd-kind-icon">Viewer<wbr>Object</a></li>
 							</ul>
 						</section>
 					</div>
@@ -241,11 +233,14 @@
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a>
 					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_model.html">@xeokit/model</a>
+					</li>
 					<li class="current tsd-kind-module">
 						<a href="_xeokit_viewer.html">@xeokit/viewer</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_webgl.html">@xeokit/webgl</a>
+						<a href="_xeokit_xkt.html">@xeokit/xkt</a>
 					</li>
 				</ul>
 			</nav>
@@ -265,9 +260,6 @@
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.cameramemento.html" class="tsd-kind-icon">Camera<wbr>Memento</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.canvas.html" class="tsd-kind-icon">Canvas</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.customprojection.html" class="tsd-kind-icon">Custom<wbr>Projection</a>
@@ -321,13 +313,7 @@
 						<a href="../classes/_xeokit_viewer.sao.html" class="tsd-kind-icon">SAO</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.scene.html" class="tsd-kind-icon">Scene</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.sectionplane.html" class="tsd-kind-icon">Section<wbr>Plane</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.transform.html" class="tsd-kind-icon">Transform</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.view.html" class="tsd-kind-icon">View</a>
@@ -348,34 +334,10 @@
 						<a href="../interfaces/_xeokit_viewer.compressedtextureparams.html" class="tsd-kind-icon">Compressed<wbr>Texture<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.geometrybucketparams.html" class="tsd-kind-icon">Geometry<wbr>Bucket<wbr>Params</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.geometrycompressedparams.html" class="tsd-kind-icon">Geometry<wbr>Compressed<wbr>Params</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.geometryparams.html" class="tsd-kind-icon">Geometry<wbr>Params</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/_xeokit_viewer.renderer.html" class="tsd-kind-icon">Renderer</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.scenemodel.html" class="tsd-kind-icon">Scene<wbr>Model</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.sceneobject.html" class="tsd-kind-icon">Scene<wbr>Object</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.sceneobjectparams.html" class="tsd-kind-icon">Scene<wbr>Object<wbr>Params</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.texturesetparams.html" class="tsd-kind-icon">Texture<wbr>Set<wbr>Params</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/_xeokit_viewer.texturetranscoder.html" class="tsd-kind-icon">Texture<wbr>Transcoder</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.transformparams.html" class="tsd-kind-icon">Transform<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/_xeokit_viewer.viewlayerparams.html" class="tsd-kind-icon">View<wbr>Layer<wbr>Params</a>
@@ -385,6 +347,15 @@
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/_xeokit_viewer.viewercapabilities.html" class="tsd-kind-icon">Viewer<wbr>Capabilities</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewermodel.html" class="tsd-kind-icon">Viewer<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewermodelparams.html" class="tsd-kind-icon">Viewer<wbr>Model<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/_xeokit_viewer.viewerobject.html" class="tsd-kind-icon">Viewer<wbr>Object</a>
 					</li>
 				</ul>
 			</nav>

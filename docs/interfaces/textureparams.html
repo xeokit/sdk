@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>TextureParams | xeokit-viewer</title>
-	<meta name="description" content="Documentation for xeokit-viewer">
+	<title>TextureParams | @xeokit/core</title>
+	<meta name="description" content="Documentation for @xeokit/core">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<script async src="../assets/js/search.js" id="search-script"></script>
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">xeokit-viewer</a>
+					<a href="../index.html" class="title">@xeokit/core</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -52,7 +52,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../modules.html">xeokit-viewer</a>
+					<a href="../modules.html">@xeokit/core</a>
 				</li>
 				<li>
 					<a href="textureparams.html">TextureParams</a>
@@ -68,7 +68,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Texture creation parameters for <a href="scenemodel.html#createtexture">SceneModel.createTexture</a>.</p>
+						<p>Texture creation parameters for <a href="buildablemodel.html#createtexture">BuildableModel.createTexture</a>.</p>
 					</div>
 				</div>
 			</section>
@@ -92,7 +92,9 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#flipy" class="tsd-kind-icon">flipY</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#id" class="tsd-kind-icon">id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#image" class="tsd-kind-icon">image</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#imagedata" class="tsd-kind-icon">image<wbr>Data</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#magfilter" class="tsd-kind-icon">mag<wbr>Filter</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#mediatype" class="tsd-kind-icon">media<wbr>Type</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#minfilter" class="tsd-kind-icon">min<wbr>Filter</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#preloadcolor" class="tsd-kind-icon">preload<wbr>Color</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="textureparams.html#src" class="tsd-kind-icon">src</a></li>
@@ -112,14 +114,13 @@
 					<div class="tsd-signature tsd-kind-icon">buffers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L23">viewer/scene/TextureParams.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L26">TextureParams.ts:26</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Transcoded texture data.</p>
 						</div>
-						<p>See: <a href="texturetranscoder.html">TextureTranscoder</a>.</p>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
@@ -128,7 +129,7 @@
 					<div class="tsd-signature tsd-kind-icon">encoding<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L80">viewer/scene/TextureParams.ts:80</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L88">TextureParams.ts:88</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -144,7 +145,7 @@
 					<div class="tsd-signature tsd-kind-icon">flipY<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L73">viewer/scene/TextureParams.ts:73</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L81">TextureParams.ts:81</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -159,7 +160,7 @@
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L11">viewer/scene/TextureParams.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L11">TextureParams.ts:11</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -174,7 +175,7 @@
 					<div class="tsd-signature tsd-kind-icon">image<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLImageElement</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L28">viewer/scene/TextureParams.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L31">TextureParams.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -184,12 +185,27 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="imagedata" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> image<wbr>Data</h3>
+					<div class="tsd-signature tsd-kind-icon">image<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L21">TextureParams.ts:21</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Image file data.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="magfilter" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> mag<wbr>Filter</h3>
 					<div class="tsd-signature tsd-kind-icon">mag<wbr>Filter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L35">viewer/scene/TextureParams.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L43">TextureParams.ts:43</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -200,12 +216,27 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="mediatype" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> media<wbr>Type</h3>
+					<div class="tsd-signature tsd-kind-icon">media<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L36">TextureParams.ts:36</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Media type.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="minfilter" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> min<wbr>Filter</h3>
 					<div class="tsd-signature tsd-kind-icon">min<wbr>Filter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L44">viewer/scene/TextureParams.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L52">TextureParams.ts:52</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -223,7 +254,7 @@
 					<div class="tsd-signature tsd-kind-icon">preload<wbr>Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">FloatArrayParam</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L85">viewer/scene/TextureParams.ts:85</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L93">TextureParams.ts:93</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -238,7 +269,7 @@
 					<div class="tsd-signature tsd-kind-icon">src<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L16">viewer/scene/TextureParams.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L16">TextureParams.ts:16</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -253,7 +284,7 @@
 					<div class="tsd-signature tsd-kind-icon">wrapR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L68">viewer/scene/TextureParams.ts:68</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L76">TextureParams.ts:76</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -270,7 +301,7 @@
 					<div class="tsd-signature tsd-kind-icon">wrapS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L52">viewer/scene/TextureParams.ts:52</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L60">TextureParams.ts:60</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -287,7 +318,7 @@
 					<div class="tsd-signature tsd-kind-icon">wrapT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/9d3fafe/packages/viewer/src/viewer/scene/TextureParams.ts#L60">viewer/scene/TextureParams.ts:60</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d778903/packages/core/src/TextureParams.ts#L68">TextureParams.ts:68</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -310,6 +341,39 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="../classes/component.html" class="tsd-kind-icon">Component</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="../classes/eventemitter.html" class="tsd-kind-icon">Event<wbr>Emitter</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="buildablemodel.html" class="tsd-kind-icon">Buildable<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="geometrybucket.html" class="tsd-kind-icon">Geometry<wbr>Bucket</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="geometrybucketparams.html" class="tsd-kind-icon">Geometry<wbr>Bucket<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="geometrycompressedparams.html" class="tsd-kind-icon">Geometry<wbr>Compressed<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="geometryparams.html" class="tsd-kind-icon">Geometry<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="meshparams.html" class="tsd-kind-icon">Mesh<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="objectparams.html" class="tsd-kind-icon">Object<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="parseparams.html" class="tsd-kind-icon">Parse<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="texture.html" class="tsd-kind-icon">Texture</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
@@ -331,7 +395,13 @@
 								<a href="textureparams.html#image" class="tsd-kind-icon">image</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="textureparams.html#imagedata" class="tsd-kind-icon">image<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="textureparams.html#magfilter" class="tsd-kind-icon">mag<wbr>Filter</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="textureparams.html#mediatype" class="tsd-kind-icon">media<wbr>Type</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="textureparams.html#minfilter" class="tsd-kind-icon">min<wbr>Filter</a>
@@ -355,6 +425,12 @@
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="texturesetparams.html" class="tsd-kind-icon">Texture<wbr>Set<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="transformparams.html" class="tsd-kind-icon">Transform<wbr>Params</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -368,7 +444,6 @@
 				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
@@ -377,16 +452,6 @@
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
 			</ul>
 		</div>
 	</div>

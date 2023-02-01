@@ -91,7 +91,7 @@
 			<section class="tsd-panel">
 				<h3>Implemented by</h3>
 				<ul class="tsd-hierarchy">
-					<li><a href="../classes/_xeokit_model.scratchmodel.html" class="tsd-signature-type" data-tsd-kind="Class">ScratchModel</a></li>
+					<li><a href="../classes/_xeokit_scratchmodel.scratchmodel.html" class="tsd-signature-type" data-tsd-kind="Class">ScratchModel</a></li>
 				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
@@ -104,6 +104,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_core_components.model.html#geometries" class="tsd-kind-icon">geometries</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_core_components.model.html#id" class="tsd-kind-icon">id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_core_components.model.html#meshes" class="tsd-kind-icon">meshes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_core_components.model.html#objects" class="tsd-kind-icon">objects</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_core_components.model.html#texturesets" class="tsd-kind-icon">texture<wbr>Sets</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_core_components.model.html#textures" class="tsd-kind-icon">textures</a></li>
 							</ul>
@@ -119,7 +120,7 @@
 					<div class="tsd-signature tsd-kind-icon">geometries<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/70e54cd/packages/core/src/Model.ts#L20">core/src/Model.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/43bc154/packages/core/src/Model.ts#L20">core/src/Model.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -142,7 +143,7 @@
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/70e54cd/packages/core/src/Model.ts#L15">core/src/Model.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/43bc154/packages/core/src/Model.ts#L15">core/src/Model.ts:15</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -157,12 +158,12 @@
 					<div class="tsd-signature tsd-kind-icon">meshes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/70e54cd/packages/core/src/Model.ts#L35">core/src/Model.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/43bc154/packages/core/src/Model.ts#L35">core/src/Model.ts:35</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Meshes in this model</p>
+							<p>Meshes in this model.</p>
 						</div>
 					</div>
 					<div class="tsd-type-declaration">
@@ -175,12 +176,35 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="objects" class="tsd-anchor"></a>
+					<h3>objects</h3>
+					<div class="tsd-signature tsd-kind-icon">objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/43bc154/packages/core/src/Model.ts#L40">core/src/Model.ts:40</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Objects in this model.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_core_components.xktobject.html" class="tsd-signature-type" data-tsd-kind="Interface">XKTObject</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="texturesets" class="tsd-anchor"></a>
 					<h3>texture<wbr>Sets</h3>
 					<div class="tsd-signature tsd-kind-icon">texture<wbr>Sets<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/70e54cd/packages/core/src/Model.ts#L30">core/src/Model.ts:30</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/43bc154/packages/core/src/Model.ts#L30">core/src/Model.ts:30</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -203,7 +227,7 @@
 					<div class="tsd-signature tsd-kind-icon">textures<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/70e54cd/packages/core/src/Model.ts#L25">core/src/Model.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/43bc154/packages/core/src/Model.ts#L25">core/src/Model.ts:25</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -262,7 +286,7 @@
 						<a href="../modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/_xeokit_model.html">@xeokit/model</a>
+						<a href="../modules/_xeokit_scratchmodel.html">@xeokit/scratchmodel</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a>
@@ -320,6 +344,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_xeokit_core_components.model.html#meshes" class="tsd-kind-icon">meshes</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_xeokit_core_components.model.html#objects" class="tsd-kind-icon">objects</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_xeokit_core_components.model.html#texturesets" class="tsd-kind-icon">texture<wbr>Sets</a>

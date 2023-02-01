@@ -1,1 +1,0 @@
-@xeokit/webviewer-navcube

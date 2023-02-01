@@ -94,7 +94,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
 
     layerList: Layer[];
     readonly onBuilt: EventEmitter<ViewerModel, null>;
-    readonly onDestroyed: EventEmitter<Component, null>;
+    readonly onDestroyed: EventEmitter<WebGLViewerModel, null>;
     #view: View;
     #webglRenderer: WebGLRenderer;
     #renderContext: RenderContext;

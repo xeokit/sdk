@@ -126,7 +126,7 @@ export interface ViewerModel extends Model, BuildableModel {
      *
      * @event
      */
-    readonly onDestroyed: EventEmitter<Component, null>;
+    readonly onDestroyed: EventEmitter<ViewerModel, null>;
 
     /**
      * Creates a Transform within this ViewerModel.

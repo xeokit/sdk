@@ -8,8 +8,8 @@
  * See below for a brief idea of how we use this library in context. See {@link ScratchModel} for full usage.
  *
  * ````javascript
- * import {ScratchModel} from "@xeokit/model";
- * import {TrianglesPrimitive} from "@xeokit/core/constants";
+ * import {ScratchModel} from "@xeokit/scratchmodel";
+ * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/core/constants";
  * import {compressGeometryParams} from "@xeokit/math/compression";
  *
  * const myScratchModel = new ScratchModel({
@@ -83,6 +83,6 @@
  * // ..etc
  * ````
  *
- * @module @xeokit/model
+ * @module @xeokit/scratchmodel
  */
 export * from "./ScratchModel";

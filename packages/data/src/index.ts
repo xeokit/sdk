@@ -46,9 +46,9 @@
  *
  * myDataModel.build(); // Ready for use now
  * ````
+ *
  * @module @xeokit/data
  */
-
 export * from "./Data";
 export * from "./DataModel";
 export * from "./DataObject";

@@ -30,12 +30,12 @@ export interface Model {
     textureSets: { [key: string]: TextureSet };
 
     /**
-     * Meshes in this model
+     * Meshes in this model.
      */
     meshes: { [key: string]: Mesh };
 
     /**
-     *
+     * Objects in this model.
      */
     objects: { [key: string]: XKTObject };
 }

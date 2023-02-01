@@ -1,12 +1,12 @@
 {
-  "name": "@xeokit/model",
+  "name": "@xeokit/scratchmodel",
   "version": "0.0.1",
   "description": "A buldable, loadable, savable, viewer-agnostic JavaScript data structure to represent a xeokit geometric model in NodeJS or Browser memory. Use this to generate xeokit models, or as an intermediate in-memory representation within a conversion process. ",
-  "module": "dist/xeokit-model.modern.js",
+  "module": "dist/xeokit-scratchmodel.modern.js",
   "source": "src/index.ts",
   "scripts": {
     "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
-    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=model INPUT=./index.js rollup -c ../../rollup/rollup.model.config.js",
+    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=scratchmodel INPUT=./index.js rollup -c ../../rollup/rollup.scratchmodel.config.js",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -48,7 +48,7 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-model.modern.js",
+  "main": "dist/xeokit-scratchmodel.modern.js",
   "dependencies": {
     "@xeokit/core": "^0.0.1",
     "@xeokit/math": "^0.0.1"

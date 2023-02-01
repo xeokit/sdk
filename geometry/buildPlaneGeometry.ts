@@ -14,7 +14,7 @@ import type {GeometryArrays} from "./GeometryArrays";
  * import {Viewer, Mesh, buildPlaneGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
- *      canvasId: "myCanvas"
+ *      canvasId: "myView"
  * });
  *
  * viewer.camera.eye = [0, 0, 5];

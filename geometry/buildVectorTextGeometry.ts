@@ -1591,7 +1591,7 @@ const letters = {
  * import {Viewer, Mesh, buildVectorTextGeometry, ReadableGeometry, PhongMaterial} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
- *      canvasId: "myCanvas"
+ *      canvasId: "myView"
  * });
  *
  * viewer.camera.eye = [0, 0, 100];

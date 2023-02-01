@@ -1,14 +1,21 @@
 {
   "entryPoints": [
     "packages/core/src/components.ts",
-    "packages/core/src/constants.ts packages/core/src/utils.ts",
-    "packages/math/src/math.ts packages/math/src/matrix.ts",
-    "packages/math/src/rtc.ts packages/math/src/boundaries.ts",
+    "packages/core/src/constants.ts",
+    "packages/core/src/utils.ts",
+    "packages/math/src/math.ts",
+    "packages/math/src/matrix.ts",
+    "packages/math/src/rtc.ts",
+    "packages/math/src/boundaries.ts",
     "packages/math/src/curves.ts",
     "packages/math/src/compression.ts",
     "packages/math/src/geometry.ts",
     "packages/data/src/index.ts",
-    "packages/viewer/src/index.ts"
+    "packages/scratchmodel/src/index.ts",
+    "packages/viewer/src/index.ts",
+    "packages/las/src/index.ts",
+    "packages/gltf/src/index.ts",
+    "packages/xkt/src/index.ts"
   ],
   "out": "./docs",
   "excludePrivate": true

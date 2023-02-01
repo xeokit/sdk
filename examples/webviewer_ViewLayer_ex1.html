@@ -11,7 +11,7 @@
 <body>
 <input type="checkbox" id="info-button"/>
 <label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
-<canvas id="myCanvas"></canvas>
+<canvas id="myView"></canvas>
 <div class="slideout-sidebar">
     <h1>ViewLayer Example 1</h1>
     <p>ViewLayers allow us to partition our viewer objects into layers, according to their purpose. They make it
@@ -27,7 +27,7 @@
     <h3>Components used</h3>
     <ul>
         <li>
-            <a href="../docs/dist/classes/webviewer_src.webviewer.html" target="_other">WebViewer</a>
+            <a href="../docs/dist/classes/webviewer_src.viewer.html" target="_other">Viewer</a>
         </li>
         <li>
             <a href="../docs/dist/classes/webviewer_src.webglrenderer.html" target="_other">WebGLRenderer</a>
@@ -39,7 +39,7 @@
             <a href="../docs/dist/classes/webviewer_src.viewlayer.html" target="_other">ViewLayer</a>
         </li>
         <li>
-            <a href="../docs/dist/interfaces/webviewer_src.scenemodel.html" target="_other">SceneModel</a>
+            <a href="../docs/dist/interfaces/webviewer_src.scenemodel.html" target="_other">ViewerModel</a>
         </li>
     </ul>
 </div>
@@ -47,9 +47,9 @@
 
 <script id="source" type="module">
 
-    import {WebViewer, constants} from "../packages/webviewer/dist/xeokit-webviewer.modern.js";
+    import {Viewer, constants} from "../packages/viewer/dist/xeokit-viewer.modern.js";
 
-    const viewer = new WebViewer();
+    const viewer = new Viewer();
 
     //-------------------------------------------------------------------------------------
     // Create a view
@@ -57,7 +57,7 @@
 
     const view1 = viewer.createView({
         id: "myView1",
-        canvasId: "myCanvas",
+        canvasId: "myView",
         autoLayers: false
     });
 
@@ -85,7 +85,7 @@
 
     //---------------------------------------------------------------------------------------
     // Create a scene representation for the table model.
-    // The SceneObjects in this SceneModel will get ViewObjects in our "model" ViewLayer.
+    // The SceneObjects in this ViewerModel will get ViewObjects in our "model" ViewLayer.
     //---------------------------------------------------------------------------------------
 
     const sceneModel = viewer.scene.createModel({
@@ -197,7 +197,7 @@
 
     //------------------------------------------------------------------------------------------
     // Create a scene representation for the ground plane.
-    // The SceneObjects in this SceneModel will get ViewObjects in our "environment" ViewLayer.
+    // The SceneObjects in this ViewerModel will get ViewObjects in our "environment" ViewLayer.
     //------------------------------------------------------------------------------------------
 
     const groundPlaneSceneModel = viewer.scene.createModel({

@@ -14,7 +14,7 @@ import {normalizeVec3, subVec3} from "../vector";
  * import {Viewer, Mesh, buildTorusGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
- *      canvasId: "myCanvas"
+ *      canvasId: "myView"
  * });
  *
  * viewer.camera.eye = [0, 0, 5];

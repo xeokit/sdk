@@ -11,14 +11,14 @@
 <body>
 <input type="checkbox" id="info-button"/>
 <label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
-<canvas id="myCanvas"></canvas>
+<canvas id="myView"></canvas>
 <div class="slideout-sidebar">
-    <h1>SceneModel Example 2</h1>
-    <p>Using builder methods to programmatically construct a simple DataModel and SceneModel</p>
+    <h1>ViewerModel Example 2</h1>
+    <p>Using builder methods to programmatically construct a simple DataModel and ViewerModel</p>
     <h3>Components used</h3>
     <ul>
         <li>
-            <a href="../docs/dist/classes/webviewer_src.webviewer.html" target="_other">WebViewer</a>
+            <a href="../docs/dist/classes/webviewer_src.viewer.html" target="_other">Viewer</a>
         </li>
         <li>
             <a href="../docs/dist/classes/webviewer_src.webglrenderer.html" target="_other">WebGLRenderer</a>
@@ -30,7 +30,7 @@
             <a href="../docs/dist/classes/webviewer_src.datamodel.html" target="_other">DataModel</a>
         </li>
         <li>
-            <a href="../docs/dist/interfaces/webviewer_src.scenemodel.html" target="_other">SceneModel</a>
+            <a href="../docs/dist/interfaces/webviewer_src.scenemodel.html" target="_other">ViewerModel</a>
         </li>
     </ul>
 </div>
@@ -38,15 +38,15 @@
 
 <script id="source" type="module">
 
-    import {WebViewer, constants} from "../packages/webviewer/dist/xeokit-webviewer.modern.js";
+    import {Viewer, constants} from "../packages/viewer/dist/xeokit-viewer.modern.js";
 
-    const webViewer = new WebViewer();
+    const viewer = new Viewer();
 
     // Create a view
 
-    const view1 = webViewer.createView({
+    const view1 = viewer.createView({
         viewId: "myView1",
-        canvasId: "myCanvas"
+        canvasId: "myView"
     });
 
     view1.camera.eye = [-3.933, 2.855, 27.018];
@@ -63,7 +63,7 @@
         AGGREGATES_REL: 2
     };
 
-    webViewer.data.createModel({
+    viewer.data.createModel({
         id: "myTableModel",
         projectId: "024120003",
         revisionId: "902344223",
@@ -187,7 +187,7 @@
 
     // Create a scene model
 
-    const sceneModel = webViewer.scene.createModel({
+    const sceneModel = viewer.scene.createModel({
         id: "myTable",
         position: [0, 0, 0],
         scale: [1, 1, 1],
@@ -287,7 +287,7 @@
 
     sceneModel.build();
 
-    window.webViewer = webViewer;
+    window.viewer = viewer;
 
 
 </script>

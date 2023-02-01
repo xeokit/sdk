@@ -3,12 +3,13 @@ import {EventEmitter} from "./EventEmitter";
 import {EventDispatcher} from "strongly-typed-events";
 
 /**
- * The base class for xeokit components.
+ * Common base class for xeokit SDK components.
  *
  * ## Summary
  *
- * - Has logging methods
- * - Optionally manages lifecycle of owned Components
+ * * Unique ID
+ * - Logging methods
+ * - Manages lifecycle of child Components
  */
 export class Component {
 

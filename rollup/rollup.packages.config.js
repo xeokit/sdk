@@ -7,5 +7,5 @@ const baseConfig = buildBaseConfig(input, plugin);
 
 export default {
     ...baseConfig,
-    external: ['@xeokit/webviewer'],
+    external: ['@xeokit/viewer'],
 }

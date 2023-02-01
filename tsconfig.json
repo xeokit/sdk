@@ -2,16 +2,38 @@
   "compilerOptions": {
     "baseUrl": "./packages",
     "paths": {
-      "@xeokit-webviewer/*": ["*/src"]
+      "@xeokit/core/utils": ["core/src/utils"],
+      "@xeokit/core/constants": ["core/src/constants"],
+      "@xeokit/core/components": ["core/src/components"],
+      "@xeokit/math/math": ["math/src/math"],
+      "@xeokit/math/boundaries": ["math/src/boundaries"],
+      "@xeokit/math/compression": ["math/src/compression"],
+      "@xeokit/math/curves": ["math/src/curves"],
+      "@xeokit/math/frustum": ["math/src/frustum"],
+      "@xeokit/math/geometry": ["math/src/geometry"],
+      "@xeokit/math/matrix": ["math/src/matrix"],
+      "@xeokit/math/ray": ["math/src/ray"],
+      "@xeokit/math/rtc": ["math/src/rtc"],
+      "@xeokit/viewer": ["viewer/src"],
+      "@xeokit/webgl": ["webgl/src"],
+      "@xeokit/data": ["data/src"],
+      "@xeokit/xkt": ["xkt/src"],
+      "@xeokit/las": ["las/src"],
+      "@xeokit/gltf": ["gltf/src"]
     },
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "lib": ["es6", "dom"],
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "skipLibCheck": true, // https://stackoverflow.com/questions/66956030/apache-arrow-does-not-compile-with-typescript
     "target": "es6",
     "declaration": true,
     "stripInternal": true,
-    "typeRoots": ["node_modules/@types"],
-
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     // Components of "strict" mode.
     "alwaysStrict": true,
     "strictFunctionTypes": true,

@@ -1,7 +1,9 @@
 /**
  *  #### Entity-relationship data model
  *
- * * Designed to be used optionally in conjunction with {@link Viewer}
+ * A general-purpose entity-relationship graph to attach semantic information to xeokit models.
+ *
+ * * Can be used with a {@link Viewer} to classify models
  * * A single graph into which we can merge multiple ER data models - objects, properties and relationships
  * * Builder API to programmatically create data models in the graph
  * * Load and destroy data models at any time

@@ -1,5 +1,4 @@
 /**
- * Deflated XKT data.
  * @private
  */
 export interface XKTDataDeflated {

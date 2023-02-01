@@ -1,3 +1,7 @@
+
+/**
+ * @private
+ */
 export const dataTextureRamStats = {
     sizeDataColorsAndFlags: 0,
     sizeDataPositionDecodeMatrices: 0,

@@ -6,7 +6,7 @@ import {WEBGL_INFO} from "./lib/WEBGL_INFO";
 /**
  * Provides rendering context within a WebGLRenderer.
  */
-class RenderContext {
+export class RenderContext {
 
     /**
      * The Viewer.
@@ -157,5 +157,3 @@ class RenderContext {
         return textureUnit;
     }
 }
-
-export {RenderContext};

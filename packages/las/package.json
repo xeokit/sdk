@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/las",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "LAS tools for xeokit",
   "module": "dist/xeokit-las.modern.js",
   "source": "src/index.ts",

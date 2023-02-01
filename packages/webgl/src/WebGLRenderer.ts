@@ -203,8 +203,8 @@ export class WebGLRenderer implements Renderer {
             renderContext: this.#renderContext,
             viewLayerId: params.viewLayerId
         }, params));
-        webglViewerModel.onBuilt.one((finalizedViewerModel: ViewerModel) => {
-            this.#webglViewerModels[finalizedViewerModel.id] = <WebGLViewerModel>finalizedViewerModel;
+        webglViewerModel.onBuilt.one((buildViewerModel: ViewerModel) => {
+            this.#webglViewerModels[buildViewerModel.id] = <WebGLViewerModel>buildViewerModel;
             this.#layerListDirty = true;
         });
         webglViewerModel.onDestroyed.one((destroyedViewerModel: Component) => {

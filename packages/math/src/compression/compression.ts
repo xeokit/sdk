@@ -47,11 +47,12 @@ const tempVec3b = matrix.createVec3();
  * indices that index a subset of the positions.
  *
  * ````javascript
- * import {math, constants} from "@xeokit/viewer";
+ * import {compressGeometryParams} from "@xeokit/math/compression";
+ * import {TrianglesPrimitive} from "@xeokit/core/constants";
  *
- * const compressedGeometry = math.compression.compressGeometryParams({
+ * const compressedGeometry = compressGeometryParams({
  *      id: "myBoxGeometry",
- *      primitive: constants.TrianglesPrimitive,
+ *      primitive: TrianglesPrimitive,
  *      positions: [
  *          202, 202, 202, 200, 202, 202,
  *          200, 200, 202, 202, 200, 202,
@@ -80,7 +81,7 @@ const tempVec3b = matrix.createVec3();
  * ````javascript
  * {
  *      id: "myBoxGeometry",
- *      primitive: constants.TrianglesPrimitive,
+ *      primitive: TrianglesPrimitive,
  *      origin: [200,200,200],
  *      positionsDecompressMatrix: [
  *          0.00003052270125906143, 0, 0, 0,

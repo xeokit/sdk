@@ -1,6 +1,6 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 import {
-    BuildableModel,
+    BuildableModel, Component,
     EventEmitter,
     Geometry,
     GeometryCompressedParams,
@@ -20,17 +20,16 @@ import type {ViewerObject} from "./ViewerObject";
 import {Viewer} from "./Viewer";
 
 /**
- * A buildable model representation within a {@link Viewer}.
+ * A model representation within a {@link Viewer}.
  *
  * See {@link Viewer} for usage examples.
  *
  * ## Summary
  *
- * * A container of {@link ViewerObject|ViewerObjects}
- * * Used to represent 3D and 2D models, with meshes, materials, textures, transforms etc.
- * * Created with {@link Viewer.createModel}
  * * Stored in {@link Viewer.models}
- * * The Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link View}
+ * * Created with {@link Viewer.createModel}
+ * * Contains {@link ViewerObject|ViewerObjects}
+ * * Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link View}
  */
 export interface ViewerModel extends Model, BuildableModel {
 
@@ -127,7 +126,7 @@ export interface ViewerModel extends Model, BuildableModel {
      *
      * @event
      */
-    readonly onDestroyed: EventEmitter<ViewerModel, null>;
+    readonly onDestroyed: EventEmitter<Component, null>;
 
     /**
      * Creates a Transform within this ViewerModel.

@@ -1,5 +1,8 @@
 import type {DataTexture} from "../lib/DataTexture";
 
+/**
+ * @private
+ */
 export class DataTextureSet {
 
     positions: DataTexture | null; // All quantized positions for a Layer

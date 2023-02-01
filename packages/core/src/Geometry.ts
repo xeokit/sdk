@@ -2,7 +2,11 @@ import type {FloatArrayParam} from "@xeokit/math/math";
 import type {GeometryBucket} from "./GeometryBucket";
 
 /**
+ * Represents an element of reusable geometry.
  *
+ * * Stored in {@link Model.geometries}
+ * * Created with {@link BuildableModel.createGeometry} and {@link BuildableModel.createGeometryCompressed}
+ * * Referenced by {@link XKTObject.geometry}
  */
 export interface Geometry {
 

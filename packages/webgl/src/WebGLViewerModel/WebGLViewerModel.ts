@@ -1,10 +1,13 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {
-    BuildableModel,
     Component,
     EventEmitter,
     GeometryCompressedParams,
-    GeometryParams, MeshParams, ObjectParams, TextureParams, TextureSetParams,
+    GeometryParams,
+    MeshParams,
+    ObjectParams,
+    TextureParams,
+    TextureSetParams,
     TransformParams
 } from "@xeokit/core/components";
 import {
@@ -13,34 +16,45 @@ import {
     LinearFilter,
     LinearMipmapLinearFilter,
     LinearMipMapNearestFilter,
-    LinesPrimitive, MirroredRepeatWrapping, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter,
-    PointsPrimitive, RepeatWrapping,
-    SolidPrimitive, sRGBEncoding,
+    LinesPrimitive,
+    MirroredRepeatWrapping,
+    NearestFilter,
+    NearestMipMapLinearFilter,
+    NearestMipMapNearestFilter,
+    PointsPrimitive,
+    RepeatWrapping,
+    SolidPrimitive,
+    sRGBEncoding,
     SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
 import {compressGeometryParams} from "@xeokit/math/compression";
 import {createUUID, loadArraybuffer} from "@xeokit/core/utils";
 import {collapseAABB3, expandAABB3} from "@xeokit/math/boundaries";
-import {createVec3, createMat4, identityQuaternion, createVec4, eulerToQuaternion, composeMat4, mulMat4} from "@xeokit/math/matrix";
+import {
+    composeMat4,
+    createMat4,
+    createVec3,
+    createVec4,
+    eulerToQuaternion,
+    identityQuaternion,
+    mulMat4
+} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 
-import type {
-    View,
-    Camera,
-    TextureTranscoder
-} from "@xeokit/viewer";
+import type {Camera, TextureTranscoder, View} from "@xeokit/viewer";
+import {Viewer} from "@xeokit/viewer";
 
 import {Texture2D} from "../lib/Texture2D";
 import type {WebGLRenderer} from "../WebGLRenderer";
 import {Layer, LayerParams} from "./Layer";
-import {Mesh} from './Mesh';
-import {TextureSet} from "./TextureSet";
-import {Texture} from "./Texture";
-import {WebGLViewerObject} from "./WebGLViewerObject";
+import {MeshImpl} from './MeshImpl';
+import {TextureSetImpl} from "./TextureSetImpl";
+import {TextureImpl} from "./TextureImpl";
+import {ViewerObjectImpl} from "./ViewerObjectImpl";
 import type {RenderContext} from "../RenderContext";
 import {ViewerModel} from "@xeokit/viewer/src/ViewerModel";
-import {Viewer} from "@xeokit/viewer";
+import {GeometryImpl} from "./GeometryImpl";
 
 const tempVec3a = createVec3();
 const tempMat4 = createMat4();
@@ -57,24 +71,33 @@ const defaultEmissiveTextureId = "defaultEmissiveTexture";
 const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
 
+
+/**
+ * @private
+ */
 export class WebGLViewerModel extends Component implements ViewerModel {
 
     readonly qualityRender: boolean;
     declare readonly id: string;
     declare readonly destroyed: boolean;
+    declare built: boolean;
 
-    objects: { [key: string]: WebGLViewerObject };
-    objectList: WebGLViewerObject[];
+    readable: boolean;
+    geometries: { [key: string]: GeometryImpl };
+    textures: { [key: string]: TextureImpl };
+    textureSets: { [key: string]: TextureSetImpl; };
+    meshes: { [key: string]: MeshImpl; };
+    objects: { [key: string]: ViewerObjectImpl };
+    objectList: ViewerObjectImpl[];
 
-    /**
-     * The owner Viewer.
-     */
     readonly viewer: Viewer;
 
+    layerList: Layer[];
+    readonly onBuilt: EventEmitter<ViewerModel, null>;
+    readonly onDestroyed: EventEmitter<Component, null>;
     #view: View;
     #webglRenderer: WebGLRenderer;
     #renderContext: RenderContext;
-
     #origin: FloatArrayParam;
     #position: FloatArrayParam;
     #rotation: FloatArrayParam;
@@ -82,17 +105,10 @@ export class WebGLViewerModel extends Component implements ViewerModel {
     #scale: FloatArrayParam;
     #worldMatrix: FloatArrayParam;
     #viewMatrix: FloatArrayParam;
-
     #colorTextureEnabled: boolean;
     #backfaces: boolean;
-    #geometries: { [key: string]: GeometryCompressedParams };
-    #textures: { [key: string]: Texture };
-    #textureSets: { [key: string]: TextureSet };
-    #meshes: { [key: string]: Mesh };
+    #meshes: { [key: string]: MeshImpl };
     #layers: { [key: string]: Layer };
-
-    layerList: Layer[];
-
     #numGeometries: number;
     #numTriangles: number;
     #numLines: number;
@@ -100,24 +116,13 @@ export class WebGLViewerModel extends Component implements ViewerModel {
     #numViewerObjects: number;
     #textureTranscoder: TextureTranscoder;
     #aabbDirty: boolean;
-    #lastPositionsDecompressMatrix: FloatArrayParam;
     #edgeThreshold: number;
-    #lastmeshHadNormals: boolean;
     #currentLayers: { [key: string]: any };
     #aabb: FloatArrayParam;
     #viewMatrixDirty: boolean;
     #worldMatrixNonIdentity: boolean;
     #onCameraViewMatrix: () => void;
     #viewLayerId: string | undefined;
-
-    built: boolean;
-
-    /**
-     * Emits an event when the {@link ViewerModel} has been built.
-     *
-     * @event
-     */
-    readonly onBuilt: EventEmitter<ViewerModel, null>;
 
     constructor(params: {
         id: string;
@@ -153,9 +158,9 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         this.#layers = {};
         this.layerList = [];
         this.#currentLayers = {};
-        this.#geometries = {};
-        this.#textures = {};
-        this.#textureSets = {};
+        this.geometries = {};
+        this.textures = {};
+        this.textureSets = {};
         this.#meshes = {};
         this.#numGeometries = 0;
         this.#numViewerObjects = 0;
@@ -190,17 +195,13 @@ export class WebGLViewerModel extends Component implements ViewerModel {
 
         this.#viewLayerId = params.viewLayerId;
 
-        this.#onCameraViewMatrix = this.#view.camera.onViewMatrix.subscribe((camera:Camera, viewMatrix:FloatArrayParam) => {
+        this.#onCameraViewMatrix = this.#view.camera.onViewMatrix.subscribe((camera: Camera, viewMatrix: FloatArrayParam) => {
             this.#viewMatrixDirty = true;
         });
 
         this.#createDefaultTextureSet();
 
         this.onBuilt = new EventEmitter(new EventDispatcher<ViewerModel, null>());
-    }
-
-    private collapseAABB3() {
-        return undefined;
     }
 
     get origin(): FloatArrayParam {
@@ -364,9 +365,13 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         if (this.built) {
             throw new Error("ViewerModel already built");
         }
-        const geometryId = geometryParams.geometryId;
-        if (this.#geometries[geometryId]) {
-            this.error(`[createGeometry] Geometry with this ID already created: ${geometryId}`);
+        if (!geometryParams) {
+            this.error("[createGeometry] Parameters expected: geometryParams");
+            return;
+        }
+        const geometryId = geometryParams.id;
+        if (this.geometries[geometryId]) {
+            this.error(`[createGeometry] Geometry with this ID was already created: ${geometryId}`);
             return;
         }
         const primitive = geometryParams.primitive;
@@ -376,13 +381,13 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         }
         if (!geometryParams.positions) {
             this.error("[createGeometry] Param expected: `positions`");
-            return ;
+            return;
         }
         if (!geometryParams.indices && primitive !== PointsPrimitive) {
             this.error(`[createGeometry] Param expected: indices (required for primitive type)`);
-            return ;
+            return;
         }
-        this.#geometries[geometryId] = <GeometryCompressedParams>compressGeometryParams(geometryParams);
+        this.geometries[geometryId] = new GeometryImpl(<GeometryCompressedParams>compressGeometryParams(geometryParams));
         this.#numGeometries++;
     }
 
@@ -393,8 +398,8 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         if (this.built) {
             throw new Error("ViewerModel already built");
         }
-        const geometryId = geometryCompressedParams.geometryId;
-        if (this.#geometries[geometryId]) {
+        const geometryId = geometryCompressedParams.id;
+        if (this.geometries[geometryId]) {
             this.error(`[createGeometryCompressed] Geometry with this ID already created: ${geometryId}`);
             return;
         }
@@ -403,7 +408,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
             this.error(`[createGeometryCompressed] Unsupported value for 'primitive': '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
             return;
         }
-        this.#geometries[geometryId] = geometryCompressedParams;
+        this.geometries[geometryId] = new GeometryImpl(geometryCompressedParams);
         this.#numGeometries++;
     }
 
@@ -414,12 +419,12 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         if (this.built) {
             throw new Error("ViewerModel already built");
         }
-        const textureId = textureParams.textureId;
+        const textureId = textureParams.id;
         if (textureId === undefined || textureId === null) {
             this.error("[createTexture] Config missing: id");
             return;
         }
-        if (this.#textures[textureId]) {
+        if (this.textures[textureId]) {
             this.error("[createTexture] Texture already created: " + textureId);
             return;
         }
@@ -523,7 +528,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
                 });
             }
         }
-        this.#textures[textureId] = new Texture({id: textureId, texture});
+        this.textures[textureId] = new TextureImpl(textureParams, texture);
     }
 
     createTextureSet(textureSetParams: TextureSetParams): void {
@@ -533,70 +538,69 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         if (this.built) {
             throw new Error("ViewerModel already built");
         }
-        const textureSetId = textureSetParams.textureSetId;
+        const textureSetId = textureSetParams.id;
         if (textureSetId === undefined || textureSetId === null) {
             this.error("Config missing: id");
             return;
         }
-        if (this.#textureSets[textureSetId]) {
+        if (this.textureSets[textureSetId]) {
             this.error(`Texture set already created: ${textureSetId}`);
             return;
         }
         let colorTexture;
         if (textureSetParams.colorTextureId !== undefined && textureSetParams.colorTextureId !== null) {
-            colorTexture = this.#textures[textureSetParams.colorTextureId];
+            colorTexture = this.textures[textureSetParams.colorTextureId];
             if (!colorTexture) {
                 this.error(`Texture not found: ${textureSetParams.colorTextureId} - ensure that you create it first with createTexture()`);
                 return;
             }
         } else {
-            colorTexture = this.#textures[defaultColorTextureId];
+            colorTexture = this.textures[defaultColorTextureId];
         }
         let metallicRoughnessTexture;
         if (textureSetParams.metallicRoughnessTextureId !== undefined && textureSetParams.metallicRoughnessTextureId !== null) {
-            metallicRoughnessTexture = this.#textures[textureSetParams.metallicRoughnessTextureId];
+            metallicRoughnessTexture = this.textures[textureSetParams.metallicRoughnessTextureId];
             if (!metallicRoughnessTexture) {
                 this.error(`Texture not found: ${textureSetParams.metallicRoughnessTextureId} - ensure that you create it first with createTexture()`);
                 return;
             }
         } else {
-            metallicRoughnessTexture = this.#textures[defaultMetalRoughTextureId];
+            metallicRoughnessTexture = this.textures[defaultMetalRoughTextureId];
         }
         let normalsTexture;
         if (textureSetParams.normalsTextureId !== undefined && textureSetParams.normalsTextureId !== null) {
-            normalsTexture = this.#textures[textureSetParams.normalsTextureId];
+            normalsTexture = this.textures[textureSetParams.normalsTextureId];
             if (!normalsTexture) {
                 this.error(`Texture not found: ${textureSetParams.normalsTextureId} - ensure that you create it first with createTexture()`);
                 return;
             }
         } else {
-            normalsTexture = this.#textures[defaultNormalsTextureId];
+            normalsTexture = this.textures[defaultNormalsTextureId];
         }
         let emissiveTexture;
         if (textureSetParams.emissiveTextureId !== undefined && textureSetParams.emissiveTextureId !== null) {
-            emissiveTexture = this.#textures[textureSetParams.emissiveTextureId];
+            emissiveTexture = this.textures[textureSetParams.emissiveTextureId];
             if (!emissiveTexture) {
                 this.error(`Texture not found: ${textureSetParams.emissiveTextureId} - ensure that you create it first with createTexture()`);
                 return;
             }
         } else {
-            emissiveTexture = this.#textures[defaultEmissiveTextureId];
+            emissiveTexture = this.textures[defaultEmissiveTextureId];
         }
         let occlusionTexture;
         if (textureSetParams.occlusionTextureId !== undefined && textureSetParams.occlusionTextureId !== null) {
-            occlusionTexture = this.#textures[textureSetParams.occlusionTextureId];
+            occlusionTexture = this.textures[textureSetParams.occlusionTextureId];
             if (!occlusionTexture) {
                 this.error(`Texture not found: ${textureSetParams.occlusionTextureId} - ensure that you create it first with createTexture()`);
                 return;
             }
         } else {
-            occlusionTexture = this.#textures[defaultOcclusionTextureId];
+            occlusionTexture = this.textures[defaultOcclusionTextureId];
         }
-        this.#textureSets[textureSetId] = new TextureSet({
+        this.textureSets[textureSetId] = new TextureSetImpl({
             id: textureSetId,
             colorTexture,
             metallicRoughnessTexture,
-            normalsTexture,
             emissiveTexture,
             occlusionTexture
         });
@@ -609,9 +613,19 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         if (this.built) {
             throw new Error("ViewerModel already built");
         }
-        const geometryCompressedParams = this.#geometries[meshParams.geometryId];
-        if (!geometryCompressedParams) {
-            this.error(`[ceateMesh] Geometry not found: ${meshParams.geometryId}`);
+        if (meshParams.geometryId === null || meshParams.geometryId === undefined) {
+            this.error("Parameter expected: meshParams.geometryId");
+            return;
+        }
+        const geometry = this.geometries[meshParams.geometryId];
+        if (!geometry) {
+            this.error(`[createMesh] Geometry not found: ${meshParams.geometryId}`);
+            return;
+        }
+
+        const textureSet = (meshParams.textureSetId) ? this.textureSets[meshParams.textureSetId] : null;
+        if (meshParams.textureSetId && !textureSet) {
+            this.error(`[createMesh] TextureSet not found: ${meshParams.textureSetId}`);
             return;
         }
 
@@ -621,11 +635,11 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         origin[1] = this.#origin[1];
         origin[2] = this.#origin[2];
 
-        if (geometryCompressedParams.origin) {
-            origin[0] += geometryCompressedParams.origin[0];
-            origin[1] += geometryCompressedParams.origin[1];
-            origin[2] += geometryCompressedParams.origin[2];
-        }
+        // if (geometry.origin) {
+        //     origin[0] += geometry.origin[0];
+        //     origin[1] += geometry.origin[1];
+        //     origin[2] += geometry.origin[2];
+        // }
 
         if (meshParams.origin) {
             origin[0] += meshParams.origin[0];
@@ -633,37 +647,16 @@ export class WebGLViewerModel extends Component implements ViewerModel {
             origin[2] += meshParams.origin[2];
         }
 
-        const layer = this.#getLayer(origin, meshParams.textureSetId, geometryCompressedParams);
+        const layer = this.#getLayer(origin, meshParams.textureSetId, geometry);
 
         if (!layer) {
             return;
         }
 
         if (!layer.hasGeometry(meshParams.geometryId)) {
-            layer.createGeometryCompressed(geometryCompressedParams)
+            layer.createGeometryCompressed(geometry)
         }
 
-        const color = (meshParams.color) ? new Uint8Array([Math.floor(meshParams.color[0] * 255), Math.floor(meshParams.color[1] * 255), Math.floor(meshParams.color[2] * 255)]) : [255, 255, 255];
-        const opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? Math.floor(meshParams.opacity * 255) : 255;
-        const metallic = (meshParams.metallic !== undefined && meshParams.metallic !== null) ? Math.floor(meshParams.metallic * 255) : 0;
-        const roughness = (meshParams.roughness !== undefined && meshParams.roughness !== null) ? Math.floor(meshParams.roughness * 255) : 255;
-
-        const mesh = new Mesh({
-            id: meshParams.meshId,
-            layer,
-            color,
-            opacity
-        });
-
-        mesh.pickId = this.#webglRenderer.registerPickable(mesh);
-
-        const a = mesh.pickId >> 24 & 0xFF;
-        const b = mesh.pickId >> 16 & 0xFF;
-        const g = mesh.pickId >> 8 & 0xFF;
-        const r = mesh.pickId & 0xFF;
-
-        const pickColor = new Uint8Array([r, g, b, a]); // Quantized pick color
-        collapseAABB3(mesh.aabb);
         let meshMatrix;
         let worldMatrix = this.#worldMatrixNonIdentity ? this.#worldMatrix : null;
         if (meshParams.matrix) {
@@ -675,8 +668,37 @@ export class WebGLViewerModel extends Component implements ViewerModel {
             eulerToQuaternion(rotation, "XYZ", defaultQuaternion);
             meshMatrix = composeMat4(position, defaultQuaternion, scale, tempMat4);
         }
-        const meshId = layer.createMesh(<MeshParams>{
-            meshId: meshParams.meshId,
+
+        const color = (meshParams.color) ? new Uint8Array([Math.floor(meshParams.color[0] * 255), Math.floor(meshParams.color[1] * 255), Math.floor(meshParams.color[2] * 255)]) : [255, 255, 255];
+        const opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? Math.floor(meshParams.opacity * 255) : 255;
+        const metallic = (meshParams.metallic !== undefined && meshParams.metallic !== null) ? Math.floor(meshParams.metallic * 255) : 0;
+        const roughness = (meshParams.roughness !== undefined && meshParams.roughness !== null) ? Math.floor(meshParams.roughness * 255) : 255;
+
+        const mesh = new MeshImpl({
+            id: meshParams.id,
+            layer,
+            color,
+            opacity,
+            matrix: meshMatrix,
+            metallic,
+            roughness,
+            textureSet,
+            geometry,
+            meshIndex: 0
+        });
+
+        mesh.pickId = this.#webglRenderer.registerPickable(mesh);
+
+        const a = mesh.pickId >> 24 & 0xFF;
+        const b = mesh.pickId >> 16 & 0xFF;
+        const g = mesh.pickId >> 8 & 0xFF;
+        const r = mesh.pickId & 0xFF;
+
+        const pickColor = new Uint8Array([r, g, b, a]); // Quantized pick color
+        collapseAABB3(mesh.aabb);
+
+        const meshIndex = layer.createMesh(<MeshParams>{
+            id: meshParams.id,
             geometryId: meshParams.geometryId,
             color,
             opacity,
@@ -690,18 +712,18 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         this.#numGeometries++;
         expandAABB3(this.#aabb, mesh.aabb);
         mesh.layer = layer;
-        mesh.meshId = meshId;
-        this.#meshes[meshParams.meshId] = mesh;
+        mesh.meshIndex = meshIndex;
+        this.#meshes[meshParams.id] = mesh;
     }
 
     createObject(objectParams: ObjectParams): void {
         if (this.destroyed) {
-           throw new Error("ViewerModel already destroyed");
+            throw new Error("ViewerModel already destroyed");
         }
         if (this.built) {
             throw new Error("ViewerModel already built");
         }
-        let objectId = objectParams.objectId;
+        let objectId = objectParams.id;
         if (objectId === undefined) {
             objectId = createUUID();
         } else if (this.objects[objectId]) {
@@ -721,7 +743,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
                 continue;
             }
             if (mesh.viewerObject) {
-                this.error("Mesh with ID " + meshId + " already belongs to object with ID " + mesh.viewerObject.objectId + " - ignoring this mesh");
+                this.error("Mesh with ID " + meshId + " already belongs to object with ID " + mesh.viewerObject.id + " - ignoring this mesh");
                 continue;
             }
             meshes.push(mesh);
@@ -735,8 +757,8 @@ export class WebGLViewerModel extends Component implements ViewerModel {
                 expandAABB3(aabb, meshes[i].aabb);
             }
         }
-        const viewerObject: WebGLViewerObject = new WebGLViewerObject({
-            objectId,
+        const viewerObject: ViewerObjectImpl = new ViewerObjectImpl({
+            id: objectId,
             viewerModel: this,
             meshes,
             aabb,
@@ -1009,9 +1031,9 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         this.#currentLayers = {};
         this.#layers = {};
         this.layerList = [];
-        this.#geometries = {};
-        this.#textures = {};
-        this.#textureSets = {};
+        this.geometries = {};
+        this.textures = {};
+        this.textureSets = {};
         this.#meshes = {};
         this.objects = {};
         this.#view.viewer.setAABBDirty();
@@ -1019,58 +1041,64 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         super.destroy();
     }
 
+    private collapseAABB3() {
+        return undefined;
+    }
+
     #createDefaultTextureSet() {
-        const defaultColorTexture = new Texture({
-            id: defaultColorTextureId,
-            texture: new Texture2D({
+        const defaultColorTexture = new TextureImpl({
+                id: defaultColorTextureId
+            },
+            new Texture2D({
                 gl: this.#renderContext.gl,
                 preloadColor: [1, 1, 1, 1] // [r, g, b, a]})
-            })
-        });
-        const defaultMetalRoughTexture = new Texture({
-            id: defaultMetalRoughTextureId,
-            texture: new Texture2D({
+            }));
+
+
+        const defaultMetalRoughTexture = new TextureImpl({
+                id: defaultMetalRoughTextureId
+            },
+            new Texture2D({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 1, 1, 1] // [unused, roughness, metalness, unused]
-            })
-        });
-        const defaultNormalsTexture = new Texture({
-            id: defaultNormalsTextureId,
-            texture: new Texture2D({
+            }));
+        const defaultNormalsTexture = new TextureImpl({
+                id: defaultNormalsTextureId
+            },
+            new Texture2D({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 0, 0, 0] // [x, y, z, unused] - these must be zeros
-            })
-        });
-        const defaultEmissiveTexture = new Texture({
-            id: defaultEmissiveTextureId,
-            texture: new Texture2D({
+            }));
+
+        const defaultEmissiveTexture = new TextureImpl({
+                id: defaultEmissiveTextureId
+            },
+            new Texture2D({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 0, 0, 1] // [x, y, z, unused]
-            })
-        });
-        const defaultOcclusionTexture = new Texture({
-            id: defaultOcclusionTextureId,
-            texture: new Texture2D({
+            }));
+        const defaultOcclusionTexture = new TextureImpl({
+                id: defaultOcclusionTextureId
+            },
+            new Texture2D({
                 gl: this.#renderContext.gl,
                 preloadColor: [1, 1, 1, 1] // [x, y, z, unused]
-            })
-        });
-        this.#textures[defaultColorTextureId] = defaultColorTexture;
-        this.#textures[defaultMetalRoughTextureId] = defaultMetalRoughTexture;
-        this.#textures[defaultNormalsTextureId] = defaultNormalsTexture;
-        this.#textures[defaultEmissiveTextureId] = defaultEmissiveTexture;
-        this.#textures[defaultOcclusionTextureId] = defaultOcclusionTexture;
-        this.#textureSets[defaultTextureSetId] = new TextureSet({
+            }));
+        this.textures[defaultColorTextureId] = defaultColorTexture;
+        this.textures[defaultMetalRoughTextureId] = defaultMetalRoughTexture;
+        this.textures[defaultNormalsTextureId] = defaultNormalsTexture;
+        this.textures[defaultEmissiveTextureId] = defaultEmissiveTexture;
+        this.textures[defaultOcclusionTextureId] = defaultOcclusionTexture;
+        this.textureSets[defaultTextureSetId] = new TextureSetImpl({
             id: defaultTextureSetId,
             colorTexture: defaultColorTexture,
             metallicRoughnessTexture: defaultMetalRoughTexture,
-            normalsTexture: defaultNormalsTexture,
             emissiveTexture: defaultEmissiveTexture,
             occlusionTexture: defaultOcclusionTexture
         });
     }
 
-    #getLayer(origin: FloatArrayParam, textureSetId: string|undefined, geometryCompressedParams: GeometryCompressedParams): Layer|undefined {
+    #getLayer(origin: FloatArrayParam, textureSetId: string | undefined, geometryCompressedParams: GeometryCompressedParams): Layer | undefined {
         const layerId = `${origin[0]}_${origin[1]}_${origin[2]}_${textureSetId}_${geometryCompressedParams.primitive}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {
@@ -1083,7 +1111,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         }
         let textureSet;
         if (textureSetId) {
-            textureSet = this.#textureSets[textureSetId];
+            textureSet = this.textureSets[textureSetId];
             if (!textureSet) {
                 this.error(`TextureSet not found: ${textureSetId} - ensure that you create it first with createTextureSet()`);
                 return;

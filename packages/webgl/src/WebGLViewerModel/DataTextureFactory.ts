@@ -7,6 +7,7 @@ const emptyDataTexture = new DataTexture({textureWidth: 0, textureHeight: 0});
 
 /**
  * Creates DataTextures to hold various types of viewer state.
+ * @private
  */
 export class DataTextureFactory {
 

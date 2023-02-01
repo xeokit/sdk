@@ -1,3 +1,7 @@
+
+/**
+ * @private
+ */
 export const SCENE_OBJECT_FLAGS = {
     VISIBLE: 1,
     CULLED: 1 << 2,

@@ -1,8 +1,8 @@
 /**
- * #### GeometryImpl de/compression utilities library
+ * #### Geometry de/compression utilities library
  *
- * * Used internally within {@link ViewerModel.createGeometry} to compress geometry and use less GPU memory
- * * Provided here for when we want to pre-compress our geometry offline and use {@link ViewerModel.createGeometryCompressed} instead
+ * * Used internally within {@link BuildableModel.createGeometry} to compress geometry and use less GPU memory
+ * * Provided here for when we want to pre-compress our geometry offline and use {@link BuildableModel.createGeometryCompressed} instead
  * * Combines duplicate positions
  * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned ints

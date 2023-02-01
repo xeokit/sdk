@@ -6,13 +6,13 @@ import {Mesh, XKTObject} from "@xeokit/core/components";
 /**
  * GeometryImpl and materials for an object in a {@link ViewerModel}.
  *
- * See {@link Scene} for usage examples.
+ * See {@link Viewer} for usage examples.
  *
  * ## Summary
  *
- * * Created with {@link ViewerModel.createObject}
  * * Stored in {@link ViewerModel.objects} and {@link View.objects}
- * * Automatically proxied by a {@link ViewObject} in each {@link View}
+ * * Created with {@link ViewerModel.createObject}
+ * * Automatically mirrored by a {@link ViewObject} in each {@link View}
  */
 export interface ViewerObject extends XKTObject {
 

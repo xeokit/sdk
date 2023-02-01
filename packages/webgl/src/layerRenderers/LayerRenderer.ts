@@ -357,9 +357,6 @@ export abstract class LayerRenderer {
         if (samplers.emissiveMap) {
             samplers.emissiveMap.bindTexture(renderState.materialTextureSet.emissiveTexture.texture, renderContext.nextTextureUnit);
         }
-        if (samplers.normalMap) {
-            samplers.normalMap.bindTexture(renderState.materialTextureSet.normalsTexture.texture, renderContext.nextTextureUnit);
-        }
         if (samplers.occlusionMap) {
             samplers.occlusionMap.bindTexture(renderState.materialTextureSet.occlusionTexture.texture, renderContext.nextTextureUnit);
         }

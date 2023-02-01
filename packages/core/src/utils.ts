@@ -1,5 +1,5 @@
 /**
- * Core utilities.
+ * #### Core utilities used throughout the xeokit SDK
  *
  * @module @xeokit/core/utils
  */

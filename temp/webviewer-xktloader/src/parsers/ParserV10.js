@@ -1,48 +1,148 @@
-import type {BuildableModel} from "@xeokit/core/components";
-import {XKTData} from "./XKTData";
-import {createVec4} from "@xeokit/math/matrix";
+/*
+ Parser for .XKT Format V10
+*/
 
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
+import {utils} from "../../../viewer/scene/utils.js";
+import * as p from "./lib/pako.js";
+import {math} from "../../../viewer/scene/math/math.js";
+import {geometryCompressionUtils} from "../../../viewer/scene/math/geometryCompressionUtils.js";
+import {JPEGMediaType, PNGMediaType} from "../../../viewer/scene/constants/constants.js";
+
+let pako = window.pako || p;
+if (!pako.inflate) {  // See https://github.com/nodeca/pako/issues/97
+    pako = pako.default;
+}
+
+const tempVec4a = math.vec4();
+const tempVec4b = math.vec4();
+
 const NUM_TEXTURE_ATTRIBUTES = 9;
 
+function extract(elements) {
 
-/**
- * Loads an {@link XKTData} into a {@link BuildableModel}.
- *
- * @param xktData
- * @param buildableModel
- * @param options
- */
-export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, options?: {}): void {
+    let i = 0;
 
-    const metadata = xktData.metadata;
-    const textureData = xktData.textureData;
-    const eachTextureDataPortion = xktData.eachTextureDataPortion;
-    const eachTextureAttributes = xktData.eachTextureAttributes;
-    const positions = xktData.positions;
-    const colors = xktData.colors;
-    const uvs = xktData.uvs;
-    const indices = xktData.indices;
-    const edgeIndices = xktData.edgeIndices;
-    const eachTextureSetTextures = xktData.eachTextureSetTextures;
-    const matrices = xktData.matrices;
-    const reusedGeometriesDecodeMatrix = xktData.reusedGeometriesDecodeMatrix;
-    const eachGeometryPrimitiveType = xktData.eachGeometryPrimitiveType;
-    const eachGeometryPositionsPortion = xktData.eachGeometryPositionsPortion;
-    const eachGeometryNormalsPortion = xktData.eachGeometryNormalsPortion;
-    const eachGeometryColorsPortion = xktData.eachGeometryColorsPortion;
-    const eachGeometryUVsPortion = xktData.eachGeometryUVsPortion;
-    const eachGeometryIndicesPortion = xktData.eachGeometryIndicesPortion;
-    const eachGeometryEdgeIndicesPortion = xktData.eachGeometryEdgeIndicesPortion;
-    const eachMeshGeometriesPortion = xktData.eachMeshGeometriesPortion;
-    const eachMeshMatricesPortion = xktData.eachMeshMatricesPortion;
-    const eachMeshTextureSet = xktData.eachMeshTextureSet;
-    const eachMeshMaterialAttributes = xktData.eachMeshMaterialAttributes;
-    const eachEntityId = xktData.eachEntityId;
-    const eachEntityMeshesPortion = xktData.eachEntityMeshesPortion;
-    const eachTileAABB = xktData.eachTileAABB;
-    const eachTileEntitiesPortion = xktData.eachTileEntitiesPortion;
+    return {
+        metadata: elements[i++],
+        textureData: elements[i++],
+        eachTextureDataPortion: elements[i++],
+        eachTextureAttributes: elements[i++],
+        positions: elements[i++],
+        normals: elements[i++],
+        colors: elements[i++],
+        uvs: elements[i++],
+        indices: elements[i++],
+        edgeIndices: elements[i++],
+        eachTextureSetTextures: elements[i++],
+        matrices: elements[i++],
+        reusedGeometriesDecodeMatrix: elements[i++],
+        eachGeometryPrimitiveType: elements[i++],
+        eachGeometryPositionsPortion: elements[i++],
+        eachGeometryNormalsPortion: elements[i++],
+        eachGeometryColorsPortion: elements[i++],
+        eachGeometryUVsPortion: elements[i++],
+        eachGeometryIndicesPortion: elements[i++],
+        eachGeometryEdgeIndicesPortion: elements[i++],
+        eachMeshGeometriesPortion: elements[i++],
+        eachMeshMatricesPortion: elements[i++],
+        eachMeshTextureSet: elements[i++],
+        eachMeshMaterialAttributes: elements[i++],
+        eachEntityId: elements[i++],
+        eachEntityMeshesPortion: elements[i++],
+        eachTileAABB: elements[i++],
+        eachTileEntitiesPortion: elements[i++]
+    };
+}
+
+function inflate(deflatedData) {
+
+    function inflate(array, options) {
+        return (array.length === 0) ? [] : pako.inflate(array, options).buffer;
+    }
+
+    return {
+        metadata: JSON.parse(pako.inflate(deflatedData.metadata, {to: 'string'})),
+        textureData: new Uint8Array(inflate(deflatedData.textureData)),  // <<----------------------------- ??? ZIPPing to blame?
+        eachTextureDataPortion: new Uint32Array(inflate(deflatedData.eachTextureDataPortion)),
+        eachTextureAttributes: new Uint16Array(inflate(deflatedData.eachTextureAttributes)),
+        positions: new Uint16Array(inflate(deflatedData.positions)),
+        normals: new Int8Array(inflate(deflatedData.normals)),
+        colors: new Uint8Array(inflate(deflatedData.colors)),
+        uvs: new Float32Array(inflate(deflatedData.uvs)),
+        indices: new Uint32Array(inflate(deflatedData.indices)),
+        edgeIndices: new Uint32Array(inflate(deflatedData.edgeIndices)),
+        eachTextureSetTextures: new Int32Array(inflate(deflatedData.eachTextureSetTextures)),
+        matrices: new Float32Array(inflate(deflatedData.matrices)),
+        reusedGeometriesDecodeMatrix: new Float32Array(inflate(deflatedData.reusedGeometriesDecodeMatrix)),
+        eachGeometryPrimitiveType: new Uint8Array(inflate(deflatedData.eachGeometryPrimitiveType)),
+        eachGeometryPositionsPortion: new Uint32Array(inflate(deflatedData.eachGeometryPositionsPortion)),
+        eachGeometryNormalsPortion: new Uint32Array(inflate(deflatedData.eachGeometryNormalsPortion)),
+        eachGeometryColorsPortion: new Uint32Array(inflate(deflatedData.eachGeometryColorsPortion)),
+        eachGeometryUVsPortion: new Uint32Array(inflate(deflatedData.eachGeometryUVsPortion)),
+        eachGeometryIndicesPortion: new Uint32Array(inflate(deflatedData.eachGeometryIndicesPortion)),
+        eachGeometryEdgeIndicesPortion: new Uint32Array(inflate(deflatedData.eachGeometryEdgeIndicesPortion)),
+        eachMeshGeometriesPortion: new Uint32Array(inflate(deflatedData.eachMeshGeometriesPortion)),
+        eachMeshMatricesPortion: new Uint32Array(inflate(deflatedData.eachMeshMatricesPortion)),
+        eachMeshTextureSet: new Int32Array(inflate(deflatedData.eachMeshTextureSet)), // Can be -1
+        eachMeshMaterialAttributes: new Uint8Array(inflate(deflatedData.eachMeshMaterialAttributes)),
+        eachEntityId: JSON.parse(pako.inflate(deflatedData.eachEntityId, {to: 'string'})),
+        eachEntityMeshesPortion: new Uint32Array(inflate(deflatedData.eachEntityMeshesPortion)),
+        eachTileAABB: new Float64Array(inflate(deflatedData.eachTileAABB)),
+        eachTileEntitiesPortion: new Uint32Array(inflate(deflatedData.eachTileEntitiesPortion)),
+    };
+}
+
+const decompressColor = (function () {
+    const floatColor = new Float32Array(3);
+    return function (intColor) {
+        floatColor[0] = intColor[0] / 255.0;
+        floatColor[1] = intColor[1] / 255.0;
+        floatColor[2] = intColor[2] / 255.0;
+        return floatColor;
+    };
+})();
+
+const imagDataToImage = (function () {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    return function (imagedata) {
+        canvas.width = imagedata.width;
+        canvas.height = imagedata.height;
+        context.putImageData(imagedata, 0, 0);
+        return canvas.toDataURL();
+    };
+})();
+
+function load(viewer, options, inflatedData, sceneModel) {
+
+    const metadata = inflatedData.metadata;
+    const textureData = inflatedData.textureData;
+    const eachTextureDataPortion = inflatedData.eachTextureDataPortion;
+    const eachTextureAttributes = inflatedData.eachTextureAttributes;
+    const positions = inflatedData.positions;
+    const normals = inflatedData.normals;
+    const colors = inflatedData.colors;
+    const uvs = inflatedData.uvs;
+    const indices = inflatedData.indices;
+    const edgeIndices = inflatedData.edgeIndices;
+    const eachTextureSetTextures = inflatedData.eachTextureSetTextures;
+    const matrices = inflatedData.matrices;
+    const reusedGeometriesDecodeMatrix = inflatedData.reusedGeometriesDecodeMatrix;
+    const eachGeometryPrimitiveType = inflatedData.eachGeometryPrimitiveType;
+    const eachGeometryPositionsPortion = inflatedData.eachGeometryPositionsPortion;
+    const eachGeometryNormalsPortion = inflatedData.eachGeometryNormalsPortion;
+    const eachGeometryColorsPortion = inflatedData.eachGeometryColorsPortion;
+    const eachGeometryUVsPortion = inflatedData.eachGeometryUVsPortion;
+    const eachGeometryIndicesPortion = inflatedData.eachGeometryIndicesPortion;
+    const eachGeometryEdgeIndicesPortion = inflatedData.eachGeometryEdgeIndicesPortion;
+    const eachMeshGeometriesPortion = inflatedData.eachMeshGeometriesPortion;
+    const eachMeshMatricesPortion = inflatedData.eachMeshMatricesPortion;
+    const eachMeshTextureSet = inflatedData.eachMeshTextureSet;
+    const eachMeshMaterialAttributes = inflatedData.eachMeshMaterialAttributes;
+    const eachEntityId = inflatedData.eachEntityId;
+    const eachEntityMeshesPortion = inflatedData.eachEntityMeshesPortion;
+    const eachTileAABB = inflatedData.eachTileAABB;
+    const eachTileEntitiesPortion = inflatedData.eachTileEntitiesPortion;
 
     const numTextures = eachTextureDataPortion.length;
     const numTextureSets = eachTextureSetTextures.length / 5;
@@ -53,6 +153,22 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
 
     let nextMeshId = 0;
 
+    // Create metamodel, unless already loaded from external JSON file by XKTLoaderPlugin
+
+    const metaModelId = sceneModel.id;
+
+    if (!viewer.metaScene.metaModels[metaModelId]) {
+
+        viewer.metaScene.createMetaModel(metaModelId, metadata, {
+            includeTypes: options.includeTypes,
+            excludeTypes: options.excludeTypes,
+            globalizeObjectIds: options.globalizeObjectIds
+        });
+
+        sceneModel.once("destroyed", () => {
+            viewer.metaScene.destroyMetaModel(metaModelId);
+        });
+    }
 
     // Create textures
 
@@ -84,7 +200,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
 
             if (compressed) {
 
-                buildableModel.createTexture({
+                sceneModel.createTexture({
                     id: textureId,
                     buffers: [arrayBuffer],
                     minFilter,
@@ -103,7 +219,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
                 const img = document.createElement('img');
                 img.src = imageUrl;
 
-                buildableModel.createTexture({
+                sceneModel.createTexture({
                     id: textureId,
                     image: img,
                     //mediaType,
@@ -127,7 +243,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
         const normalsTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 2];
         const emissiveTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
         const occlusionTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
-        buildableModel.createTextureSet({
+        sceneModel.createTextureSet({
             id: textureSetId,
             colorTextureId: colorTextureIndex >= 0 ? `texture-${colorTextureIndex}` : null,
             normalsTextureId: normalsTextureIndex >= 0 ? `texture-${normalsTextureIndex}` : null,
@@ -188,7 +304,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
 
             const xktEntityId = eachEntityId[tileEntityIndex];
 
-            const entityId = options.globalizeObjectIds ? math.globalizeObjectId(buildableModel.id, xktEntityId) : xktEntityId;
+            const entityId = options.globalizeObjectIds ? math.globalizeObjectId(sceneModel.id, xktEntityId) : xktEntityId;
 
             const finalTileEntityIndex = (numEntities - 1);
             const atLastTileEntity = (tileEntityIndex === finalTileEntityIndex);
@@ -272,7 +388,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
                     const meshMatrixIndex = eachMeshMatricesPortion[meshIndex];
                     const meshMatrix = matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
 
-                    const geometryId = "geometry." + tileIndex + "." + geometryIndex; // These IDs are local to the VBObuildableModel
+                    const geometryId = "geometry." + tileIndex + "." + geometryIndex; // These IDs are local to the VBOSceneModel
 
                     let geometryArrays = geometryArraysCache[geometryId];
 
@@ -363,7 +479,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
                                 transformedAndRecompressedPositions[i + 2] = tempVec4a[2];
                             }
 
-                            buildableModel.createMesh(utils.apply(meshDefaults, {
+                            sceneModel.createMesh(utils.apply(meshDefaults, {
                                 id: meshId,
                                 textureSetId: textureSetId,
                                 origin: tileCenter,
@@ -387,7 +503,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
 
                             if (!geometryCreatedInTile[geometryId]) {
 
-                                buildableModel.createGeometry({
+                                sceneModel.createGeometry({
                                     id: geometryId,
                                     primitive: geometryArrays.primitiveName,
                                     positionsCompressed: geometryArrays.geometryPositions,
@@ -402,7 +518,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
                                 geometryCreatedInTile[geometryId] = true;
                             }
 
-                            buildableModel.createMesh(utils.apply(meshDefaults, {
+                            sceneModel.createMesh(utils.apply(meshDefaults, {
                                 id: meshId,
                                 geometryId: geometryId,
                                 textureSetId: textureSetId,
@@ -468,7 +584,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
 
                     if (geometryValid) {
 
-                        buildableModel.createMesh(utils.apply(meshDefaults, {
+                        sceneModel.createMesh(utils.apply(meshDefaults, {
                             id: meshId,
                             textureSetId: textureSetId,
                             origin: tileCenter,
@@ -493,7 +609,7 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
 
             if (meshIds.length > 0) {
 
-                buildableModel.createEntity(utils.apply(entityDefaults, {
+                sceneModel.createEntity(utils.apply(entityDefaults, {
                     id: entityId,
                     isObject: true,
                     meshIds: meshIds
@@ -503,23 +619,14 @@ export function loadXKTData(xktData: XKTData, buildableModel: BuildableModel, op
     }
 }
 
-const decompressColor = (function () {
-    const floatColor = new Float32Array(3);
-    return function (intColor) {
-        floatColor[0] = intColor[0] / 255.0;
-        floatColor[1] = intColor[1] / 255.0;
-        floatColor[2] = intColor[2] / 255.0;
-        return floatColor;
-    };
-})();
+/** @private */
+const ParserV10 = {
+    version: 10,
+    parse: function (viewer, options, elements, sceneModel) {
+        const deflatedData = extract(elements);
+        const inflatedData = inflate(deflatedData);
+        load(viewer, options, inflatedData, sceneModel);
+    }
+};
 
-const imagDataToImage = (function () {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    return function (imagedata) {
-        canvas.width = imagedata.width;
-        canvas.height = imagedata.height;
-        context.putImageData(imagedata, 0, 0);
-        return canvas.toDataURL();
-    };
-})();
+export {ParserV10};

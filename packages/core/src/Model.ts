@@ -5,7 +5,7 @@ import type {Mesh} from "./Mesh";
 import type {XKTObject} from "./XKTObject";
 
 /**
- *
+ * A model representation.
  */
 export interface Model {
 

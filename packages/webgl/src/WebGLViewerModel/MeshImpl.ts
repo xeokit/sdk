@@ -1,29 +1,48 @@
+import {Mesh} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {createAABB3} from "@xeokit/math/boundaries";
 
 import type {Pickable} from "../Pickable";
-import type {WebGLViewerObject} from "./WebGLViewerObject";
+import type {ViewerObjectImpl} from "./ViewerObjectImpl";
 import type {RenderContext} from "../RenderContext";
 import type {Layer} from "./Layer";
+import {TextureSetImpl} from "./TextureSetImpl";
+import {GeometryImpl} from "./GeometryImpl";
 
-class Mesh implements Pickable {
+
+/**
+ * @private
+ */
+export class MeshImpl implements Mesh, Pickable {
 
     id: string;
     pickId: number;
-    viewerObject: WebGLViewerObject | null;
+    viewerObject: ViewerObjectImpl | null;
     aabb: FloatArrayParam;
     layer: Layer;
-    meshId: any;
+    meshIndex: number;
     color: FloatArrayParam;
+    geometry: GeometryImpl;
+    textureSet: TextureSetImpl;
+    matrix: FloatArrayParam;
+    metallic: number;
+    roughness: number;
+    opacity: number;
     colorize: FloatArrayParam;
     colorizing: boolean;
     transparent: boolean;
 
     constructor(params: {
+        layer: Layer,
         id: string,
+        matrix: FloatArrayParam;
+        metallic: number;
+        roughness: number;
         color: FloatArrayParam,
         opacity: number,
-        layer: Layer
+        textureSet: TextureSetImpl
+        geometry: GeometryImpl,
+        meshIndex: number
     }) {
         this.viewerObject = null;
         this.id = params.id;
@@ -34,16 +53,23 @@ class Mesh implements Pickable {
         this.transparent = (params.opacity < 255);
         this.viewerObject = null;
         this.layer = params.layer;
+        this.matrix = params.matrix;
+        this.metallic = params.metallic;
+        this.roughness = params.roughness;
+        this.opacity = params.opacity;
         this.aabb = createAABB3();
+        this.textureSet = params.textureSet;
+        this.geometry = params.geometry;
+        this.meshIndex = params.meshIndex;
     }
 
-    setSceneObject(viewerObject: WebGLViewerObject) {
+    setSceneObject(viewerObject: ViewerObjectImpl) {
         this.viewerObject = viewerObject;
     }
 
     build(flags: number) {
         // @ts-ignore
-        this.layer.initFlags(this.meshId, flags, this.transparent);
+        this.layer.initFlags(this.meshIndex, flags, this.transparent);
     }
 
     finalize2() {
@@ -54,7 +80,7 @@ class Mesh implements Pickable {
     }
 
     setVisible(flags: any) {
-        this.layer.setMeshVisible(this.meshId, flags, this.transparent);
+        this.layer.setMeshVisible(this.meshIndex, flags, this.transparent);
     }
 
     setColor(color: FloatArrayParam) {
@@ -62,7 +88,7 @@ class Mesh implements Pickable {
         this.color[1] = color[1];
         this.color[2] = color[2];
         if (!this.colorizing) {
-            this.layer.setMeshColor(this.meshId, this.color);
+            this.layer.setMeshColor(this.meshIndex, this.color);
         }
     }
 
@@ -72,10 +98,10 @@ class Mesh implements Pickable {
             this.colorize[0] = colorize[0];
             this.colorize[1] = colorize[1];
             this.colorize[2] = colorize[2];
-            this.layer.setMeshColor(this.meshId, this.colorize, setOpacity);
+            this.layer.setMeshColor(this.meshIndex, this.colorize, setOpacity);
             this.colorizing = true;
         } else {
-            this.layer.setMeshColor(this.meshId, this.color, setOpacity);
+            this.layer.setMeshColor(this.meshIndex, this.color, setOpacity);
             this.colorizing = false;
         }
     }
@@ -88,49 +114,49 @@ class Mesh implements Pickable {
         this.colorize[3] = opacity;
         this.transparent = newTransparent;
         if (this.colorizing) {
-            this.layer.setMeshColor(this.meshId, this.colorize);
+            this.layer.setMeshColor(this.meshIndex, this.colorize);
         } else {
-            this.layer.setMeshColor(this.meshId, this.color);
+            this.layer.setMeshColor(this.meshIndex, this.color);
         }
         if (changingTransparency) {
-            this.layer.setMeshTransparent(this.meshId, flags, newTransparent);
+            this.layer.setMeshTransparent(this.meshIndex, flags, newTransparent);
         }
     }
 
     setOffset(offset: FloatArrayParam) {
-        this.layer.setMeshOffset(this.meshId, offset);
+        this.layer.setMeshOffset(this.meshIndex, offset);
     }
 
     setHighlighted(flags: number) {
-        this.layer.setMeshHighlighted(this.meshId, flags, this.transparent);
+        this.layer.setMeshHighlighted(this.meshIndex, flags, this.transparent);
     }
 
     setXRayed(flags: number) {
-        this.layer.setMeshXRayed(this.meshId, flags, this.transparent);
+        this.layer.setMeshXRayed(this.meshIndex, flags, this.transparent);
     }
 
     setSelected(flags: number) {
-        this.layer.setMeshSelected(this.meshId, flags, this.transparent);
+        this.layer.setMeshSelected(this.meshIndex, flags, this.transparent);
     }
 
     setEdges(flags: number) {
-        this.layer.setMeshEdges(this.meshId, flags, this.transparent);
+        this.layer.setMeshEdges(this.meshIndex, flags, this.transparent);
     }
 
     setClippable(flags: number) {
-        this.layer.setMeshClippable(this.meshId, flags);
+        this.layer.setMeshClippable(this.meshIndex, flags);
     }
 
     setCollidable(flags: number) {
-        this.layer.setMeshCollidable(this.meshId, flags);
+        this.layer.setMeshCollidable(this.meshIndex, flags);
     }
 
     setPickable(flags: number) {
-        this.layer.setMeshPickable(this.meshId, flags, this.transparent);
+        this.layer.setMeshPickable(this.meshIndex, flags, this.transparent);
     }
 
     setCulled(flags: number) {
-        this.layer.setMeshCulled(this.meshId, flags, this.transparent);
+        this.layer.setMeshCulled(this.meshIndex, flags, this.transparent);
     }
 
     canPickTriangle() {
@@ -153,12 +179,10 @@ class Mesh implements Pickable {
         //this.viewerObject.viewerModel.drawPickNormals(renderContext);
     }
 
-    delegatePickedEntity(): WebGLViewerObject {
-        return <WebGLViewerObject>this.viewerObject;
+    delegatePickedEntity(): ViewerObjectImpl {
+        return <ViewerObjectImpl>this.viewerObject;
     }
 
     destroy() {
     }
 }
-
-export {Mesh};

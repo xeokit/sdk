@@ -4,17 +4,25 @@ import {FloatArrayParam} from "@xeokit/math/math";
 
 
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
-import type {Mesh} from "./Mesh";
+import type {MeshImpl} from "./MeshImpl";
 import {ViewerModel, ViewerObject} from "@xeokit/viewer";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
-class WebGLViewerObject implements ViewerObject {
+/**
+ * @private
+ */
+export class ViewerObjectImpl implements ViewerObject {
 
     /**
      * Unique ID of this ViewerObject.
      */
-    readonly objectId: string;
+    readonly id: string;
+
+    /**
+     *
+     */
+    readonly meshes: MeshImpl[];
 
     /**
      * The ViewerModel that contains this ViewerObject.
@@ -26,7 +34,7 @@ class WebGLViewerObject implements ViewerObject {
      */
     readonly viewLayerId: string | null;
 
-    #meshes: Mesh[];
+    #meshList: MeshImpl[];
     #flags: number;
     #aabb: FloatArrayParam;
     #offsetAABB: FloatArrayParam;
@@ -35,15 +43,15 @@ class WebGLViewerObject implements ViewerObject {
     #opacityUpdated: boolean;
 
     constructor(params: {
-        objectId: string,
+        id: string,
         viewerModel: ViewerModel,
-        meshes: Mesh[],
+        meshes: MeshImpl[],
         aabb: any,
         viewLayerId?: string
     }) {
-        this.objectId = params.objectId;
+        this.id = params.id;
         this.model = params.viewerModel;
-        this.#meshes = params.meshes || [];
+        this.#meshList = params.meshes || [];
         this.#flags = 0;
         this.#aabb = params.aabb;
         this.#offsetAABB = createAABB3(params.aabb);
@@ -53,8 +61,8 @@ class WebGLViewerObject implements ViewerObject {
 
         this.viewLayerId = params.viewLayerId || null;
 
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {  // TODO: tidier way? Refactor?
-            const mesh = this.#meshes[i];
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {  // TODO: tidier way? Refactor?
+            const mesh = this.#meshList[i];
             mesh.setSceneObject(this);
         }
     }
@@ -68,8 +76,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = visible ? this.#flags | SCENE_OBJECT_FLAGS.VISIBLE : this.#flags & ~SCENE_OBJECT_FLAGS.VISIBLE;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setVisible(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setVisible(this.#flags);
         }
     }
 
@@ -78,8 +86,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = highlighted ? this.#flags | SCENE_OBJECT_FLAGS.HIGHLIGHTED : this.#flags & ~SCENE_OBJECT_FLAGS.HIGHLIGHTED;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setHighlighted(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setHighlighted(this.#flags);
         }
     }
 
@@ -88,8 +96,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = xrayed ? this.#flags | SCENE_OBJECT_FLAGS.XRAYED : this.#flags & ~SCENE_OBJECT_FLAGS.XRAYED;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setXRayed(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setXRayed(this.#flags);
         }
     }
 
@@ -98,8 +106,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = selected ? this.#flags | SCENE_OBJECT_FLAGS.SELECTED : this.#flags & ~SCENE_OBJECT_FLAGS.SELECTED;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setSelected(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setSelected(this.#flags);
         }
     }
 
@@ -108,8 +116,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = edges ? this.#flags | SCENE_OBJECT_FLAGS.EDGES : this.#flags & ~SCENE_OBJECT_FLAGS.EDGES;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setEdges(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setEdges(this.#flags);
         }
     }
 
@@ -118,8 +126,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = culled ? this.#flags | SCENE_OBJECT_FLAGS.CULLED : this.#flags & ~SCENE_OBJECT_FLAGS.CULLED;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setCulled(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setCulled(this.#flags);
         }
     }
 
@@ -128,8 +136,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = clippable ? this.#flags | SCENE_OBJECT_FLAGS.CLIPPABLE : this.#flags & ~SCENE_OBJECT_FLAGS.CLIPPABLE;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setClippable(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setClippable(this.#flags);
         }
     }
 
@@ -138,8 +146,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = collidable ? this.#flags | SCENE_OBJECT_FLAGS.COLLIDABLE : this.#flags & ~SCENE_OBJECT_FLAGS.COLLIDABLE;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setCollidable(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setCollidable(this.#flags);
         }
     }
 
@@ -148,8 +156,8 @@ class WebGLViewerObject implements ViewerObject {
             return;
         }
         this.#flags = pickable ? this.#flags | SCENE_OBJECT_FLAGS.PICKABLE : this.#flags & ~SCENE_OBJECT_FLAGS.PICKABLE;
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setPickable(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setPickable(this.#flags);
         }
     }
 
@@ -158,22 +166,22 @@ class WebGLViewerObject implements ViewerObject {
             tempIntRGB[0] = Math.floor(color[0] * 255.0); // Quantize
             tempIntRGB[1] = Math.floor(color[1] * 255.0);
             tempIntRGB[2] = Math.floor(color[2] * 255.0);
-            for (let i = 0, len = this.#meshes.length; i < len; i++) {
-                this.#meshes[i].setColorize(tempIntRGB);
+            for (let i = 0, len = this.#meshList.length; i < len; i++) {
+                this.#meshList[i].setColorize(tempIntRGB);
             }
         } else {
-            for (let i = 0, len = this.#meshes.length; i < len; i++) {
-                this.#meshes[i].setColorize(null);
+            for (let i = 0, len = this.#meshList.length; i < len; i++) {
+                this.#meshList[i].setColorize(null);
             }
         }
     }
 
     setOpacity(viewIndex: number, opacity?: number): void {
-        if (this.#meshes.length === 0) {
+        if (this.#meshList.length === 0) {
             return;
         }
         // @ts-ignore
-        const lastOpacityQuantized = this.#meshes[0].colorize[3];
+        const lastOpacityQuantized = this.#meshList[0].colorize[3];
         let opacityQuantized = 255;
         if (opacity !== null && opacity !== undefined) {
             if (opacity < 0) {
@@ -191,8 +199,8 @@ class WebGLViewerObject implements ViewerObject {
                 return;
             }
         }
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setOpacity(opacityQuantized, this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setOpacity(opacityQuantized, this.#flags);
         }
     }
 
@@ -206,8 +214,8 @@ class WebGLViewerObject implements ViewerObject {
             this.#offset[1] = 0;
             this.#offset[2] = 0;
         }
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].setOffset(this.#offset);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].setOffset(this.#offset);
         }
         this.#offsetAABB[0] = this.#aabb[0] + this.#offset[0];
         this.#offsetAABB[1] = this.#aabb[1] + this.#offset[1];
@@ -222,22 +230,20 @@ class WebGLViewerObject implements ViewerObject {
     }
 
     build(): void {
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].build(this.#flags);
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].build(this.#flags);
         }
     }
 
     finalize2(): void {
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].finalize2();
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].finalize2();
         }
     }
 
     destroy(): void { // Called by WebGLViewerModel
-        for (let i = 0, len = this.#meshes.length; i < len; i++) {
-            this.#meshes[i].destroy();
+        for (let i = 0, len = this.#meshList.length; i < len; i++) {
+            this.#meshList[i].destroy();
         }
     }
 }
-
-export {WebGLViewerObject};

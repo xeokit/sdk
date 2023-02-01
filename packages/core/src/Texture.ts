@@ -1,9 +1,14 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * TODO
+ * Represents a texture.
+ *
+ * * Stored in {@link Model.textures}
+ * * Created with {@link BuildableModel.createTexture}
+ * * Referenced by {@link TextureSet.colorTexture}, {@link TextureSet.metallicRoughnessTexture}, {@link TextureSet.occlusionTexture} and {@link TextureSet.emissiveTexture}
  */
 export interface Texture {
+
     /**
      * ID for the texture.
      */
@@ -30,7 +35,26 @@ export interface Texture {
     image?: HTMLImageElement;
 
     /**
-     * Media type.
+     * Pixel height of the texture.
+     */
+    height: number;
+
+    /**
+     * Pixel width of the texture.
+     */
+    width: number;
+
+    /**
+     * True if the texture is compressed.
+     */
+    compressed: any;
+
+    /**
+     * Media type of this Texture.
+     *
+     * Supported values are {@link GIFMediaType}, {@link PNGMediaType} and {@link JPEGMediaType}.
+     *
+     * Ignored for compressed textures.
      */
     mediaType?: any;
 
@@ -42,35 +66,39 @@ export interface Texture {
     magFilter?: number;
 
     /**
-     * How the texture is sampled when a texel covers less than one pixel.
-     *
-     * Supported values are {@link LinearMipmapLinearFilter}, {@link LinearMipMapNearestFilter},
+     * How the texture is sampled when a texel covers less than one pixel. Supported values
+     * are {@link LinearMipmapLinearFilter}, {@link LinearMipMapNearestFilter},
      * {@link NearestMipMapNearestFilter}, {@link NearestMipMapLinearFilter}
      * and {@link LinearMipMapLinearFilter}.
+     *
+     * Ignored for compressed textures.
      */
     minFilter?: number;
 
     /**
-     * Wrap parameter for texture coordinate *S*.
+     * S wrapping mode.
      *
-     * Supported values are {@link ClampToEdgeWrapping},
-     * {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     *
+     * Ignored for compressed textures.
      */
     wrapS?: number;
 
     /**
-     * Wrap parameter for texture coordinate *T*.
+     * T wrapping mode.
      *
-     * Supported values are {@link ClampToEdgeWrapping},
-     * {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     *
+     * Ignored for compressed textures.
      */
     wrapT?: number;
 
     /**
-     * Wrap parameter for texture coordinate *R*.
+     * R wrapping mode.
      *
-     * Supported values are {@link ClampToEdgeWrapping},
-     * {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     *
+     * Ignored for compressed textures.
      */
     wrapR?: number;
 

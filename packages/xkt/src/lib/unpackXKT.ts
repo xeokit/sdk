@@ -1,13 +1,9 @@
 import {XKTDataDeflated} from "./XKTDataDeflated";
-import {inflateXKTData} from "./inflateXKTData";
-import {XKTData} from "./XKTData";
 
 /**
- * Unpacks an {@link XKTDataDeflated} from an ArrayBuffer.
- *
- * @param arrayBuffer
+ * @private
  */
-export function unpackXKTData(arrayBuffer: ArrayBuffer): XKTData {
+export function unpackXKT(arrayBuffer: ArrayBuffer): XKTDataDeflated {
 
     const dataView = new DataView(arrayBuffer);
     const dataArray = new Uint8Array(arrayBuffer);
@@ -24,7 +20,7 @@ export function unpackXKTData(arrayBuffer: ArrayBuffer): XKTData {
 
     let i = 0;
 
-    return <XKTData>inflateXKTData(<XKTDataDeflated>{
+    return <XKTDataDeflated>{
         metadata: elements[i++],
         textureData: elements[i++],
         eachTextureDataPortion: elements[i++],
@@ -56,5 +52,5 @@ export function unpackXKTData(arrayBuffer: ArrayBuffer): XKTData {
         eachMeshMaterialAttributes: elements[i++],
         eachObjectId: elements[i++],
         eachObjectMeshesPortion: elements[i++]
-    });
+    };
 }

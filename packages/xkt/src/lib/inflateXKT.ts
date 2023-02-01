@@ -1,20 +1,11 @@
 import {XKTDataDeflated} from "./XKTDataDeflated";
 import {XKTData} from "./XKTData";
-
-let pako = window.pako || p;
-if (!pako.inflate) {  // See https://github.com/nodeca/pako/issues/97
-    pako = pako.default;
-}
+import {pako} from "pako";
 
 /**
- * Inflates XKT data.
- *
- * Inflates an {@link XKTDataDeflated} into an {@link XKTData}.
- *
- * @param xktDataDeflated
  * @private
  */
-export function inflateXKTData(xktDataDeflated: XKTDataDeflated): XKTData {
+export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
 
     function inflate(array, options?) {
         return (array.length === 0) ? [] : pako.inflate(array, options).buffer;

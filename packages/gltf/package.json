@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/gltf",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "glTF tools for xeokit",
   "module": "dist/xeokit-gltf.modern.js",
   "source": "src/index.ts",

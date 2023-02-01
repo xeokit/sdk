@@ -5,14 +5,13 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import type {WebGLViewerModel} from "./WebGLViewerModel";
 import {DataTextureSet} from "./DataTextureSet";
 import {DataTextureFactory} from "./DataTextureFactory";
-import type {TextureSet} from "./TextureSet";
+import type {TextureSetImpl} from "./TextureSetImpl";
 import {MeshCounts} from "./MeshCounts";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import {RENDER_PASSES} from './RENDER_PASSES';
 import {LinesPrimitive, PointsPrimitive} from "@xeokit/core/constants";
 import {AABB3ToOBB3, collapseAABB3, expandAABB3Point3} from "@xeokit/math/boundaries";
-import {GeometryCompressedParams, MeshParams} from "@xeokit/core/components";
-import {GeometryBucketParams} from "../../dist";
+import {GeometryCompressedParams, GeometryBucketParams, MeshParams} from "@xeokit/core/components";
 
 const MAX_MESH_PARTS = (1 << 12); // 12 bits 
 const MAX_DATATEXTURE_HEIGHT = (1 << 11); // 2048
@@ -25,6 +24,10 @@ const tempVec4c = createVec4([0, 0, 0, 1]);
 const tempUint8Array4 = new Uint8Array(4);
 const tempFloat32Array3 = new Float32Array(3);
 
+
+/**
+ * @private
+ */
 export interface LayerParams { // Params for Layer constructor
     gl: WebGL2RenderingContext;
     view: View;
@@ -32,7 +35,7 @@ export interface LayerParams { // Params for Layer constructor
     primitive: number;
     origin: FloatArrayParam;
     layerIndex: number;
-    textureSet?: TextureSet;
+    textureSet?: TextureSetImpl;
 }
 
 interface GeometryBucketHandle { // Storage handle for a geometry bucket within a Layer
@@ -61,8 +64,11 @@ interface MeshPartHandle {
     numVerts: number;
 }
 
+/**
+ * @private
+ */
 export interface LayerRenderState { // What a LayerRenderer needs to render this Layer
-    materialTextureSet: TextureSet; // Color, opacity, metal/roughness, ambient occlusion maps
+    materialTextureSet: TextureSetImpl; // Color, opacity, metal/roughness, ambient occlusion maps
     dataTextureSet: DataTextureSet;  // Data textures containing geometry, transforms, flags and material attributes
     primitive: number; // Layer primitive type
     origin: FloatArrayParam; // Layer's RTC coordinate origin
@@ -76,6 +82,7 @@ export interface LayerRenderState { // What a LayerRenderer needs to render this
 }
 
 class DataTextureBuffer { // Temp data buffer as we build a Layer; converted into data textures once Layer is built
+
     positionsCompressed: number[];
     indices_8Bits: number[];
     indices_16Bits: number[];
@@ -83,9 +90,19 @@ class DataTextureBuffer { // Temp data buffer as we build a Layer; converted int
     edgeIndices_8Bits: number[];
     edgeIndices_16Bits: number[];
     edgeIndices_32Bits: number[];
+
+    eachPrimitiveMesh_8Bits: number[];
+    eachPrimitiveMesh_16Bits: number[];
+    eachPrimitiveMesh_32Bits: number[];
+
+    eachEdgeMesh_8Bits: number[];
+    eachEdgeMesh_16Bits: number[];
+    eachEdgeMesh_32Bits: number[];
+
     eachMeshVertexPortionBase: number[];
     eachMeshVertexPortionOffset: number[];
     eachMeshEdgeIndicesOffset: number[];
+
     eachMeshColor: any[];
     eachMeshPickColor: any[];
     eachMeshMatrices: any[];
@@ -93,12 +110,6 @@ class DataTextureBuffer { // Temp data buffer as we build a Layer; converted int
     eachMeshPositionsDecompressMatrix: any[];
     eachMeshFlags1: any[];
     eachMeshFlags2: any[];
-    eachPrimitiveMesh_32Bits: number[];
-    eachPrimitiveMesh_16Bits: number[];
-    eachPrimitiveMesh_8Bits: number[];
-    eachEdgeMesh_32Bits: number[];
-    eachEdgeMesh_16Bits: number[];
-    eachEdgeMesh_8Bits: number[];
     eachEdgeOffset: any[];
     eachMeshParts: number[];
 
@@ -131,7 +142,10 @@ class DataTextureBuffer { // Temp data buffer as we build a Layer; converted int
     }
 }
 
-export class Layer { // A container of meshes within a WebGLViewerModel
+/**
+ * @private
+ */
+export class Layer {
 
     viewerModel: WebGLViewerModel;
     layerIndex: number;
@@ -174,12 +188,11 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         this.#numMeshParts = 0;
         this.#geometryHandles = {};
         this.#meshPartHandles = [];
+        this.#built = false;
 
         this.rtcViewMat = layerParams.view.camera.getRTCViewMat(this.renderState.origin);
 
         this.beginDeferredFlags();
-
-        this.#built = false;
     }
 
     get hash() {
@@ -223,8 +236,8 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         for (let i = 0, len = geometryCompressedParams.geometryBuckets.length; i < len; i++) {
             geometryBucketHandles.push(this.#createGeometryBucket(geometryCompressedParams.geometryBuckets[i]));
         }
-        this.#geometryHandles[geometryCompressedParams.geometryId] = <GeometryHandle>{
-            id: geometryCompressedParams.geometryId,
+        this.#geometryHandles[geometryCompressedParams.id] = <GeometryHandle>{
+            id: geometryCompressedParams.id,
             aabb: geometryCompressedParams.aabb,
             positionsDecompressMatrix: geometryCompressedParams.positionsDecompressMatrix,
             geometryBucketHandles
@@ -315,14 +328,14 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         //     worldAABB[4] += origin[1];
         //     worldAABB[5] += origin[2];
         // }
-        const meshId = this.meshCounts.numMeshes;
+        const meshIndex = this.meshCounts.numMeshes;
         const meshPartIds: number[] = [];
         if (!meshParams.geometryId) {
             throw "geometryId expected";
         }
         const geometryHandle = this.#geometryHandles[meshParams.geometryId];
         if (!geometryHandle) {
-            throw "GeometryImpl not found";
+            throw "Geometry not found";
         }
         geometryHandle.geometryBucketHandles.forEach((geometryBucketHandle: GeometryBucketHandle) => {
             const meshPartId = this.#createMeshPart(meshParams, geometryHandle, geometryBucketHandle);
@@ -343,7 +356,7 @@ export class Layer { // A container of meshes within a WebGLViewerModel
             }
         }
         this.meshCounts.numMeshes++;
-        return meshId;
+        return meshIndex;
     }
 
     #createMeshPart(meshParams: MeshParams, geometryHandle: GeometryHandle, geometryBucketHandle: GeometryBucketHandle): number {
@@ -442,7 +455,7 @@ export class Layer { // A container of meshes within a WebGLViewerModel
 
     build() {
         if (this.#built) {
-            throw "Already built";
+            throw new Error("Already built");
         }
         const gl = this.#gl;
         const dataTextureFactory = new DataTextureFactory();
@@ -481,7 +494,7 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         return this.meshCounts.numMeshes == 0;
     }
 
-    initFlags(meshId: number, flags: number, meshTransparent: boolean) {
+    initFlags(meshIndex: number, flags: number, meshTransparent: boolean) {
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
             this.meshCounts.numVisible++;
         }
@@ -509,8 +522,8 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         if (meshTransparent) {
             this.meshCounts.numTransparent++;
         }
-        this.#setMeshFlags(meshId, flags, meshTransparent);
-        this.#setMeshFlags2(meshId, flags);
+        this.#setMeshFlags(meshIndex, flags, meshTransparent);
+        this.#setMeshFlags2(meshIndex, flags);
     }
 
     beginDeferredFlags() {
@@ -539,7 +552,7 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         this.commitDeferredFlags();
     }
 
-    setMeshVisible(meshId: number, flags: number, transparent: boolean) {
+    setMeshVisible(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -549,10 +562,10 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         } else {
             this.meshCounts.numVisible--;
         }
-        this.#setMeshFlags(meshId, flags, transparent);
+        this.#setMeshFlags(meshIndex, flags, transparent);
     }
 
-    setMeshHighlighted(meshId: number, flags: number, transparent: boolean) {
+    setMeshHighlighted(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -561,10 +574,10 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         } else {
             this.meshCounts.numHighlighted--;
         }
-        this.#setMeshFlags(meshId, flags, transparent);
+        this.#setMeshFlags(meshIndex, flags, transparent);
     }
 
-    setMeshXRayed(meshId: number, flags: number, transparent: boolean) {
+    setMeshXRayed(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -573,10 +586,10 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         } else {
             this.meshCounts.numXRayed--;
         }
-        this.#setMeshFlags(meshId, flags, transparent);
+        this.#setMeshFlags(meshIndex, flags, transparent);
     }
 
-    setMeshSelected(meshId: number, flags: number, transparent: boolean) {
+    setMeshSelected(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -585,10 +598,10 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         } else {
             this.meshCounts.numSelected--;
         }
-        this.#setMeshFlags(meshId, flags, transparent);
+        this.#setMeshFlags(meshIndex, flags, transparent);
     }
 
-    setMeshEdges(meshId: number, flags: number, transparent: boolean) {
+    setMeshEdges(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -597,10 +610,10 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         } else {
             this.meshCounts.numEdges--;
         }
-        this.#setMeshFlags(meshId, flags, transparent);
+        this.#setMeshFlags(meshIndex, flags, transparent);
     }
 
-    setMeshClippable(meshId: number, flags: number) {
+    setMeshClippable(meshIndex: number, flags: number) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -609,10 +622,10 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         } else {
             this.meshCounts.numClippable--;
         }
-        this.#setMeshFlags2(meshId, flags);
+        this.#setMeshFlags2(meshIndex, flags);
     }
 
-    setMeshCulled(meshId: number, flags: number, transparent: boolean) {
+    setMeshCulled(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -621,16 +634,16 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         } else {
             this.meshCounts.numCulled--;
         }
-        this.#setMeshFlags(meshId, flags, transparent);
+        this.#setMeshFlags(meshIndex, flags, transparent);
     }
 
-    setMeshCollidable(meshId: number, flags: number) {
+    setMeshCollidable(meshIndex: number, flags: number) {
         if (!this.#built) {
             throw "Not built";
         }
     }
 
-    setMeshPickable(meshId: number, flags: number, transparent: boolean) {
+    setMeshPickable(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -639,10 +652,10 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         } else {
             this.meshCounts.numPickable--;
         }
-        this.#setMeshFlags(meshId, flags, transparent);
+        this.#setMeshFlags(meshIndex, flags, transparent);
     }
 
-    setMeshColor(meshId: number, color: FloatArrayParam, transparent?: boolean) {
+    setMeshColor(meshIndex: number, color: FloatArrayParam, transparent?: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -653,18 +666,18 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         tempUint8Array4 [2] = color[2];
         tempUint8Array4 [3] = color[3];
         // @ts-ignore
-        dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshId * 28);
+        dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshIndex * 28);
         if (this.#deferredSetFlagsActive) {
             this.#deferredSetFlagsDirty = true;
             return;
         }
         // @ts-ignore
         gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshId, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshIndex, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    setMeshTransparent(meshId: number, flags: number, transparent: boolean) {
+    setMeshTransparent(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -675,10 +688,10 @@ export class Layer { // A container of meshes within a WebGLViewerModel
             this.meshCounts.numTransparent--;
             this.meshCounts.numTransparent--;
         }
-        this.#setMeshFlags(meshId, flags, transparent);
+        this.#setMeshFlags(meshIndex, flags, transparent);
     }
 
-    #setMeshFlags(meshId: number, flags: number, transparent: boolean) {
+    #setMeshFlags(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -738,17 +751,17 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         tempUint8Array4 [3] = f3;
         if (this.#deferredSetFlagsActive) {
             // @ts-ignore
-            dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshId * 28 + 8);
+            dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshIndex * 28 + 8);
             this.#deferredSetFlagsDirty = true;
             return;
         }
         // @ts-ignore
         gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 2, meshId, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 2, meshIndex, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    #setMeshFlags2(meshId: number, flags: number) {
+    #setMeshFlags2(meshIndex: number, flags: number) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -761,17 +774,17 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         tempUint8Array4 [3] = 2;
         if (this.#deferredSetFlagsActive) {
             // @ts-ignore
-            dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshId * 28 + 12); // Flags
+            dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshIndex * 28 + 12); // Flags
             this.#deferredSetFlagsDirty = true;
             return;
         }
         // @ts-ignore
         gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 3, meshId, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 3, meshIndex, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    setMeshOffset(meshId: number, offset: FloatArrayParam) {
+    setMeshOffset(meshIndex: number, offset: FloatArrayParam) {
         if (!this.#built) {
             throw "Not built";
         }
@@ -780,13 +793,13 @@ export class Layer { // A container of meshes within a WebGLViewerModel
         tempFloat32Array3 [0] = offset[0];
         tempFloat32Array3 [1] = offset[1];
         tempFloat32Array3 [2] = offset[2];
-        // dataTextureSet.eachMeshOffset.textureData.set(tempFloat32Array3, meshId * 3);
+        // dataTextureSet.eachMeshOffset.textureData.set(tempFloat32Array3, meshIndex * 3);
         if (this.#deferredSetFlagsActive) {
             this.#deferredSetFlagsDirty = true;
             return;
         }
         //gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshOffset.texture);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshId, 1, 1, gl.RGB, gl.FLOAT, tempFloat32Array3);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshIndex, 1, 1, gl.RGB, gl.FLOAT, tempFloat32Array3);
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 

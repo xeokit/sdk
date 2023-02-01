@@ -14,7 +14,7 @@ import {ParseParams} from "@xeokit/core/components";
  * import {ScratchModel} from "@xeokit/xkt";
  * import {parseLAS} from "@xeokit/las";
  *
- * const myModel = new ScratchModel(); // Implements BuildableModel and ReadableModel
+ * const myModel = new ScratchModel(); // Implements BuildableModel and Model
  *
  * utils.loadJSON("myscan.las", async (data) => {
  *

@@ -1,3 +1,7 @@
+
+/**
+ * @private
+ */
 export const RENDER_PASSES = {
 
     // Skipped - suppress rendering

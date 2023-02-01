@@ -1,3 +1,7 @@
+
+/**
+ * @private
+ */
 export class MeshCounts {
 
     numMeshes: number;

@@ -7,13 +7,9 @@ import {TextureImpl} from "./TextureImpl";
 export class TextureSetImpl implements TextureSet {
 
     id: string;
-
     colorTexture?: TextureImpl;
-
     metallicRoughnessTexture?: TextureImpl
-
     occlusionTexture?: TextureImpl;
-
     emissiveTexture?: TextureImpl;
 
     constructor(textureSetParams: TextureSetParams,

@@ -89,7 +89,7 @@ class FileLoader extends Loader {
                 });
                 return new Response(stream);
             } else {
-                throw Error(`fetch for "${response.url}" responded with ${response.status}: ${response.statusText}`);
+                throw new Error(`fetch for "${response.url}" responded with ${response.status}: ${response.statusText}`);
             }
         }).then(response => {
             switch (responseType) {

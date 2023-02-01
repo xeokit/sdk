@@ -27,7 +27,7 @@
 | [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)             | [`@xeokit/core/components`](./modules/_xeokit_core_components.html)   | Basic component types used throughout the xeokit SDK |
 |                                                                          | [`@xeokit/core/constants`](./modules/_xeokit_core_constants.html)     | Constants used throughout the xeokit SDK             |
 |                                                                          | [`@xeokit/core/utils`](./modules/_xeokit_core_utils.html)             | Core utilities used throughout the xeokit SDK        |
-| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](./modules/_xeokit_data.html)                         | Entity-relationship data model                       |
+| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](./modules/_xeokit_data.html)                         | Viewer-agnostic entity-relationship data model       |
 | [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)             | [`@xeokit/math/math`](./modules/_xeokit_math_math.html)               | General math definitions and constants               |
 |                                                                          | [`@xeokit/math/boundaries`](./modules/_xeokit_math_boundaries.html)   | Boundaries math library                              |
 |                                                                          | [`@xeokit/math/compression`](./modules/_xeokit_math_compression.html) | Geometry de/compression utilities library            |

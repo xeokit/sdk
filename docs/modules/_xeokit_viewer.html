@@ -69,21 +69,35 @@
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
 						<a href="#browser-based-model-viewer" id="browser-based-model-viewer" style="color: inherit; text-decoration: none;">
-							<h4>Browser-based model viewer</h4>
+							<h2>Browser-Based Model Viewer</h2>
 						</a>
 					</div>
 					<ul>
-						<li>Builder API to programmatically create models</li>
-						<li>Interact with model objects - show, hide, x-ray, highlight, colorize and slice</li>
-						<li>Interactive camera -  mouse/touch, ortho, perspective, animations</li>
-						<li>Load compressed geometry and textures (Basis)</li>
-						<li>Double-precision coordinate accuracy (tiled coordinate system)</li>
-						<li>Data-driven - state of viewer objects can be saved and loaded as JSON (or other)</li>
-						<li>Browser graphics API agnostic - pluggable adapter for WebGL, WebGPU etc.</li>
-						<li>Multiple canvases - when supported by the browser graphics API</li>
-						<li>Extensible via plugins</li>
+						<li><a href="../classes/_xeokit_viewer.viewer.html">Viewer</a></li>
+						<li>Interact with objects - show/hide/x-ray/highlight/colorize/slice</li>
+						<li>Interactive camera -  mouse/touch, ortho/perspective, animations</li>
+						<li>Multiple canvases</li>
+						<li>Fast rendering, low memory footprint</li>
+						<li>Double-precision accuracy - RTC coordinates</li>
 						<li>Localization support</li>
+						<li>Browser graphics agnostic - adapt with IoC strategies (eg. <a href="../classes/_xeokit_webgl.webglrenderer.html">WebGLRenderer</a>)</li>
+						<li>Programmatically create models</li>
+						<li>Load models from XKT, glTF, LAS etc.</li>
 					</ul>
+					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
+						<h2>Use Cases</h2>
+					</a>
+					<ul>
+						<li>Interactively view large BIM and engineering models in Browsers</li>
+					</ul>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<pre><code class="language-bash"><span style="color: #000000">npm install @xeokit/viewer</span>
+</code></pre>
+					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+						<h2>Usage</h2>
+					</a>
 					<p>See <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> for complete usage.</p>
 					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
 <span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebGLRenderer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/webgl&quot;</span><span style="color: #000000">;</span>
@@ -148,18 +162,13 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.ambientlight.html" class="tsd-kind-icon">Ambient<wbr>Light</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.camera.html" class="tsd-kind-icon">Camera</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.cameracontrol.html" class="tsd-kind-icon">Camera<wbr>Control</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.cameraflightanimation.html" class="tsd-kind-icon">Camera<wbr>Flight<wbr>Animation</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.cameramemento.html" class="tsd-kind-icon">Camera<wbr>Memento</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.customprojection.html" class="tsd-kind-icon">Custom<wbr>Projection</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.dirlight.html" class="tsd-kind-icon">Dir<wbr>Light</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.edgematerial.html" class="tsd-kind-icon">Edge<wbr>Material</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.emphasismaterial.html" class="tsd-kind-icon">Emphasis<wbr>Material</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.frustum.html" class="tsd-kind-icon">Frustum</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.ktx2texturetranscoder.html" class="tsd-kind-icon">KTX2<wbr>Texture<wbr>Transcoder</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.localeservice.html" class="tsd-kind-icon">Locale<wbr>Service</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.metrics.html" class="tsd-kind-icon">Metrics</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.modelmemento.html" class="tsd-kind-icon">Model<wbr>Memento</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.ortho.html" class="tsd-kind-icon">Ortho</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.perspective.html" class="tsd-kind-icon">Perspective</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.pickresult.html" class="tsd-kind-icon">Pick<wbr>Result</a></li>
@@ -172,16 +181,14 @@
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.view.html" class="tsd-kind-icon">View</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.viewlayer.html" class="tsd-kind-icon">View<wbr>Layer</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.viewobject.html" class="tsd-kind-icon">View<wbr>Object</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.viewobjectsmemento.html" class="tsd-kind-icon">View<wbr>Objects<wbr>Memento</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.viewer.html" class="tsd-kind-icon">Viewer</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Interfaces</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.compressedtextureparams.html" class="tsd-kind-icon">Compressed<wbr>Texture<wbr>Params</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.pickparams.html" class="tsd-kind-icon">Pick<wbr>Params</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.renderer.html" class="tsd-kind-icon">Renderer</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.texturetranscoder.html" class="tsd-kind-icon">Texture<wbr>Transcoder</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewlayerparams.html" class="tsd-kind-icon">View<wbr>Layer<wbr>Params</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewparams.html" class="tsd-kind-icon">View<wbr>Params</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.viewercapabilities.html" class="tsd-kind-icon">Viewer<wbr>Capabilities</a></li>
@@ -201,6 +208,18 @@
 						<a href="../modules.html">Modules</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -216,13 +235,7 @@
 						<a href="_xeokit_math_boundaries.html">@xeokit/math/boundaries</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_math_compression.html">@xeokit/math/compression</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_curves.html">@xeokit/math/curves</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_xeokit_math_geometry.html">@xeokit/math/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_math.html">@xeokit/math/math</a>
@@ -232,6 +245,9 @@
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_scratchmodel.html">@xeokit/scratchmodel</a>
@@ -256,13 +272,7 @@
 						<a href="../classes/_xeokit_viewer.camera.html" class="tsd-kind-icon">Camera</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.cameracontrol.html" class="tsd-kind-icon">Camera<wbr>Control</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.cameraflightanimation.html" class="tsd-kind-icon">Camera<wbr>Flight<wbr>Animation</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.cameramemento.html" class="tsd-kind-icon">Camera<wbr>Memento</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.customprojection.html" class="tsd-kind-icon">Custom<wbr>Projection</a>
@@ -280,16 +290,7 @@
 						<a href="../classes/_xeokit_viewer.frustum.html" class="tsd-kind-icon">Frustum</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.ktx2texturetranscoder.html" class="tsd-kind-icon">KTX2<wbr>Texture<wbr>Transcoder</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.localeservice.html" class="tsd-kind-icon">Locale<wbr>Service</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.metrics.html" class="tsd-kind-icon">Metrics</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.modelmemento.html" class="tsd-kind-icon">Model<wbr>Memento</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.ortho.html" class="tsd-kind-icon">Ortho</a>
@@ -328,19 +329,13 @@
 						<a href="../classes/_xeokit_viewer.viewobject.html" class="tsd-kind-icon">View<wbr>Object</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_xeokit_viewer.viewobjectsmemento.html" class="tsd-kind-icon">View<wbr>Objects<wbr>Memento</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/_xeokit_viewer.viewer.html" class="tsd-kind-icon">Viewer</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.compressedtextureparams.html" class="tsd-kind-icon">Compressed<wbr>Texture<wbr>Params</a>
+						<a href="../interfaces/_xeokit_viewer.pickparams.html" class="tsd-kind-icon">Pick<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/_xeokit_viewer.renderer.html" class="tsd-kind-icon">Renderer</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_viewer.texturetranscoder.html" class="tsd-kind-icon">Texture<wbr>Transcoder</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/_xeokit_viewer.viewlayerparams.html" class="tsd-kind-icon">View<wbr>Layer<wbr>Params</a>

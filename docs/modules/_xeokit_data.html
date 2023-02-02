@@ -69,11 +69,11 @@
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
 						<a href="#entity-relationship-data-model" id="entity-relationship-data-model" style="color: inherit; text-decoration: none;">
-							<h4>Entity-relationship data model</h4>
+							<h2>Entity-Relationship Data Model</h2>
 						</a>
 					</div>
-					<p>A general-purpose entity-relationship graph to attach semantic information to xeokit models.</p>
 					<ul>
+						<li><a href="../classes/_xeokit_data.datamodel.html">DataModel</a></li>
 						<li>Can be used with a <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> to classify models</li>
 						<li>A single graph into which we can merge multiple ER data models - objects, properties and relationships</li>
 						<li>Builder API to programmatically create data models in the graph</li>
@@ -82,40 +82,156 @@
 						<li>Extensible entity and relationship types</li>
 						<li>Supports IFC schema</li>
 					</ul>
-					<p>See <a href="../classes/_xeokit_data.data.html">Data</a> for complete usage.</p>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<pre><code class="language-bash"><span style="color: #000000">npm install @xeokit/data</span>
+</code></pre>
+					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+						<h2>Usage</h2>
+					</a>
+					<p>See <a href="../classes/_xeokit_data.data.html">Data</a> for more info.</p>
 					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Data</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/data&quot;</span><span style="color: #000000">;</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myData</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Data</span><span style="color: #000000">();</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myData</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Data</span><span style="color: #000000">({</span>
+<span style="color: #000000">});</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mySchema</span><span style="color: #000000"> = {</span>
-<span style="color: #000000">    </span><span style="color: #001080">MOUSE_TYPE:</span><span style="color: #000000"> </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">CAT_TYPE:</span><span style="color: #000000"> </span><span style="color: #098658">1</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">CHASES_REL:</span><span style="color: #000000"> </span><span style="color: #098658">2</span>
+<span style="color: #000000">    </span><span style="color: #001080">FURNITURE_TYPE:</span><span style="color: #000000"> </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">AGGREGATES_REL:</span><span style="color: #000000"> </span><span style="color: #098658">1</span>
 <span style="color: #000000">};</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myDataModel</span><span style="color: #000000"> = </span><span style="color: #001080">myData</span><span style="color: #000000">.</span><span style="color: #795E26">createDataModel</span><span style="color: #000000">({</span>
-<span style="color: #000000">   </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myDataModel</span><span style="color: #000000"> = </span><span style="color: #001080">myData</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTableModel&quot;</span><span style="color: #000000">,</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">objects:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">FURNITURE_TYPE</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Table&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;tablePropertySet&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;redLeg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Red table Leg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">FURNITURE_TYPE</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;tableLegPropertySet&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;greenLeg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Green table leg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">FURNITURE_TYPE</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;tableLegPropertySet&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;blueLeg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Blue table leg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">FURNITURE_TYPE</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;tableLegPropertySet&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;yellowLeg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Yellow table leg&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">FURNITURE_TYPE</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;tableLegPropertySet&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Purple table top&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">FURNITURE_TYPE</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">propertySetIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;tableTopPropertySet&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    ],</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">relationships:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">relating:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">related:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tableTop&quot;</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">relating:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">related:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;redLeg&quot;</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">relating:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">related:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;greenLeg&quot;</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">relating:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">related:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;blueLeg&quot;</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">relating:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tableTop&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">related:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;yellowLeg&quot;</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    ],</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">propertySets:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tablePropertySet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">originalSystemId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tablePropertySet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Table properties&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">properties:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">                {</span>
+<span style="color: #000000">                    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Weight&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #098658">5</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">valueType:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">description:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Weight of the thing&quot;</span>
+<span style="color: #000000">                },</span>
+<span style="color: #000000">                {</span>
+<span style="color: #000000">                    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Height&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #098658">12</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">valueType:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">description:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Height of the thing&quot;</span>
+<span style="color: #000000">                }</span>
+<span style="color: #000000">            ]</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        {</span>
+<span style="color: #000000">            </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;legPropertySet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">originalSystemId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;legPropertySet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Table leg properties&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">properties:</span><span style="color: #000000"> [</span>
+<span style="color: #000000">                {</span>
+<span style="color: #000000">                    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Weight&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #098658">5</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">valueType:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">description:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Weight of the thing&quot;</span>
+<span style="color: #000000">                },</span>
+<span style="color: #000000">                {</span>
+<span style="color: #000000">                    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Height&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #098658">12</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">valueType:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                    </span><span style="color: #001080">description:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Height of the thing&quot;</span>
+<span style="color: #000000">                }</span>
+<span style="color: #000000">            ]</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    ]</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
-<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tom&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Tom&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">CAT_TYPE</span>
+<span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">objectIds</span><span style="color: #000000"> = [];</span>
+
+<span style="color: #001080">myData</span><span style="color: #000000">.</span><span style="color: #795E26">searchDataObjects</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">startObjectId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;table&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">includeObjects:</span><span style="color: #000000"> [</span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">FURNITURE_TYPE</span><span style="color: #000000">],</span>
+<span style="color: #000000">    </span><span style="color: #001080">includeRelated:</span><span style="color: #000000"> [</span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">AGGREGATES_REL</span><span style="color: #000000">],</span>
+<span style="color: #000000">    </span><span style="color: #001080">objectIds</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
-<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;jerry&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Jerry&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">MOUSE_TYPE</span>
-<span style="color: #000000">});</span>
-
-<span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">createRelationship</span><span style="color: #000000">({</span>
-<span style="color: #000000">    </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">mySchema</span><span style="color: #000000">.</span><span style="color: #0070C1">CHASES_REL</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">relating:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;tom&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">related:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;jerry&quot;</span>
-<span style="color: #000000">});</span>
-
-<span style="color: #001080">myDataModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">(); </span><span style="color: #008000">// Ready for use now</span>
+<span style="color: #008000">// objectIds == [&quot;table&quot;, &quot;tableTop&quot;, &quot;redLeg&quot;, &quot;greenLeg&quot;, &quot;blueLeg&quot;, &quot;yellowLeg&quot;];</span>
 </code></pre>
 				</div>
 			</section>
@@ -156,6 +272,18 @@
 						<a href="../modules.html">Modules</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -171,13 +299,7 @@
 						<a href="_xeokit_math_boundaries.html">@xeokit/math/boundaries</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_math_compression.html">@xeokit/math/compression</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_curves.html">@xeokit/math/curves</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_xeokit_math_geometry.html">@xeokit/math/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_math.html">@xeokit/math/math</a>
@@ -187,6 +309,9 @@
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_scratchmodel.html">@xeokit/scratchmodel</a>

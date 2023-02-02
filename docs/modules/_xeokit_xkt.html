@@ -68,14 +68,91 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<a href="#utilities-to-load-and-save-xkt-models" id="utilities-to-load-and-save-xkt-models" style="color: inherit; text-decoration: none;">
-							<h4>Utilities to load and save XKT models</h4>
+						<a href="#load-and-save-xkt-models" id="load-and-save-xkt-models" style="color: inherit; text-decoration: none;">
+							<h2>Load and Save XKT Models</h2>
 						</a>
 					</div>
 					<ul>
-						<li><a href="_xeokit_xkt.html#savexkt">saveXKT</a> - Saves a <a href="../interfaces/_xeokit_core_components.model.html">Model</a> to an ArrayBuffer containing XKT file data.</li>
-						<li><a href="_xeokit_xkt.html#loadxkt">loadXKT</a> - Loads XKT file data from an ArrayBuffer into a <a href="../interfaces/_xeokit_core_components.buildablemodel.html">BuildableModel</a>.</li>
+						<li>XKT is xeokit&#39;s native compressed model format</li>
+						<li><a href="_xeokit_xkt.html#savexkt">saveXKT</a> - Saves XKT data from a <a href="../interfaces/_xeokit_core_components.model.html">Model</a> (implemented by <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a> and <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a>)</li>
+						<li><a href="_xeokit_xkt.html#loadxkt">loadXKT</a> - Loads XKT data into a <a href="../interfaces/_xeokit_core_components.buildablemodel.html">BuildableModel</a> (implemented by <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a> and <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a>)</li>
 					</ul>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<pre><code class="language-bash"><span style="color: #000000">npm install @xeokit/xkt</span>
+</code></pre>
+					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+						<h2>Usage</h2>
+					</a>
+					<p>Loading an XKT file into a <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">ScratchModel</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/scratchmodel&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">loadXKT</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/xkt&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myScratchModel</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ScratchModel</span><span style="color: #000000">();</span>
+
+<span style="color: #795E26">fetch</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;myModel.xkt&quot;</span><span style="color: #000000">)</span>
+<span style="color: #000000">    .</span><span style="color: #795E26">then</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">         </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">ok</span><span style="color: #000000">) {*</span>
+<span style="color: #000000">             </span><span style="color: #795E26">loadXKT</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #795E26">arrayBuffer</span><span style="color: #000000">(), </span><span style="color: #001080">myScratchModel</span><span style="color: #000000">);</span>
+<span style="color: #000000">             </span><span style="color: #001080">myScratchModel</span><span style="color: #000000">.</span><span style="color: #795E26">built</span><span style="color: #000000">();</span>
+<span style="color: #000000">         }</span>
+<span style="color: #000000">    });</span>
+</code></pre>
+					<p>Loading an XKT file into a <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">loadXKT</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/xkt&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #008000">//...</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">//...</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewerModel</span><span style="color: #000000">= </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #795E26">fetch</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;myModel.xkt&quot;</span><span style="color: #000000">)</span>
+<span style="color: #000000">    .</span><span style="color: #795E26">then</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">         </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">ok</span><span style="color: #000000">) {*</span>
+<span style="color: #000000">             </span><span style="color: #795E26">loadXKT</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #795E26">arrayBuffer</span><span style="color: #000000">(), </span><span style="color: #001080">myViewerModel</span><span style="color: #000000">);</span>
+<span style="color: #000000">             </span><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">built</span><span style="color: #000000">();</span>
+<span style="color: #000000">         }</span>
+<span style="color: #000000">    });</span>
+</code></pre>
+					<p>Saving an XKT file from a <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">ScratchModel</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/scratchmodel&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">saveXKT</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/xkt&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myScratchModel</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">ScratchModel</span><span style="color: #000000">();</span>
+
+<span style="color: #008000">//...</span>
+
+<span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">myScratchModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">arrayBuffer</span><span style="color: #000000"> = </span><span style="color: #795E26">saveXKT</span><span style="color: #000000">(</span><span style="color: #001080">myScratchModel</span><span style="color: #000000">);</span>
+</code></pre>
+					<p>Saving an XKT file from a <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">saveXKT</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/xkt&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #008000">//...</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">//...</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewerModel</span><span style="color: #000000">= </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">//...</span>
+
+<span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">arrayBuffer</span><span style="color: #000000"> = </span><span style="color: #795E26">saveXKT</span><span style="color: #000000">(</span><span style="color: #001080">myViewerModel</span><span style="color: #000000">);</span>
+</code></pre>
 				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
@@ -104,7 +181,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d3bb4d3/packages/xkt/src/loadXKT.ts#L16">xkt/src/loadXKT.ts:16</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/xkt/src/loadXKT.ts#L16">xkt/src/loadXKT.ts:16</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -146,7 +223,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/d3bb4d3/packages/xkt/src/saveXKT.ts#L13">xkt/src/saveXKT.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/xkt/src/saveXKT.ts#L13">xkt/src/saveXKT.ts:13</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -185,6 +262,18 @@
 						<a href="../modules.html">Modules</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -200,13 +289,7 @@
 						<a href="_xeokit_math_boundaries.html">@xeokit/math/boundaries</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_math_compression.html">@xeokit/math/compression</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_curves.html">@xeokit/math/curves</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_xeokit_math_geometry.html">@xeokit/math/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_math.html">@xeokit/math/math</a>
@@ -216,6 +299,9 @@
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_scratchmodel.html">@xeokit/scratchmodel</a>

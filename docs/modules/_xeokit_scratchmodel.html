@@ -68,16 +68,33 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<a href="#a-buildable-and-readable-model-representation" id="a-buildable-and-readable-model-representation" style="color: inherit; text-decoration: none;">
-							<h4>A buildable and readable model representation.</h4>
+						<a href="#viewer-agnostic-model-representation" id="viewer-agnostic-model-representation" style="color: inherit; text-decoration: none;">
+							<h2>Viewer-Agnostic Model Representation</h2>
 						</a>
 					</div>
 					<ul>
-						<li>Buildable - build geometry, materials and objects with builder methods</li>
-						<li>Readable - read back all the geometry, materials and objects via accessors</li>
-						<li>Offline - works independently of <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> - intended to use as intermediate model representation within nodejs scripts etc.</li>
+						<li><a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a></li>
+						<li>Build models programmatically with builder methods</li>
+						<li>Load models from files (eg. <a href="_xeokit_xkt.html#loadxkt">loadXKT</a>)</li>
+						<li>Save models to files (eg. <a href="_xeokit_xkt.html#savexkt">saveXKT</a>)</li>
+						<li>Works independently of <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> - use in NodeJs etc</li>
 					</ul>
-					<p>See below for a brief idea of how we use this library in context. See <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a> for full usage.</p>
+					<a href="#use-cases" id="use-cases" style="color: inherit; text-decoration: none;">
+						<h2>Use Cases</h2>
+					</a>
+					<ul>
+						<li>Intermediate model representation within offline file conversion tools</li>
+						<li>Buildable model representation within procedural model generation scripts</li>
+					</ul>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<pre><code class="language-bash"><span style="color: #000000">npm install @xeokit/scratchmodel</span>
+</code></pre>
+					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+						<h2>Usage</h2>
+					</a>
+					<p>See <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a> for full usage.</p>
 					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">ScratchModel</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/scratchmodel&quot;</span><span style="color: #000000">;</span>
 <span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">, </span><span style="color: #001080">LinearEncoding</span><span style="color: #000000">, </span><span style="color: #001080">LinearFilter</span><span style="color: #000000">, </span><span style="color: #001080">ClampToEdgeWrapping</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/core/constants&quot;</span><span style="color: #000000">;</span>
 <span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">compressGeometryParams</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/math/compression&quot;</span><span style="color: #000000">;</span>
@@ -175,6 +192,18 @@
 						<a href="../modules.html">Modules</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -190,13 +219,7 @@
 						<a href="_xeokit_math_boundaries.html">@xeokit/math/boundaries</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_math_compression.html">@xeokit/math/compression</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_curves.html">@xeokit/math/curves</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_xeokit_math_geometry.html">@xeokit/math/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_math.html">@xeokit/math/math</a>
@@ -206,6 +229,9 @@
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a>
 					</li>
 					<li class="current tsd-kind-module">
 						<a href="_xeokit_scratchmodel.html">@xeokit/scratchmodel</a>

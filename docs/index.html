@@ -61,22 +61,20 @@
 				<a href="#xeokit" id="xeokit" style="color: inherit; text-decoration: none;">
 					<h1>@xeokit</h1>
 				</a>
-				<p><a href="https://www.npmjs.com/package/@xeokit-sdk/core"><img src="https://img.shields.io/npm/v/@xeokit-sdk/core.svg" alt="Latest NPM release"></a>
-					<a href="https://bundlephobia.com/result?p=@xeokit-sdk/core"><img src="https://badgen.net/bundlephobia/minzip/@xeokit-sdk/core" alt="Minzipped size"></a>
-				<a href="https://github.com/xeolabs/xeokit-sdk/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-007ec6.svg" alt="License"></a></p>
-				<p><em>Graphics SDK for browser-based AECO visualization.</em></p>
+				<p><em>A complete graphics SDK for browser-based AECO model visualization.</em></p>
 				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
 					<h2>Features</h2>
 				</a>
 				<ul>
-					<li>Browser-based 3D/2D viewer from <a href="https://xeolabs.com">@xeolabs</a></li>
-					<li>For BIM &amp; AEC applications</li>
+					<li>Browser-based 3D/2D viewer</li>
+					<li>Fast model loading</li>
 					<li>Fast rendering</li>
-					<li>Compact memory footprint</li>
+					<li>Low memory footprint</li>
 					<li>Multiple canvases</li>
 					<li>Semantic ER data model</li>
-					<li>Pluggable graphics (WebGL, WebGPU..)</li>
+					<li>Pluggable graphics engine (WebGL, WebGPU..)</li>
 					<li>Natively TypeScript</li>
+					<li>Extensible</li>
 				</ul>
 				<a href="#modules" id="modules" style="color: inherit; text-decoration: none;">
 					<h2>Modules</h2>
@@ -93,7 +91,7 @@
 					<tbody><tr>
 							<td><a href="https://www.npmjs.com/package/@xeokit/core"><code>@xeokit/core</code></a></td>
 							<td align="left"><a href="./modules/_xeokit_core_components.html"><code>@xeokit/core/components</code></a></td>
-							<td>Component types used throughout the xeokit SDK</td>
+							<td>Basic component types used throughout the xeokit SDK</td>
 						</tr>
 						<tr>
 							<td></td>
@@ -106,9 +104,19 @@
 							<td>Core utilities used throughout the xeokit SDK</td>
 						</tr>
 						<tr>
+							<td><a href="https://www.npmjs.com/package/@xeokit/compression"><code>@xeokit/compression</code></a></td>
+							<td align="left"><a href="./modules/_xeokit_compression_geometry.html"><code>@xeokit/compression/geometry</code></a></td>
+							<td>General math definitions and constants</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td align="left"><a href="./modules/_xeokit_compression_texture.html"><code>@xeokit/compression/texture</code></a></td>
+							<td>Boundaries math library</td>
+						</tr>
+						<tr>
 							<td><a href="https://www.npmjs.com/package/@xeokit/data"><code>@xeokit/data</code></a></td>
 							<td align="left"><a href="./modules/_xeokit_data.html"><code>@xeokit/data</code></a></td>
-							<td>Entity-relationship data model</td>
+							<td>Viewer-agnostic entity-relationship data model</td>
 						</tr>
 						<tr>
 							<td><a href="https://www.npmjs.com/package/@xeokit/math"><code>@xeokit/math</code></a></td>
@@ -119,11 +127,6 @@
 							<td></td>
 							<td align="left"><a href="./modules/_xeokit_math_boundaries.html"><code>@xeokit/math/boundaries</code></a></td>
 							<td>Boundaries math library</td>
-						</tr>
-						<tr>
-							<td></td>
-							<td align="left"><a href="./modules/_xeokit_math_compression.html"><code>@xeokit/math/compression</code></a></td>
-							<td>Geometry de/compression utilities library</td>
 						</tr>
 						<tr>
 							<td></td>
@@ -175,6 +178,11 @@
 							<td align="left"><a href="./modules/_xeokit_las.html"><code>@xeokit/las</code></a></td>
 							<td>Import LAS pointcloud scans</td>
 						</tr>
+						<tr>
+							<td><a href="https://www.npmjs.com/package/@xeokit/cityjson"><code>@xeokit/cityjson</code></a></td>
+							<td align="left"><a href="./modules/_xeokit_cityjson.html"><code>@xeokit/las</code></a></td>
+							<td>Import CityJSON files</td>
+						</tr>
 				</tbody></table>
 				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
 					<h2>Getting Started</h2>
@@ -183,7 +191,18 @@
 				<a href="#concepts" id="concepts" style="color: inherit; text-decoration: none;">
 					<h2>Concepts</h2>
 				</a>
-				<p>TODO</p>
+				<a href="#solid" id="solid" style="color: inherit; text-decoration: none;">
+					<h3>SOLID</h3>
+				</a>
+				<p>In software engineering, SOLID is a mnemonic acronym for five design principles intended to make object-oriented designs
+				more understandable, flexible, and maintainable.</p>
+				<ul>
+					<li><strong>S</strong>ingle responsibility</li>
+					<li><strong>O</strong>pen-closed principle</li>
+					<li><strong>L</strong>iskove substitution principle</li>
+					<li><strong>I</strong>nterface seggregation principle</li>
+					<li><strong>D</strong>ependency inversion principle</li>
+				</ul>
 				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
 					<h2>License</h2>
 				</a>
@@ -201,6 +220,18 @@
 						<a href="modules.html">Modules</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="modules/_xeokit_bcf.html">@xeokit/bcf</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="modules/_xeokit_core_components.html">@xeokit/core/components</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -216,13 +247,7 @@
 						<a href="modules/_xeokit_math_boundaries.html">@xeokit/math/boundaries</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/_xeokit_math_compression.html">@xeokit/math/compression</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="modules/_xeokit_math_curves.html">@xeokit/math/curves</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_xeokit_math_geometry.html">@xeokit/math/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_xeokit_math_math.html">@xeokit/math/math</a>
@@ -232,6 +257,9 @@
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/_xeokit_scratchmodel.html">@xeokit/scratchmodel</a>

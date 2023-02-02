@@ -11,7 +11,7 @@ export interface RelationshipParams {
     /**
      * The relationship type.
      */
-    relationType: number,
+    type: number,
 
     /**
      * The relating {@link DataObject}.
@@ -22,4 +22,4 @@ export interface RelationshipParams {
      * The related {@link DataObject}.
      */
     relatedObjectId: string
-};
+}

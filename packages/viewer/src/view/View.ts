@@ -3,7 +3,6 @@ import {Component, EventEmitter} from "@xeokit/core/components";
 import {createUUID, isString} from "@xeokit/core/utils";
 
 import {Camera, CameraFlightAnimation} from "./camera/index";
-import {CameraControl} from "./CameraControl/index";
 import {ViewObject} from "./ViewObject";
 import {SectionPlane} from "./SectionPlane";
 import type {AmbientLight, DirLight, PointLight} from "./lights/index";
@@ -133,11 +132,6 @@ class View extends Component {
      * Configures Scalable Ambient Obscurance (SAO) for this View.
      */
     readonly sao: SAO;
-
-    /**
-     * Controls the View's {@link Camera} from user input.
-     */
-    readonly cameraControl: CameraControl;
 
     /**
      * Flies or jumps the View's {@link Camera} to given positions.
@@ -504,10 +498,6 @@ class View extends Component {
         this.camera = new Camera(this);
 
         this.sao = new SAO(this, {});
-
-        this.cameraControl = new CameraControl(this, this.camera, {
-            doublePickFlyTo: true
-        });
 
         this.cameraFlight = new CameraFlightAnimation(this, {
             duration: 0.5

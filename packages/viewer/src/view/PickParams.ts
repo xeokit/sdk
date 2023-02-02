@@ -1,8 +1,9 @@
-/**
- * Parameters for {@link View.pick}.
- */
+
 import {FloatArrayParam} from "@xeokit/math/math";
 
+/**
+ * TODO
+ */
 export interface PickParams  {
 
     /**

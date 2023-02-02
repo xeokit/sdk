@@ -8,8 +8,6 @@ export * from "./SAO";
 export * from "./PickParams";
 export * from "./PickResult";
 export * from "./camera/index";
-export * from "./CameraControl/index";
 export * from "./lights/index";
 export * from "./materials/index";
-export * from "./mementos/index";
 export * from "./ViewLayerParams";

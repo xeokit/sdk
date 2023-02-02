@@ -3,8 +3,7 @@ import {createUUID} from "@xeokit/core/utils";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {EventDispatcher} from "strongly-typed-events";
 import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
-
-import {LocaleService} from "./localization/LocaleService";
+import {LocaleService} from "@xeokit/locale";
 
 import {View} from "./view/View";
 import type {Plugin} from "./Plugin";

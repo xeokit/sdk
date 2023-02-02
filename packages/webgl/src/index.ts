@@ -1,14 +1,24 @@
 /**
- * #### Configures a {@link Viewer} to use WebGL for mesh storage and rendering
+ * ## WebGL-Based Renderer for @xeokit/viewer
  *
- * * Compact texture-based scene representation
+ * * {@link WebGLRenderer}
+ * * Uses WebGL to manage model storage and rendering for a {@link Viewer}
+ * * Compact texture-based model representation
+ * * Fast full-precision rendering of large models
  * * Physically-based materials
- * * Compressed textures
+ * * Basis compressed textures
  * * Compressed geometry
- * * Double-precision rendering
  *
- * Configure your {@link Viewer} with a {@link WebGLRenderer} to use the browser's WebGL
- * graphics API for storing and rendering meshes.
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/viewer
+ * ````
+ *
+ * ## Usage
+ *
+ * Configuring a {@link Viewer} with a {@link WebGLRenderer} to use the browser's WebGL
+ * graphics API for storing and rendering meshes:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

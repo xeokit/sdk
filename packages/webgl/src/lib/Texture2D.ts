@@ -6,14 +6,16 @@ import {
     RGBAFormat, sRGBEncoding,
     UnsignedByteType
 } from "@xeokit/core/constants";
-import {CompressedTextureParams} from "@xeokit/viewer";
+
 import {isArray} from "@xeokit/core/utils";
 
 import {convertConstant} from "./convertConstant";
 import {getExtension} from "./getExtension";
 import type {Texture} from "./Texture";
+import {TextureCompressedParams} from "@xeokit/core/components";
 
 const color = new Uint8Array([0, 0, 0, 1]);
+
 
 export class Texture2D implements Texture {
 
@@ -224,7 +226,7 @@ export class Texture2D implements Texture {
         gl.bindTexture(this.target, null);
     }
 
-    setCompressedData(params: CompressedTextureParams) {
+    setCompressedData(params: TextureCompressedParams) {
 
         const gl = this.gl;
         const mipmaps = params.mipmaps || [];

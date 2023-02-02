@@ -1,11 +1,26 @@
 /**
- * #### A buildable and readable model representation.
+ * ## Viewer-Agnostic Model Representation
  *
- * * Buildable - build geometry, materials and objects with builder methods
- * * Readable - read back all the geometry, materials and objects via accessors
- * * Offline - works independently of {@link Viewer} - intended to use as intermediate model representation within nodejs scripts etc.
+ * * {@link ScratchModel}
+ * * Build models programmatically with builder methods
+ * * Load models from files (eg. {@link loadXKT})
+ * * Save models to files (eg. {@link saveXKT})
+ * * Works independently of {@link Viewer} - use in NodeJs etc
  *
- * See below for a brief idea of how we use this library in context. See {@link ScratchModel} for full usage.
+ * ## Use Cases
+ *
+ * * Intermediate model representation within offline file conversion tools
+ * * Buildable model representation within procedural model generation scripts
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/scratchmodel
+ * ````
+ *
+ * ## Usage
+ *
+ * See {@link ScratchModel} for full usage.
  *
  * ````javascript
  * import {ScratchModel} from "@xeokit/scratchmodel";

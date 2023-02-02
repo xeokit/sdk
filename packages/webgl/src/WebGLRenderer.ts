@@ -10,17 +10,9 @@ import {
     TrianglesPrimitive
 } from "@xeokit/core/constants";
 
-import {
-    KTX2TextureTranscoder,
-    Renderer,
-    ViewerModel,
-    ViewerModelParams,
-    ViewerObject,
-    TextureTranscoder,
-    View,
-    Viewer,
-    ViewerCapabilities
-} from "@xeokit/viewer";
+import {Renderer, View, Viewer, ViewerCapabilities, ViewerModel, ViewerModelParams, ViewerObject} from "@xeokit/viewer";
+
+import {KTX2TextureTranscoder, TextureTranscoder} from "@xeokit/compression/texture";
 
 import {RENDER_PASSES} from "./WebGLViewerModel/RENDER_PASSES";
 import {WEBGL_INFO} from "./lib/WEBGL_INFO";

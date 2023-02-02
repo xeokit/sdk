@@ -1,0 +1,5 @@
+/**
+ * TODO
+ */
+export class SaveBCFViewpointOptions {
+}

@@ -1,10 +1,26 @@
 /**
- * #### Boundaries math library
+ * ## Boundaries Math Library
+ *
+ * * Axis-aligned boundaries (AABB)
+ * * Object-aligned boundaries (OBB)
+ * * 2D and 3D
+ * * Transformable OOBs
+ * * Create boundaries from positions
+ * * Find center of positions
+ * * Frustum-boundary intersection tests
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/math
+ * ````
+ *
+ * ## Usage
  *
  * ````javascript
  * import * as boundaries from "@xeokit/math/boundaries";
  *
- * //..
+ * //..TODO
  * ````
  *
  * @module @xeokit/math/boundaries
@@ -12,7 +28,8 @@
 
 import * as math from "./math";
 import * as matrix from "./matrix";
-import * as compression from "./compression";
+import {decompressPosition} from "@xeokit/compression/geometry";
+
 
 const tempVec3a = matrix.createVec3();
 const tempVec3b = matrix.createVec3();
@@ -446,7 +463,7 @@ export const positions3ToAABB3 = (() => {
                 p[1] = positions[i + 1];
                 p[2] = positions[i + 2];
 
-                compression.decompressPosition(p, positionsDecompressMatrix, p);
+                decompressPosition(p, positionsDecompressMatrix, p);
 
                 x = p[0];
                 y = p[1];

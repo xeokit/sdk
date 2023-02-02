@@ -1,8 +1,7 @@
 /**
- *  #### Entity-relationship data model
+ * ## Entity-Relationship Data Model
  *
- * A general-purpose entity-relationship graph to attach semantic information to xeokit models.
- *
+ * * {@link DataModel}
  * * Can be used with a {@link Viewer} to classify models
  * * A single graph into which we can merge multiple ER data models - objects, properties and relationships
  * * Builder API to programmatically create data models in the graph
@@ -11,42 +10,160 @@
  * * Extensible entity and relationship types
  * * Supports IFC schema
  *
- * See {@link Data} for complete usage.
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/data
+ * ````
+ *
+ *
+ * ## Usage
+ *
+ * See {@link Data} for more info.
  *
  * ````javascript
  * import {Data} from "@xeokit/data";
  *
- * const myData = new Data();
+ * const myData = new Data({
+ * });
  *
  * const mySchema = {
- *     MOUSE_TYPE: 0,
- *     CAT_TYPE: 1,
- *     CHASES_REL: 2
+ *     FURNITURE_TYPE: 0,
+ *     AGGREGATES_REL: 1
  * };
  *
- * const myDataModel = myData.createDataModel({
- *    id: "myModel"
+ * const myDataModel = myData.createModel({
+ *
+ *     id: "myTableModel",
+ *
+ *     objects: [
+ *         {
+ *             id: "table",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             name: "Table",
+ *             propertySetIds: ["tablePropertySet"]
+ *         },
+ *         {
+ *             id: "redLeg",
+ *             name: "Red table Leg",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "greenLeg",
+ *             name: "Green table leg",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "blueLeg",
+ *             name: "Blue table leg",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "yellowLeg",
+ *             name: "Yellow table leg",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableLegPropertySet"]
+ *         },
+ *         {
+ *             id: "tableTop",
+ *             name: "Purple table top",
+ *             type: mySchema.FURNITURE_TYPE,
+ *             propertySetIds: ["tableTopPropertySet"]
+ *         }
+ *     ],
+ *
+ *     relationships: [
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "table",
+ *             related: "tableTop"
+ *         },
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "tableTop",
+ *             related: "redLeg"
+ *         },
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "tableTop",
+ *             related: "greenLeg"
+ *         },
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "tableTop",
+ *             related: "blueLeg"
+ *         },
+ *         {
+ *             type: mySchema.AGGREGATES_REL,
+ *             relating: "tableTop",
+ *             related: "yellowLeg"
+ *         }
+ *     ],
+ *
+ *     propertySets: [
+ *         {
+ *             id: "tablePropertySet",
+ *             originalSystemId: "tablePropertySet",
+ *             name: "Table properties",
+ *             type: "",
+ *             properties: [
+ *                 {
+ *                     name: "Weight",
+ *                     value: 5,
+ *                     type: "",
+ *                     valueType: "",
+ *                     description: "Weight of the thing"
+ *                 },
+ *                 {
+ *                     name: "Height",
+ *                     value: 12,
+ *                     type: "",
+ *                     valueType: "",
+ *                     description: "Height of the thing"
+ *                 }
+ *             ]
+ *         },
+ *         {
+ *             id: "legPropertySet",
+ *             originalSystemId: "legPropertySet",
+ *             name: "Table leg properties",
+ *             type: "",
+ *             properties: [
+ *                 {
+ *                     name: "Weight",
+ *                     value: 5,
+ *                     type: "",
+ *                     valueType: "",
+ *                     description: "Weight of the thing"
+ *                 },
+ *                 {
+ *                     name: "Height",
+ *                     value: 12,
+ *                     type: "",
+ *                     valueType: "",
+ *                     description: "Height of the thing"
+ *                 }
+ *             ]
+ *         }
+ *     ]
  * });
  *
- * myDataModel.createObject({
- *     id: "tom",
- *     name: "Tom",
- *     type: mySchema.CAT_TYPE
+ * myDataModel.build();
+ *
+ * const objectIds = [];
+ *
+ * myData.searchDataObjects({
+ *     startObjectId: "table",
+ *     includeObjects: [mySchema.FURNITURE_TYPE],
+ *     includeRelated: [mySchema.AGGREGATES_REL],
+ *     objectIds
  * });
  *
- * myDataModel.createObject({
- *     id: "jerry",
- *     name: "Jerry",
- *     type: mySchema.MOUSE_TYPE
- * });
- *
- * myDataModel.createRelationship({
- *     type: mySchema.CHASES_REL,
- *     relating: "tom",
- *     related: "jerry"
- * });
- *
- * myDataModel.build(); // Ready for use now
+ * // objectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
  * ````
  *
  * @module @xeokit/data

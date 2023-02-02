@@ -1,16 +1,28 @@
 /**
- * #### Browser-based model viewer
+ * ## Browser-Based Model Viewer
  *
- * * Builder API to programmatically create models
- * * Interact with model objects - show, hide, x-ray, highlight, colorize and slice
- * * Interactive camera -  mouse/touch, ortho, perspective, animations
- * * Load compressed geometry and textures (Basis)
- * * Double-precision coordinate accuracy (tiled coordinate system)
- * * Data-driven - state of viewer objects can be saved and loaded as JSON (or other)
- * * Browser graphics API agnostic - pluggable adapter for WebGL, WebGPU etc.
- * * Multiple canvases - when supported by the browser graphics API
- * * Extensible via plugins
+ * * {@link Viewer}
+ * * Interact with objects - show/hide/x-ray/highlight/colorize/slice
+ * * Interactive camera -  mouse/touch, ortho/perspective, animations
+ * * Multiple canvases
+ * * Fast rendering, low memory footprint
+ * * Double-precision accuracy - RTC coordinates
  * * Localization support
+ * * Browser graphics agnostic - adapt with IoC strategies (eg. {@link WebGLRenderer})
+ * * Programmatically create models
+ * * Load models from XKT, glTF, LAS etc.
+ *
+ * ## Use Cases
+ *
+ * * Interactively view large BIM and engineering models in Browsers
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/viewer
+ * ````
+ *
+ * ## Usage
  *
  * See {@link Viewer} for complete usage.
  *
@@ -84,14 +96,8 @@ export * as keycodes from "./keycodes";
  */
 export * from "./view/index";
 
-/**
-  * Compressed texture transcoders.
-  */
-export * from "./textureTranscoders/index";
-
 export * from "./ViewerCapabilities";
 export * from "./Plugin";
-export * from "./localization/index";
 export * from "./ViewParams";
 export * from "./ViewerModel";
 export * from "./ViewerModelParams";

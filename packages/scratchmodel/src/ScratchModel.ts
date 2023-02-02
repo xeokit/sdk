@@ -31,7 +31,7 @@ import {createMat4, createVec4} from "@xeokit/math/matrix";
 
 import {createUUID} from "@xeokit/core/utils";
 import {createAABB3} from "@xeokit/math/boundaries";
-import {compressGeometryParams} from "@xeokit/math/compression";
+import {compressGeometryParams} from "@xeokit/compression/geometry";
 
 import {GeometryImpl} from "./lib/GeometryImpl";
 import {ObjectImpl} from "./lib/ObjectImpl";

@@ -28,7 +28,7 @@ import {
     SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-import {compressGeometryParams} from "@xeokit/math/compression";
+import {TextureTranscoder} from "@xeokit/compression/texture";
 import {createUUID, loadArraybuffer} from "@xeokit/core/utils";
 import {collapseAABB3, expandAABB3} from "@xeokit/math/boundaries";
 import {
@@ -42,8 +42,10 @@ import {
 } from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 
-import type {Camera, TextureTranscoder, View} from "@xeokit/viewer";
+import type {Camera, View} from "@xeokit/viewer";
 import {Viewer} from "@xeokit/viewer";
+import {compressGeometryParams} from "@xeokit/compression/geometry";
+import {ViewerModel} from "@xeokit/viewer";
 
 import {Texture2D} from "../lib/Texture2D";
 import type {WebGLRenderer} from "../WebGLRenderer";
@@ -53,8 +55,9 @@ import {TextureSetImpl} from "./TextureSetImpl";
 import {TextureImpl} from "./TextureImpl";
 import {ViewerObjectImpl} from "./ViewerObjectImpl";
 import type {RenderContext} from "../RenderContext";
-import {ViewerModel} from "@xeokit/viewer/src/ViewerModel";
+
 import {GeometryImpl} from "./GeometryImpl";
+
 
 const tempVec3a = createVec3();
 const tempMat4 = createMat4();

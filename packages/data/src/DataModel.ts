@@ -298,9 +298,9 @@ class DataModel extends Component {
             this.error(`[createRelation] DataObject not found: ${relationshipParams.relatedObjectId}`);
             return;
         }
-        const relation = new Relationship(relationshipParams.relationType, relatingObject, relatedObject);
-        relatedObject.relating[relationshipParams.relationType].push(relation);
-        relatingObject.related[relationshipParams.relationType].push(relation);
+        const relation = new Relationship(relationshipParams.type, relatingObject, relatedObject);
+        relatedObject.relating[relationshipParams.type].push(relation);
+        relatingObject.related[relationshipParams.type].push(relation);
     }
 
     /**

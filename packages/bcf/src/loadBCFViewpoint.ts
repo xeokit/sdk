@@ -5,6 +5,8 @@ import {BCFViewpoint} from "./BCFViewpoint";
 /**
  * Loads a {@link BCFViewpoint} into a {@link View}.
  *
+ * See {@link @xeokit/bcf} for usage.
+ *
  * @param bcfViewpoint
  * @param view
  * @param options

@@ -3,8 +3,8 @@ import {Component, EventEmitter} from "@xeokit/core/components";
 import {isString} from "@xeokit/core/utils";
 
 import {ViewObject} from "./ViewObject";
-import type {Viewer} from "../Viewer";
-import type {ViewerModel} from "../ViewerModel";
+import type {Viewer} from "./Viewer";
+import type {ViewerModel} from "./ViewerModel";
 import type {View} from "./View";
 
 

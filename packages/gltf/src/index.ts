@@ -1,5 +1,5 @@
 /**
- * glTF utilities for xeokit.
+ * ## glTF utilities for xeokit.
  *
  * @module @xeokit/gltf
  */

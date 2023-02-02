@@ -1,5 +1,9 @@
 /**
- * BCF viewpoint.
+ * A BCF viewpoint.
+ *
+ * Conforms to <a href="https://github.com/buildingSMART/BCF-API">BCF Version 2.1</a>
+ *
+ * See {@link @xeokit/bcf} for usage.
  */
 export interface BCFViewpoint {
 
@@ -166,7 +170,7 @@ export interface BCFClippingPlane {
     /**
      * BCF clipping plane height.
      */
-    "height": 24
+    "height": number
 }
 
 /**
@@ -189,14 +193,14 @@ export interface BCFComponents {
  * TODO
  */
 export interface BCFVisibilityComponent {
-    "default_visibility": false,
-    "exceptions": BCFException[]
+    "default_visibility": boolean,
+    "exceptions": BCFComponent[]
 }
 
 /**
  * TODO
  */
-export interface BCFException {
+export interface BCFComponent {
     "ifc_guid": string,
     "originating_system"?: string,
     "authoring_tool_id"?: string
@@ -206,6 +210,6 @@ export interface BCFException {
  * TODO
  */
 export interface BCFSelectionComponent {
-    "default_selection": false,
-    "exceptions": BCFException[]
+    "default_selection": boolean,
+    "exceptions": BCFComponent[]
 }

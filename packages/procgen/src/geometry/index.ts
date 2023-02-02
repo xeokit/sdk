@@ -1,8 +1,19 @@
 /**
- * #### Mesh generation functions
+ * <img src="https://camo.githubusercontent.com/4de49a67a8e8cc6f74806d3364d451ac9cd9ccb29440ff14baf01d81da142033/68747470733a2f2f78656f6b69742e6769746875622e696f2f78656f6b69742d786b742d7574696c732f696d616765732f67656f6d6574727947656e65726174696f6e2e706e67"/>
+ *
+ * ## Geometry Generation Functions
+ *
+ * Functions to generate geometry
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/procgen
+ * ````
+ *
+ * ## Usage
  *
  * ````javascript
- * import {buildBoxGeometry} from "@xeokit/math/geometry";
+ * import {buildBoxGeometry} from "@xeokit/procgen/geometry";
  *
  * const geometryArrays = buildBoxGeometry({
  *     center: [0,0,0],

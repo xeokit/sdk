@@ -15,7 +15,7 @@ import {Perspective} from './Perspective';
 import {Ortho} from './Ortho';
 import {Frustum} from './Frustum';
 import {CustomProjection} from './CustomProjection';
-import type {View} from "../View";
+import type {View} from "./View";
 import {RTCViewMat} from "./RTCViewMat";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {DEGTORAD, FloatArrayParam} from "@xeokit/math/math";

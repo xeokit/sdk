@@ -1,9 +1,16 @@
 /**
- * #### Relative-to-center (RTC) coordinates math library
+ * ## RTC Coordinate Math Utilities
  *
- * * Used internally within {@link viewer} to convert coordinates between double-precision absolute
- * values and single-precision RTC values
- * * Generates modified view transform matrices for the Viewer to work with RTC coordinates
+ * * Math functions for working with relative-to-center (RTC) coordinate systems
+ * * Used internally within {@link Viewer}
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/math/rtc
+ * ````
+ *
+ * ## Usage
  *
  * ````javascript
  * import * as rtc from "@xeokit/math/rtc";
@@ -44,7 +51,6 @@ export function createRTCViewMat(viewMat: math.FloatArrayParam, rtcCenter: math.
     matrix.setMat4Translation(viewMat, rtcCenterView, rtcViewMat);
     return rtcViewMat;
 }
-
 
 /**
  * Converts a World-space 3D position to RTC.

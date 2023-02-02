@@ -1,5 +1,5 @@
 import {apply, Map} from "@xeokit/core/utils";
-import {Component} from "@xeokit/core/components";
+import {Capabilities, Component} from "@xeokit/core/components";
 import {createVec3} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {
@@ -10,7 +10,7 @@ import {
     TrianglesPrimitive
 } from "@xeokit/core/constants";
 
-import {Renderer, View, Viewer, ViewerCapabilities, ViewerModel, ViewerModelParams, ViewerObject} from "@xeokit/viewer";
+import {Renderer, View, Viewer, ViewerModel, ViewerModelParams, ViewerObject} from "@xeokit/viewer";
 
 import {KTX2TextureTranscoder, TextureTranscoder} from "@xeokit/compression/texture";
 
@@ -30,24 +30,9 @@ const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
 
 /**
- * Pluggable WebGL-based rendering strategy for a {@link Viewer}.
+ * WebGL rendering strategy for a {@link Viewer}.
  *
- * Handles creation and rendering of geometry and materials for a Viewer, using the browser's WebGL 3D graphics API.
- *
- * ## Usage
- *
- * ````javascript
- * import {Viewer, WebGLRenderer} from "@xeokit/viewer";
- *
- * const myViewer = new Viewer({
- *     id: "myViewer",
- *     renderer: new WebGLRenderer({
- *          textureTranscoder: new KTX2TextureTranscoder({
- *              transcoderPath: "./../dist/basis/" // <------ Path to BasisU transcoder module
- *          })
- *     })
- * });
- * ````
+ * See {@link @xeokit/webgl} for usage.
  */
 export class WebGLRenderer implements Renderer {
 
@@ -126,7 +111,7 @@ export class WebGLRenderer implements Renderer {
         this.#textureTranscoder.init(this.#viewer.capabilities);
     }
 
-    getCapabilities(capabilities: ViewerCapabilities): void {
+    getCapabilities(capabilities: Capabilities): void {
         capabilities.maxViews = 1;
         const canvasElement = document.createElement('canvas');
         let gl;

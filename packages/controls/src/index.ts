@@ -1,21 +1,23 @@
 /**
- * ## Camera Controls
+ * ## Input Controls
  *
- * * TODO
+ * * {@link CameraControl} - controls a {@link View|View's} {@link Camera}
  *
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/input
+ * npm install @xeokit/controls
  * ````
  *
  * ## Usage
  *
+ * Using a {@link CameraControl} to control a {@link View|View's} {@link Camera}:
+ *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl";
- * import {CameraControl, keycodes} from "@xeokit/input";
- * *
+ * import {CameraControl, keycodes} from "@xeokit/controls";
+ *
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     renderer: new WebGLRenderer({
@@ -33,10 +35,9 @@
  * });
  *
  * //...
- *
  * ````
  *
- * @module @xeokit/cameracontrol
+ * @module @xeokit/controls
  */
 export * from "./CameraControl/CameraControl";
 export * as keycodes from "./keycodes"

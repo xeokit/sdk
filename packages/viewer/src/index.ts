@@ -1,20 +1,19 @@
 /**
+ * <img src="http://xeokit.github.io/xeokit-sdk/assets/images/BCFViewpointsPlugin.png"/>
+ *
  * ## Browser-Based Model Viewer
  *
  * * {@link Viewer}
- * * Interact with objects - show/hide/x-ray/highlight/colorize/slice
- * * Interactive camera -  mouse/touch, ortho/perspective, animations
+ * * Interactively view large models, at full coordinate precision, in all major browsers including mobile
+ * * Independently move/show/hide/x-ray/highlight/colorize/slice objects
+ * * Combine multiple, federated models
  * * Multiple canvases
- * * Fast rendering, low memory footprint
- * * Double-precision accuracy - RTC coordinates
- * * Localization support
- * * Browser graphics agnostic - adapt with IoC strategies (eg. {@link WebGLRenderer})
- * * Programmatically create models
- * * Load models from XKT, glTF, LAS etc.
- *
- * ## Use Cases
- *
- * * Interactively view large BIM and engineering models in Browsers
+ * * Low memory footprint
+ * * Double-precision coordinate accuracy
+ * * Programmatically build models
+ * * Load and save XKT
+ * * Load XKT, glTF, LAS..
+ * * Browser graphics API agnostic - adapt with {@link WebGLRenderer}
  *
  * ## Installation
  *
@@ -24,20 +23,22 @@
  *
  * ## Usage
  *
- * See {@link Viewer} for complete usage.
+ * Create a {@link Viewer} with a {@link WebGLRenderer}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl";
- * import {TrianglesPrimitive} from "@xeokit/core/constants";
+ * impoty {PerspectiveProjectionType, TrianglesPrimitive} from "@xeokit/core/constants";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({
- *         //...
- *     })
+ *     renderer: new WebGLRenderer({ })
  * });
+ * ````
  *
+ * Create a {@link View} with its own {@link Camera} and HTML canvas:
+ *
+ * ````javascript
  * const view1 = myViewer.createView({
  *     id: "myView",
  *     canvasId: "myView1"
@@ -46,7 +47,20 @@
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
+ * view1.camera.projection = PerspectiveProjectionType;
+ * ````
  *
+ * Add a {@link CameraControl} to control the View's Camera with mouse and touch input:
+ *
+ * ````javascript
+ * const myCameraControl = new CameraControl({
+ *      view: view1
+ * });
+ * ````
+ *
+ * Now build a {@link ViewerModel} with a couple of objects:
+ *
+ * ````javascript
  * const myViewerModel = myViewer.createModel({
  *     id: "myModel"
  * });
@@ -68,38 +82,64 @@
  * myViewerModel.createObject({
  *     id: "myObject1",
  *     meshIds: ["myMesh"],
+ *     viewLayerId: "main"
  *     //...
  * });
  *
  * myViewerModel.createObject({
  *     id: "myObject2",
  *     meshIds: ["myMesh"],
+ *     viewLayerId: "main"
  *     //...
  * });
  *
  * myViewerModel.build();
  * ````
  *
+ * Highlight one of the objects in the {@link View}:
+ *
+ * ````javascript
+ * view1.setObjectsHighlighted(["myObject1"], true);
+ * ````
+ *
+ * Another way to highlight the object:
+ *
+ * ````javascript
+ * view1.objects["myObject1"].highlighted = true;
+ * ````
+ *
+ * See {@link Viewer} for more info.
+ *
  * @packageDocumentation
  * @module @xeokit/viewer
  */
 
+
 export * from "./Viewer";
-
-/**
- * Key codes.
- */
-export * as keycodes from "./keycodes";
-
-/**
- * Interactive views
- */
-export * from "./view/index";
-
-export * from "./ViewerCapabilities";
-export * from "./Plugin";
 export * from "./ViewParams";
 export * from "./ViewerModel";
 export * from "./ViewerModelParams";
 export * from "./ViewerObject";
 export * from "./Renderer";
+export * from "./Camera";
+export * from "./RTCViewMat";
+export * from "./Frustum";
+export * from "./Ortho";
+export * from "./Perspective";
+export * from "./CustomProjection";
+export * from "./CameraFlightAnimation";
+export * from "./AmbientLight";
+export * from "./DirLight";
+export * from "./PointLight";
+export * from "./EmphasisMaterial";
+export * from "./EdgeMaterial";
+export * from "./PointsMaterial";
+export * from "./Metriqs";
+export * from "./View";
+export * from "./ViewLayer";
+export * from "./ViewObject";
+export * from "./SectionPlane";
+export * from "./SAO";
+export * from "./PickParams";
+export * from "./PickResult";
+export * from "./ViewLayerParams";

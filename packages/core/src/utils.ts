@@ -1,5 +1,11 @@
 /**
- * #### Core utilities used throughout the xeokit SDK
+ * ## Core Utilities Library
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/core
+ * ````
  *
  * @module @xeokit/core/utils
  */

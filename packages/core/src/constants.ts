@@ -1,5 +1,11 @@
 /**
- * #### Constants used throughout the xeokit SDK
+ * ## Constants used throughout the xeokit SDK
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/core
+ * ````
  *
  * @module @xeokit/core/constants
  */

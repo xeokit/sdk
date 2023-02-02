@@ -1,4 +1,3 @@
-import * as math from "@xeokit/math/math"
 import {FloatArrayParam} from "@xeokit/math/math";
 
 /**
@@ -14,7 +13,7 @@ export interface ViewParams {
     /**
      * The Real-space 3D origin, in Real-space units, at which the {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
      */
-    origin?: math.FloatArrayParam;
+    origin?: FloatArrayParam;
 
     /**
      * The number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.

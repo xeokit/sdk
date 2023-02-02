@@ -1,16 +1,14 @@
-import * as utils from "@xeokit/core/utils";
-import {createUUID} from "@xeokit/core/utils";
-import {Component, EventEmitter} from "@xeokit/core/components";
+
+import {apply, createUUID, inQuotes} from "@xeokit/core/utils";
+import {Capabilities, Component, EventEmitter} from "@xeokit/core/components";
 import {EventDispatcher} from "strongly-typed-events";
 import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
 import {LocaleService} from "@xeokit/locale";
 
-import {View} from "./view/View";
-import type {Plugin} from "./Plugin";
+import {View} from "./View";
 import {scheduler} from "./scheduler";
 import type {Renderer} from "./Renderer";
 
-import type {ViewerCapabilities} from "./ViewerCapabilities";
 import type {ViewParams} from "./ViewParams";
 import {Tiles} from "./Tiles";
 import {ViewerModel} from "./ViewerModel";
@@ -19,156 +17,13 @@ import {createVec3} from "@xeokit/math/matrix";
 import {createAABB3} from "@xeokit/math/boundaries";
 import {ViewerModelParams} from "./ViewerModelParams";
 
-
 class TickParams {
 }
 
 /**
- * An extensible browser-based 3D viewer for AEC applications.
+ * A Browser-based 2D/3D model viewer.
  *
- * ## Features
- *
- * * Fast, double precision 3D rendering, in all major browsers
- * * Multiple, federated models
- * * Multiple canvases
- * * Fast model loading from binary format
- * * Super low memory footprint
- * * Open architecture
- * * Written in TypeScript
- *
- * ## Overview
- *
- * ### Viewer.scene
- *
- * A Viewer's **scene** contains the geometry and materials for models currently in the Viewer. The scene provides
- * builder methods that we can use to programmatically construct multiple models at once. Various loader plugins also
- * use these methods to construct models in the scene while they load their geometry from files.
- *
- * The scene is located at {@link Viewer.scene} and is implemented by {@link Viewer}.
- *
- * ### Viewer.views
- *
- * A Viewer can have one or more independent **views** of its models, each with its own HTML canvas, viewing parameters
- * and individual object visual states, that are unique to that View.
- *
- * The views are located at {@link Viewer.views} and are implemented by {@link View}.
- *
- * ### Renderer
- *
- * We can also configure a Viewer with a custom {@link Renderer}, in case we need to customize the way
- * the Viewer uses the underlying browser graphics API (e.g. WebGL, WebGPU) to create and render models.
- *
- * ## Usage
- *
- * ### Example #1
- *
- * Create a viewer:
- *
- * ````javascript
- * import {Viewer, constants} from "@xeokit/viewer";
- *
- * const myViewer = new Viewer({
- *     id: "myViewer"
- * });
- * ````
- *
- * Create a view with its own HTML canvas:
- *
- * ````javascript
- * const view1 = myViewer.createView({
- *     id: "myView",
- *     canvasId: "myView1"
- * });
- *
- * view1.camera.eye = [-3.933, 2.855, 27.018];
- * view1.camera.look = [4.400, 3.724, 8.899];
- * view1.camera.up = [-0.018, 0.999, 0.039];
- *
- * view1.camera.projection = PerspectiveProjectionType;
- *
- * view1.cameraControl.navMode = "orbit";
- * ````
- *
- * Create a geometric model representation with a couple of objects:
- *
- * ````javascript
- * const myViewerModel = myViewer.createModel({
- *     id: "myModel"
- * });
- *
- * myViewerModel.createGeometry({
- *     id: "myGeometry",
- *     primitive: constants.TrianglesPrimitive,
- *     positions: [...],
- *     indices: [...]
- *     //...
- * });
- *
- * myViewerModel.createMesh({
- *     id: "myMesh",
- *     geometryId: "myGeometry",
- *     //...
- * });
- *
- * myViewerModel.createObject({
- *     id: "myObject1",
- *     meshIds: ["myMesh"],
- *     viewLayerId: "main"
- *     //...
- * });
- *
- * myViewerModel.createObject({
- *     id: "myObject2",
- *     meshIds: ["myMesh"],
- *     viewLayerId: "main"
- *     //...
- * });
- *
- * myViewerModel.build();
- * ````
- *
- * Create a semantic entity-relationship data model, with two objects and one relation between them:
- *
- * ````javascript
- * const mySchema = {
- *     MY_OBJECT_TYPE: 0,
- *     MY_RELATIONSHIP_TYPE: 1
- * }
- *
- * const myDataModel = myData.createModel({
- *     id: "myModel"
- * });
- *
- * myDataModel.createObject({
- *     id: "myObject1",
- *     name: "Some object",
- *     type: mySchema.MY_OBJECT_TYPE
- * });
- *
- * myDataModel.createObject({
- *     id: "myObject2",
- *     name: "Some object",
- *     type: mySchema.MY_OBJECT_TYPE
- * });
- *
- * myDataModel.createRelationship({
- *     relating: "myObject1",
- *     related: "myObject2",
- *     type: mySchema.MY_RELATION_TYPE
- * });
- *
- * myDataModel.build();
- * ````
- *
- * Customize the view - highlight one of the objects and reposition the camera:
- *
- * ````javascript
- * view1.viewObjects["myObject1"].highlighted = true;
- *
- * view1.camera.eye = [0, 0, 20];
- * view1.camera.look = [0, 0, 0];
- * view1.camera.up = [0, 1, 0];
- * ````
+ * See {@link @xeokit/viewer} for usage.
  */
 export class Viewer extends Component {
 
@@ -187,7 +42,7 @@ export class Viewer extends Component {
     /**
      * Indicates the capabilities of this Viewer.
      */
-    readonly capabilities: ViewerCapabilities;
+    readonly capabilities: Capabilities;
 
     /**
      * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
@@ -321,7 +176,7 @@ export class Viewer extends Component {
         this.onModelCreated = new EventEmitter(new EventDispatcher<Viewer, ViewerModel>());
         this.onModelDestroyed = new EventEmitter(new EventDispatcher<Viewer, ViewerModel>());
 
-        this.id = params.id || utils.createUUID();
+        this.id = params.id || createUUID();
         this.localeService = params.localeService || new LocaleService();
 
         this.#center = createVec3();
@@ -359,7 +214,7 @@ export class Viewer extends Component {
     /**
      * Creates a new {@link View} within this Viewer.
      *
-     * * The maximum number of views you're allowed to create is provided in {@link ViewerCapabilities.maxViews}. This
+     * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
      * will be determined by the {@link Renderer} implementation the Viewer is configured with.
      * * To destroy the View after use, call {@link View.destroy}.
      * * You must add a View to the Viewer before you can create or load content into the Viewer's Viewer.
@@ -385,17 +240,17 @@ export class Viewer extends Component {
         if (this.viewList.length >= this.capabilities.maxViews) {
             throw new Error(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
         }
-        let viewId = params.viewId || utils.createUUID();
+        let viewId = params.viewId || createUUID();
         if (this.views[viewId]) {
             this.error(`View with ID "${viewId}" already exists - will randomly-generate ID`);
-            viewId = utils.createUUID();
+            viewId = createUUID();
         }
         // @ts-ignore
         const canvasElement = params.canvasElement || document.getElementById(params.canvasId);
         if (!(canvasElement instanceof HTMLCanvasElement)) {
             throw new Error("Mandatory View config expected: valid canvasId or canvasElement");
         }
-        const view = new View(utils.apply({viewId, viewer: this}, params));
+        const view = new View(apply({viewId, viewer: this}, params));
         this.#registerView(view);
         view.viewIndex = this.renderer.registerView(view);
         view.onDestroyed.one(() => {
@@ -557,39 +412,6 @@ export class Viewer extends Component {
     }
 
     /**
-     @private
-     */
-    registerPlugin(plugin: Plugin): void {
-        this.pluginList.push(plugin);
-    }
-
-    /**
-     @private
-     */
-    deregisterPlugin(plugin: Plugin): void {
-        for (let i = 0, len = this.pluginList.length; i < len; i++) {
-            const p = this.pluginList[i];
-            if (p === plugin) {
-                p.clear();
-                this.pluginList.splice(i, 1);
-                return;
-            }
-        }
-    }
-
-    /**
-     @private
-     */
-    sendToPlugins(name: string, value?: any) {
-        for (let i = 0, len = this.pluginList.length; i < len; i++) {
-            const p = this.pluginList[i];
-            if (p.send) {
-                p.send(name, value);
-            }
-        }
-    }
-
-    /**
      Trigger redraw of all {@link View|Views} belonging to this Viewer.
 
      @private
@@ -647,10 +469,6 @@ export class Viewer extends Component {
             return;
         }
         scheduler.deregisterViewer(this);
-        const pluginList = this.pluginList.slice(); // Array will modify as we delete plugins
-        for (let i = 0, len = pluginList.length; i < len; i++) {
-            pluginList[i].destroy();
-        }
         for (let id in this.views) {
             this.views[id].destroy();
         }
@@ -693,7 +511,7 @@ export class Viewer extends Component {
     }
 
     #prefixMessageWithID(message: string): string {
-        return ` [${this.constructor.name} "${utils.inQuotes(this.id)}"]: ${message}`;
+        return ` [${this.constructor.name} "${inQuotes(this.id)}"]: ${message}`;
     }
 
     #registerView(view: View): void {

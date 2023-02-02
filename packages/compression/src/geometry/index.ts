@@ -1,5 +1,5 @@
 /**
- * ## Geometry Compression Utilities
+ * ## Geometry (De)Compression Utilities
  *
  * * Used internally within {@link BuildableModel.createGeometry} implementations to compress geometry
  * * Provided here for when we want to pre-compress our geometry offline and use {@link BuildableModel.createGeometryCompressed} instead

@@ -25,17 +25,50 @@ class HoverEvent {
 /**
  * Controls a {@link Camera} with user input.
  *
+ * See {@link @xeokit/controls} for usage.
+ *
  * ## Summary
  *
- * * Controls the {@link Camera} belonging to its {@link View}
+ * * Controls the {@link Camera} belonging to a {@link View}
  * * Reads touch, mouse and keyboard input
- * * Located at {@link View.cameraControl}
  * * Three navigation modes: "orbit", "firstPerson" and "planView"
  * * Dynamic key mapping
  * * Smart-pivot
  * * Move-to-pointer
  * * Distance-scaled rate of movement
  * * Inertia
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/controls
+ * ````
+ *
+ * ## Usage
+ *
+ * ````javascript
+ * import {Viewer} from "@xeokit/viewer";
+ * import {WebGLRenderer} from "@xeokit/webgl";
+ * import {CameraControl, keycodes} from "@xeokit/controls";
+ *
+ * const myViewer = new Viewer({
+ *     id: "myViewer",
+ *     renderer: new WebGLRenderer({
+ *         //...
+ *     })
+ * });
+ *
+ * const myView = myViewer.createView({
+ *     id: "myView",
+ *     canvasId: "myView1"
+ * });
+ *
+ * const myCameraControl = new CameraControl({
+ *      view: myView
+ * });
+ *
+ * //...
+ * ````
  */
 export class CameraControl extends Component {
 

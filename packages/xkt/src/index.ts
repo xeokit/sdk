@@ -1,9 +1,9 @@
 /**
- * ## Load and Save XKT Models
+ * ## Model Loader and Saver for XKT File Format
  *
  * * XKT is xeokit's native compressed model format
- * * {@link saveXKT|saveXKT} - Saves XKT data from a {@link Model} (implemented by {@link ScratchModel} and {@link ViewerModel})
- * * {@link loadXKT|loadXKT} - Loads XKT data into a {@link BuildableModel} (implemented by {@link ScratchModel} and {@link ViewerModel})
+ * * {@link loadXKT|loadXKT} loads XKT into a {@link BuildableModel}, which is implemented by {@link ScratchModel} and {@link ViewerModel}
+ * * {@link saveXKT|saveXKT} saves XKT from a {@link Model}, which is implemented by {@link ScratchModel} and {@link ViewerModel}
  *
  * ## Installation
  *
@@ -50,7 +50,7 @@
  *     .then(response => {
  *          if (response.ok) {*
  *              loadXKT(response.arrayBuffer(), myViewerModel);
- *              myViewerModel.built();
+ *              myViewerModel.build();
  *          }
  *     });
  * ````

@@ -1,23 +1,28 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {Component, EventEmitter} from "@xeokit/core/components";
-import {createUUID, isString} from "@xeokit/core/utils";
-
-import {Camera, CameraFlightAnimation} from "./camera/index";
-import {ViewObject} from "./ViewObject";
-import {SectionPlane} from "./SectionPlane";
-import type {AmbientLight, DirLight, PointLight} from "./lights/index";
-import {EdgeMaterial, EmphasisMaterial, PointsMaterial} from "./materials/index";
-import type {Viewer} from "../Viewer";
-import {Metrics} from "./Metriqs";
-import type { ViewerModel} from "../ViewerModel";
-import {SAO} from "./SAO";
-import {LinesMaterial} from "./materials/LinesMaterial";
-import {ViewLayer} from "./ViewLayer";
-import type {ViewLayerParams} from "./ViewLayerParams";
-import type {SectionPlaneParams} from "./SectionPlaneParams";
+import {createUUID} from "@xeokit/core/utils";
 import {QualityRender} from "@xeokit/core/constants";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {createVec3} from "@xeokit/math/matrix";
+
+import {ViewObject} from "./ViewObject";
+import {SectionPlane} from "./SectionPlane";
+import type {Viewer} from "./Viewer";
+import {Metrics} from "./Metriqs";
+import type {ViewerModel} from "./ViewerModel";
+import {SAO} from "./SAO";
+import {LinesMaterial} from "./LinesMaterial";
+import {ViewLayer} from "./ViewLayer";
+import type {ViewLayerParams} from "./ViewLayerParams";
+import type {SectionPlaneParams} from "./SectionPlaneParams";
+import {EmphasisMaterial} from "./EmphasisMaterial";
+import {EdgeMaterial} from "./EdgeMaterial";
+import {PointsMaterial} from "./PointsMaterial";
+import {Camera} from "./Camera";
+import {PointLight} from "./PointLight";
+import {CameraFlightAnimation} from "./CameraFlightAnimation";
+import {AmbientLight} from "./AmbientLight";
+import {DirLight} from "./DirLight";
 
 /**
  * An independently-configurable view of the models in a {@link Viewer}.
@@ -116,63 +121,46 @@ class View extends Component {
      * Format is ````[xmin, ymin, xwidth, ywidth]````.
      */
     public readonly boundary: number[];
-
-    #onTick: () => void;
-
-    #backgroundColor: FloatArrayParam;
-    #backgroundColorFromAmbientLight: boolean;
-    #resolutionScale: number;
-
     /**
      * Whether the logarithmic depth buffer is enabled for this View.
      */
     readonly logarithmicDepthBufferEnabled: boolean;
-
     /**
      * Configures Scalable Ambient Obscurance (SAO) for this View.
      */
     readonly sao: SAO;
-
     /**
      * Flies or jumps the View's {@link Camera} to given positions.
      */
     readonly cameraFlight: CameraFlightAnimation;
-
     /**
      * Manages measurement units, origin and scale for this View.
      */
     readonly metrics: Metrics;
-
     /**
      * Configures the X-rayed appearance of {@link ViewObject|ViewObjects} in this View.
      */
     readonly xrayMaterial: EmphasisMaterial;
-
     /**
      * Configures the highlighted appearance of {@link ViewObject|ViewObjects} in this View.
      */
     readonly highlightMaterial: EmphasisMaterial;
-
     /**
      * Configures the appearance of {@link ViewObject|ViewObjects} in this View.
      */
     readonly selectedMaterial: EmphasisMaterial;
-
     /**
      * Configures the appearance of edges belonging to {@link ViewObject} in this View.
      */
     readonly edgeMaterial: EdgeMaterial;
-
     /**
      * Configures the appearance of point primitives belonging to {@link ViewObject|ViewObjects} in this View .
      */
     readonly pointsMaterial: PointsMaterial;
-
     /**
      * Configures the appearance of lines belonging to {@link ViewObject|ViewObjects} in this View.
      */
     readonly linesMaterial: LinesMaterial;
-
     /**
      * Map of the all {@link ViewObject|ViewObjects} in this View.
      *
@@ -182,7 +170,6 @@ class View extends Component {
      * each {@link ViewerObject} in the {@link Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
-
     /**
      * Map of the currently visible {@link ViewObject|ViewObjects} in this View.
      *
@@ -191,7 +178,6 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly visibleObjects: { [key: string]: ViewObject };
-
     /**
      * Map of currently x-rayed {@link ViewObject|ViewObjects} in this View.
      *
@@ -200,7 +186,6 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly xrayedObjects: { [key: string]: ViewObject };
-
     /**
      * Map of currently highlighted {@link ViewObject|ViewObjects} in this View.
      *
@@ -209,7 +194,6 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly highlightedObjects: { [key: string]: ViewObject };
-
     /**
      * Map of currently selected {@link ViewObject|ViewObjects} in this View.
      *
@@ -218,28 +202,24 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly selectedObjects: { [key: string]: ViewObject };
-
     /**
      * Map of currently colorized {@link ViewObject|ViewObjects} in this View.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly colorizedObjects: { [key: string]: ViewObject };
-
     /**
      * Map of {@link ViewObject|ViewObjects} in this View whose opacity has been updated.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly opacityObjects: { [key: string]: ViewObject };
-
     /**
      * Map of {@link SectionPlane}s in this View.
      *
      * Each {@link SectionPlane} is mapped here by {@link SectionPlane.id}.
      */
     readonly sectionPlanes: { [key: string]: SectionPlane };
-
     /**
      * List of {@link SectionPlane}s in this View.
      */
@@ -252,16 +232,13 @@ class View extends Component {
      * List of light sources in this View.
      */
     readonly lightsList: (AmbientLight | PointLight | DirLight)[] = [];
-
     gammaOutput: boolean;
-
     /**
      * Map of the all {@link ViewLayer}s in this View.
      *
      * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
      */
     readonly layers: { [key: string]: ViewLayer };
-
     /**
      * Whether the View will automatically create {@link ViewLayer|ViewLayers} on-demand
      * as {@link ViewerObject|ViewerObjects} are created.
@@ -278,14 +255,12 @@ class View extends Component {
      * that it never needs to show.
      */
     readonly autoLayers: boolean;
-
     /**
      * Emits an event each time the canvas boundary changes.
      *
      * @event
      */
     readonly onBoundary: EventEmitter<View, IntArrayParam>;
-
     /**
      * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
      *
@@ -294,7 +269,6 @@ class View extends Component {
      * @event
      */
     readonly onObjectVisibility: EventEmitter<View, ViewObject>;
-
     /**
      * Emits an event each time a {@link ViewLayer} is created in this View.
      *
@@ -303,7 +277,6 @@ class View extends Component {
      * @event
      */
     readonly onLayerCreated: EventEmitter<View, ViewLayer>;
-
     /**
      * Emits an event each time a {@link ViewLayer} in this View is destroyed.
      *
@@ -312,21 +285,22 @@ class View extends Component {
      * @event
      */
     readonly onLayerDestroyed: EventEmitter<View, ViewLayer>;
-
     /**
      * Emits an event each time a {@link SectionPlane} is created in this View.
      *
      * @event
      */
     readonly onSectionPlaneCreated: EventEmitter<View, SectionPlane>;
-
     /**
      * Emits an event each time a {@link SectionPlane} in this View is destroyed.
      *
      * @event
      */
     readonly onSectionPlaneDestroyed: EventEmitter<View, SectionPlane>;
-
+    #onTick: () => void;
+    #backgroundColor: FloatArrayParam;
+    #backgroundColorFromAmbientLight: boolean;
+    #resolutionScale: number;
     #numObjects: number;
     #objectIds: string[] | null;
     #numVisibleObjects: number;
@@ -676,6 +650,15 @@ class View extends Component {
     }
 
     /**
+     * Gets whether quality rendering is enabled for this View.
+     *
+     * Default is ````false````.
+     */
+    get qualityRender(): boolean {
+        return this.#qualityRender;
+    }
+
+    /**
      * Sets whether quality rendering is enabled for this View.
      *
      * Default is ````false````.
@@ -686,15 +669,6 @@ class View extends Component {
         }
         this.#qualityRender = value;
         this.redraw();
-    }
-
-    /**
-     * Gets whether quality rendering is enabled for this View.
-     *
-     * Default is ````false````.
-     */
-    get qualityRender(): boolean {
-        return this.#qualityRender;
     }
 
     /**
@@ -958,27 +932,6 @@ class View extends Component {
         this.#sectionPlanesHash = null;
     }
 
-    #registerSectionPlane(sectionPlane: SectionPlane) {
-        this.sectionPlanesList.push(sectionPlane);
-        this.sectionPlanes[sectionPlane.id] = sectionPlane;
-        this.#sectionPlanesHash = null;
-        this.rebuild();
-        this.onSectionPlaneCreated.dispatch(this, sectionPlane);
-    }
-
-    #deregisterSectionPlane(sectionPlane: SectionPlane) {
-        for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
-            if (this.sectionPlanesList[i].id === sectionPlane.id) {
-                this.sectionPlanesList.splice(i, 1);
-                this.#sectionPlanesHash = null;
-                delete this.sectionPlanes[sectionPlane.id];
-                this.rebuild();
-                this.onSectionPlaneDestroyed.dispatch(this, sectionPlane);
-                return;
-            }
-        }
-    }
-
     /**
      * @private
      */
@@ -1025,10 +978,6 @@ class View extends Component {
         }
     }
 
-    //createLight(lightParams) {
-    //
-    // }
-
     /**
      * Destroys the light sources in this View.
      */
@@ -1071,6 +1020,10 @@ class View extends Component {
         return this.#lightsHash;
     };
 
+    //createLight(lightParams) {
+    //
+    // }
+
     /**
      * @private
      */
@@ -1098,63 +1051,6 @@ class View extends Component {
         this.onLayerDestroyed.clear();
         this.onSectionPlaneCreated.clear();
         this.onSectionPlaneDestroyed.clear();
-    }
-
-    #initObjects() {
-        for (const id in this.viewer.models) {
-            this.#createObjects(this.viewer.models[id]);
-        }
-        this.viewer.onModelCreated.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
-            this.#createObjects(viewerModel);
-        });
-        this.viewer.onModelDestroyed.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
-            this.#destroyObjects(viewerModel);
-        });
-    }
-
-    #createObjects(viewerModel: ViewerModel) {
-        const viewerObjects = viewerModel.objects;
-        for (let id in viewerObjects) {
-            const viewerObject = viewerObjects[id];
-            const viewLayerId = viewerObject.viewLayerId || "default";
-            let viewLayer = this.layers[viewLayerId];
-            if (!viewLayer) {
-                if (!this.autoLayers) {
-                    continue;
-                }
-                viewLayer = new ViewLayer({
-                    id: viewLayerId,
-                    view: this,
-                    viewer: this.viewer
-                });
-                this.layers[viewLayerId] = viewLayer;
-                viewLayer.onDestroyed.one(() => {
-                    delete this.layers[viewLayer.id];
-                    this.onLayerDestroyed.dispatch(this, viewLayer);
-                });
-                this.onLayerCreated.dispatch(this, viewLayer);
-            }
-            const viewObject = new ViewObject(viewLayer, viewerObject, {});
-            viewLayer.registerViewObject(viewObject);
-            this.registerViewObject(viewObject);
-        }
-    }
-
-    #destroyObjects(viewerModel: ViewerModel) {
-        const viewerObjects = viewerModel.objects;
-        for (let id in viewerObjects) {
-            const viewerObject = viewerObjects[id];
-            const viewLayerId = viewerObject.viewLayerId || "main";
-            let viewLayer = this.layers[viewLayerId];
-            const viewObject = this.objects[viewerObject.id];
-            this.deregisterViewObject(viewObject);
-            if (viewLayer) {
-                viewLayer.deregisterViewObject(viewObject);
-                if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
-                    viewLayer.destroy();
-                }
-            }
-        }
     }
 
     /**
@@ -1396,6 +1292,84 @@ class View extends Component {
         }
         viewLayer.autoDestroy = false;
         return viewLayer;
+    }
+
+    #registerSectionPlane(sectionPlane: SectionPlane) {
+        this.sectionPlanesList.push(sectionPlane);
+        this.sectionPlanes[sectionPlane.id] = sectionPlane;
+        this.#sectionPlanesHash = null;
+        this.rebuild();
+        this.onSectionPlaneCreated.dispatch(this, sectionPlane);
+    }
+
+    #deregisterSectionPlane(sectionPlane: SectionPlane) {
+        for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
+            if (this.sectionPlanesList[i].id === sectionPlane.id) {
+                this.sectionPlanesList.splice(i, 1);
+                this.#sectionPlanesHash = null;
+                delete this.sectionPlanes[sectionPlane.id];
+                this.rebuild();
+                this.onSectionPlaneDestroyed.dispatch(this, sectionPlane);
+                return;
+            }
+        }
+    }
+
+    #initObjects() {
+        for (const id in this.viewer.models) {
+            this.#createObjects(this.viewer.models[id]);
+        }
+        this.viewer.onModelCreated.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
+            this.#createObjects(viewerModel);
+        });
+        this.viewer.onModelDestroyed.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
+            this.#destroyObjects(viewerModel);
+        });
+    }
+
+    #createObjects(viewerModel: ViewerModel) {
+        const viewerObjects = viewerModel.objects;
+        for (let id in viewerObjects) {
+            const viewerObject = viewerObjects[id];
+            const viewLayerId = viewerObject.viewLayerId || "default";
+            let viewLayer = this.layers[viewLayerId];
+            if (!viewLayer) {
+                if (!this.autoLayers) {
+                    continue;
+                }
+                viewLayer = new ViewLayer({
+                    id: viewLayerId,
+                    view: this,
+                    viewer: this.viewer
+                });
+                this.layers[viewLayerId] = viewLayer;
+                viewLayer.onDestroyed.one(() => {
+                    delete this.layers[viewLayer.id];
+                    this.onLayerDestroyed.dispatch(this, viewLayer);
+                });
+                this.onLayerCreated.dispatch(this, viewLayer);
+            }
+            const viewObject = new ViewObject(viewLayer, viewerObject, {});
+            viewLayer.registerViewObject(viewObject);
+            this.registerViewObject(viewObject);
+        }
+    }
+
+    #destroyObjects(viewerModel: ViewerModel) {
+        const viewerObjects = viewerModel.objects;
+        for (let id in viewerObjects) {
+            const viewerObject = viewerObjects[id];
+            const viewLayerId = viewerObject.viewLayerId || "main";
+            let viewLayer = this.layers[viewLayerId];
+            const viewObject = this.objects[viewerObject.id];
+            this.deregisterViewObject(viewObject);
+            if (viewLayer) {
+                viewLayer.deregisterViewObject(viewObject);
+                if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
+                    viewLayer.destroy();
+                }
+            }
+        }
     }
 }
 

@@ -1,4 +1,6 @@
 /**
+ * <img src="https://miro.medium.com/max/673/1*YUHvwJvfTLWyqiqCYw2ToA.png"/>
+ *
  * ## Entity-Relationship Data Model
  *
  * * {@link DataModel}
@@ -9,7 +11,6 @@
  * * Find data objects with traversals
  * * Extensible entity and relationship types
  * * Supports IFC schema
- *
  *
  * ## Installation
  *

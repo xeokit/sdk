@@ -1,7 +1,7 @@
 import {Component} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 
-import type {View} from "../View";
+import type {View} from "./View";
 
 /**
  * Configures the appearance of {@link ViewObject|ViewObjects} when they are xrayed, highlighted or selected.

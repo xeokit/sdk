@@ -652,7 +652,7 @@ export function getPositionsCenter(
 /**
  * A plane within a {@link Frustum}.
  */
-class FrustumPlane {
+export class FrustumPlane {
 
     public testVertex: math.FloatArrayParam;
     public offset: number;
@@ -689,7 +689,7 @@ class FrustumPlane {
 /**
  * A frustum defined as six planes.
  */
-class Frustum {
+export class Frustum {
 
     /**
      * The six planes that comprise the frustum boundary.

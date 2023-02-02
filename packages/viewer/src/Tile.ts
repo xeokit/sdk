@@ -1,5 +1,3 @@
-
-
 import type {ViewerObject} from "./ViewerObject";
 import type {ViewerModel} from "./ViewerModel";
 import type {Tiles} from "./Tiles";
@@ -47,9 +45,9 @@ export class Tile {
     /**
      * The number of {@link ViewerObject|ViewerObjects} in this tile.
      */
-    // public numContainedViewerObjects: number;
-    //
-    // public numViewerModels: number;
+        // public numContainedViewerObjects: number;
+        //
+        // public numViewerModels: number;
 
     public useCount: number;
 
@@ -71,9 +69,9 @@ export class Tile {
     registerSceneObject(viewerObject: ViewerObject) {
         const viewerModel = viewerObject.model;
         if (!this.viewerModels[viewerModel.id]) {
-            viewerModel.onDestroyed.one( () => {
+            viewerModel.onDestroyed.one(() => {
                 delete this.viewerModels[viewerModel.id];
-              //  this.numViewerModels--;
+                //  this.numViewerModels--;
             });
         }
     }

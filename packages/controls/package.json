@@ -1,12 +1,12 @@
 {
-  "name": "@xeokit/cameracontrol",
+  "name": "@xeokit/controls",
   "version": "0.0.1",
   "description": "Camera controls for a xeokit Viewer",
-  "module": "dist/xeokit-cameracontrol.modern.js",
+  "module": "dist/xeokit-controls.modern.js",
   "source": "src/index.ts",
   "scripts": {
     "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
-    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=cameracontrol INPUT=./index.js rollup -c ../../rollup/rollup.cameracontrol.config.js",
+    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=controls INPUT=./index.js rollup -c ../../rollup/rollup.controls.config.js",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -34,13 +34,13 @@
     "xeolabs",
     "creoox",
     "ifc",
-    "cameracontrol",
+    "controls",
     "bim",
     "gis",
     "cad",
     "openbim",
     "opensource",
-    "cameracontrol",
+    "controls",
     "3dxml",
     "obj",
     "stl",
@@ -48,7 +48,7 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-cameracontrol.modern.js",
+  "main": "dist/xeokit-controls.modern.js",
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1"

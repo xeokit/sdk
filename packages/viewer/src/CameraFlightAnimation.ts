@@ -1,8 +1,8 @@
 import {EventDispatcher} from "strongly-typed-events";
 
 
-import {scheduler} from '../../scheduler';
-import type {View} from "../View";
+import {scheduler} from './scheduler';
+import type {View} from "./View";
 import type {Camera} from "./Camera";
 import {addVec3, lenVec3, lerpMat4, lerpVec3, mulVec3Scalar, normalizeVec3, subVec3, createVec3} from "@xeokit/math/matrix";
 import {Component, EventEmitter} from "@xeokit/core/components";

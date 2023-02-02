@@ -1,4 +1,3 @@
-
 import type {ViewerModel} from "./ViewerModel";
 
 /**
@@ -9,6 +8,6 @@ import type {ViewerModel} from "./ViewerModel";
 export class Transform {
 
     constructor(params: { viewerModel: ViewerModel, parent?: Transform }) {
-     //   super(params.viewerModel);
+        //   super(params.viewerModel);
     }
 }

@@ -5,6 +5,8 @@ import {SaveBCFViewpointOptions} from "./SaveBCFViewpointOptions";
 /**
  * Saves a {@link View} to a {@link BCFViewpoint}.
  *
+ * See {@link @xeokit/bcf} for usage.
+ *
  * @param view The View
  * @param options Viewpoint saving options.
  * @returns The BCF viewpoint.

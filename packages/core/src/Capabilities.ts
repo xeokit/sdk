@@ -4,6 +4,11 @@
 export interface Capabilities {
 
     /**
+     * Maximum number of {@link View|Views} allowed.
+     */
+    maxViews: number;
+
+    /**
      * Support for ASTC texture compression?
      */
     astcSupported: boolean;

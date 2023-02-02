@@ -1,16 +1,15 @@
 /**
- * ## Viewer-Agnostic Model Representation
+ * <img src="https://camo.githubusercontent.com/0465b8f81dacf8cba3d4b110bcfd46f3cb98d419219b4c595a3ca2a81172af3c/687474703a2f2f78656f6b69742e696f2f696d672f646f63732f506572666f726d616e63654d6f64656c2f506572666f726d616e63654d6f64656c2e706e67"/>
+ *
+ * ## Model Document Representation
  *
  * * {@link ScratchModel}
+ * * Offline buildable, loadable and savable model document representation
  * * Build models programmatically with builder methods
- * * Load models from files (eg. {@link loadXKT})
- * * Save models to files (eg. {@link saveXKT})
- * * Works independently of {@link Viewer} - use in NodeJs etc
- *
- * ## Use Cases
- *
- * * Intermediate model representation within offline file conversion tools
- * * Buildable model representation within procedural model generation scripts
+ * * Load models from files (see {@link loadXKT} etc.)
+ * * Save models to files (see {@link saveXKT})
+ * * Works without {@link Viewer}
+ * * Use "offline" in Node scripts to generate and convert models.
  *
  * ## Installation
  *
@@ -20,7 +19,8 @@
  *
  * ## Usage
  *
- * See {@link ScratchModel} for full usage.
+ * Creating a {@link ScratchModel} with a couple of objects, a geometry and a texture. In this example, we create the geometry
+ * from Human-readible uncompressed arrays, which we first pre-compress with {@link compressGeometryParams}.
  *
  * ````javascript
  * import {ScratchModel} from "@xeokit/scratchmodel";
@@ -61,7 +61,14 @@
  * });
  *
  * myScratchModel.createMesh({
- *     id: "myMesh",
+ *     id: "myMesh1",
+ *     geometryId: "myGeometry",
+ *     textureSetId: "myTextureSet",
+ *     //...
+ * });
+ *
+ * myScratchModel.createMesh({
+ *     id: "myMesh2",
  *     geometryId: "myGeometry",
  *     textureSetId: "myTextureSet",
  *     //...
@@ -69,13 +76,13 @@
  *
  * myScratchModel.createObject({
  *     id: "myObject1",
- *     meshIds: ["myMesh"],
+ *     meshIds: ["myMesh1"],
  *     //...
  * });
  *
  * myScratchModel.createObject({
  *     id: "myObject2",
- *     meshIds: ["myMesh"],
+ *     meshIds: ["myMesh2"],
  *     //...
  * });
  *

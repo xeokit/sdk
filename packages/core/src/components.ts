@@ -1,5 +1,11 @@
 /**
- * #### Component types used throughout the xeokit SDK
+ * ## Core SDK Component Types
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/core
+ * ````
  *
  * @module @xeokit/core/components
  */

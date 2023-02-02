@@ -92,10 +92,9 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 };
 
 /**
- * A buildable and readable model representation.
+ * Offline buildable, loadable and savable model document representation.
  *
- * * Compressed geometry
- * * Compressed textures
+ * See {@link @xeokit/scratchmodel} for usage.
  */
 class ScratchModel extends Component implements Model, BuildableModel {
 

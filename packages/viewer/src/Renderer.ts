@@ -1,11 +1,11 @@
 
 import type {ViewerModel} from "./ViewerModel";
 import type {ViewerObject} from "./ViewerObject";
-import type {View} from "./view/View";
-import type {ViewerCapabilities} from "./ViewerCapabilities";
+import type {View} from "./View";
 import type {ViewerModelParams} from "./ViewerModelParams";
 import type {Viewer} from "./Viewer";
 import {FloatArrayParam} from "@xeokit/math/math";
+import {Capabilities} from "@xeokit/core/components";
 
 /**
  * Manages storage and rendering of meshes for objects in a {@link Viewer}.
@@ -35,7 +35,7 @@ export interface Renderer {
     /**
      * Gets the capabilities of this Renderer.
      */
-    getCapabilities(capabilities: ViewerCapabilities) :void;
+    getCapabilities(capabilities: Capabilities) :void;
 
     /**
      * Gets whether this Renderer supports SAO.
@@ -47,7 +47,7 @@ export interface Renderer {
      *
      * The Renderer will then begin rendering each {@link ViewerModel} created with {@link ViewerModel.createModel} for the new View.
      *
-     * You can only register as many Views as indicated in {@link ViewerCapabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
+     * You can only register as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
      *
      * @param view The View.
      * @returns A handle for the View within this Renderer.

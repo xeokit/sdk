@@ -9,6 +9,8 @@ import {xktToModel} from "./lib/xktToModel";
  * * Expects {@link BuildableModel.built} and {@link BuildableModel.destroyed} to be ````false````
  * * Does not call {@link BuildableModel.build} - we call that ourselves, when we have finished building the BuildableModel
  *
+ * See {@link @xeokit/xkt} for usage.
+ *
  * @param xkt
  * @param buildableModel
  * @param options

@@ -1,7 +1,3 @@
-
-
-
-
 import type {View} from "./View";
 import {Component} from "@xeokit/core/components";
 import {CustomProjectionType, FrustumProjectionType, QualityRender} from "@xeokit/core/constants";
@@ -41,15 +37,26 @@ export class SAO extends Component {
             renderModes: [QualityRender],
             enabled: params.enabled !== false,
             kernelRadius: params.kernelRadius || 100.0,
-            intensity: (params.intensity!== undefined) ? params.intensity : 0.15,
-            bias:  (params.bias!== undefined) ? params.bias : 0.5,
-            scale:  (params.scale!== undefined) ? params.scale : 1.0,
-            minResolution:  (params.minResolution!== undefined) ? params.minResolution : 0.0,
-            numSamples:  (params.numSamples!== undefined) ? params.numSamples : 10,
+            intensity: (params.intensity !== undefined) ? params.intensity : 0.15,
+            bias: (params.bias !== undefined) ? params.bias : 0.5,
+            scale: (params.scale !== undefined) ? params.scale : 1.0,
+            minResolution: (params.minResolution !== undefined) ? params.minResolution : 0.0,
+            numSamples: (params.numSamples !== undefined) ? params.numSamples : 10,
             blur: !!(params.blur),
-            blendCutoff:  (params.blendCutff!== undefined) ? params.blendCutoff : 0.3,
-            blendFactor:  (params.blendFactor!== undefined) ? params.blendFactor : 1.0
+            blendCutoff: (params.blendCutff !== undefined) ? params.blendCutoff : 0.3,
+            blendFactor: (params.blendFactor !== undefined) ? params.blendFactor : 1.0
         };
+    }
+
+    /**
+     * Gets which rendering modes in which to render SAO.
+     *
+     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     *
+     * Default value is [{@link QualityRender}].
+     */
+    get renderModes(): number[] {
+        return this.#state.renderModes;
     }
 
     /**
@@ -65,39 +72,12 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets which rendering modes in which to render SAO.
-     *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
-     *
-     * Default value is [{@link QualityRender}].
-     */
-    get renderModes(): number[] {
-        return this.#state.renderModes;
-    }
-
-    /**
      * Gets whether or not SAO is supported by this browser and GPU.
      *
      * Even when enabled, SAO will only work if supported.
      */
-    get supported() :boolean{
+    get supported(): boolean {
         return this.view.viewer.renderer.getSAOSupported();
-    }
-
-    /**
-     * Sets whether SAO is enabled for the {@link View}.
-     *
-     * Even when enabled, SAO will only work if supported.
-     *
-     * Default value is ````false````.
-     */
-    set enabled(value:boolean) {
-        value = !!value;
-        if (this.#state.enabled === value) {
-            return;
-        }
-        this.#state.enabled = value;
-        this.view.redraw();
     }
 
     /**
@@ -107,8 +87,24 @@ export class SAO extends Component {
      *
      * Default value is ````false````.
      */
-    get enabled() :boolean{
+    get enabled(): boolean {
         return this.#state.enabled;
+    }
+
+    /**
+     * Sets whether SAO is enabled for the {@link View}.
+     *
+     * Even when enabled, SAO will only work if supported.
+     *
+     * Default value is ````false````.
+     */
+    set enabled(value: boolean) {
+        value = !!value;
+        if (this.#state.enabled === value) {
+            return;
+        }
+        this.#state.enabled = value;
+        this.view.redraw();
     }
 
     /**
@@ -116,7 +112,7 @@ export class SAO extends Component {
      * Called internally by renderer logic.
      * @private
      */
-    get possible():boolean {
+    get possible(): boolean {
         if (!this.supported) {
             return false;
         }
@@ -134,11 +130,20 @@ export class SAO extends Component {
     }
 
     /**
+     * Gets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
+     *
+     * Default value is ````100.0````.
+     */
+    get kernelRadius(): number {
+        return this.#state.kernelRadius;
+    }
+
+    /**
      * Sets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
      *
      * Default value is ````100.0````.
      */
-    set kernelRadius(value:number) {
+    set kernelRadius(value: number) {
         if (value === undefined || value === null) {
             value = 100.0;
         }
@@ -150,12 +155,12 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
+     * Gets the degree of darkening (ambient obscurance) produced by the SAO effect.
      *
-     * Default value is ````100.0````.
+     * Default value is ````0.15````.
      */
-    get kernelRadius() :number{
-        return this.#state.kernelRadius;
+    get intensity(): number {
+        return this.#state.intensity;
     }
 
     /**
@@ -163,7 +168,7 @@ export class SAO extends Component {
      *
      * Default value is ````0.15````.
      */
-    set intensity(value:number) {
+    set intensity(value: number) {
         if (value === undefined || value === null) {
             value = 0.15;
         }
@@ -175,12 +180,12 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets the degree of darkening (ambient obscurance) produced by the SAO effect.
+     * Gets the SAO bias.
      *
-     * Default value is ````0.15````.
+     * Default value is ````0.5````.
      */
-    get intensity() :number{
-        return this.#state.intensity;
+    get bias(): number {
+        return this.#state.bias;
     }
 
     /**
@@ -188,7 +193,7 @@ export class SAO extends Component {
      *
      * Default value is ````0.5````.
      */
-    set bias(value:number) {
+    set bias(value: number) {
         if (value === undefined || value === null) {
             value = 0.5;
         }
@@ -200,12 +205,12 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets the SAO bias.
+     * Gets the SAO occlusion scale.
      *
-     * Default value is ````0.5````.
+     * Default value is ````1.0````.
      */
-    get bias() :number{
-        return this.#state.bias;
+    get scale(): number {
+        return this.#state.scale;
     }
 
     /**
@@ -213,7 +218,7 @@ export class SAO extends Component {
      *
      * Default value is ````1.0````.
      */
-    set scale(value:number) {
+    set scale(value: number) {
         if (value === undefined || value === null) {
             value = 1.0;
         }
@@ -225,12 +230,12 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets the SAO occlusion scale.
+     * Gets the SAO minimum resolution.
      *
-     * Default value is ````1.0````.
+     * Default value is ````0.0````.
      */
-    get scale():number {
-        return this.#state.scale;
+    get minResolution(): number {
+        return this.#state.minResolution;
     }
 
     /**
@@ -238,7 +243,7 @@ export class SAO extends Component {
      *
      * Default value is ````0.0````.
      */
-    set minResolution(value:number) {
+    set minResolution(value: number) {
         if (value === undefined || value === null) {
             value = 0.0;
         }
@@ -250,12 +255,12 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets the SAO minimum resolution.
+     * Gets the number of SAO samples.
      *
-     * Default value is ````0.0````.
+     * Default value is ````10````.
      */
-    get minResolution():number {
-        return this.#state.minResolution;
+    get numSamples(): number {
+        return this.#state.numSamples;
     }
 
     /**
@@ -265,7 +270,7 @@ export class SAO extends Component {
      *
      * Update this sparingly, since it causes a shader recompile.
      */
-    set numSamples(value:number) {
+    set numSamples(value: number) {
         if (value === undefined || value === null) {
             value = 10;
         }
@@ -277,12 +282,12 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets the number of SAO samples.
+     * Gets whether Guassian blur is enabled.
      *
-     * Default value is ````10````.
+     * Default value is ````true````.
      */
-    get numSamples() :number{
-        return this.#state.numSamples;
+    get blur(): boolean {
+        return this.#state.blur;
     }
 
     /**
@@ -290,7 +295,7 @@ export class SAO extends Component {
      *
      * Default value is ````true````.
      */
-    set blur(value:boolean) {
+    set blur(value: boolean) {
         value = (value !== false);
         if (this.#state.blur === value) {
             return;
@@ -300,12 +305,14 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets whether Guassian blur is enabled.
+     * Gets the SAO blend cutoff.
      *
-     * Default value is ````true````.
+     * Default value is ````0.3````.
+     *
+     * Normally you don't need to alter this.
      */
-    get blur():boolean {
-        return this.#state.blur;
+    get blendCutoff(): number {
+        return this.#state.blendCutoff;
     }
 
     /**
@@ -315,7 +322,7 @@ export class SAO extends Component {
      *
      * Normally you don't need to alter this.
      */
-    set blendCutoff(value:number) {
+    set blendCutoff(value: number) {
         if (value === undefined || value === null) {
             value = 0.3;
         }
@@ -327,14 +334,14 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets the SAO blend cutoff.
+     * Gets the SAO blend scale.
      *
-     * Default value is ````0.3````.
+     * Default value is ````1.0````.
      *
      * Normally you don't need to alter this.
      */
-    get blendCutoff():number {
-        return this.#state.blendCutoff;
+    get blendFactor(): number {
+        return this.#state.blendFactor;
     }
 
     /**
@@ -344,7 +351,7 @@ export class SAO extends Component {
      *
      * Normally you don't need to alter this.
      */
-    set blendFactor(value:number) {
+    set blendFactor(value: number) {
         if (value === undefined || value === null) {
             value = 1.0;
         }
@@ -353,17 +360,6 @@ export class SAO extends Component {
         }
         this.#state.blendFactor = value;
         this.view.redraw();
-    }
-
-    /**
-     * Gets the SAO blend scale.
-     *
-     * Default value is ````1.0````.
-     *
-     * Normally you don't need to alter this.
-     */
-    get blendFactor() :number{
-        return this.#state.blendFactor;
     }
 
     /**

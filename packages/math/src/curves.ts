@@ -1,5 +1,11 @@
 /**
- * #### Curves math library
+ * ### Curves Math Library
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/math/curves
+ * ````
  *
  * ````javascript
  * import * as curves from "@xeokit/math/curves";
@@ -10,10 +16,26 @@
  * @module @xeokit/math/curves
  */
 
+/**
+ * Finds a tangent to a quadratic bezier curve.
+ *
+ * @param t
+ * @param p0
+ * @param p1
+ * @param p2
+ */
 export function tangentQuadraticBezier(t: number, p0: number, p1: number, p2: number): number {
     return 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1);
 }
 
+/**
+ * Finds a tangent to a quadratic bezier curve.
+ *
+ * @param t
+ * @param p0
+ * @param p1
+ * @param p2
+ */
 export function tangentQuadraticBezier3(t: number, p0: number, p1: number, p2: number, p3: number): number {
     return -3 * p0 * (1 - t) * (1 - t) +
         3 * p1 * (1 - t) * (1 - t) - 6 * t * p1 * (1 - t) +
@@ -21,6 +43,10 @@ export function tangentQuadraticBezier3(t: number, p0: number, p1: number, p2: n
         3 * t * t * p3;
 }
 
+/**
+ * Finds a tangent to a spline.
+ * @param t
+ */
 export function tangentSpline(t: number) {
     const h00 = 6 * t * t - 6 * t;
     const h10 = 3 * t * t - 4 * t + 1;
@@ -29,6 +55,14 @@ export function tangentSpline(t: number) {
     return h00 + h10 + h01 + h11;
 }
 
+/**
+ * Catmull-Rom interpolation on a curve.
+ * @param p0
+ * @param p1
+ * @param p2
+ * @param p3
+ * @param t
+ */
 export function catmullRomInterpolate(p0: number, p1: number, p2: number, p3: number, t: number): number {
     const v0 = (p2 - p0) * 0.5;
     const v1 = (p3 - p1) * 0.5;
@@ -41,45 +75,96 @@ export function catmullRomInterpolate(p0: number, p1: number, p2: number, p3: nu
 
 // Quad Bezier Functions
 
+/**
+ * Quad Bézier curve function b2p0
+ *
+ * @param t
+ * @param p
+ */
 export function b2p0(t: number, p: number): number {
     const k = 1 - t;
     return k * k * p;
 
 }
 
+/**
+ * Quad Bézier curve function b2p1
+ * @param t
+ * @param p
+ */
 export function b2p1(t: number, p: number): number {
     return 2 * (1 - t) * t * p;
 }
 
+/**
+ * Quad Bézier curve function b2p2
+ * @param t
+ * @param p
+ */
 export function b2p2(t: number, p: number): number {
     return t * t * p;
 }
 
+/**
+ * Quad Bézier curve function b2
+ * @param t
+ * @param p0
+ * @param p1
+ * @param p2
+ */
 export function b2(this: any, t: number, p0: number, p1: number, p2: number): number {
     return this.b2p0(t, p0) + this.b2p1(t, p1) + this.b2p2(t, p2);
 }
 
 // Cubic Bezier Functions
 
+/**
+ * Cubic Bézier curve function b3p0
+ * @param t
+ * @param p
+ */
 export function b3p0(t: number, p: number): number {
     const k = 1 - t;
     return k * k * k * p;
 }
 
+/**
+ * Cubic Bézier curve function b3p1
+ * @param t
+ * @param p
+ */
 export function b3p1(t: number, p: number): number {
     const k = 1 - t;
     return 3 * k * k * t * p;
 }
 
+/**
+ * Cubic Bézier curve function b3p2
+ * @param t
+ * @param p
+ */
 export function b3p2(t: number, p: number): number {
     const k = 1 - t;
     return 3 * k * t * t * p;
 }
 
+/**
+ * Cubic Bézier curve function b3p3
+ * @param t
+ * @param p
+ */
 export function b3p3(t: number, p: number) {
     return t * t * t * p;
 }
 
+/**
+ * Cubic Bézier curve function b3
+ * @param t
+ * @param p0
+ * @param p1
+ * @param p2
+ * @param p3
+ */
 export function b3(this: any, t: number, p0: number, p1: number, p2: number, p3: number) {
     return this.b3p0(t, p0) + this.b3p1(t, p1) + this.b3p2(t, p2) + this.b3p3(t, p3);
 }

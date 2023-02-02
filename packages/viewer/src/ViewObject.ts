@@ -1,7 +1,7 @@
 import { FloatArrayParam } from "@xeokit/math/math";
 
 import type { ViewLayer } from "./ViewLayer";
-import type { ViewerObject } from "../ViewerObject";
+import type { ViewerObject } from "./ViewerObject";
 
 /**
  * Represents the visual state of a {@link ViewerObject} in a {@link View}.

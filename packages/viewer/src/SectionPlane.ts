@@ -8,7 +8,6 @@ import type {View} from "./View";
 import {FloatArrayParam} from "@xeokit/math/math";
 
 
-
 /**
  *  An arbitrarily-aligned World-space clipping plane.
  *

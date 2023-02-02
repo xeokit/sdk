@@ -1,5 +1,13 @@
 /**
- * #### Core math library
+ * ## Core Math Utilities
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/math
+ * ````
+ *
+ * ## Usage
  *
  * ````javascript
  * import * as math from "@xeokit/math/math";

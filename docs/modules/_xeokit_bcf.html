@@ -68,10 +68,18 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<a href="#load-and-save-bcf-viewpoints" id="load-and-save-bcf-viewpoints" style="color: inherit; text-decoration: none;">
-							<h2>Load and Save BCF Viewpoints</h2>
-						</a>
+						<img src="https://xeokit.github.io/xeokit-sdk/assets/images/bcf_logo.png"/>
 					</div>
+					<a href="#load-and-save-viewer-snapshots-as-bcf-viewpoints" id="load-and-save-viewer-snapshots-as-bcf-viewpoints" style="color: inherit; text-decoration: none;">
+						<h2>Load and Save Viewer Snapshots as BCF Viewpoints</h2>
+					</a>
+					<ul>
+						<li>Loads and saves <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> snapshots as BCF JSON viewpoints</li>
+						<li>Exchange BCF JSON viewpoints with other BIM software for interoperability</li>
+						<li><a href="_xeokit_bcf.html#loadbcfviewpoint">loadBCFViewpoint</a> loads a BCF viewpoint into a <a href="../classes/_xeokit_viewer.view.html">View</a></li>
+						<li><a href="_xeokit_bcf.html#savebcfviewpoint">saveBCFViewpoint</a> saves a <a href="../classes/_xeokit_viewer.view.html">View</a> to a BCF viewpoint</li>
+						<li><a href="../interfaces/_xeokit_bcf.bcfviewpoint.html">BCFViewpoint</a> represents a BCF viewpoint</li>
+					</ul>
 					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 						<h2>Installation</h2>
 					</a>
@@ -80,6 +88,38 @@
 					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 						<h2>Usage</h2>
 					</a>
+					<p>Use <a href="_xeokit_bcf.html#savebcfviewpoint">saveBCFViewpoint</a> to save a snapshot of a <a href="../classes/_xeokit_viewer.view.html">View</a> to a <a href="../interfaces/_xeokit_bcf.bcfviewpoint.html">BCFViewpoint</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebGLRenderer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/webgl&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">loadBCFViewpoint</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/bcf&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">renderer:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">WebGLRenderer</span><span style="color: #000000">({</span>
+<span style="color: #000000">        </span><span style="color: #008000">//...</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myView</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView1&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">//... load or build a ViewModel etc...</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">saveBCFViewpointOptions</span><span style="color: #000000"> = {</span>
+
+<span style="color: #000000">};</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bcfViewpoint</span><span style="color: #000000"> = </span><span style="color: #795E26">saveBCFViewpoint</span><span style="color: #000000">(</span><span style="color: #001080">saveBCFViewpointOptions</span><span style="color: #000000">, </span><span style="color: #001080">myView</span><span style="color: #000000">);</span>
+</code></pre>
+					<p>Use <a href="_xeokit_bcf.html#loadbcfviewpoint">loadBCFViewpoint</a> to load a <a href="../interfaces/_xeokit_bcf.bcfviewpoint.html">BCFViewpoint</a> into a <a href="../classes/_xeokit_viewer.view.html">View</a>:</p>
+					<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">loadBCFViewpointOptions</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #008000">// TODO</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #795E26">loadBCFViewpoint</span><span style="color: #000000">(</span><span style="color: #001080">bcfViewpoint</span><span style="color: #000000">, </span><span style="color: #001080">loadBCFViewpointOptions</span><span style="color: #000000">, </span><span style="color: #001080">myView</span><span style="color: #000000">);</span>
+</code></pre>
 				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
@@ -97,8 +137,8 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_bcf.bcfbitmap.html" class="tsd-kind-icon">BCFBitmap</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_bcf.bcfclippingplane.html" class="tsd-kind-icon">BCFClipping<wbr>Plane</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_bcf.bcfcomponent.html" class="tsd-kind-icon">BCFComponent</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_bcf.bcfcomponents.html" class="tsd-kind-icon">BCFComponents</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_bcf.bcfexception.html" class="tsd-kind-icon">BCFException</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_bcf.bcfline.html" class="tsd-kind-icon">BCFLine</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_bcf.bcfperspectivecamera.html" class="tsd-kind-icon">BCFPerspective<wbr>Camera</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_bcf.bcfselectioncomponent.html" class="tsd-kind-icon">BCFSelection<wbr>Component</a></li>
@@ -131,13 +171,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/bcf/src/loadBCFViewpoint.ts#L12">bcf/src/loadBCFViewpoint.ts:12</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/bcf/src/loadBCFViewpoint.ts#L14">bcf/src/loadBCFViewpoint.ts:14</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Loads a <a href="../interfaces/_xeokit_bcf.bcfviewpoint.html">BCFViewpoint</a> into a <a href="../classes/_xeokit_viewer.view.html">View</a>.</p>
 								</div>
+								<p>See <a href="_xeokit_bcf.html">@xeokit/bcf</a> for usage.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -167,13 +208,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/bcf/src/saveBCFViewpoint.ts#L12">bcf/src/saveBCFViewpoint.ts:12</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/bcf/src/saveBCFViewpoint.ts#L14">bcf/src/saveBCFViewpoint.ts:14</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Saves a <a href="../classes/_xeokit_viewer.view.html">View</a> to a <a href="../interfaces/_xeokit_bcf.bcfviewpoint.html">BCFViewpoint</a>.</p>
 								</div>
+								<p>See <a href="_xeokit_bcf.html">@xeokit/bcf</a> for usage.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -207,13 +249,13 @@
 						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_controls.html">@xeokit/controls</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>
@@ -271,10 +313,10 @@
 						<a href="../interfaces/_xeokit_bcf.bcfclippingplane.html" class="tsd-kind-icon">BCFClipping<wbr>Plane</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_bcf.bcfcomponents.html" class="tsd-kind-icon">BCFComponents</a>
+						<a href="../interfaces/_xeokit_bcf.bcfcomponent.html" class="tsd-kind-icon">BCFComponent</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_xeokit_bcf.bcfexception.html" class="tsd-kind-icon">BCFException</a>
+						<a href="../interfaces/_xeokit_bcf.bcfcomponents.html" class="tsd-kind-icon">BCFComponents</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/_xeokit_bcf.bcfline.html" class="tsd-kind-icon">BCFLine</a>

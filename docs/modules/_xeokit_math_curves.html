@@ -69,9 +69,14 @@
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
 						<a href="#curves-math-library" id="curves-math-library" style="color: inherit; text-decoration: none;">
-							<h4>Curves math library</h4>
+							<h3>Curves Math Library</h3>
 						</a>
 					</div>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<pre><code class="language-bash"><span style="color: #000000">npm install @xeokit/math/curves</span>
+</code></pre>
 					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">curves</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/math/curves&quot;</span><span style="color: #000000">;</span>
 
 <span style="color: #008000">//..</span>
@@ -85,7 +90,19 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b2" class="tsd-kind-icon">b2</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b2p0" class="tsd-kind-icon">b2p0</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b2p1" class="tsd-kind-icon">b2p1</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b2p2" class="tsd-kind-icon">b2p2</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b3" class="tsd-kind-icon">b3</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b3p0" class="tsd-kind-icon">b3p0</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b3p1" class="tsd-kind-icon">b3p1</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b3p2" class="tsd-kind-icon">b3p2</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#b3p3" class="tsd-kind-icon">b3p3</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#catmullrominterpolate" class="tsd-kind-icon">catmull<wbr>Rom<wbr>Interpolate</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#tangentquadraticbezier" class="tsd-kind-icon">tangent<wbr>Quadratic<wbr>Bezier</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#tangentquadraticbezier3" class="tsd-kind-icon">tangent<wbr>Quadratic<wbr>Bezier3</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_xeokit_math_curves.html#tangentspline" class="tsd-kind-icon">tangent<wbr>Spline</a></li>
 							</ul>
 						</section>
 					</div>
@@ -94,18 +111,23 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="tangentquadraticbezier" class="tsd-anchor"></a>
-					<h3>tangent<wbr>Quadratic<wbr>Bezier</h3>
+					<a name="b2" class="tsd-anchor"></a>
+					<h3>b2</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">tangent<wbr>Quadratic<wbr>Bezier<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">b2<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/math/src/curves.ts#L13">math/src/curves.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L115">math/src/curves.ts:115</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Quad Bézier curve function b2</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -119,6 +141,434 @@
 								</li>
 								<li>
 									<h5>p2: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="b2p0" class="tsd-anchor"></a>
+					<h3>b2p0</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">b2p0<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L84">math/src/curves.ts:84</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Quad Bézier curve function b2p0</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="b2p1" class="tsd-anchor"></a>
+					<h3>b2p1</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">b2p1<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L95">math/src/curves.ts:95</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Quad Bézier curve function b2p1</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="b2p2" class="tsd-anchor"></a>
+					<h3>b2p2</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">b2p2<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L104">math/src/curves.ts:104</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Quad Bézier curve function b2p2</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="b3" class="tsd-anchor"></a>
+					<h3>b3</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">b3<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L168">math/src/curves.ts:168</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Cubic Bézier curve function b3</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p0: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p1: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p2: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p3: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="b3p0" class="tsd-anchor"></a>
+					<h3>b3p0</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">b3p0<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L126">math/src/curves.ts:126</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Cubic Bézier curve function b3p0</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="b3p1" class="tsd-anchor"></a>
+					<h3>b3p1</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">b3p1<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L136">math/src/curves.ts:136</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Cubic Bézier curve function b3p1</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="b3p2" class="tsd-anchor"></a>
+					<h3>b3p2</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">b3p2<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L146">math/src/curves.ts:146</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Cubic Bézier curve function b3p2</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="b3p3" class="tsd-anchor"></a>
+					<h3>b3p3</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">b3p3<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L156">math/src/curves.ts:156</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Cubic Bézier curve function b3p3</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="catmullrominterpolate" class="tsd-anchor"></a>
+					<h3>catmull<wbr>Rom<wbr>Interpolate</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">catmull<wbr>Rom<wbr>Interpolate<span class="tsd-signature-symbol">(</span>p0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L66">math/src/curves.ts:66</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Catmull-Rom interpolation on a curve.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>p0: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p1: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p2: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p3: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="tangentquadraticbezier" class="tsd-anchor"></a>
+					<h3>tangent<wbr>Quadratic<wbr>Bezier</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">tangent<wbr>Quadratic<wbr>Bezier<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L27">math/src/curves.ts:27</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Finds a tangent to a quadratic bezier curve.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p0: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p1: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p2: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="tangentquadraticbezier3" class="tsd-anchor"></a>
+					<h3>tangent<wbr>Quadratic<wbr>Bezier3</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">tangent<wbr>Quadratic<wbr>Bezier3<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, p3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L39">math/src/curves.ts:39</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Finds a tangent to a quadratic bezier curve.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p0: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p1: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>p2: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+								<li>
+									<h5>p3: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="tangentspline" class="tsd-anchor"></a>
+					<h3>tangent<wbr>Spline</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">tangent<wbr>Spline<span class="tsd-signature-symbol">(</span>t<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/curves.ts#L50">math/src/curves.ts:50</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Finds a tangent to a spline.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>t: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -137,13 +587,13 @@
 						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_controls.html">@xeokit/controls</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>
@@ -192,7 +642,43 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b2" class="tsd-kind-icon">b2</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b2p0" class="tsd-kind-icon">b2p0</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b2p1" class="tsd-kind-icon">b2p1</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b2p2" class="tsd-kind-icon">b2p2</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b3" class="tsd-kind-icon">b3</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b3p0" class="tsd-kind-icon">b3p0</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b3p1" class="tsd-kind-icon">b3p1</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b3p2" class="tsd-kind-icon">b3p2</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#b3p3" class="tsd-kind-icon">b3p3</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#catmullrominterpolate" class="tsd-kind-icon">catmull<wbr>Rom<wbr>Interpolate</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_xeokit_math_curves.html#tangentquadraticbezier" class="tsd-kind-icon">tangent<wbr>Quadratic<wbr>Bezier</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#tangentquadraticbezier3" class="tsd-kind-icon">tangent<wbr>Quadratic<wbr>Bezier3</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_xeokit_math_curves.html#tangentspline" class="tsd-kind-icon">tangent<wbr>Spline</a>
 					</li>
 				</ul>
 			</nav>

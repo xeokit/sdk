@@ -68,13 +68,28 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<a href="#texture-compression-utilities" id="texture-compression-utilities" style="color: inherit; text-decoration: none;">
-							<h2>Texture Compression Utilities</h2>
-						</a>
+						<img src="https://xeokit.github.io/xeokit-sdk/assets/images/xktWithTextures.png"/>
 					</div>
+					<a href="#ktx2-texture-transcoder-for-viewer" id="ktx2-texture-transcoder-for-viewer" style="color: inherit; text-decoration: none;">
+						<h2>KTX2 Texture Transcoder for Viewer</h2>
+					</a>
 					<ul>
-						<li>TODO</li>
+						<li>Provides <a href="../classes/_xeokit_compression_texture.ktx2texturetranscoder.html">KTX2TextureTranscoder</a></li>
+						<li>Configure a <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> with a <a href="../classes/_xeokit_webgl.webglrenderer.html">WebGLRenderer</a> that has a <a href="../classes/_xeokit_compression_texture.ktx2texturetranscoder.html">KTX2TextureTranscoder</a></li>
+						<li>Then the <a href="../interfaces/_xeokit_viewer.viewermodel.html#createtexture">ViewerModel.createTexture</a> can create textures from KTX2-encoded compressed textures</li>
+						<li>Uses the <a href="https://github.com/BinomialLLC/basis_universal">Basis Universal GPU Texture Codec</a> to
+						transcode <a href="https://github.khronos.org/KTX-Specification/">KTX2</a> textures.</li>
+						<li>Loads the Basis Codec from <a href="https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/">CDN</a> by default, but can
+						also be configured to load the Codec from local files.</li>
+						<li>We also bundle the Basis Codec with the xeokit-viewer npm package, and in the <a href="https://github.com/xeokit/xeokit-viewer/tree/master/dist/basis">repository</a>.</li>
 					</ul>
+					<a href="#what-is-ktx2" id="what-is-ktx2" style="color: inherit; text-decoration: none;">
+						<h4>What is KTX2?</h4>
+					</a>
+					<p>A <a href="https://github.khronos.org/KTX-Specification/">KTX2</a> file stores GPU texture data in the Khronos Texture 2.0 (KTX2) container format. It contains image data for
+						a texture asset compressed with Basis Universal (BasisU) supercompression that can be transcoded to different formats
+						depending on the support provided by the target devices. KTX2 provides a lightweight format for distributing texture
+					assets to GPUs. Due to BasisU compression, KTX2 files can store any image format supported by GPUs.</p>
 					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 						<h2>Installation</h2>
 					</a>
@@ -83,6 +98,200 @@
 					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 						<h2>Usage</h2>
 					</a>
+					<a href="#loading-an-xkt-file-containing-ktx2-textures-into-a-viewer" id="loading-an-xkt-file-containing-ktx2-textures-into-a-viewer" style="color: inherit; text-decoration: none;">
+						<h3>Loading an XKT file containing KTX2 textures into a Viewer</h3>
+					</a>
+					<p>Create a <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> with a <a href="../classes/_xeokit_webgl.webglrenderer.html">WebGLRenderer</a> configured with a
+						<a href="../classes/_xeokit_compression_texture.ktx2texturetranscoder.html">KTX2TextureTranscoder</a>. Then create a <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a> within the Viewer, and use <a href="_xeokit_xkt.html#loadxkt">loadXKT</a> to
+						load an XKT file with KTX2-compressed textures into the ViewerModel. For each KTX2 texture in the file, the
+					KTX2TextureTranscoder will transparently transcode the KTX2 data for us.</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebGLRenderer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/webgl&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">KTX2TextureTranscoder</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/compression/texture&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">loadXKT</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/xkt&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">renderer:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">WebGLRenderer</span><span style="color: #000000">({ </span><span style="color: #008000">// Optional</span>
+<span style="color: #000000">         </span><span style="color: #001080">textureTranscoder:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">KTX2TextureTranscoder</span><span style="color: #000000">({</span>
+<span style="color: #000000">             </span><span style="color: #001080">transcoderPath:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;./../dist/basis/&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// Optional, path to BasisU transcoder module</span>
+<span style="color: #000000">         })</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myCanvas1&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewerModel</span><span style="color: #000000">= </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #795E26">fetch</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;myModelWithTextures.xkt&quot;</span><span style="color: #000000">) </span><span style="color: #008000">// &lt;&lt;-- XKT file with KTX2 textures</span>
+<span style="color: #000000">    .</span><span style="color: #795E26">then</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">         </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">ok</span><span style="color: #000000">) {</span>
+<span style="color: #000000">             </span><span style="color: #795E26">loadXKT</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #795E26">arrayBuffer</span><span style="color: #000000">(), </span><span style="color: #001080">myViewerModel</span><span style="color: #000000">);</span>
+<span style="color: #000000">             </span><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+<span style="color: #000000">         }</span>
+<span style="color: #000000">    });</span>
+</code></pre>
+					<a href="#loading-ktx2-texture-files-into-a-viewer" id="loading-ktx2-texture-files-into-a-viewer" style="color: inherit; text-decoration: none;">
+						<h3>Loading KTX2 texture files into a Viewer</h3>
+					</a>
+					<p>As in the previous example, create a <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> with a <a href="../classes/_xeokit_webgl.webglrenderer.html">WebGLRenderer</a> configured with a
+					<a href="../classes/_xeokit_compression_texture.ktx2texturetranscoder.html">KTX2TextureTranscoder</a>, then create a <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a> within the Viewer.</p>
+					<p>This time, we&#39;ll build the ViewerModel ourselves, using its builder methods. When we
+						call builder method <a href="../interfaces/_xeokit_viewer.viewermodel.html#createtexture">ViewerModel.createTexture</a> with a path to a KTX2-compressed texture file, the
+					KTX2TextureTranscoder will transparently transcode that KTX2 data for us.</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebGLRenderer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/webgl&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">KTX2TextureTranscoder</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/compression/texture&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">loadXKT</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/xkt&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">renderer:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">WebGLRenderer</span><span style="color: #000000">({ </span><span style="color: #008000">// Optional</span>
+<span style="color: #000000">         </span><span style="color: #001080">textureTranscoder:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">KTX2TextureTranscoder</span><span style="color: #000000">({ </span><span style="color: #008000">// Optional</span>
+<span style="color: #000000">             </span><span style="color: #001080">transcoderPath:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;./../dist/basis/&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// Optional, path to BasisU transcoder module</span>
+<span style="color: #000000">         })</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView1&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewerModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000"> });</span>
+
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;sample_uastc_zstd.ktx2&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;----- KTX2 texture asset</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMetallicRoughnessTexture&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;crosshatchAlphaMap.jpg&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;----- JPEG texture asset</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTextureSet</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">colorTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">metallicRoughnessTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMetallicRoughnessTexture&quot;</span>
+<span style="color: #000000"> });</span>
+
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">positions:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">    </span><span style="color: #001080">normals:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">    </span><span style="color: #001080">uv:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">    </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">textureSetId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span>
+<span style="color: #000000"> });</span>
+
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">     </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000"> });</span>
+
+<span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+</code></pre>
+					<a href="#loading-ktx2-texture-arraybuffers-into-a-viewer" id="loading-ktx2-texture-arraybuffers-into-a-viewer" style="color: inherit; text-decoration: none;">
+						<h3>Loading KTX2 texture ArrayBuffers into a Viewer</h3>
+					</a>
+					<p>As in the previous two examples, create a <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a> that has a <a href="../classes/_xeokit_webgl.webglrenderer.html">WebGLRenderer</a> configured with a
+					<a href="../classes/_xeokit_compression_texture.ktx2texturetranscoder.html">KTX2TextureTranscoder</a>, and then create a <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a> within the Viewer.</p>
+					<p>Once more, build the ViewerModel using its builder methods. This time, call builder method
+						<a href="../interfaces/_xeokit_viewer.viewermodel.html#createtexture">ViewerModel.createTexture</a> with an ArrayBuffer containing the contents of a KTX2-compressed texture
+					file. As before, the KTX2TextureTranscoder will transparently transcode that KTX2 data for us.</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">WebGLRenderer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/webgl&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">KTX2TextureTranscoder</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/compression/texture&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">loadXKT</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/xkt&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">renderer:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">WebGLRenderer</span><span style="color: #000000">({ </span><span style="color: #008000">// Optional</span>
+<span style="color: #000000">         </span><span style="color: #001080">textureTranscoder:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">KTX2TextureTranscoder</span><span style="color: #000000">({ </span><span style="color: #008000">// Optional</span>
+<span style="color: #000000">             </span><span style="color: #001080">transcoderPath:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;./../dist/basis/&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// Optional, path to BasisU transcoder module</span>
+<span style="color: #000000">         })</span>
+<span style="color: #000000">    })</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">view1</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createView</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">canvasId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myView1&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">eye</span><span style="color: #000000"> = [-</span><span style="color: #098658">3.933</span><span style="color: #000000">, </span><span style="color: #098658">2.855</span><span style="color: #000000">, </span><span style="color: #098658">27.018</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">look</span><span style="color: #000000"> = [</span><span style="color: #098658">4.400</span><span style="color: #000000">, </span><span style="color: #098658">3.724</span><span style="color: #000000">, </span><span style="color: #098658">8.899</span><span style="color: #000000">];</span>
+<span style="color: #001080">view1</span><span style="color: #000000">.</span><span style="color: #001080">camera</span><span style="color: #000000">.</span><span style="color: #001080">up</span><span style="color: #000000"> = [-</span><span style="color: #098658">0.018</span><span style="color: #000000">, </span><span style="color: #098658">0.999</span><span style="color: #000000">, </span><span style="color: #098658">0.039</span><span style="color: #000000">];</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">viewerModel</span><span style="color: #000000"> = </span><span style="color: #001080">myViewer</span><span style="color: #000000">.</span><span style="color: #795E26">createModel</span><span style="color: #000000">({</span>
+<span style="color: #000000">     </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myModel&quot;</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #795E26">fetch</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;sample_uastc_zstd.ktx2&quot;</span><span style="color: #000000">) </span><span style="color: #008000">// // &lt;&lt;----- KTX2 texture asset</span>
+<span style="color: #000000">    .</span><span style="color: #795E26">then</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">         </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">ok</span><span style="color: #000000">) {</span>
+
+<span style="color: #000000">             </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #000000">                 </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">buffers:</span><span style="color: #000000"> [</span><span style="color: #001080">arrayBuffer</span><span style="color: #000000">] </span><span style="color: #008000">// &lt;&lt;----- KTX2 texture asset</span>
+<span style="color: #000000">             });</span>
+
+<span style="color: #000000">             </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTexture</span><span style="color: #000000">({</span>
+<span style="color: #000000">                 </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMetallicRoughnessTexture&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">src:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;../assets/textures/alpha/crosshatchAlphaMap.jpg&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;&lt;----- JPEG texture asset</span>
+<span style="color: #000000">             });</span>
+
+<span style="color: #000000">             </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createTextureSet</span><span style="color: #000000">({</span>
+<span style="color: #000000">                 </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">colorTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myColorTexture&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">metallicRoughnessTextureId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMetallicRoughnessTexture&quot;</span>
+<span style="color: #000000">             });</span>
+
+<span style="color: #000000">             </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createGeometry</span><span style="color: #000000">({</span>
+<span style="color: #000000">                 </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">primitive:</span><span style="color: #000000"> </span><span style="color: #001080">TrianglesPrimitive</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">positions:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">                 </span><span style="color: #001080">normals:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">                 </span><span style="color: #001080">uv:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">                 </span><span style="color: #001080">indices:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, ...],</span>
+<span style="color: #000000">             });</span>
+
+<span style="color: #000000">             </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createMesh</span><span style="color: #000000">({</span>
+<span style="color: #000000">                 </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">textureSetId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myTextureSet&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">geometryId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myGeometry&quot;</span>
+<span style="color: #000000">             });</span>
+
+<span style="color: #000000">             </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">createObject</span><span style="color: #000000">({</span>
+<span style="color: #000000">                 </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myObject&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                 </span><span style="color: #001080">meshIds:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;myMesh&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">             });</span>
+
+<span style="color: #000000">             </span><span style="color: #001080">viewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
+<span style="color: #000000">         }</span>
+<span style="color: #000000">    });</span>
+</code></pre>
 				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
@@ -115,13 +324,13 @@
 						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
 					</li>
 					<li class="current tsd-kind-module">
 						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_controls.html">@xeokit/controls</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>

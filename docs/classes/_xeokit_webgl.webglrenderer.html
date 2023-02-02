@@ -71,23 +71,9 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Pluggable WebGL-based rendering strategy for a <a href="_xeokit_viewer.viewer.html">Viewer</a>.</p>
+						<p>WebGL rendering strategy for a <a href="_xeokit_viewer.viewer.html">Viewer</a>.</p>
 					</div>
-					<p>Handles creation and rendering of geometry and materials for a Viewer, using the browser&#39;s WebGL 3D graphics API.</p>
-					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
-						<h2>Usage</h2>
-					</a>
-					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Viewer</span><span style="color: #000000">, </span><span style="color: #001080">WebGLRenderer</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/viewer&quot;</span><span style="color: #000000">;</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myViewer</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Viewer</span><span style="color: #000000">({</span>
-<span style="color: #000000">    </span><span style="color: #001080">id:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;myViewer&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #001080">renderer:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">WebGLRenderer</span><span style="color: #000000">({</span>
-<span style="color: #000000">         </span><span style="color: #001080">textureTranscoder:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">KTX2TextureTranscoder</span><span style="color: #000000">({</span>
-<span style="color: #000000">             </span><span style="color: #001080">transcoderPath:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;./../dist/basis/&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// &lt;------ Path to BasisU transcoder module</span>
-<span style="color: #000000">         })</span>
-<span style="color: #000000">    })</span>
-<span style="color: #000000">});</span>
-</code></pre>
+					<p>See <a href="../modules/_xeokit_webgl.html">@xeokit/webgl</a> for usage.</p>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -151,7 +137,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L88">webgl/src/WebGLRenderer.ts:88</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L73">webgl/src/WebGLRenderer.ts:73</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -188,7 +174,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#clear">clear</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L256">webgl/src/WebGLRenderer.ts:256</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L241">webgl/src/WebGLRenderer.ts:241</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -217,7 +203,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#createmodel">createModel</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L187">webgl/src/WebGLRenderer.ts:187</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L172">webgl/src/WebGLRenderer.ts:172</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -250,7 +236,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#deregisterview">deregisterView</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L184">webgl/src/WebGLRenderer.ts:184</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L169">webgl/src/WebGLRenderer.ts:169</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -273,14 +259,14 @@
 					<a name="getcapabilities" class="tsd-anchor"></a>
 					<h3>get<wbr>Capabilities</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Capabilities<span class="tsd-signature-symbol">(</span>capabilities<span class="tsd-signature-symbol">: </span><a href="../interfaces/_xeokit_viewer.viewercapabilities.html" class="tsd-signature-type" data-tsd-kind="Interface">ViewerCapabilities</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Capabilities<span class="tsd-signature-symbol">(</span>capabilities<span class="tsd-signature-symbol">: </span><a href="../interfaces/_xeokit_core_components.capabilities.html" class="tsd-signature-type" data-tsd-kind="Interface">Capabilities</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#getcapabilities">getCapabilities</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L129">webgl/src/WebGLRenderer.ts:129</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L114">webgl/src/WebGLRenderer.ts:114</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -291,7 +277,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>capabilities: <a href="../interfaces/_xeokit_viewer.viewercapabilities.html" class="tsd-signature-type" data-tsd-kind="Interface">ViewerCapabilities</a></h5>
+									<h5>capabilities: <a href="../interfaces/_xeokit_core_components.capabilities.html" class="tsd-signature-type" data-tsd-kind="Interface">Capabilities</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -309,7 +295,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#getsaosupported">getSAOSupported</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L242">webgl/src/WebGLRenderer.ts:242</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L227">webgl/src/WebGLRenderer.ts:227</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -332,7 +318,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#init">init</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L124">webgl/src/WebGLRenderer.ts:124</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L109">webgl/src/WebGLRenderer.ts:109</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -361,7 +347,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#needsrebuild">needsRebuild</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L267">webgl/src/WebGLRenderer.ts:267</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L252">webgl/src/WebGLRenderer.ts:252</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -390,7 +376,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#needsrender">needsRender</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L274">webgl/src/WebGLRenderer.ts:274</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L259">webgl/src/WebGLRenderer.ts:259</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -419,7 +405,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#picksceneobject">pickSceneObject</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L292">webgl/src/WebGLRenderer.ts:292</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L277">webgl/src/WebGLRenderer.ts:277</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -453,7 +439,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#registerview">registerView</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L148">webgl/src/WebGLRenderer.ts:148</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L133">webgl/src/WebGLRenderer.ts:133</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -461,7 +447,7 @@
 									<p>Registers a <a href="_xeokit_viewer.view.html">View</a> with this Renderer.</p>
 								</div>
 								<p>The Renderer will then begin rendering each <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a> created with {@link ViewerModel.createModel} for the new View.</p>
-								<p>You can only register as many Views as indicated in <a href="../interfaces/_xeokit_viewer.viewercapabilities.html#maxviews">ViewerCapabilities.maxViews</a>, as returned by <a href="../interfaces/_xeokit_viewer.renderer.html#getcapabilities">Renderer.getCapabilities</a>.</p>
+								<p>You can only register as many Views as indicated in <a href="../interfaces/_xeokit_core_components.capabilities.html#maxviews">Capabilities.maxViews</a>, as returned by <a href="../interfaces/_xeokit_viewer.renderer.html#getcapabilities">Renderer.getCapabilities</a>.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -485,7 +471,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#render">render</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L278">webgl/src/WebGLRenderer.ts:278</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L263">webgl/src/WebGLRenderer.ts:263</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -519,7 +505,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#setbackgroundcolor">setBackgroundColor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L227">webgl/src/WebGLRenderer.ts:227</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L212">webgl/src/WebGLRenderer.ts:212</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -551,7 +537,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#setedgesenabled">setEdgesEnabled</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L232">webgl/src/WebGLRenderer.ts:232</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L217">webgl/src/WebGLRenderer.ts:217</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -583,7 +569,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#setimagedirty">setImageDirty</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L223">webgl/src/WebGLRenderer.ts:223</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L208">webgl/src/WebGLRenderer.ts:208</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -612,7 +598,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#setpbrenabled">setPBREnabled</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L237">webgl/src/WebGLRenderer.ts:237</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L222">webgl/src/WebGLRenderer.ts:222</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -644,7 +630,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#setsaoenabled">setSAOEnabled</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L246">webgl/src/WebGLRenderer.ts:246</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L231">webgl/src/WebGLRenderer.ts:231</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -676,7 +662,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_xeokit_viewer.renderer.html">Renderer</a>.<a href="../interfaces/_xeokit_viewer.renderer.html#settransparentenabled">setTransparentEnabled</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/webgl/src/WebGLRenderer.ts#L251">webgl/src/WebGLRenderer.ts:251</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/webgl/src/WebGLRenderer.ts#L236">webgl/src/WebGLRenderer.ts:236</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -709,13 +695,13 @@
 						<a href="../modules/_xeokit_bcf.html">@xeokit/bcf</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="../modules/_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/_xeokit_controls.html">@xeokit/controls</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a>

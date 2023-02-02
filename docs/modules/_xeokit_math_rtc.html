@@ -68,15 +68,22 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<a href="#relative-to-center-rtc-coordinates-math-library" id="relative-to-center-rtc-coordinates-math-library" style="color: inherit; text-decoration: none;">
-							<h4>Relative-to-center (RTC) coordinates math library</h4>
+						<a href="#rtc-coordinate-math-utilities" id="rtc-coordinate-math-utilities" style="color: inherit; text-decoration: none;">
+							<h2>RTC Coordinate Math Utilities</h2>
 						</a>
 					</div>
 					<ul>
-						<li>Used internally within <a href="../classes/_xeokit_viewer.view.html#viewer">viewer</a> to convert coordinates between double-precision absolute
-						values and single-precision RTC values</li>
-						<li>Generates modified view transform matrices for the Viewer to work with RTC coordinates</li>
+						<li>Math functions for working with relative-to-center (RTC) coordinate systems</li>
+						<li>Used internally within <a href="../classes/_xeokit_viewer.viewer.html">Viewer</a></li>
 					</ul>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<pre><code class="language-bash"><span style="color: #000000">npm install @xeokit/math/rtc</span>
+</code></pre>
+					<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+						<h2>Usage</h2>
+					</a>
 					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">rtc</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@xeokit/math/rtc&quot;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">worldPos</span><span style="color: #000000"> = [</span><span style="color: #098658">100000000000.0</span><span style="color: #000000">, </span><span style="color: #098658">1000000000.0</span><span style="color: #000000">, </span><span style="color: #098658">1000000000000.0</span><span style="color: #000000">];</span>
@@ -118,7 +125,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/math/src/rtc.ts#L38">math/src/rtc.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/rtc.ts#L45">math/src/rtc.ts:45</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -153,7 +160,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/math/src/rtc.ts#L142">math/src/rtc.ts:142</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/rtc.ts#L148">math/src/rtc.ts:148</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -191,7 +198,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/math/src/rtc.ts#L125">math/src/rtc.ts:125</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/rtc.ts#L131">math/src/rtc.ts:131</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -234,7 +241,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/math/src/rtc.ts#L59">math/src/rtc.ts:59</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/rtc.ts#L65">math/src/rtc.ts:65</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -279,7 +286,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/math/src/rtc.ts#L95">math/src/rtc.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/math/src/rtc.ts#L101">math/src/rtc.ts:101</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -333,13 +340,13 @@
 						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_controls.html">@xeokit/controls</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>

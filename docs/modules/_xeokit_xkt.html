@@ -68,14 +68,14 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<a href="#load-and-save-xkt-models" id="load-and-save-xkt-models" style="color: inherit; text-decoration: none;">
-							<h2>Load and Save XKT Models</h2>
+						<a href="#model-loader-and-saver-for-xkt-file-format" id="model-loader-and-saver-for-xkt-file-format" style="color: inherit; text-decoration: none;">
+							<h2>Model Loader and Saver for XKT File Format</h2>
 						</a>
 					</div>
 					<ul>
 						<li>XKT is xeokit&#39;s native compressed model format</li>
-						<li><a href="_xeokit_xkt.html#savexkt">saveXKT</a> - Saves XKT data from a <a href="../interfaces/_xeokit_core_components.model.html">Model</a> (implemented by <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a> and <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a>)</li>
-						<li><a href="_xeokit_xkt.html#loadxkt">loadXKT</a> - Loads XKT data into a <a href="../interfaces/_xeokit_core_components.buildablemodel.html">BuildableModel</a> (implemented by <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a> and <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a>)</li>
+						<li><a href="_xeokit_xkt.html#loadxkt">loadXKT</a> loads XKT into a <a href="../interfaces/_xeokit_core_components.buildablemodel.html">BuildableModel</a>, which is implemented by <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a> and <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a></li>
+						<li><a href="_xeokit_xkt.html#savexkt">saveXKT</a> saves XKT from a <a href="../interfaces/_xeokit_core_components.model.html">Model</a>, which is implemented by <a href="../classes/_xeokit_scratchmodel.scratchmodel.html">ScratchModel</a> and <a href="../interfaces/_xeokit_viewer.viewermodel.html">ViewerModel</a></li>
 					</ul>
 					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 						<h2>Installation</h2>
@@ -117,7 +117,7 @@
 <span style="color: #000000">    .</span><span style="color: #795E26">then</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
 <span style="color: #000000">         </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">ok</span><span style="color: #000000">) {*</span>
 <span style="color: #000000">             </span><span style="color: #795E26">loadXKT</span><span style="color: #000000">(</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #795E26">arrayBuffer</span><span style="color: #000000">(), </span><span style="color: #001080">myViewerModel</span><span style="color: #000000">);</span>
-<span style="color: #000000">             </span><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">built</span><span style="color: #000000">();</span>
+<span style="color: #000000">             </span><span style="color: #001080">myViewerModel</span><span style="color: #000000">.</span><span style="color: #795E26">build</span><span style="color: #000000">();</span>
 <span style="color: #000000">         }</span>
 <span style="color: #000000">    });</span>
 </code></pre>
@@ -181,7 +181,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/xkt/src/loadXKT.ts#L16">xkt/src/loadXKT.ts:16</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/xkt/src/loadXKT.ts#L18">xkt/src/loadXKT.ts:18</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -192,6 +192,7 @@
 									<li>Expects <a href="../interfaces/_xeokit_core_components.buildablemodel.html#built">BuildableModel.built</a> and <a href="../interfaces/_xeokit_core_components.buildablemodel.html#destroyed">BuildableModel.destroyed</a> to be <code>false</code></li>
 									<li>Does not call <a href="../interfaces/_xeokit_core_components.buildablemodel.html#build">BuildableModel.build</a> - we call that ourselves, when we have finished building the BuildableModel</li>
 								</ul>
+								<p>See <a href="_xeokit_xkt.html">@xeokit/xkt</a> for usage.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -223,13 +224,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1536668/packages/xkt/src/saveXKT.ts#L13">xkt/src/saveXKT.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a48e415/packages/xkt/src/saveXKT.ts#L15">xkt/src/saveXKT.ts:15</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Saves a <a href="../interfaces/_xeokit_core_components.model.html">Model</a> to an ArrayBuffer containing XKT file data.</p>
 								</div>
+								<p>See <a href="_xeokit_xkt.html">@xeokit/xkt</a> for usage.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -265,13 +267,13 @@
 						<a href="_xeokit_bcf.html">@xeokit/bcf</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
-					</li>
-					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_geometry.html">@xeokit/compression/geometry</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_compression_texture.html">@xeokit/compression/texture</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="_xeokit_controls.html">@xeokit/controls</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="_xeokit_core_components.html">@xeokit/core/components</a>

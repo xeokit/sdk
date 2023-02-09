@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Options for {@link loadBCFViewpoint}.
  *
  * See {@link @xeokit/bcf} for usage.
  */

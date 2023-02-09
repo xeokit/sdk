@@ -3,7 +3,7 @@ import {LoadBCFViewpointOptions} from "./LoadBCFViewpointOptions";
 import {BCFViewpoint} from "./BCFViewpoint";
 
 /**
- * Loads a {@link BCFViewpoint} into a {@link View}.
+ * Loads a {@link BCFViewpoint} into a {@link @xeokit/viewer!View}.
  *
  * See {@link @xeokit/bcf} for usage.
  *

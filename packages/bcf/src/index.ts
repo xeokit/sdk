@@ -3,10 +3,10 @@
  *
  * ## Load and Save Viewer Snapshots as BCF Viewpoints
  *
- * * Loads and saves {@link Viewer} snapshots as BCF JSON viewpoints
+ * * Loads and saves {@link @xeokit/viewer!Viewer} snapshots as BCF JSON viewpoints
  * * Exchange BCF JSON viewpoints with other BIM software for interoperability
- * * {@link loadBCFViewpoint} loads a BCF viewpoint into a {@link View}
- * * {@link saveBCFViewpoint} saves a {@link View} to a BCF viewpoint
+ * * {@link loadBCFViewpoint} loads a BCF viewpoint into a {@link @xeokit/viewer!View}
+ * * {@link saveBCFViewpoint} saves a {@link @xeokit/viewer!View} to a BCF viewpoint
  * * {@link BCFViewpoint} represents a BCF viewpoint
  *
  * ## Installation
@@ -17,7 +17,7 @@
  *
  * ## Usage
  *
- * Use {@link saveBCFViewpoint} to save a snapshot of a {@link View} to a {@link BCFViewpoint}:
+ * Use {@link saveBCFViewpoint} to save a snapshot of a {@link @xeokit/viewer!View} to a {@link BCFViewpoint}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -45,7 +45,7 @@
  * const bcfViewpoint = saveBCFViewpoint(saveBCFViewpointOptions, myView);
  * ````
  *
- * Use {@link loadBCFViewpoint} to load a {@link BCFViewpoint} into a {@link View}:
+ * Use {@link loadBCFViewpoint} to load a {@link BCFViewpoint} into a {@link @xeokit/viewer!View}:
  *
  * ````javascript
  * const loadBCFViewpointOptions = {

@@ -1,7 +1,7 @@
 /**
- * A BCF viewpoint.
+ * A BIM Collaboration Format (BCF) viewpoint.
  *
- * Conforms to <a href="https://github.com/buildingSMART/BCF-API">BCF Version 2.1</a>
+ * Conforms to <a href="https://github.com/buildingSMART/BCF-API">BCF Version 2.1</a>.
  *
  * See {@link @xeokit/bcf} for usage.
  */

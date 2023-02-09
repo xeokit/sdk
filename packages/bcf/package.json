@@ -1,7 +1,7 @@
 {
   "name": "@xeokit/bcf",
   "version": "0.0.1",
-  "description": "Localization service for xeokit",
+  "description": "Load and save BIM Collaboration Format (BCF) viewpoints",
   "module": "dist/xeokit-bcf.modern.js",
   "source": "src/index.ts",
   "scripts": {
@@ -52,8 +52,5 @@
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1"
-  },
-  "devDependencies": {
-
   }
 }

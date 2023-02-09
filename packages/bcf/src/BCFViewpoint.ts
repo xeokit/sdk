@@ -1,5 +1,5 @@
 /**
- * A BIM Collaboration Format (BCF) viewpoint.
+ * Represents a BIM Collaboration Format (BCF) viewpoint.
  *
  * Conforms to <a href="https://github.com/buildingSMART/BCF-API">BCF Version 2.1</a>.
  *

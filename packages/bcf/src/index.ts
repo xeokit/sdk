@@ -1,12 +1,10 @@
 /**
  * <img src="https://xeokit.github.io/xeokit-sdk/assets/images/bcf_logo.png"/>
  *
- * ## Load and Save Viewer Snapshots as BCF Viewpoints
+ * ## Load and save BIM Collaboration Format (BCF) Viewpoints
  *
- * * Loads and saves {@link @xeokit/viewer!Viewer} snapshots as BCF JSON viewpoints
- * * Exchange BCF JSON viewpoints with other BIM software for interoperability
- * * {@link loadBCFViewpoint} loads a BCF viewpoint into a {@link @xeokit/viewer!View}
- * * {@link saveBCFViewpoint} saves a {@link @xeokit/viewer!View} to a BCF viewpoint
+ * * {@link loadBCFViewpoint} loads a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View}
+ * * {@link saveBCFViewpoint} saves a {@link @xeokit/viewer!View} to a JSON-encoded BCF viewpoint
  * * {@link BCFViewpoint} represents a BCF viewpoint
  *
  * ## Installation
@@ -17,7 +15,7 @@
  *
  * ## Usage
  *
- * Use {@link saveBCFViewpoint} to save a snapshot of a {@link @xeokit/viewer!View} to a {@link BCFViewpoint}:
+ * Use {@link saveBCFViewpoint} to save the state of a {@link @xeokit/viewer!View} to a {@link BCFViewpoint}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -36,10 +34,10 @@
  *     canvasId: "myView1"
  * });
  *
- * //... load or build a ViewModel etc...
+ * //...load or build a ViewModel etc...
  *
  * const saveBCFViewpointOptions = {
- *
+ *      //...
  * };
  *
  * const bcfViewpoint = saveBCFViewpoint(saveBCFViewpointOptions, myView);

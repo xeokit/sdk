@@ -169,7 +169,7 @@ class DocModel extends Component implements Model, BuildableModel {
     readonly aabb: Float64Array;
 
     /**
-     * Emits an event when this {@link @xeokit/datamodel!DocModel | DocModel} has already been built.
+     * Emits an event when this {@link @xeokit/docmodel!DocModel | DocModel} has already been built.
      *
      * Triggered by {@link DocModel.build}.
      *
@@ -178,7 +178,7 @@ class DocModel extends Component implements Model, BuildableModel {
     readonly onBuilt: EventEmitter<DocModel, null>;
 
     /**
-     * Emits an event when this {@link @xeokit/datamodel!DocModel | DocModel} has been destroyed.
+     * Emits an event when this {@link @xeokit/docmodel!DocModel | DocModel} has been destroyed.
      *
      * Triggered by {@link DocModel.destroy}.
      *

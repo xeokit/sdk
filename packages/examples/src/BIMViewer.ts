@@ -143,7 +143,7 @@ export class BIMViewer extends Viewer {
             id: cfg.id
         });
         // TODO: fetch
-        await loadXKT({xkt:null, model:viewerModel})
+        await loadXKT({data:null, model:viewerModel})
         viewerModel.build();
     }
 

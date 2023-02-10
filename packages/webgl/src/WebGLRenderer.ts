@@ -31,7 +31,7 @@ const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
 
 /**
- * WebGL rendering strategy for a {@link @xeokit/viewer!Viewer}.
+ * WebGL-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * See {@link @xeokit/webgl} for usage.
  */

@@ -15,7 +15,7 @@ import {
     RepeatWrapping,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-import {BuildableModel, GeometryParams, MeshParams, ParseParams, TextureSetParams} from "@xeokit/core/components";
+import {BuildableModel, GeometryParams, LoadParams, MeshParams, TextureSetParams} from "@xeokit/core/components";
 import {isString} from "@xeokit/core/utils";
 import {createMat4, identityMat4, mulMat4, quaternionToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
@@ -25,26 +25,29 @@ interface ParsingContext {
     nextId: number;
     log: any;
     error: (msg) => void;
-    buildableModel: BuildableModel;
+    model: BuildableModel;
     objectCreated: { [key: string]: boolean }
 }
 
 /**
- * @desc Loads glTF into a {@link @xeokit/core/components!BuildableModel}.
+ * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/core/components!BuildableModel | BuildableModel} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
  *
  * * Expects {@link @xeokit/core/components!BuildableModel.built | BuildableModel.built} and {@link @xeokit/core/components!BuildableModel.destroyed | BuildableModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/core/components!BuildableModel.build | BuildableModel.build} - we call that ourselves, when we have finished building the BuildableModel
  *
  * See {@link @xeokit/gltf} for usage.
+ *
+ * @param {LoadParams} params Loading parameters.
+ * @returns {Promise} Resolves when glTF has been loaded.
  */
-export function loadGLTF(params: ParseParams): Promise<any> {
+export function loadGLTF(params: LoadParams): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         if (!params.data) {
             reject("Argument expected: data");
             return;
         }
-        if (!params.buildableModel) {
-            reject("Argument expected: buildableModel");
+        if (!params.model) {
+            reject("Argument expected: model");
             return;
         }
         parse(params.data, GLTFLoader, {}).then((gltfData) => {
@@ -56,7 +59,7 @@ export function loadGLTF(params: ParseParams): Promise<any> {
                 error: function (msg) {
                     console.error(msg);
                 },
-                buildableModel: params.buildableModel,
+                model: params.model,
                 objectCreated: {}
             };
             parseTextures(ctx);
@@ -150,7 +153,7 @@ function parseTexture(ctx, texture) {
             wrapR = RepeatWrapping;
             break;
     }
-    ctx.buildableModel.createTexture({
+    ctx.model.createTexture({
         textureId: textureId,
         imageData: texture.source.image,
         mediaType: texture.source.mediaType,
@@ -245,7 +248,7 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | string {
         textureSetCfg.colorTextureId !== undefined ||
         textureSetCfg.metallicRoughnessTextureId !== undefined) {
         textureSetCfg.id = `textureSet-${ctx.nextId++};`
-        ctx.buildableModel.createTextureSet(textureSetCfg);
+        ctx.model.createTextureSet(textureSetCfg);
         return textureSetCfg.id;
     }
     return null;
@@ -426,7 +429,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                     if (primitive.indices) {
                         geometryParams.indices = primitive.indices.value;
                     }
-                    ctx.buildableModel.createGeometry(geometryParams);
+                    ctx.model.createGeometry(geometryParams);
                     primitive._geometryId = geometryId;
                 }
 
@@ -448,7 +451,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                     meshParams.color = [1.0, 1.0, 1.0];
                     meshParams.opacity = 1.0;
                 }
-                ctx.buildableModel.createMesh(meshParams);
+                ctx.model.createMesh(meshParams);
                 deferredMeshIds.push(meshId);
             }
         }
@@ -478,7 +481,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
         while (!objectId || ctx.objectCreated[objectId]) {
             objectId = "object-" + ctx.nextId++;
         }
-        ctx.buildableModel.createObject({
+        ctx.model.createObject({
             id: objectId,
             meshIds: deferredMeshIds
         });

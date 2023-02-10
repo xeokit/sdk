@@ -4,7 +4,7 @@
  * ## Model Loader for glTF File Format
  *
  * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models
- * * {@link loadGLTF} loads glTF into a {@link @xeokit/core/components!BuildableModel}, which is implemented by {@link @xeokit/docmodel!DocModel | DocModel} and {@link @xeokit/viewer!ViewerModel | ViewerModel}
+ * * {@link loadGLTF} loads glTF into a {@link @xeokit/core/components!BuildableModel | BuildableModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -14,7 +14,7 @@
  *
  * ## Usage
  *
- * Loading a glTF file into a {@link @xeokit/datamodel!DocModel | DocModel}:
+ * Loading a glTF file into a {@link @xeokit/docmodel!DocModel | DocModel}:
  *
  * ````javascript
  * import {DocModel} from "@xeokit/docmodel";
@@ -29,7 +29,7 @@
  *                  gltf: response.arrayBuffer(),
  *                  model: myDocModel
  *              });
- *              myDocModel.built();
+ *              myDocModel.build();
  *          }
  *     });
  * ````

@@ -17,7 +17,7 @@
 
 export * from "./Component";
 export * from "./EventEmitter";
-export * from "./ParseParams";
+export * from "./LoadParams";
 export * from "./BuildableModel";
 export * from "./Model";
 export * from "./ObjectParams";

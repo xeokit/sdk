@@ -1,11 +1,11 @@
 /**
- * <img src="https://miro.medium.com/max/673/1*YUHvwJvfTLWyqiqCYw2ToA.png"/>
+ * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="media://images/xeokit_logo_mesh.png"/>
  *
  * ## Model Loader and Saver for XKT File Format
  *
- * * XKT is xeokit's native compressed model format
- * * {@link loadXKT|loadXKT} loads XKT into a {@link @xeokit/core/components!BuildableModel}, which is implemented by {@link @xeokit/datamodel!DocModel | DocModel} and {@link @xeokit/viewer!ViewerModel | ViewerModel}
- * * {@link saveXKT|saveXKT} saves XKT from a {@link @xeokit/core/components!Model}, which is implemented by {@link @xeokit/datamodel!DocModel | DocModel} and {@link @xeokit/viewer!ViewerModel | ViewerModel}
+ * * XKT is xeokit's native compressed model format, which contains geometry, materials, objects and semantic data in a compact, Web-friendly payload.
+ * * {@link loadXKT} loads XKT into a {@link @xeokit/core/components!BuildableModel | BuildableModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
+ * * {@link saveXKT} saves XKT from a {@link @xeokit/core/components!Model | Model} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -30,7 +30,7 @@
  *                  xkt: response.arrayBuffer(),
  *                  model: myDocModel
  *              });
- *              myDocModel.built();
+ *              myDocModel.build();
  *          }
  *     });
  * ````
@@ -63,7 +63,7 @@
  *     });
  * ````
  *
- * Loading an XKT file into a {@link @xeokit/viewer!ViewerModel | ViewerModel} and a {@link @xeokit/datamodel/DataModel}:
+ * Loading an XKT file into a {@link @xeokit/viewer!ViewerModel | ViewerModel} and a {@link @xeokit/datamodel!DataModel | DataModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -101,7 +101,7 @@
  *     });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/datamodel!DocModel | DocModel}:
+ * Saving an XKT file from a {@link @xeokit/docmodel!DocModel | DocModel}:
  *
  * ````javascript
  * import {DocModel} from "@xeokit/docmodel";
@@ -143,7 +143,7 @@
  * });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/viewer!ViewerModel | ViewerModel} and a {@link @xeokit/datamodel/DataModel}:
+ * Saving an XKT file from a {@link @xeokit/viewer!ViewerModel | ViewerModel} and a {@link @xeokit/datamodel!DataModel | DataModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

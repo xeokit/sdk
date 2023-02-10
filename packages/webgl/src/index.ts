@@ -1,19 +1,20 @@
 /**
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/xeokit_webgl_logo.svg"/>
  *
- * ## WebGL Rendering Strategy for Viewer
+ * ## WebGL-Based Rendering Strategy for a {@link @xeokit/viewer!Viewer | Viewer}
  *
  * * Plug a {@link WebGLRenderer} into a {@link @xeokit/viewer!Viewer} to use WebGL for model storage and rendering
  * * Compact texture-based model representation
  * * Fast full-precision rendering of large models
  * * Physically-based materials
+ * * Multi-canvas
  * * Basis-compressed textures
  * * Compressed geometry
  *
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/viewer
+ * npm install @xeokit/webgl
  * ````
  *
  * ## Usage

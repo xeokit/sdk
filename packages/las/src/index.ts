@@ -6,7 +6,7 @@
  * ## Model Loader for LAS/LAZ File Format
  *
  * * [LAS/LAZ](https://en.wikipedia.org/wiki/LAS) is an industry standard format for 3D point cloud scans
- * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/core/components!BuildableModel}, which is implemented by {@link @xeokit/docmodel!DocModel | DocModel} and {@link @xeokit/viewer!ViewerModel | ViewerModel}
+ * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/core/components!BuildableModel | BuildableModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}
  *
  * ## Installation
  *
@@ -31,7 +31,7 @@
  *                  las: response.arrayBuffer(),
  *                  model: myDocModel
  *              });
- *              myDocModel.built();
+ *              myDocModel.build();
  *          }
  *     });
  * ````
@@ -66,4 +66,4 @@
  *
  * @module @xeokit/las
  */
-export * from "./parseLAS";
+export * from "./loadLAS";

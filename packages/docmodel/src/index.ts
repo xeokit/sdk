@@ -3,7 +3,7 @@
  *
  * ## Geometry Model Representation
  *
- * * {@link @xeokit/datamodel!DocModel | DocModel}
+ * * {@link @xeokit/docmodel!DocModel | DocModel}
  * * Buildable, loadable and savable in-memory xeokit model representation
  * * Build models programmatically with builder methods
  * * Load models from files (eg. with {@link loadXKT})
@@ -19,7 +19,7 @@
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/datamodel!DocModel | DocModel} with a couple of objects, a geometry and a texture. In this example, we create the geometry
+ * Creating a {@link @xeokit/docmodel!DocModel | DocModel} with a couple of objects, a geometry and a texture. In this example, we create the geometry
  * from Human-readible uncompressed arrays, which we first pre-compress with {@link @xeokit/compression/compressGeometryParams}.
  *
  * ````javascript

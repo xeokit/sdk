@@ -5,7 +5,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {collapseAABB3} from "@xeokit/math/boundaries";
 
 /**
- * A tile within the {@link Viewer}'s relative-to-center (RTC) World-space 3D coordinate system.
+ * A tile within the {@link @xeokit/viewer!Viewer}'s relative-to-center (RTC) World-space 3D coordinate system.
  *
  * * Stored in {@link Tiles.tiles}.
  * * Created and destroyed automatically as {@link ViewerModel|ViewerModels} are created and destroyed.

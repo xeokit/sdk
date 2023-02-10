@@ -30,66 +30,14 @@ interface ParsingContext {
 }
 
 /**
- * @desc Parses glTF into a {@link BuildableModel}.
+ * @desc Loads glTF into a {@link @xeokit/core/components!BuildableModel}.
  *
- * Use this function with {@link Model} and {@link writeXKT} to convert glTF to XKT, or to load glTF directly
- * into a {@link Viewer}.
+ * * Expects {@link @xeokit/core/components!BuildableModel.built | BuildableModel.built} and {@link @xeokit/core/components!BuildableModel.destroyed | BuildableModel.destroyed} to be ````false````
+ * * Does not call {@link @xeokit/core/components!BuildableModel.build | BuildableModel.build} - we call that ourselves, when we have finished building the BuildableModel
  *
- * ## Usage
- *
- * Parsing glTF into an {@link Model}:
- *
- * ````javascript
- * import {ScratchModel} from "@xeokit/xkt";
- * import {parseGLTF} from "@xeokit/gltf";
- *
- * const myModel = new ScratchModel(); // Implements BuildableModel and Model
- *
- * utils.loadArraybuffer("../assets/models/gltf/HousePlan/glTF-Binary/HousePlan.glb", async (data) => {
- *
- *     parseGLTF({
- *          data,
- *          buildableModel: myModel
- *          log: (msg) => { console.log(msg); }
- *     }).then(()=>{
- *
- *        myModel.build();
- *
- *        const arrayBuffer = writeXKT({
- *            readableModel: myModel
- *        });
- *
- *        // Save arraybuffer
- *     };
- * });
- * ````
- *
- * Loading glTF into a {@link Viewer}, by way of a {@link ViewerModel}:
- *
- * ````javascript
- * import {Viewer} from "@xeokit/viewer";
- * import {parseGLTF} from "@xeokit/gltf";
- *
- * myViewer = new Viewer({ ... });
- *
- * const myViewerModel = myViewer.createModel(); // Implements BuildableModel
- *
- * utils.loadArraybuffer("../assets/models/gltf/HousePlan/glTF-Binary/HousePlan.glb", async (data) => {
- *
- *     parseGLTF({
- *          data,
- *          buildableModel: myViewerModel,
- *          log: (msg) => { console.log(msg); }
- *     }).then(()=>{
- *        myBuildableModel.build();
- *     };
- * });
- * ````
- *
- * @param {ParseParams} params Parsing parameters.
- * @returns {Promise} Resolves when glTF has been parsed.
+ * See {@link @xeokit/gltf} for usage.
  */
-export function parseGLTF(params: ParseParams): Promise<any> {
+export function loadGLTF(params: ParseParams): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         if (!params.data) {
             reject("Argument expected: data");

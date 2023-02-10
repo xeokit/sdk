@@ -2,19 +2,19 @@ import {EventDispatcher} from "strongly-typed-events";
 import {EventEmitter} from "@xeokit/core/components";
 
 /**
- The localization service for a {@link Viewer}.
+ The localization service for a {@link @xeokit/viewer!Viewer}.
 
  ## Summary
 
  * A container of string translations ("messages") for various locales.
- * A {@link Viewer} has its own default LocaleService at {@link Viewer.localeService}.
+ * A {@link @xeokit/viewer!Viewer} has its own default LocaleService at {@link Viewer.localeService}.
  * We can replace that with our own LocaleService implementation via the Viewer's constructor.
  * Viewer plugins that need localized translations will attempt to get them for the currently active locale from the LocaleService.
  * Whenever we switch the LocaleService to a different locale, plugins will automatically refresh their translations for that locale.
 
  ## Usage
 
- In the example below, we'll create a {@link Viewer} that uses an {@link WebIFCLoaderPlugin} to load an IFC model, and a
+ In the example below, we'll create a {@link @xeokit/viewer!Viewer} that uses an {@link WebIFCLoaderPlugin} to load an IFC model, and a
  {@link TreeViewPlugin}, which shows a camera navigation cube in the corner of the canvas.
 
  We'll also configure our Viewer with our own LocaleService instance, configured with English, Māori and French
@@ -149,16 +149,15 @@ import {EventEmitter} from "@xeokit/core/components";
  */
 class LocaleService {
 
-    #messages: { [key: string]: any };
-    #locales: string[];
-    #locale: string = "en";
-
     /**
      * Emits an event each time the locale translations have updated.
      *
      * @event
      */
     readonly onUpdated: EventEmitter<LocaleService, string>;
+    #messages: { [key: string]: any };
+    #locales: string[];
+    #locale: string = "en";
 
     /**
      * Constructs a LocaleService.
@@ -167,7 +166,10 @@ class LocaleService {
      * @param cfg.messages Set of locale translations
      * @param cfg.locale Initial locale
      */
-    constructor(cfg = {
+    constructor(cfg: {
+        messages?: any,
+        locale?: string
+    } = {
         messages: {},
         locale: ""
     }) {
@@ -222,6 +224,46 @@ class LocaleService {
     }
 
     /**
+     * Gets the list of available locales.
+     *
+     * These are derived from the currently configured set of translations.
+     *
+     * @returns The list of available locales.
+     */
+    get locales(): string[] {
+        return this.#locales;
+    }
+
+    /**
+     * Gets the current locale.
+     *
+     * @returns {String} The current locale.
+     */
+    get locale(): string {
+        return this.#locale;
+    }
+
+    /**
+     * Sets the current locale.
+     *
+     * * Fires an "updated" event when done.
+     * * The given locale does not need to be in the list of available locales returned by {@link LocaleService.locales}, since
+     * this method assumes that you may want to load the locales at a later point.
+     * * Automatically refreshes any plugins that depend on the translations.
+     * * We can then get translations for the locale, if translations have been loaded for it, via {@link LocaleService.translate} and {@link LocaleService.translatePlurals}.
+     *
+     * @param locale The new current locale.
+     */
+    set locale(locale: string) {
+        locale = locale || "de";
+        if (this.#locale === locale) {
+            return;
+        }
+        this.#locale = locale;
+        this.onUpdated.dispatch(this, this.#locale);
+    }
+
+    /**
      * Loads a new set of locale translations, adding them to the existing translations.
      *
      * * Fires an "updated" event when done.
@@ -265,46 +307,6 @@ class LocaleService {
      */
     clearMessages() {
         this.messages = {};
-    }
-
-    /**
-     * Gets the list of available locales.
-     *
-     * These are derived from the currently configured set of translations.
-     *
-     * @returns The list of available locales.
-     */
-    get locales(): string[] {
-        return this.#locales;
-    }
-
-    /**
-     * Sets the current locale.
-     *
-     * * Fires an "updated" event when done.
-     * * The given locale does not need to be in the list of available locales returned by {@link LocaleService.locales}, since
-     * this method assumes that you may want to load the locales at a later point.
-     * * Automatically refreshes any plugins that depend on the translations.
-     * * We can then get translations for the locale, if translations have been loaded for it, via {@link LocaleService.translate} and {@link LocaleService.translatePlurals}.
-     *
-     * @param locale The new current locale.
-     */
-    set locale(locale: string) {
-        locale = locale || "de";
-        if (this.#locale === locale) {
-            return;
-        }
-        this.#locale = locale;
-        this.onUpdated.dispatch(this, this.#locale);
-    }
-
-    /**
-     * Gets the current locale.
-     *
-     * @returns {String} The current locale.
-     */
-    get locale(): string {
-        return this.#locale;
     }
 
     /**

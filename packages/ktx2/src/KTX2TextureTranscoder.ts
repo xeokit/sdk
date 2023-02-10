@@ -1,15 +1,21 @@
 import {
     LinearEncoding,
-    LinearFilter, LinearMipmapLinearFilter, RGB_ETC1_Format, RGB_ETC2_Format,
-    RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, RGBA_ASTC_4x4_Format, RGBA_BPTC_Format,
-    RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format,
+    LinearFilter,
+    LinearMipmapLinearFilter,
+    RGB_ETC1_Format,
+    RGB_ETC2_Format,
+    RGB_PVRTC_4BPPV1_Format,
+    RGB_S3TC_DXT1_Format,
+    RGBA_ASTC_4x4_Format,
+    RGBA_BPTC_Format,
+    RGBA_ETC2_EAC_Format,
+    RGBA_PVRTC_4BPPV1_Format,
+    RGBA_S3TC_DXT5_Format,
     RGBAFormat,
     sRGBEncoding
 } from "@xeokit/core/constants";
 import {FileLoader, WorkerPool} from "@xeokit/core/utils";
-import {Capabilities, TextureCompressedParams} from "@xeokit/core/components";
-
-import type {TextureTranscoder} from "./TextureTranscoder";
+import {Capabilities, TextureCompressedParams, TextureTranscoder} from "@xeokit/core/components";
 
 const KTX2TransferSRGB = 2;
 const KTX2_ALPHA_PREMULTIPLIED = 1;
@@ -149,6 +155,15 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
         });
     }
 
+    /**
+     * Destroys this KTX2TextureTranscoder
+     */
+    destroy() {
+        URL.revokeObjectURL(this.#workerSourceURL);
+        this.#workerPool.destroy();
+        activeTranscoders--;
+    }
+
     #initTranscoder() {
         if (!this.#transcoderPending) {
             const jsLoader = new FileLoader();
@@ -194,15 +209,6 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
             activeTranscoders++;
         }
         return this.#transcoderPending;
-    }
-
-    /**
-     * Destroys this KTX2TextureTranscoder
-     */
-    destroy() {
-        URL.revokeObjectURL(this.#workerSourceURL);
-        this.#workerPool.destroy();
-        activeTranscoders--;
     }
 }
 

@@ -4,15 +4,15 @@ import {Mesh, XKTObject} from "@xeokit/core/components";
 
 
 /**
- * GeometryImpl and materials for an object in a {@link ViewerModel}.
+ * GeometryImpl and materials for an object in a {@link @xeokit/viewer!ViewerModel | ViewerModel}.
  *
- * See {@link Viewer} for usage examples.
+ * See {@link @xeokit/viewer!Viewer} for usage examples.
  *
  * ## Summary
  *
  * * Stored in {@link ViewerModel.objects} and {@link View.objects}
  * * Created with {@link ViewerModel.createObject}
- * * Automatically mirrored by a {@link ViewObject} in each {@link View}
+ * * Automatically mirrored by a {@link ViewObject} in each {@link @xeokit/viewer!View}
  */
 export interface ViewerObject extends XKTObject {
 
@@ -27,7 +27,7 @@ export interface ViewerObject extends XKTObject {
     readonly meshes: Mesh[];
 
     /**
-     * The {@link ViewerModel} that contains this ViewerObject.
+     * The {@link @xeokit/viewer!ViewerModel | ViewerModel} that contains this ViewerObject.
      */
     readonly model: ViewerModel;
 

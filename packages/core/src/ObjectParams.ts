@@ -1,5 +1,5 @@
 /**
- * Object creation parameters for {@link BuildableModel.createObject}.
+ * Object creation parameters for {@link @xeokit/core/components!BuildableModel.createObject}.
  */
 export interface ObjectParams {
 
@@ -9,14 +9,14 @@ export interface ObjectParams {
     id: string;
 
     /**
-     * IDs of meshes previously created with {@link BuildableModel.createMesh}.
+     * IDs of meshes previously created with {@link @xeokit/core/components!BuildableModel.createMesh}.
      */
     meshIds: string[];
 
     /**
-     * Causes each {@link View} to put the corresponding {@link ViewObject} into a {@link ViewLayer} with this ID.
+     * Causes each {@link @xeokit/viewer!View} to put the corresponding {@link ViewObject} into a {@link ViewLayer} with this ID.
      *
-     * When you create an object in a model, each {@link View} will automatically create a {@link ViewObject} to
+     * When you create an object in a model, each {@link @xeokit/viewer!View} will automatically create a {@link ViewObject} to
      * represent it. When the object has a {@link ObjectParams.viewLayerId} property, then each View will first ensure that it
      * has a {@link ViewLayer} with this ID, and will register the ViewObject in that ViewLayer.
      *

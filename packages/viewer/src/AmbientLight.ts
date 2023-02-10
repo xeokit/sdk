@@ -4,7 +4,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 
 
 /**
- * An ambient light source within a {@link View}.
+ * An ambient light source within a {@link @xeokit/viewer!View}.
  *
  * ## Summary
  *
@@ -14,7 +14,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 class AmbientLight extends Component {
 
     /**
-     ID of this AmbientLight, unique within the {@link View}.
+     ID of this AmbientLight, unique within the {@link @xeokit/viewer!View}.
      */
     declare public id: string;
 

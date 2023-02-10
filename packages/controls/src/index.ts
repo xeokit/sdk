@@ -1,7 +1,16 @@
 /**
- * ## Input Controls
+ * <img style="padding:30px" src="media://images/xeokit_controls_icon.png"/>
  *
- * * {@link CameraControl} - controls a {@link View|View's} {@link Camera}
+ * ## Camera Navigation Controls
+ *
+ * * {@link CameraControl} - controls a {@link @xeokit/viewer!View | View's} {@link @xeokit/viewer!Camera}
+ * * Reads touch, mouse and keyboard input
+ * * Three navigation modes: "orbit", "firstPerson" and "planView"
+ * * Dynamic key mapping
+ * * Smart-pivot
+ * * Move-to-pointer
+ * * Distance-scaled rate of movement
+ * * Inertia
  *
  * ## Installation
  *
@@ -11,7 +20,7 @@
  *
  * ## Usage
  *
- * Using a {@link CameraControl} to control a {@link View|View's} {@link Camera}:
+ * Using a {@link CameraControl} to control a {@link @xeokit/viewer!View | View's} {@link @xeokit/viewer!Camera} :
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

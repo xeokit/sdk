@@ -4,10 +4,10 @@ import {normalizeVec3, subVec3} from "@xeokit/math/matrix";
 
 
 /**
- * Creates a torus-shaped {@link GeometryBucketHandle}.
+ * Creates a torus-shaped {@link @xeokit/core/components!GeometryBucketHandle}.
  *
  * ## Usage
- * Creating a {@link Mesh} with a torus-shaped {@link GeometryBucketHandle} :
+ * Creating a {@link Mesh} with a torus-shaped {@link @xeokit/core/components!GeometryBucketHandle} :
  *
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildTorusGeometry)]
  *
@@ -41,14 +41,14 @@ import {normalizeVec3, subVec3} from "@xeokit/math/matrix";
  *
  * @function buildTorusGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/core/components!GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
  * @param [cfg.center] 3D point indicating the center position.
  * @param [cfg.radius=1] The overall radius.
  * @param [cfg.tube=0.3] The tube radius.
  * @param [cfg.radialSegments=32] The number of radial segments.
  * @param [cfg.tubeSegments=24] The number of tubular segments.
  * @param [cfg.arc=Math.PI*0.5] The length of the arc in radians, where Math.PI*2 is a closed torus.
- * @returns {Object} Configuration for a {@link GeometryBucketHandle} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/core/components!GeometryBucketHandle} subtype.
  */
 export function buildTorusGeometry(cfg: {
     tube?: number;

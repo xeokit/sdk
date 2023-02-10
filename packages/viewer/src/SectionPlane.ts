@@ -13,7 +13,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
  *
  * ## Summary
  *
- * * Belongs to a {@link View}.
+ * * Belongs to a {@link @xeokit/viewer!View}.
  * * Slices portions off {@link ViewObject|ViewObjects} to create cross-section views or reveal interiors.
  * * Registered by {@link SectionPlane.id} in {@link View.sectionPlanes}.
  * * Indicates its World-space position in {@link SectionPlane.pos} and orientation vector in {@link SectionPlane.dir}.
@@ -59,7 +59,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 class SectionPlane extends Component {
 
     /**
-     ID of this SectionPlane, unique within the {@link View}.
+     ID of this SectionPlane, unique within the {@link @xeokit/viewer!View}.
      */
     declare public id: string;
 

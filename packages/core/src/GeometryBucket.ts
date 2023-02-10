@@ -1,15 +1,15 @@
 import type {IntArrayParam} from "@xeokit/math/math";
 
 /**
- * A geometry bucket within {@link Geometry.geometryBuckets}.
+ * A geometry bucket within {@link @xeokit/core/components!Geometry.geometryBuckets|Geometry.geometryBuckets}.
  */
 export interface GeometryBucket {
 
     /**
      * GeometryBucketHandle bucket's 3D vertex positions, quantized as 16-bit integers.
      *
-     * Internally, the Viewer uses {@link Geometry.positionsDecompressMatrix} to decompress (dequantize)
-     * these back to 32-bit floating-point relative-to-center (RTC) positions that are relative to {@link Geometry.origin}.
+     * Internally, the Viewer uses {@link @xeokit/core/components!Geometry.positionsDecompressMatrix} to decompress (dequantize)
+     * these back to 32-bit floating-point relative-to-center (RTC) positions that are relative to {@link @xeokit/core/components!Geometry.origin}.
      *
      * Vertex positions are required for all primitive types.
      */
@@ -18,7 +18,7 @@ export interface GeometryBucket {
     /**
      * GeometryBucketHandle bucket's UV coordinates, quantized as 16-bit integers.
      *
-     * Internally, the Viewer de-quantizes these with {@link Geometry.uvsDecompressMatrix}.
+     * Internally, the Viewer de-quantizes these with {@link @xeokit/core/components!Geometry.uvsDecompressMatrix}.
      */
     uvsCompressed?: IntArrayParam,
 

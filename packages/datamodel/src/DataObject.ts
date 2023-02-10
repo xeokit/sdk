@@ -3,26 +3,26 @@ import type {DataModel} from "./DataModel";
 import {Relationship} from "./Relationship";
 
 /**
- *  An object in a {@link DataModel}.
+ *  An object in a {@link @xeokit/datamodel/DataModel}.
  *
  *  See {@link Data} for usage examples.
  *
  *  ## Summary
  *
- *  * Created with {@link DataModel.createObject}
- *  * Stored in {@link Data.objects} and {@link DataModel.objects}
+ *  * Created with {@link @xeokit/datamodel/DataModel.createObject}
+ *  * Stored in {@link Data.objects} and {@link @xeokit/datamodel/DataModel.objects}
  */
 export class DataObject {
 
     /**
-     * ScratchModel metadata.
+     * DocModel metadata.
      */
     public models: DataModel[];
 
     /**
      * Globally-unique ID.
      *
-     * DataObjects are stored by ID in {@link Data.objects} and {@link DataModel.objects}.
+     * DataObjects are stored by ID in {@link Data.objects} and {@link @xeokit/datamodel/DataModel.objects}.
      */
     public readonly id: string;
 

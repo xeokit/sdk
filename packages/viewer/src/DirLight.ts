@@ -5,21 +5,21 @@ import type {View} from "./View";
 import {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * A directional light source within a {@link View}.
+ * A directional light source within a {@link @xeokit/viewer!View}.
  *
  * ## Summary
  *
  * * Illuminates all objects equally from a given direction.
  * * Has an emission direction vector in {@link DirLight.dir}, but no position.
  * * Defined in either *World* or *View* coordinate space. When in World-space, {@link DirLight.dir} is relative to the
- * World coordinate system, and will appear to move as the {@link Camera} moves. When in View-space, {@link DirLight.dir} is
+ * World coordinate system, and will appear to move as the {@link @xeokit/viewer!Camera}  moves. When in View-space, {@link DirLight.dir} is
  * relative to the View coordinate system, and will behave as if fixed to the viewer's head.
  * * {@link AmbientLight}s, {@link DirLight}s and {@link PointLight}s are registered by their {@link Component.id} on {@link View.lights}.
  */
 class DirLight extends Component {
 
     /**
-     ID of this DirLight, unique within the {@link View}.
+     ID of this DirLight, unique within the {@link @xeokit/viewer!View}.
      */
     declare public id: string;
 

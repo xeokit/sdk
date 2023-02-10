@@ -20,16 +20,16 @@ import type {ViewerObject} from "./ViewerObject";
 import {Viewer} from "./Viewer";
 
 /**
- * A model representation within a {@link Viewer}.
+ * A model representation within a {@link @xeokit/viewer!Viewer}.
  *
- * See {@link Viewer} for usage examples.
+ * See {@link @xeokit/viewer!Viewer} for usage examples.
  *
  * ## Summary
  *
  * * Stored in {@link Viewer.models}
  * * Created with {@link Viewer.createModel}
  * * Contains {@link ViewerObject|ViewerObjects}
- * * Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link View}
+ * * Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link @xeokit/viewer!View}
  */
 export interface ViewerModel extends Model, BuildableModel {
 
@@ -53,7 +53,7 @@ export interface ViewerModel extends Model, BuildableModel {
      *
      * Set ````true```` by {@link ViewerModel.destroy}.
      *
-     * Don't create anything more in this ScratchModel once it's destroyed.
+     * Don't create anything more in this DocModel once it's destroyed.
      */
     readonly destroyed: boolean;
 
@@ -68,7 +68,7 @@ export interface ViewerModel extends Model, BuildableModel {
     readonly readable: boolean;
 
     /**
-     * The {@link Geometry|Geometries} in this model.
+     * The {@link @xeokit/core/components!Geometry|Geometries} in this model.
      */
     readonly geometries: { [key: string]: Geometry };
 
@@ -115,14 +115,14 @@ export interface ViewerModel extends Model, BuildableModel {
     qualityRender: boolean;
 
     /**
-     * Emits an event when the {@link ViewerModel} has already been built.
+     * Emits an event when the {@link @xeokit/viewer!ViewerModel | ViewerModel} has already been built.
      *
      * @event
      */
     readonly onBuilt: EventEmitter<ViewerModel, null>;
 
     /**
-     * Emits an event when the {@link ViewerModel} has been destroyed.
+     * Emits an event when the {@link @xeokit/viewer!ViewerModel | ViewerModel} has been destroyed.
      *
      * @event
      */
@@ -168,7 +168,7 @@ export interface ViewerModel extends Model, BuildableModel {
     /**
      * Creates a geometry within this ViewerModel, from pre-compressed geometry parameters.
      *
-     * Use {@link compressGeometryParams} to pre-compress {@link GeometryParams} into {@link GeometryCompressedParams}.
+     * Use {@link @xeokit/compression/compressGeometryParams} to pre-compress {@link @xeokit/core/components!GeometryParams|GeometryParams} into {@link @xeokit/core/components!GeometryCompressedParams|GeometryCompressedParams}.
      *
      * ### Usage
      *

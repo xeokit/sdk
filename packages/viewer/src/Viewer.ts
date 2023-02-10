@@ -52,14 +52,14 @@ export class Viewer extends Component {
     readonly onTick: EventEmitter<Viewer, TickParams>;
 
     /**
-     * Emits an event each time a {@link View} is created.
+     * Emits an event each time a {@link @xeokit/viewer!View} is created.
      *
      * @event
      */
     readonly onViewCreated: EventEmitter<Viewer, View>;
 
     /**
-     * Emits an event each time a {@link View} is destroyed.
+     * Emits an event each time a {@link @xeokit/viewer!View} is destroyed.
      *
      * @event
      */
@@ -91,7 +91,7 @@ export class Viewer extends Component {
     readonly objects: { [key: string]: ViewerObject };
 
     /**
-     * Emits an event each time a {@link ViewerModel} is created.
+     * Emits an event each time a {@link @xeokit/viewer!ViewerModel | ViewerModel} is created.
      *
      * {@link Viewer.aabb} and {@link Viewer.center} may have updated values after this event.
      *
@@ -100,7 +100,7 @@ export class Viewer extends Component {
     readonly onModelCreated: EventEmitter<Viewer, ViewerModel>;
 
     /**
-     * Emits an event each time a {@link ViewerModel} is destroyed.
+     * Emits an event each time a {@link @xeokit/viewer!ViewerModel | ViewerModel} is destroyed.
      *
      * {@link Viewer.aabb} and {@link Viewer.center} may have updated values after this event.
      *
@@ -111,14 +111,14 @@ export class Viewer extends Component {
     /**
      * Map of all the Views in this Viewer.
      *
-     * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
+     * Each {@link @xeokit/viewer!View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
      */
     readonly views: { [key: string]: View };
 
     /**
      * List of all the Views in this Viewer.
      *
-     * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
+     * Each {@link @xeokit/viewer!View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
      */
     readonly viewList: View[];
 
@@ -166,7 +166,6 @@ export class Viewer extends Component {
         units?: string,
         scale?: number,
         origin?: FloatArrayParam,
-
     }) {
         super(null, {});
 
@@ -212,7 +211,7 @@ export class Viewer extends Component {
 
 
     /**
-     * Creates a new {@link View} within this Viewer.
+     * Creates a new {@link @xeokit/viewer!View} within this Viewer.
      *
      * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
      * will be determined by the {@link Renderer} implementation the Viewer is configured with.
@@ -264,7 +263,7 @@ export class Viewer extends Component {
     }
 
     /**
-     * Creates a new {@link ViewerModel} within this Viewer.
+     * Creates a new {@link @xeokit/viewer!ViewerModel | ViewerModel} within this Viewer.
      *
      * The ViewerModel represents a new model within the Viewer and provides an interface through which
      * we can then build geometry and materials within it.
@@ -272,7 +271,7 @@ export class Viewer extends Component {
      * When we've finished building our ViewerModel, we then call {@link ViewerModel.build}, which causes it to
      * immediately begin rendering within all the {@link View|Views} we created previously with {@link Viewer.createView}.
      *
-     * As that happens, each {@link View} automatically gets a {@link ViewObject} for each of the ViewerModel's {@link ViewerObject|ViewerObjects}, to
+     * As that happens, each {@link @xeokit/viewer!View} automatically gets a {@link ViewObject} for each of the ViewerModel's {@link ViewerObject|ViewerObjects}, to
      * independently represent that ViewerObject's visual state in that View.
      *
      * When we've finished with the ViewerModel, we destroy it using {@link ViewerModel.destroy}. That will automatically remove its
@@ -327,7 +326,7 @@ export class Viewer extends Component {
     /**
      * Gets the World-space axis-aligned 3D boundary (AABB) of this Viewer.
      *
-     * The AABB encompases the boundaries of all {@link ViewerModel} s currently in {@link Viewer.models}, and  is
+     * The AABB encompases the boundaries of all {@link @xeokit/viewer!ViewerModel | ViewerModel} s currently in {@link Viewer.models}, and  is
      * represented by a six-element Float64Array containing the min/max extents of the axis-aligned volume, ie. ````[xmin, ymin,zmin,xmax,ymax, zmax]````.
      *
      * When the Viewer has no content, the boundary will be an inverted shape, ie. ````[-100,-100,-100,100,100,100]````.

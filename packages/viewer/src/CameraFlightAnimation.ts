@@ -17,12 +17,12 @@ const newUp = createVec3();
 const newLookEyeVec = createVec3();
 
 /**
- * Animates its {@link View|View's} {@link Camera} to look at specified objects, boundaries or locations.
+ * Animates its {@link View|View's} {@link @xeokit/viewer!Camera}  to look at specified objects, boundaries or locations.
  *
  * ## Summary
  *
- * * Belongs to a {@link View}, and is located at {@link View.cameraFlight}
- * * Controls the View's {@link Camera}, which is located at {@link View.camera}
+ * * Belongs to a {@link @xeokit/viewer!View}, and is located at {@link View.cameraFlight}
+ * * Controls the View's {@link @xeokit/viewer!Camera} , which is located at {@link View.camera}
  * * Navigates the Camera to look at a {@link ViewerObject} or boundary
  * * Navigates the Camera to an explicit position given as ````eye````, ````look```` and ````up```` vectors
  * * Jumps or flies the Camera
@@ -127,13 +127,13 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * Flies the {@link Camera} to a target.
+     * Flies the {@link @xeokit/viewer!Camera}  to a target.
      *
-     *  * When the target is a boundary, the {@link Camera} will fly towards the target and stop when the target fills most of the canvas.
-     *  * When the target is an explicit {@link Camera} position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link Camera} to that target and stop there.
+     *  * When the target is a boundary, the {@link @xeokit/viewer!Camera}  will fly towards the target and stop when the target fills most of the canvas.
+     *  * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link @xeokit/viewer!Camera}  to that target and stop there.
      *
-     * @param {Object|Component} [params=Scene] Either a parameters object or a {@link Component} subtype that has
-     * an AABB. Defaults to the {@link Scene}, which causes the {@link Camera} to fit the Scene in view.
+     * @param {Object|Component} [params=Scene] Either a parameters object or a {@link @xeokit/core/components!Component} subtype that has
+     * an AABB. Defaults to the {@link Scene}, which causes the {@link @xeokit/viewer!Camera}  to fit the Scene in view.
      * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link Camera.eye} position
      * will swing away from its {@link Camera.look} position as it flies to the target.
      * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link Scene}.
@@ -317,12 +317,12 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * Jumps the {@link View}'s {@link Camera} to the given target.
+     * Jumps the {@link @xeokit/viewer!View}'s {@link @xeokit/viewer!Camera}  to the given target.
      *
-     * * When the target is a boundary, this CameraFlightAnimation will position the {@link Camera} at where the target fills most of the canvas.
-     * * When the target is an explicit {@link Camera} position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link Camera} to that target.
+     * * When the target is a boundary, this CameraFlightAnimation will position the {@link @xeokit/viewer!Camera}  at where the target fills most of the canvas.
+     * * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link @xeokit/viewer!Camera}  to that target.
      *
-     * @param {*|Component} params  Either a parameters object or a {@link Component} subtype that has a World-space AABB.
+     * @param {*|Component} params  Either a parameters object or a {@link @xeokit/core/components!Component} subtype that has a World-space AABB.
      * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link Camera.eye} will swing away from its {@link Camera.look} as it flies to the target.
      * @param {Number|String|Component} [params.component] ID or instance of a component to fly to.
      * @param [params.aabb]  World-space axis-aligned bounding box (AABB) target to fly to.
@@ -537,7 +537,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * When flying to a {@link ViewerModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+     * When flying to a {@link @xeokit/viewer!ViewerModel | ViewerModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
      * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.
@@ -549,7 +549,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * When flying to a {@link ViewerModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+     * When flying to a {@link @xeokit/viewer!ViewerModel | ViewerModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
      * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.
@@ -581,7 +581,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * Indicates if this CameraFlightAnimation will orient the {@link Camera}
+     * Indicates if this CameraFlightAnimation will orient the {@link @xeokit/viewer!Camera} 
      * in the direction that it is flying.
      *
      * Default value is ````false````.
@@ -591,7 +591,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * Indicates if this CameraFlightAnimation will orient the {@link Camera}
+     * Indicates if this CameraFlightAnimation will orient the {@link @xeokit/viewer!Camera} 
      * in the direction that it is flying.
      *
      * Default value is ````false````.

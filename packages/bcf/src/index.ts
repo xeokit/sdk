@@ -1,5 +1,5 @@
 /**
- * <img src="https://xeokit.github.io/xeokit-sdk/assets/images/bcf_logo.png"/>
+ * <img style="padding:20px" src="media://images/xeokit_bcf_logo.png"/>
  *
  * ## Load and save BIM Collaboration Format (BCF) Viewpoints
  *

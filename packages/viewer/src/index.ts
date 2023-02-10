@@ -1,9 +1,9 @@
 /**
- * <img src="http://xeokit.github.io/xeokit-sdk/assets/images/BCFViewpointsPlugin.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="media://images/xeokit_viewer_logo.png"/>
  *
  * ## Browser-Based Model Viewer
  *
- * * {@link Viewer}
+ * * {@link @xeokit/viewer!Viewer}
  * * Interactively view large models, at full coordinate precision, in all major browsers including mobile
  * * Independently move/show/hide/x-ray/highlight/colorize/slice objects
  * * Combine multiple, federated models
@@ -23,7 +23,7 @@
  *
  * ## Usage
  *
- * Create a {@link Viewer} with a {@link WebGLRenderer}:
+ * Create a {@link @xeokit/viewer!Viewer} with a {@link WebGLRenderer}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -36,7 +36,7 @@
  * });
  * ````
  *
- * Create a {@link View} with its own {@link Camera} and HTML canvas:
+ * Create a {@link @xeokit/viewer!View} with its own {@link @xeokit/viewer!Camera}  and HTML canvas:
  *
  * ````javascript
  * const view1 = myViewer.createView({
@@ -58,7 +58,7 @@
  * });
  * ````
  *
- * Now build a {@link ViewerModel} with a couple of objects:
+ * Now build a {@link @xeokit/viewer!ViewerModel | ViewerModel} with a couple of objects:
  *
  * ````javascript
  * const myViewerModel = myViewer.createModel({
@@ -96,7 +96,7 @@
  * myViewerModel.build();
  * ````
  *
- * Highlight one of the objects in the {@link View}:
+ * Highlight one of the objects in the {@link @xeokit/viewer!View}:
  *
  * ````javascript
  * view1.setObjectsHighlighted(["myObject1"], true);
@@ -108,7 +108,7 @@
  * view1.objects["myObject1"].highlighted = true;
  * ````
  *
- * See {@link Viewer} for more info.
+ * See {@link @xeokit/viewer!Viewer} for more info.
  *
  * @packageDocumentation
  * @module @xeokit/viewer

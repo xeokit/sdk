@@ -1,4 +1,6 @@
 /**
+ * <img src="http://xeokit.io/img/kdtree.jpeg" />
+ *
  * ## Boundaries Math Library
  *
  * * Axis-aligned boundaries (AABB)
@@ -28,7 +30,7 @@
 
 import * as math from "./math";
 import * as matrix from "./matrix";
-import {decompressPosition} from "@xeokit/compression/geometry";
+import {decompressPosition} from "@xeokit/compression";
 
 
 const tempVec3a = matrix.createVec3();

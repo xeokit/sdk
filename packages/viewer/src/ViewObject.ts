@@ -4,17 +4,17 @@ import type { ViewLayer } from "./ViewLayer";
 import type { ViewerObject } from "./ViewerObject";
 
 /**
- * Represents the visual state of a {@link ViewerObject} in a {@link View}.
+ * Represents the visual state of a {@link ViewerObject} in a {@link @xeokit/viewer!View}.
  *
  * ## Summary
  *
  * * Stored in {@link View.objects} and {@link ViewLayer.objects}
- * * Viewer automatically creates one of these in each existing {@link View} for each {@link ViewerObject} created
+ * * Viewer automatically creates one of these in each existing {@link @xeokit/viewer!View} for each {@link ViewerObject} created
  * * {@link ViewerObject.viewLayerId} determines which of the View's {@link ViewLayer|ViewLayers} to put the ViewObject in
  *
  * ## Overview
  *
- * Every View automatically maintains within itself a ViewObject for each {@link ViewerObject} that exists in the {@link Viewer}.
+ * Every View automatically maintains within itself a ViewObject for each {@link ViewerObject} that exists in the {@link @xeokit/viewer!Viewer}.
  *
  * Whenever we create a ViewerObject, each View will automatically create a corresponding ViewObject within itself. When
  * we destroy a ViewerObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View

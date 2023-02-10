@@ -1,14 +1,26 @@
 /**
- * ## Geometry (De)Compression Utilities
+ * <img style="padding:20px" src="media://images/geometry_icon.png"/>
  *
- * * Used internally within {@link BuildableModel.createGeometry} implementations to compress geometry
- * * Provided here for when we want to pre-compress our geometry offline and use {@link BuildableModel.createGeometryCompressed} instead
- * * Combines duplicate positions
+ * ## Geometry Compression / Decompression Utilities
+ *
+ * This library provides a set of functions that are used internally within
+ * {@link @xeokit/core/components!BuildableModel.createGeometry | BuildableModel.createGeometry} implementations to
+ * compress geometry. The functions are provided here in case users instead want to pre-compress their geometry "offline",
+ * and then use {@link @xeokit/core/components!BuildableModel.createGeometryCompressed | BuildableModel.createGeometryCompressed}
+ * to create the compressed geometry directly.
+ *
+ * ### Compression Techniques Used
+ *
+ * * Simplifies geometry by combining duplicate positions and adjusting indices
+ * * Generates edge indices for triangle meshes
+ * * Ignores normals (our shaders auto-generate them)
  * * Converts positions to relative-to-center (RTC) coordinates
- * * Quantizes positions and UVs as 16-bit unsigned ints
- * * Splits geometry into buckets to enable indices to use minimum bits for storage
- * * Generates indices for wireframe edge rendering
- * * Ignores normals (normal vectors are auto-generated in xeokit's shaders)
+ * * Quantizes positions and UVs as 16-bit unsigned integers
+ * * Splits geometry into {@link @xeokit/core/components!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
+ *
+ * ### Aknowledgements
+ *
+ * * The bucketing technique mentioned above was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.
  *
  * ## Installation
  *
@@ -18,124 +30,21 @@
  *
  * ## Usage
  *
- * See {@link compressGeometryParams} for more info.
+ * In the example below, we'll use {@link compressGeometryParams} to compress
+ * a {@link @xeokit/core/components!GeometryParams | GeometryParams} into a
+ * {@link @xeokit/core/components!GeometryCompressedParams | GeometryCompressedParams}.
  *
- * ````javascript
- * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl";
- * import {TrianglesPrimitive} from "@xeokit/core/constants";
- * import {compressGeometryParams} from "@xeokit/math/compression";
- *
- * const myViewer = new Viewer({
- *     id: "myViewer",
- *     renderer: new WebGLRenderer({
- *         //...
- *     })
- * });
- *
- * const view1 = myViewer.createView({
- *     id: "myView",
- *     canvasId: "myView1"
- * });
- *
- * view1.camera.eye = [-3.933, 2.855, 27.018];
- * view1.camera.look = [4.400, 3.724, 8.899];
- * view1.camera.up = [-0.018, 0.999, 0.039];
- *
- * const myViewerModel = myViewer.createModel({
- *     id: "myModel"
- * });
- *
- * const compressedGeometryParams = compressGeometryParams({
- *      id: "myBoxGeometry",
- *      primitive: TrianglesPrimitive,
- *      positions: [202, 202, 202, 200, 202, 202, ...],
- *      indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
- * });
- *
- * myViewerModel.createGeometryCompressed(compressedGeometryParams);
- *
- * myViewerModel.createMesh({
- *     id: "myMesh",
- *     geometryId: "myGeometry",
- *     //...
- * });
- *
- * myViewerModel.createObject({
- *     id: "myObject1",
- *     meshIds: ["myMesh"],
- *     //...
- * });
- *
- * myViewerModel.createObject({
- *     id: "myObject2",
- *     meshIds: ["myMesh"],
- *     //...
- * });
- *
- * myViewerModel.build();
- * ````
- *
- * @module @xeokit/compression/geometry
- */
-
-import {rebucketPositions} from "./rebucketPositions";
-import {
-    createMat3,
-    createMat4,
-    createVec3, identityMat3, identityMat4, mulMat3, mulMat4, normalizeVec3, scalingMat3v,
-    scalingMat4v,
-    transformVec3,
-    translationMat3v,
-    translationMat4v
-} from "@xeokit/math/matrix";
-import {collapseAABB3, expandAABB3Points3, getPositionsCenter} from "@xeokit/math/boundaries";
-import {GeometryCompressedParams, GeometryParams} from "@xeokit/core/components";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {uniquifyPositions} from "./calculateUniquePositions";
-import {buildEdgeIndices} from "./buildEdgeIndices";
-import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-
-
-const translate = createMat4();
-const scale = createMat4();
-
-const tempVec3 = createVec3();
-const tempVec3b = createVec3();
-
-/**
- * Compresses {@link GeometryParams} into {@link GeometryCompressedParams}.
- *
- * * Simplifies geometry by combining duplicate positions and adjusting indices
- * * Generates edge indices for triangle meshes
- * * Ignores normals (our shaders auto-generate them)
- * * Converts positions to relative-to-center (RTC) coordinates
- * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
- *
- * The GeometryCompressedParams can then be given to {@link ViewerModel.createGeometryCompressed}.
- *
- * #### Special Consideration for SolidPrimitive
- *
- * Note that if {@link GeometryParams.primitive} is {@link SolidPrimitive} and {@link GeometryCompressedParams.geometryBuckets}
- * contains more than one {@link GeometryBucketParams}, then {@link GeometryCompressedParams.primitive} will become
- * {@link SurfacePrimitive}, in the assumption that bucketing has split open a closed (solid) triangle mesh, which
- * can therefore no longer be treated as a solid.
- *
- * ### Example 1: Compressing parameters for a small geometry
- *
- * The example below demonstrates compression of {@link GeometryParams} for a simple geometry that only requires a
- * single {@link GeometryBucketParams | bucket }.
- *
- * Note that if the {@link GeometryParams.positions} array was large enough to require some indices to use more than 16 bits
- * for storage, then that's when the bucketing would kick in, to split the mesh into smaller buckets, each with smaller
- * indices that index a subset of the positions.
+ * In this example, our geometry is very simple, and our GeometryCompressedParams only gets a single
+ * {@link @xeokit/core/components!GeometryBucketParams | GeometryBucketParams }. Note that if the
+ * {@link @xeokit/core/components!GeometryParams.positions | GeometryParams.positions} array was large enough to require
+ * some of the indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would
+ * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
  * ````javascript
  * import {compressGeometryParams} from "@xeokit/math/compression";
  * import {TrianglesPrimitive} from "@xeokit/core/constants";
  *
- * const compressedGeometry = compressGeometryParams({
+ * const geometryCompressedParams = compressGeometryParams({
  *      id: "myBoxGeometry",
  *      primitive: TrianglesPrimitive,
  *      positions: [
@@ -161,7 +70,15 @@ const tempVec3b = createVec3();
  *  });
  * ````
  *
- * The value of ````compressedGeometry```` is:
+ * The value of our new {@link @xeokit/core/components!GeometryCompressedParams | GeometryCompressedParams} is shown below.
+ *
+ * We can see that:
+ *
+ * * We get one bucket, because we have only a small number of indices
+ * * Vertex positions are now relative to ````origin```` and quantized to 16-bit integers
+ * * Duplicate positions are removed and indices adjusted
+ * * Edge indices generated for our TrianglesPrimitive
+ * * A ````positionsDecompressMatrix```` to de-quantize the positions within the Viewer
  *
  * ````javascript
  * {
@@ -196,6 +113,105 @@ const tempVec3b = createVec3();
  *      ]
  * }
  * ````
+ *
+ * In the next example, we'll again use {@link compressGeometryParams} to compress
+ * a {@link @xeokit/core/components!GeometryParams | GeometryParams} into a
+ * {@link @xeokit/core/components!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
+ * create a compressed geometry within a {@link @xeokit/viewer!ViewerModel | ViewerModel}.
+ *
+ * ````javascript
+ * import {Viewer} from "@xeokit/viewer";
+ * import {WebGLRenderer} from "@xeokit/webgl";
+ * import {TrianglesPrimitive} from "@xeokit/core/constants";
+ * import {compressGeometryParams} from "@xeokit/math/compression";
+ *
+ * const myViewer = new Viewer({
+ *     id: "myViewer",
+ *     renderer: new WebGLRenderer({
+ *         //...
+ *     })
+ * });
+ *
+ * const view1 = myViewer.createView({
+ *     id: "myView",
+ *     canvasId: "myView1"
+ * });
+ *
+ * view1.camera.eye = [-3.933, 2.855, 27.018];
+ * view1.camera.look = [4.400, 3.724, 8.899];
+ * view1.camera.up = [-0.018, 0.999, 0.039];
+ *
+ * const myViewerModel = myViewer.createModel({
+ *     id: "myModel"
+ * });
+ *
+ * const geometryCompressedParams = compressGeometryParams({
+ *      id: "myBoxGeometry",
+ *      primitive: TrianglesPrimitive,
+ *      positions: [202, 202, 202, 200, 202, 202, ...],
+ *      indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
+ * });
+ *
+ * myViewerModel.createGeometryCompressed(geometryCompressedParams);
+ *
+ * myViewerModel.createMesh({
+ *     id: "myMesh",
+ *     geometryId: "myGeometry",
+ *     //...
+ * });
+ *
+ * myViewerModel.createObject({
+ *     id: "myObject1",
+ *     meshIds: ["myMesh"],
+ *     //...
+ * });
+ *
+ * myViewerModel.createObject({
+ *     id: "myObject2",
+ *     meshIds: ["myMesh"],
+ *     //...
+ * });
+ *
+ * myViewerModel.build();
+ * ````
+ *
+ * @module @xeokit/compression
+ */
+
+import {rebucketPositions} from "./rebucketPositions";
+import {
+    createMat3,
+    createMat4,
+    createVec3,
+    identityMat3,
+    identityMat4,
+    mulMat3,
+    mulMat4,
+    normalizeVec3,
+    scalingMat3v,
+    scalingMat4v,
+    transformVec3,
+    translationMat3v,
+    translationMat4v
+} from "@xeokit/math/matrix";
+import {collapseAABB3, expandAABB3Points3, getPositionsCenter} from "@xeokit/math/boundaries";
+import {GeometryCompressedParams, GeometryParams} from "@xeokit/core/components";
+import {FloatArrayParam} from "@xeokit/math/math";
+import {uniquifyPositions} from "./calculateUniquePositions";
+import {buildEdgeIndices} from "./buildEdgeIndices";
+import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
+
+
+const translate = createMat4();
+const scale = createMat4();
+
+const tempVec3 = createVec3();
+const tempVec3b = createVec3();
+
+/**
+ * Compresses a {@link @xeokit/core/components!GeometryParams | GeometryParams} into a {@link @xeokit/core/components!GeometryCompressedParams|GeometryCompressedParams}.
+ *
+ * See {@link @xeokit/compression} for usage examples.
  *
  * @param geometryParams Uncompressed geometry params.
  * @returns Compressed geometry params.

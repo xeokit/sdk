@@ -1,6 +1,7 @@
 import {XKT_INFO} from "../XKT_INFO";
 import {XKTData} from "./XKTData";
 import {Model} from "@xeokit/core/components";
+import {DataModel} from "@xeokit/datamodel";
 
 const XKT_VERSION = XKT_INFO.xktVersion;
 const NUM_TEXTURE_ATTRIBUTES = 9;
@@ -9,7 +10,13 @@ const NUM_MATERIAL_ATTRIBUTES = 6;
 /**
  * @private
  */
-export function modelToXKT(model: Model, metaModelDataStr, stats): XKTData {
+export function modelToXKT(params: {
+    model: Model,
+    dataModel?:DataModel
+}): XKTData {
+
+    const model = params.model;
+    const dataModel = params.dataModel;
 
     const geometriesList = Object.values(model.geometries);
     const texturesList = Object.values(model.textures);
@@ -83,7 +90,7 @@ export function modelToXKT(model: Model, metaModelDataStr, stats): XKTData {
     }
 
     const xktData: XKTData = {
-        metadata: {},
+        metadata: dataModel ? dataModel.getJSON() : {},
         textureData: new Uint8Array(lenTextures), // All textures
         eachTextureDataPortion: new Uint32Array(numTextures), // For each texture, an index to its first element in textureData
         eachTextureAttributes: new Uint16Array(numTextures * NUM_TEXTURE_ATTRIBUTES),

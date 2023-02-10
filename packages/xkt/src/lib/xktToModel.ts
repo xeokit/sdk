@@ -1,323 +1,243 @@
-import type {BuildableModel} from "@xeokit/core/components";
+import type {BuildableModel, GeometryBucketParams, GeometryCompressedParams} from "@xeokit/core/components";
 import {XKTData} from "./XKTData";
-import {createVec4} from "@xeokit/math/matrix";
+import {JPEGMediaType, LinesPrimitive, PNGMediaType, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
+import {DataModel} from "@xeokit/datamodel";
 
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
+
 const NUM_TEXTURE_ATTRIBUTES = 9;
 
 /**
  * @private
  */
-export function xktToModel(xktData: XKTData, buildableModel: BuildableModel, options?: {}): void {
-    /*
-        const metadata = xktData.metadata;
-        const textureData = xktData.textureData;
-        const eachTextureDataPortion = xktData.eachTextureDataPortion;
-        const eachTextureAttributes = xktData.eachTextureAttributes;
-        const positions = xktData.positions;
-        const colors = xktData.colors;
-        const uvs = xktData.uvs;
+export function xktToModel(params: {
+    xktData: XKTData,
+    buildableModel: BuildableModel,
+    dataModel?: DataModel
+}): void {
 
-        const indices8Bit = xktData.indices8Bit;
-        const indices16Bit = xktData.indices16Bit;
-        const indices32Bit = xktData.indices32Bit;
+    const xktData = params.xktData;
+    const buildableModel = params.buildableModel;
+    const dataModel = params.dataModel;
 
-        const edgeIndices8Bit = xktData.edgeIndices8Bit;
-        const edgeIndices16Bit = xktData.edgeIndices16Bit;
-        const edgeIndices32Bit = xktData.edgeIndices32Bit;
-
-        const eachTextureSetTextures = xktData.eachTextureSetTextures;
-        const matrices = xktData.matrices;
-        const eachBucketPositionsPortion = xktData.eachBucketPositionsPortion;
-        const eachBucketColorsPortion = xktData.eachBucketColorsPortion;
-        const eachBucketUVsPortion = xktData.eachBucketUVsPortion;
-        const eachBucketIndicesPortion = xktData.eachBucketIndicesPortion;
-        const eachBucketEdgeIndicesPortion = xktData.eachBucketEdgeIndicesPortion;
-
-        const eachGeometryPrimitiveType = xktData.eachGeometryPrimitiveType;
-        const eachGeometryBucketPortion = xktData.eachGeometryBucketPortion;
-
-
-        const eachMeshGeometriesPortion = xktData.eachMeshGeometriesPortion;
-        const eachMeshMatricesPortion = xktData.eachMeshMatricesPortion;
-        const eachMeshTextureSet = xktData.eachMeshTextureSet;
-        const eachMeshMaterialAttributes = xktData.eachMeshMaterialAttributes;
-        const eachObjectId = xktData.eachObjectId;
-        const eachObjectMeshesPortion = xktData.eachObjectMeshesPortion;
-        const eachTileAABB = xktData.eachTileAABB;
-        const eachTileEntitiesPortion = xktData.eachTileEntitiesPortion;
-
-        const numTextures = eachTextureDataPortion.length;
-        const numTextureSets = eachTextureSetTextures.length / 5;
-        const numBuckets = eachBucketPositionsPortion.length;
-        const numMeshes = eachMeshGeometriesPortion.length;
-        const numEntities = eachObjectMeshesPortion.length;
-        const numTiles = eachTileEntitiesPortion.length;
-
-        let nextMeshId = 0;
-
-
-        // Create textures
-
-        for (let textureIndex = 0; textureIndex < numTextures; textureIndex++) {
-
-            const atLastTexture = (textureIndex === (numTextures - 1));
-            const textureDataPortionStart = eachTextureDataPortion[textureIndex];
-            const textureDataPortionEnd = atLastTexture ? textureData.length : (eachTextureDataPortion[textureIndex + 1]);
-
-            const textureDataPortionSize = textureDataPortionEnd - textureDataPortionStart;
-            const textureDataPortionExists = (textureDataPortionSize > 0);
-
-            const textureAttrBaseIdx = (textureIndex * NUM_TEXTURE_ATTRIBUTES);
-
-            const compressed = (eachTextureAttributes[textureAttrBaseIdx + 0] === 1);
-            const mediaType = eachTextureAttributes[textureAttrBaseIdx + 1];
-            const width = eachTextureAttributes[textureAttrBaseIdx + 2];
-            const height = eachTextureAttributes[textureAttrBaseIdx + 3];
-            const minFilter = eachTextureAttributes[textureAttrBaseIdx + 4];
-            const magFilter = eachTextureAttributes[textureAttrBaseIdx + 5]; // LinearFilter | NearestFilter
-            const wrapS = eachTextureAttributes[textureAttrBaseIdx + 6]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-            const wrapT = eachTextureAttributes[textureAttrBaseIdx + 7]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-            const wrapR = eachTextureAttributes[textureAttrBaseIdx + 8]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-
-            if (textureDataPortionExists) {
-
-                const imageDataSubarray = new Uint8Array(textureData.subarray(textureDataPortionStart, textureDataPortionEnd));
-                const arrayBuffer = imageDataSubarray.buffer;
-                const textureId = `texture-${textureIndex}`;
-
-                if (compressed) {
-
-                    buildableModel.createTexture({
-                        id: textureId,
-                        buffers: [arrayBuffer],
-                        minFilter,
-                        magFilter,
-                        wrapS,
-                        wrapT,
-                        wrapR
-                    });
-
-                } else {
-
-                    const mimeType = mediaType === JPEGMediaType ? "image/jpeg" : (mediaType === PNGMediaType ? "image/png" : "image/gif");
-                    const blob = new Blob([arrayBuffer], {type: mimeType});
-                    const urlCreator = window.URL || window.webkitURL;
-                    const imageUrl = urlCreator.createObjectURL(blob);
-                    const img = document.createElement('img');
-                    img.src = imageUrl;
-
-                    buildableModel.createTexture({
-                        id: textureId,
-                        image: img,
-                        //mediaType,
-                        minFilter,
-                        magFilter,
-                        wrapS,
-                        wrapT,
-                        wrapR
-                    });
-                }
-            }
+    if (dataModel) {
+        if (xktData.metadata) {
+            dataModel.fromJSON(xktData.metadata);
         }
+    }
 
-        // Create texture sets
+    const numTextures = xktData.eachTextureDataPortion.length;
+    const numTextureSets = xktData.eachTextureSetTextures.length / 5;
+    const numBuckets = xktData.eachBucketPositionsPortion.length;
+    const numMeshes = xktData.eachMeshGeometriesPortion.length;
+    const numObjects = xktData.eachObjectMeshesPortion.length;
+    const numGeometries = xktData.eachGeometryDecodeMatricesPortion.length;
 
-        for (let textureSetIndex = 0; textureSetIndex < numTextureSets; textureSetIndex++) {
-            const eachTextureSetTexturesIndex = textureSetIndex * 5;
-            const textureSetId = `textureSet-${textureSetIndex}`;
-            const colorTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 0];
-            const metallicRoughnessTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 1];
-            const normalsTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 2];
-            const emissiveTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
-            const occlusionTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
+    let nextMeshId = 0;
 
-            buildableModel.createTextureSet({
-                id: textureSetId,
-                colorTextureId: colorTextureIndex >= 0 ? `texture-${colorTextureIndex}` : null,
-                normalsTextureId: normalsTextureIndex >= 0 ? `texture-${normalsTextureIndex}` : null,
-                metallicRoughnessTextureId: metallicRoughnessTextureIndex >= 0 ? `texture-${metallicRoughnessTextureIndex}` : null,
-                emissiveTextureId: emissiveTextureIndex >= 0 ? `texture-${emissiveTextureIndex}` : null,
-                occlusionTextureId: occlusionTextureIndex >= 0 ? `texture-${occlusionTextureIndex}` : null
-            });
-        }
+    const geometryCreated = {};
 
-        for (let bucketIndex = 0; bucketIndex < numBuckets; bucketIndex++) {
-            const atLastTexture = (textureIndex === (numTextures - 1));
+    // Create textures
 
-        }
+    for (let textureIndex = 0; textureIndex < numTextures; textureIndex++) {
 
-        for (let geometryIndex = 0; geometryIndex < numGeometries; geometryIndex++) {
-            const atLastGeometry = (geometryIndex === (numGeometries - 1));
+        const atLastTexture = (textureIndex === (numTextures - 1));
+        const textureDataPortionStart = xktData.eachTextureDataPortion[textureIndex];
+        const textureDataPortionEnd = atLastTexture ? xktData.textureData.length : (xktData.eachTextureDataPortion[textureIndex + 1]);
+        const textureDataPortionSize = textureDataPortionEnd - textureDataPortionStart;
+        const textureDataPortionExists = (textureDataPortionSize > 0);
+        const textureAttrBaseIdx = (textureIndex * NUM_TEXTURE_ATTRIBUTES);
 
-        }
+        const compressed = (xktData.eachTextureAttributes[textureAttrBaseIdx] === 1);
+        const mediaType = xktData.eachTextureAttributes[textureAttrBaseIdx + 1];
+        const width = xktData.eachTextureAttributes[textureAttrBaseIdx + 2];
+        const height = xktData.eachTextureAttributes[textureAttrBaseIdx + 3];
+        const minFilter = xktData.eachTextureAttributes[textureAttrBaseIdx + 4];
+        const magFilter = xktData.eachTextureAttributes[textureAttrBaseIdx + 5]; // LinearFilter | NearestFilter
+        const wrapS = xktData.eachTextureAttributes[textureAttrBaseIdx + 6]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        const wrapT = xktData.eachTextureAttributes[textureAttrBaseIdx + 7]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        const wrapR = xktData.eachTextureAttributes[textureAttrBaseIdx + 8]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
 
-        // Count instances of each geometry
+        if (textureDataPortionExists) {
 
-        const geometryReuseCounts = new Uint32Array(numGeometries);
+            const imageDataSubarray = new Uint8Array(xktData.textureData.subarray(textureDataPortionStart, textureDataPortionEnd));
+            const arrayBuffer = imageDataSubarray.buffer;
+            const textureId = `texture-${textureIndex}`;
 
-        for (let meshIndex = 0; meshIndex < numMeshes; meshIndex++) {
-            const geometryIndex = eachMeshGeometriesPortion[meshIndex];
-            if (geometryReuseCounts[geometryIndex] !== undefined) {
-                geometryReuseCounts[geometryIndex]++;
+            if (compressed) {
+
+                buildableModel.createTexture({
+                    id: textureId,
+                    buffers: [arrayBuffer],
+                    minFilter,
+                    magFilter,
+                    wrapS,
+                    wrapT,
+                    wrapR
+                });
+
             } else {
-                geometryReuseCounts[geometryIndex] = 1;
+
+                const mimeType = mediaType === JPEGMediaType ? "image/jpeg" : (mediaType === PNGMediaType ? "image/png" : "image/gif");
+                const blob = new Blob([arrayBuffer], {type: mimeType});
+                const urlCreator = window.URL || window.webkitURL;
+                const imageUrl = urlCreator.createObjectURL(blob);
+                const img = document.createElement('img');
+                img.src = imageUrl;
+
+                buildableModel.createTexture({
+                    id: textureId,
+                    image: img,
+                    mediaType,
+                    minFilter,
+                    magFilter,
+                    wrapS,
+                    wrapT,
+                    wrapR
+                });
             }
         }
+    }
 
-        for (let objectIndex = 0; objectIndex <= numObjects; objectIndex++) {
+    // Create texture sets
 
-            const objectId = eachObjectId[objectIndex];
+    for (let textureSetIndex = 0; textureSetIndex < numTextureSets; textureSetIndex++) {
 
-            const finalObjectIndex = (numEntities - 1);
-            const atLastObject = (objectIndex === finalObjectIndex);
-            const firstMeshIndex = eachObjectMeshesPortion [objectIndex];
-            const lastMeshIndex = atLastObject ? (eachMeshGeometriesPortion.length - 1) : (eachObjectMeshesPortion[objectIndex + 1] - 1);
+        const eachTextureSetTexturesIndex = textureSetIndex * 5; // Five textures per set
+        const textureSetId = `textureSet-${textureSetIndex}`;
+        const colorTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex];
+        const metallicRoughnessTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 1];
+        const normalsTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 2];
+        const emissiveTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
+        const occlusionTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
 
-            const meshIds = [];
+        buildableModel.createTextureSet({
+            id: textureSetId,
+            colorTextureId: colorTextureIndex >= 0 ? `texture-${colorTextureIndex}` : null,
+            normalsTextureId: normalsTextureIndex >= 0 ? `texture-${normalsTextureIndex}` : null,
+            metallicRoughnessTextureId: metallicRoughnessTextureIndex >= 0 ? `texture-${metallicRoughnessTextureIndex}` : null,
+            emissiveTextureId: emissiveTextureIndex >= 0 ? `texture-${emissiveTextureIndex}` : null,
+            occlusionTextureId: occlusionTextureIndex >= 0 ? `texture-${occlusionTextureIndex}` : null
+        });
+    }
 
-            // Iterate each object's meshes
+    // Iterate objects
 
-            for (let meshIndex = firstMeshIndex; meshIndex <= lastMeshIndex; meshIndex++) {
+    for (let objectIndex = 0; objectIndex <= numObjects; objectIndex++) {
 
-                const geometryIndex = eachMeshGeometriesPortion[meshIndex];
+        const objectId = xktData.eachObjectId[objectIndex];
+        const finalObjectIndex = (numObjects - 1);
+        const atLastObject = (objectIndex === finalObjectIndex);
+        const firstMeshIndex = xktData.eachObjectMeshesPortion [objectIndex];
+        const lastMeshIndex = atLastObject ? (xktData.eachMeshGeometriesPortion.length - 1) : (xktData.eachObjectMeshesPortion[objectIndex + 1] - 1);
 
-                const atLastGeometry = (geometryIndex === (numGeometries - 1));
+        const meshIds = [];
 
-                const textureSetIndex = eachMeshTextureSet[meshIndex];
+        // Iterate each object's meshes
 
-                const textureSetId = (textureSetIndex >= 0) ? `textureSet-${textureSetIndex}` : null;
+        for (let meshIndex = firstMeshIndex; meshIndex <= lastMeshIndex; meshIndex++) {
 
-                const meshColor = decompressColor(eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
-                const meshOpacity = eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;
-                const meshMetallic = eachMeshMaterialAttributes[(meshIndex * 6) + 4] / 255.0;
-                const meshRoughness = eachMeshMaterialAttributes[(meshIndex * 6) + 5] / 255.0;
+            const geometryIndex = xktData.eachMeshGeometriesPortion[meshIndex];
+            const atLastGeometry = (geometryIndex === (numGeometries - 1));
+            const textureSetIndex = xktData.eachMeshTextureSet[meshIndex];
+            const textureSetId = (textureSetIndex >= 0) ? `textureSet-${textureSetIndex}` : null;
 
-                const meshId = nextMeshId++;
+            const meshColor = decompressColor(xktData.eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
+            const meshOpacity = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;
+            const meshMetallic = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 4] / 255.0;
+            const meshRoughness = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 5] / 255.0;
 
+            const meshId = `mesh-${nextMeshId++}`;
+            const meshMatrixIndex = xktData.eachMeshMatricesPortion[meshIndex];
+            const meshMatrix = xktData.matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
 
-                // Create mesh for multi-use geometry - create (or reuse) geometry, create mesh using that geometry
+            const geometryId = `geometry.${geometryIndex}`;
 
-                const meshMatrixIndex = eachMeshMatricesPortion[meshIndex];
-                const meshMatrix = matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
+            if (!geometryCreated[geometryId]) {
 
-                const geometryId = "geometry." + tileIndex + "." + geometryIndex; // These IDs are local to the VBObuildableModel
+                const geometryParams = <GeometryCompressedParams>{
+                    geometryBuckets: []
+                };
 
-                let geometryArrays = geometryArraysCache[geometryId];
+                geometryParams.primitive = xktData.eachGeometryPrimitiveType[geometryIndex];
+                const geometryDecodeMatrixIndex = xktData.eachGeometryDecodeMatricesPortion[geometryIndex];
+                geometryParams.positionsDecompressMatrix = xktData.eachGeometryDecodeMatricesPortion.slice(geometryDecodeMatrixIndex, geometryDecodeMatrixIndex + 16);
 
-                if (!geometryArrays) {
-                    geometryArrays = {
-                        batchThisMesh: (!options.reuseGeometries)
+                let geometryValid = false;
+
+                // Iterate each geometry's buckets
+
+                const firstBucketIndex = xktData.eachGeometryBucketPortion[geometryIndex];
+                const atLastBucket = (firstBucketIndex === (numBuckets - 1));
+                const lastBucketIndex = atLastBucket ? (xktData.eachMeshGeometriesPortion.length - 1) : (xktData.eachObjectMeshesPortion[objectIndex + 1] - 1);
+
+                for (let bucketIndex = firstBucketIndex; bucketIndex <= lastBucketIndex; bucketIndex++) {
+
+                    const geometryBucketParams = <GeometryBucketParams>{
+                        positionsCompressed: [],
+                        indices: []
                     };
-                    const primitiveType = eachGeometryPrimitiveType[geometryIndex];
-                    let geometryValid = false;
-                    switch (primitiveType) {
-                        case 0:
-                            geometryArrays.primitiveName = "solid";
-                            geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion [geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion [geometryIndex + 1]);
-                            geometryArrays.geometryNormals = normals.subarray(eachGeometryNormalsPortion [geometryIndex], atLastGeometry ? normals.length : eachGeometryNormalsPortion [geometryIndex + 1]);
-                            geometryArrays.geometryUVs = uvs.subarray(eachGeometryUVsPortion [geometryIndex], atLastGeometry ? uvs.length : eachGeometryUVsPortion [geometryIndex + 1]);
-                            geometryArrays.geometryIndices = indices.subarray(eachGeometryIndicesPortion [geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion [geometryIndex + 1]);
-                            geometryArrays.geometryEdgeIndices = edgeIndices.subarray(eachGeometryEdgeIndicesPortion [geometryIndex], atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesPortion [geometryIndex + 1]);
-                            geometryValid = (geometryArrays.geometryPositions.length > 0 && geometryArrays.geometryIndices.length > 0);
+
+                    const geometryIndicesBitness = xktData.eachBucketIndicesBitness[bucketIndex];
+                    const indices = geometryIndicesBitness === 8 ? xktData.indices8Bit : (geometryIndicesBitness === 16 ? xktData.indices16Bit : xktData.indices32Bit);
+                    const edgeIndices = geometryIndicesBitness === 8 ? xktData.edgeIndices8Bit : (geometryIndicesBitness === 16 ? xktData.edgeIndices16Bit : xktData.edgeIndices32Bit);
+
+                    let bucketValid = false;
+
+                    switch (geometryParams.primitive) {
+
+                        case TrianglesPrimitive:
+                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            //   geometryBucketParams.uvsCompressed = xktData.uvs.subarray(xktData.eachBucketUVsPortion [bucketIndex], atLastBucket ? xktData.uvs.length : xktData.eachBucketUVsPortion [bucketIndex + 1]);
+                            geometryBucketParams.indices = indices.subarray(xktData.eachBucketIndicesPortion [bucketIndex], atLastBucket ? indices.length : xktData.eachBucketIndicesPortion [bucketIndex + 1]);
+                            geometryBucketParams.edgeIndices = edgeIndices.subarray(xktData.eachBucketEdgeIndicesPortion [bucketIndex], atLastBucket ? edgeIndices.length : xktData.eachBucketEdgeIndicesPortion [bucketIndex + 1]);
+                            bucketValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
                             break;
-                        case 1:
-                            geometryArrays.primitiveName = "surface";
-                            geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion [geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion [geometryIndex + 1]);
-                            geometryArrays.geometryNormals = normals.subarray(eachGeometryNormalsPortion [geometryIndex], atLastGeometry ? normals.length : eachGeometryNormalsPortion [geometryIndex + 1]);
-                            geometryArrays.geometryUVs = uvs.subarray(eachGeometryUVsPortion [geometryIndex], atLastGeometry ? uvs.length : eachGeometryUVsPortion [geometryIndex + 1]);
-                            geometryArrays.geometryIndices = indices.subarray(eachGeometryIndicesPortion [geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion [geometryIndex + 1]);
-                            geometryArrays.geometryEdgeIndices = edgeIndices.subarray(eachGeometryEdgeIndicesPortion [geometryIndex], atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesPortion [geometryIndex + 1]);
-                            geometryValid = (geometryArrays.geometryPositions.length > 0 && geometryArrays.geometryIndices.length > 0);
+
+                        case PointsPrimitive:
+                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            // geometryBucketParams.colorsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            bucketValid = (geometryBucketParams.positionsCompressed.length > 0);
                             break;
-                        case 2:
-                            geometryArrays.primitiveName = "points";
-                            geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion [geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion [geometryIndex + 1]);
-                            geometryArrays.geometryColors = colors.subarray(eachGeometryColorsPortion [geometryIndex], atLastGeometry ? colors.length : eachGeometryColorsPortion [geometryIndex + 1]);
-                            geometryValid = (geometryArrays.geometryPositions.length > 0);
-                            break;
-                        case 3:
-                            geometryArrays.primitiveName = "lines";
-                            geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion [geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion [geometryIndex + 1]);
-                            geometryArrays.geometryIndices = indices.subarray(eachGeometryIndicesPortion [geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion [geometryIndex + 1]);
-                            geometryValid = (geometryArrays.geometryPositions.length > 0 && geometryArrays.geometryIndices.length > 0);
+
+                        case LinesPrimitive:
+                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            geometryBucketParams.indices = indices.subarray(xktData.eachBucketIndicesPortion [bucketIndex], atLastBucket ? indices.length : xktData.eachBucketIndicesPortion [bucketIndex + 1]);
+                            bucketValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
                             break;
                         default:
                             continue;
                     }
-
-                    if (!geometryValid) {
-                        geometryArrays = null;
-                    }
-
-                    if (geometryArrays) {
-                        if (geometryReuseCount > 1000) { // TODO: Heuristic to force batching of instanced geometry beyond a certain reuse count (or budget)?
-                            // geometryArrays.batchThisMesh = true;
-                        }
-                        if (geometryArrays.geometryPositions.length > 1000) { // TODO: Heuristic to force batching on instanced geometry above certain vertex size?
-                            // geometryArrays.batchThisMesh = true;
-                        }
-                        if (geometryArrays.batchThisMesh) {
-                            geometryArrays.decompressedPositions = new Float32Array(geometryArrays.geometryPositions.length);
-                            geometryArrays.transformedAndRecompressedPositions = new Uint16Array(geometryArrays.geometryPositions.length)
-                            const geometryPositions = geometryArrays.geometryPositions;
-                            const decompressedPositions = geometryArrays.decompressedPositions;
-                            for (let i = 0, len = geometryPositions.length; i < len; i += 3) {
-                                decompressedPositions[i + 0] = geometryPositions[i + 0] * reusedGeometriesDecodeMatrix[0] + reusedGeometriesDecodeMatrix[12];
-                                decompressedPositions[i + 1] = geometryPositions[i + 1] * reusedGeometriesDecodeMatrix[5] + reusedGeometriesDecodeMatrix[13];
-                                decompressedPositions[i + 2] = geometryPositions[i + 2] * reusedGeometriesDecodeMatrix[10] + reusedGeometriesDecodeMatrix[14];
-                            }
-                            geometryArrays.geometryPositions = null;
-                            geometryArraysCache[geometryId] = geometryArrays;
-                        }
+                    if (bucketValid) {
+                        geometryParams.geometryBuckets.push(geometryBucketParams);
                     }
                 }
 
-                if (geometryArrays) {
-
-
-                    if (!geometryCreatedInTile[geometryId]) {
-
-                        buildableModel.createGeometry({
-                            id: geometryId,
-                            primitive: geometryArrays.primitiveName,
-                            positionsCompressed: geometryArrays.geometryPositions,
-                            normalsCompressed: geometryArrays.geometryNormals,
-                            uv: geometryArrays.geometryUVs,
-                            colorsCompressed: geometryArrays.geometryColors,
-                            indices: geometryArrays.geometryIndices,
-                            edgeIndices: geometryArrays.geometryEdgeIndices,
-                            positionsDecodeMatrix: reusedGeometriesDecodeMatrix
-                        });
-
-                        geometryCreatedInTile[geometryId] = true;
-                    }
-
-                    buildableModel.createMesh(utils.apply(meshDefaults, {
-                        id: meshId,
-                        geometryId: geometryId,
-                        textureSetId: textureSetId,
-                        matrix: meshMatrix,
-                        color: meshColor,
-                        metallic: meshMetallic,
-                        roughness: meshRoughness,
-                        opacity: meshOpacity,
-                        origin: tileCenter
-                    }));
-
-                    meshIds.push(meshId);
+                if (geometryParams.geometryBuckets.length > 0) {
+                    buildableModel.createGeometryCompressed(geometryParams);
+                    geometryCreated[geometryId] = true;
                 }
             }
 
-            if (meshIds.length > 0) {
-                buildableModel.createObject(apply(objectDefaults, {
-                    id: objectId,
-                    meshIds: meshIds
-                }));
-            }
+            buildableModel.createMesh({
+                id: meshId,
+                geometryId: geometryId,
+                textureSetId: textureSetId,
+                matrix: meshMatrix,
+                color: meshColor,
+                metallic: meshMetallic,
+                roughness: meshRoughness,
+                opacity: meshOpacity
+            });
+            meshIds.push(meshId);
         }
-    */
+
+        if (meshIds.length > 0) {
+            buildableModel.createObject({
+                id: objectId,
+                meshIds: meshIds
+            });
+        }
+    }
 }
 
 const decompressColor = (function () {

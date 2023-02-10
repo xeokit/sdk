@@ -28,7 +28,7 @@ import {
     SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-import {TextureTranscoder} from "@xeokit/compression/texture";
+import {TextureTranscoder} from "@xeokit/core/components";
 import {createUUID, loadArraybuffer} from "@xeokit/core/utils";
 import {collapseAABB3, expandAABB3} from "@xeokit/math/boundaries";
 import {
@@ -44,7 +44,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 
 import type {Camera, View} from "@xeokit/viewer";
 import {Viewer} from "@xeokit/viewer";
-import {compressGeometryParams} from "@xeokit/compression/geometry";
+import {compressGeometryParams} from "@xeokit/compression";
 import {ViewerModel} from "@xeokit/viewer";
 
 import {Texture2D} from "../lib/Texture2D";

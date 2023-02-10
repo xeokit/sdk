@@ -8,8 +8,8 @@ import {EventDispatcher} from "strongly-typed-events";
  * ## Summary
  *
  * * Unique ID
- * - Logging methods
- * - Manages lifecycle of child Components
+ * * Logging methods
+ * * Manages lifecycle of child Components
  */
 export class Component {
 
@@ -32,7 +32,7 @@ export class Component {
     #ownedComponents: null | { [key: string]: Component };
 
     /**
-     * Emits an event when the {@link Component} has been destroyed.
+     * Emits an event when the {@link @xeokit/core/components!Component} has been destroyed.
      *
      * @event
      */

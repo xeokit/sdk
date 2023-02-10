@@ -9,6 +9,7 @@ import type {PropertySetParams} from "./PropertySetParams";
 import {Relationship} from "./Relationship";
 import type {RelationshipParams} from "./RelationshipParams";
 import {EventDispatcher} from "strongly-typed-events";
+import {PropertyParams} from "./PropertyParams";
 
 /**
  * A buildable entity-relationship semantic data model.
@@ -108,7 +109,7 @@ class DataModel extends Component {
     public typeCounts: { [key: string]: number };
 
     /**
-     * Emits an event when the {@link DataModel} has already been built.
+     * Emits an event when the {@link @xeokit/datamodel/DataModel} has already been built.
      *
      * @event
      */
@@ -185,6 +186,32 @@ class DataModel extends Component {
     }
 
     /**
+     * Adds the given {@link PropertySet|PropertySets}, {@link DataObject|DataObjects}
+     * and {@link Relationships|PropertySets} to this DataModel.
+     *
+     * Only those elements from the parameters are added.
+     *
+     * @param dataModelParams
+     */
+    fromJSON(dataModelParams: DataModelParams) {
+        if (dataModelParams.propertySets) {
+            for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
+                this.createPropertySet(dataModelParams.propertySets[i]);
+            }
+        }
+        if (dataModelParams.objects) {
+            for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
+                this.createObject(dataModelParams.objects[i]);
+            }
+        }
+        if (dataModelParams.relationships) {
+            for (let i = 0, len = dataModelParams.relationships.length; i < len; i++) {
+                this.createRelationship(dataModelParams.relationships[i]);
+            }
+        }
+    }
+
+    /**
      * Creates a {@link PropertySet} within this DataModel.
      *
      * @param propertySetCfg
@@ -202,7 +229,7 @@ class DataModel extends Component {
      * Creates a {@link DataObject} in this DataModel.
      *
      * Each DataObject has a globally-unique ID in {@link DataObject.id}, with which it's registered
-     * in {@link Data.objects} and {@link DataModel.objects}.
+     * in {@link Data.objects} and {@link @xeokit/datamodel/DataModel.objects}.
      *
      * If {@link DataObjectParams.id} matches a DataObject that
      * already exists (ie. already created for a different DataModel), then this method will reuse that DataObject for this DataModel,
@@ -211,7 +238,7 @@ class DataModel extends Component {
      * and {@link DataObjectParams.name}. This aligns well with IFC, in which wewe never have two elements with the same
      * ID but different types or names.
      *
-     * Each DataObject automatically gets destroyed whenever all the {@link DataModel|DataModels} that share
+     * Each DataObject automatically gets destroyed whenever all the {@link @xeokit/datamodel/DataModel|DataModels} that share
      * it have been destroyed.
      *
      * We can attach our DataObject as child of an existing parent DataObject. To do that, we provide the ID of the parent
@@ -317,6 +344,52 @@ class DataModel extends Component {
         }
         this.#built = true;
         this.onBuilt.dispatch(this, null);
+    }
+
+    getJSON(): DataModelParams {
+        const dataModelParams = <DataModelParams>{
+            id: this.id,
+            propertySets: [],
+            objects: [],
+            relationships: []
+        };
+
+        for (let id in this.propertySets) {
+            const propertySet = this.propertySets[id];
+            const propertySetParams = <PropertySetParams>{
+                id,
+                name: propertySet.name,
+                properties: [],
+                type: propertySet.type,
+                originalSystemId: propertySet.originalSystemId
+            };
+            for (let i = 0, len = propertySet.properties.length; i < len; i++) {
+                const property = propertySet.properties[i];
+                const propertyParams = <PropertyParams>{
+                    name: property.name,
+                    value: property.name,
+                    type: property.type,
+                    valueType: property.valueType,
+                    description: property.description
+                }
+                propertySetParams.properties.push(propertyParams);
+            }
+        }
+        for (let id in this.objects) {
+            const object = this.objects[id];
+            const objectParams = <DataObjectParams>{
+                id,
+                type: object.type,
+                name: object.name,
+                propertySetIds: []
+            };
+            for (let id2 in object.propertySets) {
+                const propertySet = object.propertySets[id2];
+                objectParams.propertySetIds.push(propertySet.id);
+            }
+            dataModelParams.objects.push(objectParams);
+        }
+        return dataModelParams;
     }
 
     /**

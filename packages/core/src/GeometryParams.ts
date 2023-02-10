@@ -2,12 +2,14 @@
 import type {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 
 /**
- * Non-compressed geometry parameters for {@link BuildableModel.createGeometry}.
+ * Non-compressed geometry parameters for {@link @xeokit/core/components!BuildableModel.createGeometry|BuildableModel.createGeometry}.
  *
  * ## Summary
  *
- * * Contains uncompressed, human-readible geometry parameters for {@link BuildableModel.createGeometry}
- * * Use {@link GeometryCompressedParams} to convert to {@link compressGeometryParams} for {@link BuildableModel.createGeometryCompressed}
+ * * Contains uncompressed, human-readible geometry parameters for {@link @xeokit/core/components!BuildableModel.createGeometry|BuildableModel.createGeometry}
+ * * Use {@link @xeokit/core/components!GeometryCompressedParams|GeometryCompressedParams} to convert to {@link @xeokit/compression/compressGeometryParams} for {@link @xeokit/core/components!BuildableModel.createGeometryCompressed | BuildableModel.createGeometryCompressed}
+ *
+ * @typeparam
  */
 export interface GeometryParams {
 
@@ -24,14 +26,14 @@ export interface GeometryParams {
     primitive: number;
 
     /**
-     * RTC origin for {@link GeometryParams.positions} or {@link GeometryParams.positionsCompressed}.
+     * RTC origin for {@link @xeokit/core/components!GeometryParams.positions} or {@link @xeokit/core/components!GeometryParams.positionsCompressed}.
      */
     origin?: FloatArrayParam;
 
     /**
      * Flat array of uncompressed floating point 3D vertex positions.
      *
-     * Alternative to {@link GeometryParams.positionsCompressed}.
+     * Alternative to {@link @xeokit/core/components!GeometryParams.positionsCompressed}.
      */
     positions: FloatArrayParam;
 
@@ -45,7 +47,7 @@ export interface GeometryParams {
     /**
      * Flat array of uncompressed floating-point vertex colors.
      *
-     * Alternative to {@link GeometryParams.colorsCompressed}.
+     * Alternative to {@link @xeokit/core/components!GeometryParams.colorsCompressed}.
      */
     colors?: FloatArrayParam;
 
@@ -64,7 +66,7 @@ export interface GeometryParams {
      *
      * Default is 10.
      *
-     * Ignored when {@link GeometryParams.edgeIndices} is defined.
+     * Ignored when {@link @xeokit/core/components!GeometryParams.edgeIndices} is defined.
      */
     edgeThreshold?: number;
 }

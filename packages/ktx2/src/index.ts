@@ -1,11 +1,11 @@
 /**
- * <img src="https://xeokit.github.io/xeokit-sdk/assets/images/xktWithTextures.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="media://images/xeokit_ktx_logo.svg"/>
  *
- * ## KTX2 Texture Transcoder for Viewer
+ * ## KTX2 Texture Transcoder
  *
  * * Provides {@link KTX2TextureTranscoder}
- * * Configure a {@link Viewer} with a {@link WebGLRenderer} that has a {@link KTX2TextureTranscoder}
- * * Then the {@link ViewerModel.createTexture} can create textures from KTX2-encoded compressed textures
+ * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webgl!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
+ * * Then {@link @xeokit/viewer!ViewerModel.createTexture | ViewerModel.createTexture} can create textures from KTX2-encoded compressed textures
  * * Uses the [Basis Universal GPU Texture Codec](https://github.com/BinomialLLC/basis_universal) to
  * transcode [KTX2](https://github.khronos.org/KTX-Specification/) textures.
  * * Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/) by default, but can
@@ -22,22 +22,22 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/compression
+ * npm install @xeokit/ktx2
  * ````
  *
  * ## Usage
  *
  * ### Loading an XKT file containing KTX2 textures into a Viewer
  *
- * Create a {@link Viewer} with a {@link WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}. Then create a {@link ViewerModel} within the Viewer, and use {@link loadXKT} to
+ * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webgl!WebGLRenderer} configured with a
+ * {@link KTX2TextureTranscoder}. Then create a {@link @xeokit/viewer!ViewerModel | ViewerModel} within the Viewer, and use {@link loadXKT} to
  * load an XKT file with KTX2-compressed textures into the ViewerModel. For each KTX2 texture in the file, the
  * KTX2TextureTranscoder will transparently transcode the KTX2 data for us.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl";
- * import {KTX2TextureTranscoder} from "@xeokit/compression/texture";
+ * import {KTX2TextureTranscoder} from "@xeokit/ktx2";
  * import {loadXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({
@@ -73,8 +73,8 @@
  *
  * ### Loading KTX2 texture files into a Viewer
  *
- * As in the previous example, create a {@link Viewer} with a {@link WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}, then create a {@link ViewerModel} within the Viewer.
+ * As in the previous example, create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webgl!WebGLRenderer} configured with a
+ * {@link KTX2TextureTranscoder}, then create a {@link @xeokit/viewer!ViewerModel | ViewerModel} within the Viewer.
  *
  * This time, we'll build the ViewerModel ourselves, using its builder methods. When we
  * call builder method {@link ViewerModel.createTexture} with a path to a KTX2-compressed texture file, the
@@ -83,7 +83,7 @@
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl";
- * import {KTX2TextureTranscoder} from "@xeokit/compression/texture";
+ * import {KTX2TextureTranscoder} from "@xeokit/ktx2";
  * import {loadXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({
@@ -149,8 +149,8 @@
  *
  * ### Loading KTX2 texture ArrayBuffers into a Viewer
  *
- * As in the previous two examples, create a {@link Viewer} that has a {@link WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}, and then create a {@link ViewerModel} within the Viewer.
+ * As in the previous two examples, create a {@link @xeokit/viewer!Viewer} that has a {@link @xeokit/webgl!WebGLRenderer} configured with a
+ * {@link KTX2TextureTranscoder}, and then create a {@link @xeokit/viewer!ViewerModel | ViewerModel} within the Viewer.
  *
  * Once more, build the ViewerModel using its builder methods. This time, call builder method
  * {@link ViewerModel.createTexture} with an ArrayBuffer containing the contents of a KTX2-compressed texture
@@ -159,7 +159,7 @@
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl";
- * import {KTX2TextureTranscoder} from "@xeokit/compression/texture";
+ * import {KTX2TextureTranscoder} from "@xeokit/ktx2";
  * import {loadXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({
@@ -229,8 +229,6 @@
  *     });
  * ````
  *
- * @module @xeokit/compression/texture
+ * @module @xeokit/ktx2
  */
-export * from "./TextureTranscoder";
-``
 export * from "./KTX2TextureTranscoder";

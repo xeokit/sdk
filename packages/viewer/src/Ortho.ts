@@ -7,7 +7,7 @@ import {OrthoProjectionType} from "@xeokit/core/constants";
 import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "@xeokit/math/matrix";
 
 /**
- * Orthographic projection configuration for a {@link Camera}.
+ * Orthographic projection configuration for a {@link @xeokit/viewer!Camera} .
  *
  * * Located at {@link Camera.ortho}.
  * * Works like Blender's orthographic projection, where the positions of the left, right, top and bottom planes are implicitly

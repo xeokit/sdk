@@ -20,7 +20,7 @@ export interface BuildableModel {
     /**
      * Indicates if this BuildableModel has already been built.
      *
-     * Set ````true```` by {@link BuildableModel.build}.
+     * Set ````true```` by {@link @xeokit/core/components!BuildableModel.build}.
      *
      * Don't create anything more in this BuildableModel once it's built.
      */
@@ -29,16 +29,16 @@ export interface BuildableModel {
     /**
      * Indicates if this BuildableModel has been destroyed.
      *
-     * Set ````true```` by {@link BuildableModel.destroy}.
+     * Set ````true```` by {@link @xeokit/core/components!BuildableModel.destroy}.
      *
-     * Don't create anything more in this ScratchModel once it's destroyed.
+     * Don't create anything more in this DocModel once it's destroyed.
      */
     readonly destroyed: boolean;
 
     /**
-     * Emits an event when this {@link BuildableModel} has already been built.
+     * Emits an event when this {@link @xeokit/core/components!BuildableModel} has already been built.
      *
-     * Triggered by {@link BuildableModel.build}.
+     * Triggered by {@link @xeokit/core/components!BuildableModel.build}.
      *
      * Don't create anything more in this BuildableModel once it's built.
      *
@@ -47,9 +47,9 @@ export interface BuildableModel {
     readonly onBuilt: EventEmitter<BuildableModel, null>;
 
     /**
-     * Emits an event when this {@link BuildableModel} has been destroyed.
+     * Emits an event when this {@link @xeokit/core/components!BuildableModel} has been destroyed.
      *
-     * Triggered by {@link BuildableModel.destroy}.
+     * Triggered by {@link @xeokit/core/components!BuildableModel.destroy}.
      *
      * Don't create anything more in this BuildableModel once it's destroyed.
      *
@@ -207,7 +207,7 @@ export interface BuildableModel {
     /**
      * Builds this BuildableModel.
      *
-     * Sets {@link BuildableModel.built} ````true````.
+     * Sets {@link @xeokit/core/components!BuildableModel.built} ````true````.
      *
      * Once built, you cannot add any more components to this BuildableModel.
      *
@@ -218,7 +218,7 @@ export interface BuildableModel {
     /**
      * Destroys this BuildableModel.
      *
-     * Sets {@link BuildableModel.built} true.
+     * Sets {@link @xeokit/core/components!BuildableModel.built} true.
      *
      @throws {Error} If BuildableModel has already been destroyed.
      */

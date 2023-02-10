@@ -1,10 +1,10 @@
 /**
- * <img src="https://miro.medium.com/max/673/1*YUHvwJvfTLWyqiqCYw2ToA.png"/>
+ * <img style="padding:50px" src="media://images/xeokit_datamodel_icon.png"/>
  *
- * ## Entity-Relationship Data Model
+ * ## Data Model Representation
  *
- * * {@link DataModel}
- * * Can be used with a {@link Viewer} to classify models
+ * * {@link @xeokit/datamodel!DataModel | DataModel}
+ * * Entity-relationship graph that can be used with a {@link @xeokit/viewer!Viewer} to classify models
  * * A single graph into which we can merge multiple ER data models - objects, properties and relationships
  * * Builder API to programmatically create data models in the graph
  * * Load and destroy data models at any time
@@ -15,7 +15,7 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/data
+ * npm install @xeokit/datamodel
  * ````
  *
  *
@@ -24,7 +24,7 @@
  * See {@link Data} for more info.
  *
  * ````javascript
- * import {Data} from "@xeokit/data";
+ * import {Data} from "@xeokit/datamodel";
  *
  * const myData = new Data({
  * });
@@ -167,7 +167,7 @@
  * // objectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
  * ````
  *
- * @module @xeokit/data
+ * @module @xeokit/datamodel
  */
 export * from "./Data";
 export * from "./DataModel";

@@ -1,12 +1,12 @@
 {
-  "name": "@xeokit/compression",
+  "name": "@xeokit/ktx2",
   "version": "0.0.1",
-  "description": "xeokit Geometry Compression / Decompression Utilities",
-  "module": "dist/xeokit-compression.modern.js",
+  "description": "Localization service for xeokit",
+  "module": "dist/xeokit-ktx2.modern.js",
   "source": "src/index.ts",
   "scripts": {
     "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
-    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=compression INPUT=./index.js rollup -c ../../rollup/rollup.compression.config.js",
+    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=ktx2 INPUT=./index.js rollup -c ../../rollup/rollup.ktx2.config.js",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -40,7 +40,7 @@
     "cad",
     "openbim",
     "opensource",
-    "compression",
+    "ktx2",
     "3dxml",
     "obj",
     "stl",
@@ -48,7 +48,7 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-compression.modern.js",
+  "main": "dist/xeokit-ktx2.modern.js",
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1"

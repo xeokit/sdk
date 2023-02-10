@@ -8,7 +8,7 @@ import {CustomProjectionType} from "@xeokit/core/constants";
 import {identityMat4, inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/math/matrix";
 
 /**
- * Configures a custom projection for a {@link Camera}.
+ * Configures a custom projection for a {@link @xeokit/viewer!Camera} .
  *
  * * Located at {@link Camera.customProjection}.
  * * {@link CustomProjection.onProjMatrix} will fire an event whenever {@link CustomProjection.projMatrix} updates, which indicates that one or more other properties have updated.

@@ -3,7 +3,7 @@ import {Component} from "@xeokit/core/components";
 import {CustomProjectionType, FrustumProjectionType, QualityRender} from "@xeokit/core/constants";
 
 /**
- * Configures Scalable Ambient Obscurance (SAO) for a {@link View}.
+ * Configures Scalable Ambient Obscurance (SAO) for a {@link @xeokit/viewer!View}.
  */
 export class SAO extends Component {
 
@@ -81,7 +81,7 @@ export class SAO extends Component {
     }
 
     /**
-     * Gets whether SAO is enabled for the {@link View}.
+     * Gets whether SAO is enabled for the {@link @xeokit/viewer!View}.
      *
      * Even when enabled, SAO will only apply if supported.
      *
@@ -92,7 +92,7 @@ export class SAO extends Component {
     }
 
     /**
-     * Sets whether SAO is enabled for the {@link View}.
+     * Sets whether SAO is enabled for the {@link @xeokit/viewer!View}.
      *
      * Even when enabled, SAO will only work if supported.
      *

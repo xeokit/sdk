@@ -1,5 +1,5 @@
 import {apply, Map} from "@xeokit/core/utils";
-import {Capabilities, Component} from "@xeokit/core/components";
+import {Capabilities, Component, TextureTranscoder} from "@xeokit/core/components";
 import {createVec3} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {
@@ -12,7 +12,7 @@ import {
 
 import {Renderer, View, Viewer, ViewerModel, ViewerModelParams, ViewerObject} from "@xeokit/viewer";
 
-import {KTX2TextureTranscoder, TextureTranscoder} from "@xeokit/compression/texture";
+import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 
 import {RENDER_PASSES} from "./WebGLViewerModel/RENDER_PASSES";
 import {WEBGL_INFO} from "./lib/WEBGL_INFO";
@@ -26,11 +26,12 @@ import type {Layer} from "./WebGLViewerModel/Layer";
 import {FastColorTrianglesRenderer} from "./layerRenderers/FastColorTrianglesRenderer";
 
 
+
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
 
 /**
- * WebGL rendering strategy for a {@link Viewer}.
+ * WebGL rendering strategy for a {@link @xeokit/viewer!Viewer}.
  *
  * See {@link @xeokit/webgl} for usage.
  */

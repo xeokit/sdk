@@ -9,7 +9,7 @@ import type {View} from "./View";
 
 
 /**
- * A layer of {@link ViewObject|ViewObjects} in a {@link View}.
+ * A layer of {@link ViewObject|ViewObjects} in a {@link @xeokit/viewer!View}.
  *
  * ## Summary
  *
@@ -34,22 +34,22 @@ import type {View} from "./View";
  *
  * ### Automatic ViewLayers
  *
- * By default, each {@link View} automatically lazy-creates ViewLayers within itself as required. As {@link ViewerObject|ViewerObjects} appear in the
- * {@link Viewer}, {@link ViewObject|ViewObjects} and Viewlayers magically appear in each existing View.
+ * By default, each {@link @xeokit/viewer!View} automatically lazy-creates ViewLayers within itself as required. As {@link ViewerObject|ViewerObjects} appear in the
+ * {@link @xeokit/viewer!Viewer}, {@link ViewObject|ViewObjects} and Viewlayers magically appear in each existing View.
  *
- * Recall that, whenever a {@link ViewerObject} is created, each existing {@link View} will automatically create a
+ * Recall that, whenever a {@link ViewerObject} is created, each existing {@link @xeokit/viewer!View} will automatically create a
  * corresponding {@link ViewObject} to represent and control that ViewerObject's appearance within the View's canvas.
  *
  * If the {@link ViewerObject} also happens to have a value set on its {@link ViewerObject.viewLayerId} ID property, then the View
  * will also automatically ensure that it contains a matching {@link ViewLayer}, and will register the new ViewObject
  * in that ViewLayer. Note that each ViewObject can belong to a maximum of one ViewLayer.
  *
- * When a {@link View} automatically creates Viewlayers, it will also automatically destroy them again whenever
+ * When a {@link @xeokit/viewer!View} automatically creates Viewlayers, it will also automatically destroy them again whenever
  * their {@link ViewerObject|ViewerObjects} have all been destroyed.
  *
  * ### Manual ViewLayers
  *
- * We can configure a {@link View} to **not** automatically create ViewLayers, and instead rely on us to manually create them.
+ * We can configure a {@link @xeokit/viewer!View} to **not** automatically create ViewLayers, and instead rely on us to manually create them.
  *
  * When we do that, the View will only create the {@link ViewObject|ViewObjects} within itself for the ViewLayers that we created. The
  * View will ignore all ViewerObjects that don't have {@link ViewerObject.viewLayerId} values that match the IDs of our
@@ -66,7 +66,7 @@ import type {View} from "./View";
  *
  * ### Exampe 1: Automatic ViewLayers
  *
- * Create a {@link Viewer}:
+ * Create a {@link @xeokit/viewer!Viewer}:
  *
  *````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -76,7 +76,7 @@ import type {View} from "./View";
  * });
  *````
  *
- * Create a {@link View}, with the default setting of ````false```` for {@link ViewParams.autoLayers}:
+ * Create a {@link @xeokit/viewer!View}, with the default setting of ````false```` for {@link ViewParams.autoLayers}:
  *
  * ````javascript
  * const view1 = myViewer.createView({
@@ -90,7 +90,7 @@ import type {View} from "./View";
  * view1.camera.up = [-0.018, 0.999, 0.039];
  * ````
  *
- * Next, we'll create a {@link ViewerModel} containing two model {@link ViewerObject|ViewerObjects} that represent a building
+ * Next, we'll create a {@link @xeokit/viewer!ViewerModel | ViewerModel} containing two model {@link ViewerObject|ViewerObjects} that represent a building
  * foundation and walls, along with two environmental ViewerObjects that represent a skybox and ground plane.
  *
  * The ground and skybox ViewerObjects specify that their {@link ViewObject|ViewObjects} belong
@@ -131,7 +131,7 @@ import type {View} from "./View";
  * myViewerModel.build();
  * ````
  *
- * Our {@link View} has now automatically created an "environment" {@link ViewLayer}, which contains {@link ViewObject|ViewObjects} for the skybox and
+ * Our {@link @xeokit/viewer!View} has now automatically created an "environment" {@link ViewLayer}, which contains {@link ViewObject|ViewObjects} for the skybox and
  * ground plane ViewerObjects, and a "model" ViewLayer, which contains ViewObjects for the house foundation and walls.
  *
  * We can now batch-update the ViewObjects in each ViewLayer independently. As mentioned, this is useful when we need to ignore things
@@ -153,7 +153,7 @@ import type {View} from "./View";
  *
  * ### Example 2: Manual ViewLayers
  *
- * Create a {@link Viewer}:
+ * Create a {@link @xeokit/viewer!Viewer}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -163,7 +163,7 @@ import type {View} from "./View";
  * });
  * ````
  *
- * Create a {@link View}, this time with ````false```` for {@link ViewParams.autoLayers}, in order to **not**
+ * Create a {@link @xeokit/viewer!View}, this time with ````false```` for {@link ViewParams.autoLayers}, in order to **not**
  * automatically create ViewLayers on demand:
  *
  * ````javascript
@@ -187,7 +187,7 @@ import type {View} from "./View";
  * });
  * ````
  *
- * As we did in the previous example, we'll now create a {@link ViewerModel} containing two model
+ * As we did in the previous example, we'll now create a {@link @xeokit/viewer!ViewerModel | ViewerModel} containing two model
  * {@link ViewerObject|ViewerObjects} that represent a building foundation and walls, along with two environmental
  * ViewerObjects that represent a skybox and ground plane.
  *
@@ -229,7 +229,7 @@ import type {View} from "./View";
  * myModel.build();
  * ````
  *
- * This time, however, our {@link View} has now created {@link ViewObject|ViewObjects} for the "model" ViewerObjects, while
+ * This time, however, our {@link @xeokit/viewer!View} has now created {@link ViewObject|ViewObjects} for the "model" ViewerObjects, while
  * ignoring the "environment" ViewerObjects.
  *
  * As far as this View is converned, the "environment" ViewerObjects do not exist.
@@ -248,7 +248,7 @@ import type {View} from "./View";
 class ViewLayer extends Component {
 
     /**
-     ID of this ViewLayer, unique within the {@link View}.
+     ID of this ViewLayer, unique within the {@link @xeokit/viewer!View}.
 
      This ViewLayer is mapped by this ID in {@link View.layers}.
      */
@@ -272,7 +272,7 @@ class ViewLayer extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
      * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
-     * each {@link ViewerObject} in the {@link Viewer}
+     * each {@link ViewerObject} in the {@link @xeokit/viewer!Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
 
@@ -916,7 +916,7 @@ class ViewLayer extends Component {
     /**
      * Destroys this ViewLayer.
      *
-     * Causes {@link Viewer} to fire a "viewDestroyed" event.
+     * Causes {@link @xeokit/viewer!Viewer} to fire a "viewDestroyed" event.
      */
     destroy() {
         super.destroy();

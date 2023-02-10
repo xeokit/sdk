@@ -4,8 +4,8 @@ import type {GeometryBucket} from "./GeometryBucket";
 /**
  * Represents an element of reusable geometry.
  *
- * * Stored in {@link Model.geometries}
- * * Created with {@link BuildableModel.createGeometry} and {@link BuildableModel.createGeometryCompressed}
+ * * Stored in {@link @xeokit/core/components!Model.geometries}
+ * * Created with {@link @xeokit/core/components!BuildableModel.createGeometry|BuildableModel.createGeometry} and {@link @xeokit/core/components!BuildableModel.createGeometryCompressed | BuildableModel.createGeometryCompressed}
  * * Referenced by {@link XKTObject.geometry}
  */
 export interface Geometry {
@@ -31,17 +31,17 @@ export interface Geometry {
     origin?: FloatArrayParam;
 
     /**
-     * Matrix to decompress {@link GeometryBucketParams.positionsCompressed}.
+     * Matrix to decompress {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed}.
      *
-     * The Viewer uses this matrix internally to decompress (dequantize) {@link GeometryBucketParams.positionsCompressed}
-     * back to 32-bit floating-point relative-to-center (RTC) coordinates that are relative to {@link Geometry.origin}.
+     * The Viewer uses this matrix internally to decompress (dequantize) {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed}
+     * back to 32-bit floating-point relative-to-center (RTC) coordinates that are relative to {@link @xeokit/core/components!Geometry.origin}.
      */
     positionsDecompressMatrix: FloatArrayParam;
 
     /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
      *
-     * The boundary coordinates are relative to {@link Geometry.origin}.
+     * The boundary coordinates are relative to {@link @xeokit/core/components!Geometry.origin}.
      */
     aabb?: FloatArrayParam;
 

@@ -2,7 +2,7 @@ import * as utils from "@xeokit/core/utils";
 import type {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a grid-shaped {@link GeometryBucketHandle}.
+ * Creates a grid-shaped {@link @xeokit/core/components!GeometryBucketHandle}.
  *
  * ## Usage
  *
@@ -36,10 +36,10 @@ import type {GeometryArrays} from "./GeometryArrays";
  *
  * @function buildGridGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/core/components!GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
  * @param [cfg.size=1] Dimension on the X and Z-axis.
  * @param [cfg.divisions=1] Number of divisions on X and Z axis..
- * @returns {Object} Configuration for a {@link GeometryBucketHandle} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/core/components!GeometryBucketHandle} subtype.
  */
 export function buildGridGeometry(cfg = {
     size: 1,

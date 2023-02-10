@@ -5,7 +5,7 @@ import {Viewer} from "./Viewer";
 import {Tile} from "./Tile";
 
 /**
- * The {@link Tile|Tiles} within a {@link Viewer}.
+ * The {@link Tile|Tiles} within a {@link @xeokit/viewer!Viewer}.
  *
  * * Located at {@link Viewer.tiles}
  * * Contains {@link Tile|Tiles}

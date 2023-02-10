@@ -8,7 +8,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {Capabilities} from "@xeokit/core/components";
 
 /**
- * Manages storage and rendering of meshes for objects in a {@link Viewer}.
+ * Manages storage and rendering of meshes for objects in a {@link @xeokit/viewer!Viewer}.
  *
  * Used by a Viewer internally, to allocate and render geometry and materials using a browser 3D graphics API (eg. WebGL, WebGPU).
  *
@@ -22,6 +22,8 @@ import {Capabilities} from "@xeokit/core/components";
  *     renderer: new MyRenderer({ })
  * });
  * ````
+ *
+ * @category Advanced Use
  */
 export interface Renderer {
 
@@ -43,9 +45,9 @@ export interface Renderer {
     getSAOSupported(): boolean;
 
     /**
-     * Registers a {@link View} with this Renderer.
+     * Registers a {@link @xeokit/viewer!View} with this Renderer.
      *
-     * The Renderer will then begin rendering each {@link ViewerModel} created with {@link ViewerModel.createModel} for the new View.
+     * The Renderer will then begin rendering each {@link @xeokit/viewer!ViewerModel | ViewerModel} created with {@link ViewerModel.createModel} for the new View.
      *
      * You can only register as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
      *
@@ -55,7 +57,7 @@ export interface Renderer {
     registerView(view: View): number;
 
     /**
-     * Deregisters the {@link View} with the given handle.
+     * Deregisters the {@link @xeokit/viewer!View} with the given handle.
      *
      * The Renderer will then cease rendering for that View.
      *
@@ -64,7 +66,7 @@ export interface Renderer {
     deregisterView(viewIndex: number): void;
 
     /**
-     * Returns a new {@link ViewerModel} that will be stored and rendered by this Renderer.
+     * Returns a new {@link @xeokit/viewer!ViewerModel | ViewerModel} that will be stored and rendered by this Renderer.
      *
      * The ViewerModel provides an interface through which we can then build geometry and materials within
      * it. Once we've built the ViewerModel and called {@link ViewerModel.build}, the Renderer will immediately begin

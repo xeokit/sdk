@@ -1,6 +1,67 @@
 /**
- * ## glTF utilities for xeokit.
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/xeokit_gltf_logo.svg"/>
+ *
+ * ## Model Loader for glTF File Format
+ *
+ * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models
+ * * {@link loadGLTF} loads glTF into a {@link @xeokit/core/components!BuildableModel}, which is implemented by {@link @xeokit/docmodel!DocModel | DocModel} and {@link @xeokit/viewer!ViewerModel | ViewerModel}
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/gltf
+ * ````
+ *
+ * ## Usage
+ *
+ * Loading a glTF file into a {@link @xeokit/datamodel!DocModel | DocModel}:
+ *
+ * ````javascript
+ * import {DocModel} from "@xeokit/docmodel";
+ * import {loadGLTF} from "@xeokit/gltf";
+ *
+ * const myDocModel = new DocModel();
+ *
+ * fetch("myModel.glb")
+ *     .then(response => {
+ *          if (response.ok) {
+ *              loadGLTF({
+ *                  gltf: response.arrayBuffer(),
+ *                  model: myDocModel
+ *              });
+ *              myDocModel.built();
+ *          }
+ *     });
+ * ````
+ *
+ * Loading a glTF file into a {@link @xeokit/viewer!ViewerModel | ViewerModel}:
+ *
+ * ````javascript
+ * import {Viewer} from "@xeokit/viewer";
+ * import {loadGLTF} from "@xeokit/gltf";
+ *
+ * const myViewer = new Viewer({
+ *     //...
+ * });
+ *
+ * //...
+ *
+ * const myViewerModel= myViewer.createModel({
+ *     id: "myModel"
+ * });
+ *
+ * fetch("myModel.glb")
+ *     .then(response => {
+ *          if (response.ok) {
+ *              loadGLTF({
+ *                  gltf: response.arrayBuffer(),
+ *                  model: myViewerModel
+ *              });
+ *              myViewerModel.build();
+ *          }
+ *     });
+ * ````
  *
  * @module @xeokit/gltf
  */
-export * from "./parseGLTF";
+export * from "./loadGLTF";

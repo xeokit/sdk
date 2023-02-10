@@ -25,7 +25,7 @@ import {AmbientLight} from "./AmbientLight";
 import {DirLight} from "./DirLight";
 
 /**
- * An independently-configurable view of the models in a {@link Viewer}.
+ * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
  *
  * ## Overview
  *
@@ -86,7 +86,7 @@ import {DirLight} from "./DirLight";
 class View extends Component {
 
     /**
-     ID of this View, unique within the {@link Viewer}.
+     ID of this View, unique within the {@link @xeokit/viewer!Viewer}.
      */
     declare viewId: string;
 
@@ -130,7 +130,7 @@ class View extends Component {
      */
     readonly sao: SAO;
     /**
-     * Flies or jumps the View's {@link Camera} to given positions.
+     * Flies or jumps the View's {@link @xeokit/viewer!Camera}  to given positions.
      */
     readonly cameraFlight: CameraFlightAnimation;
     /**
@@ -167,7 +167,7 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
      * The View automatically ensures that there is a {@link ViewObject} here for
-     * each {@link ViewerObject} in the {@link Viewer}
+     * each {@link ViewerObject} in the {@link @xeokit/viewer!Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
     /**
@@ -1041,7 +1041,7 @@ class View extends Component {
     /**
      * Destroys this View.
      *
-     * Causes {@link Viewer} to fire a "viewDestroyed" event.
+     * Causes {@link @xeokit/viewer!Viewer} to fire a "viewDestroyed" event.
      */
     destroy() {
         this.viewer.onTick.unsubscribe(this.#onTick);
@@ -1269,7 +1269,7 @@ class View extends Component {
      * The ViewLayer is then registered in {@link View.layers}.
      *
      * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link ViewLayer.destroy}
-     * is called, or the {@link View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
+     * is called, or the {@link @xeokit/viewer!View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
      * returns that existing ViewLayer. The method will also ensure that the existing ViewLayer likewise persists.
      *
      * @param viewLayerParams

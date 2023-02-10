@@ -1,6 +1,4 @@
-
-
-import {Capabilities, TextureCompressedParams} from "@xeokit/core/components";
+import type {Capabilities, TextureCompressedParams} from "@xeokit/core/components";
 
 /**
  * Texture transcoder.

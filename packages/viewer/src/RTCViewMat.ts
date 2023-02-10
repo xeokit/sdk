@@ -19,6 +19,8 @@ import {createRTCViewMat} from "@xeokit/math/rtc";
  * system. RTCViewMat dynamically calculates {@link RTCViewMat.viewMatrix} from {@link Camera.viewMatrix}, to provide a
  * viewing transform matrix that the shaders will use to render objects whose vertex coordinates are relative
  * to that RTC origin.
+ *
+ * @category Advanced Use
  */
 export class RTCViewMat {
 

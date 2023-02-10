@@ -136,7 +136,7 @@ const defaultCSS = ".sk-fading-circle {\
     }";
 
 /**
- * Displays a progress animation at the center of its {@link View} while things are loading or otherwise busy.
+ * Displays a progress animation at the center of its {@link @xeokit/viewer!View} while things are loading or otherwise busy.
  *
  *
  * * Located at {@link View#spinner}.

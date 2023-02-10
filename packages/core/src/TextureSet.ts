@@ -3,8 +3,8 @@ import type {Texture} from "./Texture";
 /**
  * Represents a set of textures.
  *
- * * Stored in {@link Model.textureSets}
- * * Created with {@link BuildableModel.createTextureSet}
+ * * Stored in {@link @xeokit/core/components!Model.textureSets}
+ * * Created with {@link @xeokit/core/components!BuildableModel.createTextureSet}
  * * Referenced by {@link Mesh.textureSet}
  */
 export interface TextureSet {

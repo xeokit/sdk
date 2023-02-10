@@ -1,8 +1,10 @@
 /**
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="media://images/3D-Cart.svg"/>
+ *
  * ## RTC Coordinate Math Utilities
  *
  * * Math functions for working with relative-to-center (RTC) coordinate systems
- * * Used internally within {@link Viewer}
+ * * Used internally within {@link @xeokit/viewer!Viewer}
  *
  * ## Installation
  *

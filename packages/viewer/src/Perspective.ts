@@ -8,7 +8,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "@xeokit/math/matrix";
 
 /**
- * Perspective projection configuration for a {@link Camera}.
+ * Perspective projection configuration for a {@link @xeokit/viewer!Camera} .
  *
  * ## Summary
  *

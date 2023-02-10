@@ -1,12 +1,12 @@
 {
-  "name": "@xeokit/data",
+  "name": "@xeokit/docmodel",
   "version": "0.0.1",
-  "description": "A runtime entity-relationship data graph composed of multiple federated data models.",
-  "module": "dist/xeokit-data.modern.js",
+  "description": "A buldable, loadable, savable, viewer-agnostic JavaScript data structure to represent a xeokit geometric model in NodeJS or Browser memory. Use this to generate xeokit models, or as an intermediate in-memory representation within a conversion process. ",
+  "module": "dist/xeokit-docmodel.modern.js",
   "source": "src/index.ts",
   "scripts": {
     "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
-    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=xkt INPUT=./index.js rollup -c ../../rollup/rollup.data.config.js",
+    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=docmodel INPUT=./index.js rollup -c ../../rollup/rollup.docmodel.config.js",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -14,7 +14,7 @@
     "url": "git+https://github.com/xeokit/xeokit-viewer.git"
   },
   "author": "Lindsay Kay",
-    "license": "SEE LICENSE IN LICENSE.md",
+  "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
     "url": "https://github.com/xeokit/xeokit-viewer/issues"
   },
@@ -48,9 +48,12 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-data.modern.js",
+  "main": "dist/xeokit-docmodel.modern.js",
   "dependencies": {
     "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "0.0.1"
+    "@xeokit/core": "0.0.1",
+    "@xeokit/math": "^0.0.1"
+  },
+  "devDependencies": {
   }
 }

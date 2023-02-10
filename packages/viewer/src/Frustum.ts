@@ -8,7 +8,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {frustumMat4, inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/math/matrix";
 
 /**
- *  Frustum-based perspective projection configuration for a {@link Camera}.
+ *  Frustum-based perspective projection configuration for a {@link @xeokit/viewer!Camera} .
  *
  * * Located at {@link Camera#frustum}.
  * * Allows to explicitly set the positions of the left, right, top, bottom, near and far planes, which is useful for asymmetrical view volumes, such as for stereo viewing.

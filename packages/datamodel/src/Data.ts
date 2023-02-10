@@ -22,13 +22,13 @@ import type {SearchParams} from "./SearchParams";
  *
  * ## Quickstart
  *
- * * Create {@link DataModel|DataModels} with {@link Data.createModel}
- * * Create {@link DataObject|DataObjects} with {@link DataModel.createObject}
- * * Create {@link PropertySet|PropertySets} with {@link DataModel.createPropertySet}
- * * Create {@link Relationship|Relationships} with {@link DataModel.createRelationship}
+ * * Create {@link @xeokit/datamodel/DataModel|DataModels} with {@link Data.createModel}
+ * * Create {@link DataObject|DataObjects} with {@link @xeokit/datamodel/DataModel.createObject}
+ * * Create {@link PropertySet|PropertySets} with {@link @xeokit/datamodel/DataModel.createPropertySet}
+ * * Create {@link Relationship|Relationships} with {@link @xeokit/datamodel/DataModel.createRelationship}
  * * Query with {@link Data.searchDataObjects}
- * * When built, be sure to finalize each DataModel with {@link DataModel.build}
- * * When no longer needed, be sure to destroy each DataModel with {@link DataModel.destroy}
+ * * When built, be sure to finalize each DataModel with {@link @xeokit/datamodel/DataModel.build}
+ * * When no longer needed, be sure to destroy each DataModel with {@link @xeokit/datamodel/DataModel.destroy}
  *
  * <br>
  *
@@ -36,11 +36,11 @@ import type {SearchParams} from "./SearchParams";
  *
  * ### Example 1. Creating a DataModel from a JSON object
  *
- * In this example, we'll create a {@link DataModel} from a JSON object which conforms to the schema defined by
- * {@link DataModelParams}.
+ * In this example, we'll create a {@link @xeokit/datamodel/DataModel} from a JSON object which conforms to the schema defined by
+ * {@link @xeokit/datamodel/DataModelParams}.
  *
  * ````javascript
- * import {Data} from "@xeokit/data";
+ * import {Data} from "@xeokit/datamodel";
  *
  * const myData = new Data({
  * });
@@ -179,7 +179,7 @@ import type {SearchParams} from "./SearchParams";
  *
  * ### Example 2. Creating a DataModel using builder methods
  *
- * In our second example, we'll create another {@link DataModel}, this time instantiating the {@link PropertySet},
+ * In our second example, we'll create another {@link @xeokit/datamodel/DataModel}, this time instantiating the {@link PropertySet},
  * {@link Property}, {@link DataObject} and {@link Relationship} components ourselves, using the DataModel's builder methods.
  *
  * ````javascript
@@ -378,14 +378,14 @@ import type {SearchParams} from "./SearchParams";
 export class Data extends Component {
 
     /**
-     * Emits an event each time a {@link DataModel} is created.
+     * Emits an event each time a {@link @xeokit/datamodel/DataModel} is created.
      *
      * @event
      */
     readonly onModelCreated: EventEmitter<Data, DataModel>;
 
     /**
-     * Emits an event each time a {@link DataModel} is destroyed.
+     * Emits an event each time a {@link @xeokit/datamodel/DataModel} is destroyed.
      *
      * @event
      */
@@ -406,7 +406,7 @@ export class Data extends Component {
     readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
 
     /**
-     * The {@link DataModel|DataModels} belonging to this Data, each keyed to its {@link DataModel.id}.
+     * The {@link @xeokit/datamodel/DataModel|DataModels} belonging to this Data, each keyed to its {@link @xeokit/datamodel/DataModel.id}.
      */
     public readonly models: { [key: string]: DataModel };
 
@@ -458,10 +458,10 @@ export class Data extends Component {
     }
 
     /**
-     * Creates a {@link DataModel} in this Data.
+     * Creates a {@link @xeokit/datamodel/DataModel} in this Data.
      *
-     * @param  dataModelParams Data for the {@link DataModel}.
-     * @param [options] Options for creating the {@link DataModel}.
+     * @param  dataModelParams Data for the {@link @xeokit/datamodel/DataModel}.
+     * @param [options] Options for creating the {@link @xeokit/datamodel/DataModel}.
      * @param [options.includeTypes] When provided, only create {@link DataObject|DataObjects} with types in this list.
      * @param  [options.excludeRelating] When provided, never create {@link DataObject|DataObjects} with types in this list.
      * @returns The new DataModel.

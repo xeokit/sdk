@@ -43,7 +43,7 @@ const offsetEye = createVec3();
 
 
 /**
- * Controls the viewpoint and projection for a {@link View}.
+ * Controls the viewpoint and projection for a {@link @xeokit/viewer!View}.
  *
  * ## Summary
  *
@@ -59,7 +59,7 @@ const offsetEye = createVec3();
  *
  * ## Getting a View's Camera
  *
- * Let's create a {@link Viewer} with a single {@link View}, from which we'll get a Camera:
+ * Let's create a {@link @xeokit/viewer!Viewer} with a single {@link @xeokit/viewer!View}, from which we'll get a Camera:
  *
  * ````javascript
  * import {Viewer} from "xeokit-viewer.es.js";

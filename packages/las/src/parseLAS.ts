@@ -1,20 +1,20 @@
 import {ParseParams} from "@xeokit/core/components";
 
 /**
- * @desc Parses LAS into a {@link BuildableModel}.
+ * @desc Parses LAS into a {@link @xeokit/core/components!BuildableModel}.
  *
- * Use this function with {@link Model} and {@link writeXKT} to convert LAS to XKT, or to load LAS directly
- * into a {@link Viewer}.
+ * Use this function with {@link @xeokit/core/components!Model} and {@link writeXKT} to convert LAS to XKT, or to load LAS directly
+ * into a {@link @xeokit/viewer!Viewer}.
  *
  * ## Usage
  *
- * Parsing LAS into an {@link Model}:
+ * Parsing LAS into an {@link @xeokit/core/components!Model}:
  *
  * ````javascript
- * import {ScratchModel} from "@xeokit/xkt";
+ * import {DocModel} from "@xeokit/xkt";
  * import {parseLAS} from "@xeokit/las";
  *
- * const myModel = new ScratchModel(); // Implements BuildableModel and Model
+ * const myModel = new DocModel(); // Implements BuildableModel and Model
  *
  * utils.loadJSON("myscan.las", async (data) => {
  *
@@ -35,7 +35,7 @@ import {ParseParams} from "@xeokit/core/components";
  * });
  * ````
  *
- * Loading LAS into a {@link Viewer}, by way of a {@link ViewerModel}:
+ * Loading LAS into a {@link @xeokit/viewer!Viewer}, by way of a {@link @xeokit/viewer!ViewerModel | ViewerModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

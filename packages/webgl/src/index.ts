@@ -1,9 +1,9 @@
 /**
- * <img src="https://xeokit.github.io/xeokit-sdk/assets/images/autzen.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/xeokit_webgl_logo.svg"/>
  *
  * ## WebGL Rendering Strategy for Viewer
  *
- * * Plug a {@link WebGLRenderer} into a {@link Viewer} to use WebGL for model storage and rendering
+ * * Plug a {@link WebGLRenderer} into a {@link @xeokit/viewer!Viewer} to use WebGL for model storage and rendering
  * * Compact texture-based model representation
  * * Fast full-precision rendering of large models
  * * Physically-based materials
@@ -18,7 +18,7 @@
  *
  * ## Usage
  *
- * Configuring a {@link Viewer} with a {@link WebGLRenderer} to use the browser's WebGL
+ * Configuring a {@link @xeokit/viewer!Viewer} with a {@link WebGLRenderer} to use the browser's WebGL
  * graphics API for storing and rendering models:
  *
  * ````javascript

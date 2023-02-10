@@ -1,27 +1,27 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * Mesh creation parameters for {@link BuildableModel.createMesh}.
+ * Mesh creation parameters for {@link @xeokit/core/components!BuildableModel.createMesh}.
  */
 export interface MeshParams {
 
     /**
-     * ID for the mesh, unique within the {@link BuildableModel}.
+     * ID for the mesh, unique within the {@link @xeokit/core/components!BuildableModel}.
      */
     id: string;
 
     /**
-     * ID of a texture set that was created previously with {@link BuildableModel.createTextureSet}.
+     * ID of a texture set that was created previously with {@link @xeokit/core/components!BuildableModel.createTextureSet}.
      */
     textureSetId?: string;
 
     /**
-     * ID of a geometry that was created previously with {@link BuildableModel.createGeometry} or {@link BuildableModel.createGeometryCompressed}.
+     * ID of a geometry that was created previously with {@link @xeokit/core/components!BuildableModel.createGeometry|BuildableModel.createGeometry} or {@link @xeokit/core/components!BuildableModel.createGeometryCompressed | BuildableModel.createGeometryCompressed}.
      */
     geometryId: string;
 
     /**
-     * Optional ID of a {@link Transform} previously created with {@link BuildableModel.createTransform}.
+     * Optional ID of a {@link Transform} previously created with {@link @xeokit/core/components!BuildableModel.createTransform}.
      */
     transformId?: string;
 
@@ -35,7 +35,7 @@ export interface MeshParams {
     /**
      * RGB pick color of the mesh.
      *
-     * This is used internally within {@link BuildableModel}.
+     * This is used internally within {@link @xeokit/core/components!BuildableModel}.
      */
     pickColor?: FloatArrayParam;
 
@@ -65,10 +65,10 @@ export interface MeshParams {
     roughness?: number;
 
     /**
-     * Optional 3D World-space origin, relative to {@link BuildableModel.origin}.
+     * Optional 3D World-space origin, relative to {@link @xeokit/core/components!BuildableModel.origin}.
      *
-     * When this is given, then 3D positions given in {@link GeometryParams.positions} or
-     * {@link GeometryBucketParams.positionsCompressed} are assumed to be relative to this.
+     * When this is given, then 3D positions given in {@link @xeokit/core/components!GeometryParams.positions} or
+     * {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed} are assumed to be relative to this.
      */
     origin?: FloatArrayParam;
 

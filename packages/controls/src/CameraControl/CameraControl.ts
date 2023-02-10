@@ -22,83 +22,65 @@ import {Camera, CameraFlightAnimation, PickResult, View} from "@xeokit/viewer";
 class HoverEvent {
 }
 
+interface CameraControlParams {
+    mouseWheelDollyRate?: number;
+    keyboardDollyRate?: number;
+    panInertia?: number;
+    dollyMinSpeed?: number;
+    dollyProximityThreshold?: number;
+    dollyInertia?: number;
+    touchDollyRate?: number;
+    dragRotationRate?: number;
+    keyboardRotationRate?: number;
+    touchPanRate?: number;
+    keyboardPanRate?: number;
+    rotationInertia?: number;
+    followPointer?: boolean;
+    active?: boolean;
+    panRightClick?: boolean;
+    keyMap?: {};
+    keyboardLayout?: any;
+    constrainVertical?: boolean;
+    planView?: any;
+    navMode?: string;
+    doublePickFlyTo?: boolean;
+    keyboardEnabled?: boolean;
+}
+
 /**
- * Controls a {@link Camera} with user input.
+ * Controls a {@link @xeokit/viewer!Camera}  with user input.
  *
  * See {@link @xeokit/controls} for usage.
- *
- * ## Summary
- *
- * * Controls the {@link Camera} belonging to a {@link View}
- * * Reads touch, mouse and keyboard input
- * * Three navigation modes: "orbit", "firstPerson" and "planView"
- * * Dynamic key mapping
- * * Smart-pivot
- * * Move-to-pointer
- * * Distance-scaled rate of movement
- * * Inertia
- *
- * ## Installation
- *
- * ````bash
- * npm install @xeokit/controls
- * ````
- *
- * ## Usage
- *
- * ````javascript
- * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl";
- * import {CameraControl, keycodes} from "@xeokit/controls";
- *
- * const myViewer = new Viewer({
- *     id: "myViewer",
- *     renderer: new WebGLRenderer({
- *         //...
- *     })
- * });
- *
- * const myView = myViewer.createView({
- *     id: "myView",
- *     canvasId: "myView1"
- * });
- *
- * const myCameraControl = new CameraControl({
- *      view: myView
- * });
- *
- * //...
- * ````
  */
 export class CameraControl extends Component {
 
     /**
-     * Identifies the *leftwards panning* action, in which the {@link Camera} moves leftwards along its local axis.
+     * Identifies the *leftwards panning* action, in which the {@link @xeokit/viewer!Camera}  moves leftwards along its local axis.
      */
     public static readonly PAN_LEFT: number = 0;
 
     /**
-     * Identifies the *rightwards panning* action, in which the {@link Camera} moves rightwards along its local axis.
+     * Identifies the *rightwards panning* action, in which the {@link @xeokit/viewer!Camera}  moves rightwards along its local axis.
      */
     public static readonly PAN_RIGHT: number = 1;
 
     /**
-     * Identifies the *upwards panning* action, in which the {@link Camera} moves upwards along its local vertical axis.
+     * Identifies the *upwards panning* action, in which the {@link @xeokit/viewer!Camera}  moves upwards along its local vertical axis.
      */
     public static readonly PAN_UP: number = 2;
 
     /**
-     * Identifies the *downwards panning* action, in which the {@link Camera} moves downwards along its local vertical axis.
+     * Identifies the *downwards panning* action, in which the {@link @xeokit/viewer!Camera}  moves downwards along its local vertical axis.
      */
     public static readonly PAN_DOWN: number = 3;
 
     /**
-     * Identifies the *forwards panning* action, in which the {@link Camera} advances forwards along its current view direction.
+     * Identifies the *forwards panning* action, in which the {@link @xeokit/viewer!Camera}  advances forwards along its current view direction.
      */
     public static readonly PAN_FORWARDS: number = 4;
 
     /**
-     * Identifies the *backwards panning* action, in which the {@link Camera} retreats backwards along its current view direction.
+     * Identifies the *backwards panning* action, in which the {@link @xeokit/viewer!Camera}  retreats backwards along its current view direction.
      */
     public static readonly PAN_BACKWARDS: number = 5;
 
@@ -339,37 +321,14 @@ export class CameraControl extends Component {
 
 
     /**
-     * @private
+     * TODO
      */
-    constructor(view: View, camera: Camera, cfg: {
-        mouseWheelDollyRate?: number;
-        keyboardDollyRate?: number;
-        panInertia?: number;
-        dollyMinSpeed?: number;
-        dollyProximityThreshold?: number;
-        dollyInertia?: number;
-        touchDollyRate?: number;
-        dragRotationRate?: number;
-        keyboardRotationRate?: number;
-        touchPanRate?: number;
-        keyboardPanRate?: number;
-        rotationInertia?: number;
-        followPointer?: boolean;
-        active?: boolean;
-        panRightClick?: boolean;
-        keyMap?: {};
-        keyboardLayout?: any;
-        constrainVertical?: boolean;
-        planView?: any;
-        navMode?: string;
-        doublePickFlyTo?: boolean;
-        keyboardEnabled?: boolean;
-    }) {
+    constructor(view: View, cfg: CameraControlParams) {
 
         super(view, cfg);
 
         this.view = view;
-        this.camera = camera;
+        this.camera = view.camera;
 
         view.canvasElement.oncontextmenu = (e) => {
             e.preventDefault();
@@ -377,7 +336,7 @@ export class CameraControl extends Component {
 
         this.#components = {
             view,
-            camera
+            camera: this.camera
         }
 
         this.#configs = {
@@ -651,7 +610,7 @@ export class CameraControl extends Component {
      * Default is ````true````.
      *
      * Disabling mouse and touch input on ````CameraControl```` is desirable when we want to temporarily use mouse or
-     * touch input to interact with some other 3D control, without interfering with the {@link Camera}.
+     * touch input to interact with some other 3D control, without interfering with the {@link @xeokit/viewer!Camera} .
      *
      * @returns {Boolean} Returns ````true```` if mouse and touch input is enabled.
      */
@@ -665,7 +624,7 @@ export class CameraControl extends Component {
      * Default is ````true````.
      *
      * Disabling mouse and touch input on ````CameraControl```` is useful when we want to temporarily use mouse or
-     * touch input to interact with some other 3D control, without disturbing the {@link Camera}.
+     * touch input to interact with some other 3D control, without disturbing the {@link @xeokit/viewer!Camera} .
      *
      * @param value Set ````true```` to enable mouse and touch input.
      */
@@ -675,7 +634,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets whether the {@link Camera} follows the mouse/touch pointer.
+     * Sets whether the {@link @xeokit/viewer!Camera}  follows the mouse/touch pointer.
      *
      * In orbiting mode, the Camera will orbit about the pointer, and will dolly to and from the pointer.
      *
@@ -694,7 +653,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets whether the {@link Camera} follows the mouse/touch pointer.
+     * Sets whether the {@link @xeokit/viewer!Camera}  follows the mouse/touch pointer.
      *
      * In orbiting mode, the Camera will orbit about the pointer, and will dolly to and from the pointer.
      *
@@ -848,7 +807,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets whether to vertically constrain the {@link Camera} position for first-person navigation.
+     * Gets whether to vertically constrain the {@link @xeokit/viewer!Camera}  position for first-person navigation.
      *
      * When set ````true````, this constrains {@link Camera.eye} to its current vertical position.
      *
@@ -863,7 +822,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets whether to vertically constrain the {@link Camera} position for first-person navigation.
+     * Sets whether to vertically constrain the {@link @xeokit/viewer!Camera}  position for first-person navigation.
      *
      * When set ````true````, this constrains {@link Camera.eye} to its current vertical position.
      *
@@ -878,7 +837,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets whether double-picking an {@link Entity} causes the {@link Camera} to fly to its boundary.
+     * Gets whether double-picking an {@link Entity} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
      *
      * Default is ````false````.
      *
@@ -889,7 +848,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets whether double-picking an {@link Entity} causes the {@link Camera} to fly to its boundary.
+     * Sets whether double-picking an {@link Entity} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
      *
      * Default is ````false````.
      *
@@ -900,7 +859,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets whether right-clicking pans the {@link Camera}.
+     * Gets whether right-clicking pans the {@link @xeokit/viewer!Camera} .
      *
      * Default is ````true````.
      *
@@ -911,7 +870,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets whether either right-clicking (true) or middle-clicking (false) pans the {@link Camera}.
+     * Sets whether either right-clicking (true) or middle-clicking (false) pans the {@link @xeokit/viewer!Camera} .
      *
      * Default is ````true````.
      *
@@ -935,7 +894,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets a factor in range ````[0..1]```` indicating how much the {@link Camera} keeps moving after you finish rotating it.
+     * Sets a factor in range ````[0..1]```` indicating how much the {@link @xeokit/viewer!Camera}  keeps moving after you finish rotating it.
      *
      * A value of ````0.0```` causes it to immediately stop, ````0.5```` causes its movement to decay 50% on each tick,
      * while ````1.0```` causes no decay, allowing it to continue moving, by the current rate of rotation.
@@ -955,7 +914,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets how fast the {@link Camera} pans on touch panning
+     * Gets how fast the {@link @xeokit/viewer!Camera}  pans on touch panning
      *
      * Default is ````1.0````.
      *
@@ -975,7 +934,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets how much the {@link Camera} pans each second with keyboard input.
+     * Gets how much the {@link @xeokit/viewer!Camera}  pans each second with keyboard input.
      *
      * Default is ````5.0````.
      *
@@ -986,7 +945,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets how much the {@link Camera} pans each second with keyboard input.
+     * Sets how much the {@link @xeokit/viewer!Camera}  pans each second with keyboard input.
      *
      * Default is ````5.0````, to pan the Camera ````5.0```` World-space units every second that
      * a panning key is depressed. See the ````CameraControl```` class documentation for which keys control
@@ -1005,7 +964,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets how many degrees per second the {@link Camera} rotates/orbits with keyboard input.
+     * Sets how many degrees per second the {@link @xeokit/viewer!Camera}  rotates/orbits with keyboard input.
      *
      * Default is ````90.0````.
      *
@@ -1016,7 +975,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets how many degrees per second the {@link Camera} rotates/orbits with keyboard input.
+     * Sets how many degrees per second the {@link @xeokit/viewer!Camera}  rotates/orbits with keyboard input.
      *
      * Default is ````90.0````, to rotate/orbit the Camera ````90.0```` degrees every second that
      * a rotation key is depressed. See the ````CameraControl```` class documentation for which keys control
@@ -1042,7 +1001,7 @@ export class CameraControl extends Component {
     /**
      * Sets the current drag rotation rate.
      *
-     * This configures how many degrees the {@link Camera} rotates/orbits for a full sweep of the canvas by mouse or touch dragging.
+     * This configures how many degrees the {@link @xeokit/viewer!Camera}  rotates/orbits for a full sweep of the canvas by mouse or touch dragging.
      *
      * For example, a value of ````360.0```` indicates that the ````Camera```` rotates/orbits ````360.0```` degrees horizontally
      * when we sweep the entire width of the canvas.
@@ -1060,7 +1019,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets how much the {@link Camera} dollys each second with keyboard input.
+     * Gets how much the {@link @xeokit/viewer!Camera}  dollys each second with keyboard input.
      *
      * Default is ````15.0````.
      *
@@ -1071,9 +1030,9 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets how much the {@link Camera} dollys each second with keyboard input.
+     * Sets how much the {@link @xeokit/viewer!Camera}  dollys each second with keyboard input.
      *
-     * Default is ````15.0````, to dolly the {@link Camera} ````15.0```` World-space units per second while we hold down
+     * Default is ````15.0````, to dolly the {@link @xeokit/viewer!Camera}  ````15.0```` World-space units per second while we hold down
      * the ````+```` and ````-```` keys.
      *
      * @param keyboardDollyRate The new keyboard dolly rate.
@@ -1083,7 +1042,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets how much the {@link Camera} dollys each second with touch input.
+     * Gets how much the {@link @xeokit/viewer!Camera}  dollys each second with touch input.
      *
      * Default is ````0.2````.
      *
@@ -1094,7 +1053,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets how much the {@link Camera} dollys with touch input.
+     * Sets how much the {@link @xeokit/viewer!Camera}  dollys with touch input.
      *
      * Default is ````0.2````
      *
@@ -1105,7 +1064,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets how much the {@link Camera} dollys each second while the mouse wheel is spinning.
+     * Gets how much the {@link @xeokit/viewer!Camera}  dollys each second while the mouse wheel is spinning.
      *
      * Default is ````100.0````.
      *
@@ -1116,9 +1075,9 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets how much the {@link Camera} dollys each second while the mouse wheel is spinning.
+     * Sets how much the {@link @xeokit/viewer!Camera}  dollys each second while the mouse wheel is spinning.
      *
-     * Default is ````100.0````, to dolly the {@link Camera} ````10.0```` World-space units per second as we spin
+     * Default is ````100.0````, to dolly the {@link @xeokit/viewer!Camera}  ````10.0```` World-space units per second as we spin
      * the mouse wheel.
      *
      * @param mouseWheelDollyRate The new mouse wheel dolly rate.
@@ -1141,7 +1100,7 @@ export class CameraControl extends Component {
     /**
      * Sets the dolly inertia factor.
      *
-     * This factor configures how much the {@link Camera} keeps moving after you finish dollying it.
+     * This factor configures how much the {@link @xeokit/viewer!Camera}  keeps moving after you finish dollying it.
      *
      * This factor is a value in range ````[0..1]````. A value of ````0.0```` causes dollying to immediately stop,
      * ````0.5```` causes dollying to decay 50% on each animation frame, while ````1.0```` causes no decay, which allows dollying
@@ -1217,7 +1176,7 @@ export class CameraControl extends Component {
     /**
      * Sets the pan inertia factor.
      *
-     * This factor configures how much the {@link Camera} keeps moving after you finish panning it.
+     * This factor configures how much the {@link @xeokit/viewer!Camera}  keeps moving after you finish panning it.
      *
      * This factor is a value in range ````[0..1]````. A value of ````0.0```` causes panning to immediately stop,
      * ````0.5```` causes panning to decay 50% on each animation frame, while ````1.0```` causes no decay, which allows panning

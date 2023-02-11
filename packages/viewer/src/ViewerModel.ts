@@ -62,11 +62,6 @@ export interface ViewerModel extends Model {
     readonly viewer: Viewer;
 
     /**
-     * TODO
-     */
-    readonly readable: boolean;
-
-    /**
      * The {@link @xeokit/core/components!Geometry|Geometries} in this model.
      */
     readonly geometries: { [key: string]: Geometry };

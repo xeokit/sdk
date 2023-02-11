@@ -8,9 +8,9 @@ import type { ViewerObject } from "./ViewerObject";
  *
  * ## Summary
  *
- * * Stored in {@link View.objects} and {@link ViewLayer.objects}
+ * * Stored in {@link View.objects | View.objects} and {@link ViewLayer.objects | ViewLayer.objects}
  * * Viewer automatically creates one of these in each existing {@link @xeokit/viewer!View} for each {@link ViewerObject} created
- * * {@link ViewerObject.viewLayerId} determines which of the View's {@link ViewLayer|ViewLayers} to put the ViewObject in
+ * * {@link ViewerObject.viewLayerId | ViewerObject.viewLayerId} determines which of the View's {@link ViewLayer | ViewLayers} to put the ViewObject in
  *
  * ## Overview
  *

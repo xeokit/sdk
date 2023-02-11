@@ -22,13 +22,13 @@ import {Viewer} from "./Viewer";
 /**
  * A model representation within a {@link @xeokit/viewer!Viewer}.
  *
- * See {@link @xeokit/viewer!Viewer} for usage examples.
+ * See {@link @xeokit/viewer} for usage.
  *
  * ## Summary
  *
- * * Stored in {@link Viewer.models}
- * * Created with {@link Viewer.createModel}
- * * Contains {@link ViewerObject|ViewerObjects}
+ * * Stored in {@link Viewer.models | Viewer.models}
+ * * Created with {@link Viewer.createModel | Viewer.createModel}
+ * * Contains {@link ViewerObject | ViewerObjects}
  * * Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link @xeokit/viewer!View}
  */
 export interface ViewerModel extends Model, BuildableModel {

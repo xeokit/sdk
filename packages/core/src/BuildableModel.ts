@@ -9,6 +9,10 @@ import type {EventEmitter} from "./EventEmitter";
 
 /**
  *  A buildable model representation.
+ *
+ *  ## Usage
+ *
+ *
  */
 export interface BuildableModel {
 

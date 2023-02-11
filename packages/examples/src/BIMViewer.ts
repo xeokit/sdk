@@ -26,8 +26,8 @@ export interface LoadProjectParams {
  * TODO
  */
 export class Project {
-    dataModels: { [key:string]:DataModel };
-    models: { [key:string]:ViewerModel };
+    dataModels: { [key: string]: DataModel };
+    models: { [key: string]: ViewerModel };
 }
 
 /**
@@ -134,17 +134,34 @@ export class BIMViewer extends Viewer {
      * TODO
      * @param cfg
      */
-    async loadModel(cfg: {
+    loadModel(cfg: {
         id: string;
         src: string;
     }) {
-        const viewerModel = this.createModel({
-            qualityRender: true,
-            id: cfg.id
+        return new Promise<void>((resolve, reject) => {
+
+            const model = this.createModel({
+                id: cfg.id
+            });
+            const dataModel = this.data.createModel({
+                id: cfg.id
+            })
+            fetch(cfg.src)
+                .then(response => {
+                    if (response.ok) {
+                        response.arrayBuffer()
+                            .then(data => {
+                                loadXKT({data, model, dataModel})
+                                    .then(() => {
+                                        model.build();
+                                        dataModel.build();
+                                        resolve();
+                                    });
+                            })
+                    }
+                });
         });
-        // TODO: fetch
-        await loadXKT({data:null, model:viewerModel})
-        viewerModel.build();
+
     }
 
     /**
@@ -164,7 +181,7 @@ export class BIMViewer extends Viewer {
         if (!viewerModel) {
             throw new Error(`Model not found: '$id'`);
         }
-        return saveXKT({ model:viewerModel});
+        return saveXKT({model: viewerModel});
     }
 
     /**

@@ -23,12 +23,13 @@
  *
  * ## Usage
  *
- * Create a {@link @xeokit/viewer!Viewer} with a {@link WebGLRenderer}:
+ * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webgl!WebGLRenderer}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl";
- * impoty {PerspectiveProjectionType, TrianglesPrimitive} from "@xeokit/core/constants";
+ * import {PerspectiveProjectionType, TrianglesPrimitive} from "@xeokit/core/constants";
+ * import {CameraControl} from "@xeokit/controls";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -47,10 +48,9 @@
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
- * view1.camera.projection = PerspectiveProjectionType;
  * ````
  *
- * Add a {@link CameraControl} to control the View's Camera with mouse and touch input:
+ * Add a {@link @xeokit/controls!CameraControl} to control the View's Camera with mouse and touch input:
  *
  * ````javascript
  * const myCameraControl = new CameraControl({
@@ -58,7 +58,7 @@
  * });
  * ````
  *
- * Now build a {@link @xeokit/viewer!ViewerModel | ViewerModel} with a couple of objects:
+ * Now build a {@link @xeokit/viewer!ViewerModel | ViewerModel} containing a couple of {@link @xeokit/viewer!ViewObject | ViewObjects}:
  *
  * ````javascript
  * const myViewerModel = myViewer.createModel({
@@ -96,20 +96,34 @@
  * myViewerModel.build();
  * ````
  *
- * Highlight one of the objects in the {@link @xeokit/viewer!View}:
+ * Highlight one of the {@link ViewObject | ViewObjects} in the {@link @xeokit/viewer!View}:
  *
  * ````javascript
  * view1.setObjectsHighlighted(["myObject1"], true);
  * ````
  *
- * Another way to highlight the object:
+ * Another way to highlight the {@link ViewObject}:
  *
  * ````javascript
  * view1.objects["myObject1"].highlighted = true;
  * ````
  *
- * See {@link @xeokit/viewer!Viewer} for more info.
+ * ## Creating a Second View
  *
+ * Create a second view, using a different canvas, that shows the other object highlighted instead:
+ *
+ * ```` javascript
+ * const view2 = myViewer.createView({
+ *      id: "myView2",
+ *      canvasId: "myView2"
+ * });
+ *
+ * view1.camera.eye = [-3.933, 2.855, 27.018];
+ * view1.camera.look = [4.400, 3.724, 8.899];
+ * view1.camera.up = [-0.018, 0.999, 0.039];
+ *
+ * view1.setObjectsHighlighted(["myObject2"], true);
+ * ````
  * @packageDocumentation
  * @module @xeokit/viewer
  */

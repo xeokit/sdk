@@ -13,10 +13,10 @@ import type {View} from "./View";
  *
  * ## Summary
  *
- * * Useful for segreggating {@link ViewObject|ViewObjects} so we don't get our model objects mixed up with our UI and environment objects
- * * Created automatically or manually (see {@link View.createLayer})
- * * Registered in {@link View.layers}
- * * Contains ViewObjects for {@link ViewerObject|ViewerObjects} that have matching {@link ViewerObject.viewLayerId}
+ * * Automatically stores a {@link ViewObject} for each existing {@link ViewerObject} that has a matching {@link ViewerObject.viewLayerId | ViewerObject.viewLayerId}
+ * * Useful for segreggating {@link ViewObject | ViewObjects} into layers
+ * * Created automatically or manually (see {@link View.createLayer | View.createLayer})
+ * * Stored in {@link View.layers | View.layers}
  *
  * ## Overview
  *

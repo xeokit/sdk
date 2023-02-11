@@ -18,7 +18,7 @@ export interface ViewerModelParams {
      *
      * Default is ````true````.
      */
-    qualityRender: boolean;
+ //   qualityRender: boolean;
 
     /**
      * 4x4 transform matrix.

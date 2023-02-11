@@ -1,4 +1,5 @@
 {
+
   "entryPoints": [
     "packages/core/src/components.ts",
     "packages/core/src/constants.ts",
@@ -15,8 +16,15 @@
     "packages/viewer/src/index.ts",
     "packages/las/src/index.ts",
     "packages/gltf/src/index.ts",
-    "packages/xkt/src/index.ts"
+    "packages/xkt/src/index.ts",
+    "packages/webgl/src/index.ts",
+    "packages/webgpu/src/index.ts"
   ],
+  "sidebarLinks": {
+    "Introduction": "http://example.com",
+    "Glossary": "http://example.com"
+  },
+  "readme": "./README.md",
   "out": "./docs",
   "excludePrivate": true
 }

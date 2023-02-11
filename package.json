@@ -17,7 +17,7 @@
     "clean:dist": "rm -rf packages/*/dist/**",
     "clean:deps": "rm -rf packages/*/node_modules/**",
     "test": "ts-node node_modules/tape/bin/tape packages/*/test/{*/,}*.test.ts | tap-spec",
-    "docs": "typedoc --tsconfig ./tsconfig.json packages/core/src/components.ts packages/core/src/constants.ts packages/core/src/utils.ts packages/math/src/math.ts packages/math/src/matrix.ts packages/math/src/rtc.ts packages/math/src/boundaries.ts packages/math/src/curves.ts packages/math/src/compression.ts packages/math/src/geometry.ts packages/data/src/index.ts  packages/viewer/src/index.ts packages/webgl/src/index.ts packages/scratchmodel/src/index.ts  packages/xkt/src/index.ts  packages/gltf/src/index.ts  packages/las/src/index.ts --disableOutputCheck --excludeInternal --excludeNotDocumented --media docs/media --readme ./docs/INDEX.md --includes docs",
+    "docs": "typedoc --tsconfig ./tsconfig.json packages/core/src/components.ts packages/core/src/constants.ts packages/locale/src/index.ts packages/core/src/utils.ts packages/math/src/math.ts packages/math/src/matrix.ts packages/math/src/rtc.ts packages/math/src/boundaries.ts packages/math/src/curves.ts packages/compression/src/index.ts packages/procgen/src/geometry/index.ts packages/datamodel/src/index.ts  packages/viewer/src/index.ts packages/webgl/src/index.ts packages/webgpu/src/index.ts packages/scratchmodel/src/index.ts  packages/xkt/src/index.ts  packages/gltf/src/index.ts  packages/las/src/index.ts packages/bcf/src/index.ts packages/controls/src/index.ts packages/ktx2/src/index.ts  --categorizeByGroup false --excludeInternal --excludeNotDocumented --media ./assets --readme ../README.md --includes docs --includeVersion --titleLink \\\"https://xeokit.io\\\"",
     "publish": "npm publish --access public"
   },
   "devDependencies": {
@@ -41,8 +41,8 @@
     "tap-spec": "5.0.0",
     "tape": "5.6.1",
     "ts-node": "10.9.1",
-    "typedoc": "0.21.2",
-    "typescript": "4.3.5",
+    "typedoc": "0.23.24",
+    "typescript": "4.8.4",
     "http-server": "^14.1.1"
   }
 }

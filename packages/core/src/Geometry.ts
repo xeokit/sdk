@@ -5,7 +5,7 @@ import type {GeometryBucket} from "./GeometryBucket";
  * Represents an element of reusable geometry.
  *
  * * Stored in {@link @xeokit/core/components!Model.geometries}
- * * Created with {@link @xeokit/core/components!BuildableModel.createGeometry|BuildableModel.createGeometry} and {@link @xeokit/core/components!BuildableModel.createGeometryCompressed | BuildableModel.createGeometryCompressed}
+ * * Created with {@link @xeokit/core/components!Model.createGeometry|Model.createGeometry} and {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}
  * * Referenced by {@link XKTObject.geometry}
  */
 export interface Geometry {

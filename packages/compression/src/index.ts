@@ -4,9 +4,9 @@
  * ## Geometry Compression / Decompression Utilities
  *
  * This library provides a set of functions that are used internally within
- * {@link @xeokit/core/components!BuildableModel.createGeometry | BuildableModel.createGeometry} implementations to
+ * {@link @xeokit/core/components!Model.createGeometry | Model.createGeometry} implementations to
  * compress geometry. The functions are provided here in case users instead want to pre-compress their geometry "offline",
- * and then use {@link @xeokit/core/components!BuildableModel.createGeometryCompressed | BuildableModel.createGeometryCompressed}
+ * and then use {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}
  * to create the compressed geometry directly.
  *
  * ### Compression Techniques Used

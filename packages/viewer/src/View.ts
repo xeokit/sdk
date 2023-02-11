@@ -161,6 +161,7 @@ class View extends Component {
      * Configures the appearance of lines belonging to {@link ViewObject|ViewObjects} in this View.
      */
     readonly linesMaterial: LinesMaterial;
+
     /**
      * Map of the all {@link ViewObject|ViewObjects} in this View.
      *

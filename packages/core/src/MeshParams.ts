@@ -1,27 +1,27 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * Mesh creation parameters for {@link @xeokit/core/components!BuildableModel.createMesh}.
+ * Mesh creation parameters for {@link @xeokit/core/components!Model.createMesh}.
  */
 export interface MeshParams {
 
     /**
-     * ID for the mesh, unique within the {@link @xeokit/core/components!BuildableModel}.
+     * ID for the mesh, unique within the {@link @xeokit/core/components!Model}.
      */
     id: string;
 
     /**
-     * ID of a texture set that was created previously with {@link @xeokit/core/components!BuildableModel.createTextureSet}.
+     * ID of a texture set that was created previously with {@link @xeokit/core/components!Model.createTextureSet}.
      */
     textureSetId?: string;
 
     /**
-     * ID of a geometry that was created previously with {@link @xeokit/core/components!BuildableModel.createGeometry|BuildableModel.createGeometry} or {@link @xeokit/core/components!BuildableModel.createGeometryCompressed | BuildableModel.createGeometryCompressed}.
+     * ID of a geometry that was created previously with {@link @xeokit/core/components!Model.createGeometry|Model.createGeometry} or {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}.
      */
     geometryId: string;
 
     /**
-     * Optional ID of a {@link Transform} previously created with {@link @xeokit/core/components!BuildableModel.createTransform}.
+     * Optional ID of a {@link Transform} previously created with {@link @xeokit/core/components!Model.createTransform}.
      */
     transformId?: string;
 
@@ -35,7 +35,7 @@ export interface MeshParams {
     /**
      * RGB pick color of the mesh.
      *
-     * This is used internally within {@link @xeokit/core/components!BuildableModel}.
+     * This is used internally within {@link @xeokit/core/components!Model}.
      */
     pickColor?: FloatArrayParam;
 
@@ -65,7 +65,7 @@ export interface MeshParams {
     roughness?: number;
 
     /**
-     * Optional 3D World-space origin, relative to {@link @xeokit/core/components!BuildableModel.origin}.
+     * Optional 3D World-space origin, relative to {@link @xeokit/core/components!Model.origin}.
      *
      * When this is given, then 3D positions given in {@link @xeokit/core/components!GeometryParams.positions} or
      * {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed} are assumed to be relative to this.

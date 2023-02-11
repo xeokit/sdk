@@ -15,7 +15,7 @@ import {
     RepeatWrapping,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-import {BuildableModel, GeometryParams, LoadParams, MeshParams, TextureSetParams} from "@xeokit/core/components";
+import {Model, GeometryParams, LoadParams, MeshParams, TextureSetParams} from "@xeokit/core/components";
 import {isString} from "@xeokit/core/utils";
 import {createMat4, identityMat4, mulMat4, quaternionToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
@@ -25,15 +25,15 @@ interface ParsingContext {
     nextId: number;
     log: any;
     error: (msg) => void;
-    model: BuildableModel;
+    model: Model;
     objectCreated: { [key: string]: boolean }
 }
 
 /**
- * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/core/components!BuildableModel | BuildableModel} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
+ * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/core/components!Model | Model} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
  *
- * * Expects {@link @xeokit/core/components!BuildableModel.built | BuildableModel.built} and {@link @xeokit/core/components!BuildableModel.destroyed | BuildableModel.destroyed} to be ````false````
- * * Does not call {@link @xeokit/core/components!BuildableModel.build | BuildableModel.build} - we call that ourselves, when we have finished building the BuildableModel
+ * * Expects {@link @xeokit/core/components!Model.built | Model.built} and {@link @xeokit/core/components!Model.destroyed | Model.destroyed} to be ````false````
+ * * Does not call {@link @xeokit/core/components!Model.build | Model.build} - we call that ourselves, when we have finished building the Model
  *
  * See {@link @xeokit/gltf} for usage.
  *

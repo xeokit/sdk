@@ -1,7 +1,7 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * Texture creation parameters for {@link @xeokit/core/components!BuildableModel.createTexture}.
+ * Texture creation parameters for {@link @xeokit/core/components!Model.createTexture}.
  */
 export interface TextureParams {
 

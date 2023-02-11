@@ -4,7 +4,7 @@
  * ## Model Loader for glTF File Format
  *
  * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models
- * * {@link loadGLTF} loads glTF into a {@link @xeokit/core/components!BuildableModel | BuildableModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
+ * * {@link loadGLTF} loads glTF into a {@link @xeokit/core/components!Model | Model} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
  *
  * ## Installation
  *

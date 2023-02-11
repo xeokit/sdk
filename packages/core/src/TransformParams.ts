@@ -1,7 +1,7 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * Transform creation parameters for {@link @xeokit/core/components!BuildableModel.createTransform}.
+ * Transform creation parameters for {@link @xeokit/core/components!Model.createTransform}.
  */
 export interface TransformParams {
 

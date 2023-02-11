@@ -4,7 +4,7 @@ import type {FloatArrayParam} from "@xeokit/math/math";
  * Represents a texture.
  *
  * * Stored in {@link @xeokit/core/components!Model.textures}
- * * Created with {@link @xeokit/core/components!BuildableModel.createTexture}
+ * * Created with {@link @xeokit/core/components!Model.createTexture}
  * * Referenced by {@link TextureSet.colorTexture}, {@link TextureSet.metallicRoughnessTexture}, {@link TextureSet.occlusionTexture} and {@link TextureSet.emissiveTexture}
  */
 export interface Texture {

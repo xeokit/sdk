@@ -4,10 +4,10 @@ import {unpackXKT} from "./lib/unpackXKT";
 import {xktToModel} from "./lib/xktToModel";
 
 /**
- * Loads XKT file data from an ArrayBuffer into a {@link @xeokit/core/components!BuildableModel | BuildableModel} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
+ * Loads XKT file data from an ArrayBuffer into a {@link @xeokit/core/components!Model | Model} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
  *
- * * Expects {@link @xeokit/core/components!BuildableModel.built | BuildableModel.built} and {@link @xeokit/core/components!BuildableModel.destroyed | BuildableModel.destroyed} to be ````false````
- * * Does not call {@link @xeokit/core/components!BuildableModel.build | BuildableModel.build} - we call that ourselves, when we have finished building the BuildableModel
+ * * Expects {@link @xeokit/core/components!Model.built | Model.built} and {@link @xeokit/core/components!Model.destroyed | Model.destroyed} to be ````false````
+ * * Does not call {@link @xeokit/core/components!Model.build | Model.build} - we call that ourselves, when we have finished building the Model
  *
  * See {@link @xeokit/xkt} for usage.
  *
@@ -26,7 +26,7 @@ export function loadXKT(params: LoadParams): Promise<any> {
         }
         xktToModel({
             xktData: inflateXKT(unpackXKT(params.data)),
-            buildableModel: params.model,
+            model: params.model,
             dataModel: params.dataModel
         });
         resolve();

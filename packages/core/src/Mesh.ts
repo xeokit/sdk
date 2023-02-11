@@ -6,7 +6,7 @@ import type {TextureSet} from "./TextureSet";
  * Represents a mesh.
  *
  * * Stored in {@link @xeokit/core/components!Model.meshes}
- * * Created with {@link @xeokit/core/components!BuildableModel.createMesh}
+ * * Created with {@link @xeokit/core/components!Model.createMesh}
  * * Referenced by {@link XKTObject.meshes}
  */
 export interface Mesh {

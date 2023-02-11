@@ -1,7 +1,6 @@
 import {EventDispatcher} from "strongly-typed-events";
 
 import {
-    BuildableModel,
     Component,
     EventEmitter,
     Geometry,
@@ -96,7 +95,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  *
  * See {@link @xeokit/scratchmodel} for usage.
  */
-class ScratchModel extends Component implements Model, BuildableModel {
+class ScratchModel extends Component implements Model {
 
     /**
      * The ScratchModel's ID.
@@ -601,7 +600,7 @@ class ScratchModel extends Component implements Model, BuildableModel {
         // }
         // const meshIndex = this.meshesList.length;
 
-        this.meshes[meshParams.id] = new MeshImpl( {
+        this.meshes[meshParams.id] = new MeshImpl({
             id: meshParams.id,
             geometry,
             textureSet,

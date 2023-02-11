@@ -1,6 +1,5 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 import {
-    BuildableModel, Component,
     EventEmitter,
     Geometry,
     GeometryCompressedParams,
@@ -31,7 +30,7 @@ import {Viewer} from "./Viewer";
  * * Contains {@link ViewerObject | ViewerObjects}
  * * Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link @xeokit/viewer!View}
  */
-export interface ViewerModel extends Model, BuildableModel {
+export interface ViewerModel extends Model {
 
     /** Unique ID of this ViewerModel.
      *

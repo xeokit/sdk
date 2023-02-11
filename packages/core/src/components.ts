@@ -18,7 +18,6 @@
 export * from "./Component";
 export * from "./EventEmitter";
 export * from "./LoadParams";
-export * from "./BuildableModel";
 export * from "./Model";
 export * from "./ObjectParams";
 export * from "./XKTObject";

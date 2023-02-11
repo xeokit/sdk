@@ -1,5 +1,5 @@
 /**
- * Object creation parameters for {@link @xeokit/core/components!BuildableModel.createObject}.
+ * Object creation parameters for {@link @xeokit/core/components!Model.createObject}.
  */
 export interface ObjectParams {
 
@@ -9,7 +9,7 @@ export interface ObjectParams {
     id: string;
 
     /**
-     * IDs of meshes previously created with {@link @xeokit/core/components!BuildableModel.createMesh}.
+     * IDs of meshes previously created with {@link @xeokit/core/components!Model.createMesh}.
      */
     meshIds: string[];
 

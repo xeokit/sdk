@@ -1,4 +1,4 @@
-import type {BuildableModel} from "@xeokit/core/components";
+import type {Model} from "@xeokit/core/components";
 import type {DataModel} from "@xeokit/datamodel";
 
 /**
@@ -14,7 +14,7 @@ export interface LoadParams {
     /**
      * Target to load the file's model representation into.
      */
-    model: BuildableModel,
+    model: Model,
 
     /**
      * Target to the load the file's semantic data into, if avaialable.

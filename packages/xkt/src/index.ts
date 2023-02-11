@@ -4,7 +4,7 @@
  * ## Model Loader and Saver for XKT File Format
  *
  * * XKT is xeokit's native compressed model format, which contains geometry, materials, objects and semantic data in a compact, Web-friendly payload.
- * * {@link loadXKT} loads XKT into a {@link @xeokit/core/components!BuildableModel | BuildableModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
+ * * {@link loadXKT} loads XKT into a {@link @xeokit/core/components!Model | Model} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
  * * {@link saveXKT} saves XKT from a {@link @xeokit/core/components!Model | Model} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
  *
  * ## Installation

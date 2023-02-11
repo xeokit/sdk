@@ -4,7 +4,7 @@ import type {Mesh} from "./Mesh";
  * Represents an object.
  *
  * * Stored in {@link @xeokit/core/components!Model.objects}
- * * Created with {@link @xeokit/core/components!BuildableModel.createObject}
+ * * Created with {@link @xeokit/core/components!Model.createObject}
  */
 export interface XKTObject  {
 

@@ -16,13 +16,13 @@
  *
  * ## Usage
  *
- * Loading a LAS file into a {@link @xeokit/docmodel!DocModel | DocModel}:
+ * Loading a LAS file into a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
  *
  * ````javascript
- * import {DocModel} from "@xeokit/docmodel";
+ * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {loadLAS} from "@xeokit/las";
  *
- * const myDocModel = new DocModel();
+ * const myDocModel = new ScratchModel();
  *
  * fetch("myModel.las")
  *     .then(response => {

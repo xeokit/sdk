@@ -15,7 +15,7 @@ import {Relationship} from "./Relationship";
 export class DataObject {
 
     /**
-     * DocModel metadata.
+     * ScratchModel metadata.
      */
     public models: DataModel[];
 

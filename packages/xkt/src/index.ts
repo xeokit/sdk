@@ -15,13 +15,13 @@
  *
  * ## Usage
  *
- * Loading an XKT file into a {@link @xeokit/docmodel!DocModel | DocModel}:
+ * Loading an XKT file into a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
  *
  * ````javascript
- * import {DocModel} from "@xeokit/docmodel";
+ * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {loadXKT} from "@xeokit/xkt";
  *
- * const myDocModel = new DocModel();
+ * const myDocModel = new ScratchModel();
  *
  * fetch("myModel.xkt")
  *     .then(response => {
@@ -101,13 +101,13 @@
  *     });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/docmodel!DocModel | DocModel}:
+ * Saving an XKT file from a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
  *
  * ````javascript
- * import {DocModel} from "@xeokit/docmodel";
+ * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {saveXKT} from "@xeokit/xkt";
  *
- * const myDocModel = new DocModel();
+ * const myDocModel = new ScratchModel();
  *
  * //...
  *

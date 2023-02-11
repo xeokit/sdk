@@ -14,13 +14,13 @@
  *
  * ## Usage
  *
- * Loading a glTF file into a {@link @xeokit/docmodel!DocModel | DocModel}:
+ * Loading a glTF file into a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
  *
  * ````javascript
- * import {DocModel} from "@xeokit/docmodel";
+ * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {loadGLTF} from "@xeokit/gltf";
  *
- * const myDocModel = new DocModel();
+ * const myDocModel = new ScratchModel();
  *
  * fetch("myModel.glb")
  *     .then(response => {

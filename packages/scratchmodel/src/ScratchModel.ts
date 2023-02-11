@@ -94,30 +94,30 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 /**
  * Offline buildable, loadable and savable model document representation.
  *
- * See {@link @xeokit/docmodel} for usage.
+ * See {@link @xeokit/scratchmodel} for usage.
  */
-class DocModel extends Component implements Model, BuildableModel {
+class ScratchModel extends Component implements Model, BuildableModel {
 
     /**
-     * The DocModel's ID.
+     * The ScratchModel's ID.
      */
     readonly id: string;
 
     /**
-     * Indicates if this DocModel has already been built.
+     * Indicates if this ScratchModel has already been built.
      *
-     * Set ````true```` by {@link DocModel.build}.
+     * Set ````true```` by {@link ScratchModel.build}.
      *
-     * Don't create anything more in this DocModel once it's built.
+     * Don't create anything more in this ScratchModel once it's built.
      */
     declare built: boolean;
 
     /**
-     * Indicates if this DocModel has been destroyed.
+     * Indicates if this ScratchModel has been destroyed.
      *
-     * Set ````true```` by {@link DocModel.destroy}.
+     * Set ````true```` by {@link ScratchModel.destroy}.
      *
-     * Don't create anything more in this DocModel once it's destroyed.
+     * Don't create anything more in this ScratchModel once it's destroyed.
      */
     declare readonly destroyed: boolean;
 
@@ -127,72 +127,72 @@ class DocModel extends Component implements Model, BuildableModel {
     readonly edgeThreshold: number;
 
     /**
-     * {@link @xeokit/core/components!Geometry|Geometries} within this DocModel, each mapped to {@link @xeokit/core/components!Geometry.id}.
+     * {@link @xeokit/core/components!Geometry|Geometries} within this ScratchModel, each mapped to {@link @xeokit/core/components!Geometry.id}.
      *
-     * Created by {@link DocModel.createGeometry}.
+     * Created by {@link ScratchModel.createGeometry}.
      */
     readonly geometries: { [key: string]: Geometry };
 
     /**
-     * {@link Texture|Textures} within this DocModel, each mapped to {@link Texture.id}.
+     * {@link Texture|Textures} within this ScratchModel, each mapped to {@link Texture.id}.
      *
-     * Created by {@link DocModel.createTexture}.
+     * Created by {@link ScratchModel.createTexture}.
      */
     readonly textures: { [key: string]: Texture };
 
     /**
-     * {@link TextureSet|TextureSets} within this DocModel, each mapped to {@link TextureSet.id}.
+     * {@link TextureSet|TextureSets} within this ScratchModel, each mapped to {@link TextureSet.id}.
      *
-     * Created by {@link DocModel.createTextureSet}.
+     * Created by {@link ScratchModel.createTextureSet}.
      */
     readonly textureSets: { [key: string]: TextureSet };
 
     /**
-     * {@link Mesh|Meshes} within this DocModel, each mapped to {@link Mesh.id}.
+     * {@link Mesh|Meshes} within this ScratchModel, each mapped to {@link Mesh.id}.
      *
-     * Created by {@link DocModel.createMesh}.
+     * Created by {@link ScratchModel.createMesh}.
      */
     readonly meshes: { [key: string]: Mesh };
 
     /**
-     * {@link XKTObject|XKTObjects} within this DocModel, each mapped to {@link XKTObject.id}.
+     * {@link XKTObject|XKTObjects} within this ScratchModel, each mapped to {@link XKTObject.id}.
      *
-     * Created by {@link DocModel.createObject}.
+     * Created by {@link ScratchModel.createObject}.
      */
     readonly objects: { [key: string]: XKTObject };
 
     /**
-     * The axis-aligned 3D World-space boundary of this DocModel.
+     * The axis-aligned 3D World-space boundary of this ScratchModel.
      *
-     * Created by {@link DocModel.build}.
+     * Created by {@link ScratchModel.build}.
      */
     readonly aabb: Float64Array;
 
     /**
-     * Emits an event when this {@link @xeokit/docmodel!DocModel | DocModel} has already been built.
+     * Emits an event when this {@link @xeokit/scratchmodel!ScratchModel | ScratchModel} has already been built.
      *
-     * Triggered by {@link DocModel.build}.
+     * Triggered by {@link ScratchModel.build}.
      *
      * @event
      */
-    readonly onBuilt: EventEmitter<DocModel, null>;
+    readonly onBuilt: EventEmitter<ScratchModel, null>;
 
     /**
-     * Emits an event when this {@link @xeokit/docmodel!DocModel | DocModel} has been destroyed.
+     * Emits an event when this {@link @xeokit/scratchmodel!ScratchModel | ScratchModel} has been destroyed.
      *
-     * Triggered by {@link DocModel.destroy}.
+     * Triggered by {@link ScratchModel.destroy}.
      *
      * @event
      */
-    readonly onDestroyed: EventEmitter<DocModel, null>;
+    readonly onDestroyed: EventEmitter<ScratchModel, null>;
 
     #meshUsedByObject: { [key: string]: boolean };
 
     /**
-     * Constructs a new DocModel.
+     * Constructs a new ScratchModel.
      *
      * ````javascript
-     * const myDocModel = new DocModel();
+     * const myDocModel = new ScratchModel();
      * ````
      *
      * @param [cfg] Configuration
@@ -208,8 +208,8 @@ class DocModel extends Component implements Model, BuildableModel {
 
         this.#meshUsedByObject = {};
 
-        this.onBuilt = new EventEmitter(new EventDispatcher<DocModel, null>());
-        this.onDestroyed = new EventEmitter(new EventDispatcher<DocModel, null>());
+        this.onBuilt = new EventEmitter(new EventDispatcher<ScratchModel, null>());
+        this.onDestroyed = new EventEmitter(new EventDispatcher<ScratchModel, null>());
 
         this.id = cfg.id || "default";
         this.edgeThreshold = cfg.edgeThreshold || 10;
@@ -223,9 +223,9 @@ class DocModel extends Component implements Model, BuildableModel {
     }
 
     /**
-     * Creates a new {@link Transform} within this DocModel.
+     * Creates a new {@link Transform} within this ScratchModel.
      *
-     * Registers the new {@link Transform} in {@link DocModel.transforms}.
+     * Registers the new {@link Transform} in {@link ScratchModel.transforms}.
      *
      * ````javascript
      * myDocModel.createTransform({
@@ -233,19 +233,19 @@ class DocModel extends Component implements Model, BuildableModel {
      *      //...
      * });
      *
-     * // DocModel is a DocModel, so we can access the TextureSet we just created
+     * // ScratchModel is a ScratchModel, so we can access the TextureSet we just created
      * const textureSet = myDocModel.textureSets["myTextureSet"];
      * ````
      *
      * @param transformParams Transform creation parameters.
-     * @throws {Error} If DocModel has already been built or destroyed.
+     * @throws {Error} If ScratchModel has already been built or destroyed.
      */
     createTransform(transformParams: TransformParams): void {
         if (this.destroyed) {
-            throw new Error("DocModel already destroyed");
+            throw new Error("ScratchModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DocModel already built");
+            throw new Error("ScratchModel already built");
         }
         if (!transformParams) {
             throw new Error("Parameters expected: transformParams");
@@ -256,9 +256,9 @@ class DocModel extends Component implements Model, BuildableModel {
     }
 
     /**
-     * Creates a new {@link Texture} within this DocModel.
+     * Creates a new {@link Texture} within this ScratchModel.
      *
-     * Registers the new {@link Texture} in {@link DocModel.textures}.
+     * Registers the new {@link Texture} in {@link ScratchModel.textures}.
      *
      * ````javascript
      * myDocModel.createTexture({
@@ -276,19 +276,19 @@ class DocModel extends Component implements Model, BuildableModel {
      *      wrapT: ClampToEdgeWrapping,
      * });
      *
-     * // DocModel is a DocModel, so we can access the TextureSet we just created
+     * // ScratchModel is a ScratchModel, so we can access the TextureSet we just created
      * const textureSet = myDocModel.textureSets["myTextureSet"];
      * ````
      *
      * @param textureParams Texture creation parameters.
-     * @throws {Error} If DocModel has already been built or destroyed.
+     * @throws {Error} If ScratchModel has already been built or destroyed.
      */
     createTexture(textureParams: TextureParams): void {
         if (this.destroyed) {
-            throw new Error("DocModel already destroyed");
+            throw new Error("ScratchModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DocModel already built");
+            throw new Error("ScratchModel already built");
         }
         if (!textureParams) {
             throw new Error("Parameters expected: textureParams");
@@ -314,9 +314,9 @@ class DocModel extends Component implements Model, BuildableModel {
     }
 
     /**
-     * Creates a new {@link TextureSet} within this DocModel.
+     * Creates a new {@link TextureSet} within this ScratchModel.
      *
-     * Registers the new {@link TextureSetImpl} in {@link DocModel.textureSets}.
+     * Registers the new {@link TextureSetImpl} in {@link ScratchModel.textureSets}.
      *
      * ````javascript
      * myDocModel.createTextureSet({
@@ -324,19 +324,19 @@ class DocModel extends Component implements Model, BuildableModel {
      *      colorTextureId: "myColorTexture"
      * });
      *
-     * // DocModel is a Model, so we can access the TextureSet we just created
+     * // ScratchModel is a Model, so we can access the TextureSet we just created
      * const textureSet = myDocModel.textureSets["myTextureSet"];
      * ````
      *
      * @param textureSetParams TextureSet creation parameters.
-     * @throws {Error} If DocModel has already been built or destroyed.
+     * @throws {Error} If ScratchModel has already been built or destroyed.
      */
     createTextureSet(textureSetParams: TextureSetParams): void {
         if (this.destroyed) {
-            throw new Error("DocModel already destroyed");
+            throw new Error("ScratchModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DocModel already built");
+            throw new Error("ScratchModel already built");
         }
         if (!textureSetParams) {
             throw "Parameters expected: textureSetParams";
@@ -402,7 +402,7 @@ class DocModel extends Component implements Model, BuildableModel {
     }
 
     /**
-     * Creates a new {@link @xeokit/core/components!Geometry} within this DocModel, from non-compressed geometry parameters.
+     * Creates a new {@link @xeokit/core/components!Geometry} within this ScratchModel, from non-compressed geometry parameters.
      *
      * ### Usage
      *
@@ -424,19 +424,19 @@ class DocModel extends Component implements Model, BuildableModel {
      *      ]
      *  });
      *
-     * // DocModel is a Model, so we can access the Geometry we just created
+     * // ScratchModel is a Model, so we can access the Geometry we just created
      * const geometry = myDocModel.geometries["myBoxGeometry"];
      * ````
      *
      * @param geometryParams Non-compressed geometry parameters.
-     * @throws {Error} If DocModel has already been built or destroyed.
+     * @throws {Error} If ScratchModel has already been built or destroyed.
      */
     createGeometry(geometryParams: GeometryParams): void {
         if (this.destroyed) {
-            throw new Error("DocModel already destroyed");
+            throw new Error("ScratchModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DocModel already built");
+            throw new Error("ScratchModel already built");
         }
         if (!geometryParams) {
             this.error("[createGeometry] Parameters expected: geometryParams");
@@ -468,7 +468,7 @@ class DocModel extends Component implements Model, BuildableModel {
     }
 
     /**
-     * Creates a new {@link @xeokit/core/components!Geometry} within this DocModel, from pre-compressed geometry parameters.
+     * Creates a new {@link @xeokit/core/components!Geometry} within this ScratchModel, from pre-compressed geometry parameters.
      *
      * Use {@link @xeokit/compression/compressGeometryParams} to pre-compress {@link @xeokit/core/components!GeometryParams|GeometryParams} into {@link @xeokit/core/components!GeometryCompressedParams|GeometryCompressedParams}.
      *
@@ -498,19 +498,19 @@ class DocModel extends Component implements Model, BuildableModel {
      *      ]
      * });
      *
-     * // DocModel is a Model, so we can access the Geometry we just created
+     * // ScratchModel is a Model, so we can access the Geometry we just created
      * const geometry = myDocModel.geometries["myBoxGeometry"];
      * ````
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
-     * @throws {Error} If DocModel has already been built or destroyed.
+     * @throws {Error} If ScratchModel has already been built or destroyed.
      */
     createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): void {
         if (this.destroyed) {
-            throw new Error("DocModel already destroyed");
+            throw new Error("ScratchModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DocModel already built");
+            throw new Error("ScratchModel already built");
         }
         if (!geometryCompressedParams) {
             this.error("[createGeometryCompressed] Parameters expected: geometryCompressedParams");
@@ -534,7 +534,7 @@ class DocModel extends Component implements Model, BuildableModel {
     }
 
     /**
-     * Creates an {@link Mesh} within this DocModel.
+     * Creates an {@link Mesh} within this ScratchModel.
      *
      * ````javascript
      * myDocModel.createMesh({
@@ -547,21 +547,21 @@ class DocModel extends Component implements Model, BuildableModel {
      *      color: [1, 0.3, 0.3]
      * });
      *
-     * // DocModel is a Model, so we can access the Mesh we just created
+     * // ScratchModel is a Model, so we can access the Mesh we just created
      * const mesh = myDocModel.meshes["redLegMesh"];
      * ````
      *
      * An {@link Mesh} can be owned by one {@link XKTObject}, which can own multiple {@link Mesh}es.
      *
      * @param meshParams Pre-compressed mesh parameters.
-     * @throws {Error} If DocModel has already been built or destroyed.
+     * @throws {Error} If ScratchModel has already been built or destroyed.
      */
     createMesh(meshParams: MeshParams): void {
         if (this.destroyed) {
-            throw new Error("DocModel already destroyed");
+            throw new Error("ScratchModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DocModel already built");
+            throw new Error("ScratchModel already built");
         }
         if (meshParams.id === null || meshParams.id === undefined) {
             this.error("Parameter expected: meshParams.id");
@@ -614,19 +614,19 @@ class DocModel extends Component implements Model, BuildableModel {
     }
 
     /**
-     * Creates an {@link XKTObject} within this DocModel.
+     * Creates an {@link XKTObject} within this ScratchModel.
      *
-     * Registers the new {@link XKTObject} in {@link DocModel.objects}.
+     * Registers the new {@link XKTObject} in {@link ScratchModel.objects}.
      *
      * @param objectParams Pre-compressed object parameters.
-     * @throws {Error} If DocModel has already been built or destroyed.
+     * @throws {Error} If ScratchModel has already been built or destroyed.
      */
     createObject(objectParams: ObjectParams): void {
         if (this.destroyed) {
-            throw new Error("DocModel already destroyed");
+            throw new Error("ScratchModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DocModel already built");
+            throw new Error("ScratchModel already built");
         }
         if (!objectParams) {
             throw new Error("Parameters expected: objectParams");
@@ -677,20 +677,20 @@ class DocModel extends Component implements Model, BuildableModel {
     }
 
     /**
-     * Builds this DocModel.
+     * Builds this ScratchModel.
      *
-     * Sets {@link DocModel.built} ````true````.
+     * Sets {@link ScratchModel.built} ````true````.
      *
-     * Once built, you cannot add any more components to this DocModel.
+     * Once built, you cannot add any more components to this ScratchModel.
      *
-     * @throws {Error} If DocModel has already been built or destroyed.
+     * @throws {Error} If ScratchModel has already been built or destroyed.
      */
     async build() {
         if (this.destroyed) {
-            throw new Error("DocModel already destroyed");
+            throw new Error("ScratchModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DocModel already built");
+            throw new Error("ScratchModel already built");
         }
         this.#removeUnusedTextures();
         await this.#compressTextures();
@@ -727,7 +727,7 @@ class DocModel extends Component implements Model, BuildableModel {
         //
         //         if (texture.src) {
         //
-        //             // Texture created with DocModel#createTexture({ src: ... })
+        //             // Texture created with ScratchModel#createTexture({ src: ... })
         //
         //             const src = texture.src;
         //             const fileExt = src.split('.').pop();
@@ -748,7 +748,7 @@ class DocModel extends Component implements Model, BuildableModel {
         //                                     resolve();
         //                                 }
         //                             }).catch((err) => {
-        //                                 this.error("[DocModel.build] Failed to encode image: " + err);
+        //                                 this.error("[ScratchModel.build] Failed to encode image: " + err);
         //                                 if (--countTextures <= 0) {
         //                                     resolve();
         //                                 }
@@ -760,7 +760,7 @@ class DocModel extends Component implements Model, BuildableModel {
         //                             }
         //                         }
         //                     }).catch((err) => {
-        //                         this.error("[DocModel.build] Failed to load image: " + err);
+        //                         this.error("[ScratchModel.build] Failed to load image: " + err);
         //                         if (--countTextures <= 0) {
         //                             resolve();
         //                         }
@@ -776,7 +776,7 @@ class DocModel extends Component implements Model, BuildableModel {
         //
         //         if (texture.imageData) {
         //
-        //             // Texture created with DocModel#createTexture({ imageData: ... })
+        //             // Texture created with ScratchModel#createTexture({ imageData: ... })
         //
         //             if (texture.compressed) {
         //                 encode(texture.imageData, KTX2BasisWriter, encodingOptions)
@@ -786,7 +786,7 @@ class DocModel extends Component implements Model, BuildableModel {
         //                             resolve();
         //                         }
         //                     }).catch((err) => {
-        //                     this.error("[DocModel.build] Failed to encode image: " + err);
+        //                     this.error("[ScratchModel.build] Failed to encode image: " + err);
         //                     if (--countTextures <= 0) {
         //                         resolve();
         //                     }
@@ -828,5 +828,5 @@ class DocModel extends Component implements Model, BuildableModel {
 }
 
 export {
-    DocModel
+    ScratchModel
 }

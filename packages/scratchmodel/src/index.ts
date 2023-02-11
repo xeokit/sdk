@@ -1,9 +1,9 @@
 /**
- * <img style="padding:20px" src="media://images/xeokit_docmodel_greyscale_icon.png"/>
+ * <img style="padding:20px" src="media://images/xeokit_scratchmodel_greyscale_icon.png"/>
  *
  * ## Geometry Model Representation
  *
- * * {@link @xeokit/docmodel!DocModel | DocModel}
+ * * {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}
  * * Buildable, loadable and savable in-memory xeokit model representation
  * * Build models programmatically with builder methods
  * * Load models from files (eg. with {@link loadXKT})
@@ -14,20 +14,20 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/docmodel
+ * npm install @xeokit/scratchmodel
  * ````
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/docmodel!DocModel | DocModel} with a couple of objects, a geometry and a texture. In this example, we create the geometry
+ * Creating a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel} with a couple of objects, a geometry and a texture. In this example, we create the geometry
  * from Human-readible uncompressed arrays, which we first pre-compress with {@link @xeokit/compression/compressGeometryParams}.
  *
  * ````javascript
- * import {DocModel} from "@xeokit/docmodel";
+ * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/core/constants";
  * import {compressGeometryParams} from "@xeokit/math/compression";
  *
- * const myDocModel = new DocModel({
+ * const myDocModel = new ScratchModel({
  *     id: "myModel"
  * });
  *
@@ -105,6 +105,6 @@
  * // ..etc
  * ````
  *
- * @module @xeokit/docmodel
+ * @module @xeokit/scratchmodel
  */
-export * from "./DocModel";
+export * from "./ScratchModel";

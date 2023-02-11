@@ -35,7 +35,7 @@ export interface BuildableModel {
      *
      * Set ````true```` by {@link @xeokit/core/components!BuildableModel.destroy}.
      *
-     * Don't create anything more in this DocModel once it's destroyed.
+     * Don't create anything more in this ScratchModel once it's destroyed.
      */
     readonly destroyed: boolean;
 

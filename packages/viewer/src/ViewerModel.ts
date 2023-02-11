@@ -53,7 +53,7 @@ export interface ViewerModel extends Model, BuildableModel {
      *
      * Set ````true```` by {@link ViewerModel.destroy}.
      *
-     * Don't create anything more in this DocModel once it's destroyed.
+     * Don't create anything more in this ScratchModel once it's destroyed.
      */
     readonly destroyed: boolean;
 

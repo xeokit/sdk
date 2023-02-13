@@ -21,6 +21,7 @@
     "packages/webgpu/src/index.ts"
   ],
   "sidebarLinks": {
+    "xeokit.io": "https://xeokit.io",
     "Introduction": "http://example.com",
     "Glossary": "http://example.com"
   },

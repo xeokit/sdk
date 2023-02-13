@@ -1,516 +1,71 @@
-# xeokit
+# @xeokit
 
-[![npm version](https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer.svg)](https://badge.fury.io/js/%40xeokit%2Fxeokit-viewer)
-[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-viewer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/xeokit-viewer)
-
-[xeokit-viewer](https://xeokit.github.io/xeokit-viewer/docs/index.html) is a viewer library from [xeolabs](http://xeolabs.com) for viewing
-high-detail, full-precision 3D engineering and BIM models in the browser.
-<br><br>
+*A complete graphics SDK for browser-based AECO model visualization.*
 
 ## Features
 
-* Next-generation browser-based 3D/2D viewer from @xeolabs
-* For BIM & AEC applications
+* Browser-based 3D/2D viewer
+* Fast model loading
 * Fast rendering
-* Compact memory footprint
+* Low memory footprint
 * Multiple canvases
-* Semantic ER data model 
-* Pluggable graphics (WebGL, WebGPU..)
+* Semantic ER data model
+* Pluggable graphics engine (WebGL, WebGPU..)
 * Natively TypeScript
-* Strongly-typed events
+* SOLID
 
 ## Modules
 
-xeokit embraces the Open-Closed Principle of design, which makes it modular and extensible.
-
-The SDK contains the following modules:
-
-
-| Package                                                              | Modules                                                                                                            | Description                                                                                      |
-|----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| [`@xeokit/viewer`](https://www.npmjs.com/package/@xeokit/viewer)     | [`@xeokit/viewer`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_viewer.html)                     | * Browser-based model viewer <br/>* Buildable viewer model representation                        |
-| [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webgl)       | [`@xeokit/webgl`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_webgl.html)                       | * Extends the viewer to use WebGL2                                                               |
-| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)         | [`@xeokit/data`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_data.html)                         | * Buildable entity-relationship semantic data model<br/>* Use alongside viewer, or independently |
-| [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)         | [`@xeokit/core/components`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_components.html)   | Component base class, event dispatcher class                                                     |
-|                                                                      | [`@xeokit/core/constants`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_constants.html)     | Global constants                                                                                 |
-|                                                                      | [`@xeokit/core/utils`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_core_utils.html)             | General utilities library                                                                        |
-| [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)         | [`@xeokit/math/math`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_math.html)               | General math definitions and constants                                                           |
-|                                                                      | [`@xeokit/math/boundaries`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_boundaries.html)   | Spatial boundary math utilities library                                                          |
-|                                                                      | [`@xeokit/math/compression`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_compression.html) | Geometry de/compression utilities library                                                        |
-|                                                                      | [`@xeokit/math/curves`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_curves.html)           | Spline curve utilities library                                                                   |
-|                                                                      | [`@xeokit/math/geometry`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_geometry.html)       | Mesh generation utilities library                                                                |
-|                                                                      | [`@xeokit/math/matrix`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_matrix.html)           | Matrix and vector math utilities library                                                         |
-|                                                                      | [`@xeokit/math/rtc`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_math_rtc.html)                 | RTC coordinate math utilities library                                                            |
-| [`@xeokit/scratchmodel`](https://www.npmjs.com/package/@xeokit/scratchmodel)       | [`@xeokit/scratchmodel`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_scratchmodel.html)                       | Model representation - buildable, savable, viewer-independent                                    |
-| [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)           | [`@xeokit/xkt`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_xkt.html)                           | Parse/serialize model reresentations from/to XKT                                                 |
-| [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)         | [`@xeokit/gltf`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_gltf.html)                         | Parse model representations from glTF                                                            |
-| [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)           | [`@xeokit/las`](https://xeokit.github.io/xeokit-webviewer/docs/modules/_xeokit_las.html)                           | Parse model representations from LAS ad LAZ                                                      |
-| [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson) | [`@xeokit/cityjson`](https://xeokit.github.io/xeokit-webviewer/docs/modules/cityjson.html)                         | Parse model representations from CityJSON                                                        |
-
-## Usage
-
-### Example 1
-
-Let's create a [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) with
-a [WebIFCLoaderPlugin](https://xeokit.github.io/xeokit-viewer/docs/classes/WebIFCLoaderPlugin.html)
-to view a IFC model in the browser. We'll configure our Viewer with
-two [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html), and a then view a sample IFC model from
-the [Open IFC ScratchModel Database](http://openifcmodel.cs.auckland.ac.nz/Model/Details/274).
-
-![](https://xeokit.io/img/docs/WebIFCLoaderPlugin/WebIFCLoaderPluginBig.png)
-
-````html
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>xeokit Example</title>
-    <style>
-        body {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            user-select: none;
-        }
-
-        #myView1 {
-            width: 70%;
-            height: 100%;
-            position: absolute;
-            background: lightblue;
-            background-image: linear-gradient(lightblue, white);
-        }
-
-        #myView2 {
-            width: 30%;
-            height: 100%;
-            position: absolute;
-            background: white;
-        }
-    </style>
-</head>
-<body>
-<canvas id="myView1"></canvas>
-<canvas id="myView2"></canvas>
-</body>
-<script id="source" type="module">
-
-    import {Viewer, WebGL2Renderer} from
-                "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
-
-    // Create a Viewer with two Views
-
-    const viewer = new Viewer({
-        renderer: new WebGL2Renderer({})
-    });
-
-    const view1 = viewer.createView({
-        viewId: "myView1",
-        canvasId: "myView1"
-    });
-
-    view1.camera.eye = [-3.933, 2.855, 27.018];
-    view1.camera.look = [4.400, 3.724, 8.899];
-    view1.camera.up = [-0.018, 0.999, 0.039];
-    view1.camera.projection = "perspective";
-    view1.cameraControl.navMode = "orbit";
-
-    const view2 = viewer.createView({
-        viewId: "myView2",
-        canvasId: "myView2"
-    });
-
-    view2.camera.eye = [-3.933, 2.855, 27.018];
-    view2.camera.look = [4.400, 3.724, 8.899];
-    view2.camera.up = [-0.018, 0.999, 0.039];
-    view2.camera.projection = "ortho";
-
-    view2.cameraControl.navMode = "planView";
-
-    // Load a model from IFC
-
-    const webIFCLoader = new WebIFCLoaderPlugin(viewer, {
-        wasmPath: "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/"
-    });
-
-    const sceneModel = webIFCLoader.load({
-        id: "myModel",
-        src: "Duplex.ifc"
-    });
-
-    // Click the View #1 canvas to pick ViewObjects
-
-    view1.input.events.on("click", (mouseViewPos) => {
-
-        const pickResult = view1.pick({
-            canvasPos: mouseViewPos
-        });
-
-        if (pickResult) {
-
-            // Picked a ViewObject
-
-            const viewObject = pickResult.viewObject;
-
-            // Get geometry of the picked ViewObject
-
-            const viewerObject = viewer.scene.objects[viewObject.id];
-            const aabb = viewerObject.aabb; // 3D axis-aligned boundary
-            const center = viewerObject.center; // 3D center
-
-            // Get metadata for the picked ViewObject
-
-            const dataObject = viewer.data.objects[viewObject.id];
-
-            if (dataObject) {
-
-                const name = dataObject.name;
-                const type = dataObject.type; // Eg. "IfcWall", "IfcBuildingStorey"
-
-                for (let propertySet of dataObject.propertySets) {
-
-                    const propertySetId = propertySet.id;
-                    const propertySetName = propertySet.name;
-                    const propertySetType = propertySet.type;
-
-                    for (let property of propertySet) {
-
-                        const propertyId = property.id;
-                        const propertyName = property.name;
-                        const propertyType = property.type;
-
-                        //...
-                    }
-                }
-
-                const dataModel = dataObject.dataModel;
-
-                const projectId = dataModel.projectId;
-                const revisionId = dataModel.revisionId;
-                const author = dataModel.author;
-                const createdAt = dataModel.createdAt;
-                const creatingApplication = dataModel.creatingApplication;
-                const schema = dataModel.schema;
-
-                //...
-            }
-        }
-    });
-
-</script>
-</html>
-````
-
-### Example 2
-
-Let's go a little deeper and build some content directly within
-a [Viewer](https://xeokit.github.io/xeokit-viewer/docs/classes/Viewer.html) using its JavaScript API.
-
-In our second example, we'll create a Viewer with
-two [Views](https://xeokit.github.io/xeokit-viewer/docs/classes/View.html) like before, but this time we'll create our
-model metadata and geometry programmatically, using builder methods within the API.
-
-![](http://xeokit.io/img/docs/sceneGraph.png)
-
-````html
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>xeokit Example</title>
-    <style>
-        body {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            user-select: none;
-        }
-
-        #myView1 {
-            width: 70%;
-            height: 100%;
-            position: absolute;
-            background: lightblue;
-            background-image: linear-gradient(lightblue, white);
-        }
-
-        #myView2 {
-            width: 30%;
-            height: 100%;
-            position: absolute;
-            background: white;
-        }
-    </style>
-</head>
-<body>
-<canvas id="myView1"></canvas>
-<canvas id="myView2"></canvas>
-</body>
-<script id="source" type="module">
-
-    import {Viewer, WebGL2Renderer, constants} from
-                "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/xeokit-viewer.es.min.js";
-
-    const viewer = new Viewer({
-        renderer: new WebGL2Renderer({})
-    });
-
-    // Create a couple of independent views
-
-    const view1 = viewer.createView({
-        viewId: "myView1",
-        canvasId: "myView1"
-    });
-
-    view1.camera.eye = [-3.933, 2.855, 27.018];
-    view1.camera.look = [4.400, 3.724, 8.899];
-    view1.camera.up = [-0.018, 0.999, 0.039];
-    view1.camera.projection = "perspective";
-    view1.cameraControl.navMode = "orbit";
-
-    const view2 = viewer.createView({
-        viewId: "myView2",
-        canvasId: "myView2"
-    });
-
-    view2.camera.eye = [-3.933, 2.855, 27.018];
-    view2.camera.look = [4.400, 3.724, 8.899];
-    view2.camera.up = [-0.018, 0.999, 0.039];
-    view2.camera.projection = "ortho";
-    view2.cameraControl.navMode = "planView";
-
-    const scene = viewer.scene;
-
-    // Create model metadata
-
-    const dataModel = myData.createModel("myTableModel", {
-        projectId: "024120003",
-        revisionId: "902344223",
-        author: "xeolabs",
-        createdAt: "Jan 26 2022",
-        creatingApplication: "WebStorm",
-        schema: "ifc4",
-        propertySets: [
-            {
-                id: "tablePropertySet";
-                originalSystemId: "tablePropertySet";
-                name: "Table properties";
-                type: "";
-                properties: [
-                    {
-                        name: "Weight",
-                        value: 5,
-                        type: "",
-                        valueType: "",
-                        description: "Weight of the thing"
-                    },
-                    {
-                        name: "Height",
-                        value: 12,
-                        type: "",
-                        valueType: "",
-                        description: "Height of the thing"
-                    }
-            },
-            {
-                id: "legPropertySet";
-                originalSystemId: "legPropertySet";
-                name: "Table leg properties";
-                type: "";
-                properties: [
-                    {
-                        name: "Weight",
-                        value: 5,
-                        type: "",
-                        valueType: "",
-                        description: "Weight of the thing"
-                    },
-                    {
-                        name: "Height",
-                        value: 12,
-                        type: "",
-                        valueType: "",
-                        description: "Height of the thing"
-                    }
-            }
-        ],
-        objects: [
-            {
-                id: "table",
-                originalSystemId: "table",
-                type: "furniture",
-                name: "Table",
-                propertySetIds: ["tablePropertySet"]
-            },
-            {
-                id: "redLeg",
-                name: "Red table Leg",
-                type: "leg",
-                parent: "table",
-                propertySetIds: ["tableLegPropertySet"]
-            },
-            {
-                id: "greenLeg",
-                name: "Green table leg",
-                type: "leg",
-                parent: "table",
-                propertySetIds: ["tableLegPropertySet"]
-            },
-            {
-                id: "blueLeg",
-                name: "Blue table leg",
-                type: "leg",
-                parent: "table",
-                propertySetIds: ["tableLegPropertySet"]
-            },
-            {
-                id: "yellowLeg",
-                name: "Yellow table leg",
-                type: "leg",
-                parent: "table",
-                propertySetIds: ["tableLegPropertySet"]
-            },
-            {
-                id: "tableTop",
-                name: "Purple table top",
-                type: "surface",
-                parent: "table",
-                propertySetIds: ["tableTopPropertySet"]
-            }
-        ]
-    });
-
-    // Create model scene representation
-
-    const sceneModel = viewer.scene.createModel({
-        id: "myTable",
-        position: [0, 0, 0],
-        scale: [1, 1, 1],
-        rotation: [0, 0, 0]
-    });
-
-    sceneModel.createGeometry({
-        id: "myBoxGeometry",
-        primitive: constants.TrianglesPrimitive,
-        positions: [
-            1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
-            1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, // v0-v3-v4-v1 right
-            1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, // v0-v1-v6-v1 top
-            -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, // v1-v6-v7-v2 left
-            -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1,// v7-v4-v3-v2 bottom
-            1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1 // v4-v7-v6-v1 back
-        ],
-        indices: [
-            0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
-            16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
-        ]
-    });
-
-    // Red table leg object
-
-    sceneModel.createMesh({
-        id: "redLegMesh",
-        geometryId: "myBoxGeometry",
-        position: [-4, -6, -4],
-        scale: [1, 3, 1],
-        rotation: [0, 0, 0],
-        color: [1, 0.3, 0.3]
-    });
-
-    sceneModel.createObject({
-        id: "redLeg",
-        meshIds: ["redLegMesh"]
-    });
-
-    // Green table leg object
-
-    sceneModel.createMesh({
-        id: "greenLegMesh",
-        geometryId: "myBoxGeometry",
-        position: [4, -6, -4],
-        scale: [1, 3, 1],
-        rotation: [0, 0, 0],
-        color: [0.3, 1.0, 0.3]
-    });
-
-    sceneModel.createObject({
-        id: "greenLeg",
-        meshIds: ["greenLegMesh"]
-    });
-
-    // Blue table leg
-
-    sceneModel.createMesh({
-        id: "blueLegMesh",
-        geometryId: "myBoxGeometry",
-        position: [4, -6, 4],
-        scale: [1, 3, 1],
-        rotation: [0, 0, 0],
-        color: [0.3, 0.3, 1.0]
-    });
-
-    sceneModel.createObject({
-        id: "blueLeg",
-        meshIds: ["blueLegMesh"]
-    });
-
-    // Yellow table leg
-
-    sceneModel.createMesh({
-        id: "yellowLegMesh",
-        geometryId: "myBoxGeometry",
-        position: [-4, -6, 4],
-        scale: [1, 3, 1],
-        rotation: [0, 0, 0],
-        color: [1.0, 1.0, 0.0]
-    });
-
-    sceneModel.createObject({
-        id: "yellowLeg",
-        meshIds: ["yellowLegMesh"]
-    });
-
-    // Purple table top
-
-    sceneModel.createMesh({
-        id: "tableTopMesh",
-        geometryId: "myBoxGeometry",
-        position: [0, -3, 0],
-        scale: [6, 0.5, 6],
-        rotation: [0, 0, 0],
-        color: [1.0, 0.3, 1.0]
-    });
-
-    sceneModel.createObject({ // Create object
-        id: "tableTop",
-        meshIds: ["tableTopMesh"]
-    });
-
-    sceneModel.finalize();
-
-</script>
-</html>
-````
-
-
-## Resources
-
-* [xeokit.io](https://xeokit.io/)
-* [Examples](http://xeokit.github.io/xeokit-viewer/examples/)
-* [Guides](https://www.notion.so/xeokit/xeokit-Documentation-4598591fcedb4889bf8896750651f74e)
-* [API Docs](https://xeokit.github.io/xeokit-viewer/docs/dist)
-* [Changelog](https://xeokit.github.io/xeokit-viewer/CHANGE_LOG)
-* [Features](https://xeokit.io/index.html?foo=1#features)
-* [FAQ](https://xeokit.io/index.html?foo=1#faq)
-* [Blog](https://xeokit.io/blog.html)
-* [License](https://xeokit.io/index.html#pricing)
-
-
-
-
-
-
+@xeokit is modular:
+
+| Package                                                                  | Modules                                                               | Description                                          |
+|--------------------------------------------------------------------------|:----------------------------------------------------------------------|------------------------------------------------------|
+| [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)             | [`@xeokit/core/components`](./modules/_xeokit_core_components.html)   | Basic component types used throughout the xeokit SDK |
+|                                                                          | [`@xeokit/core/constants`](./modules/_xeokit_core_constants.html)     | Constants used throughout the xeokit SDK             |
+|                                                                          | [`@xeokit/core/utils`](./modules/_xeokit_core_utils.html)             | Core utilities used throughout the xeokit SDK        |
+| [`@xeokit/datamodel`](https://www.npmjs.com/package/@xeokit/datamodel)             | [`@xeokit/datamodel`](./modules/_xeokit_data.html)                         | Viewer-agnostic entity-relationship data model       |
+| [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)             | [`@xeokit/math/math`](./modules/_xeokit_math_math.html)               | General math definitions and constants               |
+|                                                                          | [`@xeokit/math/boundaries`](./modules/_xeokit_math_boundaries.html)   | Boundaries math library                              |
+|                                                                          | [`@xeokit/math/compression`](./modules/_xeokit_math_compression.html) | Geometry de/compression utilities library            |
+|                                                                          | [`@xeokit/math/curves`](./modules/_xeokit_math_curves.html)           | Spline curves math library                           |
+|                                                                          | [`@xeokit/math/geometry`](./modules/_xeokit_math_geometry.html)       | Mesh generation functions                            |
+|                                                                          | [`@xeokit/math/matrix`](./modules/_xeokit_math_matrix.html)           | Matrix and vector math utilities library             |
+|                                                                          | [`@xeokit/math/rtc`](./modules/_xeokit_math_rtc.html)                 | Relative-to-center (RTC) coordinates math library    |
+| [`@xeokit/scratchmodel`](https://www.npmjs.com/package/@xeokit/scratchmodel) | [`@xeokit/scratchmodel`](./modules/_xeokit_model.html)                | Viewer-agnostic model representation                 |
+| [`@xeokit/viewer`](https://www.npmjs.com/package/@xeokit/viewer)         | [`@xeokit/viewer`](./modules/_xeokit_viewer.html)                     | Browser-based model viewer                           |
+| [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webgl)           | [`@xeokit/webgl`](./modules/_xeokit_webgl.html)                       | Configures the viewer to use WebGL2                  |
+| [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)               | [`@xeokit/xkt`](./modules/_xeokit_xkt.html)                           | Import and export XKT files                          |
+| [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)             | [`@xeokit/gltf`](./modules/_xeokit_gltf.html)                         | Import and export glTF files                         |
+| [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)               | [`@xeokit/las`](./modules/_xeokit_las.html)                           | Import LAS pointcloud scans                          |
+| [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson)     | [`@xeokit/las`](./modules/_xeokit_cityjson.html)                      | Import CityJSON files                                |
+
+## Getting Started
+
+TODO
+
+## Concepts
+
+### SOLID
+
+In software engineering, SOLID is a mnemonic acronym for five design principles intended to make object-oriented designs
+more understandable, flexible, and maintainable.
+
+* **S**ingle responsibility
+* **O**pen-closed principle
+* **L**iskove substitution principle
+* **I**nterface seggregation principle
+* **D**ependency inversion principle
+
+S - @xeokit/datamodel knows nothing of viewer etc, divided geometry functions into @xeokit/compression and @xeokit/compression/texture, with allows the documentation for each package to focus on its own techniques.
+O - factoring all internally-used utlity libraries out into their own public libraries
+L - ViewerModel and ScratchModel both implement interfaces Model, which enables us to load and save TODO  
+I -
+D - Viewer and WebGLRenderer
+
+## License
+
+Copyright 2020, AGPL3 License.
+
+## Credits
+
+See [*Credits*](/credits.html).

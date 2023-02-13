@@ -209,7 +209,6 @@ export class Viewer extends Component {
         scheduler.registerViewer(this);
     }
 
-
     /**
      * Creates a new {@link @xeokit/viewer!View} within this Viewer.
      *
@@ -262,153 +261,6 @@ export class Viewer extends Component {
         return view;
     }
 
-    /**
-     * Creates a new {@link @xeokit/viewer!ViewerModel | ViewerModel} within this Viewer.
-     *
-     * The ViewerModel represents a new model within the Viewer and provides an interface through which
-     * we can then build geometry and materials within it.
-     *
-     * When we've finished building our ViewerModel, we then call {@link ViewerModel.build}, which causes it to
-     * immediately begin rendering within all the {@link View|Views} we created previously with {@link Viewer.createView}.
-     *
-     * As that happens, each {@link @xeokit/viewer!View} automatically gets a {@link ViewObject} for each of the ViewerModel's {@link ViewerObject|ViewerObjects}, to
-     * independently represent that ViewerObject's visual state in that View.
-     *
-     * When we've finished with the ViewerModel, we destroy it using {@link ViewerModel.destroy}. That will automatically remove its
-     * ViewObjects from all our existing Views.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const myViewerModel = myViewer.createModel({
-     *    id: "myModel"
-     * });
-     * ````
-     *
-     * @param params ViewerModel configuration
-     */
-    createModel(params: ViewerModelParams): ViewerModel {
-        this.log(`Creating ViewerModel : ${params.id}`);
-        if (this.viewList.length === 0) {
-            throw new Error("Please create a View with Viewer.createView() before creating a ViewerModel");
-        }
-        params.id = params.id || createUUID();
-        if (this.models[params.id]) {
-            throw new Error(`ViewerModel with this ID already exists, or is under construction: "${params.id}"`);
-        }
-        const viewerModel = this.renderer.createModel(params);
-        this.models[viewerModel.id] = viewerModel;
-        viewerModel.onBuilt.one(() => {
-            this.#registerViewerObjects(viewerModel);
-            this.onModelCreated.dispatch(this, viewerModel);
-        });
-        viewerModel.onDestroyed.one(() => {
-            delete this.models[viewerModel.id];
-            this.#deregisterViewerObjects(viewerModel);
-            this.onModelDestroyed.dispatch(this, viewerModel);
-        });
-        return viewerModel;
-    }
-
-    /**
-     * Gets the World-space 3D center of this Viewer.
-     */
-    get center(): Float64Array {
-        if (this.#aabbDirty) {
-            const aabb = this.aabb; // Lazy-build
-            this.#center[0] = (aabb[0] + aabb[3]) / 2;
-            this.#center[1] = (aabb[1] + aabb[4]) / 2;
-            this.#center[2] = (aabb[2] + aabb[5]) / 2;
-        }
-        return this.#center;
-    }
-
-    /**
-     * Gets the World-space axis-aligned 3D boundary (AABB) of this Viewer.
-     *
-     * The AABB encompases the boundaries of all {@link @xeokit/viewer!ViewerModel | ViewerModel} s currently in {@link Viewer.models}, and  is
-     * represented by a six-element Float64Array containing the min/max extents of the axis-aligned volume, ie. ````[xmin, ymin,zmin,xmax,ymax, zmax]````.
-     *
-     * When the Viewer has no content, the boundary will be an inverted shape, ie. ````[-100,-100,-100,100,100,100]````.
-     */
-    get aabb(): Float64Array {
-        if (this.#aabbDirty) {
-            let xmin = MAX_DOUBLE;
-            let ymin = MAX_DOUBLE;
-            let zmin = MAX_DOUBLE;
-            let xmax = MIN_DOUBLE;
-            let ymax = MIN_DOUBLE;
-            let zmax = MIN_DOUBLE;
-            let aabb;
-            const objects = this.objects;
-            let valid = false;
-            for (const objectId in objects) {
-                if (objects.hasOwnProperty(objectId)) {
-                    const object = objects[objectId];
-                    // if (object.collidable === false) {
-                    //     continue;
-                    // }
-                    aabb = object.aabb;
-                    if (aabb[0] < xmin) {
-                        xmin = aabb[0];
-                    }
-                    if (aabb[1] < ymin) {
-                        ymin = aabb[1];
-                    }
-                    if (aabb[2] < zmin) {
-                        zmin = aabb[2];
-                    }
-                    if (aabb[3] > xmax) {
-                        xmax = aabb[3];
-                    }
-                    if (aabb[4] > ymax) {
-                        ymax = aabb[4];
-                    }
-                    if (aabb[5] > zmax) {
-                        zmax = aabb[5];
-                    }
-                    valid = true;
-                }
-            }
-            if (!valid) {
-                xmin = -100;
-                ymin = -100;
-                zmin = -100;
-                xmax = 100;
-                ymax = 100;
-                zmax = 100;
-            }
-            this.#aabb[0] = xmin;
-            this.#aabb[1] = ymin;
-            this.#aabb[2] = zmin;
-            this.#aabb[3] = xmax;
-            this.#aabb[4] = ymax;
-            this.#aabb[5] = zmax;
-            this.#aabbDirty = false;
-        }
-        return this.#aabb;
-    }
-
-    /**
-     * Destroys all {@link ViewerModel|ViewerModels} in this Viewer.
-     *
-     * This invalidates all ViewerModels created previously with {@link Viewer.createModel}.
-     */
-    clear() {
-        for (let id in this.models) {
-            this.models[id].destroy();
-        }
-    }
-
-    /**
-     * @private
-     */
-    setAABBDirty() {
-        if (!this.#aabbDirty) {
-            this.#aabbDirty = true;
-            //this.events.fire("aabb", true);
-        }
-    }
 
     /**
      Trigger redraw of all {@link View|Views} belonging to this Viewer.
@@ -489,24 +341,6 @@ export class Viewer extends Component {
         for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
             this.renderer.render(viewIndex, {force: true});
         }
-    }
-
-    #registerViewerObjects(viewerModel: ViewerModel) {
-        const objects = viewerModel.objects;
-        for (let id in objects) {
-            const viewerObject = objects[id];
-            this.objects[viewerObject.id] = viewerObject;
-        }
-        this.#aabbDirty = true;
-    }
-
-    #deregisterViewerObjects(viewerModel: ViewerModel) {
-        const objects = viewerModel.objects;
-        for (let id in objects) {
-            const viewerObject = objects[id];
-            delete this.objects[viewerObject.id];
-        }
-        this.#aabbDirty = true;
     }
 
     #prefixMessageWithID(message: string): string {

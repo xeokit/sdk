@@ -13,6 +13,8 @@ import {Mesh, XKTObject} from "@xeokit/core/components";
  * * Stored in {@link ViewerModel.objects} and {@link View.objects}
  * * Created with {@link ViewerModel.createObject}
  * * Automatically mirrored by a {@link ViewObject} in each {@link @xeokit/viewer!View}
+ *
+ * @private
  */
 export interface ViewerObject extends XKTObject {
 

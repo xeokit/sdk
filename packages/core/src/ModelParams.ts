@@ -1,5 +1,5 @@
 
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
  * {@link @xeokit/core/components!Model | Model} creation parameters for {@link Scene.createModel}.
@@ -7,11 +7,11 @@ import {FloatArrayParam} from "@xeokit/math/math";
 export interface ModelParams {
 
     /**
-     * Unique ID for the ViewerModel.
+     * Unique ID for the Model.
      *
-     * The ViewerModel is stored with this ID in {@link Scene.models}
+     * The Model is stored with this ID in {@link Scene.models | Scene.models}
      */
-    id?: string;
+    id: string;
 
     /**
      * 4x4 transform matrix.
@@ -19,24 +19,29 @@ export interface ModelParams {
     matrix?: FloatArrayParam;
 
     /**
-     * Scale of the ViewerModel.
+     * Scale of the Model.
      *
      * Default is ````[1,1,1]````.
      */
     scale?: FloatArrayParam;
 
     /**
-     * Quaternion defining the orientation of the ViewerModel.
+     * Quaternion defining the orientation of the Model.
      */
     quaternion?: FloatArrayParam;
 
     /**
-     * Orientation of the ViewerModel, given as Euler angles in degrees for X, Y and Z axis.
+     * Orientation of the Model, given as Euler angles in degrees for X, Y and Z axis.
      */
     rotation?: FloatArrayParam;
 
     /**
-     * World-space position of the ViewerModel.
+     * World-space position of the Model.
      */
     position?: FloatArrayParam;
+
+    /**
+     * Optional ID of the {@link @xeokit/viewer!ViewLayer | ViewLayer} this Model appears in.
+     */
+    readonly viewLayerId?: string;
 }

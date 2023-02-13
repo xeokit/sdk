@@ -1,5 +1,5 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter, Model, Scene} from "@xeokit/core/components";
 import {createUUID} from "@xeokit/core/utils";
 import {QualityRender} from "@xeokit/core/constants";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
@@ -9,7 +9,6 @@ import {ViewObject} from "./ViewObject";
 import {SectionPlane} from "./SectionPlane";
 import type {Viewer} from "./Viewer";
 import {Metrics} from "./Metriqs";
-import type {ViewerModel} from "./ViewerModel";
 import {SAO} from "./SAO";
 import {LinesMaterial} from "./LinesMaterial";
 import {ViewLayer} from "./ViewLayer";
@@ -23,6 +22,9 @@ import {PointLight} from "./PointLight";
 import {CameraFlightAnimation} from "./CameraFlightAnimation";
 import {AmbientLight} from "./AmbientLight";
 import {DirLight} from "./DirLight";
+import {ViewerObject} from "./ViewerObject";
+import {getAABB3Center} from "@xeokit/math/boundaries";
+import {ViewerScene} from "./ViewerScene";
 
 /**
  * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
@@ -273,7 +275,7 @@ class View extends Component {
     /**
      * Emits an event each time a {@link ViewLayer} is created in this View.
      *
-     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link View.createModel} and {@link ViewerModelParams.viewLayerId}.
+     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link View.createModel} and {@link ModelParams.viewLayerId}.
      *
      * @event
      */
@@ -552,6 +554,13 @@ class View extends Component {
         this.onSectionPlaneDestroyed = new EventEmitter(new EventDispatcher<View, SectionPlane>());
 
         this.#initObjects();
+    }
+
+    /**
+     *
+     */
+    get aabb(): FloatArrayParam {
+        return (<ViewerScene>(this.viewer.scene)).aabb;
     }
 
     /**
@@ -1317,22 +1326,23 @@ class View extends Component {
     }
 
     #initObjects() {
-        for (const id in this.viewer.models) {
-            this.#createObjects(this.viewer.models[id]);
+        for (const id in this.viewer.scene.models) {
+            this.#createObjects(this.viewer.scene.models[id]);
         }
-        this.viewer.onModelCreated.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
-            this.#createObjects(viewerModel);
+        this.viewer.scene.onModelCreated.subscribe((scene: Scene,  model: Model) => {
+            this.#createObjects(model);
         });
-        this.viewer.onModelDestroyed.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
-            this.#destroyObjects(viewerModel);
+        this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, model: Model) => {
+            this.#destroyObjects(model);
         });
     }
 
-    #createObjects(viewerModel: ViewerModel) {
-        const viewerObjects = viewerModel.objects;
-        for (let id in viewerObjects) {
-            const viewerObject = viewerObjects[id];
-            const viewLayerId = viewerObject.viewLayerId || "default";
+    #createObjects(model: Model) {
+        const objects = model.objects;
+        for (let id in objects) {
+            const viewerObject = <ViewerObject>objects[id];
+       //     const viewLayerId = viewerObject.viewLayerId || "default";
+            const viewLayerId = "default";
             let viewLayer = this.layers[viewLayerId];
             if (!viewLayer) {
                 if (!this.autoLayers) {
@@ -1356,13 +1366,14 @@ class View extends Component {
         }
     }
 
-    #destroyObjects(viewerModel: ViewerModel) {
-        const viewerObjects = viewerModel.objects;
-        for (let id in viewerObjects) {
-            const viewerObject = viewerObjects[id];
-            const viewLayerId = viewerObject.viewLayerId || "main";
+    #destroyObjects(model: Model) {
+        const objects = model.objects;
+        for (let id in objects) {
+            const object = objects[id];
+       //     const viewLayerId = object.viewLayerId || "main";
+            const viewLayerId = "default";
             let viewLayer = this.layers[viewLayerId];
-            const viewObject = this.objects[viewerObject.id];
+            const viewObject = this.objects[object.id];
             this.deregisterViewObject(viewObject);
             if (viewLayer) {
                 viewLayer.deregisterViewObject(viewObject);

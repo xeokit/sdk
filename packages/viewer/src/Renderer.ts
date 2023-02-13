@@ -1,11 +1,8 @@
-
-import type {ViewerModel} from "./ViewerModel";
-import type {ViewerObject} from "./ViewerObject";
 import type {View} from "./View";
-import type {ViewerModelParams} from "./ViewerModelParams";
 import type {Viewer} from "./Viewer";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {Capabilities} from "@xeokit/core/components";
+import {Capabilities, Model, ModelParams, XKTObject} from "@xeokit/core/components";
+import {ViewObject} from "./ViewObject";
 
 /**
  * Manages storage and rendering of meshes for objects in a {@link @xeokit/viewer!Viewer}.
@@ -32,12 +29,12 @@ export interface Renderer {
      *
      * @param viewer
      */
-    init(viewer:Viewer): void;
+    init(viewer: Viewer): void;
 
     /**
      * Gets the capabilities of this Renderer.
      */
-    getCapabilities(capabilities: Capabilities) :void;
+    getCapabilities(capabilities: Capabilities): void;
 
     /**
      * Gets whether this Renderer supports SAO.
@@ -47,7 +44,7 @@ export interface Renderer {
     /**
      * Registers a {@link @xeokit/viewer!View} with this Renderer.
      *
-     * The Renderer will then begin rendering each {@link @xeokit/viewer!ViewerModel | ViewerModel} created with {@link ViewerModel.createModel} for the new View.
+     * The Renderer will then begin rendering each {@link @xeokit/viewer!Model | Model} created with {@link Model.createModel} for the new View.
      *
      * You can only register as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
      *
@@ -66,17 +63,17 @@ export interface Renderer {
     deregisterView(viewIndex: number): void;
 
     /**
-     * Returns a new {@link @xeokit/viewer!ViewerModel | ViewerModel} that will be stored and rendered by this Renderer.
+     * Returns a new {@link @xeokit/viewer!Model | Model} that will be stored and rendered by this Renderer.
      *
-     * The ViewerModel provides an interface through which we can then build geometry and materials within
-     * it. Once we've built the ViewerModel and called {@link ViewerModel.build}, the Renderer will immediately begin
+     * The Model provides an interface through which we can then build geometry and materials within
+     * it. Once we've built the Model and called {@link Model.build}, the Renderer will immediately begin
      * rendering it all {@link View|Views} that we registered previously with {@link Renderer.registerView}.
      *
-     * When we've finished with the ViewerModel, we then call {@link ViewerModel.destroy} to destroy it.
+     * When we've finished with the Model, we then call {@link Model.destroy} to destroy it.
      *
-     * @param params ViewerModel creation params
+     * @param params Model creation params
      */
-    createModel(params: ViewerModelParams): ViewerModel;
+    createModel(params: ModelParams): Model;
 
     /**
      * Enable/disable rendering of transparent objects for the given View.
@@ -154,5 +151,5 @@ export interface Renderer {
      * @param viewIndex Index of the View to render for.
      * @param params Picking params.
      */
-    pickSceneObject(viewIndex: number, params: {}): ViewerObject|null;
+    pickSceneObject(viewIndex: number, params: {}): ViewObject | null;
 }

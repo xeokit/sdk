@@ -8,7 +8,7 @@ import type {FloatArrayParam} from "@xeokit/math/math";
  * ## Summary
  *
  * * Created from {@link @xeokit/core/components!GeometryParams|GeometryParams} using {@link @xeokit/compression/compressGeometryParams}
- * * Used with {@link ViewerModel.createGeometryCompressed} and {@link DocModel.createGeometryCompressed}
+ * * Used with {@link Model.createGeometryCompressed} and {@link DocModel.createGeometryCompressed}
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)

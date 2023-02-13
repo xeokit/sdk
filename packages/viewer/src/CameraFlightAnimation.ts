@@ -219,7 +219,7 @@ class CameraFlightAnimation extends Component {
 
         } else {
             if (!flyToProjection) {
-                aabb = this.view.viewer.aabb;
+                aabb = this.view.aabb;
             }
         }
 
@@ -357,7 +357,7 @@ class CameraFlightAnimation extends Component {
             newLook = params.look;
             newUp = params.up;
         } else {
-            aabb = this.view.viewer.aabb;
+            aabb = this.view.aabb;
         }
 
         const poi = params.poi;
@@ -537,7 +537,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * When flying to a {@link @xeokit/viewer!ViewerModel | ViewerModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+     * When flying to a {@link @xeokit/core/components!Model | Model}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
      * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.
@@ -549,7 +549,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * When flying to a {@link @xeokit/viewer!ViewerModel | ViewerModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+     * When flying to a {@link @xeokit/core/components!Model | Model}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
      * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.

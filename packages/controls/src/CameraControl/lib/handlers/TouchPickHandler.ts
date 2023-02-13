@@ -35,7 +35,7 @@ class TouchPickHandler {
             if (pickResult && pickResult.worldPos) {
                 pos = pickResult.worldPos
             }
-            const aabb = (pickResult && pickResult.viewObject) ? pickResult.viewObject.viewerObject.aabb : this.#view.viewer.aabb;
+            const aabb = (pickResult && pickResult.viewObject) ? pickResult.viewObject.aabb : this.#view.viewer.aabb;
             if (pos) { // Fly to look at point, don't change eye->look dist
                 const camera = this.#view.camera;
                 const diff = subVec3(camera.eye, camera.look, []);

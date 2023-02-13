@@ -4,7 +4,7 @@ import {Mesh, XKTObject} from "@xeokit/core/components";
 
 
 /**
- * GeometryImpl and materials for an object in a {@link @xeokit/viewer!ViewerModel | ViewerModel}.
+ * GeometryImpl and materials for an object in a {@link @xeokit/core/components!Model | Model}.
  *
  * See {@link @xeokit/viewer!Viewer} for usage examples.
  *
@@ -29,7 +29,7 @@ export interface ViewerObject extends XKTObject {
     readonly meshes: Mesh[];
 
     /**
-     * The {@link @xeokit/viewer!ViewerModel | ViewerModel} that contains this ViewerObject.
+     * The {@link @xeokit/core/components!Model | Model} that contains this ViewerObject.
      */
     readonly model: ViewerModel;
 

@@ -34,7 +34,7 @@
  *     });
  * ````
  *
- * Loading a glTF file into a {@link @xeokit/viewer!ViewerModel | ViewerModel}:
+ * Loading a glTF file into a {@link @xeokit/core/components!Model | Model}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

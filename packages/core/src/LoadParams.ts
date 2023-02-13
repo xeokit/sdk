@@ -21,5 +21,8 @@ export interface LoadParams {
      */
     dataModel?: DataModel,
 
+    /**
+     * Optional logging callback.
+     */
     log?: Function
 }

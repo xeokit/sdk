@@ -1,10 +1,12 @@
 import {Scene} from "../../core/src/Scene";
 import {ModelParams} from "../../core/src/ModelParams";
 import {EventEmitter, Model, XKTObject} from "@xeokit/core/components";
-import {Viewer} from "./Viewer";
 import {createUUID} from "@xeokit/core/utils";
-import {MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
+import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
 import {Renderer} from "./Renderer";
+import {Tiles} from "./Tiles";
+import {EventDispatcher} from "strongly-typed-events";
+import {ViewerObject} from "./ViewerObject";
 
 /**
  * @private
@@ -13,39 +15,22 @@ export class ViewerScene implements Scene {
 
     readonly id: string;
     readonly models: { [p: string]: Model };
-    readonly objects: { [p: string]: XKTObject };
+    readonly objects: { [p: string]: ViewerObject };
+    readonly tiles: Tiles;
 
     readonly onModelCreated: EventEmitter<Scene, Model>;
     readonly onModelDestroyed: EventEmitter<Scene, Model>;
 
-    #viewer: Viewer;
     #renderer: Renderer;
     #center: Float64Array;
     #aabbDirty: boolean;
     #aabb: Float64Array;
 
-    constructor(viewer: Viewer, renderer: Renderer) {
-        this.#viewer = viewer;
+    constructor(renderer: Renderer) {
         this.#renderer = renderer;
-    }
 
-    createModel(params: ModelParams): Model {
-        params.id = params.id || createUUID();
-        if (this.models[params.id]) {
-            throw new Error(`Model with this ID already exists, or is under construction: "${params.id}"`);
-        }
-        const viewerModel = this.#renderer.createModel(params);
-        this.models[viewerModel.id] = viewerModel;
-        viewerModel.onBuilt.one(() => {
-            this.#registerViewerObjects(viewerModel);
-            this.onModelCreated.dispatch(this, viewerModel);
-        });
-        viewerModel.onDestroyed.one(() => {
-            delete this.models[viewerModel.id];
-            this.#deregisterViewerObjects(viewerModel);
-            this.onModelDestroyed.dispatch(this, viewerModel);
-        });
-        return viewerModel;
+        this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, Model>());
+        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, Model>());
     }
 
     get center(): Float64Array {
@@ -58,7 +43,7 @@ export class ViewerScene implements Scene {
         return this.#center;
     }
 
-    get aabb(): Float64Array {
+    get aabb(): FloatArrayParam {
         if (this.#aabbDirty) {
             let xmin = MAX_DOUBLE;
             let ymin = MAX_DOUBLE;
@@ -116,6 +101,91 @@ export class ViewerScene implements Scene {
         return this.#aabb;
     }
 
+    createModel(params: ModelParams): Model {
+        params.id = params.id || createUUID();
+        if (this.models[params.id]) {
+            throw new Error(`Model with this ID already exists, or is under construction: "${params.id}"`);
+        }
+        const viewerModel = this.#renderer.createModel(params);
+        this.models[viewerModel.id] = viewerModel;
+        viewerModel.onBuilt.one(() => {
+            this.#registerObjects(viewerModel);
+            this.onModelCreated.dispatch(this, viewerModel);
+        });
+        viewerModel.onDestroyed.one(() => {
+            delete this.models[viewerModel.id];
+            this.#deregisterObjects(viewerModel);
+            this.onModelDestroyed.dispatch(this, viewerModel);
+        });
+        return viewerModel;
+    }
+
+    /**
+     * @private
+     */
+    setVisible(object: XKTObject, viewIndex: number, visible: boolean): void {
+        ((<ViewerObject>object).setVisible(viewIndex, visible));
+    }
+
+    /**
+     * @private
+     */
+    setHighlighted(object: XKTObject, viewIndex: number, highlighted: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setXRayed(object: XKTObject, viewIndex: number, xrayed: boolean): void{}
+
+    /**
+     * @private
+     */
+    setSelected(object: XKTObject, viewIndex: number, selected: boolean): void{}
+
+    /**
+     * @private
+     */
+    setEdges(object: XKTObject, viewIndex: number, edges: boolean): void{}
+
+    /**
+     * @private
+     */
+    setCulled(object: XKTObject, viewIndex: number, culled: boolean): void{}
+
+    /**
+     * @private
+     */
+    setClippable(object: XKTObject, viewIndex: number, clippable: boolean): void{}
+
+    /**
+     * @private
+     */
+    setCollidable(object: XKTObject, viewIndex: number, collidable: boolean): void{}
+
+    /**
+     * @private
+     */
+    setPickable(object: XKTObject, viewIndex: number, pickable: boolean): void{}
+
+    /**
+     * @private
+     */
+    setColorize(object: XKTObject, viewIndex: number, color?: FloatArrayParam): void{}
+
+    /**
+     * @private
+     */
+    setOpacity(object: XKTObject, viewIndex: number, opacity?: number): void{}
+
+    /**
+     * @private
+     */
+    setOffset(object: XKTObject, viewIndex: number, offset: FloatArrayParam): void {
+    }
+
+
     clear() {
         for (let id in this.models) {
             this.models[id].destroy();
@@ -130,18 +200,23 @@ export class ViewerScene implements Scene {
     }
 
     destroy(): void {
+        this.onModelCreated.clear();
+        this.onModelDestroyed.clear();
+        for (let id in this.models) {
+            this.models[id].destroy();
+        }
     }
 
-    #registerViewerObjects(model: Model) {
+    #registerObjects(model: Model) {
         const objects = model.objects;
         for (let id in objects) {
             const object = objects[id];
-            this.objects[object.id] = object;
+            this.objects[object.id] = <ViewerObject>object;
         }
         this.#aabbDirty = true;
     }
 
-    #deregisterViewerObjects(model: Model) {
+    #deregisterObjects(model: Model) {
         const objects = model.objects;
         for (let id in objects) {
             const object = objects[id];

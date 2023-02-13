@@ -1,4 +1,4 @@
-import {View, Viewer, ViewerModel} from "@xeokit/viewer";
+import {View, Viewer} from "@xeokit/viewer";
 import {WebGLRenderer} from "@xeokit/webgl";
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {loadXKT, saveXKT} from "@xeokit/xkt";
@@ -12,6 +12,7 @@ import {
 } from "@xeokit/bcf";
 import {LocaleService} from "@xeokit/locale";
 import {Data, DataModel} from "@xeokit/datamodel";
+import {Model} from "@xeokit/core/components";
 
 
 /**
@@ -27,7 +28,7 @@ export interface LoadProjectParams {
  */
 export class Project {
     dataModels: { [key: string]: DataModel };
-    models: { [key: string]: ViewerModel };
+    models: { [key: string]: Model };
 }
 
 /**
@@ -140,26 +141,26 @@ export class BIMViewer extends Viewer {
     }) {
         return new Promise<void>((resolve, reject) => {
 
-            const model = this.createModel({
-                id: cfg.id
-            });
-            const dataModel = this.data.createModel({
-                id: cfg.id
-            })
-            fetch(cfg.src)
-                .then(response => {
-                    if (response.ok) {
-                        response.arrayBuffer()
-                            .then(data => {
-                                loadXKT({data, model, dataModel})
-                                    .then(() => {
-                                        model.build();
-                                        dataModel.build();
-                                        resolve();
-                                    });
-                            })
-                    }
-                });
+            // const model = this.createModel({
+            //     id: cfg.id
+            // });
+            // const dataModel = this.data.createModel({
+            //     id: cfg.id
+            // })
+            // fetch(cfg.src)
+            //     .then(response => {
+            //         if (response.ok) {
+            //             response.arrayBuffer()
+            //                 .then(data => {
+            //                     loadXKT({data, model, dataModel})
+            //                         .then(() => {
+            //                             model.build();
+            //                             dataModel.build();
+            //                             resolve();
+            //                         });
+            //                 })
+            //         }
+            //     });
         });
 
     }
@@ -177,7 +178,7 @@ export class BIMViewer extends Viewer {
      * @param id
      */
     saveModel(id: string): ArrayBuffer {
-        const viewerModel = this.models[id];
+        const viewerModel = this.scene.models[id];
         if (!viewerModel) {
             throw new Error(`Model not found: '$id'`);
         }

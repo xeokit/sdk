@@ -36,6 +36,7 @@ export * from "./MeshParams";
 export * from "./Mesh";
 export * from "./Capabilities";
 export * from "./TextureTranscoder";
-
+export * from "./Scene";
+export * from "./ModelParams";
 
 

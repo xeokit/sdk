@@ -20,7 +20,7 @@ export interface ObjectParams {
      * represent it. When the object has a {@link ObjectParams.viewLayerId} property, then each View will first ensure that it
      * has a {@link ViewLayer} with this ID, and will register the ViewObject in that ViewLayer.
      *
-     * Overrides {@link ViewerModelParams.viewLayerId}.
+     * Overrides {@link ModelParams.viewLayerId}.
      */
     viewLayerId?: string;
 }

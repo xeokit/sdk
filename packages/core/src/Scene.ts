@@ -1,9 +1,13 @@
 import type {XKTObject} from "./XKTObject";
 import type {Model} from "@xeokit/core/components";
 import type {ModelParams} from "./ModelParams";
+import type {EventEmitter} from "./EventEmitter";
+
 
 /**
- * A model representation.
+ * A scene representation.
+ *
+ * A Scene is a container of {@link Model | Models} and {@link XKTObject | XKTObjects}.
  */
 export interface Scene {
 
@@ -15,12 +19,26 @@ export interface Scene {
     /**
      * The Models in this Scene.
      */
-    models: { [key: string]: Model };
+    readonly models: { [key: string]: Model };
 
     /**
      * Objects in this Scene.
      */
-    objects: { [key: string]: XKTObject };
+    readonly objects: { [key: string]: XKTObject };
+
+    /**
+     * Emits an event each time a {@link Model} is created in this Scene.
+     *
+     * @event
+     */
+    readonly onModelCreated: EventEmitter<Scene, Model>;
+
+    /**
+     * Emits an event each time a {@link Model} is destroyed in this Scene.
+     *
+     * @event
+     */
+    readonly onModelDestroyed: EventEmitter<Scene, Model>;
 
     /**
      * Creates a new {@link @xeokit/core/components!Model | Model} within this Scene.
@@ -30,16 +48,9 @@ export interface Scene {
     createModel(params: ModelParams): Model;
 
     /**
-     * The 3D axis-aligned World-space boundary of this Scene.
-     *
-     * Contains the boundaries of all contained Models that have been built so far (see {@link Model.build | Model.build}.
-     */
-    get aabb(): Float64Array;
-
-    /**
      * Destroys this Scene.
      *
-     @throws {Error} If Scene has already been destroyed.
+     * @throws {Error} If Scene has already been destroyed.
      */
     destroy(): void;
 }

@@ -5,14 +5,15 @@ import {FloatArrayParam} from "@xeokit/math/math";
 
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import type {MeshImpl} from "./MeshImpl";
-import {ViewerModel, ViewerObject} from "@xeokit/viewer";
+import {Model, XKTObject} from "@xeokit/core/components";
+import {ViewerObject} from "@xeokit/viewer/src/ViewerObject";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
 /**
  * @private
  */
-export class ViewerObjectImpl implements ViewerObject {
+export class ViewerObjectImpl implements XKTObject {
 
     /**
      * Unique ID of this ViewerObject.
@@ -25,9 +26,9 @@ export class ViewerObjectImpl implements ViewerObject {
     readonly meshes: MeshImpl[];
 
     /**
-     * The ViewerModel that contains this ViewerObject.
+     * The Model that contains this ViewerObject.
      */
-    readonly model: ViewerModel;
+    readonly model: Model;
 
     /**
      * Which {@link ViewLayer} this ViewerObject belongs to.
@@ -44,7 +45,7 @@ export class ViewerObjectImpl implements ViewerObject {
 
     constructor(params: {
         id: string,
-        viewerModel: ViewerModel,
+        viewerModel: Model,
         meshes: MeshImpl[],
         aabb: any,
         viewLayerId?: string
@@ -241,7 +242,7 @@ export class ViewerObjectImpl implements ViewerObject {
         }
     }
 
-    destroy(): void { // Called by WebGLViewerModel
+    destroy(): void { // Called by WebGLModel
         for (let i = 0, len = this.#meshList.length; i < len; i++) {
             this.#meshList[i].destroy();
         }

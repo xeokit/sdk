@@ -3,6 +3,7 @@
 import {distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3, createVec2} from "@xeokit/math/matrix";
 import {PerspectiveProjectionType} from "@xeokit/core/constants";
 import {View} from "@xeokit/viewer";
+import {getAABB3Center} from "@xeokit/math/boundaries";
 
 
 const getCanvasPosFromEvent = function (event:any, canvasPos:any) {
@@ -232,7 +233,7 @@ class TouchPanRotateAndDollyHandler {
                     // We use only canvasHeight here so that aspect ratio does not distort speed
 
                     if (camera.projection === PerspectiveProjectionType) {
-                        const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : this.#view.viewer.center;
+                        const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : getAABB3Center(this.#view.aabb);
 
                         const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, this.#view.camera.eye, [])));
                         const targetDistance = depth * Math.tan((camera.perspective.fov / 2) * Math.PI / 180.0);

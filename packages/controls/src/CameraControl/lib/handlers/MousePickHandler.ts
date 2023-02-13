@@ -41,8 +41,8 @@ class MousePickHandler {
                 pos = pickResult.worldPos
             }
             const aabb = pickResult && pickResult.viewObject
-                ? pickResult.viewObject.viewerObject.aabb
-                : this.#view.viewer.aabb;
+                ? pickResult.viewObject.aabb
+                : this.#view.aabb;
             if (pos) { // Fly to look at point, don't change eye->look dist
                 const camera = this.#view.camera;
                 const diff = subVec3(camera.eye, camera.look, []);
@@ -332,7 +332,7 @@ class MousePickHandler {
 
                         if ((!configs.firstPerson) && configs.followPointer) {
 
-                            const viewAABB = this.#view.viewer.aabb;
+                            const viewAABB = this.#view.aabb;
                             const viewCenterPos = getAABB3Center(viewAABB);
 
                             controllers.pivotController.setPivotPos(viewCenterPos);

@@ -1,11 +1,12 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter, Model, Scene} from "@xeokit/core/components";
 import {isString} from "@xeokit/core/utils";
 
 import {ViewObject} from "./ViewObject";
 import type {Viewer} from "./Viewer";
 import type {ViewerModel} from "./ViewerModel";
 import type {View} from "./View";
+import {ViewerObject} from "./ViewerObject";
 
 
 /**
@@ -90,45 +91,45 @@ import type {View} from "./View";
  * view1.camera.up = [-0.018, 0.999, 0.039];
  * ````
  *
- * Next, we'll create a {@link @xeokit/viewer!ViewerModel | ViewerModel} containing two model {@link ViewerObject|ViewerObjects} that represent a building
+ * Next, we'll create a {@link @xeokit/core/components!Model | Model} containing two model {@link ViewerObject|ViewerObjects} that represent a building
  * foundation and walls, along with two environmental ViewerObjects that represent a skybox and ground plane.
  *
  * The ground and skybox ViewerObjects specify that their {@link ViewObject|ViewObjects} belong
  * to "environment" ViewLayers, while the model ViewerObjects specify that their ViewObjects belong to "model" ViewLayers.
  *
  * ````javascript
- * const myViewerModel = myViewer.createModel({
+ * const myModel = myViewer.createModel({
  *      id: "myModel"
  * });
  *
- * // (calls to ViewerModel createGeometry and
+ * // (calls to Model createGeometry and
  * // createMesh omitted for brevity)
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *      id: "ground",
  *      meshIds: ["groundMesh}],
  *      viewLayerId: "environment"
  * });
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *      id: "skyBox",
  *      meshIds: ["skyBoxMesh}],
  *      viewLayerId: "environment"
  * });
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *      id: "houseFoundation",
  *      meshIds: ["myMesh}],
  *      viewLayerId: "model"
  * });
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *      id: "houseWalls",
  *      meshIds: ["myMesh}],
  *      viewLayerId: "model"
  * });
  *
- * myViewerModel.build();
+ * myModel.build();
  * ````
  *
  * Our {@link @xeokit/viewer!View} has now automatically created an "environment" {@link ViewLayer}, which contains {@link ViewObject|ViewObjects} for the skybox and
@@ -187,7 +188,7 @@ import type {View} from "./View";
  * });
  * ````
  *
- * As we did in the previous example, we'll now create a {@link @xeokit/viewer!ViewerModel | ViewerModel} containing two model
+ * As we did in the previous example, we'll now create a {@link @xeokit/viewer!Model | Model} containing two model
  * {@link ViewerObject|ViewerObjects} that represent a building foundation and walls, along with two environmental
  * ViewerObjects that represent a skybox and ground plane.
  *
@@ -195,32 +196,32 @@ import type {View} from "./View";
  * while the model ViewerObjects specify that their ViewObjects belong to "model" ViewLayers.
  *
  * ````javascript
- * const myViewerModel = myViewer.createModel({
+ * const myModel = myViewer.createModel({
  *      id: "myModel"
  * });
  *
- * // (calls to ViewerModel createGeometry and
+ * // (calls to Model createGeometry and
  * // createMesh omitted for brevity)
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *      id: "ground",
  *      meshIds: ["groundMesh}],
  *      viewLayerId: "environment"
  * });
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *      id: "skyBox",
  *      meshIds: ["skyBoxMesh}],
  *      viewLayerId: "environment"
  * });
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *      id: "houseFoundation",
  *      meshIds: ["myMesh}],
  *      viewLayerId: "model"
  * });
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *      id: "houseWalls",
  *      meshIds: ["myMesh}],
  *      viewLayerId: "model"
@@ -876,23 +877,23 @@ class ViewLayer extends Component {
     }
 
     #initObjects() {
-        const viewerModels = this.viewer.models;
-        for (const id in viewerModels) {
-            const viewerModel = viewerModels[id];
-            this.#createObjects(viewerModel);
+        const models = this.viewer.scene.models;
+        for (const id in models) {
+            const model = models[id];
+            this.#createObjects(model);
         }
-        this.viewer.onModelCreated.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
-            this.#createObjects(viewerModel);
+        this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: Model) => {
+            this.#createObjects(model);
         });
-        this.viewer.onModelDestroyed.subscribe((viewer: Viewer, viewerModel: ViewerModel) => {
-            this.#destroyObjects(viewerModel);
+        this.viewer.scene.onModelDestroyed.subscribe((scene:Scene, model: Model) => {
+            this.#destroyObjects(model);
         });
     }
 
-    #createObjects(viewerModel: ViewerModel) {
-        const viewerObjects = viewerModel.objects;
+    #createObjects(model: Model) {
+        const viewerObjects = model.objects;
         for (let id in viewerObjects) {
-            const viewerObject = viewerObjects[id];
+            const viewerObject = <ViewerObject>viewerObjects[id];
             if (viewerObject.viewLayerId == this.id) {
                 const viewObject = new ViewObject(this, viewerObject, {});
                 this.objects[viewObject.id] = viewObject;
@@ -902,8 +903,8 @@ class ViewLayer extends Component {
         }
     }
 
-    #destroyObjects(viewerModel: ViewerModel) {
-        const viewerObjects = viewerModel.objects;
+    #destroyObjects(model: Model) {
+        const viewerObjects = model.objects;
         for (let id in viewerObjects) {
             const viewerObject = viewerObjects[id];
             const viewObject = this.objects[viewerObject.id];

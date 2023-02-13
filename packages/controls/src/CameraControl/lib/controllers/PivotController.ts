@@ -15,6 +15,7 @@ import {clamp, FloatArrayParam} from "@xeokit/math/math";
 
 import type {CameraControl} from "../../CameraControl";
 import {View} from "@xeokit/viewer";
+import {getAABB3Center} from "@xeokit/math/boundaries";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -169,7 +170,7 @@ class PivotController {
      */
     setCanvasPivotPos(canvasPos: FloatArrayParam) {
         const camera = this.#view.camera;
-        const pivotShereRadius = Math.abs(distVec3(this.#view.viewer.center, camera.eye));
+        const pivotShereRadius = Math.abs(distVec3(getAABB3Center(this.#view.aabb), camera.eye));
         const transposedProjectMat = camera.project.transposedProjMatrix;
         // @ts-ignore
         const Pt3 = transposedProjectMat.subarray(8, 12);

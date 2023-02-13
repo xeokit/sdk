@@ -4,9 +4,10 @@ import type {GeometryBucket} from "./GeometryBucket";
 /**
  * Represents an element of reusable geometry.
  *
- * * Stored in {@link @xeokit/core/components!Model.geometries}
- * * Created with {@link @xeokit/core/components!Model.createGeometry|Model.createGeometry} and {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}
- * * Referenced by {@link XKTObject.geometry}
+ * * Stored in {@link @xeokit/core/components!Model.geometries | Model.geometries}
+ * * Created with {@link @xeokit/core/components!Model.createGeometry | Model.createGeometry}
+ * and {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}
+ * * Referenced by {@link XKTObject.geometry | XKTObject.geometry}
  */
 export interface Geometry {
 
@@ -34,7 +35,8 @@ export interface Geometry {
      * Matrix to decompress {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed}.
      *
      * The Viewer uses this matrix internally to decompress (dequantize) {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed}
-     * back to 32-bit floating-point relative-to-center (RTC) coordinates that are relative to {@link @xeokit/core/components!Geometry.origin}.
+     * back to 32-bit floating-point relative-to-center (RTC) coordinates that are relative
+     * to {@link @xeokit/core/components!Geometry.origin}.
      */
     positionsDecompressMatrix: FloatArrayParam;
 

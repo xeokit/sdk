@@ -58,14 +58,14 @@
  * });
  * ````
  *
- * Now build a {@link @xeokit/viewer!ViewerModel | ViewerModel} containing a couple of {@link @xeokit/viewer!ViewObject | ViewObjects}:
+ * Now build a {@link @xeokit/core/components!Model | Model} containing a couple of objects:
  *
  * ````javascript
- * const myViewerModel = myViewer.createModel({
+ * const myModel = myViewer.scene.createModel({
  *     id: "myModel"
  * });
  *
- * myViewerModel.createGeometry({
+ * myModel.createGeometry({
  *     id: "myGeometry",
  *     primitive: TrianglesPrimitive,
  *     positions: [...],
@@ -73,36 +73,36 @@
  *     //...
  * });
  *
- * myViewerModel.createMesh({
+ * myModel.createMesh({
  *     id: "myMesh",
  *     geometryId: "myGeometry",
  *     //...
  * });
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *     id: "myObject1",
  *     meshIds: ["myMesh"],
  *     viewLayerId: "main"
  *     //...
  * });
  *
- * myViewerModel.createObject({
+ * myModel.createObject({
  *     id: "myObject2",
  *     meshIds: ["myMesh"],
  *     viewLayerId: "main"
  *     //...
  * });
  *
- * myViewerModel.build();
+ * myModel.build();
  * ````
  *
- * Highlight one of the {@link ViewObject | ViewObjects} in the {@link @xeokit/viewer!View}:
+ * Highlight one of the objects in the {@link @xeokit/viewer!View}:
  *
  * ````javascript
  * view1.setObjectsHighlighted(["myObject1"], true);
  * ````
  *
- * Another way to highlight the {@link ViewObject}:
+ * Another way to highlight the object:
  *
  * ````javascript
  * view1.objects["myObject1"].highlighted = true;
@@ -131,9 +131,6 @@
 
 export * from "./Viewer";
 export * from "./ViewParams";
-export * from "./ViewerModel";
-export * from "./ViewerModelParams";
-export * from "./ViewerObject";
 export * from "./Renderer";
 export * from "./Camera";
 export * from "./RTCViewMat";

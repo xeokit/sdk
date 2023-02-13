@@ -117,7 +117,7 @@
  * In the next example, we'll again use {@link compressGeometryParams} to compress
  * a {@link @xeokit/core/components!GeometryParams | GeometryParams} into a
  * {@link @xeokit/core/components!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
- * create a compressed geometry within a {@link @xeokit/viewer!ViewerModel | ViewerModel}.
+ * create a compressed geometry within a {@link @xeokit/core/components!Model | Model}.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

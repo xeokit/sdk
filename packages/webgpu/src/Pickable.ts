@@ -1,4 +1,4 @@
-import {PickResult, ViewerObject} from "@xeokit/viewer";
+import {PickResult, ViewObject} from "@xeokit/viewer";
 
 /**
  * Meshes that can be picked by a WebGLRenderer.
@@ -39,5 +39,5 @@ export interface Pickable {
 
     // drawPickDepths(drawFlags: DrawFlags, renderContext: RenderContext): void;
 
-    delegatePickedEntity(): ViewerObject;
+    delegatePickedEntity(): ViewObject;
 }

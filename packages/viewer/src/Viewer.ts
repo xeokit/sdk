@@ -1,8 +1,8 @@
 
 import {apply, createUUID, inQuotes} from "@xeokit/core/utils";
-import {Capabilities, Component, EventEmitter} from "@xeokit/core/components";
+import {Capabilities, Component, EventEmitter, Scene} from "@xeokit/core/components";
 import {EventDispatcher} from "strongly-typed-events";
-import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
+import {FloatArrayParam} from "@xeokit/math/math";
 import {LocaleService} from "@xeokit/locale";
 
 import {View} from "./View";
@@ -10,12 +10,7 @@ import {scheduler} from "./scheduler";
 import type {Renderer} from "./Renderer";
 
 import type {ViewParams} from "./ViewParams";
-import {Tiles} from "./Tiles";
 import {ViewerModel} from "./ViewerModel";
-import {ViewerObject} from "./ViewerObject";
-import {createVec3} from "@xeokit/math/matrix";
-import {createAABB3} from "@xeokit/math/boundaries";
-import {ViewerModelParams} from "./ViewerModelParams";
 
 class TickParams {
 }
@@ -66,7 +61,12 @@ export class Viewer extends Component {
     readonly onViewDestroyed: EventEmitter<Viewer, View>;
 
     /**
-     Provides locale string translations for this Viewer.
+     * The Viewer's scene representation.
+     */
+    readonly scene: Scene;
+
+    /**
+     * Provides locale string translations for this Viewer.
 
      This may be configured via the Viewer's constructor.
 
@@ -74,39 +74,6 @@ export class Viewer extends Component {
      null translations for all given strings and phrases.
      */
     readonly localeService: LocaleService;
-
-    /**
-     * The {@link Tiles} in this Viewer.
-     */
-    readonly tiles: Tiles;
-
-    /**
-     * The {@link ViewerModel|ViewerModels} in this Viewer.
-     */
-    readonly models: { [key: string]: ViewerModel };
-
-    /**
-     * The {@link ViewerObject|ViewerObjects} in this Viewer.
-     */
-    readonly objects: { [key: string]: ViewerObject };
-
-    /**
-     * Emits an event each time a {@link @xeokit/viewer!ViewerModel | ViewerModel} is created.
-     *
-     * {@link Viewer.aabb} and {@link Viewer.center} may have updated values after this event.
-     *
-     * @event
-     */
-    readonly onModelCreated: EventEmitter<Viewer, ViewerModel>;
-
-    /**
-     * Emits an event each time a {@link @xeokit/viewer!ViewerModel | ViewerModel} is destroyed.
-     *
-     * {@link Viewer.aabb} and {@link Viewer.center} may have updated values after this event.
-     *
-     * @event
-     */
-    readonly onModelDestroyed: EventEmitter<Viewer, ViewerModel>;
 
     /**
      * Map of all the Views in this Viewer.
@@ -126,12 +93,6 @@ export class Viewer extends Component {
      *  The number of {@link View|Views} belonging to this Viewer.
      */
     numViews: number;
-
-    /**
-     List of {@link Plugin}s installed in this Viewer.
-     @private
-     */
-    readonly pluginList: Plugin[];
 
     /**
      The time that this Viewer was created.
@@ -172,23 +133,14 @@ export class Viewer extends Component {
         this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
         this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
         this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());
-        this.onModelCreated = new EventEmitter(new EventDispatcher<Viewer, ViewerModel>());
-        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Viewer, ViewerModel>());
 
         this.id = params.id || createUUID();
         this.localeService = params.localeService || new LocaleService();
 
-        this.#center = createVec3();
-        this.#aabb = createAABB3();
-        this.#aabbDirty = true;
 
-        this.tiles = new Tiles(this);
-        this.models = {};
-        this.objects = {};
 
         this.viewList = [];
         this.numViews = 0;
-        this.pluginList = [];
         this.views = {};
         this.destroyed = false;
 
@@ -323,14 +275,10 @@ export class Viewer extends Component {
         for (let id in this.views) {
             this.views[id].destroy();
         }
-        for (let id in this.models) {
-            this.models[id].destroy();
-        }
         this.onTick.clear();
         this.onViewCreated.clear();
         this.onViewDestroyed.clear();
-        this.onModelCreated.clear();
-        this.onModelDestroyed.clear();
+
     }
 
     /**
@@ -371,4 +319,3 @@ export class Viewer extends Component {
         this.numViews--;
     }
 }
-

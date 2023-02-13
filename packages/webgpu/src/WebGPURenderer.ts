@@ -1,7 +1,7 @@
-import {Capabilities, TextureTranscoder} from "@xeokit/core/components";
+import {Capabilities, Model, ModelParams, TextureTranscoder} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 
-import {Renderer, View, Viewer, ViewerModel, ViewerModelParams, ViewerObject} from "@xeokit/viewer";
+import {Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 import type {Pickable} from "./Pickable";
 
 /**
@@ -43,7 +43,7 @@ export class WebGPURenderer implements Renderer {
     deregisterView(viewIndex: number): void { // Nop
     }
 
-    createModel(params: ViewerModelParams): ViewerModel {
+    createModel(params: ModelParams): Model {
         throw "TODO";
     }
 
@@ -107,7 +107,7 @@ export class WebGPURenderer implements Renderer {
         throw "TODO";
     }
 
-    pickSceneObject(viewIndex: number, params: {}): ViewerObject | null {
+    pickSceneObject(viewIndex: number, params: {}): ViewObject | null {
         throw "TODO";
     };
 }

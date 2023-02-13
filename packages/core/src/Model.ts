@@ -49,6 +49,11 @@ export interface Model {
     readonly objects: { [key: string]: XKTObject };
 
     /**
+     * The ID of the {@link @xeokit/viewer!ViewLayer | ViewLayer} this model appears in.
+     */
+    readonly viewLayerId?: string;
+
+    /**
      * Indicates if this Model has already been built.
      *
      * Set ````true```` by {@link @xeokit/core/components!Model.build}.
@@ -245,13 +250,6 @@ export interface Model {
      * @throws {Error} If Model has already been built or destroyed.
      */
     build(): void;
-
-    /**
-     * The 3D axis-aligned World-space boundary of this model.
-     *
-     * Only available after calling {@link build | Model.build}.
-     */
-    get aabb(): Float64Array;
 
     /**
      * Destroys this Model.

@@ -45,7 +45,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import type {Camera, View} from "@xeokit/viewer";
 import {Viewer} from "@xeokit/viewer";
 import {compressGeometryParams} from "@xeokit/compression";
-import {ViewerModel} from "@xeokit/viewer";
+import {Model} from "@xeokit/core/components";
 
 import {Texture2D} from "../lib/Texture2D";
 import type {WebGLRenderer} from "../WebGLRenderer";
@@ -74,11 +74,10 @@ const defaultEmissiveTextureId = "defaultEmissiveTexture";
 const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
 
-
 /**
  * @private
  */
-export class WebGLViewerModel extends Component implements ViewerModel {
+export class WebGLViewerModel extends Component implements Model {
 
     readonly qualityRender: boolean;
     declare readonly id: string;
@@ -96,7 +95,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
     readonly viewer: Viewer;
 
     layerList: Layer[];
-    readonly onBuilt: EventEmitter<ViewerModel, null>;
+    readonly onBuilt: EventEmitter<Model, null>;
     readonly onDestroyed: EventEmitter<WebGLViewerModel, null>;
     #view: View;
     #webglRenderer: WebGLRenderer;
@@ -204,7 +203,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
 
         this.#createDefaultTextureSet();
 
-        this.onBuilt = new EventEmitter(new EventDispatcher<ViewerModel, null>());
+        this.onBuilt = new EventEmitter(new EventDispatcher<Model, null>());
     }
 
     get origin(): FloatArrayParam {
@@ -810,7 +809,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         this.#currentLayers = {};
         this.built = true;
         this.#webglRenderer.setImageDirty();
-        this.#view.viewer.setAABBDirty();
+   //     this.#view.viewer.scene.setAABBDirty();
         this.onBuilt.dispatch(this, null);
     }
 
@@ -1039,7 +1038,7 @@ export class WebGLViewerModel extends Component implements ViewerModel {
         this.textureSets = {};
         this.#meshes = {};
         this.objects = {};
-        this.#view.viewer.setAABBDirty();
+       // this.#view.viewer.setAABBDirty();
         this.onBuilt.clear();
         super.destroy();
     }

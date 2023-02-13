@@ -5,7 +5,7 @@
  *
  * * Provides {@link KTX2TextureTranscoder}
  * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webgl!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
- * * Then {@link @xeokit/viewer!ViewerModel.createTexture | ViewerModel.createTexture} can create textures from KTX2-encoded compressed textures
+ * * Then {@link @xeokit/core/components!Model.createTexture | ViewerModel.createTexture} can create textures from KTX2-encoded compressed textures
  * * Uses the [Basis Universal GPU Texture Codec](https://github.com/BinomialLLC/basis_universal) to
  * transcode [KTX2](https://github.khronos.org/KTX-Specification/) textures.
  * * Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/) by default, but can
@@ -30,7 +30,7 @@
  * ### Loading an XKT file containing KTX2 textures into a Viewer
  *
  * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webgl!WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}. Then create a {@link @xeokit/viewer!ViewerModel | ViewerModel} within the Viewer, and use {@link loadXKT} to
+ * {@link KTX2TextureTranscoder}. Then create a {@link @xeokit/core/components!Model | Model} within the Viewer, and use {@link loadXKT} to
  * load an XKT file with KTX2-compressed textures into the ViewerModel. For each KTX2 texture in the file, the
  * KTX2TextureTranscoder will transparently transcode the KTX2 data for us.
  *
@@ -74,7 +74,7 @@
  * ### Loading KTX2 texture files into a Viewer
  *
  * As in the previous example, create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webgl!WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}, then create a {@link @xeokit/viewer!ViewerModel | ViewerModel} within the Viewer.
+ * {@link KTX2TextureTranscoder}, then create a {@link @xeokit/core/components!Model | Model} within the Viewer.
  *
  * This time, we'll build the ViewerModel ourselves, using its builder methods. When we
  * call builder method {@link ViewerModel.createTexture} with a path to a KTX2-compressed texture file, the
@@ -150,7 +150,7 @@
  * ### Loading KTX2 texture ArrayBuffers into a Viewer
  *
  * As in the previous two examples, create a {@link @xeokit/viewer!Viewer} that has a {@link @xeokit/webgl!WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}, and then create a {@link @xeokit/viewer!ViewerModel | ViewerModel} within the Viewer.
+ * {@link KTX2TextureTranscoder}, and then create a {@link @xeokit/core/components!Model | Model} within the Viewer.
  *
  * Once more, build the ViewerModel using its builder methods. This time, call builder method
  * {@link ViewerModel.createTexture} with an ArrayBuffer containing the contents of a KTX2-compressed texture

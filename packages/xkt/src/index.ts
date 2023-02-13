@@ -35,7 +35,7 @@
  *     });
  * ````
  *
- * Loading an XKT file into a {@link @xeokit/viewer!ViewerModel | ViewerModel}:
+ * Loading an XKT file into a {@link @xeokit/core/components!Model | Model}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -63,7 +63,7 @@
  *     });
  * ````
  *
- * Loading an XKT file into a {@link @xeokit/viewer!ViewerModel | ViewerModel} and a {@link @xeokit/datamodel!DataModel | DataModel}:
+ * Loading an XKT file into a {@link @xeokit/core/components!Model | Model} and a {@link @xeokit/datamodel!DataModel | DataModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -118,7 +118,7 @@
  * });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/viewer!ViewerModel | ViewerModel}:
+ * Saving an XKT file from a {@link @xeokit/core/components!Model | Model}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -143,7 +143,7 @@
  * });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/viewer!ViewerModel | ViewerModel} and a {@link @xeokit/datamodel!DataModel | DataModel}:
+ * Saving an XKT file from a {@link @xeokit/core/components!Model | Model} and a {@link @xeokit/datamodel!DataModel | DataModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

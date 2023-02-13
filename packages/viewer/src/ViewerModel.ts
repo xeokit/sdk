@@ -103,14 +103,14 @@ export interface ViewerModel extends Model {
     readonly worldMatrix: FloatArrayParam;
 
     /**
-     * Emits an event when the {@link @xeokit/viewer!ViewerModel | ViewerModel} has already been built.
+     * Emits an event when the {@link @xeokit/core/components!Model | Model} has already been built.
      *
      * @event
      */
     readonly onBuilt: EventEmitter<ViewerModel, null>;
 
     /**
-     * Emits an event when the {@link @xeokit/viewer!ViewerModel | ViewerModel} has been destroyed.
+     * Emits an event when the {@link @xeokit/core/components!Model | Model} has been destroyed.
      *
      * @event
      */

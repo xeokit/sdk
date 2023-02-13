@@ -26,28 +26,27 @@ export interface Model {
     /**
      * The geometries in this model.
      */
-    geometries: { [key: string]: Geometry };
+    readonly geometries: { [key: string]: Geometry };
 
     /**
      * The textures in this model.
      */
-    textures: { [key: string]: Texture };
+    readonly textures: { [key: string]: Texture };
 
     /**
      * Texture sets in this model.
      */
-    textureSets: { [key: string]: TextureSet };
+    readonly textureSets: { [key: string]: TextureSet };
 
     /**
      * Meshes in this model.
      */
-    meshes: { [key: string]: Mesh };
+    readonly meshes: { [key: string]: Mesh };
 
     /**
      * Objects in this model.
      */
-    objects: { [key: string]: XKTObject };
-
+    readonly objects: { [key: string]: XKTObject };
 
     /**
      * Indicates if this Model has already been built.
@@ -246,6 +245,13 @@ export interface Model {
      * @throws {Error} If Model has already been built or destroyed.
      */
     build(): void;
+
+    /**
+     * The 3D axis-aligned World-space boundary of this model.
+     *
+     * Only available after calling {@link build | Model.build}.
+     */
+    get aabb(): Float64Array;
 
     /**
      * Destroys this Model.

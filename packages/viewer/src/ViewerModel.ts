@@ -29,6 +29,7 @@ import {Viewer} from "./Viewer";
  * * Created with {@link Viewer.createModel | Viewer.createModel}
  * * Contains {@link ViewerObject | ViewerObjects}
  * * Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link @xeokit/viewer!View}
+ * @private
  */
 export interface ViewerModel extends Model {
 
@@ -100,13 +101,6 @@ export interface ViewerModel extends Model {
      * The 3D World-space transform matrix of this ViewerModel.
      */
     readonly worldMatrix: FloatArrayParam;
-
-    /**
-     * Whether quality rendering is enabled for this ViewerModel.
-     *
-     * Default is ````true````.
-     */
-    qualityRender: boolean;
 
     /**
      * Emits an event when the {@link @xeokit/viewer!ViewerModel | ViewerModel} has already been built.

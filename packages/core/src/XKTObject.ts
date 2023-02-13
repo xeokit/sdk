@@ -14,7 +14,14 @@ export interface XKTObject  {
     id: string;
 
     /**
-     * The {@link Mesh|Meshes} contained within this object.
+     * The {@link Mesh | Meshes} contained within this object.
      */
     meshes: Mesh[];
+
+    /**
+     * The 3D axis-aligned World-space boundary of this object.
+     *
+     * Only available after calling {@link Model.build | Model.build}.
+     */
+    get aabb(): Float64Array;
 }

@@ -17,8 +17,9 @@
 <li><a href="_xeokit_viewer.Renderer.html">Renderer</a></li></ul>
 <h1>Interface Renderer</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>Manages storage and rendering of meshes for objects in a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a>.</p>
-<p>Used by a Viewer internally, to allocate and render geometry and materials using a browser 3D graphics API (eg. WebGL, WebGPU).</p>
+<div class="tsd-comment tsd-typography"><p>Defines the contract for the rendering strategy used internally within a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a>.</p>
+<p>A Viewer uses an implementation of this to allocate and render geometry and materials using an
+available browser 3D graphics API, such as WebGL or WebGPU.</p>
 
 <a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
   <h2>Usage</h2>
@@ -36,7 +37,7 @@
 <li><a href="../classes/_xeokit_webgl.WebGLRenderer.html" class="tsd-signature-type" data-tsd-kind="Class">WebGLRenderer</a></li>
 <li><a href="../classes/_xeokit_webgpu.WebGPURenderer.html" class="tsd-signature-type" data-tsd-kind="Class">WebGPURenderer</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L25">viewer/src/Renderer.ts:25</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L27">viewer/src/Renderer.ts:27</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -78,28 +79,28 @@
 <h5>viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L127">viewer/src/Renderer.ts:127</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L129">viewer/src/Renderer.ts:129</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="createModel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>create<wbr/>Model</span><a href="#createModel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-<li class="tsd-signature tsd-anchor-link" id="createModel.createModel-1">create<wbr/>Model<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.ModelParams.html" class="tsd-signature-type" data-tsd-kind="Interface">ModelParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.Model.html" class="tsd-signature-type" data-tsd-kind="Interface">Model</a><a href="#createModel.createModel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="createModel.createModel-1">create<wbr/>Model<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ModelParams.html" class="tsd-signature-type" data-tsd-kind="Interface">ModelParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_core_components.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneModel</a><a href="#createModel.createModel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Returns a new @xeokit/viewer!Model | Model that will be stored and rendered by this Renderer.</p>
-<p>The Model provides an interface through which we can then build geometry and materials within
-it. Once we&#39;ve built the Model and called Model.build, the Renderer will immediately begin
+<div class="tsd-comment tsd-typography"><p>Returns a new @xeokit/viewer!SceneModel | SceneModel that will be stored and rendered by this Renderer.</p>
+<p>The SceneModel provides an interface through which we can then build geometry and materials within
+it. Once we&#39;ve built the SceneModel and called SceneModel.build, the Renderer will immediately begin
 rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we registered previously with <a href="_xeokit_viewer.Renderer.html#registerView">registerView</a>.</p>
-<p>When we&#39;ve finished with the Model, we then call Model.destroy to destroy it.</p>
+<p>When we&#39;ve finished with the SceneModel, we then call SceneModel.destroy to destroy it.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>params: <a href="_xeokit_core_components.ModelParams.html" class="tsd-signature-type" data-tsd-kind="Interface">ModelParams</a></h5>
-<div class="tsd-comment tsd-typography"><p>Model creation params</p>
+<h5>params: <a href="_xeokit_viewer.ModelParams.html" class="tsd-signature-type" data-tsd-kind="Interface">ModelParams</a></h5>
+<div class="tsd-comment tsd-typography"><p>SceneModel creation params</p>
 </div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="_xeokit_core_components.Model.html" class="tsd-signature-type" data-tsd-kind="Interface">Model</a></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="_xeokit_core_components.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneModel</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L76">viewer/src/Renderer.ts:76</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L78">viewer/src/Renderer.ts:78</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="deregisterView" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>deregister<wbr/>View</span><a href="#deregisterView" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -115,7 +116,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 <h5>viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L63">viewer/src/Renderer.ts:63</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L65">viewer/src/Renderer.ts:65</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="getCapabilities" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Capabilities</span><a href="#getCapabilities" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -130,7 +131,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 <h5>capabilities: <a href="_xeokit_core_components.Capabilities.html" class="tsd-signature-type" data-tsd-kind="Interface">Capabilities</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L37">viewer/src/Renderer.ts:37</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L39">viewer/src/Renderer.ts:39</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="getSAOSupported" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>getSAOSupported</span><a href="#getSAOSupported" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -140,7 +141,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L42">viewer/src/Renderer.ts:42</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L44">viewer/src/Renderer.ts:44</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="init" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>init</span><a href="#init" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -155,7 +156,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 <h5>viewer: <a href="../classes/_xeokit_viewer.Viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L32">viewer/src/Renderer.ts:32</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L34">viewer/src/Renderer.ts:34</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="needsRebuild" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>needs<wbr/>Rebuild</span><a href="#needsRebuild" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -170,7 +171,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 <h5>viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L132">viewer/src/Renderer.ts:132</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L134">viewer/src/Renderer.ts:134</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="needsRender" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>needs<wbr/>Render</span><a href="#needsRender" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -185,7 +186,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 <h5>viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L137">viewer/src/Renderer.ts:137</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L139">viewer/src/Renderer.ts:139</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="pickSceneObject" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pick<wbr/>Scene<wbr/>Object</span><a href="#pickSceneObject" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -207,14 +208,14 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 <ul class="tsd-parameters"></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../classes/_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L154">viewer/src/Renderer.ts:154</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L156">viewer/src/Renderer.ts:156</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="registerView" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>register<wbr/>View</span><a href="#registerView" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="registerView.registerView-1">register<wbr/>View<span class="tsd-signature-symbol">(</span>view<span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#registerView.registerView-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Registers a <a href="../classes/_xeokit_viewer.View.html">View</a> with this Renderer.</p>
-<p>The Renderer will then begin rendering each @xeokit/viewer!Model | Model created with Model.createModel for the new View.</p>
+<p>The Renderer will then begin rendering each @xeokit/viewer!SceneModel | SceneModel created with SceneModel.createModel for the new View.</p>
 <p>You can only register as many Views as indicated in Capabilities.maxViews, as returned by <a href="_xeokit_viewer.Renderer.html#getCapabilities">getCapabilities</a>.</p>
 
 <h3>Returns</h3><p>A handle for the View within this Renderer.</p>
@@ -228,7 +229,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L54">viewer/src/Renderer.ts:54</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L56">viewer/src/Renderer.ts:56</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="render" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>render</span><a href="#render" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -254,7 +255,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 </div></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L146">viewer/src/Renderer.ts:146</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L148">viewer/src/Renderer.ts:148</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setBackgroundColor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Background<wbr/>Color</span><a href="#setBackgroundColor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -275,7 +276,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L116">viewer/src/Renderer.ts:116</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L118">viewer/src/Renderer.ts:118</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setEdgesEnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Edges<wbr/>Enabled</span><a href="#setEdgesEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -296,7 +297,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L92">viewer/src/Renderer.ts:92</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L94">viewer/src/Renderer.ts:94</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setImageDirty" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Image<wbr/>Dirty</span><a href="#setImageDirty" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -311,7 +312,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L121">viewer/src/Renderer.ts:121</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L123">viewer/src/Renderer.ts:123</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setPBREnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>setPBREnabled</span><a href="#setPBREnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -332,7 +333,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L108">viewer/src/Renderer.ts:108</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L110">viewer/src/Renderer.ts:110</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setSAOEnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>setSAOEnabled</span><a href="#setSAOEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -353,7 +354,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L100">viewer/src/Renderer.ts:100</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L102">viewer/src/Renderer.ts:102</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setTransparentEnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Transparent<wbr/>Enabled</span><a href="#setTransparentEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -374,7 +375,7 @@ rendering it all <a href="../classes/_xeokit_viewer.View.html">Views</a> that we
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/991d988/packages/viewer/src/Renderer.ts#L84">viewer/src/Renderer.ts:84</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/fca2deb/packages/viewer/src/Renderer.ts#L86">viewer/src/Renderer.ts:86</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://xeokit.io" target="_blank">xeokit.io</a><a href="http://example.com" target="_blank">Introduction</a><a href="http://example.com" target="_blank">Glossary</a></nav>
 <div class="tsd-navigation settings">

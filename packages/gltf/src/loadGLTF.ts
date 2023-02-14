@@ -15,7 +15,7 @@ import {
     RepeatWrapping,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-import {Model, GeometryParams, LoadParams, MeshParams, TextureSetParams} from "@xeokit/core/components";
+import {GeometryParams, LoadParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/core/components";
 import {isString} from "@xeokit/core/utils";
 import {createMat4, identityMat4, mulMat4, quaternionToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
@@ -25,15 +25,15 @@ interface ParsingContext {
     nextId: number;
     log: any;
     error: (msg) => void;
-    model: Model;
+    sceneModel: SceneModel;
     objectCreated: { [key: string]: boolean }
 }
 
 /**
- * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/core/components!Model | Model} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
+ * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/core/components!SceneModel | SceneModel} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
  *
- * * Expects {@link @xeokit/core/components!Model.built | Model.built} and {@link @xeokit/core/components!Model.destroyed | Model.destroyed} to be ````false````
- * * Does not call {@link @xeokit/core/components!Model.build | Model.build} - we call that ourselves, when we have finished building the Model
+ * * Expects {@link @xeokit/core/components!SceneModel.built | SceneModel.built} and {@link @xeokit/core/components!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
+ * * Does not call {@link @xeokit/core/components!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
  * See {@link @xeokit/gltf} for usage.
  *
@@ -46,8 +46,8 @@ export function loadGLTF(params: LoadParams): Promise<any> {
             reject("Argument expected: data");
             return;
         }
-        if (!params.model) {
-            reject("Argument expected: model");
+        if (!params.sceneModel) {
+            reject("Argument expected: sceneModel");
             return;
         }
         parse(params.data, GLTFLoader, {}).then((gltfData) => {
@@ -59,7 +59,7 @@ export function loadGLTF(params: LoadParams): Promise<any> {
                 error: function (msg) {
                     console.error(msg);
                 },
-                model: params.model,
+                sceneModel: params.sceneModel,
                 objectCreated: {}
             };
             parseTextures(ctx);
@@ -153,7 +153,7 @@ function parseTexture(ctx, texture) {
             wrapR = RepeatWrapping;
             break;
     }
-    ctx.model.createTexture({
+    ctx.sceneModel.createTexture({
         textureId: textureId,
         imageData: texture.source.image,
         mediaType: texture.source.mediaType,
@@ -248,7 +248,7 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | string {
         textureSetCfg.colorTextureId !== undefined ||
         textureSetCfg.metallicRoughnessTextureId !== undefined) {
         textureSetCfg.id = `textureSet-${ctx.nextId++};`
-        ctx.model.createTextureSet(textureSetCfg);
+        ctx.sceneModel.createTextureSet(textureSetCfg);
         return textureSetCfg.id;
     }
     return null;
@@ -429,7 +429,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                     if (primitive.indices) {
                         geometryParams.indices = primitive.indices.value;
                     }
-                    ctx.model.createGeometry(geometryParams);
+                    ctx.sceneModel.createGeometry(geometryParams);
                     primitive._geometryId = geometryId;
                 }
 
@@ -451,7 +451,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                     meshParams.color = [1.0, 1.0, 1.0];
                     meshParams.opacity = 1.0;
                 }
-                ctx.model.createMesh(meshParams);
+                ctx.sceneModel.createMesh(meshParams);
                 deferredMeshIds.push(meshId);
             }
         }
@@ -481,7 +481,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
         while (!objectId || ctx.objectCreated[objectId]) {
             objectId = "object-" + ctx.nextId++;
         }
-        ctx.model.createObject({
+        ctx.sceneModel.createObject({
             id: objectId,
             meshIds: deferredMeshIds
         });

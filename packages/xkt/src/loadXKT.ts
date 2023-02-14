@@ -4,10 +4,10 @@ import {unpackXKT} from "./lib/unpackXKT";
 import {xktToModel} from "./lib/xktToModel";
 
 /**
- * Loads XKT file data from an ArrayBuffer into a {@link @xeokit/core/components!Model | Model} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
+ * Loads XKT file data from an ArrayBuffer into a {@link @xeokit/core/components!SceneModel | SceneModel} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
  *
- * * Expects {@link @xeokit/core/components!Model.built | Model.built} and {@link @xeokit/core/components!Model.destroyed | Model.destroyed} to be ````false````
- * * Does not call {@link @xeokit/core/components!Model.build | Model.build} - we call that ourselves, when we have finished building the Model
+ * * Expects {@link @xeokit/core/components!SceneModel.built | SceneModel.built} and {@link @xeokit/core/components!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
+ * * Does not call {@link @xeokit/core/components!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
  * See {@link @xeokit/xkt} for usage.
  *
@@ -20,13 +20,13 @@ export function loadXKT(params: LoadParams): Promise<any> {
             reject("Argument expected: data");
             return;
         }
-        if (!params.model) {
-            reject("Argument expected: model");
+        if (!params.sceneModel) {
+            reject("Argument expected: sceneModel");
             return;
         }
         xktToModel({
             xktData: inflateXKT(unpackXKT(params.data)),
-            model: params.model,
+            sceneModel: params.sceneModel,
             dataModel: params.dataModel
         });
         resolve();

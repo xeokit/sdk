@@ -1,11 +1,11 @@
 /**
  * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="media://images/xeokit_logo_mesh.png"/>
  *
- * ## Model Loader and Saver for XKT File Format
+ * ## SceneModel Loader and Saver for XKT File Format
  *
- * * XKT is xeokit's native compressed model format, which contains geometry, materials, objects and semantic data in a compact, Web-friendly payload.
- * * {@link loadXKT} loads XKT into a {@link @xeokit/core/components!Model | Model} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
- * * {@link saveXKT} saves XKT from a {@link @xeokit/core/components!Model | Model} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
+ * * XKT is xeokit's native compressed sceneModel format, which contains geometry, materials, objects and semantic data in a compact, Web-friendly payload.
+ * * {@link loadXKT} loads XKT into a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
+ * * {@link saveXKT} saves XKT from a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -21,21 +21,21 @@
  * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {loadXKT} from "@xeokit/xkt";
  *
- * const myDocModel = new ScratchModel();
+ * const sceneModel = new ScratchModel({
+ *     id: "myModel"
+ * });
  *
- * fetch("myModel.xkt")
- *     .then(response => {
- *          if (response.ok) {
- *              loadXKT({
- *                  xkt: response.arrayBuffer(),
- *                  model: myDocModel
- *              });
- *              myDocModel.build();
- *          }
- *     });
+ * fetch("myModel.xkt").then(response => {
+ *     response.arrayBuffer().then(data => {
+ *
+ *          loadXKT({ data, sceneModel });
+ *
+ *          sceneModel.build();
+ *    });
+ * });
  * ````
  *
- * Loading an XKT file into a {@link @xeokit/core/components!Model | Model}:
+ * Loading an XKT file into a {@link @xeokit/core/components!SceneModel | SceneModel} belonging to a {@link @xeokit/viewer!Viewer | Viewer}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -47,23 +47,21 @@
  *
  * //...
  *
- * const myViewerModel= myViewer.createModel({
- *     id: "myModel"
- * });
+ * fetch("myModel.xkt").then(response => {
+ *     response.arrayBuffer().then(data => {
  *
- * fetch("myModel.xkt")
- *     .then(response => {
- *          if (response.ok) {
- *              loadXKT({
- *                  xkt: response.arrayBuffer(),
- *                  model: myViewerModel
- *              });
- *              myViewerModel.build();
- *          }
+ *         const sceneModel= myViewer.scene.createModel({
+ *             id: "myModel"
+ *         });
+ *
+ *         loadXKT({ data, sceneModel });
+ *
+ *         sceneModel.build();
  *     });
+ * });
  * ````
  *
- * Loading an XKT file into a {@link @xeokit/core/components!Model | Model} and a {@link @xeokit/datamodel!DataModel | DataModel}:
+ * Loading an XKT file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel} and a {@link @xeokit/datamodel!DataModel | DataModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -76,29 +74,30 @@
  *
  * //...
  *
- * const myViewerModel= myViewer.createModel({
+ * const sceneModel = myViewer.scene.createModel({
  *     id: "myModel"
  * });
  *
  * const data = new Data();
  *
- * const myDataModel = data.createModel({
+ * const dataModel = data.createModel({
  *      id: "myModel"
  * });
  *
- * fetch("myModel.xkt")
- *     .then(response => {
- *          if (response.ok) {
+ * fetch("myModel.xkt").then(response => {
+ *     response.arrayBuffer().then(data => {
  *
- *              loadXKT({
- *                  xkt: response.arrayBuffer(),
- *                  model: myViewerModel,
- *                  dataModel: myDataModel
- *              });
- *              myViewerModel.build();
- *              myDataModel.build();
- *          }
+ *         loadXKT({
+ *             data,
+ *             sceneModel,
+ *             dataModel
+ *         });
+ *
+ *         sceneModel.build();
+ *
+ *         dataModel.build();
  *     });
+ * });
  * ````
  *
  * Saving an XKT file from a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
@@ -107,18 +106,18 @@
  * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {saveXKT} from "@xeokit/xkt";
  *
- * const myDocModel = new ScratchModel();
+ * const sceneModel = new ScratchModel();
  *
  * //...
  *
- * await myDocModel.build();
+ * await sceneModel.build();
  *
  * const arrayBuffer = saveXKT({
- *     model: myDocModel
+ *     sceneModel
  * });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/core/components!Model | Model}:
+ * Saving an XKT file from a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -130,20 +129,20 @@
  *
  * //...
  *
- * const myViewerModel= myViewer.createModel({
+ * const sceneModel = myViewer.scene.createModel({
  *     id: "myModel"
  * });
  *
  * //...
  *
- * await myViewerModel.build();
+ * await sceneModel.build();
  *
  * const arrayBuffer = saveXKT({
- *      model: myViewerModel
+ *     sceneModel
  * });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/core/components!Model | Model} and a {@link @xeokit/datamodel!DataModel | DataModel}:
+ * Saving an XKT file from a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel} and a {@link @xeokit/datamodel!DataModel | DataModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -156,26 +155,26 @@
  *
  * //...initialize viewer
  *
- * const myViewerModel= myViewer.createModel({
+ * const sceneModel = myViewer.scene.createModel({
  *     id: "myModel"
  * });
  *
- * //...build viewer model...
+ * //...build the scene model...
  *
  * const data = new Data();
  *
- * const myDataModel = data.createModel({
+ * const dataModel = data.createModel({
  *      id: "myModel"
  * });
  *
  * //...build data model...
  *
- * await myViewerModel.build();
- * myDataModel.build();
+ * await sceneModel.build();
+ * dataModel.build();
  *
  * const arrayBuffer = saveXKT({
- *      model: myViewerModel,
- *      dataModel: myDataModel
+ *     sceneModel,
+ *     dataModel
  * });
  * ````
  *

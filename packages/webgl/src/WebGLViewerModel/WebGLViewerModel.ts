@@ -45,7 +45,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import type {Camera, View} from "@xeokit/viewer";
 import {Viewer} from "@xeokit/viewer";
 import {compressGeometryParams} from "@xeokit/compression";
-import {Model} from "@xeokit/core/components";
+import {SceneModel} from "@xeokit/core/components";
 
 import {Texture2D} from "../lib/Texture2D";
 import type {WebGLRenderer} from "../WebGLRenderer";
@@ -77,7 +77,7 @@ const defaultTextureSetId = "defaultTextureSet";
 /**
  * @private
  */
-export class WebGLViewerModel extends Component implements Model {
+export class WebGLViewerModel extends Component implements SceneModel {
 
     readonly qualityRender: boolean;
     declare readonly id: string;
@@ -95,7 +95,7 @@ export class WebGLViewerModel extends Component implements Model {
     readonly viewer: Viewer;
 
     layerList: Layer[];
-    readonly onBuilt: EventEmitter<Model, null>;
+    readonly onBuilt: EventEmitter<SceneModel, null>;
     readonly onDestroyed: EventEmitter<WebGLViewerModel, null>;
     #view: View;
     #webglRenderer: WebGLRenderer;
@@ -203,7 +203,7 @@ export class WebGLViewerModel extends Component implements Model {
 
         this.#createDefaultTextureSet();
 
-        this.onBuilt = new EventEmitter(new EventDispatcher<Model, null>());
+        this.onBuilt = new EventEmitter(new EventDispatcher<SceneModel, null>());
     }
 
     get origin(): FloatArrayParam {

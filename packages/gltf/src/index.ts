@@ -1,10 +1,10 @@
 /**
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/xeokit_gltf_logo.svg"/>
  *
- * ## Model Loader for glTF File Format
+ * ## SceneModel Loader for glTF File Format
  *
  * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models
- * * {@link loadGLTF} loads glTF into a {@link @xeokit/core/components!Model | Model} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
+ * * {@link loadGLTF} loads glTF into a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -20,21 +20,18 @@
  * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {loadGLTF} from "@xeokit/gltf";
  *
- * const myDocModel = new ScratchModel();
+ * const sceneModel = new ScratchModel();
  *
- * fetch("myModel.glb")
- *     .then(response => {
- *          if (response.ok) {
- *              loadGLTF({
- *                  gltf: response.arrayBuffer(),
- *                  model: myDocModel
- *              });
- *              myDocModel.build();
- *          }
- *     });
+ * fetch("myModel.glb").then(response => {
+ *     response.arrayBuffer().then(data => {
+ *
+ *          loadGLTF({ data, sceneModel });
+ *          sceneModel.build();
+ *     })
+ * });
  * ````
  *
- * Loading a glTF file into a {@link @xeokit/core/components!Model | Model}:
+ * Loading a glTF file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -46,20 +43,17 @@
  *
  * //...
  *
- * const myViewerModel= myViewer.createModel({
- *     id: "myModel"
+ * const sceneModel = myViewer.scene.createModel({
+ *     id: "sceneModel"
  * });
  *
- * fetch("myModel.glb")
- *     .then(response => {
- *          if (response.ok) {
- *              loadGLTF({
- *                  gltf: response.arrayBuffer(),
- *                  model: myViewerModel
- *              });
- *              myViewerModel.build();
- *          }
- *     });
+ * fetch("myModel.glb").then(response => {
+ *     response.arrayBuffer().then(data => {
+ *
+ *          loadGLTF({ data, sceneModel });
+ *          sceneModel.build();
+ *      });
+ * });
  * ````
  *
  * @module @xeokit/gltf

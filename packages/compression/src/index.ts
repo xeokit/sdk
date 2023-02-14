@@ -4,9 +4,9 @@
  * ## Geometry Compression / Decompression Utilities
  *
  * This library provides a set of functions that are used internally within
- * {@link @xeokit/core/components!Model.createGeometry | Model.createGeometry} implementations to
+ * {@link @xeokit/core/components!SceneModel.createGeometry | SceneModel.createGeometry} implementations to
  * compress geometry. The functions are provided here in case users instead want to pre-compress their geometry "offline",
- * and then use {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}
+ * and then use {@link @xeokit/core/components!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * to create the compressed geometry directly.
  *
  * ### Compression Techniques Used
@@ -117,7 +117,7 @@
  * In the next example, we'll again use {@link compressGeometryParams} to compress
  * a {@link @xeokit/core/components!GeometryParams | GeometryParams} into a
  * {@link @xeokit/core/components!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
- * create a compressed geometry within a {@link @xeokit/core/components!Model | Model}.
+ * create a compressed geometry within a {@link @xeokit/core/components!SceneModel | SceneModel}.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -141,7 +141,7 @@
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
  *
- * const myViewerModel = myViewer.createModel({
+ * const sceneModel = myViewer.scene.createModel({
  *     id: "myModel"
  * });
  *
@@ -152,27 +152,27 @@
  *      indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
  * });
  *
- * myViewerModel.createGeometryCompressed(geometryCompressedParams);
+ * sceneModel.createGeometryCompressed(geometryCompressedParams);
  *
- * myViewerModel.createMesh({
+ * sceneModel.createMesh({
  *     id: "myMesh",
  *     geometryId: "myGeometry",
  *     //...
  * });
  *
- * myViewerModel.createObject({
+ * sceneModel.createObject({
  *     id: "myObject1",
  *     meshIds: ["myMesh"],
  *     //...
  * });
  *
- * myViewerModel.createObject({
+ * sceneModel.createObject({
  *     id: "myObject2",
  *     meshIds: ["myMesh"],
  *     //...
  * });
  *
- * myViewerModel.build();
+ * sceneModel.build();
  * ````
  *
  * @module @xeokit/compression

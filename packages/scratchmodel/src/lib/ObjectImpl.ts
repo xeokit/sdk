@@ -1,11 +1,11 @@
-import {XKTObject} from "@xeokit/core/components";
+import {SceneObject} from "@xeokit/core/components";
 import {MeshImpl} from "./MeshImpl";
 import {FloatArrayParam} from "@xeokit/math/math";
 
 /**
  * @private
  */
-export class ObjectImpl implements XKTObject {
+export class ObjectImpl implements SceneObject {
 
     id: string;
 

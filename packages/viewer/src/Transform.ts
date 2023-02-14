@@ -1,7 +1,7 @@
 import type {ViewerModel} from "./ViewerModel";
 
 /**
- * A transformation within a {@link @xeokit/core/components!Model | Model}.
+ * A transformation within a {@link @xeokit/core/components!SceneModel | SceneModel}.
  *
  * * Created with {@link ViewerModel.createTransform}
  */

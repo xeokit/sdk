@@ -6,7 +6,7 @@ import {
     GeometryParams,
     Mesh,
     MeshParams,
-    Model,
+    SceneModel,
     ObjectParams,
     Texture,
     TextureParams,
@@ -31,7 +31,7 @@ import {Viewer} from "./Viewer";
  * * Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link @xeokit/viewer!View}
  * @private
  */
-export interface ViewerModel extends Model {
+export interface ViewerModel extends SceneModel {
 
     /** Unique ID of this ViewerModel.
      *
@@ -103,14 +103,14 @@ export interface ViewerModel extends Model {
     readonly worldMatrix: FloatArrayParam;
 
     /**
-     * Emits an event when the {@link @xeokit/core/components!Model | Model} has already been built.
+     * Emits an event when the {@link @xeokit/core/components!SceneModel | SceneModel} has already been built.
      *
      * @event
      */
     readonly onBuilt: EventEmitter<ViewerModel, null>;
 
     /**
-     * Emits an event when the {@link @xeokit/core/components!Model | Model} has been destroyed.
+     * Emits an event when the {@link @xeokit/core/components!SceneModel | SceneModel} has been destroyed.
      *
      * @event
      */
@@ -130,7 +130,7 @@ export interface ViewerModel extends Model {
      * ### Usage
      *
      * ````javascript
-     * myViewerModel.createGeometry({
+     * sceneModel.createGeometry({
      *      geometryId: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positions: [
@@ -161,7 +161,7 @@ export interface ViewerModel extends Model {
      * ### Usage
      *
      * ````javascript
-     * myViewerModel.createGeometryCompressed({
+     * sceneModel.createGeometryCompressed({
      *      geometryId: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positionsDecompressMatrix: [
@@ -225,7 +225,7 @@ export interface ViewerModel extends Model {
      * ### Usage
      *
      * ````javascript
-     * myViewerModel.createTextureSet({
+     * sceneModel.createTextureSet({
      *      textureSetId: "myTextureSet",
      *      colorTextureId: "myColorTexture"
      * });
@@ -242,7 +242,7 @@ export interface ViewerModel extends Model {
      * ### Usage
      *
      * ````javascript
-     * myViewerModel.createMesh({
+     * sceneModel.createMesh({
      *      meshId: "redLegMesh",
      *      geometryId: "myBoxGeometry",
      *      textureSetId: "myTextureSet",

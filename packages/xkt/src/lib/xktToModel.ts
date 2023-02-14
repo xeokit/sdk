@@ -1,4 +1,4 @@
-import type {Model, GeometryBucketParams, GeometryCompressedParams} from "@xeokit/core/components";
+import type {SceneModel, GeometryBucketParams, GeometryCompressedParams} from "@xeokit/core/components";
 import {XKTData} from "./XKTData";
 import {JPEGMediaType, LinesPrimitive, PNGMediaType, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
 import {DataModel} from "@xeokit/datamodel";
@@ -11,12 +11,12 @@ const NUM_TEXTURE_ATTRIBUTES = 9;
  */
 export function xktToModel(params: {
     xktData: XKTData,
-    model: Model,
+    sceneModel: SceneModel,
     dataModel?: DataModel
 }): void {
 
     const xktData = params.xktData;
-    const model = params.model;
+    const sceneModel = params.sceneModel;
     const dataModel = params.dataModel;
 
     if (dataModel) {
@@ -65,7 +65,7 @@ export function xktToModel(params: {
 
             if (compressed) {
 
-                model.createTexture({
+                sceneModel.createTexture({
                     id: textureId,
                     buffers: [arrayBuffer],
                     minFilter,
@@ -84,7 +84,7 @@ export function xktToModel(params: {
                 const img = document.createElement('img');
                 img.src = imageUrl;
 
-                model.createTexture({
+                sceneModel.createTexture({
                     id: textureId,
                     image: img,
                     mediaType,
@@ -110,7 +110,7 @@ export function xktToModel(params: {
         const emissiveTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
         const occlusionTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
 
-        model.createTextureSet({
+        sceneModel.createTextureSet({
             id: textureSetId,
             colorTextureId: colorTextureIndex >= 0 ? `texture-${colorTextureIndex}` : null,
             normalsTextureId: normalsTextureIndex >= 0 ? `texture-${normalsTextureIndex}` : null,
@@ -213,12 +213,12 @@ export function xktToModel(params: {
                 }
 
                 if (geometryParams.geometryBuckets.length > 0) {
-                    model.createGeometryCompressed(geometryParams);
+                    sceneModel.createGeometryCompressed(geometryParams);
                     geometryCreated[geometryId] = true;
                 }
             }
 
-            model.createMesh({
+            sceneModel.createMesh({
                 id: meshId,
                 geometryId: geometryId,
                 textureSetId: textureSetId,
@@ -232,7 +232,7 @@ export function xktToModel(params: {
         }
 
         if (meshIds.length > 0) {
-            model.createObject({
+            sceneModel.createObject({
                 id: objectId,
                 meshIds: meshIds
             });

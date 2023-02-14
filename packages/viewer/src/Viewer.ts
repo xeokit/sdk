@@ -1,6 +1,5 @@
-
 import {apply, createUUID, inQuotes} from "@xeokit/core/utils";
-import {Capabilities, Component, EventEmitter, Scene} from "@xeokit/core/components";
+import {Capabilities, Component, EventEmitter} from "@xeokit/core/components";
 import {EventDispatcher} from "strongly-typed-events";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {LocaleService} from "@xeokit/locale";
@@ -11,6 +10,7 @@ import type {Renderer} from "./Renderer";
 
 import type {ViewParams} from "./ViewParams";
 import {ViewerModel} from "./ViewerModel";
+import {Scene} from "./Scene";
 
 class TickParams {
 }
@@ -104,10 +104,6 @@ export class Viewer extends Component {
      */
     readonly renderer: Renderer;
 
-    #center: Float64Array;
-    #aabb: Float64Array;
-    #aabbDirty: boolean;
-
     /**
      Creates a Viewer.
 
@@ -138,7 +134,6 @@ export class Viewer extends Component {
         this.localeService = params.localeService || new LocaleService();
 
 
-
         this.viewList = [];
         this.numViews = 0;
         this.views = {};
@@ -153,6 +148,8 @@ export class Viewer extends Component {
             bptcSupported: false,
             pvrtcSupported: false
         };
+
+        this.scene = new Scene(params.renderer);
 
         this.renderer = params.renderer;
         this.renderer.getCapabilities(this.capabilities);
@@ -186,7 +183,7 @@ export class Viewer extends Component {
      *
      * @param params View configuration.
      */
-    createView(params: ViewParams): View  {
+    createView(params: ViewParams): View {
         if (this.viewList.length >= this.capabilities.maxViews) {
             throw new Error(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
         }

@@ -5,16 +5,21 @@ import type {TextureSet} from "./TextureSet";
 /**
  * Represents a mesh.
  *
- * * Stored in {@link @xeokit/core/components!Model.meshes | Model.meshes}
- * * Created with {@link @xeokit/core/components!Model.createMesh | Model.createMesh}
- * * Referenced by {@link XKTObject.meshes | XKTObject.meshes}
+ * * Stored in {@link @xeokit/core/components!SceneModel.meshes | SceneModel.meshes}
+ * * Created with {@link @xeokit/core/components!SceneModel.createMesh | SceneModel.createMesh}
+ * * Referenced by {@link @xeokit/core/components!SceneObject.meshes | SceneObject.meshes}
+ *
+ * See usage in:
+ *
+ * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  */
 export interface Mesh {
 
     /**
      * Unique ID of this Mesh.
      *
-     * Mesh is stored by this ID in {@link @xeokit/core/components!Model.meshes}.
+     * Mesh is stored by this ID in {@link @xeokit/core/components!SceneModel.meshes}.
      */
     id: string;
 

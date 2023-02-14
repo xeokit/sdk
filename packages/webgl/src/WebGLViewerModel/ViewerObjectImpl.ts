@@ -5,7 +5,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import type {MeshImpl} from "./MeshImpl";
-import {Model, XKTObject} from "@xeokit/core/components";
+import {SceneModel, SceneObject} from "@xeokit/core/components";
 import {ViewerObject} from "@xeokit/viewer/src/ViewerObject";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
@@ -13,7 +13,7 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
 /**
  * @private
  */
-export class ViewerObjectImpl implements XKTObject {
+export class ViewerObjectImpl implements SceneObject {
 
     /**
      * Unique ID of this ViewerObject.
@@ -26,9 +26,9 @@ export class ViewerObjectImpl implements XKTObject {
     readonly meshes: MeshImpl[];
 
     /**
-     * The Model that contains this ViewerObject.
+     * The SceneModel that contains this ViewerObject.
      */
-    readonly model: Model;
+    readonly model: SceneModel;
 
     /**
      * Which {@link ViewLayer} this ViewerObject belongs to.
@@ -45,7 +45,7 @@ export class ViewerObjectImpl implements XKTObject {
 
     constructor(params: {
         id: string,
-        viewerModel: Model,
+        viewerModel: SceneModel,
         meshes: MeshImpl[],
         aabb: any,
         viewLayerId?: string

@@ -2,7 +2,7 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * {@link @xeokit/core/components!Model | Model} creation parameters for {@link Viewer.createModel}.
+ * {@link @xeokit/core/components!SceneModel | SceneModel} creation parameters for {@link Viewer.createModel}.
  */
 export interface ViewerModelParams {
 
@@ -55,7 +55,7 @@ export interface ViewerModelParams {
     origin?: FloatArrayParam;
 
     /**
-     * Causes each {@link @xeokit/viewer!View} to put {@link ViewObject | ViewObjects} for the new {@link @xeokit/core/components!Model | Model}
+     * Causes each {@link @xeokit/viewer!View} to put {@link ViewObject | ViewObjects} for the new {@link @xeokit/core/components!SceneModel | SceneModel}
      * into a {@link ViewLayer} with this ID.
      *
      * Each View will create the ViewLayer first, if required.

@@ -1,7 +1,7 @@
 import {View, Viewer} from "@xeokit/viewer";
 import {WebGLRenderer} from "@xeokit/webgl";
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
-import {loadXKT, saveXKT} from "@xeokit/xkt";
+import {saveXKT} from "@xeokit/xkt";
 import {CameraControl} from "@xeokit/controls";
 import {
     BCFViewpoint,
@@ -12,7 +12,7 @@ import {
 } from "@xeokit/bcf";
 import {LocaleService} from "@xeokit/locale";
 import {Data, DataModel} from "@xeokit/datamodel";
-import {Model} from "@xeokit/core/components";
+import {SceneModel} from "@xeokit/core/components";
 
 
 /**
@@ -28,7 +28,7 @@ export interface LoadProjectParams {
  */
 export class Project {
     dataModels: { [key: string]: DataModel };
-    models: { [key: string]: Model };
+    models: { [key: string]: SceneModel };
 }
 
 /**
@@ -178,11 +178,11 @@ export class BIMViewer extends Viewer {
      * @param id
      */
     saveModel(id: string): ArrayBuffer {
-        const viewerModel = this.scene.models[id];
-        if (!viewerModel) {
+        const sceneModel = this.scene.models[id];
+        if (!sceneModel) {
             throw new Error(`Model not found: '$id'`);
         }
-        return saveXKT({model: viewerModel});
+        return saveXKT({sceneModel});
     }
 
     /**

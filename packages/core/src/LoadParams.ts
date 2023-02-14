@@ -1,4 +1,4 @@
-import type {Model} from "@xeokit/core/components";
+import type {SceneModel} from "@xeokit/core/components";
 import type {DataModel} from "@xeokit/datamodel";
 
 /**
@@ -14,10 +14,10 @@ export interface LoadParams {
     /**
      * Target to load the file's model representation into.
      */
-    model: Model,
+    sceneModel: SceneModel,
 
     /**
-     * Target to the load the file's semantic data into, if avaialable.
+     * Target to the load the file's semantic data into, if available.
      */
     dataModel?: DataModel,
 

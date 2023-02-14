@@ -1,7 +1,7 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 
 import type {ViewLayer} from "./ViewLayer";
-import {XKTObject} from "@xeokit/core/components";
+import {SceneObject} from "@xeokit/core/components";
 import {ViewerObject} from "./ViewerObject";
 
 /**
@@ -36,7 +36,7 @@ export class ViewObject {
     public readonly layer: ViewLayer;
 
     /**
-     * The corresponding {@link XKTObject}.
+     * The corresponding {@link SceneObject}.
      */
     public readonly object: ViewerObject;
 
@@ -298,7 +298,7 @@ export class ViewObject {
      * Gets if this ViewObject is included in boundary calculations.
      *
      * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} and {@link ViewLayer.getAABB} will include this ViewObject's boundary.
-     * * The ViewObject's 3D boundary is held in {@link XKTObject.aabb}.
+     * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
      * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
     get collidable(): boolean {
@@ -309,7 +309,7 @@ export class ViewObject {
      * Sets if this ViewObject included in boundary calculations.
      *
      * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} and {@link ViewLayer.getAABB} will include this ViewObject's boundary.
-     * * The ViewObject's 3D boundary is held in {@link XKTObject.aabb}.
+     * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
      * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
     set collidable(value: boolean) {

@@ -5,6 +5,7 @@
   "module": "dist/xeokit-datamodel.modern.js",
   "source": "src/index.ts",
   "scripts": {
+    "test": "jest",
     "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
     "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=xkt INPUT=./index.js rollup -c ../../rollup/rollup.datamodel.config.js",
     "publish": "npm publish --access public"
@@ -52,5 +53,12 @@
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.3.26",
+    "@swc/jest": "^0.2.24",
+    "@types/jest": "^29.2.5",
+    "jest": "^29.3.1",
+    "typescript": "^4.9.4"
   }
 }

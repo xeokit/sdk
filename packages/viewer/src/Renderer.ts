@@ -1,13 +1,15 @@
 import type {View} from "./View";
 import type {Viewer} from "./Viewer";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {Capabilities, Model, ModelParams, XKTObject} from "@xeokit/core/components";
+import {Capabilities, SceneModel} from "@xeokit/core/components";
 import {ViewObject} from "./ViewObject";
+import {ModelParams} from "./ModelParams";
 
 /**
- * Manages storage and rendering of meshes for objects in a {@link @xeokit/viewer!Viewer}.
+ * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
  *
- * Used by a Viewer internally, to allocate and render geometry and materials using a browser 3D graphics API (eg. WebGL, WebGPU).
+ * A Viewer uses an implementation of this to allocate and render geometry and materials using an
+ * available browser 3D graphics API, such as WebGL or WebGPU.
  *
  * ## Usage
  *
@@ -44,7 +46,7 @@ export interface Renderer {
     /**
      * Registers a {@link @xeokit/viewer!View} with this Renderer.
      *
-     * The Renderer will then begin rendering each {@link @xeokit/viewer!Model | Model} created with {@link Model.createModel} for the new View.
+     * The Renderer will then begin rendering each {@link @xeokit/viewer!SceneModel | SceneModel} created with {@link SceneModel.createModel} for the new View.
      *
      * You can only register as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
      *
@@ -63,17 +65,17 @@ export interface Renderer {
     deregisterView(viewIndex: number): void;
 
     /**
-     * Returns a new {@link @xeokit/viewer!Model | Model} that will be stored and rendered by this Renderer.
+     * Returns a new {@link @xeokit/viewer!SceneModel | SceneModel} that will be stored and rendered by this Renderer.
      *
-     * The Model provides an interface through which we can then build geometry and materials within
-     * it. Once we've built the Model and called {@link Model.build}, the Renderer will immediately begin
+     * The SceneModel provides an interface through which we can then build geometry and materials within
+     * it. Once we've built the SceneModel and called {@link SceneModel.build}, the Renderer will immediately begin
      * rendering it all {@link View|Views} that we registered previously with {@link Renderer.registerView}.
      *
-     * When we've finished with the Model, we then call {@link Model.destroy} to destroy it.
+     * When we've finished with the SceneModel, we then call {@link SceneModel.destroy} to destroy it.
      *
-     * @param params Model creation params
+     * @param params SceneModel creation params
      */
-    createModel(params: ModelParams): Model;
+    createModel(params: ModelParams): SceneModel;
 
     /**
      * Enable/disable rendering of transparent objects for the given View.

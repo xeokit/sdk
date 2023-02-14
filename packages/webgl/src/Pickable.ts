@@ -1,5 +1,5 @@
 import {PickResult} from "@xeokit/viewer";
-import {XKTObject} from "@xeokit/core/components";
+import {SceneObject} from "@xeokit/core/components";
 
 /**
  * Meshes that can be picked by a WebGLRenderer.
@@ -40,5 +40,5 @@ export interface Pickable {
 
     // drawPickDepths(drawFlags: DrawFlags, renderContext: RenderContext): void;
 
-    delegatePickedEntity(): XKTObject;
+    delegatePickedEntity(): SceneObject;
 }

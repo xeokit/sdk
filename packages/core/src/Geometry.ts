@@ -4,10 +4,16 @@ import type {GeometryBucket} from "./GeometryBucket";
 /**
  * Represents an element of reusable geometry.
  *
- * * Stored in {@link @xeokit/core/components!Model.geometries | Model.geometries}
- * * Created with {@link @xeokit/core/components!Model.createGeometry | Model.createGeometry}
- * and {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}
- * * Referenced by {@link XKTObject.geometry | XKTObject.geometry}
+ * * Stored in {@link @xeokit/core/components!SceneModel.geometries | SceneModel.geometries}
+ * * Created with {@link @xeokit/core/components!SceneModel.createGeometry | SceneModel.createGeometry}
+ * and {@link @xeokit/core/components!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
+ * * Referenced by {@link @xeokit/core/components!SceneObject.geometry}
+ *
+ * See usage in:
+ *
+ * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
+ * * [@xeokit/xkt](/docs/modules/_xeokit_xkt.html)
  */
 export interface Geometry {
 

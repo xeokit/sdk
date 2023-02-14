@@ -101,7 +101,7 @@ import {EventEmitter} from "@xeokit/core/components";
  const ifcLoader = new WebIFCLoaderPlugin(viewer);
 
  const model = ifcLoader.load({
-     id: "myModel",
+     id: "sceneModel",
      src: "./models/ifc/Duplex.ifc"
  });
  ````

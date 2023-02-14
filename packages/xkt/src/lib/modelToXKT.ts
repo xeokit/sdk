@@ -1,6 +1,6 @@
 import {XKT_INFO} from "../XKT_INFO";
 import {XKTData} from "./XKTData";
-import {Model} from "@xeokit/core/components";
+import {SceneModel} from "@xeokit/core/components";
 import {DataModel} from "@xeokit/datamodel";
 
 const XKT_VERSION = XKT_INFO.xktVersion;
@@ -11,18 +11,18 @@ const NUM_MATERIAL_ATTRIBUTES = 6;
  * @private
  */
 export function modelToXKT(params: {
-    model: Model,
+    sceneModel: SceneModel,
     dataModel?:DataModel
 }): XKTData {
 
-    const model = params.model;
+    const sceneModel = params.sceneModel;
     const dataModel = params.dataModel;
 
-    const geometriesList = Object.values(model.geometries);
-    const texturesList = Object.values(model.textures);
-    const textureSetsList = Object.values(model.textureSets);
-    const meshesList = Object.values(model.meshes);
-    const objectsList = Object.values(model.objects);
+    const geometriesList = Object.values(sceneModel.geometries);
+    const texturesList = Object.values(sceneModel.textures);
+    const textureSetsList = Object.values(sceneModel.textureSets);
+    const meshesList = Object.values(sceneModel.meshes);
+    const objectsList = Object.values(sceneModel.objects);
 
     const numGeometries = geometriesList.length;
     const numTextures = texturesList.length;
@@ -141,9 +141,9 @@ export function modelToXKT(params: {
 
     let geometryIndex = 0;
 
-    for (let geometryId in model.geometries) {
+    for (let geometryId in sceneModel.geometries) {
 
-        const geometry = model.geometries[geometryId];
+        const geometry = sceneModel.geometries[geometryId];
         const geometryBuckets = geometry.geometryBuckets;
 
         xktData.eachGeometryPrimitiveType [geometryIndex] = geometry.primitive;

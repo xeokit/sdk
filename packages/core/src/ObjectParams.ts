@@ -1,15 +1,15 @@
 /**
- * Object creation parameters for {@link @xeokit/core/components!Model.createObject}.
+ * Object creation parameters for {@link @xeokit/core/components!SceneModel.createObject | SceneModel.createObject}.
  */
 export interface ObjectParams {
 
     /**
-     * Unique ID for the ViewerObject.
+     * Unique ID for the SceneObject.
      */
     id: string;
 
     /**
-     * IDs of meshes previously created with {@link @xeokit/core/components!Model.createMesh}.
+     * IDs of meshes previously created with {@link @xeokit/core/components!SceneModel.createMesh | SceneModel.createMesh}.
      */
     meshIds: string[];
 

@@ -1,5 +1,5 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter, Model, Scene} from "@xeokit/core/components";
+import {Component, EventEmitter, SceneModel} from "@xeokit/core/components";
 import {createUUID} from "@xeokit/core/utils";
 import {QualityRender} from "@xeokit/core/constants";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
@@ -23,8 +23,7 @@ import {CameraFlightAnimation} from "./CameraFlightAnimation";
 import {AmbientLight} from "./AmbientLight";
 import {DirLight} from "./DirLight";
 import {ViewerObject} from "./ViewerObject";
-import {getAABB3Center} from "@xeokit/math/boundaries";
-import {ViewerScene} from "./ViewerScene";
+import {Scene} from "./Scene";
 
 /**
  * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
@@ -560,7 +559,7 @@ class View extends Component {
      *
      */
     get aabb(): FloatArrayParam {
-        return (<ViewerScene>(this.viewer.scene)).aabb;
+        return this.viewer.scene.aabb;
     }
 
     /**
@@ -1329,15 +1328,15 @@ class View extends Component {
         for (const id in this.viewer.scene.models) {
             this.#createObjects(this.viewer.scene.models[id]);
         }
-        this.viewer.scene.onModelCreated.subscribe((scene: Scene,  model: Model) => {
+        this.viewer.scene.onModelCreated.subscribe((scene: Scene,  model: SceneModel) => {
             this.#createObjects(model);
         });
-        this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, model: Model) => {
+        this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, model: SceneModel) => {
             this.#destroyObjects(model);
         });
     }
 
-    #createObjects(model: Model) {
+    #createObjects(model: SceneModel) {
         const objects = model.objects;
         for (let id in objects) {
             const viewerObject = <ViewerObject>objects[id];
@@ -1366,7 +1365,7 @@ class View extends Component {
         }
     }
 
-    #destroyObjects(model: Model) {
+    #destroyObjects(model: SceneModel) {
         const objects = model.objects;
         for (let id in objects) {
             const object = objects[id];

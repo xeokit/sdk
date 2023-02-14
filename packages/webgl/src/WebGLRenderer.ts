@@ -1,5 +1,5 @@
 import {apply, Map} from "@xeokit/core/utils";
-import {Capabilities, Component, Model, ModelParams, TextureTranscoder} from "@xeokit/core/components";
+import {Capabilities, Component, SceneModel,  TextureTranscoder} from "@xeokit/core/components";
 import {createVec3} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {
@@ -10,7 +10,7 @@ import {
     TrianglesPrimitive
 } from "@xeokit/core/constants";
 
-import {Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import {ModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 
@@ -170,7 +170,7 @@ export class WebGLRenderer implements Renderer {
     deregisterView(viewIndex: number): void { // Nop
     }
 
-    createModel(params: ModelParams): Model {
+    createModel(params: ModelParams): SceneModel {
         if (!this.#renderContext) {
             throw "Must register a View before you create a model";
         }
@@ -181,7 +181,7 @@ export class WebGLRenderer implements Renderer {
             renderContext: this.#renderContext,
             viewLayerId: params.viewLayerId
         }, params));
-        webglViewerModel.onBuilt.one((buildViewerModel: Model) => {
+        webglViewerModel.onBuilt.one((buildViewerModel: SceneModel) => {
             this.#webglViewerModels[buildViewerModel.id] = <WebGLViewerModel>buildViewerModel;
             this.#layerListDirty = true;
         });

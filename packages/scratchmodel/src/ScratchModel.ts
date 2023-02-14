@@ -8,14 +8,14 @@ import {
     GeometryParams,
     Mesh,
     MeshParams,
-    Model,
+    SceneModel,
     ObjectParams,
     Texture,
     TextureParams,
     TextureSet,
     TextureSetParams,
     TransformParams,
-    XKTObject
+    SceneObject
 } from "@xeokit/core/components";
 
 import {
@@ -95,7 +95,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  *
  * See {@link @xeokit/scratchmodel} for usage.
  */
-class ScratchModel extends Component implements Model {
+class ScratchModel extends Component implements SceneModel {
 
     /**
      * The ScratchModel's ID.
@@ -154,11 +154,11 @@ class ScratchModel extends Component implements Model {
     readonly meshes: { [key: string]: Mesh };
 
     /**
-     * {@link XKTObject|XKTObjects} within this ScratchModel, each mapped to {@link XKTObject.id}.
+     * {@link SceneObject|ModelObjects} within this ScratchModel, each mapped to {@link SceneObject.id}.
      *
      * Created by {@link ScratchModel.createObject}.
      */
-    readonly objects: { [key: string]: XKTObject };
+    readonly objects: { [key: string]: SceneObject };
 
     /**
      * The axis-aligned 3D World-space boundary of this ScratchModel.
@@ -191,7 +191,7 @@ class ScratchModel extends Component implements Model {
      * Constructs a new ScratchModel.
      *
      * ````javascript
-     * const myDocModel = new ScratchModel();
+     * const myScratchModel = new ScratchModel();
      * ````
      *
      * @param [cfg] Configuration
@@ -227,13 +227,13 @@ class ScratchModel extends Component implements Model {
      * Registers the new {@link Transform} in {@link ScratchModel.transforms}.
      *
      * ````javascript
-     * myDocModel.createTransform({
+     * myScratchModel.createTransform({
      *      id: "myTransform",
      *      //...
      * });
      *
      * // ScratchModel is a ScratchModel, so we can access the TextureSet we just created
-     * const textureSet = myDocModel.textureSets["myTextureSet"];
+     * const textureSet = myScratchModel.textureSets["myTextureSet"];
      * ````
      *
      * @param transformParams Transform creation parameters.
@@ -260,7 +260,7 @@ class ScratchModel extends Component implements Model {
      * Registers the new {@link Texture} in {@link ScratchModel.textures}.
      *
      * ````javascript
-     * myDocModel.createTexture({
+     * myScratchModel.createTexture({
      *      id: "myColorTexture",
      *      src: // Path to JPEG, PNG, KTX2,
      *      image: // HTMLImageElement,
@@ -276,7 +276,7 @@ class ScratchModel extends Component implements Model {
      * });
      *
      * // ScratchModel is a ScratchModel, so we can access the TextureSet we just created
-     * const textureSet = myDocModel.textureSets["myTextureSet"];
+     * const textureSet = myScratchModel.textureSets["myTextureSet"];
      * ````
      *
      * @param textureParams Texture creation parameters.
@@ -318,13 +318,13 @@ class ScratchModel extends Component implements Model {
      * Registers the new {@link TextureSetImpl} in {@link ScratchModel.textureSets}.
      *
      * ````javascript
-     * myDocModel.createTextureSet({
+     * myScratchModel.createTextureSet({
      *      id: "myTextureSet",
      *      colorTextureId: "myColorTexture"
      * });
      *
-     * // ScratchModel is a Model, so we can access the TextureSet we just created
-     * const textureSet = myDocModel.textureSets["myTextureSet"];
+     * // ScratchModel is a SceneModel, so we can access the TextureSet we just created
+     * const textureSet = myScratchModel.textureSets["myTextureSet"];
      * ````
      *
      * @param textureSetParams TextureSet creation parameters.
@@ -406,7 +406,7 @@ class ScratchModel extends Component implements Model {
      * ### Usage
      *
      * ````javascript
-     * myDocModel.createGeometry({
+     * myScratchModel.createGeometry({
      *      id: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positions: [
@@ -423,8 +423,8 @@ class ScratchModel extends Component implements Model {
      *      ]
      *  });
      *
-     * // ScratchModel is a Model, so we can access the Geometry we just created
-     * const geometry = myDocModel.geometries["myBoxGeometry"];
+     * // ScratchModel is a SceneModel, so we can access the Geometry we just created
+     * const geometry = myScratchModel.geometries["myBoxGeometry"];
      * ````
      *
      * @param geometryParams Non-compressed geometry parameters.
@@ -472,7 +472,7 @@ class ScratchModel extends Component implements Model {
      * Use {@link @xeokit/compression/compressGeometryParams} to pre-compress {@link @xeokit/core/components!GeometryParams|GeometryParams} into {@link @xeokit/core/components!GeometryCompressedParams|GeometryCompressedParams}.
      *
      * ````javascript
-     * myDocModel.createGeometryCompressed({
+     * myScratchModel.createGeometryCompressed({
      *      id: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positionsDecompressMatrix: [
@@ -497,8 +497,8 @@ class ScratchModel extends Component implements Model {
      *      ]
      * });
      *
-     * // ScratchModel is a Model, so we can access the Geometry we just created
-     * const geometry = myDocModel.geometries["myBoxGeometry"];
+     * // ScratchModel is a SceneModel, so we can access the Geometry we just created
+     * const geometry = myScratchModel.geometries["myBoxGeometry"];
      * ````
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
@@ -536,7 +536,7 @@ class ScratchModel extends Component implements Model {
      * Creates an {@link Mesh} within this ScratchModel.
      *
      * ````javascript
-     * myDocModel.createMesh({
+     * myScratchModel.createMesh({
      *      id: "redLegMesh",
      *      geometryId: "myBoxGeometry",
      *      textureSetId: "myTextureSet",
@@ -546,11 +546,11 @@ class ScratchModel extends Component implements Model {
      *      color: [1, 0.3, 0.3]
      * });
      *
-     * // ScratchModel is a Model, so we can access the Mesh we just created
-     * const mesh = myDocModel.meshes["redLegMesh"];
+     * // ScratchModel is a SceneModel, so we can access the Mesh we just created
+     * const mesh = myScratchModel.meshes["redLegMesh"];
      * ````
      *
-     * An {@link Mesh} can be owned by one {@link XKTObject}, which can own multiple {@link Mesh}es.
+     * An {@link Mesh} can be owned by one {@link SceneObject}, which can own multiple {@link Mesh}es.
      *
      * @param meshParams Pre-compressed mesh parameters.
      * @throws {Error} If ScratchModel has already been built or destroyed.
@@ -613,9 +613,9 @@ class ScratchModel extends Component implements Model {
     }
 
     /**
-     * Creates an {@link XKTObject} within this ScratchModel.
+     * Creates an {@link SceneObject} within this ScratchModel.
      *
-     * Registers the new {@link XKTObject} in {@link ScratchModel.objects}.
+     * Registers the new {@link SceneObject} in {@link ScratchModel.objects}.
      *
      * @param objectParams Pre-compressed object parameters.
      * @throws {Error} If ScratchModel has already been built or destroyed.
@@ -637,7 +637,7 @@ class ScratchModel extends Component implements Model {
             throw new Error("Parameter expected: objectParams.meshIds");
         }
         if (objectParams.meshIds.length === 0) {
-            this.warn("XKTObject has no meshes - won't create: " + objectParams.id);
+            this.warn("SceneObject has no meshes - won't create: " + objectParams.id);
             return;
         }
         let objectId = objectParams.id;
@@ -645,7 +645,7 @@ class ScratchModel extends Component implements Model {
             while (this.objects[objectId]) {
                 objectId = createUUID();
             }
-            this.error("XKTObject already exists with this ID: " + objectParams.id + " - substituting random ID instead: " + objectId);
+            this.error("SceneObject already exists with this ID: " + objectParams.id + " - substituting random ID instead: " + objectId);
         }
         const meshIds = objectParams.meshIds;
         const meshes = [];
@@ -658,7 +658,7 @@ class ScratchModel extends Component implements Model {
             }
             // TODO
             if (this.#meshUsedByObject[meshId]) {
-                this.error(`Mesh ${meshId} already used by another XKTObject - will ignore`);
+                this.error(`Mesh ${meshId} already used by another SceneObject - will ignore`);
                 continue;
             }
             meshes.push(mesh);

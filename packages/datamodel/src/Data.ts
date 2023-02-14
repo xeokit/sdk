@@ -22,13 +22,13 @@ import type {SearchParams} from "./SearchParams";
  *
  * ## Quickstart
  *
- * * Create {@link @xeokit/datamodel/DataModel|DataModels} with {@link Data.createModel}
- * * Create {@link DataObject|DataObjects} with {@link @xeokit/datamodel/DataModel.createObject}
- * * Create {@link PropertySet|PropertySets} with {@link @xeokit/datamodel/DataModel.createPropertySet}
- * * Create {@link Relationship|Relationships} with {@link @xeokit/datamodel/DataModel.createRelationship}
+ * * Create {@link DataModel|DataModels} with {@link Data.createModel | Data.createModel}
+ * * Create {@link DataObject|DataObjects} with {@link @xeokit/datamodel!DataModel.createObject | DataModel.createObject}
+ * * Create {@link PropertySet|PropertySets} with {@link @xeokit/datamodel!DataModel.createPropertySet | DataModel.createPropertySet}
+ * * Create {@link Relationship|Relationships} with {@link @xeokit/datamodel!DataModel.createRelationship | DataModel.createRelationship}
  * * Query with {@link Data.searchDataObjects}
- * * When built, be sure to finalize each DataModel with {@link @xeokit/datamodel/DataModel.build}
- * * When no longer needed, be sure to destroy each DataModel with {@link @xeokit/datamodel/DataModel.destroy}
+ * * When built, be sure to finalize each DataModel with {@link @xeokit/datamodel!DataModel.build | DataModel.build}
+ * * When no longer needed, be sure to destroy each DataModel with {@link @xeokit/datamodel!DataModel.destroy | DataModel.destroy}
  *
  * <br>
  *
@@ -36,8 +36,8 @@ import type {SearchParams} from "./SearchParams";
  *
  * ### Example 1. Creating a DataModel from a JSON object
  *
- * In this example, we'll create a {@link @xeokit/datamodel/DataModel} from a JSON object which conforms to the schema defined by
- * {@link @xeokit/datamodel/DataModelParams}.
+ * In this example, we'll create a {@link @xeokit/datamodel!DataModel} from a JSON object which conforms to the schema defined by
+ * {@link @xeokit/datamodel!DataModelParams}.
  *
  * ````javascript
  * import {Data} from "@xeokit/datamodel";
@@ -179,7 +179,7 @@ import type {SearchParams} from "./SearchParams";
  *
  * ### Example 2. Creating a DataModel using builder methods
  *
- * In our second example, we'll create another {@link @xeokit/datamodel/DataModel}, this time instantiating the {@link PropertySet},
+ * In our second example, we'll create another {@link @xeokit/datamodel!DataModel}, this time instantiating the {@link PropertySet},
  * {@link Property}, {@link DataObject} and {@link Relationship} components ourselves, using the DataModel's builder methods.
  *
  * ````javascript
@@ -378,14 +378,14 @@ import type {SearchParams} from "./SearchParams";
 export class Data extends Component {
 
     /**
-     * Emits an event each time a {@link @xeokit/datamodel/DataModel} is created.
+     * Emits an event each time a {@link @xeokit/datamodel!DataModel} is created.
      *
      * @event
      */
     readonly onModelCreated: EventEmitter<Data, DataModel>;
 
     /**
-     * Emits an event each time a {@link @xeokit/datamodel/DataModel} is destroyed.
+     * Emits an event each time a {@link @xeokit/datamodel!DataModel} is destroyed.
      *
      * @event
      */
@@ -406,7 +406,8 @@ export class Data extends Component {
     readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
 
     /**
-     * The {@link @xeokit/datamodel/DataModel|DataModels} belonging to this Data, each keyed to its {@link @xeokit/datamodel/DataModel.id}.
+     * The {@link @xeokit/datamodel!DataModel|DataModels} belonging to this Data, each keyed to
+     * its {@link @xeokit/datamodel!DataModel.id}.
      */
     public readonly models: { [key: string]: DataModel };
 
@@ -428,7 +429,8 @@ export class Data extends Component {
     public readonly rootObjects: { [key: string]: DataObject };
 
     /**
-     * The {@link DataObject|DataObjects} belonging to this Data, each map keyed to {@link DataObject.type}, containing {@link DataObject|DataObjects} keyed to {@link DataObject.id}.
+     * The {@link DataObject|DataObjects} belonging to this Data, each map keyed to {@link DataObject.type},
+     * containing {@link DataObject|DataObjects} keyed to {@link DataObject.id}.
      */
     public readonly objectsByType: { [key: string]: { [key: string]: DataObject } };
 

@@ -1,22 +1,13 @@
 import type {ViewerModel} from "./ViewerModel";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {Mesh, XKTObject} from "@xeokit/core/components";
+import {Mesh, SceneObject} from "@xeokit/core/components";
 
 
 /**
- * GeometryImpl and materials for an object in a {@link @xeokit/core/components!Model | Model}.
- *
- * See {@link @xeokit/viewer!Viewer} for usage examples.
- *
- * ## Summary
- *
- * * Stored in {@link ViewerModel.objects} and {@link View.objects}
- * * Created with {@link ViewerModel.createObject}
- * * Automatically mirrored by a {@link ViewObject} in each {@link @xeokit/viewer!View}
- *
+
  * @private
  */
-export interface ViewerObject extends XKTObject {
+export interface ViewerObject extends SceneObject {
 
     /**
      * Unique ID of this ViewerObject.
@@ -29,7 +20,7 @@ export interface ViewerObject extends XKTObject {
     readonly meshes: Mesh[];
 
     /**
-     * The {@link @xeokit/core/components!Model | Model} that contains this ViewerObject.
+     * The {@link @xeokit/core/components!SceneModel | SceneModel} that contains this ViewerObject.
      */
     readonly model: ViewerModel;
 
@@ -37,10 +28,6 @@ export interface ViewerObject extends XKTObject {
      * The axis-aligned World-space 3D boundary of this ViewerObject.
      */
     readonly aabb: FloatArrayParam;
-
-    /**
-     * Which {@link ViewLayer} this ViewerObject belongs to.
-     */
     readonly viewLayerId: string | null;
 
     //------------------------------------------------------------------------------------------------------------------

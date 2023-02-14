@@ -6,7 +6,7 @@ import {createRTCViewMat} from "@xeokit/math/rtc";
 /**
  * Viewing matrix for a 3D relative-to-center (RTC) coordinate system origin.
  *
- * These aree normally only used internally, within {@link Renderer} implementations.
+ * These are normally only used internally, within {@link Renderer} implementations.
  *
  * These are created and destroyed by {@link Camera.getRTCViewMat} and {@link Camera.putRTCViewMat}.
  *

@@ -1,6 +1,5 @@
-import {Scene} from "../../core/src/Scene";
-import {ModelParams} from "../../core/src/ModelParams";
-import {EventEmitter, Model, XKTObject} from "@xeokit/core/components";
+import {ModelParams} from "./ModelParams";
+import {EventEmitter, SceneModel, SceneObject} from "@xeokit/core/components";
 import {createUUID} from "@xeokit/core/utils";
 import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
 import {Renderer} from "./Renderer";
@@ -9,30 +8,61 @@ import {EventDispatcher} from "strongly-typed-events";
 import {ViewerObject} from "./ViewerObject";
 
 /**
- * @private
+ * A scene representation.
+ *
+ * A Scene is a container of {@link SceneModel | Models} and {@link SceneObject | SceneObjects}.
  */
-export class ViewerScene implements Scene {
+export class Scene  {
 
+    /**
+     * The Scene's ID.
+     */
     readonly id: string;
-    readonly models: { [p: string]: Model };
-    readonly objects: { [p: string]: ViewerObject };
-    readonly tiles: Tiles;
 
-    readonly onModelCreated: EventEmitter<Scene, Model>;
-    readonly onModelDestroyed: EventEmitter<Scene, Model>;
+    /**
+     * The Models in this Scene.
+     */
+    readonly models: { [key: string]: SceneModel };
+
+    /**
+     * Objects in this Scene.
+     */
+    readonly objects: { [key: string]: ViewerObject };
+
+    /**
+     * Emits an event each time a {@link SceneModel} is created in this Scene.
+     *
+     * @event
+     */
+    readonly onModelCreated: EventEmitter<Scene, SceneModel>;
+
+    /**
+     * Emits an event each time a {@link SceneModel} is destroyed in this Scene.
+     *
+     * @event
+     */
+    readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
+
+    readonly tiles: Tiles;
 
     #renderer: Renderer;
     #center: Float64Array;
     #aabbDirty: boolean;
     #aabb: Float64Array;
 
+    /**
+     * @private
+     */
     constructor(renderer: Renderer) {
         this.#renderer = renderer;
 
-        this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, Model>());
-        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, Model>());
+        this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     }
 
+    /**
+     * @private
+     */
     get center(): Float64Array {
         if (this.#aabbDirty) {
             const aabb = this.aabb; // Lazy-build
@@ -43,6 +73,9 @@ export class ViewerScene implements Scene {
         return this.#center;
     }
 
+    /**
+     * @private
+     */
     get aabb(): FloatArrayParam {
         if (this.#aabbDirty) {
             let xmin = MAX_DOUBLE;
@@ -101,7 +134,12 @@ export class ViewerScene implements Scene {
         return this.#aabb;
     }
 
-    createModel(params: ModelParams): Model {
+    /**
+     * Creates a new {@link @xeokit/core/components!SceneModel | SceneModel} within this Scene.
+     *
+     * @param params SceneModel configuration
+     */
+    createModel(params: ModelParams): SceneModel {
         params.id = params.id || createUUID();
         if (this.models[params.id]) {
             throw new Error(`Model with this ID already exists, or is under construction: "${params.id}"`);
@@ -121,77 +159,19 @@ export class ViewerScene implements Scene {
     }
 
     /**
-     * @private
+     * Destroys all the {@link @xeokit/core/components!SceneModel | Models} within this Scene.
+     *
+     * @param params SceneModel configuration
      */
-    setVisible(object: XKTObject, viewIndex: number, visible: boolean): void {
-        ((<ViewerObject>object).setVisible(viewIndex, visible));
-    }
-
-    /**
-     * @private
-     */
-    setHighlighted(object: XKTObject, viewIndex: number, highlighted: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setXRayed(object: XKTObject, viewIndex: number, xrayed: boolean): void{}
-
-    /**
-     * @private
-     */
-    setSelected(object: XKTObject, viewIndex: number, selected: boolean): void{}
-
-    /**
-     * @private
-     */
-    setEdges(object: XKTObject, viewIndex: number, edges: boolean): void{}
-
-    /**
-     * @private
-     */
-    setCulled(object: XKTObject, viewIndex: number, culled: boolean): void{}
-
-    /**
-     * @private
-     */
-    setClippable(object: XKTObject, viewIndex: number, clippable: boolean): void{}
-
-    /**
-     * @private
-     */
-    setCollidable(object: XKTObject, viewIndex: number, collidable: boolean): void{}
-
-    /**
-     * @private
-     */
-    setPickable(object: XKTObject, viewIndex: number, pickable: boolean): void{}
-
-    /**
-     * @private
-     */
-    setColorize(object: XKTObject, viewIndex: number, color?: FloatArrayParam): void{}
-
-    /**
-     * @private
-     */
-    setOpacity(object: XKTObject, viewIndex: number, opacity?: number): void{}
-
-    /**
-     * @private
-     */
-    setOffset(object: XKTObject, viewIndex: number, offset: FloatArrayParam): void {
-    }
-
-
     clear() {
         for (let id in this.models) {
             this.models[id].destroy();
         }
     }
 
+    /**
+     * @private
+     */
     setAABBDirty() {
         if (!this.#aabbDirty) {
             this.#aabbDirty = true;
@@ -199,6 +179,93 @@ export class ViewerScene implements Scene {
         }
     }
 
+    /**
+     * @private
+     */
+    setVisible(object: SceneObject, viewIndex: number, visible: boolean): void {
+        (<ViewerObject>object).setVisible(viewIndex,visible);
+    }
+
+    /**
+     * @private
+     */
+    setHighlighted(object: SceneObject, viewIndex: number, highlighted: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setXRayed(object: SceneObject, viewIndex: number, xrayed: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setSelected(object: SceneObject, viewIndex: number, selected: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setEdges(object: SceneObject, viewIndex: number, edges: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setCulled(object: SceneObject, viewIndex: number, culled: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setClippable(object: SceneObject, viewIndex: number, clippable: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setCollidable(object: SceneObject, viewIndex: number, collidable: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setPickable(object: SceneObject, viewIndex: number, pickable: boolean): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setColorize(object: SceneObject, viewIndex: number, color?: FloatArrayParam): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setOpacity(object: SceneObject, viewIndex: number, opacity?: number): void {
+
+    }
+
+    /**
+     * @private
+     */
+    setOffset(object: SceneObject, viewIndex: number, offset: FloatArrayParam): void {
+
+    }
+
+    /**
+     * @private
+     */
     destroy(): void {
         this.onModelCreated.clear();
         this.onModelDestroyed.clear();
@@ -207,7 +274,7 @@ export class ViewerScene implements Scene {
         }
     }
 
-    #registerObjects(model: Model) {
+    #registerObjects(model: SceneModel) {
         const objects = model.objects;
         for (let id in objects) {
             const object = objects[id];
@@ -216,7 +283,7 @@ export class ViewerScene implements Scene {
         this.#aabbDirty = true;
     }
 
-    #deregisterObjects(model: Model) {
+    #deregisterObjects(model: SceneModel) {
         const objects = model.objects;
         for (let id in objects) {
             const object = objects[id];

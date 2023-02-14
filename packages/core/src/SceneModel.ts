@@ -2,7 +2,7 @@ import type {Geometry} from "./Geometry";
 import type {Texture} from "./Texture";
 import type {TextureSet} from "./TextureSet";
 import type {Mesh} from "./Mesh";
-import type {XKTObject} from "./XKTObject";
+import type {SceneObject} from "./SceneObject";
 import type {EventEmitter} from "./EventEmitter";
 import type {TransformParams} from "./TransformParams";
 import type {GeometryParams} from "./GeometryParams";
@@ -14,87 +14,93 @@ import type {ObjectParams} from "./ObjectParams";
 
 
 /**
- * A model representation.
+ * A buildable scene model representation, containing objects, meshes, geometries, materials and textures.
+ *
+ * See usage in:
+ *
+ * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
+ * * [@xeokit/xkt](/docs/modules/_xeokit_xkt.html)
  */
-export interface Model {
+export interface SceneModel {
 
     /**
-     * The Model's ID.
+     * The SceneModel's ID.
      */
     readonly id: string;
 
     /**
-     * The geometries in this model.
+     * The Geometries in this SceneModel.
      */
     readonly geometries: { [key: string]: Geometry };
 
     /**
-     * The textures in this model.
+     * The Textures in this SceneModel.
      */
     readonly textures: { [key: string]: Texture };
 
     /**
-     * Texture sets in this model.
+     * TextureSets in this SceneModel.
      */
     readonly textureSets: { [key: string]: TextureSet };
 
     /**
-     * Meshes in this model.
+     * Meshes in this SceneModel.
      */
     readonly meshes: { [key: string]: Mesh };
 
     /**
-     * Objects in this model.
+     * SceneObjects in this SceneModel.
      */
-    readonly objects: { [key: string]: XKTObject };
+    readonly objects: { [key: string]: SceneObject };
 
     /**
-     * The ID of the {@link @xeokit/viewer!ViewLayer | ViewLayer} this model appears in.
+     * The ID of the {@link @xeokit/viewer!ViewLayer | ViewLayer} this SceneModel appears in.
      */
     readonly viewLayerId?: string;
 
     /**
-     * Indicates if this Model has already been built.
+     * Indicates if this SceneModel has already been built.
      *
-     * Set ````true```` by {@link @xeokit/core/components!Model.build}.
+     * Set ````true```` by {@link @xeokit/core/components!SceneModel.build}.
      *
-     * Don't create anything more in this Model once it's built.
+     * Don't create anything more in this SceneModel once it's built.
      */
     readonly built: boolean;
 
     /**
-     * Indicates if this Model has been destroyed.
+     * Indicates if this SceneModel has been destroyed.
      *
-     * Set ````true```` by {@link @xeokit/core/components!Model.destroy}.
+     * Set ````true```` by {@link @xeokit/core/components!SceneModel.destroy}.
      *
      * Don't create anything more in this ScratchModel once it's destroyed.
      */
     readonly destroyed: boolean;
 
     /**
-     * Emits an event when this {@link @xeokit/core/components!Model} has already been built.
+     * Emits an event when this {@link @xeokit/core/components!SceneModel} has already been built.
      *
-     * Triggered by {@link @xeokit/core/components!Model.build}.
+     * Triggered by {@link @xeokit/core/components!SceneModel.build}.
      *
-     * Don't create anything more in this Model once it's built.
-     *
-     * @event
-     */
-    readonly onBuilt: EventEmitter<Model, null>;
-
-    /**
-     * Emits an event when this {@link @xeokit/core/components!Model} has been destroyed.
-     *
-     * Triggered by {@link @xeokit/core/components!Model.destroy}.
-     *
-     * Don't create anything more in this Model once it's destroyed.
+     * Don't create anything more in this SceneModel once it's built.
      *
      * @event
      */
-    readonly onDestroyed: EventEmitter<Model, null>;
+    readonly onBuilt: EventEmitter<SceneModel, null>;
 
     /**
-     * Creates a new transform within this Model.
+     * Emits an event when this {@link @xeokit/core/components!SceneModel} has been destroyed.
+     *
+     * Triggered by {@link @xeokit/core/components!SceneModel.destroy}.
+     *
+     * Don't create anything more in this SceneModel once it's destroyed.
+     *
+     * @event
+     */
+    readonly onDestroyed: EventEmitter<SceneModel, null>;
+
+    /**
+     * Creates a new transform within this SceneModel.
      *
      * @param transformParams Transform creation parameters.
      * @throws {Error} If Buildable has already been built or destroyed.
@@ -102,12 +108,12 @@ export interface Model {
     createTransform(transformParams: TransformParams): void;
 
     /**
-     * Creates a geometry within this Model from non-compressed geometry parameters.
+     * Creates a geometry within this SceneModel from non-compressed geometry parameters.
      *
      * ### Usage
      *
      * ````javascript
-     * myModel.createGeometry({
+     * sceneModel.createGeometry({
      *      id: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positions: [
@@ -126,15 +132,15 @@ export interface Model {
      * ````
      *
      * @param geometryParams Non-compressed geometry creation parameters.
-     * @throws {Error} If Model has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createGeometry(geometryParams: GeometryParams): void;
 
     /**
-     * Creates a geometry within this Model, from pre-compressed geometry parameters.
+     * Creates a geometry within this SceneModel, from pre-compressed geometry parameters.
      *
      * ````javascript
-     * myModel.createGeometryCompressed({
+     * sceneModel.createGeometryCompressed({
      *      id: "myBoxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positionsDecompressMatrix: [
@@ -161,15 +167,15 @@ export interface Model {
      * ````
      *
      * @param geometryCompressedParams Compressed geometry creation parameters.
-     * @throws {Error} If Model has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): void;
 
     /**
-     * Creates a texture in this Model.
+     * Creates a texture in this SceneModel.
      *
      * ````javascript
-     * myModel.createTexture({
+     * sceneModel.createTexture({
      *      textureId: "myColorTexture",
      *      src: // Path to JPEG, PNG, KTX2,
      *      image: // HTMLImageElement,
@@ -186,30 +192,30 @@ export interface Model {
      * ````
      *
      * @param textureParams Texture creation parameters.
-     * @throws {Error} If Model has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createTexture(textureParams: TextureParams): void;
 
     /**
-     * Creates a texture set in this Model.
+     * Creates a texture set in this SceneModel.
      *
      * ````javascript
-     * myModel.createTextureSet({
+     * sceneModel.createTextureSet({
      *      textureSetId: "myTextureSet",
      *      colorTextureId: "myColorTexture"
      * });
      * ````
      *
      * @param textureSetParams Texture set parameters.
-     * @throws {Error} If Model has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createTextureSet(textureSetParams: TextureSetParams): void;
 
     /**
-     * Creates a mesh in this Model.
+     * Creates a mesh in this SceneModel.
      *
      * ````javascript
-     * myModel.createMesh({
+     * sceneModel.createMesh({
      *      meshId: "redLegMesh",
      *      id: "myBoxGeometry",
      *      textureSetId: "myTextureSet",
@@ -221,12 +227,12 @@ export interface Model {
      * ````
      *
      * @param meshParams Mesh creation parameters.
-     * @throws {Error} If Model has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createMesh(meshParams: MeshParams): void;
 
     /**
-     * Creates an object in this Model.
+     * Creates an object in this SceneModel.
      *
      * ````javascript
      *  viewerModel.createObject({
@@ -236,27 +242,27 @@ export interface Model {
      * ````
      *
      * @param objectParams Object creation parameters.
-     * @throws {Error} If Model has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createObject(objectParams: ObjectParams): void;
 
     /**
-     * Builds this Model.
+     * Builds this SceneModel.
      *
-     * Sets {@link @xeokit/core/components!Model.built} ````true````.
+     * Sets {@link @xeokit/core/components!SceneModel.built} ````true````.
      *
-     * Once built, you cannot add any more components to this Model.
+     * Once built, you cannot add any more components to this SceneModel.
      *
-     * @throws {Error} If Model has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     build(): void;
 
     /**
-     * Destroys this Model.
+     * Destroys this SceneModel.
      *
-     * Sets {@link @xeokit/core/components!Model.built} true.
+     * Sets {@link @xeokit/core/components!SceneModel.built} true.
      *
-     @throws {Error} If Model has already been destroyed.
+     @throws {Error} If SceneModel has already been destroyed.
      */
     destroy(): void;
 }

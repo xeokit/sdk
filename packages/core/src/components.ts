@@ -18,9 +18,9 @@
 export * from "./Component";
 export * from "./EventEmitter";
 export * from "./LoadParams";
-export * from "./Model";
+export * from "./SceneModel";
 export * from "./ObjectParams";
-export * from "./XKTObject";
+export * from "./SceneObject";
 export * from "./TextureParams";
 export * from "./TextureCompressedParams";
 export * from "./Texture";
@@ -36,7 +36,6 @@ export * from "./MeshParams";
 export * from "./Mesh";
 export * from "./Capabilities";
 export * from "./TextureTranscoder";
-export * from "./Scene";
-export * from "./ModelParams";
+
 
 

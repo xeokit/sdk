@@ -3,10 +3,10 @@
  *
  * <br>
  *
- * ## Model Loader for LAS/LAZ File Format
+ * ## SceneModel Loader for LAS/LAZ File Format
  *
  * * [LAS/LAZ](https://en.wikipedia.org/wiki/LAS) is an industry standard format for 3D point cloud scans
- * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/core/components!Model | Model} and an optional {@link @xeokit/datamodel!DataModel | DataModel}
+ * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}
  *
  * ## Installation
  *
@@ -22,21 +22,19 @@
  * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {loadLAS} from "@xeokit/las";
  *
- * const myDocModel = new ScratchModel();
+ * const sceneModel = new ScratchModel();
  *
- * fetch("myModel.las")
- *     .then(response => {
- *          if (response.ok) {
- *              loadLAS({
- *                  las: response.arrayBuffer(),
- *                  model: myDocModel
- *              });
- *              myDocModel.build();
- *          }
+ * fetch("myModel.las").then(response => {
+ *     response.arrayBuffer().then(data => {
+ *                  
+ *         loadLAS({ data, sceneModel });
+ *
+ *         sceneModel.build();
  *     });
+ * });
  * ````
  *
- * Loading a LAS file into a {@link @xeokit/core/components!Model | Model}:
+ * Loading a LAS file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -48,20 +46,18 @@
  *
  * //...
  *
- * const myViewerModel= myViewer.createModel({
- *     id: "myModel"
+ * const sceneModel= myViewer.scene.createModel({
+ *     id: "sceneModel"
  * });
  *
- * fetch("myModel.las")
- *     .then(response => {
- *          if (response.ok) {
- *              loadLAS({
- *                  las: response.arrayBuffer(),
- *                  model: myViewerModel
- *              });
- *              myViewerModel.build();
- *          }
+ * fetch("myModel.las").then(response => {
+ *     response.arrayBuffer().then(data => {
+ *
+ *         loadLAS({ data, sceneModel });
+ *
+ *         sceneModel.build();
  *     });
+ * });
  * ````
  *
  * @module @xeokit/las

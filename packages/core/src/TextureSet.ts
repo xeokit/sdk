@@ -3,9 +3,14 @@ import type {Texture} from "./Texture";
 /**
  * Represents a set of textures.
  *
- * * Stored in {@link @xeokit/core/components!Model.textureSets | Model.textureSets}
- * * Created with {@link @xeokit/core/components!Model.createTextureSet | Model.createTextureSet}
+ * * Stored in {@link @xeokit/core/components!SceneModel.textureSets | SceneModel.textureSets}
+ * * Created with {@link @xeokit/core/components!SceneModel.createTextureSet | SceneModel.createTextureSet}
  * * Referenced by {@link Mesh.textureSet | Mesh.textureSet}
+ *
+ * See usage in:
+ *
+ * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  */
 export interface TextureSet {
 

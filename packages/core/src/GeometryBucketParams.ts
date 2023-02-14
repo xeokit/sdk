@@ -3,6 +3,11 @@ import type {IntArrayParam} from "@xeokit/math/math";
 /**
  * A geometry bucket within {@link @xeokit/core/components!GeometryCompressedParams.geometryBuckets}.
  *
+ * See usage in:
+ *
+ * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
+ *
  * @typeparam
  */
 export interface GeometryBucketParams {

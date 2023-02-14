@@ -3,7 +3,7 @@ import type {GeometryBucketParams} from "./GeometryBucketParams";
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * Pre-compressed geometry creation parameters for {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}.
+ * Pre-compressed geometry creation parameters for {@link @xeokit/core/components!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
  *
  * ## Summary
  *

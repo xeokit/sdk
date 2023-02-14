@@ -1,27 +1,27 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * Mesh creation parameters for {@link @xeokit/core/components!Model.createMesh}.
+ * Mesh creation parameters for {@link @xeokit/core/components!SceneModel.createMesh}.
  */
 export interface MeshParams {
 
     /**
-     * ID for the mesh, unique within the {@link @xeokit/core/components!Model}.
+     * ID for the mesh, unique within the {@link @xeokit/core/components!SceneModel}.
      */
     id: string;
 
     /**
-     * ID of a texture set that was created previously with {@link @xeokit/core/components!Model.createTextureSet}.
+     * ID of a texture set that was created previously with {@link @xeokit/core/components!SceneModel.createTextureSet}.
      */
     textureSetId?: string;
 
     /**
-     * ID of a geometry that was created previously with {@link @xeokit/core/components!Model.createGeometry|Model.createGeometry} or {@link @xeokit/core/components!Model.createGeometryCompressed | Model.createGeometryCompressed}.
+     * ID of a geometry that was created previously with {@link @xeokit/core/components!SceneModel.createGeometry|SceneModel.createGeometry} or {@link @xeokit/core/components!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
      */
     geometryId: string;
 
     /**
-     * Optional ID of a {@link Transform} previously created with {@link @xeokit/core/components!Model.createTransform}.
+     * Optional ID of a {@link Transform} previously created with {@link @xeokit/core/components!SceneModel.createTransform}.
      */
     transformId?: string;
 
@@ -35,7 +35,7 @@ export interface MeshParams {
     /**
      * RGB pick color of the mesh.
      *
-     * This is used internally within {@link @xeokit/core/components!Model}.
+     * This is used internally within {@link @xeokit/core/components!SceneModel}.
      */
     pickColor?: FloatArrayParam;
 
@@ -65,7 +65,7 @@ export interface MeshParams {
     roughness?: number;
 
     /**
-     * Optional 3D World-space origin, relative to {@link @xeokit/core/components!Model.origin}.
+     * Optional 3D World-space origin, relative to {@link @xeokit/core/components!SceneModel.origin}.
      *
      * When this is given, then 3D positions given in {@link @xeokit/core/components!GeometryParams.positions} or
      * {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed} are assumed to be relative to this.

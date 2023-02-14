@@ -3,11 +3,16 @@ import type {FloatArrayParam} from "@xeokit/math/math";
 /**
  * Represents a texture.
  *
- * * Stored in {@link @xeokit/core/components!Model.textures | Model.textures}
- * * Created with {@link @xeokit/core/components!Model.createTexture | Model.createTexture}
+ * * Stored in {@link @xeokit/core/components!SceneModel.textures | SceneModel.textures}
+ * * Created with {@link @xeokit/core/components!SceneModel.createTexture | SceneModel.createTexture}
  * * Referenced by {@link TextureSet.colorTexture | TextureSet.colorTexture},
  * {@link TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
  * {@link TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link TextureSet.emissiveTexture | TextureSet.emissiveTexture}
+ *
+ * See usage in:
+ *
+ * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  */
 export interface Texture {
 

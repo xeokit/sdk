@@ -1,16 +1,14 @@
-import {View} from "@xeokit/viewer";
-import {LoadBCFViewpointOptions} from "./LoadBCFViewpointOptions";
+
 import {BCFViewpoint} from "./BCFViewpoint";
+import {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
 
 /**
- * Loads a {@link BCFViewpoint} into a {@link @xeokit/viewer!View}.
+ * Loads a {@link BCFViewpoint} into a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer}.
  *
  * See {@link @xeokit/bcf} for usage.
  *
- * @param bcfViewpoint
- * @param view
- * @param options
+ * @param params BCF viewpoint loading paremeters.
  */
-export function loadBCFViewpoint(bcfViewpoint: BCFViewpoint, view: View, options?: LoadBCFViewpointOptions) {
+export function loadBCFViewpoint(params:LoadBCFViewpointParams) {
 
 }

@@ -222,25 +222,30 @@ class View extends Component {
      * Each {@link SectionPlane} is mapped here by {@link SectionPlane.id}.
      */
     readonly sectionPlanes: { [key: string]: SectionPlane };
+
     /**
      * List of {@link SectionPlane}s in this View.
      */
     readonly sectionPlanesList: SectionPlane[] = [];
+
     /**
      * Map of light sources in this View.
      */
     readonly lights: { [key: string]: (AmbientLight | PointLight | DirLight) };
+
     /**
      * List of light sources in this View.
      */
     readonly lightsList: (AmbientLight | PointLight | DirLight)[] = [];
     gammaOutput: boolean;
+
     /**
      * Map of the all {@link ViewLayer}s in this View.
      *
      * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
      */
     readonly layers: { [key: string]: ViewLayer };
+
     /**
      * Whether the View will automatically create {@link ViewLayer|ViewLayers} on-demand
      * as {@link ViewerObject|ViewerObjects} are created.
@@ -257,12 +262,14 @@ class View extends Component {
      * that it never needs to show.
      */
     readonly autoLayers: boolean;
+
     /**
      * Emits an event each time the canvas boundary changes.
      *
      * @event
      */
     readonly onBoundary: EventEmitter<View, IntArrayParam>;
+
     /**
      * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
      *
@@ -271,6 +278,7 @@ class View extends Component {
      * @event
      */
     readonly onObjectVisibility: EventEmitter<View, ViewObject>;
+
     /**
      * Emits an event each time a {@link ViewLayer} is created in this View.
      *
@@ -279,6 +287,7 @@ class View extends Component {
      * @event
      */
     readonly onLayerCreated: EventEmitter<View, ViewLayer>;
+
     /**
      * Emits an event each time a {@link ViewLayer} in this View is destroyed.
      *
@@ -287,18 +296,21 @@ class View extends Component {
      * @event
      */
     readonly onLayerDestroyed: EventEmitter<View, ViewLayer>;
+
     /**
      * Emits an event each time a {@link SectionPlane} is created in this View.
      *
      * @event
      */
     readonly onSectionPlaneCreated: EventEmitter<View, SectionPlane>;
+
     /**
      * Emits an event each time a {@link SectionPlane} in this View is destroyed.
      *
      * @event
      */
     readonly onSectionPlaneDestroyed: EventEmitter<View, SectionPlane>;
+
     #onTick: () => void;
     #backgroundColor: FloatArrayParam;
     #backgroundColorFromAmbientLight: boolean;
@@ -1328,7 +1340,7 @@ class View extends Component {
         for (const id in this.viewer.scene.models) {
             this.#createObjects(this.viewer.scene.models[id]);
         }
-        this.viewer.scene.onModelCreated.subscribe((scene: Scene,  model: SceneModel) => {
+        this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: SceneModel) => {
             this.#createObjects(model);
         });
         this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, model: SceneModel) => {
@@ -1340,7 +1352,7 @@ class View extends Component {
         const objects = model.objects;
         for (let id in objects) {
             const viewerObject = <ViewerObject>objects[id];
-       //     const viewLayerId = viewerObject.viewLayerId || "default";
+            //     const viewLayerId = viewerObject.viewLayerId || "default";
             const viewLayerId = "default";
             let viewLayer = this.layers[viewLayerId];
             if (!viewLayer) {
@@ -1369,7 +1381,7 @@ class View extends Component {
         const objects = model.objects;
         for (let id in objects) {
             const object = objects[id];
-       //     const viewLayerId = object.viewLayerId || "main";
+            //     const viewLayerId = object.viewLayerId || "main";
             const viewLayerId = "default";
             let viewLayer = this.layers[viewLayerId];
             const viewObject = this.objects[object.id];

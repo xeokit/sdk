@@ -5,20 +5,21 @@ import {SceneObject} from "@xeokit/core/components";
 import {ViewerObject} from "./ViewerObject";
 
 /**
- * Represents the visual state of a {@link ViewerObject} in a {@link @xeokit/viewer!View}.
+ * Represents and controls the visual state of a {@link @xeokit/core/components!SceneObject | SceneObject} in
+ * a {@link @xeokit/viewer!View |View's} canvas.
  *
  * ## Summary
  *
  * * Stored in {@link View.objects | View.objects} and {@link ViewLayer.objects | ViewLayer.objects}
- * * Viewer automatically creates one of these in each existing {@link @xeokit/viewer!View} for each {@link ViewerObject} created
- * * {@link ViewerObject.viewLayerId | ViewerObject.viewLayerId} determines which of the View's {@link ViewLayer | ViewLayers} to put the ViewObject in
+ * * Viewer automatically creates one of these in each existing {@link @xeokit/viewer!View} for each {@link @xeokit/core/components!SceneObject | SceneObject} created
+ * * {@link SceneObject.viewLayerId | SceneObject.viewLayerId} determines which of the View's {@link ViewLayer | ViewLayers} to put the ViewObject in
  *
  * ## Overview
  *
- * Every View automatically maintains within itself a ViewObject for each {@link ViewerObject} that exists in the {@link @xeokit/viewer!Viewer}.
+ * Every View automatically maintains within itself a ViewObject for each {@link @xeokit/core/components!SceneObject | SceneObject} that exists in the {@link @xeokit/viewer!Viewer}.
  *
- * Whenever we create a ViewerObject, each View will automatically create a corresponding ViewObject within itself. When
- * we destroy a ViewerObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View
+ * Whenever we create a SceneObject, each View will automatically create a corresponding ViewObject within itself. When
+ * we destroy a SceneObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View
  * are therefore a manifest of the ViewerObjects in the View.
  *
  * {@link ViewLayer}.

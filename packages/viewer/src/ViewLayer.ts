@@ -233,10 +233,10 @@ import {Scene} from "./Scene";
  * This time, however, our {@link @xeokit/viewer!View} has now created {@link ViewObject|ViewObjects} for the "model" ViewerObjects, while
  * ignoring the "environment" ViewerObjects.
  *
- * As far as this View is converned, the "environment" ViewerObjects do not exist.
+ * As far as this View is concerned, the "environment" ViewerObjects do not exist.
  *
  * ````javascript
- * // viewer.objects contains four ViewerObjects with IDs "ground", "skyBox", "houseFoundation" and "houseWalls"
+ * // viewer.scene.objects contains four SceneObjects with IDs "ground", "skyBox", "houseFoundation" and "houseWalls"
  *
  * // viewer.views.view1.objects contains two ViewObjects with IDs "houseFoundation" and "houseWalls"
  *

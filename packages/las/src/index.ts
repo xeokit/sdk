@@ -3,7 +3,7 @@
  *
  * <br>
  *
- * ## SceneModel Loader for LAS/LAZ File Format
+ * ## Model Loader for LAS/LAZ File Format
  *
  * * [LAS/LAZ](https://en.wikipedia.org/wiki/LAS) is an industry standard format for 3D point cloud scans
  * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}

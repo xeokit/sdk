@@ -1,15 +1,9 @@
-import {View, Viewer} from "@xeokit/viewer";
+import {View, Viewer, ViewLayer} from "@xeokit/viewer";
 import {WebGLRenderer} from "@xeokit/webgl";
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {saveXKT} from "@xeokit/xkt";
 import {CameraControl} from "@xeokit/controls";
-import {
-    BCFViewpoint,
-    loadBCFViewpoint,
-    LoadBCFViewpointOptions,
-    saveBCFViewpoint,
-    SaveBCFViewpointOptions
-} from "@xeokit/bcf";
+import {BCFViewpoint, loadBCFViewpoint, saveBCFViewpoint} from "@xeokit/bcf";
 import {LocaleService} from "@xeokit/locale";
 import {Data, DataModel} from "@xeokit/datamodel";
 import {SceneModel} from "@xeokit/core/components";
@@ -39,10 +33,7 @@ export class BIMViewer extends Viewer {
     /**
      * TODO
      */
-    readonly options: {
-        saveBCF: SaveBCFViewpointOptions,
-        loadBCF: LoadBCFViewpointOptions
-    }
+    readonly options: {}
 
     /**
      * TODO
@@ -70,6 +61,16 @@ export class BIMViewer extends Viewer {
     project?: Project;
 
     /**
+     *
+     */
+    readonly modelsViewLayer: ViewLayer;
+
+    /**
+     *
+     */
+    readonly backgroundViewLayer: ViewLayer;
+
+    /**
      * TODO
      * @param cfg
      */
@@ -91,14 +92,19 @@ export class BIMViewer extends Viewer {
             canvasElement: cfg.canvasElement
         });
 
+        this.modelsViewLayer = this.view.createLayer({
+            id: "models"
+        });
+
+        this.backgroundViewLayer = this.view.createLayer({
+            id: "background"
+        });
+
         this.cameraControl = new CameraControl(this.view, {});
 
         this.localeService = new LocaleService({});
 
-        this.options = {
-            saveBCF: {},
-            loadBCF: {}
-        };
+        this.options = {};
 
         this.project = null;
     }
@@ -197,13 +203,19 @@ export class BIMViewer extends Viewer {
      * @param bcfViewpoint
      */
     loadBCF(bcfViewpoint: BCFViewpoint) {
-        loadBCFViewpoint(bcfViewpoint, this.view, this.options.loadBCF);
+        loadBCFViewpoint({
+            bcfViewpoint,
+            view: this.view,
+            includeViewLayerIds: [this.modelsViewLayer.id]
+        });
     }
 
     /**
      * TODO
      */
     saveBCF(): BCFViewpoint {
-        return saveBCFViewpoint(this.view, this.options.saveBCF);
+        return saveBCFViewpoint({
+            viewLayer: this.modelsViewLayer
+        });
     }
 }

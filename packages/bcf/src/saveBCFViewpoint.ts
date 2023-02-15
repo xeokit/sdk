@@ -1,16 +1,14 @@
 import {BCFViewpoint} from "./BCFViewpoint";
-import {View} from "@xeokit/viewer";
-import {SaveBCFViewpointOptions} from "./SaveBCFViewpointOptions";
+import {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
 
 /**
- * Saves a {@link @xeokit/viewer!View} to a {@link BCFViewpoint}.
+ * Saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a {@link BCFViewpoint}.
  *
  * See {@link @xeokit/bcf} for usage.
  *
- * @param view The View
- * @param options Viewpoint saving options.
+ * @param params BCF saving parameers.
  * @returns The BCF viewpoint.
  */
-export function saveBCFViewpoint(view: View, options?: SaveBCFViewpointOptions): BCFViewpoint {
+export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
     return {};
 }

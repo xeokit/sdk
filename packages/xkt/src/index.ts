@@ -1,7 +1,7 @@
 /**
  * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="media://images/xeokit_logo_mesh.png"/>
  *
- * ## SceneModel Loader and Saver for XKT File Format
+ * ## Model Loader and Saver for XKT File Format
  *
  * * XKT is xeokit's native compressed sceneModel format, which contains geometry, materials, objects and semantic data in a compact, Web-friendly payload.
  * * {@link loadXKT} loads XKT into a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.

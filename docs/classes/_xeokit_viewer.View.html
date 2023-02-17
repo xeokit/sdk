@@ -61,7 +61,7 @@ of the objects, with different visual effects, camera position etc.</p>
 <ul class="tsd-hierarchy">
 <li><span class="target">View</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L87">viewer/src/View.ts:87</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L87">viewer/src/View.ts:87</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -108,6 +108,7 @@ of the objects, with different visual effects, camera position etc.</p>
 <a href="_xeokit_viewer.View.html#onLayerCreated" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Layer<wbr/>Created</span></a>
 <a href="_xeokit_viewer.View.html#onLayerDestroyed" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Layer<wbr/>Destroyed</span></a>
 <a href="_xeokit_viewer.View.html#onObjectVisibility" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Object<wbr/>Visibility</span></a>
+<a href="_xeokit_viewer.View.html#onObjectXRayed" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>ObjectXRayed</span></a>
 <a href="_xeokit_viewer.View.html#onSectionPlaneCreated" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Section<wbr/>Plane<wbr/>Created</span></a>
 <a href="_xeokit_viewer.View.html#onSectionPlaneDestroyed" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Section<wbr/>Plane<wbr/>Destroyed</span></a>
 </div></section>
@@ -176,7 +177,7 @@ ViewerObjects that they need to view. This enables a View to avoid wastefully cr
 that it never needs to show.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L264">viewer/src/View.ts:264</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L264">viewer/src/View.ts:264</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="boundary" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>boundary</span><a href="#boundary" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">boundary<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
@@ -184,28 +185,28 @@ that it never needs to show.</p>
 Format is <code>[xmin, ymin, xwidth, ywidth]</code>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L124">viewer/src/View.ts:124</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L124">viewer/src/View.ts:124</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="camera" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>camera</span><a href="#camera" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">camera<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.Camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a></div>
 <div class="tsd-comment tsd-typography"><p>Manages the Camera for this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L108">viewer/src/View.ts:108</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L108">viewer/src/View.ts:108</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="cameraFlight" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>camera<wbr/>Flight</span><a href="#cameraFlight" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">camera<wbr/>Flight<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.CameraFlightAnimation.html" class="tsd-signature-type" data-tsd-kind="Class">CameraFlightAnimation</a></div>
 <div class="tsd-comment tsd-typography"><p>Flies or jumps the View&#39;s <a href="_xeokit_viewer.Camera.html">Camera</a>  to given positions.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L136">viewer/src/View.ts:136</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L136">viewer/src/View.ts:136</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="canvasElement" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>canvas<wbr/>Element</span><a href="#canvasElement" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">canvas<wbr/>Element<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLCanvasElement</span></div>
 <div class="tsd-comment tsd-typography"><p>The HTML canvas.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L113">viewer/src/View.ts:113</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L113">viewer/src/View.ts:113</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="colorizedObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>colorized<wbr/>Objects</span><a href="#colorizedObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">colorized<wbr/>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -218,7 +219,7 @@ Format is <code>[xmin, ymin, xwidth, ywidth]</code>.</p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L212">viewer/src/View.ts:212</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L212">viewer/src/View.ts:212</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="destroyed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>destroyed</span><a href="#destroyed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -227,21 +228,21 @@ Format is <code>[xmin, ymin, xwidth, ywidth]</code>.</p>
 </div><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#destroyed">destroyed</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L26">core/src/Component.ts:26</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L26">core/src/Component.ts:26</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="edgeMaterial" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>edge<wbr/>Material</span><a href="#edgeMaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">edge<wbr/>Material<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.EdgeMaterial.html" class="tsd-signature-type" data-tsd-kind="Class">EdgeMaterial</a></div>
 <div class="tsd-comment tsd-typography"><p>Configures the appearance of edges belonging to <a href="_xeokit_viewer.ViewObject.html">ViewObject</a> in this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L156">viewer/src/View.ts:156</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L156">viewer/src/View.ts:156</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="highlightMaterial" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>highlight<wbr/>Material</span><a href="#highlightMaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">highlight<wbr/>Material<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.EmphasisMaterial.html" class="tsd-signature-type" data-tsd-kind="Class">EmphasisMaterial</a></div>
 <div class="tsd-comment tsd-typography"><p>Configures the highlighted appearance of <a href="_xeokit_viewer.ViewObject.html">ViewObjects</a> in this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L148">viewer/src/View.ts:148</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L148">viewer/src/View.ts:148</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="highlightedObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>highlighted<wbr/>Objects</span><a href="#highlightedObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">highlighted<wbr/>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -255,7 +256,7 @@ Format is <code>[xmin, ymin, xwidth, ywidth]</code>.</p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L198">viewer/src/View.ts:198</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L198">viewer/src/View.ts:198</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a id="id" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -263,7 +264,7 @@ Format is <code>[xmin, ymin, xwidth, ywidth]</code>.</p>
 </div><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#id">id</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L19">core/src/Component.ts:19</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L19">core/src/Component.ts:19</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="layers" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>layers</span><a href="#layers" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">layers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ViewLayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -276,7 +277,7 @@ Format is <code>[xmin, ymin, xwidth, ywidth]</code>.</p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.ViewLayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L247">viewer/src/View.ts:247</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L247">viewer/src/View.ts:247</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="lights" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>lights</span><a href="#lights" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">lights<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.AmbientLight.html" class="tsd-signature-type" data-tsd-kind="Class">AmbientLight</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.PointLight.html" class="tsd-signature-type" data-tsd-kind="Class">PointLight</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.DirLight.html" class="tsd-signature-type" data-tsd-kind="Class">DirLight</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -288,35 +289,35 @@ Format is <code>[xmin, ymin, xwidth, ywidth]</code>.</p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.AmbientLight.html" class="tsd-signature-type" data-tsd-kind="Class">AmbientLight</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.PointLight.html" class="tsd-signature-type" data-tsd-kind="Class">PointLight</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.DirLight.html" class="tsd-signature-type" data-tsd-kind="Class">DirLight</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L234">viewer/src/View.ts:234</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L234">viewer/src/View.ts:234</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="lightsList" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>lights<wbr/>List</span><a href="#lightsList" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">lights<wbr/>List<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><a href="_xeokit_viewer.PointLight.html" class="tsd-signature-type" data-tsd-kind="Class">PointLight</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.DirLight.html" class="tsd-signature-type" data-tsd-kind="Class">DirLight</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.AmbientLight.html" class="tsd-signature-type" data-tsd-kind="Class">AmbientLight</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 <div class="tsd-comment tsd-typography"><p>List of light sources in this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L239">viewer/src/View.ts:239</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L239">viewer/src/View.ts:239</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="linesMaterial" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>lines<wbr/>Material</span><a href="#linesMaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">lines<wbr/>Material<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">LinesMaterial</span></div>
 <div class="tsd-comment tsd-typography"><p>Configures the appearance of lines belonging to <a href="_xeokit_viewer.ViewObject.html">ViewObjects</a> in this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L164">viewer/src/View.ts:164</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L164">viewer/src/View.ts:164</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="logarithmicDepthBufferEnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>logarithmic<wbr/>Depth<wbr/>Buffer<wbr/>Enabled</span><a href="#logarithmicDepthBufferEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">logarithmic<wbr/>Depth<wbr/>Buffer<wbr/>Enabled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 <div class="tsd-comment tsd-typography"><p>Whether the logarithmic depth buffer is enabled for this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L128">viewer/src/View.ts:128</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L128">viewer/src/View.ts:128</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="metrics" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>metrics</span><a href="#metrics" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">metrics<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.Metrics.html" class="tsd-signature-type" data-tsd-kind="Class">Metrics</a></div>
 <div class="tsd-comment tsd-typography"><p>Manages measurement units, origin and scale for this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L140">viewer/src/View.ts:140</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L140">viewer/src/View.ts:140</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="objects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>objects</span><a href="#objects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -331,7 +332,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L174">viewer/src/View.ts:174</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L174">viewer/src/View.ts:174</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="opacityObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>opacity<wbr/>Objects</span><a href="#opacityObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">opacity<wbr/>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -344,21 +345,21 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L218">viewer/src/View.ts:218</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L218">viewer/src/View.ts:218</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="pointsMaterial" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>points<wbr/>Material</span><a href="#pointsMaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">points<wbr/>Material<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.PointsMaterial.html" class="tsd-signature-type" data-tsd-kind="Class">PointsMaterial</a></div>
 <div class="tsd-comment tsd-typography"><p>Configures the appearance of point primitives belonging to <a href="_xeokit_viewer.ViewObject.html">ViewObjects</a> in this View .</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L160">viewer/src/View.ts:160</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L160">viewer/src/View.ts:160</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="sao" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>sao</span><a href="#sao" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">sao<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.SAO.html" class="tsd-signature-type" data-tsd-kind="Class">SAO</a></div>
 <div class="tsd-comment tsd-typography"><p>Configures Scalable Ambient Obscurance (SAO) for this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L132">viewer/src/View.ts:132</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L132">viewer/src/View.ts:132</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="sectionPlanes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>section<wbr/>Planes</span><a href="#sectionPlanes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">section<wbr/>Planes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.SectionPlane.html" class="tsd-signature-type" data-tsd-kind="Class">SectionPlane</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -371,21 +372,21 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.SectionPlane.html" class="tsd-signature-type" data-tsd-kind="Class">SectionPlane</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L224">viewer/src/View.ts:224</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L224">viewer/src/View.ts:224</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="sectionPlanesList" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>section<wbr/>Planes<wbr/>List</span><a href="#sectionPlanesList" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">section<wbr/>Planes<wbr/>List<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.SectionPlane.html" class="tsd-signature-type" data-tsd-kind="Class">SectionPlane</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 <div class="tsd-comment tsd-typography"><p>List of <a href="_xeokit_viewer.SectionPlane.html">SectionPlane</a>s in this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L229">viewer/src/View.ts:229</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L229">viewer/src/View.ts:229</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="selectedMaterial" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>selected<wbr/>Material</span><a href="#selectedMaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">selected<wbr/>Material<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.EmphasisMaterial.html" class="tsd-signature-type" data-tsd-kind="Class">EmphasisMaterial</a></div>
 <div class="tsd-comment tsd-typography"><p>Configures the appearance of <a href="_xeokit_viewer.ViewObject.html">ViewObjects</a> in this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L152">viewer/src/View.ts:152</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L152">viewer/src/View.ts:152</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="selectedObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>selected<wbr/>Objects</span><a href="#selectedObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">selected<wbr/>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -399,28 +400,28 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L206">viewer/src/View.ts:206</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L206">viewer/src/View.ts:206</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="transparent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>transparent</span><a href="#transparent" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">transparent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 <div class="tsd-comment tsd-typography"><p>Indicates if this View is transparent.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L118">viewer/src/View.ts:118</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L118">viewer/src/View.ts:118</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="viewId" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>view<wbr/>Id</span><a href="#viewId" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">view<wbr/>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 <div class="tsd-comment tsd-typography"><p>ID of this View, unique within the <a href="_xeokit_viewer.Viewer.html">Viewer</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L92">viewer/src/View.ts:92</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L92">viewer/src/View.ts:92</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="viewer" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>viewer</span><a href="#viewer" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">viewer<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.Viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a></div>
 <div class="tsd-comment tsd-typography"><p>The Viewer to which this View belongs.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L97">viewer/src/View.ts:97</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L97">viewer/src/View.ts:97</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="visibleObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>visible<wbr/>Objects</span><a href="#visibleObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">visible<wbr/>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -434,14 +435,14 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L182">viewer/src/View.ts:182</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L182">viewer/src/View.ts:182</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="xrayMaterial" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>xray<wbr/>Material</span><a href="#xrayMaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">xray<wbr/>Material<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.EmphasisMaterial.html" class="tsd-signature-type" data-tsd-kind="Class">EmphasisMaterial</a></div>
 <div class="tsd-comment tsd-typography"><p>Configures the X-rayed appearance of <a href="_xeokit_viewer.ViewObject.html">ViewObjects</a> in this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L144">viewer/src/View.ts:144</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L144">viewer/src/View.ts:144</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="xrayedObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>xrayed<wbr/>Objects</span><a href="#xrayedObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">xrayed<wbr/>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
@@ -455,7 +456,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L190">viewer/src/View.ts:190</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L190">viewer/src/View.ts:190</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Events</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onBoundary" class="tsd-anchor"></a>
@@ -464,7 +465,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <div class="tsd-comment tsd-typography"><p>Emits an event each time the canvas boundary changes.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L271">viewer/src/View.ts:271</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L271">viewer/src/View.ts:271</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a id="onDestroyed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>on<wbr/>Destroyed</span><a href="#onDestroyed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>Destroyed<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_core_components.Component.html" class="tsd-signature-type" data-tsd-kind="Class">Component</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
@@ -472,7 +473,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 </div><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#onDestroyed">onDestroyed</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L39">core/src/Component.ts:39</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L39">core/src/Component.ts:39</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onLayerCreated" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Layer<wbr/>Created</span><a href="#onLayerCreated" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>Layer<wbr/>Created<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">, </span><a href="_xeokit_viewer.ViewLayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a><span class="tsd-signature-symbol">&gt;</span></div>
@@ -480,7 +481,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <p>Layers are created explicitly with <a href="_xeokit_viewer.View.html#createLayer">createLayer</a>, or implicitly with View.createModel and <a href="../interfaces/_xeokit_viewer.ModelParams.html#viewLayerId">viewLayerId</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L289">viewer/src/View.ts:289</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L298">viewer/src/View.ts:298</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onLayerDestroyed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Layer<wbr/>Destroyed</span><a href="#onLayerDestroyed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>Layer<wbr/>Destroyed<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">, </span><a href="_xeokit_viewer.ViewLayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a><span class="tsd-signature-symbol">&gt;</span></div>
@@ -488,7 +489,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <p>ViewLayers are destroyed explicitly with <a href="_xeokit_viewer.ViewLayer.html#destroy">destroy</a>, or implicitly when they become empty and <a href="_xeokit_viewer.View.html#autoLayers">autoLayers</a> is false.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L298">viewer/src/View.ts:298</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L307">viewer/src/View.ts:307</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onObjectVisibility" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Object<wbr/>Visibility</span><a href="#onObjectVisibility" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>Object<wbr/>Visibility<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">, </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">&gt;</span></div>
@@ -496,21 +497,29 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <p>ViewObjects are shown and hidden with <a href="_xeokit_viewer.View.html#setObjectsVisible">setObjectsVisible</a>, <a href="_xeokit_viewer.ViewLayer.html#setObjectsVisible">setObjectsVisible</a> or <a href="_xeokit_viewer.ViewObject.html#visible">visible</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L280">viewer/src/View.ts:280</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L280">viewer/src/View.ts:280</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onObjectXRayed" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>ObjectXRayed</span><a href="#onObjectXRayed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">on<wbr/>ObjectXRayed<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">, </span><a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Emits an event each time the X-ray state of a <a href="_xeokit_viewer.ViewObject.html">ViewObject</a> changes in this View.</p>
+<p>ViewObjects are X-rayed with <a href="_xeokit_viewer.View.html#setObjectsXRayed">setObjectsXRayed</a>, <a href="_xeokit_viewer.ViewLayer.html#setObjectsXRayed">setObjectsXRayed</a> or <a href="_xeokit_viewer.ViewObject.html#xrayed">xrayed</a>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L289">viewer/src/View.ts:289</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onSectionPlaneCreated" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Section<wbr/>Plane<wbr/>Created</span><a href="#onSectionPlaneCreated" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>Section<wbr/>Plane<wbr/>Created<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">, </span><a href="_xeokit_viewer.SectionPlane.html" class="tsd-signature-type" data-tsd-kind="Class">SectionPlane</a><span class="tsd-signature-symbol">&gt;</span></div>
 <div class="tsd-comment tsd-typography"><p>Emits an event each time a <a href="_xeokit_viewer.SectionPlane.html">SectionPlane</a> is created in this View.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L305">viewer/src/View.ts:305</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L314">viewer/src/View.ts:314</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onSectionPlaneDestroyed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Section<wbr/>Plane<wbr/>Destroyed</span><a href="#onSectionPlaneDestroyed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>Section<wbr/>Plane<wbr/>Destroyed<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">, </span><a href="_xeokit_viewer.SectionPlane.html" class="tsd-signature-type" data-tsd-kind="Class">SectionPlane</a><span class="tsd-signature-symbol">&gt;</span></div>
 <div class="tsd-comment tsd-typography"><p>Emits an event each time a <a href="_xeokit_viewer.SectionPlane.html">SectionPlane</a> in this View is destroyed.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L312">viewer/src/View.ts:312</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L321">viewer/src/View.ts:321</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Accessors</h2>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="aabb" class="tsd-anchor"></a>
@@ -520,7 +529,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L573">viewer/src/View.ts:573</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L583">viewer/src/View.ts:583</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="backgroundColor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>background<wbr/>Color</span><a href="#backgroundColor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -531,7 +540,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L582">viewer/src/View.ts:582</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L592">viewer/src/View.ts:592</a></li></ul></aside></li>
 <li class="tsd-signature" id="backgroundColor.backgroundColor-2"><span class="tsd-signature-symbol">set</span> backgroundColor<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the canvas clear color.</p>
@@ -544,7 +553,7 @@ each ViewerObject in the <a href="_xeokit_viewer.Viewer.html">Viewer</a></p>
 <h5>value: <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L591">viewer/src/View.ts:591</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L601">viewer/src/View.ts:601</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="backgroundColorFromAmbientLight" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>background<wbr/>Color<wbr/>From<wbr/>Ambient<wbr/>Light</span><a href="#backgroundColorFromAmbientLight" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -560,7 +569,7 @@ be taken from <a href="_xeokit_viewer.View.html#backgroundColor">backgroundColor
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L616">viewer/src/View.ts:616</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L626">viewer/src/View.ts:626</a></li></ul></aside></li>
 <li class="tsd-signature" id="backgroundColorFromAmbientLight.backgroundColorFromAmbientLight-2"><span class="tsd-signature-symbol">set</span> backgroundColorFromAmbientLight<span class="tsd-signature-symbol">(</span>backgroundColorFromAmbientLight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if the canvas background color is derived from an <a href="_xeokit_viewer.AmbientLight.html">AmbientLight</a>.</p>
@@ -575,7 +584,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 <h5>backgroundColorFromAmbientLight: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L628">viewer/src/View.ts:628</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L638">viewer/src/View.ts:638</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="colorizedObjectIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>colorized<wbr/>Object<wbr/>Ids</span><a href="#colorizedObjectIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -585,7 +594,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L790">viewer/src/View.ts:790</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L800">viewer/src/View.ts:800</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="gammaFactor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>gamma<wbr/>Factor</span><a href="#gammaFactor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -595,7 +604,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L669">viewer/src/View.ts:669</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L679">viewer/src/View.ts:679</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="highlightedObjectIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>highlighted<wbr/>Object<wbr/>Ids</span><a href="#highlightedObjectIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -605,7 +614,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L756">viewer/src/View.ts:756</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L766">viewer/src/View.ts:766</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="numColorizedObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>num<wbr/>Colorized<wbr/>Objects</span><a href="#numColorizedObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -615,7 +624,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L783">viewer/src/View.ts:783</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L793">viewer/src/View.ts:793</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="numHighlightedObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>num<wbr/>Highlighted<wbr/>Objects</span><a href="#numHighlightedObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -625,7 +634,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L749">viewer/src/View.ts:749</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L759">viewer/src/View.ts:759</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="numObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>num<wbr/>Objects</span><a href="#numObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -635,7 +644,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L698">viewer/src/View.ts:698</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L708">viewer/src/View.ts:708</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="numOpacityObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>num<wbr/>Opacity<wbr/>Objects</span><a href="#numOpacityObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -645,7 +654,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L810">viewer/src/View.ts:810</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L820">viewer/src/View.ts:820</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="numSelectedObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>num<wbr/>Selected<wbr/>Objects</span><a href="#numSelectedObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -655,7 +664,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L766">viewer/src/View.ts:766</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L776">viewer/src/View.ts:776</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="numVisibleObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>num<wbr/>Visible<wbr/>Objects</span><a href="#numVisibleObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -665,7 +674,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L715">viewer/src/View.ts:715</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L725">viewer/src/View.ts:725</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="numXRayedObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>numXRayed<wbr/>Objects</span><a href="#numXRayedObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -675,7 +684,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L732">viewer/src/View.ts:732</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L742">viewer/src/View.ts:742</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="objectIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>object<wbr/>Ids</span><a href="#objectIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -685,7 +694,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L705">viewer/src/View.ts:705</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L715">viewer/src/View.ts:715</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="opacityObjectIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>opacity<wbr/>Object<wbr/>Ids</span><a href="#opacityObjectIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -695,7 +704,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L800">viewer/src/View.ts:800</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L810">viewer/src/View.ts:810</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="qualityRender" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>quality<wbr/>Render</span><a href="#qualityRender" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -706,7 +715,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L678">viewer/src/View.ts:678</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L688">viewer/src/View.ts:688</a></li></ul></aside></li>
 <li class="tsd-signature" id="qualityRender.qualityRender-2"><span class="tsd-signature-symbol">set</span> qualityRender<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets whether quality rendering is enabled for this View.</p>
@@ -719,7 +728,7 @@ will be the canvas element&#39;s HTML/CSS background color.</p>
 <h5>value: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L687">viewer/src/View.ts:687</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L697">viewer/src/View.ts:697</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="resolutionScale" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resolution<wbr/>Scale</span><a href="#resolutionScale" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -734,7 +743,7 @@ a performance boost.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L641">viewer/src/View.ts:641</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L651">viewer/src/View.ts:651</a></li></ul></aside></li>
 <li class="tsd-signature" id="resolutionScale.resolutionScale-2"><span class="tsd-signature-symbol">set</span> resolutionScale<span class="tsd-signature-symbol">(</span>resolutionScale<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.</p>
@@ -751,7 +760,7 @@ a performance boost.</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L654">viewer/src/View.ts:654</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L664">viewer/src/View.ts:664</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="selectedObjectIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>selected<wbr/>Object<wbr/>Ids</span><a href="#selectedObjectIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -761,7 +770,7 @@ a performance boost.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L773">viewer/src/View.ts:773</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L783">viewer/src/View.ts:783</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="visibleObjectIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visible<wbr/>Object<wbr/>Ids</span><a href="#visibleObjectIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -771,7 +780,7 @@ a performance boost.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L722">viewer/src/View.ts:722</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L732">viewer/src/View.ts:732</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="xrayedObjectIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>xrayed<wbr/>Object<wbr/>Ids</span><a href="#xrayedObjectIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -781,7 +790,7 @@ a performance boost.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L739">viewer/src/View.ts:739</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L749">viewer/src/View.ts:749</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="clean" class="tsd-anchor"></a>
@@ -794,7 +803,7 @@ a performance boost.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#clean">clean</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L118">core/src/Component.ts:118</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L118">core/src/Component.ts:118</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="cleanIfDirty" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>clean<wbr/>If<wbr/>Dirty</span><a href="#cleanIfDirty" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -805,7 +814,7 @@ a performance boost.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#cleanIfDirty">cleanIfDirty</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L108">core/src/Component.ts:108</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L108">core/src/Component.ts:108</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="clearLights" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>clear<wbr/>Lights</span><a href="#clearLights" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -815,7 +824,7 @@ a performance boost.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1005">viewer/src/View.ts:1005</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1018">viewer/src/View.ts:1018</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="clearSectionPlanes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>clear<wbr/>Section<wbr/>Planes</span><a href="#clearSectionPlanes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -825,7 +834,7 @@ a performance boost.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L947">viewer/src/View.ts:947</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L960">viewer/src/View.ts:960</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="createLayer" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>create<wbr/>Layer</span><a href="#createLayer" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -846,7 +855,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <h5>viewLayerParams: <a href="../interfaces/_xeokit_viewer.ViewLayerParams.html" class="tsd-signature-type" data-tsd-kind="Interface">ViewLayerParams</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="_xeokit_viewer.ViewLayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1299">viewer/src/View.ts:1299</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1313">viewer/src/View.ts:1313</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="createSectionPlane" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>create<wbr/>Section<wbr/>Plane</span><a href="#createSectionPlane" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -861,7 +870,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <h5>sectionPlaneParams: <span class="tsd-signature-type">SectionPlaneParams</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="_xeokit_viewer.SectionPlane.html" class="tsd-signature-type" data-tsd-kind="Class">SectionPlane</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L930">viewer/src/View.ts:930</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L943">viewer/src/View.ts:943</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="destroy" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>destroy</span><a href="#destroy" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -873,7 +882,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Overrides <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#destroy">destroy</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1067">viewer/src/View.ts:1067</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1080">viewer/src/View.ts:1080</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="error" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>error</span><a href="#error" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -892,7 +901,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#error">error</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L90">core/src/Component.ts:90</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L90">core/src/Component.ts:90</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="log" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>log</span><a href="#log" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -911,7 +920,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#log">log</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L64">core/src/Component.ts:64</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L64">core/src/Component.ts:64</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="setDirty" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>set<wbr/>Dirty</span><a href="#setDirty" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -922,7 +931,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#setDirty">setDirty</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L98">core/src/Component.ts:98</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L98">core/src/Component.ts:98</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsClippable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Clippable</span><a href="#setObjectsClippable" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -949,7 +958,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1258">viewer/src/View.ts:1258</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1272">viewer/src/View.ts:1272</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsCollidable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Collidable</span><a href="#setObjectsCollidable" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -973,7 +982,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1111">viewer/src/View.ts:1111</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1125">viewer/src/View.ts:1125</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsColorized" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Colorized</span><a href="#setObjectsColorized" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1000,7 +1009,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1202">viewer/src/View.ts:1202</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1216">viewer/src/View.ts:1216</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsCulled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Culled</span><a href="#setObjectsCulled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1024,7 +1033,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1128">viewer/src/View.ts:1128</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1142">viewer/src/View.ts:1142</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsHighlighted" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Highlighted</span><a href="#setObjectsHighlighted" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1051,7 +1060,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1164">viewer/src/View.ts:1164</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1178">viewer/src/View.ts:1178</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsOpacity" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Opacity</span><a href="#setObjectsOpacity" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1078,7 +1087,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1218">viewer/src/View.ts:1218</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1232">viewer/src/View.ts:1232</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsPickable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Pickable</span><a href="#setObjectsPickable" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1105,7 +1114,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1238">viewer/src/View.ts:1238</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1252">viewer/src/View.ts:1252</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsSelected" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Selected</span><a href="#setObjectsSelected" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1132,7 +1141,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1146">viewer/src/View.ts:1146</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1160">viewer/src/View.ts:1160</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsVisible" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Objects<wbr/>Visible</span><a href="#setObjectsVisible" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1159,7 +1168,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1094">viewer/src/View.ts:1094</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1108">viewer/src/View.ts:1108</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setObjectsXRayed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>ObjectsXRayed</span><a href="#setObjectsXRayed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1186,7 +1195,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1182">viewer/src/View.ts:1182</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1196">viewer/src/View.ts:1196</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="warn" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>warn</span><a href="#warn" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -1205,7 +1214,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#warn">warn</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/core/src/Component.ts#L77">core/src/Component.ts:77</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/core/src/Component.ts#L77">core/src/Component.ts:77</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="withObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>with<wbr/>Objects</span><a href="#withObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1228,7 +1237,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/View.ts#L1275">viewer/src/View.ts:1275</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/View.ts#L1289">viewer/src/View.ts:1289</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://xeokit.io" target="_blank">xeokit.io</a><a href="http://example.com" target="_blank">Introduction</a><a href="http://example.com" target="_blank">Glossary</a></nav>
 <div class="tsd-navigation settings">
@@ -1259,6 +1268,8 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_utils.html">@xeokit/core/utils</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datamodel.html">@xeokit/datamodel</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_gltf.html">@xeokit/gltf</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_ktx2.html">@xeokit/ktx2</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_las.html">@xeokit/las</a></li>
@@ -1270,6 +1281,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <li class="tsd-kind-module"><a href="../modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_scratchmodel.html">@xeokit/scratchmodel</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_treeview.html">@xeokit/treeview</a></li>
 <li class="current tsd-kind-module"><a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_webgl.html">@xeokit/webgl</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_webgpu.html">@xeokit/webgpu</a></li>
@@ -1301,6 +1313,7 @@ returns that existing ViewLayer. The method will also ensure that the existing V
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.View.html#onLayerCreated" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Layer<wbr/>Created</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.View.html#onLayerDestroyed" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Layer<wbr/>Destroyed</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.View.html#onObjectVisibility" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Object<wbr/>Visibility</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.View.html#onObjectXRayed" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>ObjectXRayed</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.View.html#onSectionPlaneCreated" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Section<wbr/>Plane<wbr/>Created</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.View.html#onSectionPlaneDestroyed" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Section<wbr/>Plane<wbr/>Destroyed</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.View.html#opacityObjects" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>opacity<wbr/>Objects</a></li>

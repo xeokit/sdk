@@ -65,8 +65,11 @@
 <a href="#creating-a-viewer" id="creating-a-viewer" style="color: inherit; text-decoration: none;">
   <h3>Creating a Viewer</h3>
 </a>
+<p> We&#39;ll start by importing the modules we need:</p>
+<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">WebGLRenderer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/webgl&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">TrianglesPrimitive</span><span class="hl-0">, </span><span class="hl-3">LinearEncoding</span><span class="hl-0">, </span><span class="hl-3">LinearFilter</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/core/constants&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">CameraControl</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/controls&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">saveBCFViewpoint</span><span class="hl-0">, </span><span class="hl-3">loadBCFViewpoint</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/bcf&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">saveXKT</span><span class="hl-0">, </span><span class="hl-3">loadXKT</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/xkt&quot;</span><span class="hl-0">;</span>
+</code></pre>
 <p>Create a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a>, configured with a <a href="../classes/_xeokit_webgl.WebGLRenderer.html">WebGLRenderer</a>:</p>
-<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">WebGLRenderer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/webgl&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">TrianglesPrimitive</span><span class="hl-0">, </span><span class="hl-3">LinearEncoding</span><span class="hl-0">, </span><span class="hl-3">LinearFilter</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/core/constants&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">CameraControl</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/controls&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">saveBCFViewpoint</span><span class="hl-0">, </span><span class="hl-3">loadBCFViewpoint</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/bcf&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">WebGLRenderer</span><span class="hl-0">({ })</span><br/><span class="hl-0">});</span>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">WebGLRenderer</span><span class="hl-0">({ })</span><br/><span class="hl-0">});</span>
 </code></pre>
 
 <a href="#creating-a-view" id="creating-a-view" style="color: inherit; text-decoration: none;">
@@ -202,10 +205,9 @@ make that first object appear again highlighted in that canvas:</p>
 </a>
 <p>Sometimes we want to create SceneModels whose objects will never be included in any BCF viewpoints that we save, and
 will never be disturbed by any viewpoints that we load.</p>
-<p>An example of such a case is a skybox, which we&#39;d implemented using a SceneModel whose object(s)
-we&#39;d always want to remain visible in the background whenever we load BCF viewpoints, and to never be included in
-any BCF viewpoints that we save.</p>
-<p>Let&#39;s create a ViewLayer in our first View:</p>
+<p>An example of such a case is a skybox, which we&#39;d never want included in any BCF viewpoints, or hidden
+whenever we load a BCF viewpoint.</p>
+<p>TODO TODO TODO TODO</p>
 <pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">modelViewLayer</span><span class="hl-0"> = </span><span class="hl-3">view</span><span class="hl-0">.</span><span class="hl-6">createLayer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myEnviromentViewLayer&quot;</span><br/><span class="hl-0">});</span>
 </code></pre>
 <p>Now we&#39;ll create a SceneModel for our skybox in that ViewLayer:</p>
@@ -219,7 +221,7 @@ any BCF viewpoints that we save.</p>
 </code></pre>
 </div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/518841b/packages/viewer/src/index.ts#L389">viewer/src/index.ts:389</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/viewer/src/index.ts#L393">viewer/src/index.ts:393</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"></section></section>
 <section class="tsd-panel-group tsd-index-group">
@@ -288,6 +290,8 @@ any BCF viewpoints that we save.</p>
 <li class="tsd-kind-module"><a href="_xeokit_core_constants.html">@xeokit/core/constants</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_core_utils.html">@xeokit/core/utils</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_datamodel.html">@xeokit/datamodel</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_gltf.html">@xeokit/gltf</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_ktx2.html">@xeokit/ktx2</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_las.html">@xeokit/las</a></li>
@@ -299,6 +303,7 @@ any BCF viewpoints that we save.</p>
 <li class="tsd-kind-module"><a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_scratchmodel.html">@xeokit/scratchmodel</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_treeview.html">@xeokit/treeview</a></li>
 <li class="current selected tsd-kind-module"><a href="_xeokit_viewer.html">@xeokit/viewer</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_webgl.html">@xeokit/webgl</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_webgpu.html">@xeokit/webgpu</a></li>

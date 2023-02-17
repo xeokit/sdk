@@ -1,0 +1,282 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@xeokit/treeview | xeokit</title><meta name="description" content="Documentation for xeokit"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base="..">
+<div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<div class="field">
+<div id="tsd-toolbar-links"></div></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="\"https://xeokit.io\"" class="title">xeokit</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-8 col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb">
+<li><a href="../modules.html">xeokit</a></li>
+<li><a href="_xeokit_treeview.html">@xeokit/treeview</a></li></ul>
+<h1>Module @xeokit/treeview</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="../media/images/autzen.png"/>
+
+<br>
+
+
+<a href="#tree-view-control-for-a-viewer" id="tree-view-control-for-a-viewer" style="color: inherit; text-decoration: none;">
+  <h2>Tree View Control for a Viewer</h2>
+</a>
+<p> A fast HTML tree view to navigate <a href="../classes/_xeokit_datamodel.DataObject.html">DataObjects</a>.</p>
+<ul>
+<li>Each tree node has a checkbox to control the visibility of its <a href="../classes/_xeokit_viewer.ViewObject.html">ViewObjects</a>.</li>
+<li>Has three hierarchy modes: &quot;containment&quot;, &quot;types&quot; and &quot;storeys&quot;.</li>
+<li>Automatically contains all models (that have metadata) that are currently in the Scene.</li>
+<li>Sorts tree nodes by default - spatially, from top-to-bottom for <code>IfcBuildingStorey</code> nodes, and alphanumerically for other nodes.</li>
+<li>Allows custom CSS styling.</li>
+<li>Use ContextMenu to create a context menu for the tree nodes.</li>
+</ul>
+
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
+</a>
+<pre><code class="language-bash"><span class="hl-0">npm </span><span class="hl-1">install</span><span class="hl-0"> </span><span class="hl-1">@xeokit/treeview</span>
+</code></pre>
+
+<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+  <h2>Usage</h2>
+</a>
+
+<a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
+  <h2>Overview</h2>
+</a>
+<ul>
+<li></li>
+</ul>
+
+<a href="#credits" id="credits" style="color: inherit; text-decoration: none;">
+  <h2>Credits</h2>
+</a>
+<p>TreeView is based on techniques described in <a href="https://chrissmith.xyz/super-fast-tree-view-in-javascript/"><em>Super Fast Tree View in JavaScript</em></a> by <a href="https://twitter.com/chris22smith">Chris Smith</a>.</p>
+
+<a href="#usage-1" id="usage-1" style="color: inherit; text-decoration: none;">
+  <h2>Usage</h2>
+</a>
+<p>In the example below, we&#39;ll add a TreeView which, by default, will automatically show the structural
+hierarchy of the IFC elements in each model we load.</p>
+<p>Then we&#39;ll use an XKTLoaderPlugin to load the Schependomlaan model from an
+<a href="https://github.com/xeokit/xeokit-sdk/tree/master/examples/models/xkt/schependomlaan">.xkt file</a>.</p>
+<p>[<a href="https://xeokit.github.io/xeokit-sdk/examples/#BIMOffline_XKT_Schependomlaan">Run this example</a>]</p>
+<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">, </span><span class="hl-3">XKTLoaderPlugin</span><span class="hl-0">, </span><span class="hl-3">TreeView</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;xeokit-sdk.es.js&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">viewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">canvasId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myCanvas&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">transparent:</span><span class="hl-0"> </span><span class="hl-4">true</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">eye</span><span class="hl-0"> = [-</span><span class="hl-8">2.56</span><span class="hl-0">, </span><span class="hl-8">8.38</span><span class="hl-0">, </span><span class="hl-8">8.27</span><span class="hl-0">];</span><br/><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">look</span><span class="hl-0"> = [</span><span class="hl-8">13.44</span><span class="hl-0">, </span><span class="hl-8">3.31</span><span class="hl-0">, -</span><span class="hl-8">14.83</span><span class="hl-0">];</span><br/><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">up</span><span class="hl-0"> = [</span><span class="hl-8">0.10</span><span class="hl-0">, </span><span class="hl-8">0.98</span><span class="hl-0">, -</span><span class="hl-8">0.14</span><span class="hl-0">];</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">treeView</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">TreeView</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">, {</span><br/><span class="hl-0">    </span><span class="hl-3">containerElement:</span><span class="hl-0"> </span><span class="hl-3">document</span><span class="hl-0">.</span><span class="hl-6">getElementById</span><span class="hl-0">(</span><span class="hl-1">&quot;myTreeViewContainer&quot;</span><span class="hl-0">)</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">xktLoader</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">XKTLoaderPlugin</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">);</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">model</span><span class="hl-0"> = </span><span class="hl-3">xktLoader</span><span class="hl-0">.</span><span class="hl-6">load</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myModel&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">src:</span><span class="hl-0"> </span><span class="hl-1">&quot;./models/xkt/Schependomlaan.xkt&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">edges:</span><span class="hl-0"> </span><span class="hl-4">true</span><br/><span class="hl-0">});</span>
+</code></pre>
+
+<a href="#manually-adding-models" id="manually-adding-models" style="color: inherit; text-decoration: none;">
+  <h2>Manually Adding Models</h2>
+</a>
+<p>Instead of adding models automatically, we can control which models appear in our TreeView by adding them manually.</p>
+<p>In the next example, we&#39;ll configure the TreeView to not add models automatically. Then, once the model
+has loaded, we&#39;ll add it manually using TreeView#addModel.</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">treeView</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">TreeView</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">, {</span><br/><span class="hl-0">     </span><span class="hl-3">containerElement:</span><span class="hl-0"> </span><span class="hl-3">document</span><span class="hl-0">.</span><span class="hl-6">getElementById</span><span class="hl-0">(</span><span class="hl-1">&quot;myTreeViewContainer&quot;</span><span class="hl-0">),</span><br/><span class="hl-0">     </span><span class="hl-3">autoAddModels:</span><span class="hl-0"> </span><span class="hl-4">false</span><span class="hl-0">  </span><span class="hl-7">// &lt;&lt;---------------- Don&#39;t auto-add models</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">xktLoader</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">XKTLoaderPlugin</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">);</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">model</span><span class="hl-0"> = </span><span class="hl-3">xktLoader</span><span class="hl-0">.</span><span class="hl-6">load</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myModel&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">src:</span><span class="hl-0"> </span><span class="hl-1">&quot;./models/xkt/Schependomlaan.xkt&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">edges:</span><span class="hl-0"> </span><span class="hl-4">true</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">model</span><span class="hl-0">.</span><span class="hl-6">on</span><span class="hl-0">(</span><span class="hl-1">&quot;loaded&quot;</span><span class="hl-0">, () </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">     </span><span class="hl-3">treeView</span><span class="hl-0">.</span><span class="hl-6">addModel</span><span class="hl-0">(</span><span class="hl-3">model</span><span class="hl-0">.</span><span class="hl-3">id</span><span class="hl-0">);</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>Adding models manually also allows us to set some options for the model. For example, the <code>rootName</code> option allows us to provide a custom name for
+the root node, which is sometimes desirable when the model&#39;s &quot;IfcProject&quot; element&#39;s name is not suitable:</p>
+<pre><code class="language-javascript"><span class="hl-3">model</span><span class="hl-0">.</span><span class="hl-6">on</span><span class="hl-0">(</span><span class="hl-1">&quot;loaded&quot;</span><span class="hl-0">, () </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">     </span><span class="hl-3">treeView</span><span class="hl-0">.</span><span class="hl-6">addModel</span><span class="hl-0">(</span><span class="hl-3">model</span><span class="hl-0">.</span><span class="hl-3">id</span><span class="hl-0">, {</span><br/><span class="hl-0">         </span><span class="hl-3">rootName:</span><span class="hl-0"> </span><span class="hl-1">&quot;Schependomlaan Model&quot;</span><br/><span class="hl-0">     });</span><br/><span class="hl-0">});</span>
+</code></pre>
+
+<a href="#initially-expanding-the-hierarchy" id="initially-expanding-the-hierarchy" style="color: inherit; text-decoration: none;">
+  <h2>Initially Expanding the Hierarchy</h2>
+</a>
+<p>We can also configure TreeView to initially expand each model&#39;s nodes to a given depth.</p>
+<p>Let&#39;s automatically expand the first three nodes from the root, for every model added:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">treeView</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">TreeView</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">, {</span><br/><span class="hl-0">     </span><span class="hl-3">containerElement:</span><span class="hl-0"> </span><span class="hl-3">document</span><span class="hl-0">.</span><span class="hl-6">getElementById</span><span class="hl-0">(</span><span class="hl-1">&quot;myTreeViewContainer&quot;</span><span class="hl-0">),</span><br/><span class="hl-0">     </span><span class="hl-3">autoExpandDepth:</span><span class="hl-0"> </span><span class="hl-8">3</span><br/><span class="hl-0">});</span>
+</code></pre>
+
+<a href="#showing-a-treeviewnode-by-id" id="showing-a-treeviewnode-by-id" style="color: inherit; text-decoration: none;">
+  <h2>Showing a TreeViewNode by ID</h2>
+</a>
+<p>We can show a given node using its ID. This causes the TreeView to collapse, then expand and scroll the node into view, then highlight the node.</p>
+<p>See the documentation for the <a href="../classes/_xeokit_treeview.TreeView.html#showNode">showNode</a> method for more information, including how to define a custom highlighted appearance for the node using CSS.</p>
+<p>Let&#39;s make the TreeView show the node corresponding to whatever object viewObject that we pick:</p>
+<pre><code class="language-javascript"><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">cameraControl</span><span class="hl-0">.</span><span class="hl-6">on</span><span class="hl-0">(</span><span class="hl-1">&quot;picked&quot;</span><span class="hl-0">, </span><span class="hl-4">function</span><span class="hl-0"> (</span><span class="hl-3">e</span><span class="hl-0">) {</span><br/><span class="hl-0">    </span><span class="hl-4">var</span><span class="hl-0"> </span><span class="hl-3">objectId</span><span class="hl-0"> = </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">viewObject</span><span class="hl-0">.</span><span class="hl-3">id</span><span class="hl-0">;</span><br/><span class="hl-0">    </span><span class="hl-3">treeView</span><span class="hl-0">.</span><span class="hl-6">showNode</span><span class="hl-0">(</span><span class="hl-3">objectId</span><span class="hl-0">);</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>This will de-highlight any node that was previously shown by this method.</p>
+<p>Note that this method only works if the picked viewObject is an object that belongs to a model that&#39;s represented in the TreeView.</p>
+
+<a href="#customizing-appearance" id="customizing-appearance" style="color: inherit; text-decoration: none;">
+  <h2>Customizing Appearance</h2>
+</a>
+<p>We can customize the appearance of our TreeView by defining custom CSS for its HTML
+elements. See our example&#39;s <a href="https://github.com/xeokit/xeokit-sdk/blob/master/examples/BIMOffline_XKT_Schependomlaan.html">source code</a>
+for an example of custom CSS rules.</p>
+
+<a href="#model-hierarchies" id="model-hierarchies" style="color: inherit; text-decoration: none;">
+  <h2>Model Hierarchies</h2>
+</a>
+<p>TreeView has three hierarchies for organizing its nodes:</p>
+<ul>
+<li>&quot;containment&quot; - organizes the tree nodes to indicate the containment hierarchy of the dataObjects.</li>
+<li>&quot;types&quot; - groups nodes by their IFC types.</li>
+<li>&quot;storeys&quot; - groups nodes within their <code>IfcBuildingStoreys</code>, and sub-groups them by their IFC types.</li>
+</ul>
+<br>
+The table below shows what the hierarchies look like:
+<br>
+
+<table>
+<thead>
+<tr>
+<th>1. Containment Hierarchy</th>
+<th>2. Types Hierarchy</th>
+<th>3. Storeys Hierarchy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><img src="http://xeokit.io/img/docs/TreeView/structureMode.png"></td>
+<td><img src="http://xeokit.io/img/docs/TreeView/typesMode.png"></td>
+<td><img src="http://xeokit.io/img/docs/TreeView/storeysMode.png"></td>
+</tr>
+<tr>
+<td><br></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>Let&#39;s create a TreeView that groups nodes by their building stories and IFC types:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">treeView</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">TreeView</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">, {</span><br/><span class="hl-0">     </span><span class="hl-3">containerElement:</span><span class="hl-0"> </span><span class="hl-3">document</span><span class="hl-0">.</span><span class="hl-6">getElementById</span><span class="hl-0">(</span><span class="hl-1">&quot;myTreeViewContainer&quot;</span><span class="hl-0">),</span><br/><span class="hl-0">     </span><span class="hl-3">hierarchy:</span><span class="hl-0"> </span><span class="hl-1">&quot;stories&quot;</span><br/><span class="hl-0">});</span>
+</code></pre>
+
+<a href="#sorting-nodes" id="sorting-nodes" style="color: inherit; text-decoration: none;">
+  <h2>Sorting Nodes</h2>
+</a>
+<p>TreeView sorts its tree nodes by default. For a &quot;storeys&quot; hierarchy, it orders <code>IfcBuildingStorey</code> nodes
+spatially, with the node for the highest story at the top, down to the lowest at the bottom.</p>
+<p>For all the hierarchy types (&quot;containment&quot;, &quot;classes&quot; and &quot;storeys&quot;), TreeView sorts the other node types
+alphanumerically on their titles.</p>
+<p>If for some reason you need to prevent sorting, create your TreeView with the option disabled, like so:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">treeView</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">TreeView</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">, {</span><br/><span class="hl-0">     </span><span class="hl-3">containerElement:</span><span class="hl-0"> </span><span class="hl-3">document</span><span class="hl-0">.</span><span class="hl-6">getElementById</span><span class="hl-0">(</span><span class="hl-1">&quot;myTreeViewContainer&quot;</span><span class="hl-0">),</span><br/><span class="hl-0">     </span><span class="hl-3">hierarchy:</span><span class="hl-0"> </span><span class="hl-1">&quot;stories&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">sortNodes:</span><span class="hl-0"> </span><span class="hl-4">false</span><span class="hl-0"> </span><span class="hl-7">// &lt;&lt;------ Disable node sorting</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>Note that, for all hierarchy modes, node sorting is only done for each model at the time that it is added to the TreeView, and will not
+update dynamically if we later transform the viewObjects corresponding to the nodes.</p>
+
+<a href="#pruning-empty-nodes" id="pruning-empty-nodes" style="color: inherit; text-decoration: none;">
+  <h2>Pruning empty nodes</h2>
+</a>
+<p>Sometimes a model contains subtrees of objects that don&#39;t have any geometry. These are models whose
+DataModel contains trees of dataObjects that don&#39;t have any viewObjects in the Scene.</p>
+<p>For these models, the tree view would contain nodes that don&#39;t do anything in the Scene when we interact with them,
+which is undesirable.</p>
+<p>By default, TreeView will not create nodes for those objects. However, we can override that behaviour if we want
+to have nodes for those objects (perhaps for debugging the model):</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">treeView</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">TreeView</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">, {</span><br/><span class="hl-0">     </span><span class="hl-3">containerElement:</span><span class="hl-0"> </span><span class="hl-3">document</span><span class="hl-0">.</span><span class="hl-6">getElementById</span><span class="hl-0">(</span><span class="hl-1">&quot;myTreeViewContainer&quot;</span><span class="hl-0">),</span><br/><span class="hl-0">     </span><span class="hl-3">hierarchy:</span><span class="hl-0"> </span><span class="hl-1">&quot;stories&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">pruneEmptyNodes:</span><span class="hl-0"> </span><span class="hl-4">false</span><span class="hl-0"> </span><span class="hl-7">// &lt;&lt;------ Create nodes for object subtrees without geometry</span><br/><span class="hl-0">});</span>
+</code></pre>
+
+<a href="#context-menu" id="context-menu" style="color: inherit; text-decoration: none;">
+  <h2>Context Menu</h2>
+</a>
+<p>TreeView fires a &quot;contextmenu&quot; event whenever we right-click on a tree node.</p>
+<p>The event contains:</p>
+<ul>
+<li><code>event</code> - the original <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event">contextmenu</a> <a href="https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent">MouseEvent</a></li>
+<li><code>viewer</code> - the Viewer</li>
+<li><code>TreeView</code> - the TreeView</li>
+<li><code>treeViewNode</code> - the <a href="../interfaces/_xeokit_treeview.TreeViewNode.html">TreeViewNode</a> representing the tree node</li>
+</ul>
+<p><br><br></p>
+<p>Let&#39;s use ContextMenu to show a simple context menu for the node we clicked.</p>
+<p>[<a href="https://xeokit.github.io/xeokit-sdk/examples/#ContextMenu_Canvas_TreeView_Custom">Run an example</a>]</p>
+<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">ContextMenu</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;../src/extras/ContextMenu/ContextMenu.js&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">treeViewContextMenu</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">ContextMenu</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">items:</span><span class="hl-0"> [</span><br/><span class="hl-0">        [</span><br/><span class="hl-0">            [</span><br/><span class="hl-0">                {</span><br/><span class="hl-0">                    </span><span class="hl-3">title:</span><span class="hl-0"> </span><span class="hl-1">&quot;Hide&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">                    </span><span class="hl-6">doAction</span><span class="hl-3">:</span><span class="hl-0"> </span><span class="hl-4">function</span><span class="hl-0"> (</span><span class="hl-3">context</span><span class="hl-0">) {</span><br/><span class="hl-0">                        </span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">TreeView</span><span class="hl-0">.</span><span class="hl-6">withNodeTree</span><span class="hl-0">(</span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">treeViewNode</span><span class="hl-0">, (</span><span class="hl-3">treeViewNode</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">                            </span><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-3">treeViewNode</span><span class="hl-0">.</span><span class="hl-3">objectId</span><span class="hl-0">) {</span><br/><span class="hl-0">                                </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">viewObject</span><span class="hl-0"> = </span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">objects</span><span class="hl-0">[</span><span class="hl-3">treeViewNode</span><span class="hl-0">.</span><span class="hl-3">objectId</span><span class="hl-0">];</span><br/><span class="hl-0">                                </span><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-3">viewObject</span><span class="hl-0">) {</span><br/><span class="hl-0">                                    </span><span class="hl-3">viewObject</span><span class="hl-0">.</span><span class="hl-3">visible</span><span class="hl-0"> = </span><span class="hl-4">false</span><span class="hl-0">;</span><br/><span class="hl-0">                                }</span><br/><span class="hl-0">                            }</span><br/><span class="hl-0">                        });</span><br/><span class="hl-0">                    }</span><br/><span class="hl-0">                },</span><br/><span class="hl-0">                {</span><br/><span class="hl-0">                    </span><span class="hl-3">title:</span><span class="hl-0"> </span><span class="hl-1">&quot;Hide all&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">                    </span><span class="hl-6">doAction</span><span class="hl-3">:</span><span class="hl-0"> </span><span class="hl-4">function</span><span class="hl-0"> (</span><span class="hl-3">context</span><span class="hl-0">) {</span><br/><span class="hl-0">                        </span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsVisible</span><span class="hl-0">(</span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">visibleObjectIds</span><span class="hl-0">, </span><span class="hl-4">false</span><span class="hl-0">);</span><br/><span class="hl-0">                    }</span><br/><span class="hl-0">                }</span><br/><span class="hl-0">            ],</span><br/><span class="hl-0">            [</span><br/><span class="hl-0">                {</span><br/><span class="hl-0">                    </span><span class="hl-3">title:</span><span class="hl-0"> </span><span class="hl-1">&quot;Show&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">                    </span><span class="hl-6">doAction</span><span class="hl-3">:</span><span class="hl-0"> </span><span class="hl-4">function</span><span class="hl-0"> (</span><span class="hl-3">context</span><span class="hl-0">) {</span><br/><span class="hl-0">                        </span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">TreeView</span><span class="hl-0">.</span><span class="hl-6">withNodeTree</span><span class="hl-0">(</span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">treeViewNode</span><span class="hl-0">, (</span><span class="hl-3">treeViewNode</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">                            </span><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-3">treeViewNode</span><span class="hl-0">.</span><span class="hl-3">objectId</span><span class="hl-0">) {</span><br/><span class="hl-0">                                </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">viewObject</span><span class="hl-0"> = </span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">objects</span><span class="hl-0">[</span><span class="hl-3">treeViewNode</span><span class="hl-0">.</span><span class="hl-3">objectId</span><span class="hl-0">];</span><br/><span class="hl-0">                                </span><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-3">viewObject</span><span class="hl-0">) {</span><br/><span class="hl-0">                                    </span><span class="hl-3">viewObject</span><span class="hl-0">.</span><span class="hl-3">visible</span><span class="hl-0"> = </span><span class="hl-4">true</span><span class="hl-0">;</span><br/><span class="hl-0">                                    </span><span class="hl-3">viewObject</span><span class="hl-0">.</span><span class="hl-3">xrayed</span><span class="hl-0"> = </span><span class="hl-4">false</span><span class="hl-0">;</span><br/><span class="hl-0">                                    </span><span class="hl-3">viewObject</span><span class="hl-0">.</span><span class="hl-3">selected</span><span class="hl-0"> = </span><span class="hl-4">false</span><span class="hl-0">;</span><br/><span class="hl-0">                                }</span><br/><span class="hl-0">                            }</span><br/><span class="hl-0">                        });</span><br/><span class="hl-0">                    }</span><br/><span class="hl-0">                },</span><br/><span class="hl-0">                {</span><br/><span class="hl-0">                    </span><span class="hl-3">title:</span><span class="hl-0"> </span><span class="hl-1">&quot;Show all&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">                    </span><span class="hl-6">doAction</span><span class="hl-3">:</span><span class="hl-0"> </span><span class="hl-4">function</span><span class="hl-0"> (</span><span class="hl-3">context</span><span class="hl-0">) {</span><br/><span class="hl-0">                        </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">scene</span><span class="hl-0"> = </span><span class="hl-3">context</span><span class="hl-0">.</span><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">scene</span><span class="hl-0">;</span><br/><span class="hl-0">                        </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsVisible</span><span class="hl-0">(</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">objectIds</span><span class="hl-0">, </span><span class="hl-4">true</span><span class="hl-0">);</span><br/><span class="hl-0">                        </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsXRayed</span><span class="hl-0">(</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">xrayedObjectIds</span><span class="hl-0">, </span><span class="hl-4">false</span><span class="hl-0">);</span><br/><span class="hl-0">                        </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsSelected</span><span class="hl-0">(</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">selectedObjectIds</span><span class="hl-0">, </span><span class="hl-4">false</span><span class="hl-0">);</span><br/><span class="hl-0">                    }</span><br/><span class="hl-0">                }</span><br/><span class="hl-0">            ]</span><br/><span class="hl-0">        ]</span><br/><span class="hl-0">    ]</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">treeView</span><span class="hl-0">.</span><span class="hl-6">on</span><span class="hl-0">(</span><span class="hl-1">&quot;contextmenu&quot;</span><span class="hl-0">, (</span><span class="hl-3">e</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">event</span><span class="hl-0"> = </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">event</span><span class="hl-0">;                           </span><span class="hl-7">// MouseEvent</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">viewer</span><span class="hl-0"> = </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">viewer</span><span class="hl-0">;                         </span><span class="hl-7">// Viewer</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">TreeView</span><span class="hl-0"> = </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">TreeView</span><span class="hl-0">;         </span><span class="hl-7">// TreeView</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">treeViewNode</span><span class="hl-0"> = </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">treeViewNode</span><span class="hl-0">;             </span><span class="hl-7">// TreeViewNode</span><br/><br/><span class="hl-0">    </span><span class="hl-3">treeViewContextMenu</span><span class="hl-0">.</span><span class="hl-6">show</span><span class="hl-0">(</span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">event</span><span class="hl-0">.</span><span class="hl-3">pageX</span><span class="hl-0">, </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">event</span><span class="hl-0">.</span><span class="hl-3">pageY</span><span class="hl-0">);</span><br/><br/><span class="hl-0">    </span><span class="hl-3">treeViewContextMenu</span><span class="hl-0">.</span><span class="hl-3">context</span><span class="hl-0"> = {</span><br/><span class="hl-0">        </span><span class="hl-3">viewer:</span><span class="hl-0"> </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">viewer</span><span class="hl-0">,</span><br/><span class="hl-0">        </span><span class="hl-3">TreeView:</span><span class="hl-0"> </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">TreeView</span><span class="hl-0">,</span><br/><span class="hl-0">        </span><span class="hl-3">treeViewNode:</span><span class="hl-0"> </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">treeViewNode</span><br/><span class="hl-0">    };</span><br/><span class="hl-0">});</span>
+</code></pre>
+
+<a href="#clicking-treeviewnode-titles" id="clicking-treeviewnode-titles" style="color: inherit; text-decoration: none;">
+  <h2>Clicking TreeViewNode Titles</h2>
+</a>
+<p>TreeView fires a &quot;nodeTitleClicked&quot; event whenever we left-click on a tree node.</p>
+<p>Like the &quot;contextmenu&quot; event, this event contains:</p>
+<ul>
+<li><code>event</code> - the original <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event">click</a> <a href="https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent">MouseEvent</a></li>
+<li><code>viewer</code> - the Viewer</li>
+<li><code>TreeView</code> - the TreeView</li>
+<li><code>treeViewNode</code> - the <a href="../interfaces/_xeokit_treeview.TreeViewNode.html">TreeViewNode</a> representing the tree node</li>
+</ul>
+<p><br><br></p>
+<p>Let&#39;s register a callback to isolate and fit-to-view the viewObject(s) represented by the node. This callback is
+going to X-ray all the other viewObjects, fly the camera to fit the viewObject(s) for the clicked node, then hide the other viewObjects.</p>
+<p>[<a href="https://xeokit.github.io/xeokit-sdk/examples/#ContextMenu_Canvas_TreeView_Custom">Run an example</a>]</p>
+<pre><code class="language-javascript"><span class="hl-3">treeView</span><span class="hl-0">.</span><span class="hl-6">on</span><span class="hl-0">(</span><span class="hl-1">&quot;nodeTitleClicked&quot;</span><span class="hl-0">, (</span><span class="hl-3">e</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">scene</span><span class="hl-0"> = </span><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">scene</span><span class="hl-0">;</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">objectIds</span><span class="hl-0"> = [];</span><br/><span class="hl-0">    </span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">TreeView</span><span class="hl-0">.</span><span class="hl-6">withNodeTree</span><span class="hl-0">(</span><span class="hl-3">e</span><span class="hl-0">.</span><span class="hl-3">treeViewNode</span><span class="hl-0">, (</span><span class="hl-3">treeViewNode</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">        </span><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-3">treeViewNode</span><span class="hl-0">.</span><span class="hl-3">objectId</span><span class="hl-0">) {</span><br/><span class="hl-0">            </span><span class="hl-3">objectIds</span><span class="hl-0">.</span><span class="hl-6">push</span><span class="hl-0">(</span><span class="hl-3">treeViewNode</span><span class="hl-0">.</span><span class="hl-3">objectId</span><span class="hl-0">);</span><br/><span class="hl-0">        }</span><br/><span class="hl-0">    });</span><br/><span class="hl-0">    </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsXRayed</span><span class="hl-0">(</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">objectIds</span><span class="hl-0">, </span><span class="hl-4">true</span><span class="hl-0">);</span><br/><span class="hl-0">    </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsVisible</span><span class="hl-0">(</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">objectIds</span><span class="hl-0">, </span><span class="hl-4">true</span><span class="hl-0">);</span><br/><span class="hl-0">    </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsXRayed</span><span class="hl-0">(</span><span class="hl-3">objectIds</span><span class="hl-0">, </span><span class="hl-4">false</span><span class="hl-0">);</span><br/><span class="hl-0">    </span><span class="hl-3">viewer</span><span class="hl-0">.</span><span class="hl-3">cameraFlight</span><span class="hl-0">.</span><span class="hl-6">flyTo</span><span class="hl-0">({</span><br/><span class="hl-0">        </span><span class="hl-3">aabb:</span><span class="hl-0"> </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">getAABB</span><span class="hl-0">(</span><span class="hl-3">objectIds</span><span class="hl-0">),</span><br/><span class="hl-0">        </span><span class="hl-3">duration:</span><span class="hl-0"> </span><span class="hl-8">0.5</span><br/><span class="hl-0">    }, () </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">        </span><span class="hl-6">setTimeout</span><span class="hl-0">(</span><span class="hl-4">function</span><span class="hl-0"> () {</span><br/><span class="hl-0">            </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsVisible</span><span class="hl-0">(</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">xrayedObjectIds</span><span class="hl-0">, </span><span class="hl-4">false</span><span class="hl-0">);</span><br/><span class="hl-0">            </span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-6">setObjectsXRayed</span><span class="hl-0">(</span><span class="hl-3">scene</span><span class="hl-0">.</span><span class="hl-3">xrayedObjectIds</span><span class="hl-0">, </span><span class="hl-4">false</span><span class="hl-0">);</span><br/><span class="hl-0">        }, </span><span class="hl-8">500</span><span class="hl-0">);</span><br/><span class="hl-0">    });</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>To make the cursor change to a pointer when we hover over the node titles, and also to make the titles change to blue, we&#39;ll also define this CSS for the <code>&lt;span&gt;</code> elements
+that represent the titles of our TreeView nodes:</p>
+<pre><code class="language-css"><span class="hl-10">#treeViewContainer</span><span class="hl-0"> </span><span class="hl-10">ul</span><span class="hl-0"> </span><span class="hl-10">li</span><span class="hl-0"> </span><span class="hl-10">span:hover</span><span class="hl-0"> {</span><br/><span class="hl-0">     </span><span class="hl-11">color</span><span class="hl-0">: </span><span class="hl-12">blue</span><span class="hl-0">;</span><br/><span class="hl-0">     </span><span class="hl-11">cursor</span><span class="hl-0">: </span><span class="hl-12">pointer</span><span class="hl-0">;</span><br/><span class="hl-0">}</span>
+</code></pre>
+</div></section><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/98de43f/packages/treeview/src/index.ts#L351">treeview/src/index.ts:351</a></li></ul></aside>
+<section class="tsd-panel-group">
+<section class="tsd-panel tsd-typography"></section></section>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<h3 class="tsd-index-heading uppercase">Index</h3>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Classes</h3>
+<div class="tsd-index-list"><a href="../classes/_xeokit_treeview.TreeView.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-128-path"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)" id="icon-128-text"></path></svg><span>Tree<wbr/>View</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Interfaces</h3>
+<div class="tsd-index-list"><a href="../interfaces/_xeokit_treeview.TreeViewNode.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-interface)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-256-path"></rect><path d="M9.51 16V15.016H11.298V8.224H9.51V7.24H14.19V8.224H12.402V15.016H14.19V16H9.51Z" fill="var(--color-text)" id="icon-256-text"></path></svg><span>Tree<wbr/>View<wbr/>Node</span></a>
+<a href="../interfaces/_xeokit_treeview.TreeViewNodeContextMenuEvent.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Tree<wbr/>View<wbr/>Node<wbr/>Context<wbr/>Menu<wbr/>Event</span></a>
+<a href="../interfaces/_xeokit_treeview.TreeViewParams.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Tree<wbr/>View<wbr/>Params</span></a>
+</div></section></section></section></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://xeokit.io" target="_blank">xeokit.io</a><a href="http://example.com" target="_blank">Introduction</a><a href="http://example.com" target="_blank">Glossary</a></nav>
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li class="current"><a href="../modules.html">xeokit</a>
+<ul>
+<li class="tsd-kind-module"><a href="_xeokit_bcf.html">@xeokit/bcf</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_compression.html">@xeokit/compression</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_controls.html">@xeokit/controls</a>
+<ul>
+<li class="tsd-kind-namespace tsd-parent-kind-module"><a href="_xeokit_controls.keycodes.html">keycodes</a></li></ul></li>
+<li class="tsd-kind-module"><a href="_xeokit_core_components.html">@xeokit/core/components</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_core_constants.html">@xeokit/core/constants</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_core_utils.html">@xeokit/core/utils</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_datamodel.html">@xeokit/datamodel</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_gltf.html">@xeokit/gltf</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_ktx2.html">@xeokit/ktx2</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_las.html">@xeokit/las</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_locale.html">@xeokit/locale</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_boundaries.html">@xeokit/math/boundaries</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_curves.html">@xeokit/math/curves</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_math.html">@xeokit/math/math</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_matrix.html">@xeokit/math/matrix</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_scratchmodel.html">@xeokit/scratchmodel</a></li>
+<li class="current selected tsd-kind-module"><a href="_xeokit_treeview.html">@xeokit/treeview</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_viewer.html">@xeokit/viewer</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_webgl.html">@xeokit/webgl</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_webgpu.html">@xeokit/webgpu</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_xkt.html">@xeokit/xkt</a></li></ul></li></ul></div></details></nav>
+<nav class="tsd-navigation secondary menu-sticky">
+<ul>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_treeview.TreeView.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Tree<wbr/>View</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_treeview.TreeViewNode.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Tree<wbr/>View<wbr/>Node</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_treeview.TreeViewNodeContextMenuEvent.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Tree<wbr/>View<wbr/>Node<wbr/>Context<wbr/>Menu<wbr/>Event</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_treeview.TreeViewParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Tree<wbr/>View<wbr/>Params</a></li></ul></nav></div></div>
+<div class="container tsd-generator">
+<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
+<div class="overlay"></div><script src="../assets/main.js"></script></body></html>

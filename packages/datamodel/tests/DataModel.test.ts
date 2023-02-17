@@ -1,4 +1,4 @@
-import {Data} from "../src";
+import {Data} from "@xeokit/datamodel";
 
 describe('build', function () {
 

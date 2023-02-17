@@ -40,7 +40,7 @@
  *
  * ### Creating a Viewer
  *
- * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webgl!WebGLRenderer}:
+ *  We'll start by importing the modules we need:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -48,7 +48,12 @@
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
  * import {CameraControl} from "@xeokit/controls";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
+ * import {saveXKT, loadXKT} from "@xeokit/xkt";
+ * ````
  *
+ * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webgl!WebGLRenderer}:
+ *
+ * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     renderer: new WebGLRenderer({ })
@@ -333,11 +338,10 @@
  * Sometimes we want to create SceneModels whose objects will never be included in any BCF viewpoints that we save, and
  * will never be disturbed by any viewpoints that we load.
  *
- * An example of such a case is a skybox, which we'd implemented using a SceneModel whose object(s)
- * we'd always want to remain visible in the background whenever we load BCF viewpoints, and to never be included in
- * any BCF viewpoints that we save.
+ * An example of such a case is a skybox, which we'd never want included in any BCF viewpoints, or hidden
+ * whenever we load a BCF viewpoint.
  *
- * Let's create a ViewLayer in our first View:
+ * TODO TODO TODO TODO
  *
  * ````javascript
  * const modelViewLayer = view.createLayer({

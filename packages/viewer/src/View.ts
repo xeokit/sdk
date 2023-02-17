@@ -280,6 +280,15 @@ class View extends Component {
     readonly onObjectVisibility: EventEmitter<View, ViewObject>;
 
     /**
+     * Emits an event each time the X-ray state of a {@link ViewObject} changes in this View.
+     *
+     * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
+     *
+     * @event
+     */
+    readonly onObjectXRayed: EventEmitter<View, ViewObject>;
+
+    /**
      * Emits an event each time a {@link ViewLayer} is created in this View.
      *
      * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link View.createModel} and {@link ModelParams.viewLayerId}.
@@ -559,6 +568,7 @@ class View extends Component {
         this.logarithmicDepthBufferEnabled = !!options.logarithmicDepthBufferEnabled;
 
         this.onObjectVisibility = new EventEmitter(new EventDispatcher<View, ViewObject>());
+        this.onObjectXRayed = new EventEmitter(new EventDispatcher<View, ViewObject>());
         this.onLayerCreated = new EventEmitter(new EventDispatcher<View, ViewLayer>());
         this.onLayerDestroyed = new EventEmitter(new EventDispatcher<View, ViewLayer>());
         this.onSectionPlaneCreated = new EventEmitter(new EventDispatcher<View, SectionPlane>());
@@ -855,7 +865,7 @@ class View extends Component {
     /**
      * @private
      */
-    objectXRayedUpdated(viewObject: ViewObject, xrayed: boolean) {
+    objectXRayedUpdated(viewObject: ViewObject, xrayed: boolean, notify: boolean = true) {
         if (xrayed) {
             this.xrayedObjects[viewObject.id] = viewObject;
             this.#numXRayedObjects++;
@@ -864,6 +874,9 @@ class View extends Component {
             this.#numXRayedObjects--;
         }
         this.#xrayedObjectIds = null; // Lazy regenerate
+        if (notify) {
+            this.onObjectXRayed.dispatch(this, viewObject);
+        }
     }
 
     /**
@@ -1068,6 +1081,7 @@ class View extends Component {
         this.viewer.onTick.unsubscribe(this.#onTick);
         super.destroy();
         this.onObjectVisibility.clear();
+        this.onObjectXRayed.clear();
         this.onLayerCreated.clear();
         this.onLayerDestroyed.clear();
         this.onSectionPlaneCreated.clear();

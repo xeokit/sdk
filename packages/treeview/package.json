@@ -1,0 +1,58 @@
+{
+  "name": "@xeokit/treeview",
+  "version": "0.0.1",
+  "description": "LAS tools for xeokit",
+  "module": "dist/xeokit-treeview.modern.js",
+  "source": "src/index.ts",
+  "scripts": {
+    "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
+    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=treeview INPUT=./index.js rollup -c ../../rollup/rollup.treeview.config.js",
+    "publish": "npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xeokit/xeokit-viewer.git"
+  },
+  "author": "Lindsay Kay",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/xeokit/xeokit-viewer/issues"
+  },
+  "homepage": "https://xeokit.io",
+  "files": [
+    "dist/",
+    "src/",
+    "README.md",
+    "package.json",
+    "package-lock.json"
+  ],
+  "keywords": [
+    "webgl",
+    "webgpu",
+    "javascript",
+    "xeokit",
+    "xeolabs",
+    "creoox",
+    "ifc",
+    "bcf",
+    "bim",
+    "gis",
+    "cad",
+    "openbim",
+    "opensource",
+    "treeview",
+    "3dxml",
+    "obj",
+    "stl",
+    "treeview",
+    "pointcloud",
+    "3d-viewer"
+  ],
+  "main": "dist/xeokit-treeview.modern.js",
+  "dependencies": {
+    "@xeokit/core": "^0.0.1",
+  },
+  "devDependencies": {
+
+  }
+}

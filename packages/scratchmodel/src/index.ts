@@ -1,4 +1,7 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2FscratchModel.svg)](https://badge.fury.io/js/%40xeokit%2FscratchModel)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/scratchModel/badge)](https://www.jsdelivr.com/package/npm/@xeokit/scratchModel)
+ *
  * <img style="padding:20px" src="media://images/xeokit_docmodel_greyscale_icon.png"/>
  *
  * ## Geometry Model Representation
@@ -32,25 +35,25 @@
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/core/constants";
  * import {compressGeometryParams} from "@xeokit/math/compression";
  * import {saveXKT} from "@xeokit/xkt";
+ * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/core/constants";
  *
- * const sceneModel = new ScratchModel({     // ScratchModel is a SceneModel
- *     id: "myModel"
+ * const sceneModel = new ScratchModel({ // ScratchModel implements SceneModel
+ *     id: "myTable"
  * });
  *
- * const compressedGeometryParams = compressGeometryParams({
- *      id: "myBoxGeometry",
- *      primitive: TrianglesPrimitive,
- *      positions: [202, 202, 202, 200, 202, 202, ...],
- *      indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
+ * sceneModel.createGeometryCompressed({
+ *     id: "myBoxGeometry",
+ *     primitive: constants.TrianglesPrimitive,
+ *     positionsDecompressMatrix: [0.00003052270125906143, 0, 0, 0, 0, 0.00003052270125906143, 0, 0, 0, 0, 0.00003052270125906143, 0, -1, -1, -1, 1],
+ *     geometryBuckets: [{
+ *       indices: [0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6, 0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2, 4, 7, 6, 4, 6, 5],
+ *       positionsCompressed: [65525, 65525, 65525, 0, 65525, 65525, 0, 0, 65525, 65525, 0, 65525, 65525, 0, 0, 65525, 65525, 0, 0, 65525, 0, 0, 0, 0]
+ *     }]
  * });
- *
- * sceneModel.createGeometryCompressed(compressedGeometryParams);
  *
  * sceneModel.createTexture({
  *      id: "myColorTexture",
- *      src: // Path to JPEG, PNG, KTX2,
- *      image: // HTMLImageElement,
- *      buffers: // ArrayBuffer[] containing KTX2 MIP levels
+ *      src: "myTexture.ktx2",
  *      preloadColor: [1,0,0,1],
  *      flipY: false,
  *      encoding: LinearEncoding, // @xeokit/core/constants
@@ -67,29 +70,78 @@
  * });
  *
  * sceneModel.createMesh({
- *     id: "myMesh1",
- *     geometryId: "myGeometry",
- *     textureSetId: "myTextureSet",
- *     //...
+ *     id: "redLegMesh",
+ *     geometryId: "myBoxGeometry",
+ *     position: [-4, -6, -4],
+ *     scale: [1, 3, 1],
+ *     rotation: [0, 0, 0],
+ *     color: [1, 0.3, 0.3],
+ *     textureSetId: "myTextureSet"
+ * });
+ *
+ * sceneModel.createObject({ // Red table leg object
+ *     id: "redLeg",
+ *     meshIds: ["redLegMesh"]
  * });
  *
  * sceneModel.createMesh({
- *     id: "myMesh2",
- *     geometryId: "myGeometry",
- *     textureSetId: "myTextureSet",
- *     //...
+ *     id: "greenLegMesh",
+ *     geometryId: "myBoxGeometry",
+ *     position: [4, -6, -4],
+ *     scale: [1, 3, 1],
+ *     rotation: [0, 0, 0],
+ *     color: [0.3, 1.0, 0.3],
+ *     textureSetId: "myTextureSet"
  * });
  *
- * sceneModel.createObject({
- *     id: "myObject1",
- *     meshIds: ["myMesh1"],
- *     //...
+ * sceneModel.createObject({ // Green table leg object
+ *     id: "greenLeg",
+ *     meshIds: ["greenLegMesh"]
  * });
  *
- * sceneModel.createObject({
- *     id: "myObject2",
- *     meshIds: ["myMesh2"],
- *     //...
+ * sceneModel.createMesh({
+ *     id: "blueLegMesh",
+ *     geometryId: "myBoxGeometry",
+ *     position: [4, -6, 4],
+ *     scale: [1, 3, 1],
+ *     rotation: [0, 0, 0],
+ *     color: [0.3, 0.3, 1.0],
+ *     textureSetId: "myTextureSet"
+ * });
+ *
+ * sceneModel.createObject({ // Blue table leg object
+ *     id: "blueLeg",
+ *     meshIds: ["blueLegMesh"]
+ * });
+ *
+ * sceneModel.createMesh({
+ *     id: "yellowLegMesh",
+ *     geometryId: "myBoxGeometry",
+ *     position: [-4, -6, 4],
+ *     scale: [1, 3, 1],
+ *     rotation: [0, 0, 0],
+ *     color: [1.0, 1.0, 0.0],
+ *     textureSetId: "myTextureSet"
+ * });
+ *
+ * sceneModel.createObject({ // Yellow table leg object
+ *     id: "yellowLeg",
+ *     meshIds: ["yellowLegMesh"]
+ * });
+ *
+ * sceneModel.createMesh({
+ *     id: "tableTopMesh",
+ *     geometryId: "myBoxGeometry",
+ *     position: [0, -3, 0],
+ *     scale: [6, 0.5, 6],
+ *     rotation: [0, 0, 0],
+ *     color: [1.0, 0.3, 1.0],
+ *     textureSetId: "myTextureSet"
+ * });
+ *
+ * sceneModel.createObject({ // Purple table top object
+ *     id: "tableTop",
+ *     meshIds: ["tableTopMesh"]
  * });
  *
  * sceneModel.build();

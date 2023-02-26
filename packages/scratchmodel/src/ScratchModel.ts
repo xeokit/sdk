@@ -32,11 +32,11 @@ import {createUUID} from "@xeokit/core/utils";
 import {createAABB3} from "@xeokit/math/boundaries";
 import {compressGeometryParams} from "@xeokit/compression";
 
-import {GeometryImpl} from "./lib/GeometryImpl";
-import {ObjectImpl} from "./lib/ObjectImpl";
-import {TextureSetImpl} from "./lib/TextureSetImpl";
-import {TextureImpl} from "./lib/TextureImpl";
-import {MeshImpl} from "./lib/MeshImpl";
+import {GeometryImpl} from "./GeometryImpl";
+import {ObjectImpl} from "./ObjectImpl";
+import {TextureSetImpl} from "./TextureSetImpl";
+import {TextureImpl} from "./TextureImpl";
+import {MeshImpl} from "./MeshImpl";
 
 const tempVec4a = createVec4([0, 0, 0, 1]);
 const tempVec4b = createVec4([0, 0, 0, 1]);

@@ -1,5 +1,6 @@
 import {LinearMipMapNearestFilter, RepeatWrapping} from "@xeokit/core/constants";
-import {Texture, TextureParams} from "@xeokit/core/components";
+import {Texture, TextureParams, RendererTexture} from "@xeokit/core/components";
+
 
 /**
  * @private
@@ -18,6 +19,7 @@ export class TextureImpl implements Texture {
     wrapS: number;
     wrapT: number;
     wrapR: number;
+    rendererTexture: RendererTexture;
 
     constructor(params: TextureParams) {
         this.id = params.id;
@@ -29,6 +31,7 @@ export class TextureImpl implements Texture {
         this.wrapS = params.wrapS || RepeatWrapping;
         this.wrapT = params.wrapT || RepeatWrapping;
         this.wrapR = params.wrapR || RepeatWrapping
+        this.rendererTexture = null;
     }
 }
 

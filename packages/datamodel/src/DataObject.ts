@@ -3,14 +3,9 @@ import type {DataModel} from "./DataModel";
 import {Relationship} from "./Relationship";
 
 /**
- *  An object in a {@link @xeokit/datamodel/DataModel}.
+ * An object in a {@link @xeokit/datamodel/DataModel}.
  *
- *  See {@link Data} for usage examples.
- *
- *  ## Summary
- *
- *  * Created with {@link @xeokit/datamodel/DataModel.createObject}
- *  * Stored in {@link Data.objects} and {@link @xeokit/datamodel/DataModel.objects}
+ * See {@link "@xeokit/datamodel"} for usage.
  */
 export class DataObject {
 

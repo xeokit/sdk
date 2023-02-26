@@ -1,6 +1,6 @@
 import {createVec2} from "@xeokit/math/matrix";
 import {View} from "@xeokit/viewer";
-import type {CameraControl} from "../../CameraControl";
+import type {CameraControl} from "./CameraControl";
 
 /**
  * @private

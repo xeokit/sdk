@@ -1,4 +1,7 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdatatypes.svg)](https://badge.fury.io/js/%40xeokit%2Fdatatypes)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/datatypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/datatypes)
+ *
  * <img style="padding-top:20px; padding-bottom: 10px;" src="media://images/ifc_logo.png"/>
  *
  * ## IFC Data Types

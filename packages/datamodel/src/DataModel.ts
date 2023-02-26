@@ -14,7 +14,7 @@ import {PropertyParams} from "./PropertyParams";
 /**
  * A buildable entity-relationship semantic data model.
  *
- * See {@link Data} for usage examples.
+ * See {@link "@xeokit/datamodel"} for usage.
  *
  * ## Summary
  *
@@ -22,7 +22,6 @@ import {PropertyParams} from "./PropertyParams";
  *  * Can be used for IFC and all other schemas that are expressable as an ER graph
  *  * Created with {@link Data.createModel}
  *  * Stored in {@link Data.models}
- *
  */
 class DataModel extends Component {
 
@@ -333,7 +332,7 @@ class DataModel extends Component {
     /**
      * Builds this DataModel, readying it for use.
      */
-    build() {
+    build(): void {
         if (this.destroyed) {
             this.log("DataModel already destroyed");
             return;

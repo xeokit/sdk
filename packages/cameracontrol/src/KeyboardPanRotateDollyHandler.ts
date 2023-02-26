@@ -1,7 +1,7 @@
 
 
 import {View} from "@xeokit/viewer";
-import * as keycodes from "../../../keycodes";
+import * as keycodes from "./keycodes";
 
 /**
  * @private

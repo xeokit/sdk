@@ -19,12 +19,12 @@ import type {DataObject} from "./DataObject";
 // }
 
 /**
- * Parameters for finding {@link DataObject|DataObjects} with {@link Data.searchDataObjects}.
+ * Parameters for finding {@link DataObject | DataObjects} with {@link Data.searchDataObjects}.
  *
  * These parameters configure the way that {@link Data.searchDataObjects} performs its depth-first
- * search to find our {@link DataObject|DataObjects}.
+ * search to find our {@link DataObject | DataObjects}.
  *
- * See {@link Data} for usage examples.
+ * See {@link "@xeokit/datamodel"} for usage.
  */
 export interface SearchParams {
 
@@ -87,7 +87,7 @@ export interface SearchParams {
     resultObjectIds?: string[];
 
     /**
-     * Collects the search results in a list of {@link DataObject|DataObjects}.
+     * Collects the search results in a list of {@link DataObject | DataObjects}.
      *
      * This is mutually exclusive with {@link SearchParams.resultObjectIds} and {@link SearchParams.resultCallback}.
      */

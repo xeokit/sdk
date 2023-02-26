@@ -3,13 +3,7 @@ import type {DataObject} from "./DataObject";
 /**
  * A one-to-one relationship between two {@link DataObject|DataObjects}.
  *
- * See {@link Data} for usage examples.
- *
- * ## Summary
- *
- * * {@link Relationship.type} indicates the type of the relationship
- * * {@link Relationship.relating} the relating DataObject
- * * {@link Relationship.related} the related DataObject
+ * See {@link "@xeokit/datamodel"} for usage.
  */
 export class Relationship {
 

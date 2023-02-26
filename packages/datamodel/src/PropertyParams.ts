@@ -1,9 +1,7 @@
 /**
  * Parameters for creating a {@link Property} with {@link PropertySet.createProperty}.
  *
- * Also the array element type in {@link PropertySetParams.properties}.
- *
- * See {@link Data} for usage examples.
+ * See {@link "@xeokit/datamodel"} for usage.
  */
 export interface PropertyParams {
 

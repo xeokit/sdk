@@ -1,5 +1,6 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 import type {GeometryBucket} from "./GeometryBucket";
+import type {RendererGeometry} from "./RendererGeometry";
 
 /**
  * Represents an element of reusable geometry.
@@ -70,5 +71,13 @@ export interface Geometry {
      * that are local to their bucket. This further optimizes memory use, by reducing the values of large indices to small
      * locally-offset values, which can reduce the number of bits they need.
      */
-    geometryBuckets: GeometryBucket[]
+    geometryBuckets: GeometryBucket[];
+
+    /**
+     * Interface through which this Geometry can load any user-updated geometry arrays into the renderer.
+     *
+     * @internal
+     */
+    rendererGeometry? : RendererGeometry;
 }
+

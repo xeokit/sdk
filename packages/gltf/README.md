@@ -1,3 +1,3 @@
 @xeokit/gltf
 
-glTF utilities for xeokit.
+glTF loader for xeokit.

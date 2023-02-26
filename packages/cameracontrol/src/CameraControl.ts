@@ -3,21 +3,20 @@ import {Component, EventEmitter} from "@xeokit/core/components";
 import {createVec2} from "@xeokit/math/matrix";
 import {isString} from "@xeokit/core/utils";
 import {FloatArrayParam} from "@xeokit/math/math"
-
-import {PanController} from "./lib/controllers/PanController";
-import {PivotController} from "./lib/controllers/PivotController";
-import {PickController} from "./lib/controllers/PickController";
-import {MousePanRotateDollyHandler} from "./lib/handlers/MousePanRotateDollyHandler";
-import {KeyboardAxisViewHandler} from "./lib/handlers/KeyboardAxisViewHandler";
-import {MousePickHandler} from "./lib/handlers/MousePickHandler";
-import {KeyboardPanRotateDollyHandler} from "./lib/handlers/KeyboardPanRotateDollyHandler";
-import {CameraUpdater} from "./lib/CameraUpdater";
-import {MouseMiscHandler} from "./lib/handlers/MouseMiscHandler";
-import {TouchPanRotateAndDollyHandler} from "./lib/handlers/TouchPanRotateAndDollyHandler";
-import {TouchPickHandler} from "./lib/handlers/TouchPickHandler";
-import * as keycodes from "../keycodes";
 import {Camera, CameraFlightAnimation, PickResult, View} from "@xeokit/viewer";
 
+import {PanController} from "./PanController";
+import {PivotController} from "./PivotController";
+import {PickController} from "./PickController";
+import {MousePanRotateDollyHandler} from "./MousePanRotateDollyHandler";
+import {KeyboardAxisViewHandler} from "./KeyboardAxisViewHandler";
+import {MousePickHandler} from "./MousePickHandler";
+import {KeyboardPanRotateDollyHandler} from "./KeyboardPanRotateDollyHandler";
+import {CameraUpdater} from "./CameraUpdater";
+import {MouseMiscHandler} from "./MouseMiscHandler";
+import {TouchPanRotateAndDollyHandler} from "./TouchPanRotateAndDollyHandler";
+import {TouchPickHandler} from "./TouchPickHandler";
+import * as keycodes from "./keycodes";
 
 class HoverEvent {
 }
@@ -50,7 +49,7 @@ interface CameraControlParams {
 /**
  * Controls a {@link @xeokit/viewer!Camera}  with user input.
  *
- * See {@link @xeokit/controls} for usage.
+ * See {@link @xeokit/cameracontrol} for usage.
  */
 export class CameraControl extends Component {
 

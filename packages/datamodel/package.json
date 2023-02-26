@@ -1,27 +1,23 @@
 {
-  "name": "@xeokit/datamodelmodel",
+  "name": "@xeokit/datamodel",
   "version": "0.0.1",
   "description": "A runtime entity-relationship data graph composed of multiple federated data models.",
-  "module": "dist/xeokit-datamodel.modern.js",
+  "module": "src/index.ts",
   "source": "src/index.ts",
   "scripts": {
-    "test": "jest",
-    "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
-    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=xkt INPUT=./index.js rollup -c ../../rollup/rollup.datamodel.config.js",
     "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeokit/xeokit-viewer.git"
+    "url": "git+https://github.com/xeokit/sdk.git"
   },
   "author": "Lindsay Kay",
-    "license": "SEE LICENSE IN LICENSE.md",
+  "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/xeokit/xeokit-viewer/issues"
+    "url": "https://github.com/xeokit/sdk/issues"
   },
   "homepage": "https://xeokit.io",
   "files": [
-    "dist/",
     "src/",
     "README.md",
     "package.json",
@@ -35,13 +31,13 @@
     "xeolabs",
     "creoox",
     "ifc",
-    "bcf",
+    "controls",
     "bim",
     "gis",
     "cad",
     "openbim",
     "opensource",
-    "gltf",
+    "controls",
     "3dxml",
     "obj",
     "stl",
@@ -49,7 +45,7 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-datamodel.modern.js",
+  "main": "src/index.ts",
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1"
@@ -62,3 +58,4 @@
     "typescript": "^4.9.4"
   }
 }
+

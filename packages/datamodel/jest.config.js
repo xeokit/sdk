@@ -15,7 +15,7 @@ module.exports = {
         "@xeokit/math/ray": "packages/math/src/ray",
         "@xeokit/math/rtc": "packages/math/src/rtc",
         "@xeokit/viewer": "packages/viewer/src",
-        "@xeokit/webgl": "packages/webgl/src",
+        "@xeokit/webglrenderer": "packages/webgl/src",
         "@xeokit/datamodel": "<rootDir>/packages/datamodel/src/",
         "@xeokit/xkt": "packages/xkt/src",
         "@xeokit/las": "packages/las/src",
@@ -25,7 +25,7 @@ module.exports = {
         "@xeokit/procgen/geometry": "packages/procgen/src/geometry",
         "@xeokit/ktx2": "packages/ktx2/src",
         "@xeokit/bcf": "packages/bcf/src",
-        "@xeokit/controls": "packages/controls/src",
+        "@xeokit/cameracontrol": "packages/controls/src",
         "@xeokit/scratchmodel": "packages/scratchmodel/src"
     },
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],

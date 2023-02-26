@@ -13,7 +13,7 @@ import {
 import {clamp, FloatArrayParam} from "@xeokit/math/math";
 
 
-import type {CameraControl} from "../../CameraControl";
+import type {CameraControl} from "./CameraControl";
 import {View} from "@xeokit/viewer";
 import {getAABB3Center} from "@xeokit/math/boundaries";
 

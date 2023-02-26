@@ -1,7 +1,7 @@
 /**
  * Parameters to create a {@link DataObject} with {@link @xeokit/datamodel/DataModel.createObject}.
  *
- * Also the element type in {@link @xeokit/datamodel/DataModelParams.objects}.
+ * See {@link "@xeokit/datamodel"} for usage.
  */
 export interface DataObjectParams {
 

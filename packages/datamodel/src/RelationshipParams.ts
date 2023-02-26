@@ -2,9 +2,7 @@
 /**
  * Parameters for creating a {@link Relationship} with {@link @xeokit/datamodel/DataModel.createRelationship}.
  *
- * Also the array element type in {@link @xeokit/datamodel/DataModelParams.relationships}.
- *
- * See {@link Data} for usage examples.
+ * See {@link "@xeokit/datamodel"} for usage.
  */
 export interface RelationshipParams {
 

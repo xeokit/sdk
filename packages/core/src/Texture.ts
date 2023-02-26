@@ -1,4 +1,5 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
+import type {RendererTexture} from "./RendererTexture";
 
 /**
  * Represents a texture.
@@ -15,6 +16,15 @@ import type {FloatArrayParam} from "@xeokit/math/math";
  * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  */
 export interface Texture {
+
+    /**
+     *  Internal interface through which this {@link Texture} can load property updates into a renderer.
+     *
+     *  This is defined when the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *
+     * @internal
+     */
+    rendererTexture? : RendererTexture;
 
     /**
      * ID for the texture.
@@ -126,3 +136,6 @@ export interface Texture {
      */
     preloadColor?: FloatArrayParam;
 }
+
+
+

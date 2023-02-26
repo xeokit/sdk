@@ -1,7 +1,10 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fcontrols.svg)](https://badge.fury.io/js/%40xeokit%2Fcontrols)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/cameracontrol/badge)](https://www.jsdelivr.com/package/npm/@xeokit/cameracontrol)
+ * 
  * <img style="padding:30px" src="media://images/xeokit_controls_icon.png"/>
  *
- * ## Camera Navigation Controls
+ * ## Camera Navigation Controls for a {@link "@xeokit/viewer" | Viewer}
  *
  * * {@link CameraControl} - controls a {@link @xeokit/viewer!View | View's} {@link @xeokit/viewer!Camera}
  * * Reads touch, mouse and keyboard input
@@ -15,7 +18,7 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/controls
+ * npm install @xeokit/cameracontrol
  * ````
  *
  * ## Usage
@@ -24,8 +27,8 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl";
- * import {CameraControl} from "@xeokit/controls";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {CameraControl} from "@xeokit/cameracontrol";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -46,7 +49,7 @@
  * //...
  * ````
  *
- * @module @xeokit/controls
+ * @module @xeokit/cameracontrol
  */
-export * from "./CameraControl/CameraControl";
+export * from "./CameraControl";
 export * as keycodes from "./keycodes"

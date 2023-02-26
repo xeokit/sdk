@@ -11,7 +11,7 @@ import {
 import {OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/core/constants";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {View} from "@xeokit/viewer";
-import type {CameraControl} from "../../CameraControl";
+import type {CameraControl} from "./CameraControl";
 
 const screenPos = createVec4();
 const viewPos = createVec4();

@@ -1,4 +1,7 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fcompression.svg)](https://badge.fury.io/js/%40xeokit%2Fcompression)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/compression/badge)](https://www.jsdelivr.com/package/npm/@xeokit/compression)
+ * 
  * <img style="padding:20px" src="media://images/geometry_icon.png"/>
  *
  * ## Geometry Compression / Decompression Utilities
@@ -121,7 +124,7 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {TrianglesPrimitive} from "@xeokit/core/constants";
  * import {compressGeometryParams} from "@xeokit/math/compression";
  *

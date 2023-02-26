@@ -11,369 +11,7 @@ import type {SearchParams} from "./SearchParams";
 /**
  * An entity-relationship data model.
  *
- * ## Features
- *
- * * Generic entity-relationship graph
- * * Supports multiple, federated data models
- * * Builder API to prgrammatically create data models
- * * Supports any schema that's expressable as an ER graph
- * * Supports IFC models
- * * Graph traversals to query objects
- *
- * ## Quickstart
- *
- * * Create {@link DataModel|DataModels} with {@link Data.createModel | Data.createModel}
- * * Create {@link DataObject|DataObjects} with {@link @xeokit/datamodel!DataModel.createObject | DataModel.createObject}
- * * Create {@link PropertySet|PropertySets} with {@link @xeokit/datamodel!DataModel.createPropertySet | DataModel.createPropertySet}
- * * Create {@link Relationship|Relationships} with {@link @xeokit/datamodel!DataModel.createRelationship | DataModel.createRelationship}
- * * Query with {@link Data.searchDataObjects}
- * * When built, be sure to finalize each DataModel with {@link @xeokit/datamodel!DataModel.build | DataModel.build}
- * * When no longer needed, be sure to destroy each DataModel with {@link @xeokit/datamodel!DataModel.destroy | DataModel.destroy}
- *
- * <br>
- *
- * ## Examples
- *
- * ### Example 1. Creating a DataModel from a JSON object
- *
- * In this example, we'll create a {@link @xeokit/datamodel!DataModel} from a JSON object which conforms to the schema defined by
- * {@link @xeokit/datamodel!DataModelParams}.
- *
- * ````javascript
- * import {Data} from "@xeokit/datamodel";
- *
- * const myData = new Data({
- * });
- *
- * const mySchema = {
- *     FURNITURE_TYPE: 0,
- *     AGGREGATES_REL: 1
- * };
- *
- * const myDataModel = myData.createModel({
- *
- *     id: "myTableModel",
- *
- *     projectId: "024120003",
- *     revisionId: "902344223",
- *     author: "xeolabs",
- *     createdAt: "Jan 26 2022",
- *     creatingApplication: "WebStorm",
- *     schema: "ifc4",
- *
- *     objects: [
- *         {
- *             id: "table",
- *             type: mySchema.FURNITURE_TYPE,
- *             name: "Table",
- *             propertySetIds: ["tablePropertySet"]
- *         },
- *         {
- *             id: "redLeg",
- *             name: "Red table Leg",
- *             type: mySchema.FURNITURE_TYPE,
- *             propertySetIds: ["tableLegPropertySet"]
- *         },
- *         {
- *             id: "greenLeg",
- *             name: "Green table leg",
- *             type: mySchema.FURNITURE_TYPE,
- *             propertySetIds: ["tableLegPropertySet"]
- *         },
- *         {
- *             id: "blueLeg",
- *             name: "Blue table leg",
- *             type: mySchema.FURNITURE_TYPE,
- *             propertySetIds: ["tableLegPropertySet"]
- *         },
- *         {
- *             id: "yellowLeg",
- *             name: "Yellow table leg",
- *             type: mySchema.FURNITURE_TYPE,
- *             propertySetIds: ["tableLegPropertySet"]
- *         },
- *         {
- *             id: "tableTop",
- *             name: "Purple table top",
- *             type: mySchema.FURNITURE_TYPE,
- *             propertySetIds: ["tableTopPropertySet"]
- *         }
- *     ],
- *
- *     relationships: [
- *         {
- *             type: mySchema.AGGREGATES_REL,
- *             relating: "table",
- *             related: "tableTop"
- *         },
- *         {
- *             type: mySchema.AGGREGATES_REL,
- *             relating: "tableTop",
- *             related: "redLeg"
- *         },
- *         {
- *             type: mySchema.AGGREGATES_REL,
- *             relating: "tableTop",
- *             related: "greenLeg"
- *         },
- *         {
- *             type: mySchema.AGGREGATES_REL,
- *             relating: "tableTop",
- *             related: "blueLeg"
- *         },
- *         {
- *             type: mySchema.AGGREGATES_REL,
- *             relating: "tableTop",
- *             related: "yellowLeg"
- *         }
- *     ],
- *
- *     propertySets: [
- *         {
- *             id: "tablePropertySet",
- *             originalSystemId: "tablePropertySet",
- *             name: "Table properties",
- *             type: "",
- *             properties: [
- *                 {
- *                     name: "Weight",
- *                     value: 5,
- *                     type: "",
- *                     valueType: "",
- *                     description: "Weight of the thing"
- *                 },
- *                 {
- *                     name: "Height",
- *                     value: 12,
- *                     type: "",
- *                     valueType: "",
- *                     description: "Height of the thing"
- *                 }
- *             ]
- *         },
- *         {
- *             id: "legPropertySet",
- *             originalSystemId: "legPropertySet",
- *             name: "Table leg properties",
- *             type: "",
- *             properties: [
- *                 {
- *                     name: "Weight",
- *                     value: 5,
- *                     type: "",
- *                     valueType: "",
- *                     description: "Weight of the thing"
- *                 },
- *                 {
- *                     name: "Height",
- *                     value: 12,
- *                     type: "",
- *                     valueType: "",
- *                     description: "Height of the thing"
- *                 }
- *             ]
- *         }
- *     ]
- * });
- * ````
- *
- * ### Example 2. Creating a DataModel using builder methods
- *
- * In our second example, we'll create another {@link @xeokit/datamodel!DataModel}, this time instantiating the {@link PropertySet},
- * {@link Property}, {@link DataObject} and {@link Relationship} components ourselves, using the DataModel's builder methods.
- *
- * ````javascript
- * import {Viewer, constants} from "@xeokit/viewer";
- *
- * const myViewer = new Viewer({
- *   id: "myViewer"
- * });
- *
- * const view = myViewer.createView({
- *      canvas: myView
- * });
- *
- * const mySchema = {
- *     FURNITURE_TYPE: 0,
- *     AGGREGATES_REL: 1
- * };
- *
- * const myDataModel = myData.createModel({
- *     id: "myTableModel",
- *     projectId: "024120003",
- *     revisionId: "902344223",
- *     author: "xeolabs",
- *     createdAt: "Jan 26 2022",
- *     creatingApplication: "WebStorm",
- *     schema: "ifc4"
- * });
- *
- * const tablePropertySet = myDataModel.createPropertySet({
- *     id: "tablePropertySet",
- *     name: "Table properties",
- *     type: ""
- * });
- *
- * tablePropertySet.createProperty({
- *     name: "Weight",
- *     value: 5,
- *     type: "",
- *     valueType: "",
- *     description: "Weight of the thing"
- * });
- *
- * tablePropertySet.createProperty({
- *     name: "Height",
- *     value: 12,
- *     type: "",
- *     valueType: "",
- *     description: "Height of the thing"
- * });
- *
- * const legPropertySet = myDataModel.createPropertySet({
- *     id: "legPropertySet",
- *     name: "Table leg properties",
- *     type: ""
- * });
- *
- * legPropertySet.createProperty({
- *     name: "Weight",
- *     value: 5,
- *     type: "",
- *     valueType: "",
- *     description: "Weight of the thing"
- * });
- *
- * legPropertySet.createProperty({
- *     name: "Height",
- *     value: 12,
- *     type: "",
- *     valueType: "",
- *     description: "Height of the thing"
- * });
- *
- * myDataModel.createObject({
- *     id: "table",
- *     type: "furniture",
- *     name: "Table",
- *     propertySetIds: ["tablePropertySet"]
- * });
- *
- * myDataModel.createObject({
- *     id: "redLeg",
- *     name: "Red table Leg",
- *     type: "leg",
- *     propertySetIds: ["tableLegPropertySet"]
- * });
- *
- * myDataModel.createObject({
- *     id: "greenLeg",
- *     name: "Green table leg",
- *     type: "leg",
- *     propertySetIds: ["tableLegPropertySet"]
- * });
- *
- * myDataModel.createObject({
- *     id: "blueLeg",
- *     name: "Blue table leg",
- *     type: "leg",
- *     propertySetIds: ["tableLegPropertySet"]
- * });
- *
- * myDataModel.createObject({
- *     id: "yellowLeg",
- *     name: "Yellow table leg",
- *     type: "leg",
- *     propertySetIds: ["tableLegPropertySet"]
- * });
- *
- * myDataModel.createObject({
- *     id: "tableTop",
- *     name: "Purple table top",
- *     type: "surface",
- *     propertySetIds: ["tableTopPropertySet"]
- * });
- *
- * myDataModel.createRelationship({
- *     type: mySchema.AGGREGATES_REL,
- *     relating: "table",
- *     related: "tableTop"
- * });
- *
- * myDataModel.createRelationship({
- *     type: mySchema.AGGREGATES_REL,
- *     relating: "tableTop",
- *     related: "redLeg"
- * });
- *
- * myDataModel.createRelationship({
- *     type: mySchema.AGGREGATES_REL,
- *     relating: "tableTop",
- *     related: "greenLeg"
- * });
- *
- * myDataModel.createRelationship({
- *     type: mySchema.AGGREGATES_REL,
- *     relating: "tableTop",
- *     related: "blueLeg"
- * });
- *
- * myDataModel.createRelationship({
- *     type: mySchema.AGGREGATES_REL,
- *     relating: "tableTop",
- *     related: "yellowLeg"
- * });
- * ````
- *
- * ### Example 3. Querying DataObjects
- *
- * In our third example, we'll extend our previous example to use the {@link Data.searchDataObjects} method to
- * traverse our data graph and fetch the IDs of the {@link DataObject|DataObjects} we find on that path.
- *
- * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
- * a tree view of an IFC element hierarchy.
- *
- * ````javascript
- * const objectIds = [];
- *
- * myData.searchDataObjects({
- *     startObjectId: "table",
- *     includeObjects: [mySchema.FURNITURE_TYPE],
- *     includeRelated: [mySchema.AGGREGATES_REL],
- *     objectIds
- * });
- *
- * // objectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
- *
- * view.setObjectsHighlighted(objectIds, true);
- * ````
- *
- * * ### Example 4. Traversing DataObjects
- *
- * TODO
- *
- * ````javascript
- * const table = myData.objects["table"];
- *
- * const relations = table.related[mySchema.AGGREGATES_REL];
- *
- * for (let i = 0, len = relations.length; i < len; i++) {
- *
- *      const relation = relations[i];
- *      const dataObject = relation.related;
- *      const viewObject = view.objects[dataObject.id];
- *
- *      if (viewObject) {
- *          viewObject.highlighted = true;
- *      }
- * }
- * ````
- *
- * ### Example 5. Handling data events
- *
- * TODO
- *
- *
+ * See {@link "@xeokit/datamodel"} for usage.
  */
 export class Data extends Component {
 
@@ -382,14 +20,14 @@ export class Data extends Component {
      *
      * @event
      */
-    readonly onModelCreated: EventEmitter<Data, DataModel>;
+    readonly onModelAdded: EventEmitter<Data, DataModel>;
 
     /**
      * Emits an event each time a {@link @xeokit/datamodel!DataModel} is destroyed.
      *
      * @event
      */
-    readonly onModelDestroyed: EventEmitter<Data, DataModel>;
+    readonly onModelRemoved: EventEmitter<Data, DataModel>;
 
     /**
      * Emits an event each time a {@link DataObject} is created.
@@ -453,8 +91,8 @@ export class Data extends Component {
         this.objectsByType = {};
         this.typeCounts = {};
 
-        this.onModelCreated = new EventEmitter(new EventDispatcher<Data, DataModel>());
-        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Data, DataModel>());
+        this.onModelAdded = new EventEmitter(new EventDispatcher<Data, DataModel>());
+        this.onModelRemoved = new EventEmitter(new EventDispatcher<Data, DataModel>());
         this.onObjectCreated = new EventEmitter(new EventDispatcher<Data, DataObject>());
         this.onObjectDestroyed = new EventEmitter(new EventDispatcher<Data, DataObject>());
     }
@@ -486,9 +124,9 @@ export class Data extends Component {
         this.models[dataModel.id] = dataModel;
         dataModel.onDestroyed.one(() => { // DataModel#destroy() called
             delete this.models[dataModel.id];
-            this.onModelDestroyed.dispatch(this, dataModel);
+            this.onModelRemoved.dispatch(this, dataModel);
         });
-        this.onModelCreated.dispatch(this, dataModel);
+        this.onModelAdded.dispatch(this, dataModel);
         return dataModel;
     }
 
@@ -584,8 +222,8 @@ export class Data extends Component {
      * @private
      */
     destroy(): void {
-        this.onModelCreated.clear();
-        this.onModelDestroyed.clear();
+        this.onModelAdded.clear();
+        this.onModelRemoved.clear();
         super.destroy();
     }
 }

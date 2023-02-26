@@ -1,4 +1,6 @@
 import type {Mesh} from "./Mesh";
+import type {RendererObject} from "./RendererObject";
+import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
  * Represents an object in a {@link @xeokit/core/components!SceneModel}.
@@ -22,4 +24,20 @@ export interface SceneObject {
      * The {@link Mesh | Meshes} belonging to this SceneObject.
      */
     readonly meshes: Mesh[];
+
+    /**
+     * Gets the axis-aligned 3D World-space boundary of this SceneObject.
+     */
+    get aabb(): FloatArrayParam ;
+
+    /**
+     *  Internal interface through which a {@link SceneObject} can load property updates into a renderer.
+     *
+     *  This is defined while the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *
+     * @internal
+     */
+    rendererObject?: RendererObject;
 }
+
+

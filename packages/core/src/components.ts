@@ -1,4 +1,7 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fcore.svg)](https://badge.fury.io/js/%40xeokit%2Fcore)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/core/badge)](https://www.jsdelivr.com/package/npm/@xeokit/core)
+ *
  * <img style="padding:10px" src="media://images/xeokit_components_icon.png"/>
  *
  * ## Basic SDK Component Types
@@ -36,6 +39,12 @@ export * from "./MeshParams";
 export * from "./Mesh";
 export * from "./Capabilities";
 export * from "./TextureTranscoder";
+export {RendererModel} from "./RendererModel";
+export {RendererObject} from "./RendererObject";
+export {RendererTexture} from "./RendererTexture";
+export {RendererTextureSet} from "./RendererTextureSet";
+export {RendererMesh} from "./RendererMesh";
+export {RendererGeometry} from "./RendererGeometry";
 
 
 

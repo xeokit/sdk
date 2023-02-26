@@ -1,4 +1,5 @@
 import type {Texture} from "./Texture";
+import type {RendererTextureSet} from "./RendererTextureSet";
 
 /**
  * Represents a set of textures.
@@ -38,4 +39,14 @@ export interface TextureSet {
      * The emissive {@link Texture} in this set.
      */
     emissiveTexture?: Texture;
+
+    /**
+     *  Internal interface through which a TextureSet can load property updates into a renderer.
+     *
+     *  This is defined while the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *
+     * @internal
+     */
+    rendererTextureSet?: RendererTextureSet;
 }
+

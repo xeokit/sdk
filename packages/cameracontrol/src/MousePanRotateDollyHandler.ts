@@ -1,7 +1,7 @@
 import {createVec2, lenVec3, subVec3} from "@xeokit/math/matrix";
 import {PerspectiveProjectionType} from "@xeokit/core/constants";
 import {View} from "@xeokit/viewer";
-import * as keycodes from "../../../keycodes";
+import * as keycodes from "./keycodes";
 
 const canvasPos = createVec2();
 

@@ -1,7 +1,10 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdatamodel.svg)](https://badge.fury.io/js/%40xeokit%2Fdatamodel)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/datamodel/badge)](https://www.jsdelivr.com/package/npm/@xeokit/datamodel)
+ *
  * <img style="padding:50px" src="media://images/xeokit_datamodel_icon.png"/>
  *
- * ## Data Model Representation
+ * # Entity-Relationship Data Model
  *
  * * {@link @xeokit/datamodel!DataModel | DataModel}
  * * Entity-relationship (ER) graph that can be used with a {@link @xeokit/viewer!Viewer} to classify models
@@ -43,6 +46,11 @@
  * * We can't mix different sets of data types within our {@link Data}. That's because when we traverse the DataObjects
  * with Data.searchDataObjects, we need those traversals to be guided uniformly by the same set of types, for all the
  * DataObjects and Relationships in the graph.
+ *
+ * ### Example 1. Creating a DataModel from a single JSON object
+ *
+ * In our first example, we'll create our {@link @xeokit/datamodel!DataModel | DataModel} from a single JSON object of
+ * type {@link @xeokit/datamodel!DataModelParams DataModelParams}.
  *
  * ````javascript
  * import {Data} from "@xeokit/datamodel";
@@ -170,8 +178,154 @@
  *     ]
  * });
  *
- * myDataModel.build();
+ * myDataModel.build(); // Ready for action
+ * ````
  *
+ * ### Example 2. Creating a DataModel using builder methods
+ *
+ * In our second example, we'll create our {@link @xeokit/datamodel!DataModel | DataModel} again, this time instantiating
+ * each {@link PropertySet}, {@link Property}, {@link DataObject} and {@link Relationship} individually, using the
+ * DataModel's builder methods.
+ *
+ * ````javascript
+ * import {Data} from "@xeokit/datamodel";
+ * import * as basicTypes from "@xeokit/datatypes/basicTypes";
+ *
+ * const myData = new Data({
+ * });
+ *
+ * const myDataModel = myData.createModel({
+ *     id: "myTableModel"
+ * });
+ *
+ * const tablePropertySet = myDataModel.createPropertySet({
+ *     id: "tablePropertySet",
+ *     name: "Table properties",
+ *     type: ""
+ * });
+ *
+ * tablePropertySet.createProperty({
+ *     name: "Weight",
+ *     value: 5,
+ *     type: "",
+ *     valueType: "",
+ *     description: "Weight of the thing"
+ * });
+ *
+ * tablePropertySet.createProperty({
+ *     name: "Height",
+ *     value: 12,
+ *     type: "",
+ *     valueType: "",
+ *     description: "Height of the thing"
+ * });
+ *
+ * const legPropertySet = myDataModel.createPropertySet({
+ *     id: "legPropertySet",
+ *     name: "Table leg properties",
+ *     type: ""
+ * });
+ *
+ * legPropertySet.createProperty({
+ *     name: "Weight",
+ *     value: 5,
+ *     type: "",
+ *     valueType: "",
+ *     description: "Weight of the thing"
+ * });
+ *
+ * legPropertySet.createProperty({
+ *     name: "Height",
+ *     value: 12,
+ *     type: "",
+ *     valueType: "",
+ *     description: "Height of the thing"
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "table",
+ *     type:  basicTypes.BasicEntity,
+ *     name: "Table",
+ *     propertySetIds: ["tablePropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "redLeg",
+ *     name: "Red table Leg",
+ *     type:  basicTypes.BasicEntity,
+ *     propertySetIds: ["tableLegPropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "greenLeg",
+ *     name: "Green table leg",
+ *     type:  basicTypes.BasicEntity,
+ *     propertySetIds: ["tableLegPropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "blueLeg",
+ *     name: "Blue table leg",
+ *     type:  basicTypes.BasicEntity,
+ *     propertySetIds: ["tableLegPropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "yellowLeg",
+ *     name: "Yellow table leg",
+ *     type: "leg",
+ *     propertySetIds: ["tableLegPropertySet"]
+ * });
+ *
+ * myDataModel.createObject({
+ *     id: "tableTop",
+ *     name: "Purple table top",
+ *     type:  basicTypes.BasicEntity,
+ *     propertySetIds: ["tableTopPropertySet"]
+ * });
+ *
+ * myDataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relating: "table",
+ *     related: "tableTop"
+ * });
+ *
+ * myDataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relating: "tableTop",
+ *     related: "redLeg"
+ * });
+ *
+ * myDataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relating: "tableTop",
+ *     related: "greenLeg"
+ * });
+ *
+ * myDataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relating: "tableTop",
+ *     related: "blueLeg"
+ * });
+ *
+ * myDataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relating: "tableTop",
+ *     related: "yellowLeg"
+ * });
+ *
+ * myDataModel.build(); // Ready for action
+ * ````
+ *
+ * ### Example 3. Querying DataObjects
+ *
+ * In our third example, we'll extend our previous example to use the {@link Data.searchDataObjects} method to
+ * traverse our data graph and fetch the IDs of the {@link DataObject | DataObjects} we find on that path.
+ *
+ * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
+ * a tree view of an IFC element hierarchy.
+ *
+ * ````javascript
  * const objectIds = [];
  *
  * myData.searchDataObjects({
@@ -182,6 +336,31 @@
  * });
  *
  * // objectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
+ *
+ * view.setObjectsHighlighted(objectIds, true);
+ * ````
+ *
+ * * ### Example 4. Traversing DataObjects
+ *
+ * In our fourth example, we'll demonstrate how to traverse the {@link DataObject | DataObjects} along their
+ * {@link Relationship | Relationships}. We'll start at the root DataObject and highlight all the DataObjects
+ * we encounter along the outgoing Relationships.
+ *
+ * ````javascript
+ * const table = myData.objects["table"];
+ *
+ * const relations = table.related[basicTypes.BasicAggregation];
+ *
+ * for (let i = 0, len = relations.length; i < len; i++) {
+ *
+ *      const relation = relations[i];
+ *      const dataObject = relation.related;
+ *      const viewObject = view.objects[dataObject.id];
+ *
+ *      if (viewObject) {
+ *          viewObject.highlighted = true;
+ *      }
+ * }
  * ````
  *
  * @module @xeokit/datamodel

@@ -11,6 +11,7 @@ import type {TextureParams} from "./TextureParams";
 import type {TextureSetParams} from "./TextureSetParams";
 import type {MeshParams} from "./MeshParams";
 import type {ObjectParams} from "./ObjectParams";
+import type {RendererModel} from "./RendererModel";
 
 
 /**
@@ -98,6 +99,13 @@ export interface SceneModel {
      * @event
      */
     readonly onDestroyed: EventEmitter<SceneModel, null>;
+
+    /**
+     *  Internal interface through which a SceneModel can load property updates into a renderer.
+     *
+     * @internal
+     */
+    rendererModel?: RendererModel;
 
     /**
      * Creates a new transform within this SceneModel.
@@ -266,3 +274,5 @@ export interface SceneModel {
      */
     destroy(): void;
 }
+
+

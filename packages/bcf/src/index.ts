@@ -25,7 +25,7 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {WebGLRenderer} from "@xeokit/webgl2renderer";
  * import {loadBCFViewpoint} from "@xeokit/bcf";
  *
  * const myViewer = new Viewer({
@@ -75,7 +75,7 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {WebGLRenderer} from "@xeokit/webgl2renderer";
  * import {loadBCFViewpoint} from "@xeokit/bcf";
  *
  * const myViewer = new Viewer({

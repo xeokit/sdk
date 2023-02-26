@@ -47,14 +47,14 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {WebGLRenderer} from "@xeokit/webgl2renderer";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
  * import {CameraControl} from "@xeokit/cameracontrol";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
  * import {saveXKT, loadXKT} from "@xeokit/xkt";
  * ````
  *
- * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webglrenderer!WebGLRenderer}:
+ * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webgl2renderer!WebGLRenderer}:
  *
  * ````javascript
  * const myViewer = new Viewer({

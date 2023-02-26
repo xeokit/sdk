@@ -16,7 +16,7 @@
   "author": "Lindsay Kay",
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/xeokit/xeokit-viewer/issues"
+    "url": "https://github.com/xeokit/sdk/issues"
   },
   "homepage": "https://xeokit.io",
   "files": [

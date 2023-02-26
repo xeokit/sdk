@@ -79,15 +79,15 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
     /**
      * Creates a new KTX2TextureTranscoder.
      *
-     * @param {String} [params.transcoderPath="https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/"] Path to the Basis
+     * @param {String} [params.transcoderPath="https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/"] Path to the Basis
      * transcoder module that internally does the heavy lifting for our KTX2TextureTranscoder. If we omit this configuration,
-     * then our KTX2TextureTranscoder will load it from ````https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/```` by
+     * then our KTX2TextureTranscoder will load it from ````https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/```` by
      * default. Therefore, make sure your application is connected to the internet if you wish to use the default transcoder path.
      * @param {Number} [params.workerLimit] The maximum number of Workers to use for transcoding.
      */
     constructor(params: { transcoderPath?: string, workerLimit?: number }) {
 
-        this.#transcoderPath = params.transcoderPath || "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-viewer/dist/basis/";
+        this.#transcoderPath = params.transcoderPath || "https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/";
         this.#transcoderBinary = null;
         this.#transcoderPending = null;
         this.#workerPool = new WorkerPool();

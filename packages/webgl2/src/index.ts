@@ -1,6 +1,6 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fwebgl.svg)](https://badge.fury.io/js/%40xeokit%2Fwebgl)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/webglrenderer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/webglrenderer)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/webgl2renderer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/webgl2renderer)
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/xeokit_webgl_logo.svg"/>
  *

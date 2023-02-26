@@ -1,8 +1,8 @@
 import {View, Viewer, ViewLayer} from "@xeokit/viewer";
-import {WebGLRenderer} from "@xeokit/webgl";
+import {WebGLRenderer} from "@xeokit/webgl2renderer";
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {saveXKT} from "@xeokit/xkt";
-import {CameraControl} from "@xeokit/controls";
+import {CameraControl} from "@xeokit/cameracontrol";
 import {BCFViewpoint, loadBCFViewpoint, saveBCFViewpoint} from "@xeokit/bcf";
 import {LocaleService} from "@xeokit/locale";
 import {Data, DataModel} from "@xeokit/datamodel";

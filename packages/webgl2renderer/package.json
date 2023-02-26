@@ -1,26 +1,21 @@
 {
-  "name": "@xeokit/webgl",
+  "name": "@xeokit/webgl2renderer",
   "version": "0.0.0",
-  "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
-  "module": "dist/xeokit-webgl.modern.js",
-  "source": "src/index.ts",
+  "description": "WebGL2 rendering strategy for a xeokit Viewer",
   "scripts": {
-    "dist": "microbundle --format modern,cjs,es --define PACKAGE_VERSION=$npm_package_version",
-    "build": "rm -rf dist && cross-env NODE_ENV=production PLUGIN=xkt INPUT=./index.js rollup -c ../../rollup/rollup.webgl.config.js",
     "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeokit/xeokit-webgl.git"
+    "url": "git+https://github.com/xeokit/sdk.git"
   },
   "author": "Lindsay Kay",
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/xeokit/xeokit-viewer/issues"
+    "url": "https://github.com/xeokit/sdk/issues"
   },
   "homepage": "https://xeokit.io",
   "files": [
-    "dist/",
     "src/",
     "README.md",
     "package.json",
@@ -48,13 +43,11 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "dist/xeokit-webgl.modern.js",
+  "main": "src/index.ts",
   "dependencies": {
     "@xeokit/core": "^0.0.1",
     "@xeokit/math": "^0.0.1",
+    "@xeokit/webgl2": "^0.0.1",
     "strongly-typed-events": "3.0.7"
-  },
-  "devDependencies": {
-    "jest": "^29.3.1"
   }
 }

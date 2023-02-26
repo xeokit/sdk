@@ -1,2 +1,2 @@
-@xeokit/webgl
+@xeokit/webgl2renderer
 

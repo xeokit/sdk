@@ -1,7 +1,10 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fmath.svg)](https://badge.fury.io/js/%40xeokit%2Fmath)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/math/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math)
+ *
  * <img src="http://xeokit.io/img/kdtree.jpeg" />
  *
- * ## Boundaries Math Library
+ * # 3D Boundaries Math Library
  *
  * * Axis-aligned boundaries (AABB)
  * * Object-aligned boundaries (OBB)

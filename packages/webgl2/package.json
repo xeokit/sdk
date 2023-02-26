@@ -1,7 +1,7 @@
 {
   "name": "@xeokit/webgl2",
   "version": "0.0.1",
-  "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
+  "description": "WebGL2 utilities library",
   "scripts": {
     "publish": "npm publish --access public"
   },
@@ -48,8 +48,5 @@
     "@xeokit/core": "^0.0.1",
     "@xeokit/math": "^0.0.1",
     "strongly-typed-events": "3.0.7"
-  },
-  "devDependencies": {
-    "jest": "^29.3.1"
   }
 }

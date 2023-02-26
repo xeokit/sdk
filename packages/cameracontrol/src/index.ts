@@ -27,7 +27,7 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {WebGLRenderer} from "@xeokit/webgl2renderer";
  * import {CameraControl} from "@xeokit/cameracontrol";
  *
  * const myViewer = new Viewer({

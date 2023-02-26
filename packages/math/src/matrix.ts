@@ -1,5 +1,10 @@
 /**
- * #### Matrix and vector math library
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fmath.svg)](https://badge.fury.io/js/%40xeokit%2Fmath)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/math/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math)
+ *
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="media://images/matrix_icon.png"/>
+ *
+ * # Matrix and Vector Math Library
  *
  * ````javascript
  * import * as matrix from "@xeokit/math/matrix";

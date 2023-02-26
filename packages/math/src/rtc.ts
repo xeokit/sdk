@@ -1,4 +1,7 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fmath.svg)](https://badge.fury.io/js/%40xeokit%2Fmath)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/math/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math)
+ *
  * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="media://images/3D-Cart.svg"/>
  *
  * ## RTC Coordinate Math Utilities

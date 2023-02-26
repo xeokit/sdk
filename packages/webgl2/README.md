@@ -1,3 +1,3 @@
-@xeokit/viewer
+@xeokit/webgl2
 
-An extensible browser-based 3D/2D model viewer for AECO applications
+WebGL2 utilities library

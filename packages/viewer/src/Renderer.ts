@@ -3,7 +3,8 @@ import type {Viewer} from "./Viewer";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {Capabilities, SceneModel} from "@xeokit/core/components";
 import {ViewObject} from "./ViewObject";
-import {ModelParams} from "./ModelParams";
+import {AddModelParams} from "./AddModelParams";
+import {RendererViewObject} from "./RendererViewObject";
 
 /**
  * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
@@ -22,9 +23,14 @@ import {ModelParams} from "./ModelParams";
  * });
  * ````
  *
- * @category Advanced Use
+ * @internal
  */
 export interface Renderer {
+
+    /**
+     * A RenderObject for each object in the renderer.
+     */
+    rendererViewObjects: { [key: string]: RendererViewObject }
 
     /**
      * Initializes this Renderer.
@@ -65,17 +71,18 @@ export interface Renderer {
     deregisterView(viewIndex: number): void;
 
     /**
-     * Returns a new {@link @xeokit/viewer!SceneModel | SceneModel} that will be stored and rendered by this Renderer.
+     * Adds a {@link @xeokit/core/components!SceneModel | SceneModel} to this Renderer.
      *
-     * The SceneModel provides an interface through which we can then build geometry and materials within
-     * it. Once we've built the SceneModel and called {@link SceneModel.build}, the Renderer will immediately begin
-     * rendering it all {@link View|Views} that we registered previously with {@link Renderer.registerView}.
-     *
-     * When we've finished with the SceneModel, we then call {@link SceneModel.destroy} to destroy it.
-     *
-     * @param params SceneModel creation params
+     * @param params SceneModel addition params
      */
-    createModel(params: ModelParams): SceneModel;
+    addModel(params: AddModelParams): void;
+
+    /**
+     * Removes a {@link @xeokit/viewer!SceneModel | SceneModel} from this Renderer.
+     *
+     * @param id ID of the SceneModel to remove
+     */
+    removeModel(id: string);
 
     /**
      * Enable/disable rendering of transparent objects for the given View.

@@ -1,94 +1,93 @@
 import type {ViewerModel} from "./ViewerModel";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {Mesh, SceneObject} from "@xeokit/core/components";
+import {Mesh, SceneModel, SceneObject} from "@xeokit/core/components";
 
 
 /**
-
- * @private
+ * Interface through which a {@link @xeokit/viewer!Viewer | Viewer} can issue commands at a {@link @xeokit/viewer!Renderer | Renderer} to
+ * show/hide/highlight/select/xray/colorize a particular object within the specified {@link @xeokit/viewer!View | View}.
+ *
+ * @internal
  */
-export interface ViewerObject extends SceneObject {
+export interface RendererViewObject {
 
     /**
-     * Unique ID of this ViewerObject.
+     * Unique ID of this RendererViewObjectCommands.
      */
     readonly id: string;
 
     /**
-     *
+     * The {@link @xeokit/core/components!SceneModel | SceneModel} that contains this RendererViewObjectCommands.
      */
-    readonly meshes: Mesh[];
+    readonly model: SceneModel;
 
     /**
-     * The {@link @xeokit/core/components!SceneModel | SceneModel} that contains this ViewerObject.
-     */
-    readonly model: ViewerModel;
-
-    /**
-     * The axis-aligned World-space 3D boundary of this ViewerObject.
+     * The axis-aligned World-space 3D boundary of this RendererViewObjectCommands.
      */
     readonly aabb: FloatArrayParam;
-    readonly viewLayerId: string | null;
-
-    //------------------------------------------------------------------------------------------------------------------
 
     /**
-     * @private
+     * The ID of a {@link @xeokit/viewer!ViewLayer | ViewLayer} for the object to exclusively appear in.
+     */
+    readonly viewLayerId: string | null;
+
+    /**
+     * TODO
      */
     setVisible(viewIndex: number, visible: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setHighlighted(viewIndex: number, highlighted: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setXRayed(viewIndex: number, xrayed: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setSelected(viewIndex: number, selected: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setEdges(viewIndex: number, edges: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setCulled(viewIndex: number, culled: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setClippable(viewIndex: number, clippable: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setCollidable(viewIndex: number, collidable: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setPickable(viewIndex: number, pickable: boolean): void;
 
     /**
-     * @private
+     * TODO
      */
     setColorize(viewIndex: number, color?: FloatArrayParam): void;
 
     /**
-     * @private
+     * TODO
      */
     setOpacity(viewIndex: number, opacity?: number): void;
 
     /**
-     * @private
+     * TODO
      */
     setOffset(viewIndex: number, offset: FloatArrayParam): void;
 }

@@ -15,7 +15,7 @@ import {
     TransformParams
 } from "@xeokit/core/components";
 
-import type {ViewerObject} from "./ViewerObject";
+import type {RendererObject} from "./ViewerObject";
 import {Viewer} from "./Viewer";
 
 /**
@@ -27,8 +27,8 @@ import {Viewer} from "./Viewer";
  *
  * * Stored in {@link Viewer.models | Viewer.models}
  * * Created with {@link Viewer.createModel | Viewer.createModel}
- * * Contains {@link ViewerObject | ViewerObjects}
- * * Viewer automatically represents each {@link ViewerObject} with a corresponding {@link ViewObject} in each {@link @xeokit/viewer!View}
+ * * Contains {@link RendererObject | ViewerObjects}
+ * * Viewer automatically represents each {@link RendererObject} with a corresponding {@link ViewObject} in each {@link @xeokit/viewer!View}
  * @private
  */
 export interface ViewerModel extends SceneModel {
@@ -83,9 +83,9 @@ export interface ViewerModel extends SceneModel {
     readonly meshes: { [key: string]: Mesh };
 
     /**
-     * The {@link ViewerObject|ViewerObjects} in this ViewerModel, each mapped to {@link ViewerObject.id}.
+     * The {@link RendererObject|ViewerObjects} in this ViewerModel, each mapped to {@link RendererObject.id}.
      */
-    readonly objects: { [key: string]: ViewerObject };
+    readonly objects: { [key: string]: RendererObject };
 
     /**
      * The axis-aligned World-space 3D boundary of this ViewerModel.
@@ -259,9 +259,9 @@ export interface ViewerModel extends SceneModel {
     createMesh(params: MeshParams): void;
 
     /**
-     * Creates a {@link ViewerObject} within this ViewerModel.
+     * Creates a {@link RendererObject} within this ViewerModel.
      *
-     * The ViewerObject is then registered in {@link Viewer.objects} by {@link ViewerObject.id}.
+     * The ViewerObject is then registered in {@link Viewer.objects} by {@link RendererObject.id}.
      *
      * ### Usage
      *

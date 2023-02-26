@@ -50,6 +50,7 @@ class Perspective extends Component {
     #transposedProjMatrixDirty: boolean;
     #onViewBoundary: any;
 
+
     /**
      * @private
      */

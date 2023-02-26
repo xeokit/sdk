@@ -1,18 +1,16 @@
-import {ModelParams} from "./ModelParams";
+import {AddModelParams} from "./AddModelParams";
 import {EventEmitter, SceneModel, SceneObject} from "@xeokit/core/components";
-import {createUUID} from "@xeokit/core/utils";
 import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
 import {Renderer} from "./Renderer";
 import {Tiles} from "./Tiles";
 import {EventDispatcher} from "strongly-typed-events";
-import {ViewerObject} from "./ViewerObject";
 
 /**
  * A scene representation.
  *
  * A Scene is a container of {@link SceneModel | Models} and {@link SceneObject | SceneObjects}.
  */
-export class Scene  {
+export class Scene {
 
     /**
      * The Scene's ID.
@@ -20,31 +18,32 @@ export class Scene  {
     readonly id: string;
 
     /**
-     * The Models in this Scene.
+     * The SceneModel in this Scene.
      */
     readonly models: { [key: string]: SceneModel };
 
     /**
-     * Objects in this Scene.
+     * SceneObject in this Scene.
      */
-    readonly objects: { [key: string]: ViewerObject };
+    readonly objects: { [key: string]: SceneObject };
 
     /**
-     * Emits an event each time a {@link SceneModel} is created in this Scene.
+     * Emits an event each time a {@link SceneModel} is added to this Scene.
      *
      * @event
      */
-    readonly onModelCreated: EventEmitter<Scene, SceneModel>;
+    readonly onModelAdded: EventEmitter<Scene, SceneModel>;
 
     /**
-     * Emits an event each time a {@link SceneModel} is destroyed in this Scene.
+     * Emits an event each time a {@link SceneModel} is removed from this Scene.
      *
      * @event
      */
-    readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
+    readonly onModelRemoved: EventEmitter<Scene, SceneModel>;
 
     readonly tiles: Tiles;
 
+    #onModelDestroys: { [key: string]: any };
     #renderer: Renderer;
     #center: Float64Array;
     #aabbDirty: boolean;
@@ -54,14 +53,14 @@ export class Scene  {
      * @private
      */
     constructor(renderer: Renderer) {
+        this.#onModelDestroys = {};
         this.#renderer = renderer;
-
-        this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
-        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+        this.onModelAdded = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+        this.onModelRemoved = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     }
 
     /**
-     * @private
+     * TODO
      */
     get center(): Float64Array {
         if (this.#aabbDirty) {
@@ -74,7 +73,7 @@ export class Scene  {
     }
 
     /**
-     * @private
+     * TOSO
      */
     get aabb(): FloatArrayParam {
         if (this.#aabbDirty) {
@@ -135,37 +134,85 @@ export class Scene  {
     }
 
     /**
-     * Creates a new {@link @xeokit/core/components!SceneModel | SceneModel} within this Scene.
+     * Adds a {@link @xeokit/core/components!SceneModel | SceneModel} to this Scene.
+     *
+     * * A SceneModel may belong to one Scene at a time.
+     * * The SceneModel will be automatically removed when the SceneModel is destroyed.
+     * * All SceneModels will be automatically removed when this Scene is destroyed.
+     * * SceneModels are not destroyed when you remove them.
      *
      * @param params SceneModel configuration
      */
-    createModel(params: ModelParams): SceneModel {
-        params.id = params.id || createUUID();
-        if (this.models[params.id]) {
-            throw new Error(`Model with this ID already exists, or is under construction: "${params.id}"`);
+    addModel(params: AddModelParams): void {
+        if (!params.id) {
+            throw new Error("Parameter expected: id");
         }
-        const viewerModel = this.#renderer.createModel(params);
-        this.models[viewerModel.id] = viewerModel;
-        viewerModel.onBuilt.one(() => {
-            this.#registerObjects(viewerModel);
-            this.onModelCreated.dispatch(this, viewerModel);
+        if (!params.sceneModel) {
+            throw new Error("Parameter expected: sceneModel");
+        }
+        if (!params.sceneModel.built) {
+            throw new Error("SceneModel must be built before adding to a Scene");
+        }
+        if (this.models[params.id]) {
+            throw new Error(`SceneModel with this ID already added to Scene: "${params.id}"`);
+        }
+        if (params.sceneModel.renderer) {
+            throw new Error(`SceneModel already added to another Scene`);
+        }
+        this.#renderer.addModel(params);
+        const id = params.id;
+        const sceneModel = params.sceneModel;
+        this.models[id] = sceneModel;
+        this.#registerObjects(sceneModel);
+        this.onModelAdded.dispatch(this, sceneModel);
+        this.#onModelDestroys[id] = sceneModel.onDestroyed.one(() => {
+            delete this.models[id];
+            this.#deregisterObjects(sceneModel);
+            this.onModelRemoved.dispatch(this, sceneModel);
         });
-        viewerModel.onDestroyed.one(() => {
-            delete this.models[viewerModel.id];
-            this.#deregisterObjects(viewerModel);
-            this.onModelDestroyed.dispatch(this, viewerModel);
-        });
-        return viewerModel;
+    }
+
+    #registerObjects(model: SceneModel) {
+        const objects = model.objects;
+        for (let id in objects) {
+            const object = objects[id];
+            this.objects[object.id] = <SceneObject>object;
+        }
+        this.#aabbDirty = true;
+    }
+
+    #deregisterObjects(model: SceneModel) {
+        const objects = model.objects;
+        for (let id in objects) {
+            const object = objects[id];
+            delete this.objects[object.id];
+        }
+        this.#aabbDirty = true;
     }
 
     /**
-     * Destroys all the {@link @xeokit/core/components!SceneModel | Models} within this Scene.
+     * Removes a {@link @xeokit/core/components!SceneModel | SceneModel} from this Scene.
      *
-     * @param params SceneModel configuration
+     * @param id The ID against which the SceneModel was registered under when it was
+     * previously added with {@link addModel}.
      */
-    clear() {
+    removeModel(id: string) {
+        if (this.models[id]) {
+            return;
+        }
+        this.#renderer.removeModel(id);
+        const sceneModel = this.models[id];
+        delete this.models[id];
+        this.#deregisterObjects(sceneModel);
+        sceneModel.onDestroyed.unsubscribe(this.#onModelDestroys[id]);
+    }
+
+    /**
+     * Removes all {@link @xeokit/core/components!SceneModel | Models} currently in this Scene.
+     */
+    removeAllModels() {
         for (let id in this.models) {
-            this.models[id].destroy();
+            this.removeModel(id);
         }
     }
 
@@ -179,116 +226,98 @@ export class Scene  {
         }
     }
 
-    /**
-     * @private
-     */
-    setVisible(object: SceneObject, viewIndex: number, visible: boolean): void {
-        (<ViewerObject>object).setVisible(viewIndex,visible);
-    }
-
-    /**
-     * @private
-     */
-    setHighlighted(object: SceneObject, viewIndex: number, highlighted: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setXRayed(object: SceneObject, viewIndex: number, xrayed: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setSelected(object: SceneObject, viewIndex: number, selected: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setEdges(object: SceneObject, viewIndex: number, edges: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setCulled(object: SceneObject, viewIndex: number, culled: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setClippable(object: SceneObject, viewIndex: number, clippable: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setCollidable(object: SceneObject, viewIndex: number, collidable: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setPickable(object: SceneObject, viewIndex: number, pickable: boolean): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setColorize(object: SceneObject, viewIndex: number, color?: FloatArrayParam): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setOpacity(object: SceneObject, viewIndex: number, opacity?: number): void {
-
-    }
-
-    /**
-     * @private
-     */
-    setOffset(object: SceneObject, viewIndex: number, offset: FloatArrayParam): void {
-
-    }
+    // /**
+    //  * @private
+    //  */
+    // setVisible(object: SceneObject, viewIndex: number, visible: boolean): void {
+    //     (<SceneObject>object).setVisible(viewIndex, visible);
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setHighlighted(object: SceneObject, viewIndex: number, highlighted: boolean): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setXRayed(object: SceneObject, viewIndex: number, xrayed: boolean): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setSelected(object: SceneObject, viewIndex: number, selected: boolean): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setEdges(object: SceneObject, viewIndex: number, edges: boolean): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setCulled(object: SceneObject, viewIndex: number, culled: boolean): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setClippable(object: SceneObject, viewIndex: number, clippable: boolean): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setCollidable(object: SceneObject, viewIndex: number, collidable: boolean): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setPickable(object: SceneObject, viewIndex: number, pickable: boolean): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setColorize(object: SceneObject, viewIndex: number, color?: FloatArrayParam): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setOpacity(object: SceneObject, viewIndex: number, opacity?: number): void {
+    //
+    // }
+    //
+    // /**
+    //  * @private
+    //  */
+    // setOffset(object: SceneObject, viewIndex: number, offset: FloatArrayParam): void {
+    //
+    // }
 
     /**
      * @private
      */
     destroy(): void {
-        this.onModelCreated.clear();
-        this.onModelDestroyed.clear();
+        this.onModelAdded.clear();
+        this.onModelRemoved.clear();
         for (let id in this.models) {
             this.models[id].destroy();
         }
-    }
-
-    #registerObjects(model: SceneModel) {
-        const objects = model.objects;
-        for (let id in objects) {
-            const object = objects[id];
-            this.objects[object.id] = <ViewerObject>object;
-        }
-        this.#aabbDirty = true;
-    }
-
-    #deregisterObjects(model: SceneModel) {
-        const objects = model.objects;
-        for (let id in objects) {
-            const object = objects[id];
-            delete this.objects[object.id];
-        }
-        this.#aabbDirty = true;
     }
 }

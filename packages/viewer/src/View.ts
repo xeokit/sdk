@@ -22,7 +22,7 @@ import {PointLight} from "./PointLight";
 import {CameraFlightAnimation} from "./CameraFlightAnimation";
 import {AmbientLight} from "./AmbientLight";
 import {DirLight} from "./DirLight";
-import {ViewerObject} from "./ViewerObject";
+import {RendererViewObject} from "./RendererViewObject";
 import {Scene} from "./Scene";
 
 /**
@@ -30,7 +30,7 @@ import {Scene} from "./Scene";
  *
  * ## Overview
  *
- * A View is an independently-configurable view of the {@link ViewerObject|ViewerObjects} existing within a Viewer, with
+ * A View is an independently-configurable view of the {@link RendererViewObject|ViewerObjects} existing within a Viewer, with
  * its own HTML canvas. A View automatically contains a {@link ViewObject} for each existing ViewerObject. ViewObjects
  * function as a kind of proxy for the ViewerObjects, through which we control their appearance
  * (show/hide/highlight etc.) within that particular View's canvas.
@@ -44,7 +44,7 @@ import {Scene} from "./Scene";
  * * Control the View's viewpoint and projection with {@link View.camera}
  * * Create light sources with {@link View.createLightSource}
  * * Create slicing planes with {@link View createSectionPlane}
- * * Each View automatically has a {@link ViewObject} for every {@link ViewerObject}
+ * * Each View automatically has a {@link ViewObject} for every {@link RendererViewObject}
  * * Uses {@link ViewLayer|ViewLayers} to organize ViewObjects into layers
  * * Optionally uses ViewLayers to mask which ViewObjects are automatically maintained
  * * Control the visibility of ViewObjects with {@link View.setObjectsVisible}
@@ -169,7 +169,7 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
      * The View automatically ensures that there is a {@link ViewObject} here for
-     * each {@link ViewerObject} in the {@link @xeokit/viewer!Viewer}
+     * each {@link RendererViewObject} in the {@link @xeokit/viewer!Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
     /**
@@ -248,14 +248,14 @@ class View extends Component {
 
     /**
      * Whether the View will automatically create {@link ViewLayer|ViewLayers} on-demand
-     * as {@link ViewerObject|ViewerObjects} are created.
+     * as {@link RendererViewObject|ViewerObjects} are created.
      *
      * When ````true```` (default), the View will automatically create {@link ViewLayer|ViewLayers} as needed for each new
-     * {@link ViewerObject.viewLayerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+     * {@link RendererViewObject.viewLayerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
      * viewLayerId. This default setting therefore ensures that a ViewObject is created in the View for every ViewerObject that is created.
      *
-     * If you set this ````false````, however, then the View will only create {@link ViewObject|ViewObjects} for {@link ViewerObject|ViewerObjects} that have
-     * a {@link ViewerObject.viewLayerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
+     * If you set this ````false````, however, then the View will only create {@link ViewObject|ViewObjects} for {@link RendererViewObject|ViewerObjects} that have
+     * a {@link RendererViewObject.viewLayerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
      *
      * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
      * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
@@ -1354,18 +1354,20 @@ class View extends Component {
         for (const id in this.viewer.scene.models) {
             this.#createObjects(this.viewer.scene.models[id]);
         }
-        this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: SceneModel) => {
+        this.viewer.scene.onModelAdded.subscribe((scene: Scene, model: SceneModel) => {
             this.#createObjects(model);
         });
-        this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, model: SceneModel) => {
+        this.viewer.scene.onModelRemoved.subscribe((scene: Scene, model: SceneModel) => {
             this.#destroyObjects(model);
         });
     }
 
     #createObjects(model: SceneModel) {
-        const objects = model.objects;
-        for (let id in objects) {
-            const viewerObject = <ViewerObject>objects[id];
+        const sceneObjects = model.objects;
+        const rendererObjects = this.viewer.renderer.rendererViewObjects;
+        for (let id in sceneObjects) {
+            const sceneObject = sceneObjects[id];
+            const rendererObject = rendererObjects[id];
             //     const viewLayerId = viewerObject.viewLayerId || "default";
             const viewLayerId = "default";
             let viewLayer = this.layers[viewLayerId];
@@ -1385,7 +1387,7 @@ class View extends Component {
                 });
                 this.onLayerCreated.dispatch(this, viewLayer);
             }
-            const viewObject = new ViewObject(viewLayer, viewerObject, {});
+            const viewObject = new ViewObject(viewLayer, sceneObject, rendererObject, {});
             viewLayer.registerViewObject(viewObject);
             this.registerViewObject(viewObject);
         }

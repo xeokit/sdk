@@ -5,7 +5,7 @@ import {ViewObject} from "./ViewObject";
 import type {Viewer} from "./Viewer";
 import type {ViewerModel} from "./ViewerModel";
 import type {View} from "./View";
-import {ViewerObject} from "./ViewerObject";
+import {RendererObject} from "./ViewerObject";
 import {Scene} from "./Scene";
 
 
@@ -14,7 +14,7 @@ import {Scene} from "./Scene";
  *
  * ## Summary
  *
- * * Automatically stores a {@link ViewObject} for each existing {@link ViewerObject} that has a matching {@link ViewerObject.viewLayerId | ViewerObject.viewLayerId}
+ * * Automatically stores a {@link ViewObject} for each existing {@link RendererObject} that has a matching {@link RendererObject.viewLayerId | ViewerObject.viewLayerId}
  * * Useful for segreggating {@link ViewObject | ViewObjects} into layers
  * * Created automatically or manually (see {@link View.createLayer | View.createLayer})
  * * Stored in {@link View.layers | View.layers}
@@ -35,32 +35,32 @@ import {Scene} from "./Scene";
  *
  * ### Automatic ViewLayers
  *
- * By default, each {@link @xeokit/viewer!View} automatically lazy-creates ViewLayers within itself as required. As {@link ViewerObject|ViewerObjects} appear in the
+ * By default, each {@link @xeokit/viewer!View} automatically lazy-creates ViewLayers within itself as required. As {@link RendererObject|ViewerObjects} appear in the
  * {@link @xeokit/viewer!Viewer}, {@link ViewObject|ViewObjects} and Viewlayers magically appear in each existing View.
  *
- * Recall that, whenever a {@link ViewerObject} is created, each existing {@link @xeokit/viewer!View} will automatically create a
+ * Recall that, whenever a {@link RendererObject} is created, each existing {@link @xeokit/viewer!View} will automatically create a
  * corresponding {@link ViewObject} to represent and control that ViewerObject's appearance within the View's canvas.
  *
- * If the {@link ViewerObject} also happens to have a value set on its {@link ViewerObject.viewLayerId} ID property, then the View
+ * If the {@link RendererObject} also happens to have a value set on its {@link RendererObject.viewLayerId} ID property, then the View
  * will also automatically ensure that it contains a matching {@link ViewLayer}, and will register the new ViewObject
  * in that ViewLayer. Note that each ViewObject can belong to a maximum of one ViewLayer.
  *
  * When a {@link @xeokit/viewer!View} automatically creates Viewlayers, it will also automatically destroy them again whenever
- * their {@link ViewerObject|ViewerObjects} have all been destroyed.
+ * their {@link RendererObject|ViewerObjects} have all been destroyed.
  *
  * ### Manual ViewLayers
  *
  * We can configure a {@link @xeokit/viewer!View} to **not** automatically create ViewLayers, and instead rely on us to manually create them.
  *
  * When we do that, the View will only create the {@link ViewObject|ViewObjects} within itself for the ViewLayers that we created. The
- * View will ignore all ViewerObjects that don't have {@link ViewerObject.viewLayerId} values that match the IDs of our
+ * View will ignore all ViewerObjects that don't have {@link RendererObject.viewLayerId} values that match the IDs of our
  * manually-created ViewLayers.
  *
  * This feature is useful for ensuring that aspect-focused Views don't contain huge numbers of unused ViewObjects for
  * ViewerObjects that they never need to show.
  *
  * When we manually create ViewLayers like this, then the View will not automatically destroy them whenever
- * their {@link ViewerObject|ViewerObjects} have all been destroyed. This keeps the ViewLayers around, in case
+ * their {@link RendererObject|ViewerObjects} have all been destroyed. This keeps the ViewLayers around, in case
  * we create matching ViewerObjects again in future.
  *
  * ## Examples
@@ -91,7 +91,7 @@ import {Scene} from "./Scene";
  * view1.camera.up = [-0.018, 0.999, 0.039];
  * ````
  *
- * Next, we'll create a {@link @xeokit/core/components!SceneModel | SceneModel} containing two model {@link ViewerObject|ViewerObjects} that represent a building
+ * Next, we'll create a {@link @xeokit/core/components!SceneModel | SceneModel} containing two model {@link RendererObject|ViewerObjects} that represent a building
  * foundation and walls, along with two environmental ViewerObjects that represent a skybox and ground plane.
  *
  * The ground and skybox ViewerObjects specify that their {@link ViewObject|ViewObjects} belong
@@ -189,7 +189,7 @@ import {Scene} from "./Scene";
  * ````
  *
  * As we did in the previous example, we'll now create a {@link @xeokit/viewer!SceneModel | SceneModel} containing two model
- * {@link ViewerObject|ViewerObjects} that represent a building foundation and walls, along with two environmental
+ * {@link RendererObject|ViewerObjects} that represent a building foundation and walls, along with two environmental
  * ViewerObjects that represent a skybox and ground plane.
  *
  * As before, the ground and skybox ViewerObjects specify that their {@link ViewObject|ViewObjects} belong to "environment" ViewLayers,
@@ -273,7 +273,7 @@ class ViewLayer extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
      * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
-     * each {@link ViewerObject} in the {@link @xeokit/viewer!Viewer}
+     * each {@link RendererObject} in the {@link @xeokit/viewer!Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
 
@@ -882,10 +882,10 @@ class ViewLayer extends Component {
             const model = models[id];
             this.#createObjects(model);
         }
-        this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: SceneModel) => {
+        this.viewer.scene.onModelAdded.subscribe((scene: Scene, model: SceneModel) => {
             this.#createObjects(model);
         });
-        this.viewer.scene.onModelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
+        this.viewer.scene.onModelRemoved.subscribe((scene:Scene, model: SceneModel) => {
             this.#destroyObjects(model);
         });
     }
@@ -893,7 +893,7 @@ class ViewLayer extends Component {
     #createObjects(model: SceneModel) {
         const viewerObjects = model.objects;
         for (let id in viewerObjects) {
-            const viewerObject = <ViewerObject>viewerObjects[id];
+            const viewerObject = <RendererObject>viewerObjects[id];
             if (viewerObject.viewLayerId == this.id) {
                 const viewObject = new ViewObject(this, viewerObject, {});
                 this.objects[viewObject.id] = viewObject;

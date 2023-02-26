@@ -1,4 +1,4 @@
-import type {ViewerObject} from "./ViewerObject";
+import type {RendererObject} from "./ViewerObject";
 import type {ViewerModel} from "./ViewerModel";
 import type {Tiles} from "./Tiles";
 import {FloatArrayParam} from "@xeokit/math/math";
@@ -38,12 +38,12 @@ export class Tile {
     public readonly viewerModels: { [key: string]: ViewerModel }
 
     /**
-     * The {@link ViewerObject|ViewerObjects} in this tile.
+     * The {@link RendererObject|ViewerObjects} in this tile.
      */
-    public readonly viewerObjects: { [key: string]: ViewerObject }
+    public readonly viewerObjects: { [key: string]: RendererObject }
 
     /**
-     * The number of {@link ViewerObject|ViewerObjects} in this tile.
+     * The number of {@link RendererObject|ViewerObjects} in this tile.
      */
         // public numContainedViewerObjects: number;
         //
@@ -66,7 +66,7 @@ export class Tile {
 
     }
 
-    registerSceneObject(viewerObject: ViewerObject) {
+    registerSceneObject(viewerObject: RendererObject) {
         const viewerModel = viewerObject.model;
         if (!this.viewerModels[viewerModel.id]) {
             viewerModel.onDestroyed.one(() => {

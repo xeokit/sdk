@@ -2,7 +2,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 
 import type {ViewLayer} from "./ViewLayer";
 import {SceneObject} from "@xeokit/core/components";
-import {ViewerObject} from "./ViewerObject";
+import {RendererViewObject} from "./RendererViewObject";
 
 /**
  * Represents and controls the visual state of a {@link @xeokit/core/components!SceneObject | SceneObject} in
@@ -39,7 +39,13 @@ export class ViewObject {
     /**
      * The corresponding {@link SceneObject}.
      */
-    public readonly object: ViewerObject;
+    public readonly sceneObject: SceneObject;
+
+    /**
+     * The corresponding {@link RendererViewObject}.
+     * @internal
+     */
+    #rendererViewObjectCommands: RendererViewObject;
 
     #state: {
         visible: boolean | null;
@@ -61,7 +67,8 @@ export class ViewObject {
      */
     constructor(
         layer: ViewLayer,
-        object: ViewerObject,
+        sceneObject: SceneObject,
+        rendererViewObjectCommands: RendererViewObject,
         options: {
             opacity?: number;
             colorize?: number[];
@@ -76,9 +83,10 @@ export class ViewObject {
             visible?: boolean;
         } = {}) {
 
-        this.id = object.id;
+        this.id = sceneObject.id;
         this.layer = layer;
-        this.object = object;
+        this.sceneObject = sceneObject;
+        this.#rendererViewObjectCommands = rendererViewObjectCommands;
 
         this.#state = {
             visible: null,
@@ -115,7 +123,7 @@ export class ViewObject {
      * Gets the World-space axis-aligned 3D boundary of this ViewObject.
      */
     get aabb(): FloatArrayParam {
-        return this.object.aabb;
+        return this.sceneObject.aabb;
     }
 
     /**
@@ -142,7 +150,7 @@ export class ViewObject {
             return;
         }
         this.#state.visible = visible;
-        this.object.setVisible(this.layer.view.viewIndex, visible);
+        this.#rendererViewObjectCommands.setVisible(this.layer.view.viewIndex, visible);
         this.layer.objectVisibilityUpdated(this, visible, true);
         this.layer.redraw();
     }
@@ -168,7 +176,7 @@ export class ViewObject {
             return;
         }
         this.#state.xrayed = xrayed;
-        this.object.setXRayed(this.layer.view.viewIndex, xrayed);
+        this.#rendererViewObjectCommands.setXRayed(this.layer.view.viewIndex, xrayed);
         this.layer.objectXRayedUpdated(this, xrayed);
         this.layer.redraw();
     }
@@ -188,7 +196,7 @@ export class ViewObject {
             return;
         }
         this.#state.edges = edges;
-        this.object.setEdges(this.layer.view.viewIndex, edges);
+        this.#rendererViewObjectCommands.setEdges(this.layer.view.viewIndex, edges);
         this.layer.redraw();
     }
 
@@ -213,7 +221,7 @@ export class ViewObject {
             return;
         }
         this.#state.highlighted = highlighted;
-        this.object.setHighlighted(
+        this.#rendererViewObjectCommands.setHighlighted(
             this.layer.view.viewIndex,
             highlighted
         );
@@ -242,7 +250,7 @@ export class ViewObject {
             return;
         }
         this.#state.selected = selected;
-        this.object.setSelected(this.layer.view.viewIndex, selected);
+        this.#rendererViewObjectCommands.setSelected(this.layer.view.viewIndex, selected);
         this.layer.objectSelectedUpdated(this, selected);
         this.layer.redraw();
     }

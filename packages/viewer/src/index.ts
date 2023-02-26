@@ -1,7 +1,10 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fviewer.svg)](https://badge.fury.io/js/%40xeokit%2Fviewer)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/viewer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/viewer)
+ * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="media://images/xeokit_viewer_logo.png"/>
  *
- * ## Web Model Viewer
+ * # Web Model Viewer
  *
  * * {@link @xeokit/viewer!Viewer}
  * * Interactively view large models, at full coordinate precision, in all major browsers including mobile
@@ -44,14 +47,14 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
- * import {CameraControl} from "@xeokit/controls";
+ * import {CameraControl} from "@xeokit/cameracontrol";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
  * import {saveXKT, loadXKT} from "@xeokit/xkt";
  * ````
  *
- * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webgl!WebGLRenderer}:
+ * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webglrenderer!WebGLRenderer}:
  *
  * ````javascript
  * const myViewer = new Viewer({
@@ -77,9 +80,9 @@
  *
  * ### Adding a CameraControl
  *
- * > *See [@xeokit/controls](/docs/modules/_xeokit_controls.html)*
+ * > *See [@xeokit/cameracontrol](/docs/modules/_xeokit_controls.html)*
  *
- * Add a {@link @xeokit/controls!CameraControl} to the View, to control the Camera from mouse and touch input:
+ * Add a {@link @xeokit/cameracontrol!CameraControl} to the View, to control the Camera from mouse and touch input:
  *
  * ````javascript
  * const myCameraControl = new CameraControl({
@@ -384,8 +387,6 @@
  * });
  * ````
  *
- *
- * @packageDocumentation
  * @module @xeokit/viewer
  */
 

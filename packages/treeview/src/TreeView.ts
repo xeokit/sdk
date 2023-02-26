@@ -19,6 +19,9 @@ export interface TreeViewParams {
      */
     data: Data;
 
+    /**
+     *
+     */
     containerElement: HTMLElement;
 
     /**
@@ -127,7 +130,7 @@ export class TreeView extends Component {
      * Hierarchy mode that groups the {@link TreeViewNode | TreeViewNodes} by type.
      *
      * This mode creates a two-level hierarchy. At the root level, we get TreeViewNodes that represent each of the
-     * distinct types in our {@link @xeokit/datamodel!Data | Data}. Each of those gets one more child TreeViewNodes
+     * distinct types in our {@link @xeokit/datamodel!Data | Data}. Each of those gets one or more child TreeViewNodes
      * that represent {@link @xeokit/datamodel!DataObject | DataObjects} of that type. When those DataObjects have
      * {@link @xeokit/viewer!ViewObject | ViewObjects} of the same ID, then the TreeViewNodes will have checkboxes
      * that we can use to show, hide, and X-ray their ViewObjects.
@@ -217,15 +220,15 @@ export class TreeView extends Component {
         super(null);
 
         if (!params.containerElement) {
-            throw Error("Config expected: containerElement");
+            throw new Error("Config expected: containerElement");
         }
 
         if (!params.data) {
-            throw Error("Config expected: data");
+            throw new Error("Config expected: data");
         }
 
         if (!params.view) {
-            throw Error("Config expected: view");
+            throw new Error("Config expected: view");
         }
 
         this.data = params.data;
@@ -402,7 +405,7 @@ export class TreeView extends Component {
             this.#addModel(modelId);
         }
 
-        this.#viewer.scene.onModelCreated.subscribe((sceneModel) => {
+        this.#viewer.scene.onModelAdded.subscribe((sceneModel) => {
             if (this.data.models[sceneModel.id]) {
                 this.#addModel(sceneModel.id);
             }

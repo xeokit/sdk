@@ -1,8 +1,9 @@
-import type {DataTexture} from "./utils/DataTexture";
-
 /**
  * @private
  */
+import {DataTexture} from "@xeokit/webgl2";
+
+
 export class DataTextureSet {
 
     positions: DataTexture | null; // All quantized positions for a Layer

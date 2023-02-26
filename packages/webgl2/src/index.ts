@@ -33,6 +33,8 @@ export * from "./convertConstant";
 export * from "./DataTexture";
 export * from "./getExtension";
 export * from "./Program";
+export * from "./RenderBuffer";
+export * from "./RenderBufferManager";
 export * from "./Sampler";
 export * from "./Shader";
 export * from "./Texture";

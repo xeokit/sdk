@@ -4,9 +4,8 @@ import {AmbientLight, DirLight, Perspective, PointLight} from "@xeokit/viewer";
 
 import type {RenderContext} from "./RenderContext";
 import {RENDER_PASSES} from "./RENDER_PASSES";
-import {Program} from "./utils/Program";
-import type {Sampler} from "./utils/Sampler";
 import type {Layer} from "./Layer";
+import {Program, Sampler} from "@xeokit/webgl2";
 
 const tempVec4 = createVec4();
 

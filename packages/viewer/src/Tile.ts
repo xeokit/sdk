@@ -1,4 +1,4 @@
-import type {RendererObject} from "./ViewerObject";
+import type {RendererObject} from "./RendererObject";
 import type {ViewerModel} from "./ViewerModel";
 import type {Tiles} from "./Tiles";
 import {FloatArrayParam} from "@xeokit/math/math";

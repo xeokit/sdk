@@ -1,7 +1,7 @@
 import {View, Viewer} from "@xeokit/viewer";
+import {Texture, WEBGL_INFO} from "@xeokit/webgl2";
 
-import type {Texture} from "./utils/Texture";
-import {WEBGL_INFO} from "./utils/WEBGL_INFO";
+
 
 /**
  * Provides rendering context within a WebGLRenderer.

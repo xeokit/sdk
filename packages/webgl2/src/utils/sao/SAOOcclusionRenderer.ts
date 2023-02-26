@@ -1,12 +1,8 @@
 import {inverseMat4, createMat4, createVec2} from "@xeokit/math/matrix";
 import {CustomProjection, View} from "@xeokit/viewer";
 
-import {Program} from "../Program";
-import {ArrayBuf} from "../ArrayBuf";
-import {WEBGL_INFO} from "../WEBGL_INFO";
-import type {RenderBuffer} from "../RenderBuffer";
-import type {Attribute} from "../Attribute";
 import {PerspectiveProjectionType} from "@xeokit/core/constants";
+import {ArrayBuf, Attribute, Program, RenderBuffer, WEBGL_INFO} from "@xeokit/webgl2";
 
 
 

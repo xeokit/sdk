@@ -1,5 +1,5 @@
 import {Texture, RendererTexture} from "@xeokit/core/components";
-import type {Texture2D} from "./utils/Texture2D";
+import {Texture2D} from "@xeokit/webgl2";
 
 /**
  * @private

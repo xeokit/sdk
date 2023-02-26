@@ -30,7 +30,6 @@ import {
 import {FloatArrayParam} from "@xeokit/math/math";
 import type {Camera, View} from "@xeokit/viewer";
 import {Viewer} from "@xeokit/viewer";
-import {Texture2D} from "./utils/Texture2D";
 import type {WebGLRenderer} from "./WebGLRenderer";
 import {Layer, LayerParams} from "./Layer";
 import type {RenderContext} from "./RenderContext";
@@ -40,6 +39,7 @@ import {RendererTextureImpl} from "./RendererTextureImpl";
 import {RendererObjectImpl} from "./RendererObjectImpl";
 import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
+import {Texture2D} from "@xeokit/webgl2";
 
 
 const tempVec3a = createVec3();

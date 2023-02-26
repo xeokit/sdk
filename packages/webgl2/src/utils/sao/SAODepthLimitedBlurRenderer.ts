@@ -1,11 +1,8 @@
 import {CustomProjection, View} from "@xeokit/viewer";
 import {inverseMat4, createMat4} from "@xeokit/math/matrix";
+import {ArrayBuf, Attribute, Program, RenderBuffer, WEBGL_INFO} from "@xeokit/webgl2";
 
-import {Program} from "../Program";
-import {ArrayBuf} from "../ArrayBuf";
-import {WEBGL_INFO} from "../WEBGL_INFO";
-import type {RenderBuffer} from "../RenderBuffer";
-import type {Attribute} from "../Attribute";
+
 
 const blurStdDev = 4;
 const blurDepthCutoff = 0.01;

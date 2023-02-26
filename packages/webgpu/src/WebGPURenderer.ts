@@ -1,8 +1,10 @@
 import {Capabilities, SceneModel, TextureTranscoder} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 
-import {AddModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import { Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import { RendererViewObject } from "viewer/src/RendererViewObject";
 import type {Pickable} from "./Pickable";
+import {AddModelParams} from "@xeokit/viewer/src/AddModelParams";
 
 /**
  * WebGPU-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
@@ -27,6 +29,16 @@ export class WebGPURenderer implements Renderer {
         // TODO
     }
 
+    rendererViewObjects: { [key: string]: RendererViewObject; };
+
+    addModel(params: AddModelParams): void {
+        throw new Error("Method not implemented.");
+    }
+
+    removeModel(id: string) {
+        throw new Error("Method not implemented.");
+    }
+
     init(viewer: Viewer): void {
         // TODO
     }
@@ -41,10 +53,6 @@ export class WebGPURenderer implements Renderer {
     }
 
     deregisterView(viewIndex: number): void { // Nop
-    }
-
-    createModel(params: AddModelParams): SceneModel {
-        throw "TODO";
     }
 
     /**

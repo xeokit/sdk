@@ -156,7 +156,7 @@ export class Scene {
         if (this.models[params.id]) {
             throw new Error(`SceneModel with this ID already added to Scene: "${params.id}"`);
         }
-        if (params.sceneModel.renderer) {
+        if (params.sceneModel.rendererModel) {
             throw new Error(`SceneModel already added to another Scene`);
         }
         this.#renderer.addModel(params);

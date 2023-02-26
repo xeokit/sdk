@@ -13,19 +13,17 @@ import {
 import {Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
-
-import {RENDER_PASSES} from "./WebGLViewerModel/RENDER_PASSES";
-import {WEBGL_INFO} from "./utils/WEBGL_INFO";
 import {RenderContext} from "./RenderContext";
-import type {RenderBufferManager} from "./utils/RenderBufferManager";
-import type {RenderBuffer} from "./utils/RenderBuffer";
-import {getExtension} from "./utils/getExtension";
-import type {Pickable} from "./Pickable";
-import {RendererModelImpl} from "./WebGLViewerModel/RendererModelImpl";
-import type {Layer} from "./WebGLViewerModel/Layer";
-import {FastColorTrianglesRenderer} from "./layerRenderers/FastColorTrianglesRenderer";
+import {FastColorTrianglesRenderer} from "./FastColorTrianglesRenderer";
+import {getExtension, RenderBuffer, RenderBufferManager, WEBGL_INFO} from "@xeokit/webgl2";
+import {RENDER_PASSES} from "./RENDER_PASSES";
 import {AddModelParams} from "@xeokit/viewer/src/AddModelParams";
-import {RendererViewObject} from "viewer/src/RendererViewObject";
+import {Pickable} from "./Pickable";
+import {RendererModelImpl} from "./RendererModelImpl";
+import {Layer} from "./Layer";
+import {RendererViewObject} from "@xeokit/viewer/src/RendererViewObject";
+
+
 
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);

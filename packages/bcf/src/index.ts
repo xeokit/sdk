@@ -1,9 +1,12 @@
 /**
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fbcf.svg)](https://badge.fury.io/js/%40xeokit%2Fbcf)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/bcf/badge)](https://www.jsdelivr.com/package/npm/@xeokit/bcf)
+ * 
  * <img style="padding:20px" src="media://images/xeokit_bcf_logo.png"/>
  *
- * ## Load and save BIM Collaboration Format (BCF) Viewpoints
+ * # Load and Save {@link "@xeokit/viewer" | Viewer} State as BCF
  *
- * * {@link loadBCFViewpoint} loads a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | Viewlayer}
+ * * {@link loadBCFViewpoint} loads a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer}
  * * {@link saveBCFViewpoint} saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a JSON-encoded BCF viewpoint
  * * {@link BCFViewpoint} represents a BCF viewpoint
  *
@@ -22,7 +25,7 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {loadBCFViewpoint} from "@xeokit/bcf";
  *
  * const myViewer = new Viewer({
@@ -72,7 +75,7 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {loadBCFViewpoint} from "@xeokit/bcf";
  *
  * const myViewer = new Viewer({

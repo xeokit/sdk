@@ -1,7 +1,7 @@
 {
   "name": "@xeokit/bcf",
   "version": "0.0.1",
-  "description": "Load and save BIM Collaboration Format (BCF) viewpoints",
+  "description": "Loads and saves xeokit Viewer snapshots as JSON-encoded BIM Collaboration Format (BCF) Viewpoints.",
   "module": "dist/xeokit-bcf.modern.js",
   "source": "src/index.ts",
   "scripts": {
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xeokit/xeokit-viewer.git"
+    "url": "git+https://github.com/xeokit/sdk.git"
   },
   "author": "Lindsay Kay",
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/xeokit/xeokit-viewer/issues"
+    "url": "https://github.com/xeokit/sdk/issues"
   },
-  "homepage": "https://xeokit.io",
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html",
   "files": [
     "dist/",
     "src/",
@@ -28,7 +28,6 @@
   ],
   "keywords": [
     "webgl",
-    "webgpu",
     "javascript",
     "xeokit",
     "xeolabs",
@@ -36,16 +35,9 @@
     "ifc",
     "bcf",
     "bim",
-    "gis",
     "cad",
     "openbim",
     "opensource",
-    "bcf",
-    "3dxml",
-    "obj",
-    "stl",
-    "las",
-    "pointcloud",
     "3d-viewer"
   ],
   "main": "dist/xeokit-bcf.modern.js",

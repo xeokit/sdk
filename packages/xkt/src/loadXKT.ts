@@ -1,15 +1,20 @@
 import {LoadParams} from "@xeokit/core/components";
-import {inflateXKT} from "./lib/inflateXKT";
-import {unpackXKT} from "./lib/unpackXKT";
-import {xktToModel} from "./lib/xktToModel";
+import {inflateXKT} from "./inflateXKT";
+import {unpackXKT} from "./unpackXKT";
+import {xktToModel} from "./xktToModel";
 
 /**
- * Loads XKT file data from an ArrayBuffer into a {@link @xeokit/core/components!SceneModel | SceneModel} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
+ * Loads XKT file data from an ArrayBuffer into a {@link @xeokit/core/components!SceneModel | SceneModel}
+ * and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
  *
- * * Expects {@link @xeokit/core/components!SceneModel.built | SceneModel.built} and {@link @xeokit/core/components!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
- * * Does not call {@link @xeokit/core/components!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
+ * * Expects {@link @xeokit/core/components!SceneModel.built | SceneModel.built} and
+ * {@link @xeokit/core/components!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
+ * * Does not call {@link @xeokit/core/components!SceneModel.build | SceneModel.build} - we call that ourselves,
+ * when we have finished building the SceneModel.
  *
  * See {@link @xeokit/xkt} for usage.
+ *
+ * See {@link XKTData} for insights into the structure of an XKT file.
  *
  * @param {LoadParams} params Loading parameters.
  * @returns {Promise} Resolves when XKT has been loaded.

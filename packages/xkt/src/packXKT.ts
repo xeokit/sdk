@@ -1,5 +1,5 @@
 import {XKTDataDeflated} from "./XKTDataDeflated";
-import {XKT_INFO} from "../XKT_INFO";
+import {XKT_INFO} from "./XKT_INFO";
 
 /**
  * @private

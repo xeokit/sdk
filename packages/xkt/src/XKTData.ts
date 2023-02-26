@@ -1,7 +1,9 @@
 /**
- *  XKT data.
+ *  XKT file data.
  *
  *  The elements of an XKT file, unpacked into a set of arrays for parsing.
+ *
+ *  This interface represents the structure of an XKT file.
  */
 export interface XKTData {
 

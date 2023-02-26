@@ -1,4 +1,4 @@
-import {XKT_INFO} from "../XKT_INFO";
+import {XKT_INFO} from "./XKT_INFO";
 import {XKTData} from "./XKTData";
 import {SceneModel} from "@xeokit/core/components";
 import {DataModel} from "@xeokit/datamodel";

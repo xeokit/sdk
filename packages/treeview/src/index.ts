@@ -61,8 +61,10 @@
  *
  * ````javascript
  * const treeView = new TreeView({
+ *
  *     view: myView,
  *     data: myData,
+ *
  *     containerElement: document.getElementById("myTreeViewContainer"),
  *
  *     hierarchy: TreeView.GroupsHierarchy,
@@ -70,29 +72,25 @@
  *     groupTypes: [ifcTypes.IfcBuilding, ifcTypes.IfcBuildingStorey]
  * });
  *
- * const sceneModel = myViewer.scene.createModel({
+ * const sceneModel = new ScratchModel(); // ScratchModel implements SceneModel
+ *
+ * const dataModel = data.createModel({
  *     id: "myModel"
  * });
  *
- * const dataModel = data.createModel({
- *      id: "myModel"
- * });
- *
  * fetch("myModel.xkt").then(response => {
+ *
  *     response.arrayBuffer().then(data => {
  *
- *         loadXKT({
- *             data,
- *             sceneModel,
- *             dataModel
- *         });
+ *          loadXKT({ data, sceneModel, dataModel });
  *
- *         sceneModel.build();
- *         dataModel.build();
+ *          sceneModel.build();
+ *          dataModel.build();
+ *
+ *          myViewer.scene.addModel({ id: "myModel", sceneModel });
  *     });
  * });
  * ````
- *
  *
  * @module @xeokit/treeview
  */

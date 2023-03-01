@@ -2,7 +2,7 @@ import {inverseMat4, createMat4, createVec2} from "@xeokit/math/matrix";
 import {CustomProjection, View} from "@xeokit/viewer";
 
 import {PerspectiveProjectionType} from "@xeokit/core/constants";
-import {ArrayBuf, Attribute, Program, RenderBuffer, WEBGL_INFO} from "@xeokit/webgl2";
+import {GLArrayBuf, GLAttribute, GLProgram, GLRenderBuffer, WEBGL_INFO} from "@xeokit/webgl2";
 
 
 
@@ -17,11 +17,11 @@ export class SAOOcclusionRenderer {
     readonly #view: View;
     readonly #gl: WebGL2RenderingContext;
 
-    #program: Program|null;
+    #program: GLProgram|null;
     #programError: boolean;
     #numSamples: number = 0;
-    #aPosition: Attribute;
-    #aUV: Attribute;
+    #aPosition: GLAttribute;
+    #aUV: GLAttribute;
     #uDepthTexture: string;
     #uCameraNear: WebGLUniformLocation;
     #uCameraFar: WebGLUniformLocation;
@@ -33,9 +33,9 @@ export class SAOOcclusionRenderer {
     #uKernelRadius: WebGLUniformLocation;
     #uMinResolution: WebGLUniformLocation;
     #uRandomSeed: WebGLUniformLocation;
-    #uvBuf: ArrayBuf;
-    #positionsBuf: ArrayBuf;
-    #indicesBuf: ArrayBuf;
+    #uvBuf: GLArrayBuf;
+    #positionsBuf: GLArrayBuf;
+    #indicesBuf: GLArrayBuf;
     #uPerspective: any;
     #uViewport: any;
     #dirty: boolean;
@@ -62,7 +62,7 @@ export class SAOOcclusionRenderer {
             this.#program.destroy();
             this.#program = null;
         }
-        this.#program = new Program(gl, {
+        this.#program = new GLProgram(gl, {
             vertex: [
                 `#version 300 es
                     precision highp float;
@@ -247,9 +247,9 @@ export class SAOOcclusionRenderer {
         const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
         const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
         const indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
-        this.#positionsBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
-        this.#uvBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
-        this.#indicesBuf = new ArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
+        this.#positionsBuf = new GLArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
+        this.#uvBuf = new GLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
+        this.#indicesBuf = new GLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
         this.#program.bind();
         this.#uCameraNear = this.#program.getLocation("uCameraNear");
         this.#uCameraFar = this.#program.getLocation("uCameraFar");
@@ -268,7 +268,7 @@ export class SAOOcclusionRenderer {
         this.#dirty = false;
     }
 
-    render(depthRenderBuffer: RenderBuffer) {
+    render(depthRenderBuffer: GLRenderBuffer) {
         this.#init();
         if (this.#programError) {
             return;

@@ -46,6 +46,7 @@
  *  We'll start by importing the modules we need:
  *
  * ````javascript
+ * import {ScratchModel} from "@xeokit/scratchmodel";
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl2renderer";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
@@ -99,9 +100,7 @@
  * of textured {@link @xeokit/core/components!SceneObject | SceneObjects}:
  *
  * ````javascript
- * const sceneModel = myViewer.scene.createModel({
- *     id: "myModel"
- * });
+ * const sceneModel = new ScratchModel(); // ScratchModel implements SceneModel
  *
  * sceneModel.createGeometry({
  *      id: "myGeometry",
@@ -146,6 +145,11 @@
  * });
  *
  * sceneModel.build();
+ *
+ * myViewer.scene.addModel({
+ *     id: "myModel",
+ *     sceneModel
+ * });
  * ````
  *
  * As soon as we've called {@link @xeokit/core/components!SceneModel.build | SceneModel.build}, two new objects appear
@@ -306,9 +310,7 @@
  * ````javascript
  * sceneModel.destroy();
  *
- * const sceneModel2 = myViewer.scene.createModel({
- *     id: "myModel"
- * });
+ * const sceneModel2 = new ScratchModel();
  *
  * loadXKT({
  *     data: xktArrayBuffer,
@@ -316,6 +318,11 @@
  * });
  *
  * sceneModel2.build();
+ *
+ * myViewer.scene.addModel({
+ *     id: "myModel",
+ *     sceneModel: sceneModel2
+ * });
  * ````
  *
  * Both Views now show the two objects once more, in their original, unhighlighted state. Their highlighted state, after
@@ -417,4 +424,3 @@ export * from "./PickParams";
 export * from "./PickResult";
 export * from "./ViewLayerParams";
 export * from "./Scene";
-export * from "./ModelParams";

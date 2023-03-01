@@ -1,7 +1,10 @@
 import {Canvas2Image} from "./canvas2image";
-import type {Texture} from "./Texture";
+import type {GLAbstractTexture} from "./GLAbstractTexture";
 
-export class RenderBuffer {
+/**
+ * Represents a WebGL2 render buffer.
+ */
+export class GLRenderBuffer {
 
     #canvas: HTMLCanvasElement;
     #gl: WebGL2RenderingContext;
@@ -11,9 +14,15 @@ export class RenderBuffer {
     #size: number[];
     #hasDepthTexture: boolean;
     #imageDataCache: any;
-    #texture: Texture;
-    #depthTexture: Texture;
+    #texture: GLAbstractTexture;
+    #depthTexture: GLAbstractTexture;
 
+    /**
+     * Creates a new render buffer.
+     * @param canvas
+     * @param gl
+     * @param options
+     */
     constructor(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, options: {
         depthTexture: boolean;
         size: number[];
@@ -27,10 +36,17 @@ export class RenderBuffer {
         this.#hasDepthTexture = !!options.depthTexture;
     }
 
+    /**
+     * Sets the size of this render buffer.
+     * @param size
+     */
     setSize(size: number[]) {
         this.#size = size;
     }
 
+    /**
+     * Binds this render buffer.
+     */
     bind() {
         this.#touch();
         if (this.#bound) {
@@ -125,6 +141,9 @@ export class RenderBuffer {
         this.#bound = false;
     }
 
+    /**
+     * Clears this render buffer.
+     */
     clear() {
         if (!this.#bound) {
             throw "Render buffer not bound";
@@ -133,6 +152,11 @@ export class RenderBuffer {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 
+    /**
+     * Reads a pixel from this render buffer.
+     * @param pickX
+     * @param pickY
+     */
     read(pickX: number, pickY: number): Uint8Array {
         const x = pickX;
         const y = this.#gl.drawingBufferHeight - pickY;
@@ -142,6 +166,10 @@ export class RenderBuffer {
         return pix;
     }
 
+    /**
+     * Redas an image from this render buffer.
+     * @param params
+     */
     readImage(params: {
         height?: number;
         width?: number;
@@ -209,13 +237,19 @@ export class RenderBuffer {
         return imageDataCache;
     }
 
+    /**
+     * Unbinds this render buffer.
+     */
     unbind() {
         const gl = this.#gl;
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         this.#bound = false;
     }
 
-    getTexture(): Texture {
+    /**
+     * Gets a texture that has the contents of this render buffer.
+     */
+    getTexture(): GLAbstractTexture {
         return this.#texture || (this.#texture = {
             bind: (unit: number) => {
                 if (this.#buffer && this.#buffer.texture) {
@@ -236,11 +270,17 @@ export class RenderBuffer {
         });
     }
 
+    /**
+     * Does this render buffer have a depth texture component?
+     */
     hasDepthTexture() {
         return this.#hasDepthTexture;
     }
 
-    getDepthTexture(): Texture | null {
+    /**
+     * Gets the depth texture component of this render buffer, if any.
+     */
+    getDepthTexture(): GLAbstractTexture | null {
         if (!this.#hasDepthTexture) {
             return null;
         }
@@ -264,6 +304,9 @@ export class RenderBuffer {
         });
     }
 
+    /**
+     * Destroys this render buffer.
+     */
     destroy() {
         if (this.#allocated) {
             const gl = this.#gl;

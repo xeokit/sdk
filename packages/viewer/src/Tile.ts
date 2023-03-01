@@ -1,8 +1,8 @@
-import type {RendererObject} from "./RendererObject";
-import type {ViewerModel} from "./ViewerModel";
+
 import type {Tiles} from "./Tiles";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {collapseAABB3} from "@xeokit/math/boundaries";
+import {RendererObject} from "@xeokit/core/components";
 
 /**
  * A tile within the {@link @xeokit/viewer!Viewer}'s relative-to-center (RTC) World-space 3D coordinate system.
@@ -35,7 +35,7 @@ export class Tile {
     /**
      * The {@link ViewerModel|ViewerModels} in this tile.
      */
-    public readonly viewerModels: { [key: string]: ViewerModel }
+    // public readonly viewerModels: { [key: string]: ViewerModel }
 
     /**
      * The {@link RendererObject|ViewerObjects} in this tile.
@@ -61,19 +61,19 @@ export class Tile {
         this.aabb = collapseAABB3();
         this.origin = new Float64Array(origin);
         this.useCount = 0;
-        this.viewerModels = {};
+  //      this.viewerModels = {};
         this.viewerObjects = {};
 
     }
 
     registerSceneObject(viewerObject: RendererObject) {
-        const viewerModel = viewerObject.model;
-        if (!this.viewerModels[viewerModel.id]) {
-            viewerModel.onDestroyed.one(() => {
-                delete this.viewerModels[viewerModel.id];
-                //  this.numViewerModels--;
-            });
-        }
+        // const viewerModel = viewerObject.model;
+        // if (!this.viewerModels[viewerModel.id]) {
+        //     viewerModel.onDestroyed.one(() => {
+        //         delete this.viewerModels[viewerModel.id];
+        //         //  this.numViewerModels--;
+        //     });
+        // }
     }
 
     release() {

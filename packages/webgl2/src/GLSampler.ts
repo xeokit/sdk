@@ -1,19 +1,29 @@
+import type {GLAbstractTexture} from "./GLAbstractTexture";
 
-import type {Texture2D} from "./Texture2D";
-import type {DataTexture} from "./DataTexture";
-import type {Texture} from "./Texture";
-
-export class Sampler {
+/**
+ * Represents a WebGL2 sampler.
+ */
+export class GLSampler {
 
     private readonly location: WebGLUniformLocation;
     private readonly gl: WebGL2RenderingContext;
 
+    /**
+     * Creates a new sampler.
+     * @param gl
+     * @param location
+     */
     constructor(gl: WebGL2RenderingContext, location: WebGLUniformLocation) {
         this.gl = gl;
         this.location = location;
     }
 
-    bindTexture(texture: Texture2D|DataTexture|Texture, unit: number) {
+    /**
+     * Binds a texture to this sampler.
+     * @param texture
+     * @param unit
+     */
+    bindTexture(texture: GLAbstractTexture, unit: number) {
         if (texture.bind(unit)) {
             this.gl.uniform1i(this.location, unit);
             return true;

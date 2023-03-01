@@ -1,5 +1,5 @@
 import {View, Viewer} from "@xeokit/viewer";
-import {Texture, WEBGL_INFO} from "@xeokit/webgl2";
+import {GLAbstractTexture, WEBGL_INFO} from "@xeokit/webgl2";
 
 
 
@@ -51,7 +51,7 @@ export class RenderContext {
     public frontface: boolean;
 
     /**
-     * The next available texture unit to bind a {@link Texture} to.
+     * The next available texture unit to bind a {@link GLAbstractTexture} to.
      */
     public textureUnit: number;
 
@@ -118,7 +118,7 @@ export class RenderContext {
     /**
      * The occlusion rendering texture.
      */
-    public occlusionTexture: Texture | null;
+    public occlusionTexture: GLAbstractTexture | null;
 
     constructor(viewer: Viewer, view: View, gl: WebGL2RenderingContext) {
         this.viewer = viewer;

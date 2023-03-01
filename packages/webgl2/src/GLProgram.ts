@@ -1,29 +1,92 @@
 import {Map} from "@xeokit/core/utils";
 
-import {Shader} from "./Shader";
-import {Sampler} from "./Sampler";
-import {Attribute} from "./Attribute";
-import type {Texture} from "./Texture";
+import {GLShader} from "./GLShader";
+import {GLSampler} from "./GLSampler";
+import {GLAttribute} from "./GLAttribute";
+import type {GLAbstractTexture} from "./GLAbstractTexture";
 
 const ids = new Map({}, "");
 
-export class Program {
+/**
+ * Represents a WebGL2 program.
+ */
+export class GLProgram {
 
+    /**
+     * Unique ID of this program.
+     */
     id: number;
-    vertexShader: Shader;
-    fragmentShader: Shader;
-    attributes: { [key: string]: Attribute };
-    samplers: { [key: string]: Sampler };
+
+    /**
+     * The vertex shader.
+     */
+    vertexShader: GLShader;
+
+    /**
+     * The fragment shader.
+     */
+    fragmentShader: GLShader;
+
+    /**
+     * Map of all attributes in this program.
+     */
+    attributes: { [key: string]: GLAttribute };
+
+    /**
+     * Map of all samplers in this program.
+     */
+    samplers: { [key: string]: GLSampler };
+
+    /**
+     * Map of all uniforms in this program.
+     */
     uniforms: { [key: string]: WebGLUniformLocation };
+
+    /**
+     * List of compilation errors for this program, if any.
+     */
     errors: string[];
+
+    /**
+     * Flag set true when program has been validated.
+     */
     validated: boolean;
+
+    /**
+     * Flag set true when this program has been successfully linked.
+     */
     linked: boolean;
+
+    /**
+     * Flag set true when this program has been successfully conpiled.
+     */
     compiled: boolean;
+
+    /**
+     * Flag set true when this program has been successfully allocated.
+     */
     allocated: boolean;
+
+    /**
+     * The WebGL2 rendering context.
+     */
     gl: WebGL2RenderingContext;
+
+    /**
+     * The source code from which the shaders are built.
+     */
     source: any;
+
+    /**
+     * Handle to the WebGL program itself, which resides on the GPU.
+     */
     handle: WebGLProgram;
 
+    /**
+     * Creates a new program.
+     * @param gl
+     * @param shaderSource
+     */
     constructor(gl: WebGL2RenderingContext, shaderSource: any) {
 
         // @ts-ignore
@@ -39,8 +102,8 @@ export class Program {
         this.samplers = {};
         this.attributes = {};
 
-        this.vertexShader = new Shader(gl, gl.VERTEX_SHADER, this.source.vertex);
-        this.fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, this.source.fragment);
+        this.vertexShader = new GLShader(gl, gl.VERTEX_SHADER, this.source.vertex);
+        this.fragmentShader = new GLShader(gl, gl.FRAGMENT_SHADER, this.source.fragment);
 
         if (!this.vertexShader.allocated) {
             this.errors = ["Vertex shader failed to allocate"].concat(this.vertexShader.errors);
@@ -112,7 +175,7 @@ export class Program {
                 const location = gl.getUniformLocation(this.handle, uName);
                 if ((u.type === gl.SAMPLER_2D) || (u.type === gl.SAMPLER_CUBE) || (u.type === 35682)) {
                     // @ts-ignore
-                    this.samplers[uName] = new Sampler(gl, location);
+                    this.samplers[uName] = new GLSampler(gl, location);
                 } else {
                     // @ts-ignore
                     this.uniforms[uName] = location;
@@ -125,13 +188,16 @@ export class Program {
             const a = gl.getActiveAttrib(this.handle, i);
             if (a) {
                 const location = gl.getAttribLocation(this.handle, a.name);
-                this.attributes[a.name] = new Attribute(gl, location);
+                this.attributes[a.name] = new GLAttribute(gl, location);
             }
         }
 
         this.allocated = true;
     }
 
+    /**
+     * Binds this program.
+     */
     bind() {
         if (!this.allocated) {
             return;
@@ -139,19 +205,37 @@ export class Program {
         this.gl.useProgram(this.handle);
     }
 
+    /**
+     * Gets the location of the given uniform within this program.
+     * @param name
+     */
     getLocation(name: string): WebGLUniformLocation {
         return this.uniforms[name];
     }
 
-    getAttribute(name: string): Attribute {
+    /**
+     * Gets an attribute within this program.
+     * @param name
+     */
+    getAttribute(name: string): GLAttribute {
         return this.attributes[name];
     }
 
-    getSampler(name: string): Sampler {
+    /**
+     * Gets a sampler within this program.
+     * @param name
+     */
+    getSampler(name: string): GLSampler {
         return this.samplers[name];
     }
 
-    bindTexture(name: string, texture: Texture, unit: number): boolean {
+    /**
+     * Binds a texture to this program.
+     * @param name
+     * @param texture
+     * @param unit
+     */
+    bindTexture(name: string, texture: GLAbstractTexture, unit: number): boolean {
         if (!this.allocated) {
             return false;
         }
@@ -163,6 +247,9 @@ export class Program {
         }
     }
 
+    /**
+     * Destroys this program.
+     */
     destroy() {
         if (!this.allocated) {
             return;
@@ -180,9 +267,10 @@ export class Program {
 
 function joinSansComments(srcLines: string[]) {
     const src = [];
-    let line;``
+    let line;
+    ``
     for (let i = 0, len = srcLines.length; i < len; i++) {
-         line = srcLines[i];
+        line = srcLines[i];
         const n = line.indexOf("/");
         if (n > 0) {
             if (line.charAt(n + 1) === "/") {

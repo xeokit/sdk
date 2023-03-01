@@ -1,10 +1,11 @@
-import type {Program} from "./Program";
-import type {Sampler} from "./Sampler";
+import type {GLProgram} from "./GLProgram";
+import type {GLSampler} from "./GLSampler";
+import {GLAbstractTexture} from "./GLAbstractTexture";
 
 /**
- * Represents a WebGL2 texture that holds geometry data.
+ * Represents a WebGL2 data texture.
  */
-export class DataTexture {
+export class GLDataTexture implements GLAbstractTexture {
 
     gl?: WebGL2RenderingContext;
     texture?: WebGLTexture|null;
@@ -14,7 +15,7 @@ export class DataTexture {
     #onDestroyed?: Function;
 
     /**
-     * Constructs a new DataTexture.
+     * Constructs a new GLDataTexture.
      * @param params
      */
     constructor(params: {
@@ -34,12 +35,12 @@ export class DataTexture {
     }
 
     /**
-     * Binds this DataTexture to the given {@link Sampler}.
+     * Binds this GLDataTexture to the given {@link GLSampler}.
      * @param glProgram
      * @param sampler
      * @param unit
      */
-    bindTexture(glProgram: Program, sampler: Sampler, unit: number) {
+    bindTexture(glProgram: GLProgram, sampler: GLSampler, unit: number) {
         if (!this.gl) {
             return;
         }
@@ -47,7 +48,7 @@ export class DataTexture {
     }
 
     /**
-     * Unbinds this DataTexture from whichever {@link Sampler} it's currently bound to, if any.
+     * Unbinds this GLDataTexture from whichever {@link GLSampler} it's currently bound to, if any.
      * @param unit
      */
     bind(unit: number) {

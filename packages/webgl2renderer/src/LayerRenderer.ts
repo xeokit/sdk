@@ -5,7 +5,7 @@ import {AmbientLight, DirLight, Perspective, PointLight} from "@xeokit/viewer";
 import type {RenderContext} from "./RenderContext";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import type {Layer} from "./Layer";
-import {Program, Sampler} from "@xeokit/webgl2";
+import {GLProgram, GLSampler} from "@xeokit/webgl2";
 
 const tempVec4 = createVec4();
 
@@ -22,7 +22,7 @@ export abstract class LayerRenderer {
     protected renderContext: RenderContext;
 
     #hash: string;
-    #program: Program | null;
+    #program: GLProgram | null;
     #needRebuild: boolean;
 
     #uniforms: {
@@ -55,20 +55,20 @@ export abstract class LayerRenderer {
     }
 
     #samplers: {
-        positions: Sampler;
-        indices: Sampler;
-        edgeIndices: Sampler;
-        eachMeshMatrices: Sampler;
-        eachMeshAttributes: Sampler;
-        //    eachMeshOffsets: Sampler;
-        eachEdgeOffset: Sampler;
-        eachPrimitiveMesh: Sampler;
-        eachEdgeMesh: Sampler;
-        baseColorMap: Sampler;
-        metallicRoughMap: Sampler;
-        emissiveMap: Sampler;
-        normalMap: Sampler;
-        occlusionMap: Sampler;
+        positions: GLSampler;
+        indices: GLSampler;
+        edgeIndices: GLSampler;
+        eachMeshMatrices: GLSampler;
+        eachMeshAttributes: GLSampler;
+        //    eachMeshOffsets: GLSampler;
+        eachEdgeOffset: GLSampler;
+        eachPrimitiveMesh: GLSampler;
+        eachEdgeMesh: GLSampler;
+        baseColorMap: GLSampler;
+        metallicRoughMap: GLSampler;
+        emissiveMap: GLSampler;
+        normalMap: GLSampler;
+        occlusionMap: GLSampler;
     };
 
     protected constructor(renderContext: RenderContext) {
@@ -82,7 +82,7 @@ export abstract class LayerRenderer {
         const view = this.renderContext.view;
         const gl = this.renderContext.gl;
 
-        this.#program = new Program(gl, this.#buildShader());
+        this.#program = new GLProgram(gl, this.#buildShader());
 
         if (this.#program.errors) {
             this.errors = this.#program.errors;

@@ -9,7 +9,6 @@ import {scheduler} from "./scheduler";
 import type {Renderer} from "./Renderer";
 
 import type {ViewParams} from "./ViewParams";
-import {ViewerModel} from "./ViewerModel";
 import {Scene} from "./Scene";
 
 class TickParams {
@@ -262,7 +261,7 @@ export class Viewer extends Component {
     }
 
     /**
-     * Destroys this Viewer and all {@link View|Views}, {@link ViewerModel|ViewerModels} and {@link Plugin}s we've created within it.
+     * Destroys this Viewer and all {@link View|Views} and {@link Plugin}s we've created within it.
      */
     destroy(): void {
         if (this.destroyed) {

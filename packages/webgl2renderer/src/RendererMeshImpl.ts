@@ -1,16 +1,16 @@
-import {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet} from "@xeokit/core/components";
+import {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {createAABB3} from "@xeokit/math/boundaries";
 
 import type {RenderContext} from "./RenderContext";
 import type {Layer} from "./Layer";
-
+import {Pickable} from "./Pickable";
 
 
 /**
  * @private
  */
-export class RendererMeshImpl implements RendererMesh {
+export class RendererMeshImpl implements RendererMesh, Pickable {
 
     id: string;
     color: FloatArrayParam;
@@ -59,6 +59,10 @@ export class RendererMeshImpl implements RendererMesh {
         this.rendererTextureSet = params.rendererTextureSet;
         this.rendererGeometry = params.rendererGeometry;
         this.meshIndex = params.meshIndex;
+    }
+
+    delegatePickedEntity(): SceneObject {
+        throw new Error("Method not implemented.");
     }
 
     setSceneObject(sceneObjectRenderer: RendererObject) {

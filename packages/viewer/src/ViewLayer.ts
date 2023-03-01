@@ -1,11 +1,9 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter, SceneModel} from "@xeokit/core/components";
+import {Component, EventEmitter, RendererObject, SceneModel} from "@xeokit/core/components";
 
 import {ViewObject} from "./ViewObject";
 import type {Viewer} from "./Viewer";
-import type {ViewerModel} from "./ViewerModel";
 import type {View} from "./View";
-import {RendererObject} from "./ViewerObject";
 import {Scene} from "./Scene";
 
 
@@ -891,11 +889,12 @@ class ViewLayer extends Component {
     }
 
     #createObjects(model: SceneModel) {
-        const viewerObjects = model.objects;
-        for (let id in viewerObjects) {
-            const viewerObject = <RendererObject>viewerObjects[id];
-            if (viewerObject.viewLayerId == this.id) {
-                const viewObject = new ViewObject(this, viewerObject, {});
+        const sceneObjects = model.objects;
+        for (let id in sceneObjects) {
+            const sceneObject = sceneObjects[id];
+            const rendererViewObject = this.viewer.renderer.rendererViewObjects[id];
+            if (rendererViewObject.viewLayerId == this.id) {
+                const viewObject = new ViewObject(this, sceneObject, rendererViewObject,{});
                 this.objects[viewObject.id] = viewObject;
                 this.#numObjects++;
                 this.#objectIds = null; // Lazy regenerate

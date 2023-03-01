@@ -1,6 +1,6 @@
 import {CustomProjection, View} from "@xeokit/viewer";
 import {inverseMat4, createMat4} from "@xeokit/math/matrix";
-import {ArrayBuf, Attribute, Program, RenderBuffer, WEBGL_INFO} from "@xeokit/webgl2";
+import {GLArrayBuf, GLAttribute, GLProgram, GLRenderBuffer, WEBGL_INFO} from "@xeokit/webgl2";
 
 
 
@@ -19,18 +19,18 @@ export class SAODepthLimitedBlurRenderer {
 
     readonly #view: View;
     readonly #gl: WebGL2RenderingContext;
-    #program: Program;
+    #program: GLProgram;
     #programError: boolean;
-    #aPosition: Attribute;
-    #aUV: Attribute;
+    #aPosition: GLAttribute;
+    #aUV: GLAttribute;
     #uDepthTexture: string;
     #uOcclusionTexture: string;
     #uViewport: WebGLUniformLocation;
     #uCameraNear: WebGLUniformLocation;
     #uCameraFar: WebGLUniformLocation;
-    #uvBuf: ArrayBuf;
-    #positionsBuf: ArrayBuf;
-    #indicesBuf: ArrayBuf;
+    #uvBuf: GLArrayBuf;
+    #positionsBuf: GLArrayBuf;
+    #indicesBuf: GLArrayBuf;
     #uDepthCutoff: WebGLUniformLocation;
     #uSampleOffsets: WebGLUniformLocation;
     #uSampleWeights: WebGLUniformLocation;
@@ -44,7 +44,7 @@ export class SAODepthLimitedBlurRenderer {
 
     #init() {
         const gl = this.#gl;
-        this.#program = new Program(gl, {
+        this.#program = new GLProgram(gl, {
             vertex: [
                 `#version 300 es
                 precision highp float;
@@ -186,9 +186,9 @@ export class SAODepthLimitedBlurRenderer {
         const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
         const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
         const indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
-        this.#positionsBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
-        this.#uvBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
-        this.#indicesBuf = new ArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
+        this.#positionsBuf = new GLArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
+        this.#uvBuf = new GLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
+        this.#indicesBuf = new GLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
         this.#program.bind();
         this.#uViewport = this.#program.getLocation("uViewport");
         this.#uCameraNear = this.#program.getLocation("uCameraNear");
@@ -204,7 +204,7 @@ export class SAODepthLimitedBlurRenderer {
         this.#uOcclusionTexture = "uOcclusionTexture";
     }
 
-    render(depthRenderBuffer: RenderBuffer, occlusionRenderBuffer: RenderBuffer, direction: number) {
+    render(depthRenderBuffer: GLRenderBuffer, occlusionRenderBuffer: GLRenderBuffer, direction: number) {
         if (this.#programError) {
             return;
         }

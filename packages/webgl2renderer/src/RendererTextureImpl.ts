@@ -1,5 +1,5 @@
 import {Texture, RendererTexture} from "@xeokit/core/components";
-import {Texture2D} from "@xeokit/webgl2";
+import {GLTexture} from "@xeokit/webgl2";
 
 /**
  * @private
@@ -7,9 +7,9 @@ import {Texture2D} from "@xeokit/webgl2";
 export class RendererTextureImpl implements RendererTexture{
 
     texture: Texture;
-    texture2D: Texture2D;
+    texture2D: GLTexture;
 
-    constructor(texture: Texture, texture2D: Texture2D) {
+    constructor(texture: Texture|null, texture2D: GLTexture) {
         this.texture = texture
         this.texture2D = texture2D;
     }

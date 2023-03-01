@@ -2,9 +2,9 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fwebgl.svg)](https://badge.fury.io/js/%40xeokit%2Fwebgl)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/webgl2renderer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/webgl2renderer)
  * 
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/xeokit_webgl_logo.svg"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:100px;" src="media://images/xeokit_webgl_logo.svg"/>
  *
- * # WebGL-Based Rendering Strategy
+ * # WebGL2-Based Rendering Strategy
  *
  * * Plug a {@link WebGLRenderer} into a {@link @xeokit/viewer!Viewer} to use WebGL for model storage and rendering
  * * Compact texture-based model representation

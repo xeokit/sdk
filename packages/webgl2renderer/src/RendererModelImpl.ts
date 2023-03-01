@@ -39,7 +39,7 @@ import {RendererTextureImpl} from "./RendererTextureImpl";
 import {RendererObjectImpl} from "./RendererObjectImpl";
 import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
-import {Texture2D} from "@xeokit/webgl2";
+import {GLTexture} from "@xeokit/webgl2";
 
 
 const tempVec3a = createVec3();
@@ -271,14 +271,14 @@ export class RendererModelImpl extends Component implements RendererModel {
         if (this.rendererTextures[textureId]) {
             throw new Error("RendererTexture already created: " + textureId);
         }
-        const texture2D = new Texture2D({gl: this.#renderContext.gl});
+        const glTexture = new GLTexture({gl: this.#renderContext.gl});
         if (texture.preloadColor) {
-            texture2D.setPreloadColor(texture.preloadColor);
+            glTexture.setPreloadColor(texture.preloadColor);
         }
         if (texture.image) { // Ignore transcoder for Images
             const image = texture.image;
             image.crossOrigin = "Anonymous";
-            texture2D.setImage(image, {
+            glTexture.setImage(image, {
                 minFilter: texture.minFilter,
                 magFilter: texture.magFilter,
                 wrapS: texture.wrapS,
@@ -296,7 +296,7 @@ export class RendererModelImpl extends Component implements RendererModel {
                 case "gif":
                     const image = new Image();
                     image.onload = () => {
-                        texture2D.setImage(image, {
+                        glTexture.setImage(image, {
                             minFilter: texture.minFilter,
                             magFilter: texture.magFilter,
                             wrapS: texture.wrapS,
@@ -318,7 +318,7 @@ export class RendererModelImpl extends Component implements RendererModel {
                                     return;
                                 }
                                 this.#textureTranscoder.transcode([arrayBuffer]).then((compressedTextureData) => {
-                                    texture2D.setCompressedData(compressedTextureData);
+                                    glTexture.setCompressedData(compressedTextureData);
                                     this.#webglRenderer.setImageDirty();
                                 });
                             },
@@ -333,12 +333,12 @@ export class RendererModelImpl extends Component implements RendererModel {
                 this.error(`Can't create texture from 'buffers' - rendererModel needs to be configured with a TextureTranscoder for this option`);
             } else {
                 this.#textureTranscoder.transcode(texture.buffers).then((compressedTextureData) => {
-                    texture2D.setCompressedData(compressedTextureData);
+                    glTexture.setCompressedData(compressedTextureData);
                     this.#webglRenderer.setImageDirty();
                 });
             }
         }
-        const rendererTexture = new RendererTextureImpl(texture, texture2D);
+        const rendererTexture = new RendererTextureImpl(texture, glTexture);
         texture.rendererTexture = rendererTexture;
         this.rendererTextures[textureId] = rendererTexture;
     }
@@ -455,15 +455,6 @@ export class RendererModelImpl extends Component implements RendererModel {
         if (meshes === undefined) {
             throw new Error("[createObject] Param expected: meshes");
         }
-        let aabb;
-        if (meshes.length === 1) {
-            aabb = meshes[0].aabb;
-        } else {
-            aabb = collapseAABB3();
-            for (let i = 0, len = meshes.length; i < len; i++) {
-                expandAABB3(aabb, meshes[i].aabb);
-            }
-        }
         const rendererMeshes = [];
         for (let i = 0, len = meshes.length; i < len; i++) {
             rendererMeshes.push(meshes[i].rendererMesh);
@@ -472,7 +463,7 @@ export class RendererModelImpl extends Component implements RendererModel {
             id: objectId,
             rendererModel: this,
             rendererMeshes,
-            aabb,
+            aabb: sceneObject.aabb,
             viewLayerId: this.#viewLayerId
         });
         this.rendererObjectsList.push(objectRenderer);
@@ -923,11 +914,11 @@ export class RendererModelImpl extends Component implements RendererModel {
         for (let i = 0, len = this.layerList.length; i < len; i++) {
             this.layerList[i].destroy();
         }
-        for (let i = 0, len = this.objectList.length; i < len; i++) {
-            this.objectList[i].destroy();
+        for (let objectId in this.rendererObjects) {
+            this.rendererObjects[objectId].destroy();
         }
         for (let meshId in this.rendererMeshes) {
-            this.#webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
+            //    this.#webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
         }
         this.#currentLayers = {};
         this.#layers = {};
@@ -991,39 +982,35 @@ export class RendererModelImpl extends Component implements RendererModel {
     }
 
     #createDefaultTextureSetRenderer() {
-        const defaultColorTexture = new RendererTextureImpl({},
-            new Texture2D({
+        const defaultColorTexture = new RendererTextureImpl(
+            null,
+            new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [1, 1, 1, 1] // [r, g, b, a]})
             }));
 
-
-        const defaultMetalRoughTexture = new RendererTextureImpl({
-                id: defaultMetalRoughTextureId
-            },
-            new Texture2D({
+        const defaultMetalRoughTexture = new RendererTextureImpl(
+            null,
+            new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 1, 1, 1] // [unused, roughness, metalness, unused]
             }));
-        const defaultNormalsTexture = new RendererTextureImpl({
-                id: defaultNormalsTextureId
-            },
-            new Texture2D({
+        const defaultNormalsTexture = new RendererTextureImpl(
+            null,
+            new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 0, 0, 0] // [x, y, z, unused] - these must be zeros
             }));
 
-        const defaultEmissiveTexture = new RendererTextureImpl({
-                id: defaultEmissiveTextureId
-            },
-            new Texture2D({
+        const defaultEmissiveTexture = new RendererTextureImpl(
+            null,
+            new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 0, 0, 1] // [x, y, z, unused]
             }));
-        const defaultOcclusionTexture = new RendererTextureImpl({
-                id: defaultOcclusionTextureId
-            },
-            new Texture2D({
+        const defaultOcclusionTexture = new RendererTextureImpl(
+            null,
+            new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [1, 1, 1, 1] // [x, y, z, unused]
             }));

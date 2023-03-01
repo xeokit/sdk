@@ -1,6 +1,6 @@
-import type {ViewerModel} from "./ViewerModel";
+
 import {FloatArrayParam} from "@xeokit/math/math";
-import {Mesh, SceneModel, SceneObject} from "@xeokit/core/components";
+import { SceneModel} from "@xeokit/core/components";
 
 
 /**

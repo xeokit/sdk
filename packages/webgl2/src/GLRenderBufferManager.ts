@@ -1,18 +1,16 @@
 import {View} from "@xeokit/viewer";
 
-import {RenderBuffer} from "./RenderBuffer";
-
-
+import {GLRenderBuffer} from "./GLRenderBuffer";
 
 /**
  * @private
  */
-export class RenderBufferManager {
+export class GLRenderBufferManager {
 
     readonly #view: View;
     readonly #gl: WebGL2RenderingContext;
-    readonly #renderBuffersBasic: { [key: string]: RenderBuffer };
-    readonly #renderBuffersScaled: { [key: string]: RenderBuffer };
+    readonly #renderBuffersBasic: { [key: string]: GLRenderBuffer };
+    readonly #renderBuffersScaled: { [key: string]: GLRenderBuffer };
 
     constructor(view: View, gl: WebGL2RenderingContext) {
         this.#view = view;
@@ -24,11 +22,11 @@ export class RenderBufferManager {
     getRenderBuffer(id: string, options: {
         depthTexture: boolean;
         size: number[];
-    }): RenderBuffer {
+    }): GLRenderBuffer {
         const renderBuffers = (this.#view.resolutionScale === 1.0) ? this.#renderBuffersBasic : this.#renderBuffersScaled;
         let renderBuffer = renderBuffers[id];
         if (!renderBuffer) {
-            renderBuffer = new RenderBuffer(this.#view.canvasElement, this.#gl, options);
+            renderBuffer = new GLRenderBuffer(this.#view.canvasElement, this.#gl, options);
             renderBuffers[id] = renderBuffer;
         }
         return renderBuffer;

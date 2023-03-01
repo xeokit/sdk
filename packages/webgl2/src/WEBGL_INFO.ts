@@ -1,3 +1,6 @@
+/**
+ * Information about WebGL2 support on the client machine.
+ */
 const WEBGL_INFO: {
     [key: string]: any
 } = {

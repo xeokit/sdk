@@ -45,7 +45,7 @@ export class ViewObject {
      * The corresponding {@link RendererViewObject}.
      * @internal
      */
-    #rendererViewObjectCommands: RendererViewObject;
+    #rendererViewObject: RendererViewObject;
 
     #state: {
         visible: boolean | null;
@@ -68,7 +68,7 @@ export class ViewObject {
     constructor(
         layer: ViewLayer,
         sceneObject: SceneObject,
-        rendererViewObjectCommands: RendererViewObject,
+        rendererViewObject: RendererViewObject,
         options: {
             opacity?: number;
             colorize?: number[];
@@ -86,7 +86,7 @@ export class ViewObject {
         this.id = sceneObject.id;
         this.layer = layer;
         this.sceneObject = sceneObject;
-        this.#rendererViewObjectCommands = rendererViewObjectCommands;
+        this.#rendererViewObject = rendererViewObject;
 
         this.#state = {
             visible: null,
@@ -150,7 +150,7 @@ export class ViewObject {
             return;
         }
         this.#state.visible = visible;
-        this.#rendererViewObjectCommands.setVisible(this.layer.view.viewIndex, visible);
+        this.#rendererViewObject.setVisible(this.layer.view.viewIndex, visible);
         this.layer.objectVisibilityUpdated(this, visible, true);
         this.layer.redraw();
     }
@@ -176,7 +176,7 @@ export class ViewObject {
             return;
         }
         this.#state.xrayed = xrayed;
-        this.#rendererViewObjectCommands.setXRayed(this.layer.view.viewIndex, xrayed);
+        this.#rendererViewObject.setXRayed(this.layer.view.viewIndex, xrayed);
         this.layer.objectXRayedUpdated(this, xrayed);
         this.layer.redraw();
     }
@@ -196,7 +196,7 @@ export class ViewObject {
             return;
         }
         this.#state.edges = edges;
-        this.#rendererViewObjectCommands.setEdges(this.layer.view.viewIndex, edges);
+        this.#rendererViewObject.setEdges(this.layer.view.viewIndex, edges);
         this.layer.redraw();
     }
 
@@ -221,7 +221,7 @@ export class ViewObject {
             return;
         }
         this.#state.highlighted = highlighted;
-        this.#rendererViewObjectCommands.setHighlighted(
+        this.#rendererViewObject.setHighlighted(
             this.layer.view.viewIndex,
             highlighted
         );
@@ -250,7 +250,7 @@ export class ViewObject {
             return;
         }
         this.#state.selected = selected;
-        this.#rendererViewObjectCommands.setSelected(this.layer.view.viewIndex, selected);
+        this.#rendererViewObject.setSelected(this.layer.view.viewIndex, selected);
         this.layer.objectSelectedUpdated(this, selected);
         this.layer.redraw();
     }

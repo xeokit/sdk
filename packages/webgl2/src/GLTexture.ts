@@ -11,13 +11,15 @@ import {isArray} from "@xeokit/core/utils";
 
 import {convertConstant} from "./convertConstant";
 import {getExtension} from "./getExtension";
-import type {Texture} from "./Texture";
+import type {GLAbstractTexture} from "./GLAbstractTexture";
 import {TextureCompressedParams} from "@xeokit/core/components";
 
 const color = new Uint8Array([0, 0, 0, 1]);
 
-
-export class Texture2D implements Texture {
+/**
+ * Represents a WebGL2 texture.
+ */
+export class GLTexture implements GLAbstractTexture {
 
     private gl: WebGL2RenderingContext;
     private target: number;

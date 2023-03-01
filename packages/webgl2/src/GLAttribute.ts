@@ -1,9 +1,9 @@
-import type {ArrayBuf} from "./ArrayBuf";
+import type {GLArrayBuf} from "./GLArrayBuf";
 
 /**
  * Represents a WebGL vertex attribute.
  */
-export class Attribute {
+export class GLAttribute {
     gl: WebGL2RenderingContext;
     location: number;
 
@@ -21,7 +21,7 @@ export class Attribute {
      * Binds an array buffer to this vertex attribute.
      * @param arrayBuf
      */
-    bindArrayBuffer(arrayBuf: ArrayBuf) {
+    bindArrayBuffer(arrayBuf: GLArrayBuf) {
         if (!arrayBuf) {
             return;
         }

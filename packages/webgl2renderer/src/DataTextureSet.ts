@@ -1,31 +1,31 @@
 /**
  * @private
  */
-import {DataTexture} from "@xeokit/webgl2";
+import {GLDataTexture} from "@xeokit/webgl2";
 
 
 export class DataTextureSet {
 
-    positions: DataTexture | null; // All quantized positions for a Layer
-    indices_8Bits: DataTexture | null; // All 8-bit indices
-    indices_16Bits: DataTexture | null; // All 16-bit indices
-    indices_32Bits: DataTexture | null; // All 32-bt indices
-    edgeIndices_8Bits: DataTexture | null; // All 8-bit edge indices
-    edgeIndices_16Bits: DataTexture | null; // All 16-bit edges indices
-    edgeIndices_32Bits: DataTexture | null; // All 32-bit edges indices
-    indices: { [key: number]: DataTexture | null }; // All 8, 16, and 32-bit indices
-    edgeIndices: { [key: number]: DataTexture | null } | null; // All 8, 16 and 32-bit indices
-    eachMeshAttributes: DataTexture | null; // For each mesh, a set of attributes including color, opacity, visibility etc
-    eachMeshMatrices: DataTexture | null; // For each mesh, a positions decompression matrix and a modeling matrix
-    eachEdgeOffset: DataTexture | null;
-    eachPrimitiveMesh_8Bits: DataTexture | null;
-    eachPrimitiveMesh_16Bits: DataTexture | null;
-    eachPrimitiveMesh_32Bits: DataTexture | null;
-    eachPrimitiveMesh: { [key: number]: DataTexture | null } | null;
-    eachEdgeMesh_8Bits: DataTexture | null;
-    eachEdgeMesh_16Bits: DataTexture | null;
-    eachEdgeMesh_32Bits: DataTexture | null;
-    eachEdgeMesh: { [key: number]: DataTexture | null } | null;
+    positions: GLDataTexture | null; // All quantized positions for a Layer
+    indices_8Bits: GLDataTexture | null; // All 8-bit indices
+    indices_16Bits: GLDataTexture | null; // All 16-bit indices
+    indices_32Bits: GLDataTexture | null; // All 32-bt indices
+    edgeIndices_8Bits: GLDataTexture | null; // All 8-bit edge indices
+    edgeIndices_16Bits: GLDataTexture | null; // All 16-bit edges indices
+    edgeIndices_32Bits: GLDataTexture | null; // All 32-bit edges indices
+    indices: { [key: number]: GLDataTexture | null }; // All 8, 16, and 32-bit indices
+    edgeIndices: { [key: number]: GLDataTexture | null } | null; // All 8, 16 and 32-bit indices
+    eachMeshAttributes: GLDataTexture | null; // For each mesh, a set of attributes including color, opacity, visibility etc
+    eachMeshMatrices: GLDataTexture | null; // For each mesh, a positions decompression matrix and a modeling matrix
+    eachEdgeOffset: GLDataTexture | null;
+    eachPrimitiveMesh_8Bits: GLDataTexture | null;
+    eachPrimitiveMesh_16Bits: GLDataTexture | null;
+    eachPrimitiveMesh_32Bits: GLDataTexture | null;
+    eachPrimitiveMesh: { [key: number]: GLDataTexture | null } | null;
+    eachEdgeMesh_8Bits: GLDataTexture | null;
+    eachEdgeMesh_16Bits: GLDataTexture | null;
+    eachEdgeMesh_32Bits: GLDataTexture | null;
+    eachEdgeMesh: { [key: number]: GLDataTexture | null } | null;
     #built: boolean;
 
     constructor() {

@@ -1,9 +1,9 @@
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
-
-import {DataTexture} from "./utils/DataTexture";
+import {GLDataTexture} from "@xeokit/webgl2";
 import {Float16Array} from "./float16";
 
-const emptyDataTexture = new DataTexture({textureWidth: 0, textureHeight: 0});
+
+const emptyDataTexture = new GLDataTexture({textureWidth: 0, textureHeight: 0});
 
 /**
  * Creates DataTextures to hold various types of viewer state.
@@ -22,9 +22,9 @@ export class DataTextureFactory {
     }
 
     /**
-     * Creates a DataTexture containing the given vertex positions.
+     * Creates a GLDataTexture containing the given vertex positions.
      */
-    createPositionsDataTexture(gl: WebGL2RenderingContext, positions: FloatArrayParam): DataTexture {
+    createPositionsDataTexture(gl: WebGL2RenderingContext, positions: FloatArrayParam): GLDataTexture {
         const numVertices = positions.length / 3;
         const textureWidth = 1024;
         const textureHeight = Math.ceil(numVertices / textureWidth);
@@ -47,13 +47,13 @@ export class DataTextureFactory {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
         // @ts-ignore
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
-     * Creates a DataTexture containing the given 8-bit indices.
+     * Creates a GLDataTexture containing the given 8-bit indices.
      */
-    createIndices8BitDataTexture(gl: WebGL2RenderingContext, indices_8Bits: IntArrayParam): DataTexture {
+    createIndices8BitDataTexture(gl: WebGL2RenderingContext, indices_8Bits: IntArrayParam): GLDataTexture {
         if (indices_8Bits.length == 0) {
             return emptyDataTexture;
         }
@@ -71,18 +71,18 @@ export class DataTextureFactory {
         if (!texture) {
             return emptyDataTexture;
         }
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGB8UI, textureWidth, textureHeight);
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB_INTEGER, gl.UNSIGNED_BYTE, textureData, 0);
-            this.disableFilteringForBoundTexture(gl);
-            gl.bindTexture(gl.TEXTURE_2D, null);
-            return new DataTexture({gl, texture, textureWidth, textureHeight});
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGB8UI, textureWidth, textureHeight);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB_INTEGER, gl.UNSIGNED_BYTE, textureData, 0);
+        this.disableFilteringForBoundTexture(gl);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
-     * Creates a DataTexture containing the given 16-bit indices.
+     * Creates a GLDataTexture containing the given 16-bit indices.
      */
-    createIndices16BitDataTexture(gl: WebGL2RenderingContext, indices_16Bits: IntArrayParam): DataTexture {
+    createIndices16BitDataTexture(gl: WebGL2RenderingContext, indices_16Bits: IntArrayParam): GLDataTexture {
         if (indices_16Bits.length == 0) {
             return emptyDataTexture;
         }
@@ -106,13 +106,13 @@ export class DataTextureFactory {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB_INTEGER, gl.UNSIGNED_SHORT, textureData, 0);
         this.disableFilteringForBoundTexture(gl);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
-     * Creates a DataTexture containing the given 32-bit indices.
+     * Creates a GLDataTexture containing the given 32-bit indices.
      */
-    createIndices32BitDataTexture(gl: WebGL2RenderingContext, indices_32Bits: IntArrayParam): DataTexture {
+    createIndices32BitDataTexture(gl: WebGL2RenderingContext, indices_32Bits: IntArrayParam): GLDataTexture {
         if (indices_32Bits.length == 0) {
             return emptyDataTexture;
         }
@@ -136,13 +136,13 @@ export class DataTextureFactory {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB_INTEGER, gl.UNSIGNED_INT, textureData, 0);
         this.disableFilteringForBoundTexture(gl);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
-     * Creates a DataTexture containing the given 8-bit edge indices.
+     * Creates a GLDataTexture containing the given 8-bit edge indices.
      */
-    createEdgeIndices8BitDataTexture(gl: WebGL2RenderingContext, edgeIndices_8Bits: IntArrayParam): DataTexture {
+    createEdgeIndices8BitDataTexture(gl: WebGL2RenderingContext, edgeIndices_8Bits: IntArrayParam): GLDataTexture {
         if (edgeIndices_8Bits.length == 0) {
             return emptyDataTexture;
         }
@@ -166,13 +166,13 @@ export class DataTextureFactory {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RG_INTEGER, gl.UNSIGNED_BYTE, textureData, 0);
         this.disableFilteringForBoundTexture(gl);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
-     * Creates a DataTexture containing the given 16-bit edge indices.
+     * Creates a GLDataTexture containing the given 16-bit edge indices.
      */
-    createEdgeIndices16BitDataTexture(gl: WebGL2RenderingContext, edgeIndices_16Bits: IntArrayParam): DataTexture {
+    createEdgeIndices16BitDataTexture(gl: WebGL2RenderingContext, edgeIndices_16Bits: IntArrayParam): GLDataTexture {
         if (edgeIndices_16Bits.length == 0) {
             return emptyDataTexture;
         }
@@ -196,13 +196,13 @@ export class DataTextureFactory {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RG_INTEGER, gl.UNSIGNED_SHORT, textureData, 0);
         this.disableFilteringForBoundTexture(gl);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
-     * Creates a DataTexture containing the given 32-bit edge indices.
+     * Creates a GLDataTexture containing the given 32-bit edge indices.
      */
-    createEdgeIndices32BitDataTexture(gl: WebGL2RenderingContext, edgeIndices_32Bits: IntArrayParam): DataTexture {
+    createEdgeIndices32BitDataTexture(gl: WebGL2RenderingContext, edgeIndices_32Bits: IntArrayParam): GLDataTexture {
         if (edgeIndices_32Bits.length == 0) {
             return emptyDataTexture;
         }
@@ -226,11 +226,11 @@ export class DataTextureFactory {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RG_INTEGER, gl.UNSIGNED_INT, textureData, 0);
         this.disableFilteringForBoundTexture(gl);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
-     * Creates a DataTexture containing per-mesh colors, pick colors, flags, vertex portion bases, indices portion bases, edge indices portion bases
+     * Creates a GLDataTexture containing per-mesh colors, pick colors, flags, vertex portion bases, indices portion bases, edge indices portion bases
      *
      * The texture will have:
      * - 4 RGBA columns per row: for each mesh (pick) color and flags(2)
@@ -243,8 +243,8 @@ export class DataTextureFactory {
      * @param indexBaseOffsets For triangles: array of offsets between the (gl_VertexID / 3) and the position where the indices start in the texture layer
      * @param edgeIndexBaseOffsets For edges: Array of offsets between the (gl_VertexID / 2) and the position where the edge indices start in the texture layer
      */
-    createEachMeshAttributesDataTexture(gl: WebGL2RenderingContext, colors: FloatArrayParam[], pickColors: FloatArrayParam[], vertexBases: IntArrayParam, indexBaseOffsets: IntArrayParam, edgeIndexBaseOffsets: IntArrayParam): DataTexture {
-        
+    createEachMeshAttributesDataTexture(gl: WebGL2RenderingContext, colors: FloatArrayParam[], pickColors: FloatArrayParam[], vertexBases: IntArrayParam, indexBaseOffsets: IntArrayParam, edgeIndexBaseOffsets: IntArrayParam): GLDataTexture {
+
         // Texture has one row per mesh:
         //
         //    - col0: (RGBA) mesh color RGBA
@@ -282,11 +282,11 @@ export class DataTextureFactory {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight, textureData}); // Re-writeable texture data
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight, textureData}); // Re-writeable texture data
     }
 
     /**
-     * Creates DataTexture containing a 3D offset for each mesh
+     * Creates GLDataTexture containing a 3D offset for each mesh
      *
      * @param gl
      * @param offsets An offset for each mesh
@@ -313,11 +313,11 @@ export class DataTextureFactory {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight, textureData}); // Re-writeable texture data
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight, textureData}); // Re-writeable texture data
     }
 
     /**
-     * Creates a DataTexture that holds per-mesh matrices for positions decode, position modeling, and normals modeling.
+     * Creates a GLDataTexture that holds per-mesh matrices for positions decode, position modeling, and normals modeling.
      *
      * The texture will have:
      * - 4 RGBA columns per row (each column will contain 4 packed half-float (16 bits) components).
@@ -328,7 +328,7 @@ export class DataTextureFactory {
      * @param positionDecodeMatrices Positions decode matrix for each mesh in the layer
      * @param matrices Positions instancing matrix for each mesh in the layer. Null if the meshes are not instanced.
      */
-    createEachMeshMatricesDataTexture(gl: WebGL2RenderingContext, positionDecodeMatrices: FloatArrayParam, matrices: FloatArrayParam): DataTexture {
+    createEachMeshMatricesDataTexture(gl: WebGL2RenderingContext, positionDecodeMatrices: FloatArrayParam, matrices: FloatArrayParam): GLDataTexture {
 
         // Texture has one row per mesh:
         //
@@ -360,17 +360,17 @@ export class DataTextureFactory {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
     /**
-     * Creates a DataTexture containing the given mesh IDs.
+     * Creates a GLDataTexture containing the given mesh IDs.
      * This type of texture is used for a lookup table, of mesh IDs for given keys.
      *
      * @param gl
      * @param meshIds
      */
-    createPointerTableDataTexture(gl: WebGL2RenderingContext, meshIds: IntArrayParam): DataTexture {
+    createPointerTableDataTexture(gl: WebGL2RenderingContext, meshIds: IntArrayParam): GLDataTexture {
         if (meshIds.length == 0) {
             return emptyDataTexture;
         }
@@ -395,6 +395,6 @@ export class DataTextureFactory {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        return new DataTexture({gl, texture, textureWidth, textureHeight});
+        return new GLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 }

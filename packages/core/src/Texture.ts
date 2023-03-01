@@ -64,7 +64,7 @@ export interface Texture {
     /**
      * True if the texture is compressed.
      */
-    compressed: any;
+    compressed: boolean;
 
     /**
      * Media type of this Texture.
@@ -73,7 +73,7 @@ export interface Texture {
      *
      * Ignored for compressed textures.
      */
-    mediaType?: any;
+    mediaType?: number;
 
     /**
      * How the texture is sampled when a texel covers more than one pixel.

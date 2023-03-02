@@ -7,8 +7,8 @@
  * ## Basic Data Types
  *
  * * Defines numeric constants for a basic set of entity and relationship types.
- * * Use with {@link "@xeokit/datamodel"} to assign basic types to {@link @xeokit/datamodel!DataObject | DataObjects}
- * and {@link @xeokit/datamodel!Relationship | Relationships} and treat them as elements of a basic entity-relationship graph.
+ * * Use with {@link "@xeokit/data"} to assign basic types to {@link @xeokit/data!DataObject | DataObjects}
+ * and {@link @xeokit/data!Relationship | Relationships} and treat them as elements of a basic entity-relationship graph.
  * * Use with {@link "@xeokit/treeview"}, to configure the appearance and behaviour of
  * {@link @xeokit/treeview!TreeView | TreeViews} for navigating basic element hierachies.
  *

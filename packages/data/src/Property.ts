@@ -4,7 +4,7 @@ import type {PropertyParams} from "./PropertyParams";
 /**
  * A property in a {@link PropertySet}.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 class Property {
 

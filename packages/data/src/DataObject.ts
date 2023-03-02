@@ -3,21 +3,21 @@ import type {DataModel} from "./DataModel";
 import {Relationship} from "./Relationship";
 
 /**
- * An object in a {@link @xeokit/datamodel/DataModel}.
+ * An object in a {@link @xeokit/data!DataModel}.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 export class DataObject {
 
     /**
-     * ScratchModel metadata.
+     * SceneModel metadata.
      */
     public models: DataModel[];
 
     /**
      * Globally-unique ID.
      *
-     * DataObjects are stored by ID in {@link Data.objects} and {@link @xeokit/datamodel/DataModel.objects}.
+     * DataObjects are stored by ID in {@link Data.objects} and {@link @xeokit/data!DataModel.objects}.
      */
     public readonly id: string;
 

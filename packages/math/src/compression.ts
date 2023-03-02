@@ -1,15 +1,15 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fcompression.svg)](https://badge.fury.io/js/%40xeokit%2Fcompression)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/compression/badge)](https://www.jsdelivr.com/package/npm/@xeokit/compression)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/math/compression/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math/compression)
  * 
  * <img style="padding:20px" src="media://images/geometry_icon.png"/>
  *
  * ## Geometry Compression / Decompression Utilities
  *
  * This library provides a set of functions that are used internally within
- * {@link @xeokit/core/components!SceneModel.createGeometry | SceneModel.createGeometry} implementations to
+ * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to
  * compress geometry. The functions are provided here in case users instead want to pre-compress their geometry "offline",
- * and then use {@link @xeokit/core/components!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
+ * and then use {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * to create the compressed geometry directly.
  *
  * ### Compression Techniques Used
@@ -19,7 +19,7 @@
  * * Ignores normals (our shaders auto-generate them)
  * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/core/components!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
+ * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
  * ### Aknowledgements
  *
@@ -28,18 +28,18 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/compression
+ * npm install @xeokit/math/compression
  * ````
  *
  * ## Usage
  *
  * In the example below, we'll use {@link compressGeometryParams} to compress
- * a {@link @xeokit/core/components!GeometryParams | GeometryParams} into a
- * {@link @xeokit/core/components!GeometryCompressedParams | GeometryCompressedParams}.
+ * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
+ * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
  *
  * In this example, our geometry is very simple, and our GeometryCompressedParams only gets a single
- * {@link @xeokit/core/components!GeometryBucketParams | GeometryBucketParams }. Note that if the
- * {@link @xeokit/core/components!GeometryParams.positions | GeometryParams.positions} array was large enough to require
+ * {@link @xeokit/scene!GeometryBucketParams | GeometryBucketParams }. Note that if the
+ * {@link @xeokit/scene!GeometryParams.positions | GeometryParams.positions} array was large enough to require
  * some of the indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would
  * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
@@ -73,7 +73,7 @@
  *  });
  * ````
  *
- * The value of our new {@link @xeokit/core/components!GeometryCompressedParams | GeometryCompressedParams} is shown below.
+ * The value of our new {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams} is shown below.
  *
  * We can see that:
  *
@@ -118,9 +118,9 @@
  * ````
  *
  * In the next example, we'll again use {@link compressGeometryParams} to compress
- * a {@link @xeokit/core/components!GeometryParams | GeometryParams} into a
- * {@link @xeokit/core/components!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
- * create a compressed geometry within a {@link @xeokit/core/components!SceneModel | SceneModel}.
+ * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
+ * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
+ * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -178,10 +178,9 @@
  * sceneModel.build();
  * ````
  *
- * @module @xeokit/compression
+ * @module @xeokit/math/compression
  */
 
-import {rebucketPositions} from "./rebucketPositions";
 import {
     createMat3,
     createMat4,
@@ -196,95 +195,12 @@ import {
     transformVec3,
     translationMat3v,
     translationMat4v
-} from "@xeokit/math/matrix";
-import {collapseAABB3, expandAABB3Points3, getPositionsCenter} from "@xeokit/math/boundaries";
-import {GeometryCompressedParams, GeometryParams} from "@xeokit/core/components";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {uniquifyPositions} from "./calculateUniquePositions";
-import {buildEdgeIndices} from "./buildEdgeIndices";
-import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
+} from "./matrix";
 
+import {FloatArrayParam} from "./math";
 
 const translate = createMat4();
 const scale = createMat4();
-
-const tempVec3 = createVec3();
-const tempVec3b = createVec3();
-
-/**
- * Compresses a {@link @xeokit/core/components!GeometryParams | GeometryParams} into a {@link @xeokit/core/components!GeometryCompressedParams|GeometryCompressedParams}.
- *
- * See {@link @xeokit/compression} for usage examples.
- *
- * @param geometryParams Uncompressed geometry params.
- * @returns Compressed geometry params.
- */
-export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
-    const positionsDecompressMatrix = createMat4();
-    const rtcPositions = new Float32Array(geometryParams.positions.length);
-    const origin = createVec3();
-    worldToRTCPositions(geometryParams.positions, geometryParams.origin, rtcPositions, origin);
-    const aabb = collapseAABB3();
-    expandAABB3Points3(aabb, rtcPositions);
-    const positionsCompressed = quantizePositions(rtcPositions, aabb, positionsDecompressMatrix);
-    const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
-        ? buildEdgeIndices(positionsCompressed, geometryParams.indices, positionsDecompressMatrix, geometryParams.edgeThreshold || 10)
-        : null;
-    let uniquePositionsCompressed, uniqueIndices, uniqueEdgeIndices;
-    [
-        uniquePositionsCompressed,
-        uniqueIndices,
-        uniqueEdgeIndices
-    ] = uniquifyPositions({
-        positionsCompressed,
-        uvs: geometryParams.uvs,
-        indices: geometryParams.indices,
-        edgeIndices: edgeIndices
-    });
-    // @ts-ignore
-    const numUniquePositions = uniquePositionsCompressed.length / 3;
-    const geometryBuckets = rebucketPositions({
-        // @ts-ignore
-        positionsCompressed: uniquePositionsCompressed,
-        // @ts-ignore
-        indices: uniqueIndices,
-        // @ts-ignore
-        edgeIndices: uniqueEdgeIndices,
-    }, (numUniquePositions > (1 << 16)) ? 16 : 8);
-    return {
-        id: geometryParams.id,
-        primitive: (geometryParams.primitive === SolidPrimitive && geometryBuckets.length > 1) // Assume that closed triangle mesh is decomposed into open surfaces
-            ? TrianglesPrimitive
-            : geometryParams.primitive,
-        origin,
-        aabb,
-        positionsDecompressMatrix,
-        uvsDecompressMatrix: undefined,
-        geometryBuckets
-    };
-}
-
-function worldToRTCPositions(worldPositions: FloatArrayParam, origin: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = 200): boolean {
-    const center = getPositionsCenter(worldPositions, tempVec3b);
-    if (origin) {
-        center[0] += origin[0];
-        center[1] += origin[1];
-        center[2] += origin[2];
-    }
-    const rtcCenterX = Math.round(center[0] / cellSize) * cellSize;
-    const rtcCenterY = Math.round(center[1] / cellSize) * cellSize;
-    const rtcCenterZ = Math.round(center[2] / cellSize) * cellSize;
-    for (let i = 0, len = worldPositions.length; i < len; i += 3) {
-        rtcPositions[i + 0] = worldPositions[i + 0] - rtcCenterX;
-        rtcPositions[i + 1] = worldPositions[i + 1] - rtcCenterY;
-        rtcPositions[i + 2] = worldPositions[i + 2] - rtcCenterZ;
-    }
-    rtcCenter[0] = rtcCenterX;
-    rtcCenter[1] = rtcCenterY;
-    rtcCenter[2] = rtcCenterZ;
-    const rtcNeeded = (rtcCenter[0] !== 0 || rtcCenter[1] !== 0 || rtcCenter[2] !== 0);
-    return rtcNeeded;
-}
 
 /**
  * Gets the boundary of a flat positions array.

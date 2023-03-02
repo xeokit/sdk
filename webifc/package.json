@@ -1,9 +1,7 @@
 {
-  "name": "@xeokit/compression",
+  "name": "@xeokit/webifc",
   "version": "0.0.1",
-  "description": "xeokit geometry compression and decompression utilities",
-  "module": "src/index.ts",
-  "source": "src/index.ts",
+  "description": "webifc tools for xeokit",
   "scripts": {
     "publish": "npm publish --access public"
   },
@@ -31,13 +29,13 @@
     "xeolabs",
     "creoox",
     "ifc",
-    "controls",
+    "bcf",
     "bim",
     "gis",
     "cad",
     "openbim",
     "opensource",
-    "controls",
+    "gltf",
     "3dxml",
     "obj",
     "stl",
@@ -47,8 +45,7 @@
   ],
   "main": "src/index.ts",
   "dependencies": {
-    "@xeokit/core": "0.0.1",
-    "@xeokit/math": "0.0.1"
+    "web-ifc": "^0.0.35",
+    "@xeokit/core": "^0.0.1"
   }
 }
-

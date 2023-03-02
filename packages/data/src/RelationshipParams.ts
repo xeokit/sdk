@@ -1,8 +1,8 @@
 
 /**
- * Parameters for creating a {@link Relationship} with {@link @xeokit/datamodel/DataModel.createRelationship}.
+ * Parameters for creating a {@link Relationship} with {@link @xeokit/data!DataModel.createRelationship}.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 export interface RelationshipParams {
 

@@ -7,7 +7,7 @@
  * # glTF Model Loader
  *
  * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models
- * * {@link loadGLTF} loads glTF into a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
+ * * {@link loadGLTF} loads glTF into a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -17,13 +17,15 @@
  *
  * ## Usage
  *
- * Loading a glTF file into a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
+ * Loading a glTF file into a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
- * import {ScratchModel} from "@xeokit/scratchmodel";
+ * import {Scene} from "@xeokit/scene";
  * import {loadGLTF} from "@xeokit/gltf";
  *
- * const sceneModel = new ScratchModel();
+ * const scene = new Scene();
+ *
+ * const sceneModel = scene.createModel();
  *
  * fetch("myModel.glb").then(response => {
  *     response.arrayBuffer().then(data => {
@@ -34,7 +36,7 @@
  * });
  * ````
  *
- * Loading a glTF file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel}:
+ * Loading a glTF file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

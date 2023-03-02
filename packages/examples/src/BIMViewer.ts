@@ -5,7 +5,7 @@ import {saveXKT} from "@xeokit/xkt";
 import {CameraControl} from "@xeokit/cameracontrol";
 import {BCFViewpoint, loadBCFViewpoint, saveBCFViewpoint} from "@xeokit/bcf";
 import {LocaleService} from "@xeokit/locale";
-import {Data, DataModel} from "@xeokit/datamodel";
+import {Data, DataModel} from "@xeokit/data";
 import {SceneModel} from "@xeokit/core/components";
 
 

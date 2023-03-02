@@ -1,12 +1,12 @@
 /**
- * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdatamodel.svg)](https://badge.fury.io/js/%40xeokit%2Fdatamodel)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/datamodel/badge)](https://www.jsdelivr.com/package/npm/@xeokit/datamodel)
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdata.svg)](https://badge.fury.io/js/%40xeokit%2Fdata)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/data/badge)](https://www.jsdelivr.com/package/npm/@xeokit/data)
  *
- * <img style="padding:50px" src="media://images/xeokit_datamodel_icon.png"/>
+ * <img style="padding:50px" src="media://images/xeokit_data_icon.png"/>
  *
  * # Entity-Relationship Data Model
  *
- * * {@link @xeokit/datamodel!DataModel | DataModel}
+ * * {@link @xeokit/data!DataModel | DataModel}
  * * Entity-relationship (ER) graph that can be used with a {@link @xeokit/viewer!Viewer} to classify models
  * * Extensible entity and relationship types - use with an external set of types (eg. {@link "@xeokit/datatypes/basicTypes" | basicTypes}, {@link "@xeokit/datatypes/ifcTypes" | ifcTypes})
  * * A single graph into which we can merge multiple ER data models - objects, properties and relationships
@@ -17,7 +17,7 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/datamodel
+ * npm install @xeokit/data
  * ````
  *
  *
@@ -27,7 +27,7 @@
  * furniture - a table, comprised of a tabletop with four legs attached. Then we'll query the data model to
  * find all the objects within it.
  *
- * To do this, we'll create a {@link @xeokit/datamodel!DataModel | DataModel} containing six {@link DataObject | DataObjects}, one
+ * To do this, we'll create a {@link @xeokit/data!DataModel | DataModel} containing six {@link DataObject | DataObjects}, one
  * for the table, one the tabletop, and one for each of the four legs. Our DataModel also gets
  * some {@link Relationship | Relationships}, to connect the DataObjects together into an aggregation hierarchy. We'll
  * also give our DataObjects some {@link PropertySet | PropertySets}, to give them height and weight attributes.
@@ -49,15 +49,14 @@
  *
  * ### Example 1. Creating a DataModel from a single JSON object
  *
- * In our first example, we'll create our {@link @xeokit/datamodel!DataModel | DataModel} from a single JSON object of
- * type {@link @xeokit/datamodel!DataModelParams DataModelParams}.
+ * In our first example, we'll create our {@link @xeokit/data!DataModel | DataModel} from a single JSON object of
+ * type {@link @xeokit/data!DataModelParams DataModelParams}.
  *
  * ````javascript
- * import {Data} from "@xeokit/datamodel";
+ * import {Data} from "@xeokit/data";
  * import * as basicTypes from "@xeokit/datatypes/basicTypes";
  * 
- * const myData = new Data({
- * });
+ * const myData = new Data({});
  *
  * const myDataModel = myData.createModel({ // DataModel
  *
@@ -183,12 +182,12 @@
  *
  * ### Example 2. Creating a DataModel using builder methods
  *
- * In our second example, we'll create our {@link @xeokit/datamodel!DataModel | DataModel} again, this time instantiating
+ * In our second example, we'll create our {@link @xeokit/data!DataModel | DataModel} again, this time instantiating
  * each {@link PropertySet}, {@link Property}, {@link DataObject} and {@link Relationship} individually, using the
  * DataModel's builder methods.
  *
  * ````javascript
- * import {Data} from "@xeokit/datamodel";
+ * import {Data} from "@xeokit/data";
  * import * as basicTypes from "@xeokit/datatypes/basicTypes";
  *
  * const myData = new Data({
@@ -363,7 +362,7 @@
  * }
  * ````
  *
- * @module @xeokit/datamodel
+ * @module @xeokit/data
  */
 export * from "./Data";
 export * from "./DataModel";

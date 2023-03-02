@@ -9,7 +9,7 @@
  * # LAS/LAZ Point Cloud Loader
  *
  * * [LAS/LAZ](https://en.wikipedia.org/wiki/LAS) is an industry standard format for 3D point cloud scans
- * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}
+ * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}
  *
  * ## Installation
  *
@@ -19,13 +19,13 @@
  *
  * ## Usage
  *
- * Loading a LAS file into a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
+ * Loading a LAS file into a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
- * import {ScratchModel} from "@xeokit/scratchmodel";
+ * import {SceneModel} from "@xeokit/scene";
  * import {loadLAS} from "@xeokit/las";
  *
- * const sceneModel = new ScratchModel();
+ * const sceneModel = new SceneModel();
  *
  * fetch("myModel.las").then(response => {
  *     response.arrayBuffer().then(data => {
@@ -37,7 +37,7 @@
  * });
  * ````
  *
- * Loading a LAS file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel}:
+ * Loading a LAS file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

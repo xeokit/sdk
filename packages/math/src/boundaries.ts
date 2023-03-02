@@ -33,7 +33,7 @@
 
 import * as math from "./math";
 import * as matrix from "./matrix";
-import {decompressPosition} from "@xeokit/compression";
+import {decompressPosition} from "./compression";
 
 
 const tempVec3a = matrix.createVec3();

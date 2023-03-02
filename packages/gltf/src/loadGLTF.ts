@@ -15,10 +15,11 @@ import {
     RepeatWrapping,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-import {GeometryParams, LoadParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/core/components";
+import {LoadParams} from "@xeokit/core/components";
 import {isString} from "@xeokit/core/utils";
 import {createMat4, identityMat4, mulMat4, quaternionToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
+import {GeometryParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/scene";
 
 interface ParsingContext {
     gltfData: any;
@@ -30,10 +31,10 @@ interface ParsingContext {
 }
 
 /**
- * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/core/components!SceneModel | SceneModel} and (optionally) a {@link @xeokit/datamodel!DataModel | DataModel}.
+ * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and (optionally) a {@link @xeokit/data!DataModel | DataModel}.
  *
- * * Expects {@link @xeokit/core/components!SceneModel.built | SceneModel.built} and {@link @xeokit/core/components!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
- * * Does not call {@link @xeokit/core/components!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
+ * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
+ * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
  * See {@link @xeokit/gltf} for usage.
  *

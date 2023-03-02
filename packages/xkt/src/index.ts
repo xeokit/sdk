@@ -7,8 +7,8 @@
  * # XKT Model Loader and Saver
  *
  * * XKT is xeokit's native compressed sceneModel format, which contains geometry, materials, objects and semantic data in a compact, Web-friendly payload.
- * * {@link loadXKT} loads XKT into a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
- * * {@link saveXKT} saves XKT from a {@link @xeokit/core/components!SceneModel | SceneModel} and an optional {@link @xeokit/datamodel!DataModel | DataModel}.
+ * * {@link loadXKT} loads XKT into a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}.
+ * * {@link saveXKT} saves XKT from a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -18,13 +18,15 @@
  *
  * ## Usage
  *
- * Loading an XKT file into a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
+ * Loading an XKT file into a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
- * import {ScratchModel} from "@xeokit/scratchmodel";
+ * import {Scene} from "@xeokit/scene";
  * import {loadXKT} from "@xeokit/xkt";
  *
- * const sceneModel = new ScratchModel({
+ * const scene = new Scene();
+ *
+ * const sceneModel = scene.createModel({
  *     id: "myModel"
  * });
  *
@@ -38,7 +40,7 @@
  * });
  * ````
  *
- * Loading an XKT file into a {@link @xeokit/core/components!SceneModel | SceneModel} belonging to a {@link @xeokit/viewer!Viewer | Viewer}:
+ * Loading an XKT file into a {@link @xeokit/scene!SceneModel | SceneModel} belonging to a {@link @xeokit/viewer!Viewer | Viewer}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -64,11 +66,11 @@
  * });
  * ````
  *
- * Loading an XKT file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel} and a {@link @xeokit/datamodel!DataModel | DataModel}:
+ * Loading an XKT file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {DataModel} from "@xeokit/datamodel";
+ * import {DataModel} from "@xeokit/data";
  * import {loadXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({
@@ -103,13 +105,13 @@
  * });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/scratchmodel!ScratchModel | ScratchModel}:
+ * Saving an XKT file from a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
- * import {ScratchModel} from "@xeokit/scratchmodel";
+ * import {SceneModel} from "@xeokit/scene";
  * import {saveXKT} from "@xeokit/xkt";
  *
- * const sceneModel = new ScratchModel();
+ * const sceneModel = new SceneModel();
  *
  * //...
  *
@@ -120,7 +122,7 @@
  * });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel}:
+ * Saving an XKT file from a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -145,11 +147,11 @@
  * });
  * ````
  *
- * Saving an XKT file from a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/core/components!SceneModel | SceneModel} and a {@link @xeokit/datamodel!DataModel | DataModel}:
+ * Saving an XKT file from a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {DataModel} from "@xeokit/datamodel";
+ * import {DataModel} from "@xeokit/data";
  * import {saveXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({

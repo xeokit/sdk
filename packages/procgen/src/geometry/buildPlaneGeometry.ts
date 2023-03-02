@@ -2,7 +2,7 @@ import * as utils from "@xeokit/core/utils";
 import type {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a plane-shaped {@link @xeokit/core/components!GeometryBucketHandle}.
+ * Creates a plane-shaped {@link @xeokit/scene!GeometryBucketHandle}.
  *
  * ## Usage
  *
@@ -40,12 +40,12 @@ import type {GeometryArrays} from "./GeometryArrays";
  * @function buildPlaneGeometry
  * @param cfg Configs
  * @param [cfg.center]  3D point indicating the center position.
- * @param [cfg.id] Optional ID for the {@link @xeokit/core/components!GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
  * @param [cfg.xSize=1] Dimension on the X-axis.
  * @param [cfg.zSize=1] Dimension on the Z-axis.
  * @param [cfg.xSegments=1] Number of segments on the X-axis.
  * @param [cfg.zSegments=1] Number of segments on the Z-axis.
- * @returns {Object} Configuration for a {@link @xeokit/core/components!GeometryBucketHandle} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!GeometryBucketHandle} subtype.
  */
 export function buildPlaneGeometry(cfg = {
     xSize: 0,

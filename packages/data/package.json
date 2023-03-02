@@ -1,7 +1,7 @@
 {
-  "name": "@xeokit/datamodel",
+  "name": "@xeokit/data",
   "version": "0.0.1",
-  "description": "A runtime entity-relationship data graph composed of multiple federated data models.",
+  "description": "An entity-relationship data graph composed of multiple federated data models.",
   "module": "src/index.ts",
   "source": "src/index.ts",
   "scripts": {

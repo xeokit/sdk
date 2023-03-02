@@ -1,7 +1,7 @@
 import {XKT_INFO} from "./XKT_INFO";
 import {XKTData} from "./XKTData";
-import {SceneModel} from "@xeokit/core/components";
-import {DataModel} from "@xeokit/datamodel";
+import {SceneModel} from "@xeokit/scene";
+import {DataModel} from "@xeokit/data";
 
 const XKT_VERSION = XKT_INFO.xktVersion;
 const NUM_TEXTURE_ATTRIBUTES = 9;

@@ -1,11 +1,12 @@
-import {SceneModel} from "@xeokit/core/components"
+import {DataModel} from "@xeokit/data";
+import {SceneModel} from "@xeokit/scene";
 import {deflateXKT} from "./deflateXKT";
 import {modelToXKT} from "./modelToXKT";
 import {packXKT} from "./packXKT";
-import {DataModel} from "@xeokit/datamodel";
+
 
 /**
- * Saves a {@link @xeokit/core/components!SceneModel} to an ArrayBuffer containing XKT file data.
+ * Saves a {@link @xeokit/scene!SceneModel} to an ArrayBuffer containing XKT file data.
  *
  * See {@link @xeokit/xkt} for usage.
  *

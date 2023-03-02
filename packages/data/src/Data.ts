@@ -11,19 +11,19 @@ import type {SearchParams} from "./SearchParams";
 /**
  * An entity-relationship data model.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 export class Data extends Component {
 
     /**
-     * Emits an event each time a {@link @xeokit/datamodel!DataModel} is created.
+     * Emits an event each time a {@link @xeokit/data!DataModel} is created.
      *
      * @event
      */
     readonly onModelAdded: EventEmitter<Data, DataModel>;
 
     /**
-     * Emits an event each time a {@link @xeokit/datamodel!DataModel} is destroyed.
+     * Emits an event each time a {@link @xeokit/data!DataModel} is destroyed.
      *
      * @event
      */
@@ -44,8 +44,8 @@ export class Data extends Component {
     readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
 
     /**
-     * The {@link @xeokit/datamodel!DataModel|DataModels} belonging to this Data, each keyed to
-     * its {@link @xeokit/datamodel!DataModel.id}.
+     * The {@link @xeokit/data!DataModel|DataModels} belonging to this Data, each keyed to
+     * its {@link @xeokit/data!DataModel.id}.
      */
     public readonly models: { [key: string]: DataModel };
 
@@ -98,10 +98,10 @@ export class Data extends Component {
     }
 
     /**
-     * Creates a {@link @xeokit/datamodel/DataModel} in this Data.
+     * Creates a {@link @xeokit/data!DataModel} in this Data.
      *
-     * @param  dataModelParams Data for the {@link @xeokit/datamodel/DataModel}.
-     * @param [options] Options for creating the {@link @xeokit/datamodel/DataModel}.
+     * @param  dataModelParams Data for the {@link @xeokit/data!DataModel}.
+     * @param [options] Options for creating the {@link @xeokit/data!DataModel}.
      * @param [options.includeTypes] When provided, only create {@link DataObject|DataObjects} with types in this list.
      * @param  [options.excludeRelating] When provided, never create {@link DataObject|DataObjects} with types in this list.
      * @returns The new DataModel.

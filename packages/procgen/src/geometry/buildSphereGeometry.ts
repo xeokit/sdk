@@ -2,11 +2,11 @@ import * as utils from "@xeokit/core/utils";
 import type {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a sphere-shaped {@link @xeokit/core/components!GeometryBucketHandle}.
+ * Creates a sphere-shaped {@link @xeokit/scene!GeometryBucketHandle}.
  *
  * ## Usage
  *
- * Creating a {@link Mesh} with a sphere-shaped {@link @xeokit/core/components!GeometryBucketHandle} :
+ * Creating a {@link Mesh} with a sphere-shaped {@link @xeokit/scene!GeometryBucketHandle} :
  *
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildSphereGeometry)]
  *
@@ -38,12 +38,12 @@ import type {GeometryArrays} from "./GeometryArrays";
  *
  * @function buildSphereGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/core/components!GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!GeometryBucketHandle}, unique among all components in the parent {@link Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.radius=1]  Radius.
  * @param [cfg.heightSegments=24] Number of latitudinal bands.
  * @param  {Number} [cfg.widthSegments=18] Number of longitudinal bands.
- * @returns {Object} Configuration for a {@link @xeokit/core/components!GeometryBucketHandle} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!GeometryBucketHandle} subtype.
  */
 export function buildSphereGeometry(cfg: {
     center: number[];

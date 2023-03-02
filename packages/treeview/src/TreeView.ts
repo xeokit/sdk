@@ -1,6 +1,6 @@
 import {View, Viewer, ViewObject} from "@xeokit/viewer";
 import {Component, EventEmitter} from "@xeokit/core/components";
-import {Data, DataObject} from "@xeokit/datamodel";
+import {Data, DataObject} from "@xeokit/data";
 import {EventDispatcher} from "strongly-typed-events";
 
 /**
@@ -15,7 +15,7 @@ export interface TreeViewParams {
     view: View;
 
     /**
-     * The semantic {@link @xeokit/datamodel!Data | Data} model that determines the structure of the {@link @xeokit/treeview!TreeView | TreeView}.
+     * The semantic {@link @xeokit/data!Data | Data} model that determines the structure of the {@link @xeokit/treeview!TreeView | TreeView}.
      */
     data: Data;
 
@@ -35,17 +35,17 @@ export interface TreeViewParams {
     excludeLayerIds?: string[];
 
     /**
-     * When traversing the {@link @xeokit/datamodel!Data | Data} to build the tree UI nodes, at each
-     * {@link @xeokit/datamodel!DataObject | DataObjects}, the {@link @xeokit/treeview!TreeView | TreeView} will traverse only the outgoing
-     * {@link @xeokit/datamodel!Relationship| Relationships} of this type in
-     * {@link @xeokit/datamodel!DataObject.relating | DataObject.relating}.
+     * When traversing the {@link @xeokit/data!Data | Data} to build the tree UI nodes, at each
+     * {@link @xeokit/data!DataObject | DataObjects}, the {@link @xeokit/treeview!TreeView | TreeView} will traverse only the outgoing
+     * {@link @xeokit/data!Relationship| Relationships} of this type in
+     * {@link @xeokit/data!DataObject.relating | DataObject.relating}.
      */
     linkType: number,
 
     /**
-     * When traversing the {@link @xeokit/datamodel!Data | Data} to build the tree UI nodes for a {@link @xeokit/treeview!TreeView.GroupsHierarchy | GroupsHierarchy}
-     * hierarchy, these are the values of {@link @xeokit/datamodel!DataObject.type | DataObject.type} that the
-     * {@link @xeokit/treeview!TreeView | TreeView} groups the {@link @xeokit/datamodel!DataObject | DataObjects} on.
+     * When traversing the {@link @xeokit/data!Data | Data} to build the tree UI nodes for a {@link @xeokit/treeview!TreeView.GroupsHierarchy | GroupsHierarchy}
+     * hierarchy, these are the values of {@link @xeokit/data!DataObject.type | DataObject.type} that the
+     * {@link @xeokit/treeview!TreeView | TreeView} groups the {@link @xeokit/data!DataObject | DataObjects} on.
      *
      * The grouping for the {@link @xeokit/treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy has two levels. The major grouping type is given
      * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
@@ -53,7 +53,7 @@ export interface TreeViewParams {
     groupTypes: number[]
 
     /**
-     * {@link @xeokit/datamodel!DataObject.type | DataObject.type}
+     * {@link @xeokit/data!DataObject.type | DataObject.type}
      *
      * TODO
      *
@@ -105,8 +105,8 @@ export interface TreeViewNodeContextMenuEvent {
 
 
 /**
- * An HTMl tree view that navigates the {@link @xeokit/datamodel!DataObject | DataObjects} in the given
- * {@link @xeokit/datamodel!Data | Data}, while controlling the visibility of their corresponding
+ * An HTMl tree view that navigates the {@link @xeokit/data!DataObject | DataObjects} in the given
+ * {@link @xeokit/data!Data | Data}, while controlling the visibility of their corresponding
  * {@link @xeokit/viewer!ViewObject | ViewObjects} in the given {@link @xeokit/viewer!View | View}.
  *
  * See {@link "@xeokit/treeview"} for usage.
@@ -117,8 +117,8 @@ export class TreeView extends Component {
      * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} as an aggregation hierarchy.
      *
      * The mode creates a TreeViewNode hierarchy that mirrors that of the
-     * {@link @xeokit/datamodel!DataObject | DataObjects} and
-     * aggregation {@link @xeokit/datamodel!Relationship | Relationships} in the {@link @xeokit/datamodel!Data | Data}.
+     * {@link @xeokit/data!DataObject | DataObjects} and
+     * aggregation {@link @xeokit/data!Relationship | Relationships} in the {@link @xeokit/data!Data | Data}.
      *
      * In this hierarchy, each TreeViewNode corresponds to a DataObject in the Data. The TreeViewNodes are connected
      * into a hierarchy that reflects a depth-first traversal from the root DataObjects that follows each DataObject's
@@ -130,8 +130,8 @@ export class TreeView extends Component {
      * Hierarchy mode that groups the {@link TreeViewNode | TreeViewNodes} by type.
      *
      * This mode creates a two-level hierarchy. At the root level, we get TreeViewNodes that represent each of the
-     * distinct types in our {@link @xeokit/datamodel!Data | Data}. Each of those gets one or more child TreeViewNodes
-     * that represent {@link @xeokit/datamodel!DataObject | DataObjects} of that type. When those DataObjects have
+     * distinct types in our {@link @xeokit/data!Data | Data}. Each of those gets one or more child TreeViewNodes
+     * that represent {@link @xeokit/data!DataObject | DataObjects} of that type. When those DataObjects have
      * {@link @xeokit/viewer!ViewObject | ViewObjects} of the same ID, then the TreeViewNodes will have checkboxes
      * that we can use to show, hide, and X-ray their ViewObjects.
      */
@@ -149,7 +149,7 @@ export class TreeView extends Component {
     static GroupsHierarchy: 2;
 
     /**
-     * The semantic {@link @xeokit/datamodel!Data | Data} model that determines the structure of this TreeView.
+     * The semantic {@link @xeokit/data!Data | Data} model that determines the structure of this TreeView.
      */
     data: Data;
 
@@ -448,20 +448,20 @@ export class TreeView extends Component {
     }
 
     /**
-     * When traversing the {@link @xeokit/datamodel!Data | Data} to build the tree UI nodes, at each
-     * {@link @xeokit/datamodel!DataObject | DataObjects}, the TreeView will traverse only the outgoing
-     * {@link @xeokit/datamodel!Relationship | Relationships} of this type in
-     * {@link @xeokit/datamodel!DataObject.relating | DataObject.relating}.
+     * When traversing the {@link @xeokit/data!Data | Data} to build the tree UI nodes, at each
+     * {@link @xeokit/data!DataObject | DataObjects}, the TreeView will traverse only the outgoing
+     * {@link @xeokit/data!Relationship | Relationships} of this type in
+     * {@link @xeokit/data!DataObject.relating | DataObject.relating}.
      */
     get linkType(): number {
         return this.#linkType;
     }
 
     /**
-     * When traversing the {@link @xeokit/datamodel!Data | Data} to build the tree UI nodes, at each
-     * {@link @xeokit/datamodel!DataObject | DataObjects}, the TreeView will traverse only the outgoing
-     * {@link @xeokit/datamodel!Relationship | Relationships} of this type in
-     * {@link @xeokit/datamodel!DataObject.relating | DataObject.relating}.
+     * When traversing the {@link @xeokit/data!Data | Data} to build the tree UI nodes, at each
+     * {@link @xeokit/data!DataObject | DataObjects}, the TreeView will traverse only the outgoing
+     * {@link @xeokit/data!Relationship | Relationships} of this type in
+     * {@link @xeokit/data!DataObject.relating | DataObject.relating}.
      */
     set linkType(linkType: number) {
         if (this.#linkType === linkType) {
@@ -472,10 +472,10 @@ export class TreeView extends Component {
     }
 
     /**
-     * When traversing the {@link @xeokit/datamodel!Data | Data} to build the tree UI nodes for
+     * When traversing the {@link @xeokit/data!Data | Data} to build the tree UI nodes for
      * a {@link TreeView.GroupsHierarchy}, these are the values
-     * of {@link @xeokit/datamodel!DataObject.type | DataObject.type} that the
-     * TreeView groups and subgroups the {@link @xeokit/datamodel!DataObject | DataObjects} on.
+     * of {@link @xeokit/data!DataObject.type | DataObject.type} that the
+     * TreeView groups and subgroups the {@link @xeokit/data!DataObject | DataObjects} on.
      *
      * The grouping for {@link TreeView.GroupsHierarchy} has two levels. The major grouping type is given
      * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
@@ -487,10 +487,10 @@ export class TreeView extends Component {
     }
 
     /**
-     * When traversing the {@link @xeokit/datamodel!Data | Data} to build the tree UI nodes for
+     * When traversing the {@link @xeokit/data!Data | Data} to build the tree UI nodes for
      * a {@link TreeView.GroupsHierarchy}, these are the values
-     * of {@link @xeokit/datamodel!DataObject.type | DataObject.type} that the
-     * TreeView groups and subgroups the {@link @xeokit/datamodel!DataObject | DataObjects} on.
+     * of {@link @xeokit/data!DataObject.type | DataObject.type} that the
+     * TreeView groups and subgroups the {@link @xeokit/data!DataObject | DataObjects} on.
      *
      * The grouping for the {@link @xeokit/treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy has two levels. The major grouping type is given
      * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.

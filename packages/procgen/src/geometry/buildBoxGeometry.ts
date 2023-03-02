@@ -7,7 +7,7 @@ import {TrianglesPrimitive} from "@xeokit/core/constants";
  *
  * ## Usage
  *
- * In the example below we'll create a {@link Mesh} with a box-shaped {@link @xeokit/core/components!GeometryBucketHandle}.
+ * In the example below we'll create a {@link Mesh} with a box-shaped {@link @xeokit/scene!GeometryBucketHandle}.
  *
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildBoxGeometry)]
  *

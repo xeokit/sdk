@@ -10,7 +10,7 @@
  *
  * * {@link @xeokit/treeview!TreeView}
  * * Fast HTML tree view to navigate federated models in a {@link @xeokit/viewer!Viewer}
- * * Use with a {@link @xeokit/viewer!View | View} and a semantic {@link @xeokit/datamodel!Data} model
+ * * Use with a {@link @xeokit/viewer!View | View} and a semantic {@link @xeokit/data!Data} model
  * * Supports Industry Foundation Classes (IFC)
  * * Supports any schema expressable as ER graph with aggregation relationships
  *
@@ -27,7 +27,7 @@
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl2renderer";
- * import {Data} from "@xeokit/datamodel";
+ * import {Data} from "@xeokit/data";
  * import * as ifcTypes from "@xeokit/datatypes/ifcTypes";
  * import {TreeView} from "@xeokit/treeview!TreeView";
  * import {loadXKT} from "@xeokit/xkt";
@@ -72,7 +72,7 @@
  *     groupTypes: [ifcTypes.IfcBuilding, ifcTypes.IfcBuildingStorey]
  * });
  *
- * const sceneModel = new ScratchModel(); // ScratchModel implements SceneModel
+ * const sceneModel = new SceneModel(); // SceneModel implements SceneModel
  *
  * const dataModel = data.createModel({
  *     id: "myModel"

@@ -14,7 +14,7 @@ import {PropertyParams} from "./PropertyParams";
 /**
  * A buildable entity-relationship semantic data model.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  *
  * ## Summary
  *
@@ -108,7 +108,7 @@ class DataModel extends Component {
     public typeCounts: { [key: string]: number };
 
     /**
-     * Emits an event when the {@link @xeokit/datamodel/DataModel} has already been built.
+     * Emits an event when the {@link @xeokit/data!DataModel} has already been built.
      *
      * @event
      */
@@ -228,7 +228,7 @@ class DataModel extends Component {
      * Creates a {@link DataObject} in this DataModel.
      *
      * Each DataObject has a globally-unique ID in {@link DataObject.id}, with which it's registered
-     * in {@link Data.objects} and {@link @xeokit/datamodel/DataModel.objects}.
+     * in {@link Data.objects} and {@link @xeokit/data!DataModel.objects}.
      *
      * If {@link DataObjectParams.id} matches a DataObject that
      * already exists (ie. already created for a different DataModel), then this method will reuse that DataObject for this DataModel,
@@ -237,7 +237,7 @@ class DataModel extends Component {
      * and {@link DataObjectParams.name}. This aligns well with IFC, in which wewe never have two elements with the same
      * ID but different types or names.
      *
-     * Each DataObject automatically gets destroyed whenever all the {@link @xeokit/datamodel/DataModel|DataModels} that share
+     * Each DataObject automatically gets destroyed whenever all the {@link @xeokit/data!DataModel|DataModels} that share
      * it have been destroyed.
      *
      * We can attach our DataObject as child of an existing parent DataObject. To do that, we provide the ID of the parent

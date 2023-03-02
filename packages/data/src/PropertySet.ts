@@ -4,9 +4,9 @@ import type {PropertyParams} from "./PropertyParams";
 import type {PropertySetParams} from "./PropertySetParams";
 
 /**
- * A set of {@link Property | Properties} in a {@link @xeokit/datamodel!DataModel | DataModel}.
+ * A set of {@link Property | Properties} in a {@link @xeokit/data!DataModel | DataModel}.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 class PropertySet {
 
@@ -18,7 +18,7 @@ class PropertySet {
     /**
      * Unique ID.
      *
-     * PropertySet instances are registered by this ID in {@link Data#propertySets} and {@link @xeokit/datamodel/DataModel#propertySets}.
+     * PropertySet instances are registered by this ID in {@link Data#propertySets} and {@link @xeokit/data!DataModel#propertySets}.
      */
     public readonly id: string;
 

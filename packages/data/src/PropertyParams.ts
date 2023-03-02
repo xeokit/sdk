@@ -1,7 +1,7 @@
 /**
  * Parameters for creating a {@link Property} with {@link PropertySet.createProperty}.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 export interface PropertyParams {
 

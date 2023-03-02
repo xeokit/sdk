@@ -1578,7 +1578,7 @@ const letters = {
 };
 
 /**
- * Creates wireframe vector text {@link @xeokit/core/components!Geometry}.
+ * Creates wireframe vector text {@link @xeokit/scene!Geometry}.
  *
  * ## Usage
  *
@@ -1618,7 +1618,7 @@ const letters = {
  * @param [cfg.origin] 3D point indicating the top left corner.
  * @param [cfg.size=1] Size of each character.
  * @param [cfg.text=""] The text.
- * @returns {Object} Configuration for a {@link @xeokit/core/components!Geometry} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
  */
 export function buildVectorTextGeometry(cfg: {
     size: number;

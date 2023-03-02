@@ -63,7 +63,7 @@ const EngineFormat = {
 /**
  * KTX2 texture decompression strategy.
  *
- * See {@link @xeokit/compression/texture} for usage.
+ * See {@link @xeokit/ktx2} for usage.
  */
 export class KTX2TextureTranscoder implements TextureTranscoder {
 

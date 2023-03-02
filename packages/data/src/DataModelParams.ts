@@ -4,9 +4,9 @@ import type {DataObjectParams} from "./DataObjectParams";
 import type {RelationshipParams} from "./RelationshipParams";
 
 /**
- * Parameters for creating a {@link @xeokit/datamodel/DataModel} with {@link Data.createModel}.
+ * Parameters for creating a {@link @xeokit/data!DataModel} with {@link Data.createModel}.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 export interface DataModelParams {
 

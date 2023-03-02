@@ -3,7 +3,7 @@ import type {PropertyParams} from "./PropertyParams";
 /**
  * Parameters for creating a {@link PropertySet}.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 export interface PropertySetParams {
 

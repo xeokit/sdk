@@ -1,8 +1,7 @@
-import type {SceneModel, GeometryBucketParams, GeometryCompressedParams} from "@xeokit/core/components";
-import {XKTData} from "./XKTData";
 import {JPEGMediaType, LinesPrimitive, PNGMediaType, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {DataModel} from "@xeokit/datamodel";
-
+import {DataModel} from "@xeokit/data";
+import {GeometryBucketParams, GeometryCompressedParams, SceneModel} from "@xeokit/scene";
+import {XKTData} from "./XKTData";
 
 const NUM_TEXTURE_ATTRIBUTES = 9;
 

@@ -24,7 +24,7 @@ import type {DataObject} from "./DataObject";
  * These parameters configure the way that {@link Data.searchDataObjects} performs its depth-first
  * search to find our {@link DataObject | DataObjects}.
  *
- * See {@link "@xeokit/datamodel"} for usage.
+ * See {@link "@xeokit/data"} for usage.
  */
 export interface SearchParams {
 

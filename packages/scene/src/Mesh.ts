@@ -1,16 +1,52 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 import {createVec3} from "@xeokit/math/matrix";
-import {Geometry, Mesh, RendererMesh, TextureSet} from "@xeokit/core/components";
+import {RendererMesh} from "./RendererMesh";
+import {Geometry} from "./Geometry";
+import {TextureSet} from "./TextureSet";
 
 /**
- * @private
+ * Represents a mesh.
+ *
+ * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
+ * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
+ * * Referenced by {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}
+ *
+ * See usage in [@xeokit/scene](/docs/modules/_xeokit_scene.html).
  */
-export class MeshImpl implements Mesh {
+export class Mesh {
 
+
+    /**
+     * Unique ID of this Mesh.
+     *
+     * Mesh is stored by this ID in {@link @xeokit/scene!SceneModel.meshes}.
+     */
     id: string;
-    rendererMesh: RendererMesh | null;
+
+    /**
+     * Optional 3D World-space origin.
+     */
+    origin?: FloatArrayParam;
+
+    /**
+     * {@link @xeokit/scene!Geometry} used by this Mesh.
+     */
     geometry: Geometry;
+
+    /**
+     * {@link TextureSet} used by this Mesh.
+     */
     textureSet?: TextureSet;
+
+    /**
+     *  Internal interface through which a {@link Mesh} can load property updates into a renderer.
+     *
+     *  This is defined when the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *
+     * @internal
+     */
+    rendererMesh?: RendererMesh;
+
     #color: FloatArrayParam;
     #matrix: FloatArrayParam;
     #metallic: number;

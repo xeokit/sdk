@@ -1,11 +1,11 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * Texture creation parameters for {@link @xeokit/core/components!SceneModel.createTexture}.
+ * Texture creation parameters for {@link @xeokit/scene!SceneModel.createTexture}.
  *
  * See usage in:
  *
- * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
  * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  */
 export interface TextureParams {

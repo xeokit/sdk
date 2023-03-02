@@ -40,7 +40,7 @@ let comparePositions: any = null;
  * indices.
  *
  * @param {*} mesh The input mesh to process, with `positions`, `indices` and `edgeIndices` keys.
- *
+ * @private
  * @returns An array with 3 elements: 0 => the uniquified positions; 1 and 2 => the remapped edges and edgeIndices arrays
  */
 export function uniquifyPositions(mesh: any) {

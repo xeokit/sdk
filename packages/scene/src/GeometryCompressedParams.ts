@@ -1,20 +1,21 @@
-
-import type {GeometryBucketParams} from "./GeometryBucketParams";
 import type {FloatArrayParam} from "@xeokit/math/math";
 
+import type {GeometryBucketParams} from "./GeometryBucketParams";
+
+
 /**
- * Pre-compressed geometry creation parameters for {@link @xeokit/core/components!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
+ * Pre-compressed geometry creation parameters for {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
  *
  * ## Summary
  *
- * * Created from {@link @xeokit/core/components!GeometryParams|GeometryParams} using {@link @xeokit/compression/compressGeometryParams}
- * * Used with {@link Model.createGeometryCompressed} and {@link DocModel.createGeometryCompressed}
+ * * Created from {@link @xeokit/scene!GeometryParams|GeometryParams} using {@link @xeokit/math/compression!compressGeometryParams}
+ * * Used with {@link SceneModel.createGeometryCompressed | Model.createGeometryCompressed} and {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)
  * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/core/components!GeometryBucketParams | buckets } to enable indices to use the minimum storage bits
+ * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum storage bits
  */
 export interface GeometryCompressedParams {
 
@@ -39,17 +40,17 @@ export interface GeometryCompressedParams {
     origin?: FloatArrayParam;
 
     /**
-     * Matrix to decompress {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed}.
+     * Matrix to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}.
      *
-     * The Viewer uses this matrix internally to decompress (dequantize) {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed}
-     * back to 32-bit floating-point relative-to-center (RTC) coordinates that are relative to {@link @xeokit/core/components!GeometryCompressedParams.origin}.
+     * The Viewer uses this matrix internally to decompress (dequantize) {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}
+     * back to 32-bit floating-point relative-to-center (RTC) coordinates that are relative to {@link @xeokit/scene!GeometryCompressedParams.origin}.
      */
     positionsDecompressMatrix: FloatArrayParam;
 
     /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
      *
-     * The boundary coordinates are relative to {@link @xeokit/core/components!GeometryCompressedParams.origin}.
+     * The boundary coordinates are relative to {@link @xeokit/scene!GeometryCompressedParams.origin}.
      */
     aabb?: FloatArrayParam;
 

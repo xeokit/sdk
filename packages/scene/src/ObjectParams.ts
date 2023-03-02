@@ -1,5 +1,5 @@
 /**
- * Object creation parameters for {@link @xeokit/core/components!SceneModel.createObject | SceneModel.createObject}.
+ * Object creation parameters for {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}.
  */
 export interface ObjectParams {
 
@@ -9,7 +9,7 @@ export interface ObjectParams {
     id: string;
 
     /**
-     * IDs of meshes previously created with {@link @xeokit/core/components!SceneModel.createMesh | SceneModel.createMesh}.
+     * IDs of meshes previously created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
      */
     meshIds: string[];
 

@@ -1,22 +1,6 @@
 import {EventDispatcher} from "strongly-typed-events";
 
-import {
-    Component,
-    EventEmitter,
-    Geometry,
-    GeometryCompressedParams,
-    GeometryParams,
-    Mesh,
-    MeshParams,
-    SceneModel,
-    ObjectParams,
-    Texture,
-    TextureParams,
-    TextureSet,
-    TextureSetParams,
-    TransformParams,
-    SceneObject
-} from "@xeokit/core/components";
+import {Component, EventEmitter} from "@xeokit/core/components";
 
 import {
     LinesPrimitive,
@@ -30,13 +14,21 @@ import {createMat4, createVec4} from "@xeokit/math/matrix";
 
 import {createUUID} from "@xeokit/core/utils";
 import {createAABB3} from "@xeokit/math/boundaries";
-import {compressGeometryParams} from "@xeokit/compression";
 
-import {GeometryImpl} from "./GeometryImpl";
-import {ObjectImpl} from "./ObjectImpl";
-import {TextureSetImpl} from "./TextureSetImpl";
-import {TextureImpl} from "./TextureImpl";
-import {MeshImpl} from "./MeshImpl";
+import {Geometry} from "./Geometry";
+import {SceneObject} from "./SceneObject";
+import {TextureSet} from "./TextureSet";
+import {Texture} from "./Texture";
+import {Mesh} from "./Mesh";
+import {RendererModel} from "./RendererModel";
+import {TransformParams} from "./TransformParams";
+import {TextureSetParams} from "./TextureSetParams";
+import {GeometryParams} from "./GeometryParams";
+import {GeometryCompressedParams} from "./GeometryCompressedParams";
+import {MeshParams} from "./MeshParams";
+import {ObjectParams} from "./ObjectParams";
+import {TextureParams} from "./TextureParams";
+import {compressGeometryParams} from "./compressGeometryParams";
 
 const tempVec4a = createVec4([0, 0, 0, 1]);
 const tempVec4b = createVec4([0, 0, 0, 1]);
@@ -91,32 +83,36 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 };
 
 /**
- * Offline buildable, loadable and savable model document representation.
+ * A buildable scene model representation, containing objects, meshes, geometries, materials and textures.
  *
- * See {@link @xeokit/scratchmodel} for usage.
+ * See usage in:
+ *
+ * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
+ * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
+ * * [@xeokit/xkt](/docs/modules/_xeokit_xkt.html)
  */
-class ScratchModel extends Component implements SceneModel {
+export class SceneModel extends Component {
 
     /**
-     * The ScratchModel's ID.
+     * The SceneModel's ID.
      */
     readonly id: string;
 
     /**
-     * Indicates if this ScratchModel has already been built.
+     * Indicates if this SceneModel has already been built.
      *
-     * Set ````true```` by {@link ScratchModel.build}.
+     * Set ````true```` by {@link SceneModel.build}.
      *
-     * Don't create anything more in this ScratchModel once it's built.
+     * Don't create anything more in this SceneModel once it's built.
      */
     declare built: boolean;
 
     /**
-     * Indicates if this ScratchModel has been destroyed.
+     * Indicates if this SceneModel has been destroyed.
      *
-     * Set ````true```` by {@link ScratchModel.destroy}.
+     * Set ````true```` by {@link SceneModel.destroy}.
      *
-     * Don't create anything more in this ScratchModel once it's destroyed.
+     * Don't create anything more in this SceneModel once it's destroyed.
      */
     declare readonly destroyed: boolean;
 
@@ -126,78 +122,85 @@ class ScratchModel extends Component implements SceneModel {
     readonly edgeThreshold: number;
 
     /**
-     * {@link @xeokit/core/components!Geometry|Geometries} within this ScratchModel, each mapped to {@link @xeokit/core/components!Geometry.id}.
+     * {@link @xeokit/scene!Geometry|Geometries} within this SceneModel, each mapped to {@link @xeokit/scene!Geometry.id}.
      *
-     * Created by {@link ScratchModel.createGeometry}.
+     * Created by {@link SceneModel.createGeometry}.
      */
     readonly geometries: { [key: string]: Geometry };
 
     /**
-     * {@link Texture|Textures} within this ScratchModel, each mapped to {@link Texture.id}.
+     * {@link Texture|Textures} within this SceneModel, each mapped to {@link Texture.id}.
      *
-     * Created by {@link ScratchModel.createTexture}.
+     * Created by {@link SceneModel.createTexture}.
      */
     readonly textures: { [key: string]: Texture };
 
     /**
-     * {@link TextureSet|TextureSets} within this ScratchModel, each mapped to {@link TextureSet.id}.
+     * {@link TextureSet|TextureSets} within this SceneModel, each mapped to {@link TextureSet.id}.
      *
-     * Created by {@link ScratchModel.createTextureSet}.
+     * Created by {@link SceneModel.createTextureSet}.
      */
     readonly textureSets: { [key: string]: TextureSet };
 
     /**
-     * {@link Mesh|Meshes} within this ScratchModel, each mapped to {@link Mesh.id}.
+     * {@link Mesh|Meshes} within this SceneModel, each mapped to {@link Mesh.id}.
      *
-     * Created by {@link ScratchModel.createMesh}.
+     * Created by {@link SceneModel.createMesh}.
      */
     readonly meshes: { [key: string]: Mesh };
 
     /**
-     * {@link SceneObject|ModelObjects} within this ScratchModel, each mapped to {@link SceneObject.id}.
+     * {@link SceneObject|SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id}.
      *
-     * Created by {@link ScratchModel.createObject}.
+     * Created by {@link SceneModel.createObject}.
      */
     readonly objects: { [key: string]: SceneObject };
 
     /**
-     * The axis-aligned 3D World-space boundary of this ScratchModel.
+     * The axis-aligned 3D World-space boundary of this SceneModel.
      *
-     * Created by {@link ScratchModel.build}.
+     * Created by {@link SceneModel.build}.
      */
     readonly aabb: Float64Array;
 
     /**
-     * Emits an event when this {@link @xeokit/scratchmodel!ScratchModel | ScratchModel} has already been built.
+     * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has already been built.
      *
-     * Triggered by {@link ScratchModel.build}.
+     * Triggered by {@link SceneModel.build}.
      *
      * @event
      */
-    readonly onBuilt: EventEmitter<ScratchModel, null>;
+    readonly onBuilt: EventEmitter<SceneModel, null>;
 
     /**
-     * Emits an event when this {@link @xeokit/scratchmodel!ScratchModel | ScratchModel} has been destroyed.
+     * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has been destroyed.
      *
-     * Triggered by {@link ScratchModel.destroy}.
+     * Triggered by {@link SceneModel.destroy}.
      *
      * @event
      */
-    readonly onDestroyed: EventEmitter<ScratchModel, null>;
+    readonly onDestroyed: EventEmitter<SceneModel, null>;
+
+    /**
+     *  Internal interface through which a SceneModel can load property updates into a renderer.
+     *
+     * @internal
+     */
+    rendererModel?: RendererModel;
 
     #meshUsedByObject: { [key: string]: boolean };
 
     /**
-     * Constructs a new ScratchModel.
+     * Constructs a new SceneModel.
      *
      * ````javascript
-     * const myScratchModel = new ScratchModel();
+     * const myScratchModel = new SceneModel();
      * ````
      *
      * @param [cfg] Configuration
      * @param {Number} [cfg.edgeThreshold=10]
      */
-    constructor(cfg = {
+    constructor(cfg: { id: string, edgeThreshold?: number } = {
         id: "default",
         edgeThreshold: 10
     }) {
@@ -207,8 +210,8 @@ class ScratchModel extends Component implements SceneModel {
 
         this.#meshUsedByObject = {};
 
-        this.onBuilt = new EventEmitter(new EventDispatcher<ScratchModel, null>());
-        this.onDestroyed = new EventEmitter(new EventDispatcher<ScratchModel, null>());
+        this.onBuilt = new EventEmitter(new EventDispatcher<SceneModel, null>());
+        this.onDestroyed = new EventEmitter(new EventDispatcher<SceneModel, null>());
 
         this.id = cfg.id || "default";
         this.edgeThreshold = cfg.edgeThreshold || 10;
@@ -222,9 +225,9 @@ class ScratchModel extends Component implements SceneModel {
     }
 
     /**
-     * Creates a new {@link Transform} within this ScratchModel.
+     * Creates a new {@link Transform} within this SceneModel.
      *
-     * Registers the new {@link Transform} in {@link ScratchModel.transforms}.
+     * Registers the new {@link Transform} in {@link SceneModel.transforms}.
      *
      * ````javascript
      * myScratchModel.createTransform({
@@ -232,19 +235,19 @@ class ScratchModel extends Component implements SceneModel {
      *      //...
      * });
      *
-     * // ScratchModel is a ScratchModel, so we can access the TextureSet we just created
+     * // SceneModel is a SceneModel, so we can access the TextureSet we just created
      * const textureSet = myScratchModel.textureSets["myTextureSet"];
      * ````
      *
      * @param transformParams Transform creation parameters.
-     * @throws {Error} If ScratchModel has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createTransform(transformParams: TransformParams): void {
         if (this.destroyed) {
-            throw new Error("ScratchModel already destroyed");
+            throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("ScratchModel already built");
+            throw new Error("SceneModel already built");
         }
         if (!transformParams) {
             throw new Error("Parameters expected: transformParams");
@@ -255,9 +258,9 @@ class ScratchModel extends Component implements SceneModel {
     }
 
     /**
-     * Creates a new {@link Texture} within this ScratchModel.
+     * Creates a new {@link Texture} within this SceneModel.
      *
-     * Registers the new {@link Texture} in {@link ScratchModel.textures}.
+     * Registers the new {@link Texture} in {@link SceneModel.textures}.
      *
      * ````javascript
      * myScratchModel.createTexture({
@@ -275,19 +278,19 @@ class ScratchModel extends Component implements SceneModel {
      *      wrapT: ClampToEdgeWrapping,
      * });
      *
-     * // ScratchModel is a ScratchModel, so we can access the TextureSet we just created
+     * // SceneModel is a SceneModel, so we can access the TextureSet we just created
      * const textureSet = myScratchModel.textureSets["myTextureSet"];
      * ````
      *
      * @param textureParams Texture creation parameters.
-     * @throws {Error} If ScratchModel has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createTexture(textureParams: TextureParams): void {
         if (this.destroyed) {
-            throw new Error("ScratchModel already destroyed");
+            throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("ScratchModel already built");
+            throw new Error("SceneModel already built");
         }
         if (!textureParams) {
             throw new Error("Parameters expected: textureParams");
@@ -309,13 +312,13 @@ class ScratchModel extends Component implements SceneModel {
                 return;
             }
         }
-        this.textures[textureParams.id] = new TextureImpl(textureParams);
+        this.textures[textureParams.id] = new Texture(textureParams);
     }
 
     /**
-     * Creates a new {@link TextureSet} within this ScratchModel.
+     * Creates a new {@link TextureSet} within this SceneModel.
      *
-     * Registers the new {@link TextureSetImpl} in {@link ScratchModel.textureSets}.
+     * Registers the new {@link TextureSet} in {@link SceneModel.textureSets}.
      *
      * ````javascript
      * myScratchModel.createTextureSet({
@@ -323,19 +326,19 @@ class ScratchModel extends Component implements SceneModel {
      *      colorTextureId: "myColorTexture"
      * });
      *
-     * // ScratchModel is a SceneModel, so we can access the TextureSet we just created
+     * // SceneModel is a SceneModel, so we can access the TextureSet we just created
      * const textureSet = myScratchModel.textureSets["myTextureSet"];
      * ````
      *
      * @param textureSetParams TextureSet creation parameters.
-     * @throws {Error} If ScratchModel has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createTextureSet(textureSetParams: TextureSetParams): void {
         if (this.destroyed) {
-            throw new Error("ScratchModel already destroyed");
+            throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("ScratchModel already built");
+            throw new Error("SceneModel already built");
         }
         if (!textureSetParams) {
             throw "Parameters expected: textureSetParams";
@@ -344,7 +347,7 @@ class ScratchModel extends Component implements SceneModel {
             throw "Parameter expected: textureSetParams.id";
         }
         if (this.textureSets[textureSetParams.id]) {
-            console.error("TextureSetImpl already exists with this ID: " + textureSetParams.id);
+            console.error("TextureSet already exists with this ID: " + textureSetParams.id);
             return;
         }
         let colorTexture;
@@ -392,7 +395,7 @@ class ScratchModel extends Component implements SceneModel {
             }
             occlusionTexture.channel = OCCLUSION_TEXTURE;
         }
-        this.textureSets[textureSetParams.colorTextureId] = new TextureSetImpl(textureSetParams, {
+        this.textureSets[textureSetParams.colorTextureId] = new TextureSet(textureSetParams, {
             emissiveTexture,
             occlusionTexture,
             metallicRoughnessTexture,
@@ -401,7 +404,7 @@ class ScratchModel extends Component implements SceneModel {
     }
 
     /**
-     * Creates a new {@link @xeokit/core/components!Geometry} within this ScratchModel, from non-compressed geometry parameters.
+     * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from non-compressed geometry parameters.
      *
      * ### Usage
      *
@@ -423,19 +426,19 @@ class ScratchModel extends Component implements SceneModel {
      *      ]
      *  });
      *
-     * // ScratchModel is a SceneModel, so we can access the Geometry we just created
+     * // SceneModel is a SceneModel, so we can access the Geometry we just created
      * const geometry = myScratchModel.geometries["myBoxGeometry"];
      * ````
      *
      * @param geometryParams Non-compressed geometry parameters.
-     * @throws {Error} If ScratchModel has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createGeometry(geometryParams: GeometryParams): void {
         if (this.destroyed) {
-            throw new Error("ScratchModel already destroyed");
+            throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("ScratchModel already built");
+            throw new Error("SceneModel already built");
         }
         if (!geometryParams) {
             this.error("[createGeometry] Parameters expected: geometryParams");
@@ -463,13 +466,13 @@ class ScratchModel extends Component implements SceneModel {
             this.error(`[createGeometry] Param expected: geometryParams.indices (required for primitive type)`);
             return;
         }
-        this.geometries[geometryId] = new GeometryImpl(<GeometryCompressedParams>compressGeometryParams(geometryParams));
+        this.geometries[geometryId] = new Geometry(<GeometryCompressedParams>compressGeometryParams(geometryParams));
     }
 
     /**
-     * Creates a new {@link @xeokit/core/components!Geometry} within this ScratchModel, from pre-compressed geometry parameters.
+     * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from pre-compressed geometry parameters.
      *
-     * Use {@link @xeokit/compression/compressGeometryParams} to pre-compress {@link @xeokit/core/components!GeometryParams|GeometryParams} into {@link @xeokit/core/components!GeometryCompressedParams|GeometryCompressedParams}.
+     * Use {@link @xeokit/math/compression!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
      *
      * ````javascript
      * myScratchModel.createGeometryCompressed({
@@ -497,19 +500,19 @@ class ScratchModel extends Component implements SceneModel {
      *      ]
      * });
      *
-     * // ScratchModel is a SceneModel, so we can access the Geometry we just created
+     * // SceneModel is a SceneModel, so we can access the Geometry we just created
      * const geometry = myScratchModel.geometries["myBoxGeometry"];
      * ````
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
-     * @throws {Error} If ScratchModel has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): void {
         if (this.destroyed) {
-            throw new Error("ScratchModel already destroyed");
+            throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("ScratchModel already built");
+            throw new Error("SceneModel already built");
         }
         if (!geometryCompressedParams) {
             this.error("[createGeometryCompressed] Parameters expected: geometryCompressedParams");
@@ -529,11 +532,11 @@ class ScratchModel extends Component implements SceneModel {
             this.error(`[createGeometryCompressed] Unsupported value for geometryCompressedParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
             return;
         }
-        this.geometries[geometryId] = new GeometryImpl(geometryCompressedParams);
+        this.geometries[geometryId] = new Geometry(geometryCompressedParams);
     }
 
     /**
-     * Creates an {@link Mesh} within this ScratchModel.
+     * Creates an {@link Mesh} within this SceneModel.
      *
      * ````javascript
      * myScratchModel.createMesh({
@@ -546,21 +549,21 @@ class ScratchModel extends Component implements SceneModel {
      *      color: [1, 0.3, 0.3]
      * });
      *
-     * // ScratchModel is a SceneModel, so we can access the Mesh we just created
+     * // SceneModel is a SceneModel, so we can access the Mesh we just created
      * const mesh = myScratchModel.meshes["redLegMesh"];
      * ````
      *
      * An {@link Mesh} can be owned by one {@link SceneObject}, which can own multiple {@link Mesh}es.
      *
      * @param meshParams Pre-compressed mesh parameters.
-     * @throws {Error} If ScratchModel has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createMesh(meshParams: MeshParams): void {
         if (this.destroyed) {
-            throw new Error("ScratchModel already destroyed");
+            throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("ScratchModel already built");
+            throw new Error("SceneModel already built");
         }
         if (meshParams.id === null || meshParams.id === undefined) {
             this.error("Parameter expected: meshParams.id");
@@ -600,7 +603,7 @@ class ScratchModel extends Component implements SceneModel {
         // }
         // const meshIndex = this.meshesList.length;
 
-        this.meshes[meshParams.id] = new MeshImpl({
+        this.meshes[meshParams.id] = new Mesh({
             id: meshParams.id,
             geometry,
             textureSet,
@@ -613,19 +616,19 @@ class ScratchModel extends Component implements SceneModel {
     }
 
     /**
-     * Creates an {@link SceneObject} within this ScratchModel.
+     * Creates an {@link SceneObject} within this SceneModel.
      *
-     * Registers the new {@link SceneObject} in {@link ScratchModel.objects}.
+     * Registers the new {@link SceneObject} in {@link SceneModel.objects}.
      *
      * @param objectParams Pre-compressed object parameters.
-     * @throws {Error} If ScratchModel has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     createObject(objectParams: ObjectParams): void {
         if (this.destroyed) {
-            throw new Error("ScratchModel already destroyed");
+            throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("ScratchModel already built");
+            throw new Error("SceneModel already built");
         }
         if (!objectParams) {
             throw new Error("Parameters expected: objectParams");
@@ -664,7 +667,7 @@ class ScratchModel extends Component implements SceneModel {
             meshes.push(mesh);
             this.#meshUsedByObject[mesh.id] = true;
         }
-        const object = new ObjectImpl({
+        const object = new SceneObject({
             id: objectId,
             meshes
         });
@@ -676,20 +679,20 @@ class ScratchModel extends Component implements SceneModel {
     }
 
     /**
-     * Builds this ScratchModel.
+     * Builds this SceneModel.
      *
-     * Sets {@link ScratchModel.built} ````true````.
+     * Sets {@link SceneModel.built} ````true````.
      *
-     * Once built, you cannot add any more components to this ScratchModel.
+     * Once built, you cannot add any more components to this SceneModel.
      *
-     * @throws {Error} If ScratchModel has already been built or destroyed.
+     * @throws {Error} If SceneModel has already been built or destroyed.
      */
     async build() {
         if (this.destroyed) {
-            throw new Error("ScratchModel already destroyed");
+            throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("ScratchModel already built");
+            throw new Error("SceneModel already built");
         }
         this.#removeUnusedTextures();
         await this.#compressTextures();
@@ -726,7 +729,7 @@ class ScratchModel extends Component implements SceneModel {
         //
         //         if (texture.src) {
         //
-        //             // Texture created with ScratchModel#createTexture({ src: ... })
+        //             // Texture created with SceneModel#createTexture({ src: ... })
         //
         //             const src = texture.src;
         //             const fileExt = src.split('.').pop();
@@ -747,7 +750,7 @@ class ScratchModel extends Component implements SceneModel {
         //                                     resolve();
         //                                 }
         //                             }).catch((err) => {
-        //                                 this.error("[ScratchModel.build] Failed to encode image: " + err);
+        //                                 this.error("[SceneModel.build] Failed to encode image: " + err);
         //                                 if (--countTextures <= 0) {
         //                                     resolve();
         //                                 }
@@ -759,7 +762,7 @@ class ScratchModel extends Component implements SceneModel {
         //                             }
         //                         }
         //                     }).catch((err) => {
-        //                         this.error("[ScratchModel.build] Failed to load image: " + err);
+        //                         this.error("[SceneModel.build] Failed to load image: " + err);
         //                         if (--countTextures <= 0) {
         //                             resolve();
         //                         }
@@ -775,7 +778,7 @@ class ScratchModel extends Component implements SceneModel {
         //
         //         if (texture.imageData) {
         //
-        //             // Texture created with ScratchModel#createTexture({ imageData: ... })
+        //             // Texture created with SceneModel#createTexture({ imageData: ... })
         //
         //             if (texture.compressed) {
         //                 encode(texture.imageData, KTX2BasisWriter, encodingOptions)
@@ -785,7 +788,7 @@ class ScratchModel extends Component implements SceneModel {
         //                             resolve();
         //                         }
         //                     }).catch((err) => {
-        //                     this.error("[ScratchModel.build] Failed to encode image: " + err);
+        //                     this.error("[SceneModel.build] Failed to encode image: " + err);
         //                     if (--countTextures <= 0) {
         //                         resolve();
         //                     }
@@ -824,8 +827,4 @@ class ScratchModel extends Component implements SceneModel {
         //     }
         // }
     }
-}
-
-export {
-    ScratchModel
 }

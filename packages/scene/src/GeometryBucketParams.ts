@@ -1,11 +1,11 @@
 import type {IntArrayParam} from "@xeokit/math/math";
 
 /**
- * A geometry bucket within {@link @xeokit/core/components!GeometryCompressedParams.geometryBuckets}.
+ * A geometry bucket within {@link @xeokit/scene!GeometryCompressedParams.geometryBuckets}.
  *
  * See usage in:
  *
- * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
  * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  *
  * @typeparam
@@ -15,8 +15,8 @@ export interface GeometryBucketParams {
     /**
      * GeometryBucketHandle bucket's 3D vertex positions, quantized as 16-bit integers.
      *
-     * Internally, the Viewer uses {@link @xeokit/core/components!GeometryCompressedParams.positionsDecompressMatrix} to decompress (dequantize)
-     * these back to 32-bit floating-point relative-to-center (RTC) positions that are relative to {@link @xeokit/core/components!GeometryCompressedParams.origin}.
+     * Internally, the Viewer uses {@link @xeokit/scene!GeometryCompressedParams.positionsDecompressMatrix} to decompress (dequantize)
+     * these back to 32-bit floating-point relative-to-center (RTC) positions that are relative to {@link @xeokit/scene!GeometryCompressedParams.origin}.
      *
      * Vertex positions are required for all primitive types.
      */
@@ -25,7 +25,7 @@ export interface GeometryBucketParams {
     /**
      * GeometryBucketHandle bucket's UV coordinates, quantized as 16-bit integers.
      *
-     * Internally, the Viewer de-quantizes these with {@link @xeokit/core/components!GeometryCompressedParams.uvsDecompressMatrix}.
+     * Internally, the Viewer de-quantizes these with {@link @xeokit/scene!GeometryCompressedParams.uvsDecompressMatrix}.
      */
     uvsCompressed?: IntArrayParam,
 

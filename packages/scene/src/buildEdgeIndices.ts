@@ -1,6 +1,6 @@
 import {DEGTORAD, FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "@xeokit/math/matrix";
-import {decompressPosition} from "./index";
+import {decompressPosition} from "@xeokit/math/compression";
 
 
 const uniquePositions: number[] = [];
@@ -103,6 +103,7 @@ function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayPar
 
 /**
  * Builds edge connectivity indices from a 3D triangle mesh given as vertex positions and triangle indices
+ * @private
  */
 export function buildEdgeIndices(
     positions: FloatArrayParam,

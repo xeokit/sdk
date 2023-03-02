@@ -1,5 +1,5 @@
 {
-  "name": "@xeokit/scratchmodel",
+  "name": "@xeokit/scene",
   "version": "0.0.1",
   "description": "A buldable, loadable, savable, viewer-agnostic JavaScript data structure to represent a xeokit geometric model in NodeJS or Browser memory. Use this to generate xeokit models, or as an intermediate in-memory representation within a conversion process. ",
   "scripts": {

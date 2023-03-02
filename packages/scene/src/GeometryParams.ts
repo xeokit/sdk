@@ -2,16 +2,16 @@
 import type {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 
 /**
- * Non-compressed geometry parameters for {@link @xeokit/core/components!SceneModel.createGeometry|SceneModel.createGeometry}.
+ * Non-compressed geometry parameters for {@link @xeokit/scene!SceneModel.createGeometry|SceneModel.createGeometry}.
  *
  * ## Summary
  *
- * * Contains uncompressed, human-readible geometry parameters for {@link @xeokit/core/components!SceneModel.createGeometry|SceneModel.createGeometry}
- * * Use {@link @xeokit/core/components!GeometryCompressedParams|GeometryCompressedParams} to convert to {@link @xeokit/compression/compressGeometryParams} for {@link @xeokit/core/components!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
+ * * Contains uncompressed, human-readible geometry parameters for {@link @xeokit/scene!SceneModel.createGeometry|SceneModel.createGeometry}
+ * * Use {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams} to convert to {@link @xeokit/math/compression!compressGeometryParams} for {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  *
  * See usage in:
  *
- * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
  * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  *
  * @typeparam
@@ -31,14 +31,14 @@ export interface GeometryParams {
     primitive: number;
 
     /**
-     * RTC origin for {@link @xeokit/core/components!GeometryParams.positions} or {@link @xeokit/core/components!GeometryParams.positionsCompressed}.
+     * RTC origin for {@link @xeokit/scene!GeometryParams.positions} or {@link @xeokit/scene!GeometryParams.positionsCompressed}.
      */
     origin?: FloatArrayParam;
 
     /**
      * Flat array of uncompressed floating point 3D vertex positions.
      *
-     * Alternative to {@link @xeokit/core/components!GeometryParams.positionsCompressed}.
+     * Alternative to {@link @xeokit/scene!GeometryParams.positionsCompressed}.
      */
     positions: FloatArrayParam;
 
@@ -52,7 +52,7 @@ export interface GeometryParams {
     /**
      * Flat array of uncompressed floating-point vertex colors.
      *
-     * Alternative to {@link @xeokit/core/components!GeometryParams.colorsCompressed}.
+     * Alternative to {@link @xeokit/scene!GeometryParams.colorsCompressed}.
      */
     colors?: FloatArrayParam;
 
@@ -71,7 +71,7 @@ export interface GeometryParams {
      *
      * Default is 10.
      *
-     * Ignored when {@link @xeokit/core/components!GeometryParams.edgeIndices} is defined.
+     * Ignored when {@link @xeokit/scene!GeometryParams.edgeIndices} is defined.
      */
     edgeThreshold?: number;
 }

@@ -1,21 +1,23 @@
-import type {FloatArrayParam} from "@xeokit/math/math";
-import type {RendererTexture} from "./RendererTexture";
+import {LinearMipMapNearestFilter, RepeatWrapping} from "@xeokit/core/constants";
+import {FloatArrayParam} from "@xeokit/math/math";
+import {RendererTexture} from "./RendererTexture";
+import {TextureParams} from "./TextureParams";
 
 /**
  * Represents a texture.
  *
- * * Stored in {@link @xeokit/core/components!SceneModel.textures | SceneModel.textures}
- * * Created with {@link @xeokit/core/components!SceneModel.createTexture | SceneModel.createTexture}
+ * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
+ * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
  * * Referenced by {@link TextureSet.colorTexture | TextureSet.colorTexture},
  * {@link TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
  * {@link TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link TextureSet.emissiveTexture | TextureSet.emissiveTexture}
  *
  * See usage in:
  *
- * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
  * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  */
-export interface Texture {
+export class Texture implements Texture {
 
     /**
      *  Internal interface through which this {@link Texture} can load property updates into a renderer.
@@ -24,7 +26,7 @@ export interface Texture {
      *
      * @internal
      */
-    rendererTexture? : RendererTexture;
+    rendererTexture?: RendererTexture;
 
     /**
      * ID for the texture.
@@ -135,7 +137,21 @@ export interface Texture {
      * RGBA color to preload the texture with.
      */
     preloadColor?: FloatArrayParam;
+
+    /**
+     * @private
+     */
+    constructor(params: TextureParams) {
+        this.id = params.id;
+        this.imageData = params.imageData;
+        this.src = params.src;
+        this.mediaType = params.mediaType;
+        this.minFilter = params.minFilter || LinearMipMapNearestFilter;
+        this.magFilter = params.magFilter || LinearMipMapNearestFilter;
+        this.wrapS = params.wrapS || RepeatWrapping;
+        this.wrapT = params.wrapT || RepeatWrapping;
+        this.wrapR = params.wrapR || RepeatWrapping
+        this.rendererTexture = null;
+    }
 }
-
-
 

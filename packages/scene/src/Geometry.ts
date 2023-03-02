@@ -1,22 +1,23 @@
-import type {FloatArrayParam} from "@xeokit/math/math";
-import type {GeometryBucket} from "./GeometryBucket";
-import type {RendererGeometry} from "./RendererGeometry";
+import {FloatArrayParam} from "@xeokit/math/math";
+import {GeometryBucket} from "./GeometryBucket";
+import {GeometryCompressedParams} from "./GeometryCompressedParams";
+import {RendererGeometry} from "./RendererGeometry";
 
 /**
  * Represents an element of reusable geometry.
  *
- * * Stored in {@link @xeokit/core/components!SceneModel.geometries | SceneModel.geometries}
- * * Created with {@link @xeokit/core/components!SceneModel.createGeometry | SceneModel.createGeometry}
- * and {@link @xeokit/core/components!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
- * * Referenced by {@link @xeokit/core/components!SceneObject.geometry}
+ * * Stored in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}
+ * * Created with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}
+ * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
+ * * Referenced by {@link @xeokit/scene!SceneObject.geometry}
  *
  * See usage in:
  *
- * * [@xeokit/scratchmodel](/docs/modules/_xeokit_scratchmodel.html)
+ * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
  * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
  * * [@xeokit/xkt](/docs/modules/_xeokit_xkt.html)
  */
-export interface Geometry {
+export class Geometry {
 
     /**
      * ID for the geometry.
@@ -39,18 +40,18 @@ export interface Geometry {
     origin?: FloatArrayParam;
 
     /**
-     * Matrix to decompress {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed}.
+     * Matrix to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}.
      *
-     * The Viewer uses this matrix internally to decompress (dequantize) {@link @xeokit/core/components!GeometryBucketParams.positionsCompressed}
+     * The Viewer uses this matrix internally to decompress (dequantize) {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}
      * back to 32-bit floating-point relative-to-center (RTC) coordinates that are relative
-     * to {@link @xeokit/core/components!Geometry.origin}.
+     * to {@link @xeokit/scene!Geometry.origin}.
      */
     positionsDecompressMatrix: FloatArrayParam;
 
     /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
      *
-     * The boundary coordinates are relative to {@link @xeokit/core/components!Geometry.origin}.
+     * The boundary coordinates are relative to {@link @xeokit/scene!Geometry.origin}.
      */
     aabb?: FloatArrayParam;
 
@@ -79,5 +80,11 @@ export interface Geometry {
      * @internal
      */
     rendererGeometry? : RendererGeometry;
-}
 
+    constructor(params: GeometryCompressedParams) {
+        this.geometryBuckets = params.geometryBuckets;
+        this.id = params.id;
+        this.positionsDecompressMatrix = params.positionsDecompressMatrix;
+        this.primitive = params.primitive;
+    }
+}

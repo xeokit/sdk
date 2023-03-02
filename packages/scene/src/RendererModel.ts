@@ -1,5 +1,4 @@
 import type {RendererObject} from "./RendererObject";
-import type {RendererViewObject} from "@xeokit/viewer/src/RendererViewObject";
 
 /**
  *  Internal interface through which a {@link SceneModel} can load property updates into a renderer.

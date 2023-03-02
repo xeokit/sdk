@@ -89,7 +89,7 @@ import {Scene} from "./Scene";
  * view1.camera.up = [-0.018, 0.999, 0.039];
  * ````
  *
- * Next, we'll create a {@link @xeokit/core/components!SceneModel | SceneModel} containing two model {@link RendererObject|ViewerObjects} that represent a building
+ * Next, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} containing two model {@link RendererObject|ViewerObjects} that represent a building
  * foundation and walls, along with two environmental ViewerObjects that represent a skybox and ground plane.
  *
  * The ground and skybox ViewerObjects specify that their {@link ViewObject|ViewObjects} belong
@@ -186,7 +186,7 @@ import {Scene} from "./Scene";
  * });
  * ````
  *
- * As we did in the previous example, we'll now create a {@link @xeokit/viewer!SceneModel | SceneModel} containing two model
+ * As we did in the previous example, we'll now create a {@link @xeokit/scene!SceneModel | SceneModel} containing two model
  * {@link RendererObject|ViewerObjects} that represent a building foundation and walls, along with two environmental
  * ViewerObjects that represent a skybox and ground plane.
  *

@@ -17,7 +17,7 @@ export interface RendererViewObject {
     readonly id: string;
 
     /**
-     * The {@link @xeokit/core/components!SceneModel | SceneModel} that contains this RendererViewObjectCommands.
+     * The {@link @xeokit/scene!SceneModel | SceneModel} that contains this RendererViewObjectCommands.
      */
     readonly model: SceneModel;
 

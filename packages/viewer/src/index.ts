@@ -29,8 +29,8 @@
  * * [Creating a Viewer](#creating-a-viewer)
  * * [Creating a View](#creating-a-view)
  * * [Adding a CameraControl](#adding-a-cameracontrol)
- * * [Creating a SceneModel](#creating-a-scenemodel)
- * * [Reading the Contents of a SceneModel](#reading-the-contents-of-a-scenemodel)
+ * * [Creating a SceneModel](#creating-a-scene)
+ * * [Reading the Contents of a SceneModel](#reading-the-contents-of-a-scene)
  * * [Showing and Hiding Objects](#showing-and-hiding-objects)
  * * [Highlighting, Selecting and X-Raying Objects](#highlighting-selecting-and-x-raying-objects)
  * * [Creating a Second View](#creating-a-second-view)
@@ -46,7 +46,7 @@
  *  We'll start by importing the modules we need:
  *
  * ````javascript
- * import {ScratchModel} from "@xeokit/scratchmodel";
+ * import {Scene} from "@xeokit/scene";
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl2renderer";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
@@ -55,11 +55,19 @@
  * import {saveXKT, loadXKT} from "@xeokit/xkt";
  * ````
  *
- * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webgl2renderer!WebGLRenderer}:
+ * Create a {@link @xeokit/scene!Scene} to hold our model representations:
+ *
+ * ````javascript
+ * const myScene = new Scene();
+ * ````
+ *
+ * Create a {@link @xeokit/viewer!Viewer} to view our Scene, configured with
+ * a {@link @xeokit/webgl2renderer!WebGLRenderer}:
  *
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
+ *     scene: myScene,
  *     renderer: new WebGLRenderer({ })
  * });
  * ````
@@ -81,7 +89,7 @@
  *
  * ### Adding a CameraControl
  *
- * > *See [@xeokit/cameracontrol](/docs/modules/_xeokit_controls.html)*
+ * > *See [@xeokit/cameracontrol](/docs/modules/_xeokit_cameracontrol.html)*
  *
  * Add a {@link @xeokit/cameracontrol!CameraControl} to the View, to control the Camera from mouse and touch input:
  *
@@ -93,14 +101,16 @@
  *
  * ### Creating a SceneModel
  *
- * The Viewer's {@link @xeokit/viewer!Scene | Scene } contains geometric representations of models and objects,
+ * > *See [@xeokit/scene](/docs/modules/_xeokit_scene.html)*
+ *
+ * Our {@link @xeokit/scene!Scene | Scene } contains geometric representations of our models and objects,
  * with materials and textures.
  *
- * Within the Scene, create a {@link @xeokit/core/components!SceneModel | SceneModel} that contains a couple
- * of textured {@link @xeokit/core/components!SceneObject | SceneObjects}:
+ * Within the Scene, create a {@link @xeokit/scene!SceneModel | SceneModel} that contains a couple
+ * of textured {@link @xeokit/scene!SceneModel | SceneObjects}:
  *
  * ````javascript
- * const sceneModel = new ScratchModel(); // ScratchModel implements SceneModel
+ * const sceneModel = myScene.createModel();
  *
  * sceneModel.createGeometry({
  *      id: "myGeometry",
@@ -145,25 +155,20 @@
  * });
  *
  * sceneModel.build();
- *
- * myViewer.scene.addModel({
- *     id: "myModel",
- *     sceneModel
- * });
  * ````
  *
- * As soon as we've called {@link @xeokit/core/components!SceneModel.build | SceneModel.build}, two new objects appear
+ * As soon as we've called {@link @xeokit/scene!SceneModel.build | SceneModel.build}, two new objects appear
  * in the View's canvas.
  *
  * ### Reading the Contents of a SceneModel
  *
- * A {@link @xeokit/core/components!SceneModel | SceneModel} lets us read back all the geometry, materials, textures
+ * A {@link @xeokit/scene!SceneModel | SceneModel} lets us read back all the geometry, materials, textures
  * and objects we create within it.
  *
  * Let's access our SceneModel. and find some of those components within it using their IDs:
  *
  * ```` javascript
- * const sceneModel = myViewer.scene.models["myModel"];
+ * const sceneModel = myScene.models["myModel"];
  * const texture = mySceneModel.textures["myColorTexture"];
  * const textureSet = mySceneModel.textureSets["myTextureSet"];
  *
@@ -233,7 +238,7 @@
  * view2.objects["myObject1"].highlighted = true;
  * ````
  *
- * A View is able to show an independent view of {@link @xeokit/core/components!SceneObject | SceneObjects} by
+ * A View is able to show an independent view of {@link @xeokit/scene!SceneModel | SceneObjects} by
  * proxying them with {@link ViewObject | ViewObjects}, which represent and control their appearance within the View's canvas.
  *
  * ### Slicing Objects
@@ -310,7 +315,7 @@
  * ````javascript
  * sceneModel.destroy();
  *
- * const sceneModel2 = new ScratchModel();
+ * const sceneModel2 = myScene.createModel();
  *
  * loadXKT({
  *     data: xktArrayBuffer,
@@ -318,11 +323,6 @@
  * });
  *
  * sceneModel2.build();
- *
- * myViewer.scene.addModel({
- *     id: "myModel",
- *     sceneModel: sceneModel2
- * });
  * ````
  *
  * Both Views now show the two objects once more, in their original, unhighlighted state. Their highlighted state, after
@@ -362,7 +362,7 @@
  * Now we'll create a SceneModel for our skybox in that ViewLayer:
  *
  * ````javascript
- * const skyboxSceneModel = myViewer.scene.createModel({
+ * const skyboxSceneModel = myVScene.createModel({
  *      id: "mySkyBox",
  *      viewLayerId: "myEnviromentViewLayer"
  * });
@@ -423,4 +423,4 @@ export * from "./SAO";
 export * from "./PickParams";
 export * from "./PickResult";
 export * from "./ViewLayerParams";
-export * from "./Scene";
+export * from "./AddModelParams";

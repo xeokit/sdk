@@ -1,9 +1,10 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter, SceneModel} from "@xeokit/core/components";
+import {Component, EventEmitter} from "@xeokit/core/components";
 import {createUUID} from "@xeokit/core/utils";
 import {QualityRender} from "@xeokit/core/constants";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {createVec3} from "@xeokit/math/matrix";
+import {SceneModel} from "@xeokit/scene";
 
 import {ViewObject} from "./ViewObject";
 import {SectionPlane} from "./SectionPlane";

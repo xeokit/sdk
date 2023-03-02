@@ -1,10 +1,10 @@
 import type {View} from "./View";
 import type {Viewer} from "./Viewer";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {Capabilities, SceneModel} from "@xeokit/core/components";
+import {Capabilities} from "@xeokit/core/components";
 import {ViewObject} from "./ViewObject";
-import {AddModelParams} from "./AddModelParams";
 import {RendererViewObject} from "./RendererViewObject";
+import {AddModelParams} from "./AddModelParams";
 
 /**
  * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
@@ -52,7 +52,7 @@ export interface Renderer {
     /**
      * Registers a {@link @xeokit/viewer!View} with this Renderer.
      *
-     * The Renderer will then begin rendering each {@link @xeokit/viewer!SceneModel | SceneModel} created with {@link SceneModel.createModel} for the new View.
+     * The Renderer will then begin rendering each {@link @xeokit/scene!SceneModel | SceneModel} created with {@link SceneModel.createModel} for the new View.
      *
      * You can only register as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
      *
@@ -71,14 +71,14 @@ export interface Renderer {
     deregisterView(viewIndex: number): void;
 
     /**
-     * Adds a {@link @xeokit/core/components!SceneModel | SceneModel} to this Renderer.
+     * Adds a {@link @xeokit/scene!SceneModel | SceneModel} to this Renderer.
      *
      * @param params SceneModel addition params
      */
     addModel(params: AddModelParams): void;
 
     /**
-     * Removes a {@link @xeokit/viewer!SceneModel | SceneModel} from this Renderer.
+     * Removes a {@link @xeokit/scene!SceneModel | SceneModel} from this Renderer.
      *
      * @param id ID of the SceneModel to remove
      */

@@ -537,7 +537,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * When flying to a {@link @xeokit/core/components!SceneModel | SceneModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+     * When flying to a {@link @xeokit/scene!SceneModel | SceneModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
      * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.
@@ -549,7 +549,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * When flying to a {@link @xeokit/core/components!SceneModel | SceneModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+     * When flying to a {@link @xeokit/scene!SceneModel | SceneModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
      * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.

@@ -1,9 +1,10 @@
-
 import type {FloatArrayParam} from "@xeokit/math/math";
-import {SceneModel} from "@xeokit/core/components";
+import {SceneModel} from "@xeokit/scene";
+
+
 
 /**
- * {@link @xeokit/core/components!SceneModel | SceneModel} creation parameters for {@link Scene.createModel}.
+ * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link Scene.createModel}.
  */
 export interface AddModelParams {
 

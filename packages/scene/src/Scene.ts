@@ -1,62 +1,58 @@
-import {AddModelParams} from "./AddModelParams";
-import {EventEmitter, SceneModel, SceneObject} from "@xeokit/core/components";
+import {EventEmitter} from "@xeokit/core/components";
 import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
-import {Renderer} from "./Renderer";
-import {Tiles} from "./Tiles";
 import {EventDispatcher} from "strongly-typed-events";
+import {Tiles} from "@xeokit/viewer/src/Tiles";
+import {SceneModel} from "./SceneModel";
+import {SceneObject} from "./SceneObject";
+import {AddModelParams} from "./AddModelParams";
 
 /**
  * A scene representation.
  *
- * A Scene is a container of {@link SceneModel | Models} and {@link SceneObject | SceneObjects}.
+ * A Scene is a container of {@link SceneModel | SceneModels} and {@link SceneObject | SceneObjects}.
  */
 export class Scene {
 
     /**
-     * The Scene's ID.
-     */
-    readonly id: string;
-
-    /**
-     * The SceneModel in this Scene.
+     * The SceneModels in this Scene.
      */
     readonly models: { [key: string]: SceneModel };
 
     /**
-     * SceneObject in this Scene.
+     * SceneObjects in this Scene.
      */
     readonly objects: { [key: string]: SceneObject };
 
     /**
-     * Emits an event each time a {@link SceneModel} is added to this Scene.
+     * Emits an event each time a {@link SceneModel} is created in this Scene.
      *
      * @event
      */
-    readonly onModelAdded: EventEmitter<Scene, SceneModel>;
+    readonly onModelCreated: EventEmitter<Scene, SceneModel>;
 
     /**
-     * Emits an event each time a {@link SceneModel} is removed from this Scene.
+     * Emits an event each time a {@link SceneModel} is destroyed in this Scene.
      *
      * @event
      */
-    readonly onModelRemoved: EventEmitter<Scene, SceneModel>;
+    readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
 
     readonly tiles: Tiles;
 
+    #onModelBuilts: { [key: string]: any };
     #onModelDestroys: { [key: string]: any };
-    #renderer: Renderer;
     #center: Float64Array;
     #aabbDirty: boolean;
     #aabb: Float64Array;
 
     /**
-     * @private
+     * TODO
      */
-    constructor(renderer: Renderer) {
+    constructor() {
+        this.#onModelBuilts = {};
         this.#onModelDestroys = {};
-        this.#renderer = renderer;
-        this.onModelAdded = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
-        this.onModelRemoved = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+        this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     }
 
     /**
@@ -134,42 +130,35 @@ export class Scene {
     }
 
     /**
-     * Adds a {@link @xeokit/core/components!SceneModel | SceneModel} to this Scene.
-     *
-     * * A SceneModel may belong to one Scene at a time.
-     * * The SceneModel will be automatically removed when the SceneModel is destroyed.
-     * * All SceneModels will be automatically removed when this Scene is destroyed.
-     * * SceneModels are not destroyed when you remove them.
+     * Creates a {@link @xeokit/scene!SceneModel} in this Scene.
      *
      * @param params SceneModel configuration
+     * @returns The new SceneModel
      */
-    addModel(params: AddModelParams): void {
+    createModel(params: AddModelParams): SceneModel {
         if (!params.id) {
             throw new Error("Parameter expected: id");
         }
-        if (!params.sceneModel) {
-            throw new Error("Parameter expected: sceneModel");
-        }
-        if (!params.sceneModel.built) {
-            throw new Error("SceneModel must be built before adding to a Scene");
-        }
         if (this.models[params.id]) {
-            throw new Error(`SceneModel with this ID already added to Scene: "${params.id}"`);
+            throw new Error(`SceneModel with this ID already created in this Scene: "${params.id}"`);
         }
-        if (params.sceneModel.rendererModel) {
-            throw new Error(`SceneModel already added to another Scene`);
-        }
-        this.#renderer.addModel(params);
         const id = params.id;
-        const sceneModel = params.sceneModel;
+        const sceneModel = new SceneModel({id});
         this.models[id] = sceneModel;
         this.#registerObjects(sceneModel);
-        this.onModelAdded.dispatch(this, sceneModel);
+        this.onModelCreated.dispatch(this, sceneModel);
+        this.#onModelBuilts[id] =  sceneModel.onBuilt.one(() => {
+            this.#registerObjects(sceneModel);
+            this.onModelCreated.dispatch(this, sceneModel);
+        });
         this.#onModelDestroys[id] = sceneModel.onDestroyed.one(() => {
             delete this.models[id];
             this.#deregisterObjects(sceneModel);
-            this.onModelRemoved.dispatch(this, sceneModel);
+            sceneModel.onBuilt.unsubscribe(this.#onModelBuilts[id]);
+            sceneModel.onDestroyed.unsubscribe(this.#onModelDestroys[id]);
+            this.onModelDestroyed.dispatch(this, sceneModel);
         });
+        return sceneModel;
     }
 
     #registerObjects(model: SceneModel) {
@@ -190,29 +179,13 @@ export class Scene {
         this.#aabbDirty = true;
     }
 
-    /**
-     * Removes a {@link @xeokit/core/components!SceneModel | SceneModel} from this Scene.
-     *
-     * @param id The ID against which the SceneModel was registered under when it was
-     * previously added with {@link addModel}.
-     */
-    removeModel(id: string) {
-        if (this.models[id]) {
-            return;
-        }
-        this.#renderer.removeModel(id);
-        const sceneModel = this.models[id];
-        delete this.models[id];
-        this.#deregisterObjects(sceneModel);
-        sceneModel.onDestroyed.unsubscribe(this.#onModelDestroys[id]);
-    }
 
     /**
-     * Removes all {@link @xeokit/core/components!SceneModel | Models} currently in this Scene.
+     * Removes all {@link @xeokit/scene!SceneModel | SceneModels} currently in this Scene.
      */
     removeAllModels() {
         for (let id in this.models) {
-            this.removeModel(id);
+            this.models[id].destroy();
         }
     }
 
@@ -314,8 +287,8 @@ export class Scene {
      * @private
      */
     destroy(): void {
-        this.onModelAdded.clear();
-        this.onModelRemoved.clear();
+        this.onModelCreated.clear();
+        this.onModelDestroyed.clear();
         for (let id in this.models) {
             this.models[id].destroy();
         }

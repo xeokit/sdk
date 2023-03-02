@@ -1,22 +1,22 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 
 import type {ViewLayer} from "./ViewLayer";
-import {SceneObject} from "@xeokit/core/components";
+import {SceneObject} from "@xeokit/scene";
 import {RendererViewObject} from "./RendererViewObject";
 
 /**
- * Represents and controls the visual state of a {@link @xeokit/core/components!SceneObject | SceneObject} in
+ * Represents and controls the visual state of a {@link @xeokit/scene!SceneModel | SceneObject} in
  * a {@link @xeokit/viewer!View |View's} canvas.
  *
  * ## Summary
  *
  * * Stored in {@link View.objects | View.objects} and {@link ViewLayer.objects | ViewLayer.objects}
- * * Viewer automatically creates one of these in each existing {@link @xeokit/viewer!View} for each {@link @xeokit/core/components!SceneObject | SceneObject} created
+ * * Viewer automatically creates one of these in each existing {@link @xeokit/viewer!View} for each {@link @xeokit/scene!SceneModel | SceneObject} created
  * * {@link SceneObject.viewLayerId | SceneObject.viewLayerId} determines which of the View's {@link ViewLayer | ViewLayers} to put the ViewObject in
  *
  * ## Overview
  *
- * Every View automatically maintains within itself a ViewObject for each {@link @xeokit/core/components!SceneObject | SceneObject} that exists in the {@link @xeokit/viewer!Viewer}.
+ * Every View automatically maintains within itself a ViewObject for each {@link @xeokit/scene!SceneModel | SceneObject} that exists in the {@link @xeokit/viewer!Viewer}.
  *
  * Whenever we create a SceneObject, each View will automatically create a corresponding ViewObject within itself. When
  * we destroy a SceneObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View

@@ -1,10 +1,11 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter, RendererObject, SceneModel} from "@xeokit/core/components";
+import {Component, EventEmitter} from "@xeokit/core/components";
 
 import {ViewObject} from "./ViewObject";
 import type {Viewer} from "./Viewer";
 import type {View} from "./View";
-import {Scene} from "./Scene";
+import {Scene, SceneModel} from "@xeokit/scene";
+
 
 
 /**
@@ -880,10 +881,10 @@ class ViewLayer extends Component {
             const model = models[id];
             this.#createObjects(model);
         }
-        this.viewer.scene.onModelAdded.subscribe((scene: Scene, model: SceneModel) => {
+        this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: SceneModel) => {
             this.#createObjects(model);
         });
-        this.viewer.scene.onModelRemoved.subscribe((scene:Scene, model: SceneModel) => {
+        this.viewer.scene.onModelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
             this.#destroyObjects(model);
         });
     }

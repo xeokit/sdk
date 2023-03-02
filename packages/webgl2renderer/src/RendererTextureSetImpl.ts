@@ -1,4 +1,4 @@
-import { RendererTextureSet} from "@xeokit/core/components";
+import { RendererTextureSet} from "@xeokit/scene";
 import {RendererTextureImpl} from "./RendererTextureImpl";
 
 

@@ -1,4 +1,4 @@
-import {Geometry, RendererGeometry} from "@xeokit/core/components";
+import {Geometry, RendererGeometry} from "@xeokit/scene";
 
 /**
  * @private

@@ -405,7 +405,7 @@ export class TreeView extends Component {
             this.#addModel(modelId);
         }
 
-        this.#viewer.scene.onModelAdded.subscribe((sceneModel) => {
+        this.#viewer.scene.onModelCreated.subscribe((scene,sceneModel) => {
             if (this.data.models[sceneModel.id]) {
                 this.#addModel(sceneModel.id);
             }

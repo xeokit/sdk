@@ -2,17 +2,6 @@ import {EventDispatcher} from "strongly-typed-events";
 import {
     Component,
     EventEmitter,
-    Geometry,
-    GeometryCompressedParams,
-    Mesh,
-    RendererGeometry,
-    RendererMesh,
-    RendererModel,
-    RendererTexture,
-    RendererTextureSet,
-    SceneModel,
-    SceneObject,
-    Texture,
     TextureTranscoder
 } from "@xeokit/core/components";
 import {createUUID, loadArraybuffer} from "@xeokit/core/utils";
@@ -30,6 +19,16 @@ import {
 import {FloatArrayParam} from "@xeokit/math/math";
 import type {Camera, View} from "@xeokit/viewer";
 import {Viewer} from "@xeokit/viewer";
+import {GLTexture} from "@xeokit/webgl2";
+import {
+    Geometry, GeometryCompressedParams,
+    Mesh,
+    RendererGeometry, RendererMesh,
+    RendererModel, RendererTexture,
+    RendererTextureSet,
+    SceneModel,
+    SceneObject, Texture
+} from "@xeokit/scene";
 import type {WebGLRenderer} from "./WebGLRenderer";
 import {Layer, LayerParams} from "./Layer";
 import type {RenderContext} from "./RenderContext";
@@ -39,7 +38,7 @@ import {RendererTextureImpl} from "./RendererTextureImpl";
 import {RendererObjectImpl} from "./RendererObjectImpl";
 import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
-import {GLTexture} from "@xeokit/webgl2";
+
 
 
 const tempVec3a = createVec3();

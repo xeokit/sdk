@@ -2,11 +2,11 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdata.svg)](https://badge.fury.io/js/%40xeokit%2Fdata)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/data/badge)](https://www.jsdelivr.com/package/npm/@xeokit/data)
  *
- * <img style="padding:50px" src="media://images/xeokit_data_icon.png"/>
+ * <img style="padding:50px" src="media://images/xeokit_datamodel_icon.png"/>
  *
  * # Entity-Relationship Data Model
  *
- * * {@link @xeokit/data!DataModel | DataModel}
+ * * {@link @xeokit/data!Data | Data}, {@link @xeokit/data!DataModel | DataModel}
  * * Entity-relationship (ER) graph that can be used with a {@link @xeokit/viewer!Viewer} to classify models
  * * Extensible entity and relationship types - use with an external set of types (eg. {@link "@xeokit/datatypes/basicTypes" | basicTypes}, {@link "@xeokit/datatypes/ifcTypes" | ifcTypes})
  * * A single graph into which we can merge multiple ER data models - objects, properties and relationships

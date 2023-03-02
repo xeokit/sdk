@@ -1,10 +1,11 @@
-import {SceneModel, RendererModel, SceneObject, RendererObject} from "@xeokit/core/components";
+
 import {createAABB3} from "@xeokit/math/boundaries";
 import {createVec3} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import type {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererViewObject} from "viewer/src/RendererViewObject";
+import {RendererModel, RendererObject, SceneModel, SceneObject} from "@xeokit/scene";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 

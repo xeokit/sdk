@@ -1,5 +1,5 @@
 import {PickResult} from "@xeokit/viewer";
-import {SceneObject} from "@xeokit/core/components";
+import {SceneObject} from "@xeokit/scene";
 
 /**
  * Meshes that can be picked by a WebGLRenderer.

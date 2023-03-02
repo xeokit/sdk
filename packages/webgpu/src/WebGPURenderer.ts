@@ -1,10 +1,10 @@
-import {Capabilities, SceneModel, TextureTranscoder} from "@xeokit/core/components";
 import {FloatArrayParam} from "@xeokit/math/math";
 
-import { Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
-import { RendererViewObject } from "viewer/src/RendererViewObject";
+import {Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import {RendererViewObject} from "viewer/src/RendererViewObject";
 import type {Pickable} from "./Pickable";
 import {AddModelParams} from "@xeokit/viewer/src/AddModelParams";
+import {Capabilities, TextureTranscoder} from "@xeokit/core/components";
 
 /**
  * WebGPU-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.

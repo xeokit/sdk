@@ -10,7 +10,7 @@ import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import {RENDER_PASSES} from './RENDER_PASSES';
 import {LinesPrimitive, PointsPrimitive} from "@xeokit/core/constants";
 import {AABB3ToOBB3, collapseAABB3, expandAABB3Point3} from "@xeokit/math/boundaries";
-import {GeometryCompressedParams, GeometryBucketParams, MeshParams, RendererTextureSet} from "@xeokit/core/components";
+import {GeometryCompressedParams, GeometryBucketParams, MeshParams, RendererTextureSet} from "@xeokit/scene";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
 
 const MAX_MESH_PARTS = (1 << 12); // 12 bits 

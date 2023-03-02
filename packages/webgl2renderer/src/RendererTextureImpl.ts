@@ -1,4 +1,4 @@
-import {Texture, RendererTexture} from "@xeokit/core/components";
+import {Texture, RendererTexture} from "@xeokit/scene";
 import {GLTexture} from "@xeokit/webgl2";
 
 /**

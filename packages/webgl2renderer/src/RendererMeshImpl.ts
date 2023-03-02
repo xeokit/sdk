@@ -1,4 +1,4 @@
-import {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject} from "@xeokit/core/components";
+import {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject} from "@xeokit/scene";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {createAABB3} from "@xeokit/math/boundaries";
 

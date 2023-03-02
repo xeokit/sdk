@@ -62,13 +62,13 @@
  * ````
  *
  * Create a {@link @xeokit/viewer!Viewer} to view our Scene, configured with
- * a {@link @xeokit/webgl2renderer!WebGLRenderer}:
+ * a {@link @xeokit/webgl2renderer!WebGL2Renderer}:
  *
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     scene: myScene,
- *     renderer: new WebGLRenderer({ })
+ *     renderer: new WebGL2Renderer({ })
  * });
  * ````
  *

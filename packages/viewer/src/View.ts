@@ -5,6 +5,7 @@ import {QualityRender} from "@xeokit/core/constants";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {createVec3} from "@xeokit/math/matrix";
 import {SceneModel} from "@xeokit/scene";
+import {Scene} from "@xeokit/scene";
 
 import {ViewObject} from "./ViewObject";
 import {SectionPlane} from "./SectionPlane";
@@ -24,7 +25,7 @@ import {CameraFlightAnimation} from "./CameraFlightAnimation";
 import {AmbientLight} from "./AmbientLight";
 import {DirLight} from "./DirLight";
 import {RendererViewObject} from "./RendererViewObject";
-import {Scene} from "./Scene";
+
 
 /**
  * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
@@ -1355,10 +1356,10 @@ class View extends Component {
         for (const id in this.viewer.scene.models) {
             this.#createObjects(this.viewer.scene.models[id]);
         }
-        this.viewer.scene.onModelAdded.subscribe((scene: Scene, model: SceneModel) => {
+        this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: SceneModel) => {
             this.#createObjects(model);
         });
-        this.viewer.scene.onModelRemoved.subscribe((scene: Scene, model: SceneModel) => {
+        this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, model: SceneModel) => {
             this.#destroyObjects(model);
         });
     }

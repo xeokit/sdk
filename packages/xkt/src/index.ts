@@ -43,10 +43,13 @@
  * Loading an XKT file into a {@link @xeokit/scene!SceneModel | SceneModel} belonging to a {@link @xeokit/viewer!Viewer | Viewer}:
  *
  * ````javascript
+ * import {Scene} from "@xeokit/scene";
  * import {Viewer} from "@xeokit/viewer";
  * import {loadXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({
+ *     id: "myViewer",
+ *     scene: new Scene(),
  *     //...
  * });
  *
@@ -55,7 +58,7 @@
  * fetch("myModel.xkt").then(response => {
  *     response.arrayBuffer().then(data => {
  *
- *         const sceneModel= myViewer.scene.createModel({
+ *         const sceneModel = myViewer.scene.createModel({
  *             id: "myModel"
  *         });
  *
@@ -69,12 +72,14 @@
  * Loading an XKT file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}:
  *
  * ````javascript
+ * import {Scene} from "@xeokit/scene";
  * import {Viewer} from "@xeokit/viewer";
  * import {DataModel} from "@xeokit/data";
  * import {loadXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({
  *     //...
+ *     scene: new Scene()
  * });
  *
  * //...
@@ -108,10 +113,13 @@
  * Saving an XKT file from a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
+ * import {Scene} from "@xeokit/scene";
  * import {SceneModel} from "@xeokit/scene";
  * import {saveXKT} from "@xeokit/xkt";
  *
- * const sceneModel = new SceneModel();
+ * const data = new Data();
+ *
+ * const sceneModel = data.createModel();
  *
  * //...
  *
@@ -125,11 +133,13 @@
  * Saving an XKT file from a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
+ * import {Scene} from "@xeokit/scene";
  * import {Viewer} from "@xeokit/viewer";
  * import {saveXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({
- *     //...
+ *     //...,
+ *     scene: new Scene()
  * });
  *
  * //...
@@ -150,12 +160,14 @@
  * Saving an XKT file from a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}:
  *
  * ````javascript
+ * import {Scene} from "@xeokit/scene";
  * import {Viewer} from "@xeokit/viewer";
  * import {DataModel} from "@xeokit/data";
  * import {saveXKT} from "@xeokit/xkt";
  *
  * const myViewer = new Viewer({
- *     //...
+ *     //...,
+ *     scene: new Scene()
  * });
  *
  * //...initialize viewer

@@ -4,14 +4,14 @@
  *
  * <img style="padding:20px" src="media://images/xeokit_docmodel_greyscale_icon.png"/>
  *
- * ## Geometry Model Representation
+ * ## Scene Representation
  *
- * * {@link @xeokit/scene!SceneModel | SceneModel} is a {@link @xeokit/scene!SceneModel} implementation that works headless, without a {@link @xeokit/viewer!Viewer}
- * * Buildable, loadable and savable in-memory xeokit model representation
- * * Build models programmatically with builder methods
- * * Load models from files (eg. {@link @xeokit/xkt!loadXKT | loadXKT}, {@link @xeokit/gltf!loadGLTF | loadGLTF}, {@link @xeokit/las!loadLAS | loadLAS}...)
- * * Save models to files (eg. {@link @xeokit/xkt!saveXKT | saveXKT})
- * * Use "offline" in Node scripts to generate and convert models.
+ * * {@link @xeokit/scene!Scene | Scene}, {@link @xeokit/scene!SceneModel | SceneModel}
+ * * Contains geometry, materials, textures, transforms and objects
+ * * Build programmatically with builder methods
+ * * Load from files (see: {@link @xeokit/xkt!loadXKT | loadXKT}, {@link @xeokit/gltf!loadGLTF | loadGLTF}, {@link @xeokit/las!loadLAS | loadLAS}...)
+ * * Save to files (see: {@link @xeokit/xkt!saveXKT | saveXKT} ...)
+ * * Visualize with a {@link @xeokit/viewer!Viewer} or use headless
  *
  * ## Installation
  *
@@ -37,7 +37,7 @@
  *
  * const scene = new Scene({});
  *
- * const sceneModel = scene.createSceneModel({
+ * const sceneModel = scene.createModel({
  *     id: "myTable"
  * });
  *
@@ -153,36 +153,36 @@
  *
  * sceneModel.build();
  *
- * const texture = sceneModel.textures["myTexture"];
- * const textureSet = sceneModel.textureSets["myTextureSet"];
- * // ..etc
- *
- * const myGeometry = sceneModel.geometries["myGeometry"];
- * const bucket0 = myGeometry.buckets[0];
- * const bucket0Positions = bucket0.positions;
- * // ..etc
- *
- * const myMesh = sceneModel.meshes["myMesh"];
- * // ..etc
- *
- * const myObject1 = sceneModel.objects["myObject1"];
- * const myObject2 = sceneModel.objects["myObject2"];
- * // ..etc
- *
  * const arrayBuffer = saveXKT({
  *      sceneModel
  * });
  * ````
  *
+ * ## Querying the SceneModel
+ *
+ * We can access all the components that we created within our SceneModel:
+ *
+ * ````javascript
+ * const theSceneModel = scene.models["myModel"];
+ * const theTexture = theSceneModel.textures["myTexture"];
+ * const theTextureSet = theSceneModel.textureSets["myTextureSet"];
+ * const theGeometry = theSceneModel.geometries["myBoxGeometry"];
+ * const theTableTopMesh = theSceneModel.meshes["tableTopMesh"];
+ * const theTableTopObject = theSceneModel.objects["tableTop"];
+ * const theTableTopObjectAgain = scene.objects["tableTop"]; // Get SceneObject globally
+ * ````
+ *
  * ## Geometry Compression
  *
- * This library provides function {@link compressGeometryParams}, which is used internally by
- * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} to
- * compress geometry. The function is provided in case users instead want to pre-compress their geometry
+ * The geometry from our query example requires a closer look. Internally, the {@link SceneModel.createGeometry}
+ * method uses the {@link compressGeometryParams} function to compress the geometry, and when triangles are concerned,
+ * also generate indices for rendering it as a wireframe.
+ *
+ * We provide that function as part of the API in case users want to pre-compress the geometry themselves
  * and then use {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * to create the compressed geometry directly.
  *
- * ### Compression Techniques Used
+ * The {@link compressGeometryParams} function perfoms these steps to compress the geometry:
  *
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes
@@ -191,11 +191,19 @@
  * * Quantizes positions and UVs as 16-bit unsigned integers
  * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
- * ### Aknowledgements
+ * Our compressed geometry then looks like this:
  *
- * * The bucketing technique mentioned above was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.
+ * ````javascript
+ * const bucket0 = theGeometry.buckets[0];
+ * const bucket0Positions = bucket0.positions;
+ * const bucketindices = bucket0.indices;
+ * const bucketEdgeIndices = bucket0.edgeIndices;
+ * // ...
+ * ````
  *
- * In the example below, we'll use {@link compressGeometryParams} to compress
+ * The bucketing technique was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.
+ *
+ * In the example below, we'll now use {@link compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
  *
@@ -279,7 +287,7 @@
  * 
  * const scene = new Scene({});
  *
- * const sceneModel = scene.createSceneModel({
+ * const sceneModel = scene.createModel({
  *     id: "myTable"
  * });
  *

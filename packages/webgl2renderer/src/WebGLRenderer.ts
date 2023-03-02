@@ -1,5 +1,4 @@
 import {apply, Map} from "@xeokit/core/utils";
-import {Capabilities, Component, SceneModel, RendererModel, TextureTranscoder} from "@xeokit/core/components";
 import {createVec3} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {
@@ -17,11 +16,13 @@ import {RenderContext} from "./RenderContext";
 import {FastColorTrianglesRenderer} from "./FastColorTrianglesRenderer";
 import {getExtension, GLRenderBuffer, GLRenderBufferManager, WEBGL_INFO} from "@xeokit/webgl2";
 import {RENDER_PASSES} from "./RENDER_PASSES";
-import {AddModelParams} from "@xeokit/viewer/src/AddModelParams";
+import {AddModelParams} from "@xeokit/viewer";
 import {Pickable} from "./Pickable";
 import {RendererModelImpl} from "./RendererModelImpl";
 import {Layer} from "./Layer";
 import {RendererViewObject} from "@xeokit/viewer/src/RendererViewObject";
+import {Capabilities, Component, TextureTranscoder} from "@xeokit/core/components";
+import {SceneModel} from "@xeokit/scene";
 
 
 

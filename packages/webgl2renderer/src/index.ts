@@ -26,11 +26,13 @@
  * graphics API for storing and rendering models:
  *
  * ````javascript
+ * import {Scene} from "@xeokit/scene";
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webgl2renderer";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
+ *     scene: new Scene(),
  *     renderer: new WebGLRenderer({ // Mandatory
  *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
  *              transcoderPath: "./../dist/basis/" // <------ Path to BasisU transcoder module

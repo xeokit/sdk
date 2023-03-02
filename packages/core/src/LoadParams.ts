@@ -1,4 +1,4 @@
-import type {SceneModel} from "@xeokit/core/components";
+import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 
 /**

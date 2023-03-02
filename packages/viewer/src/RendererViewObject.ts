@@ -1,6 +1,6 @@
 
 import {FloatArrayParam} from "@xeokit/math/math";
-import { SceneModel} from "@xeokit/core/components";
+import { SceneModel} from "@xeokit/scene";
 
 
 /**

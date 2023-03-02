@@ -1,5 +1,5 @@
 import type {SceneModel} from "@xeokit/core/components";
-import type {DataModel} from "@xeokit/datamodel";
+import type {DataModel} from "@xeokit/data";
 
 /**
  * Generic parameters for various loader functions (eg. {@link @xeokit/xkt!loadXKT | loadXKT}, {@link @xeokit/las!loadLAS | loadLAS}, {@link @xeokit/gltf!loadGLTF | loadGLTF}...).

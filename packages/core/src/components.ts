@@ -21,30 +21,6 @@
 export * from "./Component";
 export * from "./EventEmitter";
 export * from "./LoadParams";
-export * from "./SceneModel";
-export * from "./ObjectParams";
-export * from "./SceneObject";
-export * from "./TextureParams";
-export * from "./TextureCompressedParams";
-export * from "./Texture";
-export * from "./TextureSetParams";
-export * from "./TextureSet";
-export * from "./TransformParams";
-export * from "./GeometryParams";
-export * from "./GeometryCompressedParams";
-export * from "./Geometry";
-export * from "./GeometryBucketParams";
-export * from "./GeometryBucket";
-export * from "./MeshParams";
-export * from "./Mesh";
 export * from "./Capabilities";
 export * from "./TextureTranscoder";
-export {RendererModel} from "./RendererModel";
-export {RendererObject} from "./RendererObject";
-export {RendererTexture} from "./RendererTexture";
-export {RendererTextureSet} from "./RendererTextureSet";
-export {RendererMesh} from "./RendererMesh";
-export {RendererGeometry} from "./RendererGeometry";
-
-
-
+export * from "./TextureCompressedParams";

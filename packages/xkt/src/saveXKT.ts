@@ -13,8 +13,8 @@ import {packXKT} from "./packXKT";
  * See {@link XKTData} for insights into the structure of an XKT file.
  *
  * @param params
- * @param params.model The SceneModel to save to XKT.
- * @param params.dataModel The DataModel to save to XKT.
+ * @param params.model - The SceneModel to save to XKT.
+ * @param params.dataModel - The DataModel to save to XKT.
  * @returns The XKT file data in an ArrayBuffer.
  */
 export function saveXKT(params: {

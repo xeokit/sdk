@@ -22,8 +22,6 @@ export interface LoadBCFViewpointParams {
      *
      * The {@link loadBCFViewpoint} function will silently ignore each component state that has no corresponding
      * ViewObject in the target View.
-     *
-     * This parameter is mutually exlusive to {@link LoadBCFViewpointParams.viewLayer}.
      */
     view: View;
 

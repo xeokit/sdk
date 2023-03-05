@@ -20,7 +20,6 @@
  * npm install @xeokit/data
  * ````
  *
- *
  * ## Usage
  *
  * Let's create a data model that describes the structure of a simple item of

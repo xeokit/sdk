@@ -6,7 +6,7 @@
 <div id="tsd-toolbar-links"></div></div>
 <ul class="results">
 <li class="state loading">Preparing search index...</li>
-<li class="state failure">The search index is not available</li></ul><a href="\\\\\\\"https://xeokit.io\\\\\\\"" class="title">xeokit</a></div>
+<li class="state failure">The search index is not available</li></ul><a href="https://xeokit.io" class="title">xeokit</a></div>
 <div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
 <div class="container container-main">
 <div class="col-8 col-content">
@@ -18,7 +18,7 @@
 <h1>Function loadGLTF</h1></div>
 <section class="tsd-panel">
 <ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-<li class="tsd-signature tsd-anchor-link" id="loadGLTF">loadGLTF<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><a href="../interfaces/_xeokit_core_components.LoadParams.html" class="tsd-signature-type" data-tsd-kind="Interface">LoadParams</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#loadGLTF" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="loadGLTF">loadGLTF<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>dataModel<span class="tsd-signature-symbol">?: </span><a href="../classes/_xeokit_data.DataModel.html" class="tsd-signature-type" data-tsd-kind="Class">DataModel</a><span class="tsd-signature-symbol">; </span><br/><span>    </span>log<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>sceneModel<span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_scene.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Class">SceneModel</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#loadGLTF" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Loads glTF file data from an ArrayBuffer into a <a href="../classes/_xeokit_scene.SceneModel.html">SceneModel</a> and (optionally) a <a href="../classes/_xeokit_data.DataModel.html">DataModel</a>.</p>
 <ul>
@@ -33,12 +33,27 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>params: <a href="../interfaces/_xeokit_core_components.LoadParams.html" class="tsd-signature-type" data-tsd-kind="Interface">LoadParams</a></h5>
+<h5>params: <span class="tsd-signature-symbol">{ </span><br/><span>    </span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>dataModel<span class="tsd-signature-symbol">?: </span><a href="../classes/_xeokit_data.DataModel.html" class="tsd-signature-type" data-tsd-kind="Class">DataModel</a><span class="tsd-signature-symbol">; </span><br/><span>    </span>log<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>sceneModel<span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_scene.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Class">SceneModel</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
 <div class="tsd-comment tsd-typography"><p>Loading parameters.</p>
-</div></li></ul></div>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span></h5>
+<div class="tsd-comment tsd-typography"><p>glTF file data</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> data<wbr/>Model<span class="tsd-signature-symbol">?: </span><a href="../classes/_xeokit_data.DataModel.html" class="tsd-signature-type" data-tsd-kind="Class">DataModel</a></h5>
+<div class="tsd-comment tsd-typography"><p>DataModel to load into. For glTF, this will create a basic aggregation hierarchy (see <a href="../modules/_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basicTypes</a>).</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> log<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span></h5></li>
+<li class="tsd-parameter">
+<h5>scene<wbr/>Model<span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_scene.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Class">SceneModel</a></h5>
+<div class="tsd-comment tsd-typography"><p>SceneModel to load into.</p>
+</div></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/7e36457/packages/gltf/src/loadGLTF.ts#L44">gltf/src/loadGLTF.ts:44</a></li></ul></aside></li></ul></section></div>
+<li>Defined in <a href="https://github.com/xeokit/sdk/blob/1025b3f2/packages/gltf/src/loadGLTF.ts#L47">gltf/src/loadGLTF.ts:47</a></li></ul></aside></li></ul></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://xeokit.io" target="_blank">xeokit.io</a><a href="http://example.com" target="_blank">Introduction</a><a href="http://example.com" target="_blank">Glossary</a></nav>
 <div class="tsd-navigation settings">
@@ -49,9 +64,9 @@
 <h4 class="uppercase">Member Visibility</h4><form>
 <ul id="tsd-filter-options">
 <li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li>
 <li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
-<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li>
-<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></form></div>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
 <div class="tsd-theme-toggle">
 <h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
 <nav class="tsd-navigation primary">
@@ -62,9 +77,6 @@
 <li class="current"><a href="../modules.html">xeokit</a>
 <ul>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_bcf.html">@xeokit/bcf</a></li>
-<li class="tsd-kind-module"><a href="../modules/_xeokit_cameracontrol.html">@xeokit/cameracontrol</a>
-<ul>
-<li class="tsd-kind-namespace tsd-parent-kind-module"><a href="../modules/_xeokit_cameracontrol.keycodes.html">keycodes</a></li></ul></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_utils.html">@xeokit/core/utils</a></li>
@@ -76,7 +88,6 @@
 <li class="tsd-kind-module"><a href="../modules/_xeokit_las.html">@xeokit/las</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_locale.html">@xeokit/locale</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_math_boundaries.html">@xeokit/math/boundaries</a></li>
-<li class="tsd-kind-module"><a href="../modules/_xeokit_math_compression.html">@xeokit/math/compression</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_math_curves.html">@xeokit/math/curves</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_math_math.html">@xeokit/math/math</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_math_matrix.html">@xeokit/math/matrix</a></li>
@@ -85,8 +96,8 @@
 <li class="tsd-kind-module"><a href="../modules/_xeokit_scene.html">@xeokit/scene</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_treeview.html">@xeokit/treeview</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
-<li class="tsd-kind-module"><a href="../modules/_xeokit_webgl2.html">@xeokit/webgl2</a></li>
-<li class="tsd-kind-module"><a href="../modules/_xeokit_webgl2renderer.html">@xeokit/webgl2renderer</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_webglrenderer.html">@xeokit/webglrenderer</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_webglutils.html">@xeokit/webglutils</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_webgpu.html">@xeokit/webgpu</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_xkt.html">@xeokit/xkt</a></li></ul></li></ul></div></details></nav>
 <nav class="tsd-navigation secondary menu-sticky">

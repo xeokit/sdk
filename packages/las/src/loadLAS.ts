@@ -1,4 +1,5 @@
-import {LoadParams} from "@xeokit/core/components";
+import {SceneModel} from "@xeokit/scene";
+import {DataModel} from "@xeokit/data";
 
 /**
  * Loads LAS/LAZ file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and (optionally) a {@link @xeokit/data!DataModel | DataModel}.
@@ -8,10 +9,18 @@ import {LoadParams} from "@xeokit/core/components";
  *
  * See {@link @xeokit/las} for usage.
  *
- * @param {LoadParams} params Loading parameters.
+ * @param params - Loading parameters.
+ * @param params.data - LAS/LAZ file data
+ * @param params.sceneModel - SceneModel to load into.
+ * @param params.dataModel - DataModel to load into.
  * @returns {Promise} Resolves when LAS has been loaded.
  */
-export function loadLAS(params: LoadParams): Promise<any> {
+export function loadLAS(params: {
+    data: ArrayBuffer,
+    sceneModel: SceneModel,
+    dataModel?: DataModel,
+    log?: Function
+}): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         if (!params.data) {
             reject("Argument expected: data");

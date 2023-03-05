@@ -6,6 +6,14 @@
  *
  * # Load and Save {@link "@xeokit/viewer" | Viewer} State as BCF
  *
+ * ## Overview
+ *
+ * The BIM Collaboration Format (BCF) is an open file format for exchanging data and collaborating on 3D models and
+ * building information. It was created by the buildingSMART organization and is widely used in the architecture,
+ * engineering, and construction (AEC) industry.
+ *
+ * The xeokit SDK provides support for BCF through functions to save and load Viewer state as BCF viewpoints.
+ *
  * * {@link loadBCFViewpoint} loads a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer}
  * * {@link saveBCFViewpoint} saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a JSON-encoded BCF viewpoint
  * * {@link BCFViewpoint} represents a BCF viewpoint
@@ -20,40 +28,113 @@
  *
  * ### Saving and Loading a View as BCF
  *
- * Let's create a Viewer with a View and a SceneModel. We'll imagine that we've created several objects within our
- * SceneModel.
+ * First, import the components we need:
  *
  * ````javascript
+ * import {Scene} from "@xeokit/scene";
+ * import {Data} from "@xeoki/data";
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl2renderer";
- * import {loadBCFViewpoint} from "@xeokit/bcf";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {loadXKT} from "@xeokit/loadXKT";
+ * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
+ * import * as ifcTypes from "@xeokit/datatypes/ifcTypes";
+ * ````
  *
+ * Create a {@link @xeokit/scene!Scene}, which will contain our model objects, materials and geometry.
+ *
+ * Within the Scene, create a {@link @xeokit/scene!SceneModel}.
+ *
+ * ````javascript
+ * const myScene = new Scene();
+ *
+ * const mySceneModel = myScene.createModel({
+ *     id: "myModel"
+ * });
+ * ````
+ *
+ * Create a {@link @xeokit/data!Data}, which will contain our model's semantic data as en entity-relationship graph.
+ *
+ * Within the Data, create a {@link @xeokit/data!DataModel}.
+ *
+ * ````javascript
+ * const myData = new Data();
+ *
+ * const myDataModel = myData.createModel({
+ *     id: "myModel"
+ * });
+ * ````
+ *
+ * Then we'll fetch an ArrayBuffer containing an XKT file and use {@link @xeokit/xkt!loadXKT} to
+ * load it into our SceneModel and DataModel.
+ *
+ * > See {@link "@xeokit/scene"} for more info on creating SceneModels.
+ * > See {@link "@xeokit/data"} for more info on creating DataModels.
+ *
+ * ````javascript
+ * fetch("myModel.xkt").then(response => {
+ *     response.arrayBuffer().then(data => {
+ *
+ *          loadXKT({ data, sceneModel, dataModel });
+ *
+ *          mySceneModel.build();
+ *          myDataModel.build();
+ *    });
+ * });
+ * ````
+ *
+ * That will happen asynchronously.
+ *
+ * In the meantime, let's create a {@link @xeokit/viewer!Viewer} and connect it to our Scene. We'll configure our
+ * Viewer with a {@link @xeokit/webglrenderer!WebGLRenderer}, so that it will use the browser's WebGL graphics API
+ * for rendering.
+ *
+ * As always, we also need to give our Viewer at least one {@link @xeokit/viewer!View}, to bind it to an
+ * HTML canvas element.
+ *
+ * ````javascript
  * const myViewer = new Viewer({
- *     id: "myViewer",
- *     renderer: new WebGLRenderer({
+ *      id: "myViewer",
+ *      scene: myScene,
+ *      renderer: new WebGLRenderer({
  *         //...
- *     })
+ *      })
  * });
  *
  * const myView = myViewer.createView({
  *     id: "myView",
- *     canvasId: "myView1"
+ *     canvasId: "myCanvas"
  * });
- *
- * const mySceneModel = myViewer.scene.createModel({
- *      id: "myModel"
- * });
- *
- * //...create some objects etc
- *
- * mySceneModel.build();
  * ````
  *
- * Use {@link saveBCFViewpoint} to save the {@link @xeokit/viewer!View | View} to a {@link BCFViewpoint}:
+ * When our XKT has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
+ * and cause it to immediately appear in the View's canvas.
+ *
+ * That call will also trigger {@link {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and
+ * {@link {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt} events.
+ *
+ * On the DataModel.onBuilt event, we'll customize the View by arranging the {@link @xeokit/viewer!Camera} and applying
+ * an X-ray effect tp a couple of objects, then we'll use {@link saveBCFViewpoint} to save the state of the View to
+ * a BCF viewpoint.
+ *
+ * > Once the SceneModel and DataModel have been built, we can no longer add anything to them.
  *
  * ````javascript
- * const myBCFViewpoint = saveBCFViewpoint({
- *      view: myView
+ * myDataModel.onBuilt.one(()=>{
+ *
+ *      myView.camera.eye = [0,0,-33];
+ *      myView.camera.look = [0,0,0];
+ *      myView.camera.up = [0,0,0];
+ *
+ *      myView.setObjectsVisible(myView.objectIds, false);
+ *      myView.setObjectsVisible(["myObject1", "myObject2", "myObject3", ...], true);
+ *
+ *      myView.setObjectsXRayed(["myObject1", "myObject", ...], true);
+ *
+ *      const myBCFViewpoint = saveBCFViewpoint({
+ *          view: myView
+ *      });
+ *
+ *      // ...
  * });
  * ````
  *
@@ -74,12 +155,15 @@
  * ViewLayers.
  *
  * ````javascript
+ * import {Scene} from "@xeokit/scene";
+ * import {Data} from "@xeoki/data";
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl2renderer";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {loadBCFViewpoint} from "@xeokit/bcf";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
+ *     scene; myScene,
  *     renderer: new WebGLRenderer({
  *         //...
  *     })
@@ -98,21 +182,21 @@
  *     id: "background"
  * });
  *
- * const mySceneModel = myViewer.scene.createModel({
+ * const mySceneModel = myScene.createModel({
  *      id: "myModel",
  *      viewLayerId: "foreground"
  * });
  *
- * //...create some objects etc
+ * //...create some objects, load XKT etc
  *
  * mySceneModel.build();
  *
- * const myOtherSceneModel = myViewer.scene.createModel({
+ * const myOtherSceneModel = myScene.createModel({
  *      id: "myOtherModel",
  *      viewLayerId: "background"
  * });
  *
- * //...create some objects etc
+ * //...create some objects, load XKT etc
  *
  * myOtherSceneModel.build();
  * ````
@@ -124,7 +208,7 @@
  * const myBCFViewpoint = saveBCFViewpoint({
  *      view: myView,
  *      includeViewLayerIds: ["foreground"],
- *      excludeViewLayerIds: ["background"] // Unneccessary, but we'll show it anyway
+ *      excludeViewLayerIds: ["background"] // Unnecessary, but we'll show it anyway
  * });
  * ````
  *
@@ -133,7 +217,9 @@
  * ````javascript
  * loadBCFViewpoint({
  *     bcfViewpoint: myBCFViewpoint,
- *     view: myView
+ *     view: myView,
+ *     includeViewLayerIds: ["foreground"],
+ *     excludeViewLayerIds: ["background"]
  * });
  * ````
  *

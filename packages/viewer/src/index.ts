@@ -48,7 +48,7 @@
  * ````javascript
  * import {Scene} from "@xeokit/scene";
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl2renderer";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
  * import {CameraControl} from "@xeokit/cameracontrol";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
@@ -62,13 +62,13 @@
  * ````
  *
  * Create a {@link @xeokit/viewer!Viewer} to view our Scene, configured with
- * a {@link @xeokit/webgl2renderer!WebGL2Renderer}:
+ * a {@link @xeokit/webglrenderer!WebGLRenderer}:
  *
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     scene: myScene,
- *     renderer: new WebGL2Renderer({ })
+ *     renderer: new WebGLRenderer({ })
  * });
  * ````
  *

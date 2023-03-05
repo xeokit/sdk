@@ -20,7 +20,6 @@
 
 export * from "./Component";
 export * from "./EventEmitter";
-export * from "./LoadParams";
 export * from "./Capabilities";
 export * from "./TextureTranscoder";
 export * from "./TextureCompressedParams";

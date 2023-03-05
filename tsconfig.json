@@ -10,12 +10,16 @@
       "@xeokit/math/curves": ["math/src/curves"],
       "@xeokit/math/frustum": ["math/src/frustum"],
       "@xeokit/math/geometry": ["math/src/geometry"],
+      "@xeokit/math/compression": ["math/src/compression"],
       "@xeokit/math/matrix": ["math/src/matrix"],
       "@xeokit/math/ray": ["math/src/ray"],
       "@xeokit/math/rtc": ["math/src/rtc"],
       "@xeokit/viewer": ["viewer/src"],
-      "@xeokit/webgl": ["webgl/src"],
-      "@xeokit/datamodel": ["datamodel/src"],
+      "@xeokit/webglutils": ["webglutils/src"],
+      "@xeokit/webglrenderer": ["webglrenderer/src"],
+      "@xeokit/data": ["data/src"],
+      "@xeokit/datatypes/basicTypes": ["datatypes/src/basicTypes"],
+      "@xeokit/datatypes/ifcTypes": ["datatypes/src/ifcTypes"],
       "@xeokit/xkt": ["xkt/src"],
       "@xeokit/las": ["las/src"],
       "@xeokit/gltf": ["gltf/src"],
@@ -25,7 +29,8 @@
       "@xeokit/ktx2": ["ktx2/src"],
       "@xeokit/bcf": ["bcf/src"],
       "@xeokit/controls": ["controls/src"],
-      "@xeokit/scratchmodel": ["scratchmodel/src"]
+      "@xeokit/scene": ["scene/src"],
+      "@xeokit/treeview": ["treeview/src"]
     },
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -36,7 +41,7 @@
     "skipLibCheck": true, // https://stackoverflow.com/questions/66956030/apache-arrow-does-not-compile-with-typescript
     "target": "es6",
     "declaration": true,
-    "stripInternal": true,
+    "stripInternal": false,
     "typeRoots": [
       "node_modules/@types"
     ],

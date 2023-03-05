@@ -26,14 +26,14 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl2renderer";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {Data} from "@xeokit/data";
  * import * as ifcTypes from "@xeokit/datatypes/ifcTypes";
  * import {TreeView} from "@xeokit/treeview!TreeView";
  * import {loadXKT} from "@xeokit/xkt";
  * ````
  *
- * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webgl2renderer!WebGLRenderer}:
+ * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webglrenderer!WebGLRenderer}:
  *
  * ````javascript
  * const myViewer = new Viewer({

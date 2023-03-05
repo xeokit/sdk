@@ -22,8 +22,6 @@ import {AddModelParams} from "./AddModelParams";
  *     renderer: new MyRenderer({ })
  * });
  * ````
- *
- * @internal
  */
 export interface Renderer {
 

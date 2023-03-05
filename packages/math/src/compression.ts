@@ -124,7 +124,7 @@
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webgl2renderer";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {TrianglesPrimitive} from "@xeokit/core/constants";
  * import {compressGeometryParams} from "@xeokit/math/compression";
  *

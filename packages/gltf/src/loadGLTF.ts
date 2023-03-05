@@ -15,11 +15,11 @@ import {
     RepeatWrapping,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-import {LoadParams} from "@xeokit/core/components";
 import {isString} from "@xeokit/core/utils";
 import {createMat4, identityMat4, mulMat4, quaternionToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {GeometryParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/scene";
+import {DataModel} from "@xeokit/data";
 
 interface ParsingContext {
     gltfData: any;
@@ -38,10 +38,18 @@ interface ParsingContext {
  *
  * See {@link @xeokit/gltf} for usage.
  *
- * @param {LoadParams} params Loading parameters.
+ * @param params - Loading parameters.
+ * @param params.data - glTF file data
+ * @param params.sceneModel - SceneModel to load into.
+ * @param params.dataModel - DataModel to load into. For glTF, this will create a basic aggregation hierarchy (see {@link "@xeokit/datatypes/basicTypes"}).
  * @returns {Promise} Resolves when glTF has been loaded.
  */
-export function loadGLTF(params: LoadParams): Promise<any> {
+export function loadGLTF(params: {
+    data: ArrayBuffer,
+    sceneModel: SceneModel,
+    dataModel?: DataModel,
+    log?: Function
+}): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         if (!params.data) {
             reject("Argument expected: data");

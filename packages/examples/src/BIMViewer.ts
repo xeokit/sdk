@@ -1,5 +1,5 @@
 import {View, Viewer, ViewLayer} from "@xeokit/viewer";
-import {WebGLRenderer} from "@xeokit/webgl2renderer";
+import {WebGLRenderer} from "@xeokit/webglrenderer";
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {saveXKT} from "@xeokit/xkt";
 import {CameraControl} from "@xeokit/cameracontrol";
@@ -215,7 +215,8 @@ export class BIMViewer extends Viewer {
      */
     saveBCF(): BCFViewpoint {
         return saveBCFViewpoint({
-            viewLayer: this.modelsViewLayer
+            view: this.view,
+            includeViewLayerIds: [this.modelsViewLayer.id]
         });
     }
 }

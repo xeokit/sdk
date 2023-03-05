@@ -12,18 +12,30 @@ export interface SaveBCFViewpointParams {
      *
      * This will save component states in the BCF (see {@link BCFComponents}) for all
      * {@link @xeokit/viewer!ViewObject | ViewObjects} in the given target View.
-     *
-     * This parameter is mutually exlusive to {@link SaveBCFViewpointParams.viewLayer}.
      */
     view?: View;
 
     /**
-     * An existing {@link @xeokit/viewer!ViewLayer} to save as a BCF viewpoint.
+     * Only save BCF viewpoint components if their corresponding {@link @xeokit/view!ViewObject | ViewObjects}
+     * are in {@link @xeokit/viewer!ViewLayer | ViewLayers} that have the given IDs.
      *
-     * This will save component states in the BCF (see {@link BCFComponents}) for all
-     * {@link @xeokit/viewer!ViewObject | ViewObjects} in the given target ViewLayer.
+     * The {@link saveBCFViewpoint} function will silently ignore each component state that has no corresponding
+     * ViewObject in any of these ViewLayers.
      *
-     * This parameter is mutually exlusive to {@link SaveBCFViewpointParams.view}.
+     * Each ViewLayer's occurrence in {@link SaveBCFViewpointParams.excludeViewLayerIds} will override
+     * its appearance in this list.
      */
-    viewLayer?: ViewLayer;
+    includeViewLayerIds?: string[]
+
+    /**
+     * Never save BCF viewpoint components if their corresponding {@link @xeokit/view!ViewObject | ViewObjects}
+     * are in {@link @xeokit/viewer!ViewLayer |ViewLayers} that have the given IDs.
+     *
+     * The {@link saveBCFViewpoint} function will silently ignore each component state that has a corresponding
+     * ViewObject in any of these ViewLayers.
+     *
+     * Each ViewLayer's occurrence in this list will override its occurrance
+     * in {@link SaveBCFViewpointParams.includeViewLayerIds}.
+     */
+    excludeViewLayerIds?: string[]
 }

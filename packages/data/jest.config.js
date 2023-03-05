@@ -15,7 +15,7 @@ module.exports = {
         "@xeokit/math/ray": "packages/math/src/ray",
         "@xeokit/math/rtc": "packages/math/src/rtc",
         "@xeokit/viewer": "packages/viewer/src",
-        "@xeokit/webgl2renderer": "packages/webgl/src",
+        "@xeokit/webglrenderer": "packages/webgl/src",
         "@xeokit/data": "<rootDir>/packages/data/src/",
         "@xeokit/xkt": "packages/xkt/src",
         "@xeokit/las": "packages/las/src",

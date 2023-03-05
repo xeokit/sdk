@@ -1,4 +1,5 @@
-import {LoadParams} from "@xeokit/core/components";
+import {SceneModel} from "@xeokit/scene";
+import {DataModel} from "@xeokit/data";
 import {inflateXKT} from "./inflateXKT";
 import {unpackXKT} from "./unpackXKT";
 import {xktToModel} from "./xktToModel";
@@ -9,17 +10,25 @@ import {xktToModel} from "./xktToModel";
  *
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and
  * {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
- * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves,
- * when we have finished building the SceneModel.
+ * * Expects {@link @xeokit/data!DataModel.built | DataModel.built} and
+ * {@link @xeokit/data!DataModel.destroyed | DataModel.destroyed} to be ````false````
  *
  * See {@link @xeokit/xkt} for usage.
  *
  * See {@link XKTData} for insights into the structure of an XKT file.
  *
- * @param {LoadParams} params Loading parameters.
+ * @param params - Loading parameters.
+ * @param params.data - XKT file data
+ * @param params.sceneModel - SceneModel to load into.
+ * @param params.dataModel - DataModel to load into.
  * @returns {Promise} Resolves when XKT has been loaded.
  */
-export function loadXKT(params: LoadParams): Promise<any> {
+export function loadXKT(params: {
+    data: ArrayBuffer,
+    sceneModel: SceneModel,
+    dataModel?: DataModel,
+    log?: Function
+}): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         if (!params.data) {
             reject("Argument expected: data");

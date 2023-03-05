@@ -7,7 +7,7 @@
  * # WebGPU-Based Rendering Strategy
  *
  * * Plug a {@link WebGPURenderer} into a {@link @xeokit/viewer!Viewer} to use WebGPU for model storage and rendering.
- * * This is work-in-progress. We recommend using {@link @xeokit/webgl2renderer} until this strategy is ready.
+ * * This is work-in-progress. We recommend using {@link @xeokit/webglrenderer} until this strategy is ready.
  *
  * ## Installation
  *

@@ -268,6 +268,7 @@ class DataModel extends Component {
                 }
             }
             dataObject = new DataObject(this, id, dataObjectParams.name, dataObjectParams.type, propertySets);
+            this.objects[id] = dataObject;
             this.data.objects[id] = dataObject;
             if (!this.data.objectsByType[type]) {
                 this.data.objectsByType[type] = {};

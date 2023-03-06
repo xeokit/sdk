@@ -47,10 +47,10 @@ export class Component {
         this.destroyed = false;
         this.#ownedComponents = null;
         this.dirty = false;
+        this.onDestroyed = new EventEmitter(new EventDispatcher<Component, null>());
         if (owner) {
             owner.#own(this);
         }
-        this.onDestroyed = new EventEmitter(new EventDispatcher<Component, null>())
     }
 
     /**

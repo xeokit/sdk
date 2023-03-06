@@ -1,32 +1,44 @@
+const path = require('path');
+
 module.exports = {
+
     transform: {
         "^.+\\.(t|j)sx?$": ["@swc/jest"],
     },
     moduleNameMapper: {
-        "@xeokit/core/utils": "<rootDir>/packages/core/src/utils",
-        "@xeokit/core/constants": "packages/core/src/constants",
-        "@xeokit/core/components": "packages/core/src/components",
-        "@xeokit/math/math": "packages/math/src/math",
-        "@xeokit/math/boundaries": "packages/math/src/boundaries",
-        "@xeokit/math/curves": "packages/math/src/curves",
-        "@xeokit/math/frustum": "packages/math/src/frustum",
-        "@xeokit/math/geometry": "packages/math/src/geometry",
-        "@xeokit/math/matrix": "packages/math/src/matrix",
-        "@xeokit/math/ray": "packages/math/src/ray",
-        "@xeokit/math/rtc": "packages/math/src/rtc",
-        "@xeokit/viewer": "packages/viewer/src",
-        "@xeokit/webglrenderer": "packages/webgl/src",
-        "@xeokit/data": "<rootDir>/packages/data/src/",
-        "@xeokit/xkt": "packages/xkt/src",
-        "@xeokit/las": "packages/las/src",
-        "@xeokit/gltf": "packages/gltf/src",
-        "@xeokit/locale": "packages/locale/src",
-        "@xeokit/math/compression": "packages/compression/src",
-        "@xeokit/procgen/geometry": "packages/procgen/src/geometry",
-        "@xeokit/ktx2": "packages/ktx2/src",
-        "@xeokit/bcf": "packages/bcf/src",
-        "@xeokit/cameracontrol": "packages/controls/src",
-        "@xeokit/scene": "packages/scene/src"
+        "@xeokit/data/(.*)$": path.join(__dirname, "../data/src/$1"),
+        "@xeokit/core/utils(.*)$": path.join(__dirname, "../core/src/utils$1"),
+        "@xeokit/core/constants(.*)$": path.join(__dirname, "../core/src/constants$1"),
+        "@xeokit/core/components(.*)$": path.join(__dirname, "../core/src/components$1"),
+        // "@xeokit/math/math(.*)$": path.join(__dirname, "../math/src/math$1"),
+        // "@xeokit/math/boundaries(.*)$": path.join(__dirname, "../math/src/boundaries$1"),
+        // "@xeokit/math/curves(.*)$": path.join(__dirname, "../math/src/curves$1"),
+        // "@xeokit/math/frustum(.*)$": path.join(__dirname, "../math/src/frustum$1"),
+        // "@xeokit/math/compression(.*)$": path.join(__dirname, "../math/src/compression$1"),
+        // "@xeokit/math/matrix(.*)$": path.join(__dirname, "../math/src/matrix$1"),
+        // "@xeokit/math/ray(.*)$": path.join(__dirname, "../math/src/ray$1"),
+        // "@xeokit/math/rtc(.*)$": path.join(__dirname, "../math/src/rtc$1"),
+        //
+        //
+        // "@xeokit/math/rtc": ["math/src/rtc"],
+        // "@xeokit/viewer": ["viewer/src"],
+        // "@xeokit/webglutils": ["webglutils/src"],
+        // "@xeokit/webglrenderer": ["webglrenderer/src"],
+
+        "@xeokit/datatypes/basicTypes(.*)$": path.join(__dirname, "../datatypes/src/basicTypes$1"),
+        "@xeokit/datatypes/ifcTypes(.*)$": path.join(__dirname, "../datatypes/src/ifcTypes$1"),
+        //
+        // "@xeokit/xkt": ["xkt/src"],
+        // "@xeokit/las": ["las/src"],
+        // "@xeokit/gltf": ["gltf/src"],
+        // "@xeokit/locale": ["locale/src"],
+        // "@xeokit/compression": ["compression/src"],
+        // "@xeokit/procgen/geometry": ["procgen/src/geometry"],
+        // "@xeokit/ktx2": ["ktx2/src"],
+        // "@xeokit/bcf": ["bcf/src"],
+        // "@xeokit/controls": ["controls/src"],
+        // "@xeokit/scene": ["scene/src"],
+//        "@xeokit/treeview": ["treeview/src"]
     },
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     resolver: undefined

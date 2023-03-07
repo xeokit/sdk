@@ -44,7 +44,7 @@
 | [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson)     | [`@xeokit/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)                 | Import CityJSON files                               |
 | [`@xeokit/bcf`](https://www.npmjs.com/package/@xeokit/bcf)               | [`@xeokit/bcf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html)                           | Load and save BCF                    |
 | [`@xeokit/treeview`](https://www.npmjs.com/package/@xeokit/treeview)     | [`@xeokit/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_treeview.html)                 | HTML tree view widget for a Viewer                          |
-| [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen.html)                   | Geometry generation functions                     |
+| [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen/geometry)       | [`@xeokit/procgen`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html)                   | Geometry generation functions                     |
 | [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                         | Compressed texture support              |
 
 ## Getting Started

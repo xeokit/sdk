@@ -103,28 +103,28 @@
  *     relationships: [ // Relationship[]
  *         {
  *             type: basicTypes.BasicAggregation,
- *             relating: "table",
- *             related: "tableTop"
+ *             relatingObjectId: "table",
+ *             relatedObjectId: "tableTop"
  *         },
  *         {
  *             type: basicTypes.BasicAggregation,
- *             relating: "tableTop",
- *             related: "redLeg"
+ *             relatingObjectId: "tableTop",
+ *             relatedObjectId: "redLeg"
  *         },
  *         {
  *             type: basicTypes.BasicAggregation,
- *             relating: "tableTop",
- *             related: "greenLeg"
+ *             relatingObjectId: "tableTop",
+ *             relatedObjectId: "greenLeg"
  *         },
  *         {
  *             type: basicTypes.BasicAggregation,
- *             relating: "tableTop",
- *             related: "blueLeg"
+ *             relatingObjectId: "tableTop",
+ *             relatedObjectId: "blueLeg"
  *         },
  *         {
  *             type: basicTypes.BasicAggregation,
- *             relating: "tableTop",
- *             related: "yellowLeg"
+ *             relatingObjectId: "tableTop",
+ *             relatedObjectId: "yellowLeg"
  *         }
  *     ],
  *
@@ -284,32 +284,32 @@
  *
  * myDataModel.createRelationship({
  *     type: basicTypes.BasicAggregation,
- *     relating: "table",
- *     related: "tableTop"
+ *     relatingObjectId: "table",
+ *     relatedObjectId: "tableTop"
  * });
  *
  * myDataModel.createRelationship({
  *     type: basicTypes.BasicAggregation,
- *     relating: "tableTop",
- *     related: "redLeg"
+ *     relatingObjectId: "tableTop",
+ *     relatedObjectId: "redLeg"
  * });
  *
  * myDataModel.createRelationship({
  *     type: basicTypes.BasicAggregation,
- *     relating: "tableTop",
- *     related: "greenLeg"
+ *     relatingObjectId: "tableTop",
+ *     relatedObjectId: "greenLeg"
  * });
  *
  * myDataModel.createRelationship({
  *     type: basicTypes.BasicAggregation,
- *     relating: "tableTop",
- *     related: "blueLeg"
+ *     relatingObjectId: "tableTop",
+ *     relatedObjectId: "blueLeg"
  * });
  *
  * myDataModel.createRelationship({
  *     type: basicTypes.BasicAggregation,
- *     relating: "tableTop",
- *     related: "yellowLeg"
+ *     relatingObjectId: "tableTop",
+ *     relatedObjectId: "yellowLeg"
  * });
  *
  * myDataModel.build(); // Ready for action
@@ -329,7 +329,7 @@
  * myData.searchDataObjects({
  *     startObjectId: "table",
  *     includeObjects: [basicTypes.BasicEntity],
- *     includeRelated: [basicTypes.BasicAggregation],
+ *     includerelatedObjectId: [basicTypes.BasicAggregation],
  *     objectIds
  * });
  *

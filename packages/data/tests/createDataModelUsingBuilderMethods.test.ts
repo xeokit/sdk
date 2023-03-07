@@ -117,32 +117,32 @@ describe('build', function () {
 
     dataModel.createRelationship({
         type: basicTypes.BasicAggregation,
-        relating: "table",
-        related: "tableTop"
+        relatingObjectId: "table",
+        relatedObjectId: "tableTop"
     });
 
     dataModel.createRelationship({
         type: basicTypes.BasicAggregation,
-        relating: "tableTop",
-        related: "redLeg"
+        relatingObjectId: "tableTop",
+        relatedObjectId: "redLeg"
     });
 
     dataModel.createRelationship({
         type: basicTypes.BasicAggregation,
-        relating: "tableTop",
-        related: "greenLeg"
+        relatingObjectId: "tableTop",
+        relatedObjectId: "greenLeg"
     });
 
     dataModel.createRelationship({
         type: basicTypes.BasicAggregation,
-        relating: "tableTop",
-        related: "blueLeg"
+        relatingObjectId: "tableTop",
+        relatedObjectId: "blueLeg"
     });
 
     dataModel.createRelationship({
         type: basicTypes.BasicAggregation,
-        relating: "tableTop",
-        related: "yellowLeg"
+        relatingObjectId: "tableTop",
+        relatedObjectId: "yellowLeg"
     });
 
     dataModel.build();

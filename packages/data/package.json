@@ -5,7 +5,8 @@
   "module": "src/index.ts",
   "source": "src/index.ts",
   "scripts": {
-    "publish": "npm publish --access public"
+    "publish": "npm publish --access public",
+    "test": "jest"
   },
   "repository": {
     "type": "git",

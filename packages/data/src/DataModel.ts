@@ -18,7 +18,8 @@ import {PropertyParams} from "./PropertyParams";
  *
  * ## Summary
  *
- *  * A DataModel is a generic entity-relationship graph of {@link DataObject|DataObjects}, {@link PropertySet|PropertySets} and {@link Relationship|Relationships}
+ *  * A DataModel is a generic entity-relationship graph of {@link DataObject | DataObjects},
+ *  {@link PropertySet | PropertySets} and {@link Relationship | Relationships}
  *  * Can be used for IFC and all other schemas that are expressable as an ER graph
  *  * Created with {@link Data.createModel}
  *  * Stored in {@link Data.models}
@@ -78,7 +79,7 @@ class DataModel extends Component {
     public readonly schema?: string;
 
     /**
-     * The {@link PropertySet|PropertySets} in this DataModel, mapped to {@link PropertySet.id}.
+     * The {@link PropertySet | PropertySets} in this DataModel, mapped to {@link PropertySet.id}.
      */
     public readonly propertySets: { [key: string]: PropertySet };
 
@@ -88,19 +89,24 @@ class DataModel extends Component {
     public rootDataObject: null | DataObject;
 
     /**
-     * The {@link DataObject|DataObjects} in this DataModel, mapped to {@link DataObject.id}.
+     * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id}.
      */
     public objects: { [key: string]: DataObject };
 
     /**
-     * The root {@link DataObject|DataObjects} in this DataModel, mapped to {@link DataObject.id}.
+     * The root {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id}.
      */
     public rootObjects: { [key: string]: DataObject };
 
     /**
-     * The {@link DataObject|DataObjects} in this DataModel, mapped to {@link DataObject.type}, sub-mapped to {@link DataObject.id}.
+     * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.type}, sub-mapped to {@link DataObject.id}.
      */
     public objectsByType: { [key: string]: { [key: string]: DataObject } };
+
+    /**
+     * The {@link Relationship | Relationships} in this DataModel.
+     */
+    public relationships: Relationship[];
 
     /**
      * The count of each type of {@link DataObject} in this DataModel, mapped to {@link DataObject.type}.
@@ -114,7 +120,11 @@ class DataModel extends Component {
      */
     readonly onBuilt: EventEmitter<DataModel, null>;
 
-    #built: boolean;
+    /**
+     * Indicates that this DataModel has been built.
+     */
+    built: boolean;
+
     #destroyed: boolean;
 
     /**
@@ -146,47 +156,18 @@ class DataModel extends Component {
         this.propertySets = {};
         this.objects = {};
         this.objectsByType = {};
+        this.relationships = [];
         this.typeCounts = {};
         this.rootDataObject = null;
-        this.#built = false;
+        this.built = false;
         this.#destroyed = false;
 
-        if (dataModelParams.propertySets) {
-
-            // TODO: global property sets
-
-            for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
-                this.createPropertySet(dataModelParams.propertySets[i]);
-            }
-        }
-
-        if (dataModelParams.objects) {
-            for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
-                this.createObject(dataModelParams.objects[i]);
-            }
-            // for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
-            //     const dataObjectParams = dataModelParams.objects[i];
-            //     const dataObject = this.objects[dataObjectParams.id];
-            //     if (dataObject) {
-            //         if (dataObjectParams.parentId) {
-            //             const parentDataObject = this.objects[dataObjectParams.parentId];
-            //             if (parentDataObject) {
-            //                 dataObject.parent = parentDataObject;
-            //                 parentDataObject.objects.push(dataObject);
-            //             } else {
-            //                 this.rootDataObject = dataObject; // FIXME
-            //             }
-            //         } else {
-            //             this.rootDataObject = dataObject; // FIXME
-            //         }
-            //     }
-            // }
-        }
+        this.fromJSON(dataModelParams);
     }
 
     /**
-     * Adds the given {@link PropertySet|PropertySets}, {@link DataObject|DataObjects}
-     * and {@link Relationships|PropertySets} to this DataModel.
+     * Adds the given {@link PropertySet | PropertySets}, {@link DataObject | DataObjects}
+     * and {@link Relationship | PropertySets} to this DataModel.
      *
      * Only those elements from the parameters are added.
      *
@@ -213,14 +194,23 @@ class DataModel extends Component {
     /**
      * Creates a {@link PropertySet} within this DataModel.
      *
+     * Stores the PropertySet in {@link DataModel.propertySets | DataModel.propertySets}
+     * and {@link Data.propertySets | Data.propertySets}.
+     *
      * @param propertySetCfg
      */
     createPropertySet(propertySetCfg: PropertySetParams): null | PropertySet {
         if (this.#destroyed) {
             return null;
         }
-        const propertySet = new PropertySet(this, propertySetCfg);
+        let propertySet = this.data.propertySets[propertySetCfg.id];
+        if (propertySet) {
+            propertySet.dataModels.push(this);
+            return propertySet;
+        }
+        propertySet = new PropertySet(this, propertySetCfg);
         this.propertySets[propertySetCfg.id] = propertySet;
+        this.data.propertySets[propertySetCfg.id] = propertySet;
         return propertySet;
     }
 
@@ -228,17 +218,17 @@ class DataModel extends Component {
      * Creates a {@link DataObject} in this DataModel.
      *
      * Each DataObject has a globally-unique ID in {@link DataObject.id}, with which it's registered
-     * in {@link Data.objects} and {@link @xeokit/data!DataModel.objects}.
+     * in {@link Data.objects | Data.objects} and {@link DataModel.objects | DataModel.objects}.
      *
      * If {@link DataObjectParams.id} matches a DataObject that
-     * already exists (ie. already created for a different DataModel), then this method will reuse that DataObject for this DataModel,
-     * and will ignore any other {@link DataObjectParams} parameters that we provide. This makes the assumption that each
-     * value of {@link DataObjectParams.id} is associated with a single value for {@link DataObjectParams.type}
-     * and {@link DataObjectParams.name}. This aligns well with IFC, in which wewe never have two elements with the same
-     * ID but different types or names.
+     * already exists (ie. already created for a different DataModel), then this method will reuse that DataObject for
+     * this DataModel, and will ignore any other {@link DataObjectParams} parameters that we provide. This makes the
+     * assumption that each value of {@link DataObjectParams.id} is associated with a single value
+     * for {@link DataObjectParams.type} and {@link DataObjectParams.name}. This aligns well with IFC, in which we've
+     * never have two elements with the same ID but different types or names.
      *
-     * Each DataObject automatically gets destroyed whenever all the {@link @xeokit/data!DataModel|DataModels} that share
-     * it have been destroyed.
+     * Each DataObject automatically gets destroyed whenever all the {@link @xeokit/data!DataModel|DataModels} that
+     * share it have been destroyed.
      *
      * We can attach our DataObject as child of an existing parent DataObject. To do that, we provide the ID of the parent
      * in {@link DataObjectParams.parentId}. Following the reuse mechanism just described, the parent is allowed to be a
@@ -299,6 +289,7 @@ class DataModel extends Component {
             this.data.onObjectCreated.dispatch(this.data, dataObject);
         } else {
             this.objects[id] = dataObject;
+            this.data.objects[id] = dataObject;
             if (!this.objectsByType[type]) {
                 this.objectsByType[type] = {};
             }
@@ -310,11 +301,11 @@ class DataModel extends Component {
     }
 
     /**
-     * Creates a {@link Relationship} between two {@link DataObject|DataObjects}.
+     * Creates a {@link Relationship} between two {@link DataObject | DataObjects}.
      *
      * @param relationshipParams
      */
-    createRelationship(relationshipParams: RelationshipParams) {
+    createRelationship(relationshipParams: RelationshipParams): Relationship {
         const relatingObject = this.data.objects[relationshipParams.relatingObjectId];
         if (!relatingObject) {
             this.error(`[createRelation] DataObject not found: ${relationshipParams.relatingObjectId}`);
@@ -326,8 +317,16 @@ class DataModel extends Component {
             return;
         }
         const relation = new Relationship(relationshipParams.type, relatingObject, relatedObject);
+        if (!relatedObject.relating[relationshipParams.type]) {
+            relatedObject.relating[relationshipParams.type] = [];
+        }
         relatedObject.relating[relationshipParams.type].push(relation);
+        if (!relatingObject.related[relationshipParams.type]) {
+            relatingObject.related[relationshipParams.type] = [];
+        }
         relatingObject.related[relationshipParams.type].push(relation);
+        this.relationships.push(relation);
+        return relation;
     }
 
     /**
@@ -338,11 +337,11 @@ class DataModel extends Component {
             this.log("DataModel already destroyed");
             return;
         }
-        if (this.#built) {
+        if (this.built) {
             this.log("DataModel already built");
             return;
         }
-        this.#built = true;
+        this.built = true;
         this.onBuilt.dispatch(this, null);
     }
 
@@ -367,13 +366,14 @@ class DataModel extends Component {
                 const property = propertySet.properties[i];
                 const propertyParams = <PropertyParams>{
                     name: property.name,
-                    value: property.name,
+                    value: property.value,
                     type: property.type,
                     valueType: property.valueType,
                     description: property.description
                 }
                 propertySetParams.properties.push(propertyParams);
             }
+            dataModelParams.propertySets.push(propertySetParams);
         }
         for (let id in this.objects) {
             const object = this.objects[id];
@@ -389,6 +389,15 @@ class DataModel extends Component {
             }
             dataModelParams.objects.push(objectParams);
         }
+        for (let i = 0, len = this.relationships.length; i < len; i++) {
+            const relationship = this.relationships[i];
+            const relationParams = <RelationshipParams>{
+                type: relationship.type,
+                relatingObjectId: relationship.relatingObject.id,
+                relatedObjectId: relationship.relatedObject.id
+            };
+            dataModelParams.relationships.push(relationParams);
+        }
         return dataModelParams;
     }
 
@@ -402,7 +411,7 @@ class DataModel extends Component {
         for (let id in this.objects) {
             const dataObject = this.objects[id];
             if (dataObject.models.length > 1) {
-                this.#removeFromModels(dataObject);
+                this.#removeObjectFromModels(dataObject);
             } else {
                 delete this.data.objects[id];
                 const type = dataObject.type;
@@ -414,10 +423,10 @@ class DataModel extends Component {
                         const relations = dataObject.relating[type];
                         for (let i = 0, len = relations.length; i < len; i++) {
                             const relation = relations[i];
-                            const related = relation.related;
+                            const related = relation.relatedObject;
                             const list = related.relating[type];
                             for (let j = 0, k = 0, lenj = list.length; j < lenj; j++) {
-                                if (list[k].relating === dataObject) {
+                                if (list[k].relatingObject === dataObject) {
                                     // Splice j from related.relating[type]
                                     list[j] = list[j]
                                 }
@@ -443,7 +452,16 @@ class DataModel extends Component {
         super.destroy();
     }
 
-    #removeFromModels(dataObject: DataObject) {
+    // #removePropertySetFromModels(dataObject: DataObject) {
+    //     for (let i = 0, len = dataObject.models.length; i < len; i++) {
+    //         if (dataObject.models[i] === this) {
+    //             dataObject.models = dataObject.models.splice(i, 1);
+    //             break;
+    //         }
+    //     }
+    // }
+
+    #removeObjectFromModels(dataObject: DataObject) {
         for (let i = 0, len = dataObject.models.length; i < len; i++) {
             if (dataObject.models[i] === this) {
                 dataObject.models = dataObject.models.splice(i, 1);

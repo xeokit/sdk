@@ -11,9 +11,9 @@ import type {PropertySetParams} from "./PropertySetParams";
 class PropertySet {
 
     /**
-     * The DataModel to which this PropertySet belongs.
+     * The DataModels to which this PropertySet belongs.
      */
-    public readonly dataModel: DataModel;
+    public readonly dataModels: DataModel[];
 
     /**
      * Unique ID.
@@ -49,7 +49,7 @@ class PropertySet {
     constructor(
         dataModel: DataModel,
         propertySetCfg: PropertySetParams) {
-        this.dataModel = dataModel;
+        this.dataModels = [dataModel];
         this.id = propertySetCfg.id;
         this.originalSystemId = propertySetCfg.originalSystemId;
         this.name = propertySetCfg.name;

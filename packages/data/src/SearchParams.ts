@@ -4,15 +4,15 @@ import type {DataObject} from "./DataObject";
 //     startAt: "myObject",
 //     include: {
 //         relations: {
-//             relating: [0, 2],
-//             related: [1]
+//             relatingObjectId: [0, 2],
+//             relatedObjectId: [1]
 //         },
 //         objectTypes: [4]
 //     },
 //     exclude: {
 //         relations: {
-//             relating: [3],
-//             related: [2]
+//             relatingObjectId: [3],
+//             relatedObjectId: [2]
 //         },
 //         objectTypes: [4]
 //     }

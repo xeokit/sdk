@@ -1,7 +1,7 @@
 import type {DataObject} from "./DataObject";
 
 /**
- * A one-to-one relationship between two {@link DataObject|DataObjects}.
+ * A one-to-one relationship between two {@link DataObject | DataObjects}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -17,24 +17,24 @@ export class Relationship {
     /**
      * The relating {@link DataObject} in this Relationship.
      *
-     * This Relationship will be stored by {@link DataObject.type} in the DataObject's {@link DataObject.related} attribute.
+     * This Relationship will be stored by {@link DataObject.type} in the DataObject's {@link DataObject.relatedObject} attribute.
      */
-    readonly relating: DataObject;
+    readonly relatingObject: DataObject;
 
     /**
      * The related {@link DataObject} in this Relationship.
      *
-     * This Relationship will be stored by {@link DataObject.type} in the DataObject's {@link DataObject.relating} attribute.
+     * This Relationship will be stored by {@link DataObject.type} in the DataObject's {@link DataObject.relatingObject} attribute.
      */
-    readonly related: DataObject;
+    readonly relatedObject: DataObject;
 
     /**
      * @private
      * @ignore
      */
-    constructor(type: number, relating: DataObject, related: DataObject) {
+    constructor(type: number, relatingObject: DataObject, relatedObject: DataObject) {
         this.type = type;
-        this.relating = relating;
-        this.related = related;
+        this.relatingObject = relatingObject;
+        this.relatedObject = relatedObject;
     }
 }

@@ -1,7 +1,6 @@
 import {Data} from "@xeokit/data";
 import {BasicAggregation, BasicEntity} from "@xeokit/datatypes/basicTypes";
 import * as testUtils from "./testUtils";
-import {sampleDataModelJSON} from "./testUtils";
 
 describe('build', function () {
 

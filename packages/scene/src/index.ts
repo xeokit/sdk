@@ -418,6 +418,6 @@ export * from "./GeometryBucketParams";
 export * from "./GeometryCompressedParams";
 export * from "./GeometryParams";
 
-export * from "./AddModelParams";
+export * from "./CreateSceneModelParams";
 
 export * from "./compressGeometryParams";

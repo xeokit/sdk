@@ -4,7 +4,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import {Tiles} from "@xeokit/viewer/src/Tiles";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
-import {AddModelParams} from "./AddModelParams";
+import {CreateSceneModelParams} from "./CreateSceneModelParams";
 
 /**
  * A scene representation.
@@ -135,7 +135,7 @@ export class Scene {
      * @param params SceneModel configuration
      * @returns The new SceneModel
      */
-    createModel(params: AddModelParams): SceneModel {
+    createModel(params: CreateSceneModelParams): SceneModel {
         if (!params.id) {
             throw new Error("Parameter expected: id");
         }

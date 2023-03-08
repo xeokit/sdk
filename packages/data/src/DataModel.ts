@@ -114,14 +114,16 @@ class DataModel extends Component {
     public typeCounts: { [key: string]: number };
 
     /**
-     * Emits an event when the {@link @xeokit/data!DataModel} has already been built.
+     * Emits an event when the {@link @xeokit/data!DataModel} has been built.
      *
      * @event
      */
     readonly onBuilt: EventEmitter<DataModel, null>;
 
     /**
-     * Indicates that this DataModel has been built.
+     * Indicates if this DataModel has been built.
+     *
+     * Set true by {@link DataModel.build}.
      */
     built: boolean;
 
@@ -200,8 +202,11 @@ class DataModel extends Component {
      * @param propertySetCfg
      */
     createPropertySet(propertySetCfg: PropertySetParams): null | PropertySet {
-        if (this.#destroyed) {
-            return null;
+        if (this.destroyed) {
+            throw new Error("DataModel already destroyed - not allowed to add property sets");
+        }
+        if (this.built) {
+            throw new Error("DataModel already built - not allowed to add property sets");
         }
         let propertySet = this.data.propertySets[propertySetCfg.id];
         if (propertySet) {
@@ -238,8 +243,11 @@ class DataModel extends Component {
      * @param dataObjectParams
      */
     createObject(dataObjectParams: DataObjectParams): null | DataObject {
-        if (this.#destroyed) {
-            return null;
+        if (this.destroyed) {
+            throw new Error("DataModel already destroyed - not allowed to add objects");
+        }
+        if (this.built) {
+            throw new Error("DataModel already built - not allowed to add objects");
         }
         const id = dataObjectParams.id;
         const type = dataObjectParams.type;
@@ -306,6 +314,12 @@ class DataModel extends Component {
      * @param relationshipParams
      */
     createRelationship(relationshipParams: RelationshipParams): Relationship {
+        if (this.destroyed) {
+            throw new Error("DataModel already destroyed - not allowed to add relationships");
+        }
+        if (this.built) {
+            throw new Error("DataModel already built - not allowed to add relationships");
+        }
         const relatingObject = this.data.objects[relationshipParams.relatingObjectId];
         if (!relatingObject) {
             this.error(`[createRelation] DataObject not found: ${relationshipParams.relatingObjectId}`);
@@ -334,12 +348,10 @@ class DataModel extends Component {
      */
     build(): void {
         if (this.destroyed) {
-            this.log("DataModel already destroyed");
-            return;
+            throw new Error("DataModel already destroyed");
         }
         if (this.built) {
-            this.log("DataModel already built");
-            return;
+            throw new Error("DataModel already built");
         }
         this.built = true;
         this.onBuilt.dispatch(this, null);
@@ -405,8 +417,8 @@ class DataModel extends Component {
      * Destroys this DataModel.
      */
     destroy() {
-        if (this.#destroyed) {
-            return;
+        if (this.destroyed) {
+            throw new Error("DataModel already destroyed");
         }
         for (let id in this.objects) {
             const dataObject = this.objects[id];

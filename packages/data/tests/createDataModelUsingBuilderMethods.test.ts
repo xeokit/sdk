@@ -1,157 +1,305 @@
 import {Data} from "@xeokit/data";
-import * as basicTypes from "@xeokit/datatypes/basicTypes";
+import {BasicAggregation, BasicEntity} from "@xeokit/datatypes/basicTypes";
 
 describe('build', function () {
 
     const data = new Data();
-
     let dataModel;
-    let tablePropertySet;
-    let property;
-    let legPropertySet;
-    let dataObject1;
 
-    it('create data model', function () {
-        dataModel = data.createModel({
-            id: "myModel"
+    it('create data model', () => {
+
+        const myDataModel = data.createModel({
+            id: "myTableModel"
         });
-        expect(data.models["myModel"]).toBe(dataModel);
-    });
 
-    it('create property set', function () {
-        tablePropertySet = dataModel.createPropertySet({
+        const tablePropertySet = myDataModel.createPropertySet({
             id: "tablePropertySet",
             name: "Table properties",
             type: ""
         });
-        expect(dataModel.propertySets["tablePropertySet"]).toBe(tablePropertySet);
-    });
 
-    it('create property 1', function () {
-        property = tablePropertySet.createProperty({
+        tablePropertySet.createProperty({
             name: "Weight",
             value: 5,
             type: "",
             valueType: "",
             description: "Weight of the thing"
         });
-        expect(tablePropertySet.properties[0]).toBe(property);
-    });
 
-    it('create property 2', function () {
-        property = tablePropertySet.createProperty({
+        tablePropertySet.createProperty({
             name: "Height",
             value: 12,
             type: "",
             valueType: "",
             description: "Height of the thing"
         });
-        expect(tablePropertySet.properties[tablePropertySet.properties.length-1]).toBe(property);
-    });
 
-    it('create property set 2', function () {
-        legPropertySet = dataModel.createPropertySet({
-            id: "legPropertySet",
+        const legPropertySet = myDataModel.createPropertySet({
+            id: "tableLegPropertySet",
             name: "Table leg properties",
             type: ""
         });
-        expect(dataModel.propertySets["legPropertySet"]).toBe(legPropertySet);
-    });
 
-    it('create property', function () {
-        const property = legPropertySet.createProperty({
+        legPropertySet.createProperty({
             name: "Weight",
             value: 5,
             type: "",
             valueType: "",
             description: "Weight of the thing"
         });
-        expect(legPropertySet.properties[legPropertySet.properties.length - 1]).toBe(property);
-    });
 
-    it('create DataObject', function () {
-        dataObject1 = dataModel.createObject({
+        legPropertySet.createProperty({
+            name: "Height",
+            value: 12,
+            type: "",
+            valueType: "",
+            description: "Height of the thing"
+        });
+
+        const tableTopPropertySet = myDataModel.createPropertySet({
+            id: "tableTopPropertySet",
+            name: "Table top properties",
+            type: ""
+        });
+
+        tableTopPropertySet.createProperty({
+            name: "Weight",
+            value: 5,
+            type: "",
+            valueType: "",
+            description: "Weight of the thing"
+        });
+
+        tableTopPropertySet.createProperty({
+            name: "Height",
+            value: 12,
+            type: "",
+            valueType: "",
+            description: "Height of the thing"
+        });
+
+        myDataModel.createObject({
             id: "table",
-            type: basicTypes.BasicEntity,
+            type: BasicEntity,
             name: "Table",
             propertySetIds: ["tablePropertySet"]
         });
-        expect(dataModel.objects[dataObject1.id]).toBe(dataObject1);
-    });
 
-    /*
-    dataModel.createObject({
-        id: "redLeg",
-        name: "Red table Leg",
-        type: basicTypes.BasicEntity,
-        propertySetIds: ["tableLegPropertySet"]
-    });
-
-    dataModel.createObject({
-        id: "greenLeg",
-        name: "Green table leg",
-        type: basicTypes.BasicEntity,
-        propertySetIds: ["tableLegPropertySet"]
-    });
-
-    dataModel.createObject({
-        id: "blueLeg",
-        name: "Blue table leg",
-        type: basicTypes.BasicEntity,
-        propertySetIds: ["tableLegPropertySet"]
-    });
-
-    dataModel.createObject({
-        id: "yellowLeg",
-        name: "Yellow table leg",
-        type: "leg",
-        propertySetIds: ["tableLegPropertySet"]
-    });
-
-    dataModel.createObject({
-        id: "tableTop",
-        name: "Purple table top",
-        type: basicTypes.BasicEntity,
-        propertySetIds: ["tableTopPropertySet"]
-    });
-
-    dataModel.createRelationship({
-        type: basicTypes.BasicAggregation,
-        relatingObjectId: "table",
-        relatedObjectId: "tableTop"
-    });
-
-    dataModel.createRelationship({
-        type: basicTypes.BasicAggregation,
-        relatingObjectId: "tableTop",
-        relatedObjectId: "redLeg"
-    });
-
-    dataModel.createRelationship({
-        type: basicTypes.BasicAggregation,
-        relatingObjectId: "tableTop",
-        relatedObjectId: "greenLeg"
-    });
-
-    dataModel.createRelationship({
-        type: basicTypes.BasicAggregation,
-        relatingObjectId: "tableTop",
-        relatedObjectId: "blueLeg"
-    });
-
-    dataModel.createRelationship({
-        type: basicTypes.BasicAggregation,
-        relatingObjectId: "tableTop",
-        relatedObjectId: "yellowLeg"
-    });
-
-    dataModel.build();
-    it('create uncompressed geometry', function () {
-        geometry = model.createObject({
-            id: "myModel"
+        myDataModel.createObject({
+            id: "redLeg",
+            name: "Red table Leg",
+            type: BasicEntity,
+            propertySetIds: ["tableLegPropertySet"]
         });
-        expect(data.models["myModel"]).toBe(model);
+
+        myDataModel.createObject({
+            id: "greenLeg",
+            name: "Green table leg",
+            type: BasicEntity,
+            propertySetIds: ["tableLegPropertySet"]
+        });
+
+        myDataModel.createObject({
+            id: "blueLeg",
+            name: "Blue table leg",
+            type: BasicEntity,
+            propertySetIds: ["tableLegPropertySet"]
+        });
+
+        myDataModel.createObject({
+            id: "yellowLeg",
+            name: "Yellow table leg",
+            type: BasicEntity,
+            propertySetIds: ["tableLegPropertySet"]
+        });
+
+        myDataModel.createObject({
+            id: "tableTop",
+            name: "Purple table top",
+            type: BasicEntity,
+            propertySetIds: ["tableTopPropertySet"]
+        });
+
+        myDataModel.createRelationship({
+            type: BasicAggregation,
+            relatingObjectId: "table",
+            relatedObjectId: "tableTop"
+        });
+
+        myDataModel.createRelationship({
+            type: BasicAggregation,
+            relatingObjectId: "tableTop",
+            relatedObjectId: "redLeg"
+        });
+
+        myDataModel.createRelationship({
+            type: BasicAggregation,
+            relatingObjectId: "tableTop",
+            relatedObjectId: "greenLeg"
+        });
+
+        myDataModel.createRelationship({
+            type: BasicAggregation,
+            relatingObjectId: "tableTop",
+            relatedObjectId: "blueLeg"
+        });
+
+        myDataModel.createRelationship({
+            type: BasicAggregation,
+            relatingObjectId: "tableTop",
+            relatedObjectId: "yellowLeg"
+        });
+
+        myDataModel.build();
+
+        expect(dataModel.built).toBe(true);
+
+        expect(data.models["myTableModel"]).toBe(dataModel);
+
+        // Objects created OK?
+
+        const tableTop = data.objects["tableTop"]; // Find object on Data
+        expect(tableTop).toBeDefined();
+        expect(tableTop.id).toBe("tableTop");
+        expect(tableTop.name).toBe("Purple table top");
+        expect(tableTop.type).toBe(BasicEntity);
+
+        const tableTop2 = dataModel.objects["tableTop"]; // Find object on DataModel
+        expect(tableTop2).toBeDefined();
+        expect(tableTop2).toBe(tableTop);
+
+        const table = data.objects["table"];
+        expect(table).toBeDefined();
+        expect(table.id).toBe("table");
+        expect(table.name).toBe("Table");
+        expect(table.type).toBe(BasicEntity);
+
+        const redLeg = data.objects["redLeg"];
+        expect(redLeg).toBeDefined();
+        expect(redLeg.id).toBe("redLeg");
+        expect(redLeg.name).toBe("Red table leg");
+        expect(redLeg.type).toBe(BasicEntity);
+
+        const greenLeg = data.objects["greenLeg"];
+        expect(greenLeg).toBeDefined();
+        expect(greenLeg.id).toBe("greenLeg");
+        expect(greenLeg.name).toBe("Green table leg");
+        expect(greenLeg.type).toBe(BasicEntity);
+
+        const yellowLeg = data.objects["yellowLeg"];
+        expect(yellowLeg).toBeDefined();
+        expect(yellowLeg.id).toBe("yellowLeg");
+        expect(yellowLeg.name).toBe("Yellow table leg");
+        expect(yellowLeg.type).toBe(BasicEntity);
+
+        const blueLeg = data.objects["blueLeg"];
+        expect(blueLeg).toBeDefined();
+        expect(blueLeg.id).toBe("blueLeg");
+        expect(blueLeg.name).toBe("Blue table leg");
+        expect(blueLeg.type).toBe(BasicEntity);
+
+        // Properties created OK?
+
+        const _tablePropertySet = dataModel.propertySets["tablePropertySet"];
+        expect(_tablePropertySet).toBeDefined();
+        expect(_tablePropertySet.id).toBe("tablePropertySet");
+        expect(_tablePropertySet.name).toBe("Table properties");
+        expect(_tablePropertySet.type).toBe("");
+
+        expect(_tablePropertySet.properties).toBeDefined();
+        expect(_tablePropertySet.properties[0]).toBeDefined();
+        expect(_tablePropertySet.properties[0].name).toBe("Weight");
+        expect(_tablePropertySet.properties[0].description).toBe("Weight of the thing");
+        expect(_tablePropertySet.properties[0].value).toBe(5);
+        expect(_tablePropertySet.properties[0].valueType).toBe("");
+        expect(_tablePropertySet.properties[0].type).toBe("");
+
+        expect(_tablePropertySet.properties[1]).toBeDefined();
+        expect(_tablePropertySet.properties[1].name).toBe("Height");
+        expect(_tablePropertySet.properties[1].description).toBe("Height of the thing");
+        expect(_tablePropertySet.properties[1].value).toBe(12);
+        expect(_tablePropertySet.properties[1].valueType).toBe("");
+        expect(_tablePropertySet.properties[1].type).toBe("");
+
+        const tableLegPropertySet = dataModel.propertySets["tableLegPropertySet"];
+        expect(tableLegPropertySet).toBeDefined();
+        expect(tableLegPropertySet.id).toBe("tableLegPropertySet");
+        expect(tableLegPropertySet.name).toBe("Table leg properties");
+        expect(tableLegPropertySet.type).toBe("");
+
+        expect(tableLegPropertySet.properties).toBeDefined();
+        expect(tableLegPropertySet.properties[0]).toBeDefined();
+        expect(tableLegPropertySet.properties[0].name).toBe("Weight");
+        expect(tableLegPropertySet.properties[0].description).toBe("Weight of the thing");
+        expect(tableLegPropertySet.properties[0].value).toBe(5);
+        expect(tableLegPropertySet.properties[0].valueType).toBe("");
+        expect(tableLegPropertySet.properties[0].type).toBe("");
+
+        expect(tableLegPropertySet.properties[1]).toBeDefined();
+        expect(tableLegPropertySet.properties[1].name).toBe("Height");
+        expect(tableLegPropertySet.properties[1].description).toBe("Height of the thing");
+        expect(tableLegPropertySet.properties[1].value).toBe(12);
+        expect(tableLegPropertySet.properties[1].valueType).toBe("");
+        expect(tableLegPropertySet.properties[1].type).toBe("");
+
+        const _tableTopPropertySet = dataModel.propertySets["tableTopPropertySet"];
+        expect(_tableTopPropertySet).toBeDefined();
+        expect(_tableTopPropertySet.id).toBe("tableTopPropertySet");
+        expect(_tableTopPropertySet.name).toBe("Table top properties");
+        expect(_tableTopPropertySet.type).toBe("");
+
+        expect(_tableTopPropertySet.properties).toBeDefined();
+        expect(_tableTopPropertySet.properties[0]).toBeDefined();
+        expect(_tableTopPropertySet.properties[0].name).toBe("Weight");
+        expect(_tableTopPropertySet.properties[0].description).toBe("Weight of the thing");
+        expect(_tableTopPropertySet.properties[0].value).toBe(15);
+        expect(_tableTopPropertySet.properties[0].valueType).toBe("");
+        expect(_tableTopPropertySet.properties[0].type).toBe("");
+
+        expect(_tableTopPropertySet.properties[1]).toBeDefined();
+        expect(_tableTopPropertySet.properties[1].name).toBe("Height");
+        expect(_tableTopPropertySet.properties[1].description).toBe("Height of the thing");
+        expect(_tableTopPropertySet.properties[1].value).toBe(4);
+        expect(_tableTopPropertySet.properties[1].valueType).toBe("");
+        expect(_tableTopPropertySet.properties[1].type).toBe("");
+
+        // Relationships created OK?
+
+        const tableAggregations = dataModel.objects["table"].related[BasicAggregation];
+        expect(tableAggregations).toBeDefined();
+        expect(tableAggregations[0].type).toBe(BasicAggregation);
+        expect(tableAggregations[0].relatingObject.id).toBe("table");
+        expect(tableAggregations[0].relatedObject.id).toBe("tableTop");
+
+        const tableTopAggregations = dataModel.objects["tableTop"].related[BasicAggregation];
+        expect(tableTopAggregations).toBeDefined();
+
+        expect(tableTopAggregations[0].type).toBe(BasicAggregation);
+        expect(tableTopAggregations[0].relatingObject.id).toBe("tableTop");
+        expect(tableTopAggregations[0].relatedObject.id).toBe("redLeg");
+
+        expect(tableTopAggregations[1].type).toBe(BasicAggregation);
+        expect(tableTopAggregations[1].relatingObject.id).toBe("tableTop");
+        expect(tableTopAggregations[1].relatedObject.id).toBe("greenLeg");
+
+        expect(tableTopAggregations[2].type).toBe(BasicAggregation);
+        expect(tableTopAggregations[2].relatingObject.id).toBe("tableTop");
+        expect(tableTopAggregations[2].relatedObject.id).toBe("blueLeg");
+
+        expect(tableTopAggregations[3].type).toBe(BasicAggregation);
+        expect(tableTopAggregations[3].relatingObject.id).toBe("tableTop");
+        expect(tableTopAggregations[3].relatedObject.id).toBe("yellowLeg");
+
+        // Does the DataModel serialize correctly to JSON?
+
+        // const dataModelJSON = dataModel.getJSON();
+        // console.log(JSON.stringify(dataModelJSON, null, "\t"));
+        // expect(testUtils.deepEquals(testUtils.sampleDataModelJSON, dataModelJSON)).toBe(true);
+
+        dataModel.destroy();
+
+        expect(dataModel.destroyed).toBe(true);
+        expect(data.models["myTableModel"]).toBeUndefined();
     });
 
-     */
 });

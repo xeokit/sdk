@@ -1,11 +1,10 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 import {SceneModel} from "./SceneModel";
 
-
 /**
  * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link Scene.createModel}.
  */
-export interface AddModelParams {
+export interface CreateSceneModelParams {
 
     /**
      * Unique ID for the SceneModel.
@@ -13,11 +12,6 @@ export interface AddModelParams {
      * The SceneModel is stored with this ID in {@link Scene.models | Scene.models}
      */
     id: string;
-
-    /**
-     * The SceneMode to add.
-     */
-    sceneModel: SceneModel;
 
     /**
      * 4x4 transform matrix.

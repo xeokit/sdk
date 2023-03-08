@@ -828,7 +828,7 @@ export class TreeView extends Component {
         if (aggregations) {
             for (let i = 0, len = aggregations.length; i < len; i++) {
                 const aggregation = aggregations[i];
-                const aggregatedDataObject = aggregation.related;
+                const aggregatedDataObject = aggregation.relatedObject;
                 const aggregatedCount = this.#findEmptyNodes2(aggregatedDataObject);
                 this.#dataObjectSceneObjectCounts[aggregatedDataObject.id] = aggregatedCount;
                 sceneObjectCounts += aggregatedCount;
@@ -952,7 +952,7 @@ export class TreeView extends Component {
         if (aggregations) {
             for (let i = 0, len = aggregations.length; i < len; i++) {
                 const aggregation = aggregations[i];
-                const aggregatedDataObject = aggregation.related;
+                const aggregatedDataObject = aggregation.relatedObject;
                 this.#buildGroupsNodes2(aggregatedDataObject, pathNodes, buildingNode, storeyNode, typeNodes);
             }
         }
@@ -1040,7 +1040,7 @@ export class TreeView extends Component {
         if (aggregations) {
             for (let i = 0, len = aggregations.length; i < len; i++) {
                 const aggregation = aggregations[i];
-                const aggregatedDataObject = aggregation.related;
+                const aggregatedDataObject = aggregation.relatedObject;
                 this.#buildTypesNodes2(aggregatedDataObject, rootNode, typeNodes);
             }
         }

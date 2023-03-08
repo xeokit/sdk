@@ -433,7 +433,7 @@ export class SceneModel extends Component {
      * @param geometryParams Non-compressed geometry parameters.
      * @throws {Error} If SceneModel has already been built or destroyed.
      */
-    createGeometry(geometryParams: GeometryParams): void {
+    createGeometry(geometryParams: GeometryParams): Geometry {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
@@ -441,12 +441,10 @@ export class SceneModel extends Component {
             throw new Error("SceneModel already built");
         }
         if (!geometryParams) {
-            this.error("[createGeometry] Parameters expected: geometryParams");
-            return;
+            throw new Error("[createGeometry] Parameters expected: geometryParams");
         }
         if (geometryParams.id === null || geometryParams.id === undefined) {
-            this.error("[createGeometry] Parameter expected: geometryParams.id");
-            return;
+            throw new Error("[createGeometry] Parameter expected: geometryParams.id");
         }
         const geometryId = geometryParams.id;
         if (this.geometries[geometryId]) {
@@ -466,7 +464,9 @@ export class SceneModel extends Component {
             this.error(`[createGeometry] Param expected: geometryParams.indices (required for primitive type)`);
             return;
         }
-        this.geometries[geometryId] = new Geometry(<GeometryCompressedParams>compressGeometryParams(geometryParams));
+        const geometry = new Geometry(<GeometryCompressedParams>compressGeometryParams(geometryParams));
+        this.geometries[geometryId] = geometry;
+        return geometry;
     }
 
     /**
@@ -507,7 +507,7 @@ export class SceneModel extends Component {
      * @param geometryCompressedParams Pre-compressed geometry parameters.
      * @throws {Error} If SceneModel has already been built or destroyed.
      */
-    createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): void {
+    createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): Geometry {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
@@ -532,7 +532,9 @@ export class SceneModel extends Component {
             this.error(`[createGeometryCompressed] Unsupported value for geometryCompressedParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
             return;
         }
-        this.geometries[geometryId] = new Geometry(geometryCompressedParams);
+        const geometry = new Geometry(geometryCompressedParams);
+        this.geometries[geometryId] = geometry;
+        return geometry;
     }
 
     /**

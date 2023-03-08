@@ -1,0 +1,502 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Glossary | xeokit</title><meta name="description" content="Documentation for xeokit"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><link rel="stylesheet" href="../assets/pages.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base="..">
+<div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<div class="field">
+<div id="tsd-toolbar-links"></div></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="https://xeokit.io" class="title">xeokit</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-8 col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb">
+<li><a href="../modules.html">xeokit</a></li>
+<li><a href="GLOSSARY.html">Glossary</a></li></ul>
+<h1> Glossary</h1></div>
+<div class="tsd-panel tsd-typography"><p><a href="#a">A</a> - <a href="#b">B</a> - <a href="#c">C</a> - <a href="#d">D</a> - <a href="#e">E</a> - <a href="#f">F</a> - <a href="#g">G</a> - <a href="#h">H</a> - <a href="#i">I</a> - <a href="#j">J</a> - <a href="#k">K</a> - <a href="#l">L</a> - <a href="#n">M</a> - <a href="#n">M</a> - <a href="#o">O</a> - <a href="#p">P</a> - <a href="#q">Q</a> - <a href="#r">R</a> - <a href="#s">S</a>-<a href="#t">T</a> - <a href="#u">U</a>-<a href="#v">V</a>-<a href="#x">X</a> - <a href="#y">Y</a> - <a href="#z">Z</a></p>
+<hr>
+
+<a href="#a" id="a" style="color: inherit; text-decoration: none;">
+  <h1>A</h1>
+</a>
+<hr>
+
+<a href="#aabb" id="aabb" style="color: inherit; text-decoration: none;">
+  <h2>AABB</h2>
+</a>
+<p>An Axis-Aligned Bounding Box (AABB) is a rectangular cuboid that is aligned with the x, y, and z axes of a 3D coordinate 
+system. It is defined by two points: the minimum point, which is the vertex of the cuboid with the lowest x, y, and z 
+coordinates, and the maximum point, which is the vertex with the highest x, y, and z coordinates.</p>
+<p>The box completely encloses an object in 3D space, and is commonly used in computer graphics to 
+represent the minimum volume that contains an object or set of objects. It can also be used for collision detection, 
+intersection testing, and other geometric operations.</p>
+<p>The figure below shows an example of a hierarchy of AABB&#39;s, that enclose the meshes within a 3D model:</p>
+<img src="https://xeokit.github.io/sdk/assets/images/kdtree.jpeg" width="600px">
+
+<p>Note that the bounding boxes in this figure are aligned with the x, y, and z axes of the coordinate system, and its sides 
+are parallel to these axes.</p>
+<blockquote>
+<ul>
+<li>See module: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_boundaries.html">@xeokit/math/boundaries</a></li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#b" id="b" style="color: inherit; text-decoration: none;">
+  <h1>B</h1>
+</a>
+<hr>
+
+<a href="#bcf" id="bcf" style="color: inherit; text-decoration: none;">
+  <h2>BCF</h2>
+</a>
+<p>The <strong>BIM Collaboration Format</strong> (BCF) is a file format used in Building Information Modeling (BIM) to facilitate 
+collaboration between different software applications used by architects, engineers, contractors, and other stakeholders 
+in the construction industry.</p>
+<p>The BCF file format enables team members to communicate issues, changes, and requests related to the building design 
+and construction process. BCF files can include information such as issue descriptions, screenshots, and 3D views, as 
+well as metadata such as priority, status, and due dates.</p>
+<p>BCF files can be created and read by different BIM software applications, allowing team members to share and collaborate 
+on the same issues regardless of the software they are using. This helps to reduce errors, misunderstandings, and delays 
+in the construction process.</p>
+<blockquote>
+<ul>
+<li>See module <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html">@xeokit/bcf</a> - saves and load viewer snapshots as BCF</li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#c" id="c" style="color: inherit; text-decoration: none;">
+  <h1>C</h1>
+</a>
+<hr>
+
+<a href="#cityjson" id="cityjson" style="color: inherit; text-decoration: none;">
+  <h2>CityJSON</h2>
+</a>
+<p><strong>CityJSON</strong> is an open standard data format for the storage and exchange of 3D city models. It is designed to be 
+lightweight and easy to use, while also providing rich semantics and geometry to support a wide range of 
+applications. CityJSON is a JSON-based format, which means it is easy to parse and process using modern software tools.</p>
+<img src="https://xeokit.github.io/sdk/assets/images/example_cityJSON.png" width="600px">
+
+<p>CityJSON was developed by the Dutch national mapping agency, the Kadaster, in collaboration with several other 
+organizations, and is now maintained by the OGC (Open Geospatial Consortium) as an official community standard.</p>
+<p>CityJSON is capable of representing a wide range of features found in 3D city models, including buildings, streets, 
+terrain, vegetation, and more. It supports both geometric and semantic information, allowing users to store detailed 
+attributes for each feature, such as height, materials, and function.</p>
+<p>CityJSON is gaining popularity in the 3D modeling and GIS (Geographic Information System) communities, and many 
+software tools now support its use. It is considered a flexible and efficient format for storing and exchanging 3D 
+city models, and has the potential to greatly facilitate the integration of city models into a wide range of 
+applications, including urban planning, architecture, and transportation.</p>
+<blockquote>
+<ul>
+<li>Used in <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html">@xeokit/cityjson</a> - loads CityJSON into xeokit&#39;s scene representation</li>
+</ul>
+</blockquote>
+
+<a href="#cameracontrol" id="cameracontrol" style="color: inherit; text-decoration: none;">
+  <h2>CameraControl</h2>
+</a>
+<p>A <a href="../modules.html">@xeokit/cameracontrol | CameraControl</a> is an SDK component that controls a xeokit Viewer&#39;s Camera with mouse or touch input.</p>
+<ul>
+<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_cameracontrol.html">@xeokit/cameracontrol</a></li>
+</ul>
+<hr>
+
+<a href="#d" id="d" style="color: inherit; text-decoration: none;">
+  <h1>D</h1>
+</a>
+<hr>
+
+<a href="#datamodel" id="datamodel" style="color: inherit; text-decoration: none;">
+  <h2>DataModel</h2>
+</a>
+<p>A <a href="../modules.html">@xeokit/data | DataModel</a> is a semantic entity-relationship graph that&#39;s used within the xeokit SDK to represent 
+the relationships between entities in a system or domain, where entities are represented as nodes and relationships are 
+represented as edges.</p>
+<p>In the context of Building Information Modeling (BIM), we can use a representation 
+of the relationships between the various elements and components that make up a building or construction project.</p>
+<p>BIM software uses a semantic data model to represent different aspects of a building, such as its physical components, 
+properties, and relationships. This data can be represented in a graph format where each node represents an entity, such 
+as a wall, door, or window, and each edge represents a relationship between those entities, such as a door being 
+connected to a wall.</p>
+<p>An SDK component that models semantic data as a searchable entity-relationship graph. A DataModel is intended to be used alongside
+a Viewer, to help an application classify and navigate model objects. A DataModel can be built programmatically,
+loaded from an XKT file, and saved within an XKT file.</p>
+<ul>
+<li>See <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html">@xeokit/data</a> - components for</li>
+</ul>
+
+<a href="#data-texture" id="data-texture" style="color: inherit; text-decoration: none;">
+  <h2>Data Texture</h2>
+</a>
+<p>A data texture is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
+information. It can be thought of as a two-dimensional array of values, where each value represents some arbitrary data, 
+such as depth, density, temperature, or any other quantity that can be represented as a scalar value.</p>
+<p>Data textures are often used in scientific visualization and simulations, where they can be used to store and display 
+complex data sets, such as medical images, weather data, or fluid simulations. They can also be used for procedural 
+generation of textures and terrain, where the data texture is used to define the parameters of a procedural algorithm 
+that generates the final texture or terrain.</p>
+<ul>
+<li>Used in: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html">@xeokit/webglrenderer</a>.</li>
+</ul>
+<hr>
+
+<a href="#g" id="g" style="color: inherit; text-decoration: none;">
+  <h1>G</h1>
+</a>
+<hr>
+
+<a href="#gltf" id="gltf" style="color: inherit; text-decoration: none;">
+  <h2>glTF</h2>
+</a>
+<blockquote>
+<ul>
+<li>See module: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html">@xeokit/gltf</a></li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#k" id="k" style="color: inherit; text-decoration: none;">
+  <h1>K</h1>
+</a>
+<hr>
+
+<a href="#ktx2" id="ktx2" style="color: inherit; text-decoration: none;">
+  <h2>KTX2</h2>
+</a>
+<p>KTX2 (Khronos Texture 2) is a texture container format developed by the Khronos Group, a non-profit consortium of 
+companies focused on the creation of open standards for graphics, media, and parallel computing.</p>
+<img src="https://xeokit.github.io/sdk/assets/images/xeokit_ktx_logo.svg" width="200px">
+
+<p>KTX2 is designed to be a more efficient replacement for the original KTX format, with better compression and faster 
+loading times. It supports a wide range of texture formats, including compressed, uncompressed, and block-compressed 
+textures. KTX2 also supports multiple levels of detail, which allows textures to be rendered at different resolutions 
+depending on their distance from the camera.</p>
+<p>One of the key features of KTX2 is its use of the Basis Universal texture codec, which is an open-source, 
+high-performance texture compression algorithm developed by Binomial LLC. This codec can compress textures to a smaller 
+size than other compression methods while maintaining high visual quality.</p>
+<p>KTX2 is widely used in graphics applications, such as games and virtual reality experiences, where fast loading times 
+and high-quality textures are important. It is also compatible with many popular graphics APIs, including OpenGL, 
+Vulkan, and DirectX.</p>
+<blockquote>
+<ul>
+<li>See module: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html">@xeokit/ktx2</a></li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#l" id="l" style="color: inherit; text-decoration: none;">
+  <h1>L</h1>
+</a>
+<hr>
+
+<a href="#las" id="las" style="color: inherit; text-decoration: none;">
+  <h2>LAS</h2>
+</a>
+<p><strong>LAS/LAZ</strong> are file formats used for storing and exchanging 3D point cloud data. They are commonly used in the geospatial 
+industry, including applications such as LiDAR (Light Detection and Ranging) scanning, aerial photogrammetry, and 
+3D mapping.</p>
+<img src="https://xeokit.github.io/sdk/assets/images/autzen.png" width="600px">
+
+<p>LAS (Log ASCII Standard) is a text-based file format that stores 3D point cloud data in a standard format, with 
+each point represented as a row of data that includes attributes such as the x, y, and z coordinates, as well as 
+additional information like intensity, color, and classification. LAS files can be easily read and edited by 
+various software tools.</p>
+<p>LAZ is a compressed version of the LAS format. It uses lossless compression to reduce the size of the file while 
+preserving the accuracy and precision of the data. LAZ files can be up to 90% smaller than their uncompressed LAS 
+counterparts, making them easier to store and share.</p>
+<p>Both LAS and LAZ are widely used in the geospatial industry and are supported by many software tools for processing 
+and analyzing 3D point cloud data. Some popular software tools that support LAS/LAZ files include ArcGIS, QGIS, 
+Global Mapper, and CloudCompare.</p>
+<blockquote>
+<ul>
+<li>See module: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html">@xeokit/las</a></li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#p" id="p" style="color: inherit; text-decoration: none;">
+  <h1>P</h1>
+</a>
+<p><a href="">top</a></p>
+<hr>
+
+<a href="#pbr" id="pbr" style="color: inherit; text-decoration: none;">
+  <h2>PBR</h2>
+</a>
+<p><strong>Physically-Based Rendering</strong> </p>
+<blockquote>
+<ul>
+<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#q" id="q" style="color: inherit; text-decoration: none;">
+  <h1>Q</h1>
+</a>
+<p><a href="">top</a></p>
+<hr>
+
+<a href="#quantization" id="quantization" style="color: inherit; text-decoration: none;">
+  <h2>Quantization</h2>
+</a>
+<p><strong>Quantization</strong> is a process of reducing the precision or number of distinct values of a data signal, while still 
+retaining the most important information. This is done by mapping the original values of a signal to a smaller set 
+of discrete values.</p>
+<p>Quantization is commonly used in digital signal processing, image and video compression, and data compression. For 
+example, in image and video compression, quantization is used to reduce the number of bits required to represent 
+an image or video frame.</p>
+<p>We use quantization as part of the way we compress geometry in xeokit. Specifically, we use it to store 
+32-bit and 64-bit floating point coordinate values as 16-bit integers, which we then decompress dynamically on the 
+GPU using a special de-quantization matrix.</p>
+<blockquote>
+<ul>
+<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html">@xeokit/math/compression</a></li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#r" id="r" style="color: inherit; text-decoration: none;">
+  <h1>R</h1>
+</a>
+<p><a href="">top</a></p>
+<hr>
+
+<a href="#renderer" id="renderer" style="color: inherit; text-decoration: none;">
+  <h2>Renderer</h2>
+</a>
+
+<a href="#representation" id="representation" style="color: inherit; text-decoration: none;">
+  <h2>Representation</h2>
+</a>
+
+<a href="#rtc" id="rtc" style="color: inherit; text-decoration: none;">
+  <h2>RTC</h2>
+</a>
+<p>In a <strong>relative-to-center (RTC) coordinate system</strong> we define the position of each geometry vertex as being relative to 
+a given center position. </p>
+<p>RTC is central to xeokit&#39;s ability to render models at full precision on low-precision GPUs. To achieve this, we 
+partition our geometries into regions called <em>tiles</em>, with each geometry&#39;s vertices being relative to the center of its
+tile. When rendering the geometries for each tile, we use a version of the camera&#39;s view matrix that&#39;s specially modified 
+using that central position in such a way as to render the half-precision RTC vertices as if they were full-precision absolute values.</p>
+<p>RTC is also part of how xeokit keeps a minimal memory footprint. While absolute, double-precision coordinate values 
+need 64 bits of storage, RTC coordinates only need 16 bits. </p>
+<img src="https://xeokit.github.io/sdk/assets/images/xeokit-viewer-jitter.png" width="600px">
+
+<blockquote>
+<ul>
+<li>See <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a> - RTC utilities library</li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#s" id="s" style="color: inherit; text-decoration: none;">
+  <h1>S</h1>
+</a>
+<p><a href="">top</a></p>
+<hr>
+
+<a href="#sao" id="sao" style="color: inherit; text-decoration: none;">
+  <h2>SAO</h2>
+</a>
+
+<a href="#section-plane" id="section-plane" style="color: inherit; text-decoration: none;">
+  <h2>Section Plane</h2>
+</a>
+<p>A <strong>section plane</strong> is a virtual plane that is used to create a section view of a 3D object. The section plane is a flat, 
+transparent plane that is placed through the 3D model of an object at a specific location and orientation.</p>
+<p>When a section plane is placed through a 3D object, it creates a section view that shows the interior structure of the 
+object as if it has been cut along the plane. The section view provides a more detailed and clear view of the internal 
+structure of the object.</p>
+<blockquote>
+<p>See modules:</p>
+<ul>
+<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a> - View models and slice them open with section planes</li>
+<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html">@xeokit/bcf</a> - Save and load viewer snapshots as BCF, including section planes</li>
+</ul>
+</blockquote>
+
+<a href="#select" id="select" style="color: inherit; text-decoration: none;">
+  <h2>Select</h2>
+</a>
+
+<a href="#shader" id="shader" style="color: inherit; text-decoration: none;">
+  <h2>Shader</h2>
+</a>
+<p>In computer graphics, a <strong>shader</strong> is a computer program that is used to define the appearance of 3D objects and surfaces in 
+a rendered image or video. Shaders are typically used to create effects like lighting, shadowing, texturing, and colorization.</p>
+<p>Shaders are written in a specialized programming language that is designed to run on a graphics processing unit (GPU) 
+rather than a central processing unit (CPU). This allows the GPU to perform highly parallelized computations that are 
+required for real-time rendering of complex 3D scenes.</p>
+<p>There are several types of shaders, including vertex shaders, pixel shaders, geometry shaders, and compute shaders. Vertex 
+shaders operate on the vertices of a 3D object, pixel shaders define the color and texture of each pixel, geometry 
+shaders modify the geometry of 3D objects, and compute shaders are used for general-purpose computations on the GPU.</p>
+
+<a href="#solid" id="solid" style="color: inherit; text-decoration: none;">
+  <h2>SOLID</h2>
+</a>
+<p><strong>SOLID</strong> is an acronym for the set of principles that we follow in the design of the xeokit SDK, in order to 
+create maintainable and scalable code. The five principles of SOLID are:</p>
+<ol>
+<li><strong>Single Responsibility Principle (SRP)</strong>: A class should have only one reason to change, meaning that it should have 
+only one responsibility or job. </li>
+<li><strong>Open/Closed Principle (OCP)</strong>: Software entities (classes, modules, functions, etc.) should be open for extension but 
+closed for modification. This means that you should be able to add new functionality to a system without changing the existing code.</li>
+<li><strong>Liskov Substitution Principle (LSP)</strong>: Subtypes should be substitutable for their base types. This means that if a 
+class is derived from another class, it should be able to be used in the same way as the base class without any unexpected behavior.</li>
+<li><strong>Interface Segregation Principle (ISP)</strong>: Clients should not be forced to depend on interfaces they do not use. This 
+means that interfaces should be as small and specific as possible, so that clients only need to implement the methods they actually use.</li>
+<li><strong>Dependency Inversion Principle (DIP)</strong>: High-level modules should not depend on low-level modules. Both should depend 
+on abstractions. Abstractions should not depend on details. Details should depend on abstractions. This means that you 
+should use interfaces or abstract classes to decouple the implementation details from the higher-level code.</li>
+</ol>
+<p>These principles are considered best practices in software development, and following them can result in code that is 
+easier to understand, maintain, and scale over time.</p>
+<hr>
+
+<a href="#v" id="v" style="color: inherit; text-decoration: none;">
+  <h1>V</h1>
+</a>
+<p><a href="">top</a></p>
+<hr>
+
+<a href="#view" id="view" style="color: inherit; text-decoration: none;">
+  <h2>View</h2>
+</a>
+<p>An independently-configurable view of the models currently loaded in a Viewer. Each View has its own independent HTML 
+canvas. For every ViewerObject within its Viewer, a View automatically maintains a ViewObject to represent and 
+control how that ViewObject appears within its canvas.  </p>
+
+<a href="#viewer" id="viewer" style="color: inherit; text-decoration: none;">
+  <h2>Viewer</h2>
+</a>
+<blockquote>
+<ul>
+<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
+</ul>
+</blockquote>
+<hr>
+
+<a href="#w" id="w" style="color: inherit; text-decoration: none;">
+  <h1>W</h1>
+</a>
+<p><a href="">top</a></p>
+<hr>
+
+<a href="#webgl" id="webgl" style="color: inherit; text-decoration: none;">
+  <h2>WebGL</h2>
+</a>
+<p>WebGL (Web Graphics Library) is a JavaScript API (Application Programming Interface) for rendering interactive 3D 
+graphics and animations within a web browser. It is based on the OpenGL ES (Embedded Systems) 2.0 specification, 
+which is a widely used standard for graphics programming in mobile devices and embedded systems.</p>
+<p>WebGL allows web developers to use low-level graphics programming techniques to create high-performance 3D graphics 
+in a web browser without the need for additional plugins or software. It provides access to the computer&#39;s graphics 
+hardware and allows developers to create 3D scenes and animations using JavaScript, HTML, and CSS.</p>
+<p>WebGL works by creating a 3D rendering context within a web browser, which provides access to the 
+GPU (Graphics Processing Unit) for hardware acceleration of graphics calculations. This allows for smooth and 
+responsive 3D graphics that can be interacted with in real-time.</p>
+<p>WebGL has many applications, including video games, virtual and augmented reality, scientific simulations, data 
+visualization, and architectural design. It is supported by most modern web browsers, including Chrome, Firefox, 
+Safari, and Edge, and is used by many popular websites and web applications.</p>
+<blockquote>
+<ul>
+<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html">@xeokit/webglrenderer</a></li>
+</ul>
+</blockquote>
+
+<a href="#webgpu" id="webgpu" style="color: inherit; text-decoration: none;">
+  <h2>WebGPU</h2>
+</a>
+<p>WebGPU is a low-level graphics API (Application Programming Interface) that provides a way to access the graphics 
+hardware from web applications using JavaScript. It is designed to provide high-performance 3D graphics and 
+computational capabilities to web developers, while also being cross-platform and portable.</p>
+<p>WebGPU is based on the modern graphics programming concepts used in other APIs, such as DirectX 12, Vulkan, 
+and Metal, and provides a similar programming model for developers. It is designed to be efficient and flexible, 
+allowing developers to create complex 3D scenes and simulations with high performance and low latency.</p>
+<p>WebGPU is designed to work with modern web technologies such as WebAssembly, Web Workers, 
+and SharedArrayBuffer, and is expected to provide a more secure and efficient way to access the graphics 
+hardware than previous APIs such as WebGL. It is being developed by a group of industry leaders 
+including Apple, Google, and Mozilla, and is expected to be an important part of the web 
+development ecosystem going forwards.</p>
+<ul>
+<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webgpurenderer.html">@xeokit/webgpurenderer</a></li>
+</ul>
+<hr>
+
+<a href="#x" id="x" style="color: inherit; text-decoration: none;">
+  <h1>X</h1>
+</a>
+<p><a href="">top</a></p>
+<hr>
+
+<a href="#xkt" id="xkt" style="color: inherit; text-decoration: none;">
+  <h2>XKT</h2>
+</a>
+<p>The SDK&#39;s native binary model file format. TODO</p>
+<ul>
+<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html">@xeokit/xkt</a></li>
+</ul>
+
+<a href="#x-ray" id="x-ray" style="color: inherit; text-decoration: none;">
+  <h2>X-Ray</h2>
+</a>
+<ul>
+<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
+</ul>
+</div></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://xeokit.io" target="_blank">xeokit.io</a><a href="http://example.com" target="_blank">Introduction</a><a href="http://example.com" target="_blank">Glossary</a></nav>
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li class="current"><a href="../modules.html">xeokit</a>
+<ul>
+<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="CONCEPTS.html">Concepts</a></li>
+<li class="current selected pages-entry pages-entry-page pages-entry-depth-1"><a href="GLOSSARY.html">Glossary</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_bcf.html">@xeokit/bcf</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_core_utils.html">@xeokit/core/utils</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_data.html">@xeokit/data</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_gltf.html">@xeokit/gltf</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_ktx2.html">@xeokit/ktx2</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_las.html">@xeokit/las</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_locale.html">@xeokit/locale</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_math_boundaries.html">@xeokit/math/boundaries</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_math_curves.html">@xeokit/math/curves</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_math_math.html">@xeokit/math/math</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_math_matrix.html">@xeokit/math/matrix</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_scene.html">@xeokit/scene</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_treeview.html">@xeokit/treeview</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_webglrenderer.html">@xeokit/webglrenderer</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_webglutils.html">@xeokit/webglutils</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_webgpu.html">@xeokit/webgpu</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_xkt.html">@xeokit/xkt</a></li></ul></li></ul></div></details></nav>
+<nav class="tsd-navigation secondary menu-sticky"></nav></div></div>
+<div class="container tsd-generator">
+<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
+<div class="overlay"></div><script src="../assets/main.js"></script></body></html>

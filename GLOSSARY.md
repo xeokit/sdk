@@ -1,6 +1,6 @@
 # Glossary
 
-### AABB
+## AABB
 
 An Axis-Aligned Bounding Box (AABB) is a rectangular cuboid that is aligned with the x, y, and z axes of a 3D coordinate 
 system. It is defined by two points: the minimum point, which is the vertex of the cuboid with the lowest x, y, and z 
@@ -17,25 +17,25 @@ The figure below shows an example of an axis-aligned 3D bounding box enclosing a
 Note that the bounding boxes in this figure are aligned with the x, y, and z axes of the coordinate system, and its sides 
 are parallel to these axes.
 
-### Annotation
+## Annotation
 
-### BASIS
+## BASIS
 
-### BCF
+## BCF
 
 BIM Collaboration Format
 
-### BIM
+## BIM
 
 Building Information Modeling
 
-### Bucketing
+## Bucketing
 
-### Camera
+## Camera
 
-### Converter
+## Converter
 
-### CityJSON
+## CityJSON
 
 CityJSON is an open standard data format for the storage and exchange of 3D city models. It is designed to be 
 lightweight and easy to use, while also providing rich semantics and geometry to support a wide range of 
@@ -53,13 +53,13 @@ software tools now support its use. It is considered a flexible and efficient fo
 city models, and has the potential to greatly facilitate the integration of city models into a wide range of 
 applications, including urban planning, architecture, and transportation.
 
-### CameraControl
+## CameraControl
 
 An SDK component that controls something in the Viewer with mouse or touch input.
 
 See: {@link @xeokit/viewer!CameraControl}
 
-### DataModel
+## DataModel
 
 An SDK component that models semantic data as a searchable entity-relationship graph. A DataModel is intended to be used alongside 
 a Viewer, to help an application classify and navigate model objects. A DataModel can be built programmatically, 
@@ -67,7 +67,7 @@ loaded from an XKT file, and saved within an XKT file.
 
 See: [@xeokit/datamodel!DataModel](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)
 
-### Data Texture
+## Data Texture
 
 A data texture is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
 information. It can be thought of as a two-dimensional array of values, where each value represents some arbitrary data, 
@@ -79,77 +79,120 @@ generation of textures and terrain, where the data texture is used to define the
 that generates the final texture or terrain.
 
 
-### Dolly
+## Dolly
 
-### Edges
+## Edges
 
-### Fly-to
+## Fly-to
 
-### Frustum
+## Frustum
 
 
-### Geometry
+## Geometry
 
 See: {@link Geometry}, {@link GeometryParams}, {@link Model.geometries}, {@link Model.createGeometry}
 
-### Geometry Bucket
+## Geometry Bucket
 
 See: {@link GeometryBucket}, {@link GeometryCompressedParams}
 
-### glTF
+## glTF
 
-### Highlight
+## Highlight
 
-### IFC
+## IFC
 
 Industry Foundation Classes
 
 
-### Instancing
+## Instancing
 
-### Jitter
+## Jitter
 
-### KTX2
+---
 
-### LAS
+## KTX2
 
-### Memento
+KTX2 (Khronos Texture 2) is a texture container format developed by the Khronos Group, a non-profit consortium of 
+companies focused on the creation of open standards for graphics, media, and parallel computing.
 
-### Mesh
+<img src="https://xeokit.github.io/sdk/docs/media/images/xeokit_ktx_logo.svg" width="200px">
 
-### Metadata
+KTX2 is designed to be a more efficient replacement for the original KTX format, with better compression and faster 
+loading times. It supports a wide range of texture formats, including compressed, uncompressed, and block-compressed 
+textures. KTX2 also supports multiple levels of detail, which allows textures to be rendered at different resolutions 
+depending on their distance from the camera.
+
+One of the key features of KTX2 is its use of the Basis Universal texture codec, which is an open-source, 
+high-performance texture compression algorithm developed by Binomial LLC. This codec can compress textures to a smaller 
+size than other compression methods while maintaining high visual quality.
+
+KTX2 is widely used in graphics applications, such as games and virtual reality experiences, where fast loading times 
+and high-quality textures are important. It is also compatible with many popular graphics APIs, including OpenGL, 
+Vulkan, and DirectX.
+
+---
+
+## LAS
+
+**LAS/LAZ** are file formats used for storing and exchanging 3D point cloud data. They are commonly used in the geospatial 
+industry, including applications such as LiDAR (Light Detection and Ranging) scanning, aerial photogrammetry, and 
+3D mapping.
+
+<img src="https://xeokit.github.io/sdk/docs/media/images/autzen.png" width="400px">
+
+LAS (Log ASCII Standard) is a text-based file format that stores 3D point cloud data in a standard format, with 
+each point represented as a row of data that includes attributes such as the x, y, and z coordinates, as well as 
+additional information like intensity, color, and classification. LAS files can be easily read and edited by 
+various software tools.
+
+LAZ is a compressed version of the LAS format. It uses lossless compression to reduce the size of the file while 
+preserving the accuracy and precision of the data. LAZ files can be up to 90% smaller than their uncompressed LAS 
+counterparts, making them easier to store and share.
+
+Both LAS and LAZ are widely used in the geospatial industry and are supported by many software tools for processing 
+and analyzing 3D point cloud data. Some popular software tools that support LAS/LAZ files include ArcGIS, QGIS, 
+Global Mapper, and CloudCompare.
+
+---
+
+## Memento
+
+## Mesh
+
+## Metadata
 
 See {@link DataModel}
 
-### Metalness
+## Metalness
 
 See {@link MeshParams.metallic}, {@link TextureSet.metallicRoughnessTexture}
 
-### OBB
+## OBB
 
 Object-Aligned Bounding Box
 
 See {@link @xeokit/math/boundaries}
 
-### Occlusion Cull
+## Occlusion Cull
 
-### Open-Closed Principle
+## Open-Closed Principle
 
 Open to extension, closed to modification
 
-### Orthographic
+## Orthographic
 
-### Pan
+## Pan
 
-### PBR
+## PBR
 
 Physically-Based Rendering
 
-### Perspective
+## Perspective
 
-### Pick
+## Pick
 
-### Quantization
+## Quantization
 
 Quantization is a process of reducing the precision or number of distinct values of a data signal, while still retaining the most important information. This is done by mapping the original values of a signal to a smaller set of discrete values.
 
@@ -159,19 +202,19 @@ The process of quantization can result in a loss of information or a loss of fid
 
 There are several types of quantization techniques, including uniform quantization, non-uniform quantization, and scalar quantization. In uniform quantization, the step size between quantization levels is fixed and the same for all values in the signal. In non-uniform quantization, the step size varies depending on the signal value. Scalar quantization is a technique where each sample of the signal is quantized independently of the others.
 
-### Renderer
+## Renderer
 
-### Representation
+## Representation
 
-### RTC
+## RTC
 
-### SAO
+## SAO
 
-### SectionPlane
+## SectionPlane
 
-### Select
+## Select
 
-### Shader
+## Shader
 
 In computer graphics, a shader is a computer program that is used to define the appearance of 3D objects and surfaces in a rendered image or video. Shaders are typically used to create effects like lighting, shadowing, texturing, and colorization.
 
@@ -179,7 +222,7 @@ Shaders are written in a specialized programming language that is designed to ru
 
 There are several types of shaders, including vertex shaders, pixel shaders, geometry shaders, and compute shaders. Vertex shaders operate on the vertices of a 3D object, pixel shaders define the color and texture of each pixel, geometry shaders modify the geometry of 3D objects, and compute shaders are used for general-purpose computations on the GPU.
 
-### SOLID
+## SOLID
 
 SOLID is an acronym for a set of principles that are designed to help software developers create more maintainable and scalable code. The five principles of SOLID are:
 
@@ -195,31 +238,31 @@ Dependency Inversion Principle (DIP): High-level modules should not depend on lo
 
 These principles are considered best practices in software development, and following them can result in code that is easier to understand, maintain, and scale over time
 
-### Texture
+## Texture
 
-### TextureSet
+## TextureSet
 
-### Tile
+## Tile
 
-### Transcoder
+## Transcoder
 
 ## Transform
 
-### Translate
+## Translate
 
-### View
+## View
 
 An independently-configurable view of the models currently loaded in a Viewer. Each View has its own independent HTML 
 canvas. For every ViewerObject within its Viewer, a View automatically maintains a ViewObject to represent and 
 control how that ViewObject appears within its canvas.  
 
-### Viewer
+## Viewer
 
-### ViewLayer
+## ViewLayer
 
-### ViewObject
+## ViewObject
 
-### WebGL
+## WebGL
 
 WebGL (Web Graphics Library) is a JavaScript API (Application Programming Interface) for rendering interactive 3D graphics and animations within a web browser. It is based on the OpenGL ES (Embedded Systems) 2.0 specification, which is a widely used standard for graphics programming in mobile devices and embedded systems.
 
@@ -229,7 +272,7 @@ WebGL works by creating a 3D rendering context within a web browser, which provi
 
 WebGL has many applications, including video games, virtual and augmented reality, scientific simulations, data visualization, and architectural design. It is supported by most modern web browsers, including Chrome, Firefox, Safari, and Edge, and is used by many popular websites and web applications.
 
-### WebGPU
+## WebGPU
 
 WebGPU is a low-level graphics API (Application Programming Interface) that provides a way to access the graphics hardware from web applications using JavaScript. It is designed to provide high-performance 3D graphics and computational capabilities to web developers, while also being cross-platform and portable.
 
@@ -239,15 +282,15 @@ WebGPU is still under development and is not yet widely supported by web browser
 
 WebGPU is designed to work with modern web technologies such as WebAssembly, Web Workers, and SharedArrayBuffer, and is expected to provide a more secure and efficient way to access the graphics hardware than previous APIs such as WebGL. It is being developed by a group of industry leaders including Apple, Google, and Mozilla, and is expected to become an important part of the web development ecosystem in the future.
 
-### XKT
+## XKT
 
 The SDK's native binary model file format. TODO
 
-### X-Ray
+## X-Ray
 
-### xeolabs
+## xeolabs
 
-### xeogl
+## xeogl
 
-### xeokit
+## xeokit
 

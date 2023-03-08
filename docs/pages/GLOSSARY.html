@@ -227,10 +227,28 @@ Global Mapper, and CloudCompare.</p>
 <a href="#pbr" id="pbr" style="color: inherit; text-decoration: none;">
   <h2>PBR</h2>
 </a>
-<p><strong>Physically-Based Rendering</strong> </p>
-<blockquote>
+<p><strong>Physically-Based Rendering (PBR)</strong> is a computer graphics technique that xeokit uses to render more realistic images of models by 
+simulating the physical properties of light and materials. It is based on the laws of physics and uses mathematical 
+models to accurately simulate the behavior of light in the real world.</p>
+<img src="https://xeokit.github.io/sdk/assets/images/xeokit-viewer-jitter.png" width="600px">
+
+<p>PBR aims to accurately represent the way light interacts with surfaces and materials, taking into account factors such 
+as surface roughness, reflectivity, and transparency. By accurately modeling these physical properties, PBR can produce 
+quality previews that give a better idea of what models look like in real life.</p>
+<p>The xeokit Viewer uses a <em>metallic-roughness</em> PBR shading model that has the following components:</p>
 <ul>
-<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
+<li>A microfacet roughness model </li>
+<li>Energy conservation </li>
+<li>Metallicity</li>
+<li>Reflectance Equation - <em>Cook-Torrance BRDF, Cook-Torrance Specular, Trowbridge-Reitz GGX, Schlick Approximation, Smith’s Method, Fresnel Equation</em></li>
+</ul>
+<blockquote>
+<p>PBR is supported in the following xeokit modules:</p>
+<ul>
+<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a> - the xeokit Viewer, which supports PBR rendering</li>
+<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html">@xeokit/scene</a> - the xeokit scene representation, which supports PBR materials</li>
+<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html">@xeokit/xkt</a> - loads and saves XKT files, which have PBR materials</li>
+<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html">@xeokit/gltf</a> - loads glTF with PBR materials into xeokit&#39;s scene representation</li>
 </ul>
 </blockquote>
 <hr>
@@ -309,6 +327,8 @@ need 64 bits of storage, RTC coordinates only need 16 bits. </p>
 </a>
 <p>A <strong>section plane</strong> is a virtual plane that is used to create a section view of a 3D object. The section plane is a flat, 
 transparent plane that is placed through the 3D model of an object at a specific location and orientation.</p>
+<img src="https://xeokit.github.io/sdk/assets/images/example_SectionPlane.png" width="600px">
+
 <p>When a section plane is placed through a 3D object, it creates a section view that shows the interior structure of the 
 object as if it has been cut along the plane. The section view provides a more detailed and clear view of the internal 
 structure of the object.</p>

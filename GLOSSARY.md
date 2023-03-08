@@ -2,7 +2,20 @@
 
 ### AABB
 
-Axis-Aligned Bounding Box
+An Axis-Aligned Bounding Box (AABB) is a rectangular cuboid that is aligned with the x, y, and z axes of a 3D coordinate 
+system. It is defined by two points: the minimum point, which is the vertex of the cuboid with the lowest x, y, and z 
+coordinates, and the maximum point, which is the vertex with the highest x, y, and z coordinates.
+
+The box completely encloses an object in 3D space, and is commonly used in computer graphics to 
+represent the minimum volume that contains an object or set of objects. It can also be used for collision detection, 
+intersection testing, and other geometric operations.
+
+The figure below shows an example of an axis-aligned 3D bounding box enclosing a 3D model:
+
+[Axis-Aligned 3D Bounding Box Example]()
+
+Note that the bounding boxes in this figure are aligned with the x, y, and z axes of the coordinate system, and its sides 
+are parallel to these axes.
 
 ### Annotation
 
@@ -24,15 +37,23 @@ Building Information Modeling
 
 ### CityJSON
 
-CityJSON is an open standard file format for storing and exchanging 3D city models. It was developed to provide a lightweight, easy-to-use, and interoperable format for representing complex urban environments in 3D.
+CityJSON is an open standard data format for the storage and exchange of 3D city models. It is designed to be 
+lightweight and easy to use, while also providing rich semantics and geometry to support a wide range of 
+applications. CityJSON is a JSON-based format, which means it is easy to parse and process using modern software tools.
 
-CityJSON is based on JSON (JavaScript Object Notation), a widely used data interchange format, and is designed to be easily readable and editable by humans. It supports the representation of buildings, roads, trees, water bodies, and other urban elements, as well as metadata such as semantics, textures, and attributes.
+CityJSON was developed by the Dutch national mapping agency, the Kadaster, in collaboration with several other 
+organizations, and is now maintained by the OGC (Open Geospatial Consortium) as an official community standard.
 
-CityJSON was developed to address some of the limitations of other 3D city model file formats, such as CityGML and KML, which can be complex and difficult to work with. It is designed to be simple and easy to use, while still providing a rich set of features for representing complex urban environments.
+CityJSON is capable of representing a wide range of features found in 3D city models, including buildings, streets, 
+terrain, vegetation, and more. It supports both geometric and semantic information, allowing users to store detailed 
+attributes for each feature, such as height, materials, and function.
 
-CityJSON has been adopted by a number of cities, organizations, and software vendors as a standard format for 3D city models, and it is supported by a growing number of software tools and libraries. It is also being actively developed and maintained by a community of contributors, ensuring that it continues to evolve and improve over time.
+CityJSON is gaining popularity in the 3D modeling and GIS (Geographic Information System) communities, and many 
+software tools now support its use. It is considered a flexible and efficient format for storing and exchanging 3D 
+city models, and has the potential to greatly facilitate the integration of city models into a wide range of 
+applications, including urban planning, architecture, and transportation.
 
-### Control
+### CameraControl
 
 An SDK component that controls something in the Viewer with mouse or touch input.
 
@@ -44,17 +65,19 @@ An SDK component that models semantic data as a searchable entity-relationship g
 a Viewer, to help an application classify and navigate model objects. A DataModel can be built programmatically, 
 loaded from an XKT file, and saved within an XKT file.   
 
-See: {@link @xeokit/datamodel!DataModel}
+See: [@xeokit/datamodel!DataModel](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)
 
 ### Data Texture
 
-A data texture is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal information. It can be thought of as a two-dimensional array of values, where each value represents some arbitrary data, such as depth, density, temperature, or any other quantity that can be represented as a scalar value.
+A data texture is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
+information. It can be thought of as a two-dimensional array of values, where each value represents some arbitrary data, 
+such as depth, density, temperature, or any other quantity that can be represented as a scalar value.
 
-Data textures are often used in scientific visualization and simulations, where they can be used to store and display complex data sets, such as medical images, weather data, or fluid simulations. They can also be used for procedural generation of textures and terrain, where the data texture is used to define the parameters of a procedural algorithm that generates the final texture or terrain.
+Data textures are often used in scientific visualization and simulations, where they can be used to store and display 
+complex data sets, such as medical images, weather data, or fluid simulations. They can also be used for procedural 
+generation of textures and terrain, where the data texture is used to define the parameters of a procedural algorithm 
+that generates the final texture or terrain.
 
-To use a data texture in a computer graphics application, the data is typically encoded as a grayscale image, where each pixel represents a single value in the data texture. The texture can then be applied to a 3D model, and the data values can be used to modify the appearance of the model or to drive a simulation.
-
-Data textures can be combined with other textures, such as color or normal maps, to create more complex and detailed visual effects. They are a powerful tool for creating realistic simulations and visualizations, and are used in a wide range of applications, from scientific research to video games and movies.
 
 ### Dolly
 
@@ -64,7 +87,6 @@ Data textures can be combined with other textures, such as color or normal maps,
 
 ### Frustum
 
-SeeL {@link Frustum}
 
 ### Geometry
 
@@ -81,6 +103,7 @@ See: {@link GeometryBucket}, {@link GeometryCompressedParams}
 ### IFC
 
 Industry Foundation Classes
+
 
 ### Instancing
 

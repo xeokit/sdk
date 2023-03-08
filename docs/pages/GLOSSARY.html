@@ -15,16 +15,24 @@
 <li><a href="../modules.html">xeokit</a></li>
 <li><a href="GLOSSARY.html">Glossary</a></li></ul>
 <h1> Glossary</h1></div>
-<div class="tsd-panel tsd-typography"><p><a href="#a">A</a> - <a href="#b">B</a> - <a href="#c">C</a> - <a href="#d">D</a> - <a href="#e">E</a> - <a href="#f">F</a> - <a href="#g">G</a> - <a href="#h">H</a> - <a href="#i">I</a> - <a href="#j">J</a> - <a href="#k">K</a> - <a href="#l">L</a> - <a href="#n">M</a> - <a href="#n">M</a> - <a href="#o">O</a> - <a href="#p">P</a> - <a href="#q">Q</a> - <a href="#r">R</a> - <a href="#s">S</a>-<a href="#t">T</a> - <a href="#u">U</a>-<a href="#v">V</a>-<a href="#x">X</a> - <a href="#y">Y</a> - <a href="#z">Z</a></p>
+<div class="tsd-panel tsd-typography"><p><a href="#a">A</a> - <a href="#b">B</a> - <a href="#c">C</a> - <a href="#d">D</a> - <a href="#e">E</a> - <a href="#f">F</a> - <a href="#g">G</a> - <a href="#h">H</a> - <a href="#i">I</a> - <a href="#j">J</a> - <a href="#k">K</a> - <a href="#l">L</a> - <a href="#n">M</a> - <a href="#n">M</a> - <a href="#o">O</a> - <a href="#p">P</a> - <a href="#q">Q</a> - <a href="#r">R</a> - <a href="#s">S</a> - <a href="#t">T</a> - <a href="#u">U</a> - <a href="#v">V</a> - <a href="#x">X</a> - <a href="#y">Y</a> - <a href="#z">Z</a></p>
+<br>
+
+<img style="padding:50px" src="../media/images/xeokit_datamodel_icon.png"/>
+
+<br>
+
 <hr>
 
 <a href="#a" id="a" style="color: inherit; text-decoration: none;">
   <h1>A</h1>
 </a>
 <hr>
+<br>
+
 
 <a href="#aabb" id="aabb" style="color: inherit; text-decoration: none;">
-  <h2>AABB</h2>
+  <h3>AABB</h3>
 </a>
 <p>An Axis-Aligned Bounding Box (AABB) is a rectangular cuboid that is aligned with the x, y, and z axes of a 3D coordinate 
 system. It is defined by two points: the minimum point, which is the vertex of the cuboid with the lowest x, y, and z 
@@ -33,24 +41,24 @@ coordinates, and the maximum point, which is the vertex with the highest x, y, a
 represent the minimum volume that contains an object or set of objects. It can also be used for collision detection, 
 intersection testing, and other geometric operations.</p>
 <p>The figure below shows an example of a hierarchy of AABB&#39;s, that enclose the meshes within a 3D model:</p>
-<img src="https://xeokit.github.io/sdk/assets/images/kdtree.jpeg" width="600px">
-
 <p>Note that the bounding boxes in this figure are aligned with the x, y, and z axes of the coordinate system, and its sides 
 are parallel to these axes.</p>
 <blockquote>
-<ul>
-<li>See module: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_boundaries.html">@xeokit/math/boundaries</a></li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_boundaries.html">@xeokit/math/boundaries</a></em></p>
 </blockquote>
+<br>
+
 <hr>
 
 <a href="#b" id="b" style="color: inherit; text-decoration: none;">
   <h1>B</h1>
 </a>
 <hr>
+<br>
+
 
 <a href="#bcf" id="bcf" style="color: inherit; text-decoration: none;">
-  <h2>BCF</h2>
+  <h3>BCF</h3>
 </a>
 <p>The <strong>BIM Collaboration Format</strong> (BCF) is a file format used in Building Information Modeling (BIM) to facilitate 
 collaboration between different software applications used by architects, engineers, contractors, and other stakeholders 
@@ -62,25 +70,25 @@ well as metadata such as priority, status, and due dates.</p>
 on the same issues regardless of the software they are using. This helps to reduce errors, misunderstandings, and delays 
 in the construction process.</p>
 <blockquote>
-<ul>
-<li>See module <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html">@xeokit/bcf</a> - saves and load viewer snapshots as BCF</li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html">@xeokit/bcf</a></em></p>
 </blockquote>
+<br>
+
 <hr>
 
 <a href="#c" id="c" style="color: inherit; text-decoration: none;">
   <h1>C</h1>
 </a>
 <hr>
+<br>
+
 
 <a href="#cityjson" id="cityjson" style="color: inherit; text-decoration: none;">
-  <h2>CityJSON</h2>
+  <h3>CityJSON</h3>
 </a>
 <p><strong>CityJSON</strong> is an open standard data format for the storage and exchange of 3D city models. It is designed to be 
 lightweight and easy to use, while also providing rich semantics and geometry to support a wide range of 
 applications. CityJSON is a JSON-based format, which means it is easy to parse and process using modern software tools.</p>
-<img src="https://xeokit.github.io/sdk/assets/images/example_cityJSON.png" width="600px">
-
 <p>CityJSON was developed by the Dutch national mapping agency, the Kadaster, in collaboration with several other 
 organizations, and is now maintained by the OGC (Open Geospatial Consortium) as an official community standard.</p>
 <p>CityJSON is capable of representing a wide range of features found in 3D city models, including buildings, streets, 
@@ -91,27 +99,31 @@ software tools now support its use. It is considered a flexible and efficient fo
 city models, and has the potential to greatly facilitate the integration of city models into a wide range of 
 applications, including urban planning, architecture, and transportation.</p>
 <blockquote>
-<ul>
-<li>Used in <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html">@xeokit/cityjson</a> - loads CityJSON into xeokit&#39;s scene representation</li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html">@xeokit/cityjson</a></em></p>
 </blockquote>
+<br>
+
 
 <a href="#cameracontrol" id="cameracontrol" style="color: inherit; text-decoration: none;">
-  <h2>CameraControl</h2>
+  <h3>CameraControl</h3>
 </a>
 <p>A <a href="../modules.html">@xeokit/cameracontrol | CameraControl</a> is an SDK component that controls a xeokit Viewer&#39;s Camera with mouse or touch input.</p>
-<ul>
-<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_cameracontrol.html">@xeokit/cameracontrol</a></li>
-</ul>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_cameracontrol.html">@xeokit/cameracontrol</a></em></p>
+</blockquote>
+<br>
+
 <hr>
 
 <a href="#d" id="d" style="color: inherit; text-decoration: none;">
   <h1>D</h1>
 </a>
 <hr>
+<br>
+
 
 <a href="#datamodel" id="datamodel" style="color: inherit; text-decoration: none;">
-  <h2>DataModel</h2>
+  <h3>DataModel</h3>
 </a>
 <p>A <a href="../modules.html">@xeokit/data | DataModel</a> is a semantic entity-relationship graph that&#39;s used within the xeokit SDK to represent 
 the relationships between entities in a system or domain, where entities are represented as nodes and relationships are 
@@ -122,15 +134,14 @@ of the relationships between the various elements and components that make up a 
 properties, and relationships. This data can be represented in a graph format where each node represents an entity, such 
 as a wall, door, or window, and each edge represents a relationship between those entities, such as a door being 
 connected to a wall.</p>
-<p>An SDK component that models semantic data as a searchable entity-relationship graph. A DataModel is intended to be used alongside
-a Viewer, to help an application classify and navigate model objects. A DataModel can be built programmatically,
-loaded from an XKT file, and saved within an XKT file.</p>
-<ul>
-<li>See <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html">@xeokit/data</a> - components for</li>
-</ul>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html">@xeokit/data</a></em> </p>
+</blockquote>
+<br>
+
 
 <a href="#data-texture" id="data-texture" style="color: inherit; text-decoration: none;">
-  <h2>Data Texture</h2>
+  <h3>Data Texture</h3>
 </a>
 <p>A data texture is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
 information. It can be thought of as a two-dimensional array of values, where each value represents some arbitrary data, 
@@ -139,38 +150,35 @@ such as depth, density, temperature, or any other quantity that can be represent
 complex data sets, such as medical images, weather data, or fluid simulations. They can also be used for procedural 
 generation of textures and terrain, where the data texture is used to define the parameters of a procedural algorithm 
 that generates the final texture or terrain.</p>
-<ul>
-<li>Used in: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html">@xeokit/webglrenderer</a>.</li>
-</ul>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html">@xeokit/webglrenderer</a></em></p>
+</blockquote>
+<br>
+
 <hr>
 
 <a href="#g" id="g" style="color: inherit; text-decoration: none;">
   <h1>G</h1>
 </a>
 <hr>
+<br>
 
-<a href="#gltf" id="gltf" style="color: inherit; text-decoration: none;">
-  <h2>glTF</h2>
-</a>
-<blockquote>
-<ul>
-<li>See module: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html">@xeokit/gltf</a></li>
-</ul>
-</blockquote>
+<br>
+
 <hr>
 
 <a href="#k" id="k" style="color: inherit; text-decoration: none;">
   <h1>K</h1>
 </a>
 <hr>
+<br>
+
 
 <a href="#ktx2" id="ktx2" style="color: inherit; text-decoration: none;">
-  <h2>KTX2</h2>
+  <h3>KTX2</h3>
 </a>
 <p>KTX2 (Khronos Texture 2) is a texture container format developed by the Khronos Group, a non-profit consortium of 
 companies focused on the creation of open standards for graphics, media, and parallel computing.</p>
-<img src="https://xeokit.github.io/sdk/assets/images/xeokit_ktx_logo.svg" width="200px">
-
 <p>KTX2 is designed to be a more efficient replacement for the original KTX format, with better compression and faster 
 loading times. It supports a wide range of texture formats, including compressed, uncompressed, and block-compressed 
 textures. KTX2 also supports multiple levels of detail, which allows textures to be rendered at different resolutions 
@@ -182,25 +190,25 @@ size than other compression methods while maintaining high visual quality.</p>
 and high-quality textures are important. It is also compatible with many popular graphics APIs, including OpenGL, 
 Vulkan, and DirectX.</p>
 <blockquote>
-<ul>
-<li>See module: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html">@xeokit/ktx2</a></li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html">@xeokit/ktx2</a></em></p>
 </blockquote>
+<br>
+
 <hr>
 
 <a href="#l" id="l" style="color: inherit; text-decoration: none;">
   <h1>L</h1>
 </a>
 <hr>
+<br>
+
 
 <a href="#las" id="las" style="color: inherit; text-decoration: none;">
-  <h2>LAS</h2>
+  <h3>LAS</h3>
 </a>
 <p><strong>LAS/LAZ</strong> are file formats used for storing and exchanging 3D point cloud data. They are commonly used in the geospatial 
 industry, including applications such as LiDAR (Light Detection and Ranging) scanning, aerial photogrammetry, and 
 3D mapping.</p>
-<img src="https://xeokit.github.io/sdk/assets/images/autzen.png" width="600px">
-
 <p>LAS (Log ASCII Standard) is a text-based file format that stores 3D point cloud data in a standard format, with 
 each point represented as a row of data that includes attributes such as the x, y, and z coordinates, as well as 
 additional information like intensity, color, and classification. LAS files can be easily read and edited by 
@@ -212,26 +220,25 @@ counterparts, making them easier to store and share.</p>
 and analyzing 3D point cloud data. Some popular software tools that support LAS/LAZ files include ArcGIS, QGIS, 
 Global Mapper, and CloudCompare.</p>
 <blockquote>
-<ul>
-<li>See module: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html">@xeokit/las</a></li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html">@xeokit/las</a></em></p>
 </blockquote>
+<br>
+
 <hr>
 
 <a href="#p" id="p" style="color: inherit; text-decoration: none;">
   <h1>P</h1>
 </a>
-<p><a href="">top</a></p>
 <hr>
+<br>
+
 
 <a href="#pbr" id="pbr" style="color: inherit; text-decoration: none;">
-  <h2>PBR</h2>
+  <h3>PBR</h3>
 </a>
 <p><strong>Physically-Based Rendering (PBR)</strong> is a computer graphics technique that xeokit uses to render more realistic images of models by 
 simulating the physical properties of light and materials. It is based on the laws of physics and uses mathematical 
 models to accurately simulate the behavior of light in the real world.</p>
-<img src="https://xeokit.github.io/sdk/assets/images/xeokit-viewer-jitter.png" width="600px">
-
 <p>PBR aims to accurately represent the way light interacts with surfaces and materials, taking into account factors such 
 as surface roughness, reflectivity, and transparency. By accurately modeling these physical properties, PBR can produce 
 quality previews that give a better idea of what models look like in real life.</p>
@@ -243,24 +250,27 @@ quality previews that give a better idea of what models look like in real life.<
 <li>Reflectance Equation - <em>Cook-Torrance BRDF, Cook-Torrance Specular, Trowbridge-Reitz GGX, Schlick Approximation, Smith’s Method, Fresnel Equation</em></li>
 </ul>
 <blockquote>
-<p>PBR is supported in the following xeokit modules:</p>
+<p><em>PBR is supported in the following xeokit modules:</em></p>
 <ul>
-<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a> - the xeokit Viewer, which supports PBR rendering</li>
-<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html">@xeokit/scene</a> - the xeokit scene representation, which supports PBR materials</li>
-<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html">@xeokit/xkt</a> - loads and saves XKT files, which have PBR materials</li>
-<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html">@xeokit/gltf</a> - loads glTF with PBR materials into xeokit&#39;s scene representation</li>
+<li><em><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a> - the xeokit Viewer, which supports PBR rendering</em></li>
+<li><em><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html">@xeokit/scene</a> - the xeokit scene representation, which supports PBR materials</em></li>
+<li><em><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html">@xeokit/xkt</a> - loads and saves XKT files, which have PBR materials</em></li>
+<li><em><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html">@xeokit/gltf</a> - loads glTF with PBR materials into xeokit&#39;s scene representation</em></li>
 </ul>
 </blockquote>
+<br>
+
 <hr>
 
 <a href="#q" id="q" style="color: inherit; text-decoration: none;">
   <h1>Q</h1>
 </a>
-<p><a href="">top</a></p>
 <hr>
+<br>
+
 
 <a href="#quantization" id="quantization" style="color: inherit; text-decoration: none;">
-  <h2>Quantization</h2>
+  <h3>Quantization</h3>
 </a>
 <p><strong>Quantization</strong> is a process of reducing the precision or number of distinct values of a data signal, while still 
 retaining the most important information. This is done by mapping the original values of a signal to a smaller set 
@@ -272,28 +282,21 @@ an image or video frame.</p>
 32-bit and 64-bit floating point coordinate values as 16-bit integers, which we then decompress dynamically on the 
 GPU using a special de-quantization matrix.</p>
 <blockquote>
-<ul>
-<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html">@xeokit/math/compression</a></li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html">@xeokit/math/compression</a></em></p>
 </blockquote>
+<br>
+
 <hr>
 
 <a href="#r" id="r" style="color: inherit; text-decoration: none;">
   <h1>R</h1>
 </a>
-<p><a href="">top</a></p>
 <hr>
+<br>
 
-<a href="#renderer" id="renderer" style="color: inherit; text-decoration: none;">
-  <h2>Renderer</h2>
-</a>
-
-<a href="#representation" id="representation" style="color: inherit; text-decoration: none;">
-  <h2>Representation</h2>
-</a>
 
 <a href="#rtc" id="rtc" style="color: inherit; text-decoration: none;">
-  <h2>RTC</h2>
+  <h3>RTC</h3>
 </a>
 <p>In a <strong>relative-to-center (RTC) coordinate system</strong> we define the position of each geometry vertex as being relative to 
 a given center position. </p>
@@ -303,46 +306,37 @@ tile. When rendering the geometries for each tile, we use a version of the camer
 using that central position in such a way as to render the half-precision RTC vertices as if they were full-precision absolute values.</p>
 <p>RTC is also part of how xeokit keeps a minimal memory footprint. While absolute, double-precision coordinate values 
 need 64 bits of storage, RTC coordinates only need 16 bits. </p>
-<img src="https://xeokit.github.io/sdk/assets/images/xeokit-viewer-jitter.png" width="600px">
-
 <blockquote>
-<ul>
-<li>See <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a> - RTC utilities library</li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a></em></p>
 </blockquote>
+<br>
+
 <hr>
 
 <a href="#s" id="s" style="color: inherit; text-decoration: none;">
   <h1>S</h1>
 </a>
-<p><a href="">top</a></p>
 <hr>
+<br>
 
-<a href="#sao" id="sao" style="color: inherit; text-decoration: none;">
-  <h2>SAO</h2>
-</a>
 
 <a href="#section-plane" id="section-plane" style="color: inherit; text-decoration: none;">
   <h2>Section Plane</h2>
 </a>
 <p>A <strong>section plane</strong> is a virtual plane that is used to create a section view of a 3D object. The section plane is a flat, 
 transparent plane that is placed through the 3D model of an object at a specific location and orientation.</p>
-<img src="https://xeokit.github.io/sdk/assets/images/example_SectionPlane.png" width="600px">
-
 <p>When a section plane is placed through a 3D object, it creates a section view that shows the interior structure of the 
 object as if it has been cut along the plane. The section view provides a more detailed and clear view of the internal 
 structure of the object.</p>
 <blockquote>
-<p>See modules:</p>
+<p><em>See:</em></p>
 <ul>
-<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a> - View models and slice them open with section planes</li>
-<li><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html">@xeokit/bcf</a> - Save and load viewer snapshots as BCF, including section planes</li>
+<li><em><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a> - View models and slice them open with section planes</em></li>
+<li><em><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html">@xeokit/bcf</a> - Save and load viewer snapshots as BCF, including section planes</em></li>
 </ul>
 </blockquote>
+<br>
 
-<a href="#select" id="select" style="color: inherit; text-decoration: none;">
-  <h2>Select</h2>
-</a>
 
 <a href="#shader" id="shader" style="color: inherit; text-decoration: none;">
   <h2>Shader</h2>
@@ -355,6 +349,8 @@ required for real-time rendering of complex 3D scenes.</p>
 <p>There are several types of shaders, including vertex shaders, pixel shaders, geometry shaders, and compute shaders. Vertex 
 shaders operate on the vertices of a 3D object, pixel shaders define the color and texture of each pixel, geometry 
 shaders modify the geometry of 3D objects, and compute shaders are used for general-purpose computations on the GPU.</p>
+<br>
+
 
 <a href="#solid" id="solid" style="color: inherit; text-decoration: none;">
   <h2>SOLID</h2>
@@ -376,13 +372,16 @@ should use interfaces or abstract classes to decouple the implementation details
 </ol>
 <p>These principles are considered best practices in software development, and following them can result in code that is 
 easier to understand, maintain, and scale over time.</p>
+<br>
+
 <hr>
 
 <a href="#v" id="v" style="color: inherit; text-decoration: none;">
   <h1>V</h1>
 </a>
-<p><a href="">top</a></p>
 <hr>
+<br>
+
 
 <a href="#view" id="view" style="color: inherit; text-decoration: none;">
   <h2>View</h2>
@@ -390,22 +389,28 @@ easier to understand, maintain, and scale over time.</p>
 <p>An independently-configurable view of the models currently loaded in a Viewer. Each View has its own independent HTML 
 canvas. For every ViewerObject within its Viewer, a View automatically maintains a ViewObject to represent and 
 control how that ViewObject appears within its canvas.  </p>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></em></p>
+</blockquote>
+<br>
+
 
 <a href="#viewer" id="viewer" style="color: inherit; text-decoration: none;">
   <h2>Viewer</h2>
 </a>
 <blockquote>
-<ul>
-<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></em></p>
 </blockquote>
+<br>
+
 <hr>
 
 <a href="#w" id="w" style="color: inherit; text-decoration: none;">
   <h1>W</h1>
 </a>
-<p><a href="">top</a></p>
 <hr>
+<br>
+
 
 <a href="#webgl" id="webgl" style="color: inherit; text-decoration: none;">
   <h2>WebGL</h2>
@@ -423,10 +428,10 @@ responsive 3D graphics that can be interacted with in real-time.</p>
 visualization, and architectural design. It is supported by most modern web browsers, including Chrome, Firefox, 
 Safari, and Edge, and is used by many popular websites and web applications.</p>
 <blockquote>
-<ul>
-<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html">@xeokit/webglrenderer</a></li>
-</ul>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html">@xeokit/webglrenderer</a></em></p>
 </blockquote>
+<br>
+
 
 <a href="#webgpu" id="webgpu" style="color: inherit; text-decoration: none;">
   <h2>WebGPU</h2>
@@ -442,31 +447,27 @@ and SharedArrayBuffer, and is expected to provide a more secure and efficient wa
 hardware than previous APIs such as WebGL. It is being developed by a group of industry leaders 
 including Apple, Google, and Mozilla, and is expected to be an important part of the web 
 development ecosystem going forwards.</p>
-<ul>
-<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webgpurenderer.html">@xeokit/webgpurenderer</a></li>
-</ul>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webgpurenderer.html">@xeokit/webgpurenderer</a></em></p>
+</blockquote>
+<br>
+
 <hr>
 
 <a href="#x" id="x" style="color: inherit; text-decoration: none;">
   <h1>X</h1>
 </a>
-<p><a href="">top</a></p>
 <hr>
+<br>
+
 
 <a href="#xkt" id="xkt" style="color: inherit; text-decoration: none;">
   <h2>XKT</h2>
 </a>
 <p>The SDK&#39;s native binary model file format. TODO</p>
-<ul>
-<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html">@xeokit/xkt</a></li>
-</ul>
-
-<a href="#x-ray" id="x-ray" style="color: inherit; text-decoration: none;">
-  <h2>X-Ray</h2>
-</a>
-<ul>
-<li>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
-</ul>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html">@xeokit/xkt</a></em></p>
+</blockquote>
 </div></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://xeokit.io" target="_blank">xeokit.io</a><a href="http://example.com" target="_blank">Introduction</a><a href="http://example.com" target="_blank">Glossary</a></nav>
@@ -492,6 +493,7 @@ development ecosystem going forwards.</p>
 <ul>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="CONCEPTS.html">Concepts</a></li>
 <li class="current selected pages-entry pages-entry-page pages-entry-depth-1"><a href="GLOSSARY.html">Glossary</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="CONTRIBUTING.html">Contributing</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_bcf.html">@xeokit/bcf</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a></li>

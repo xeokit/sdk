@@ -331,17 +331,26 @@ GPU using a special de-quantization matrix.</p>
 <a href="#rtc" id="rtc" style="color: inherit; text-decoration: none;">
   <h3>RTC</h3>
 </a>
-<p>In a <strong>relative-to-center (RTC) coordinate system</strong> we define the position of each geometry vertex as being relative to 
-a given center position. </p>
-<p>RTC is central to xeokit&#39;s ability to render models at full precision on low-precision GPUs. To achieve this, we 
+<table style="vertical-align:top; border: 0;"><tr><td>
+In a **relative-to-center (RTC) coordinate system** we define the position of each geometry vertex as being relative to 
+a given center position. 
+
+<p>RTC is central to xeokit&#39;s ability to render models at full precision on low-precision GPUs. To achieve this, we
 partition our geometries into regions called <em>tiles</em>, with each geometry&#39;s vertices being relative to the center of its
-tile. When rendering the geometries for each tile, we use a version of the camera&#39;s view matrix that&#39;s specially modified 
+tile. When rendering the geometries for each tile, we use a version of the camera&#39;s view matrix that&#39;s specially modified
 using that central position in such a way as to render the half-precision RTC vertices as if they were full-precision absolute values.</p>
-<p>RTC is also part of how xeokit keeps a minimal memory footprint. While absolute, double-precision coordinate values 
-need 64 bits of storage, RTC coordinates only need 16 bits. </p>
+<p>RTC is also part of how xeokit keeps a minimal memory footprint. While absolute, double-precision coordinate values
+need 64 bits of storage, RTC coordinates only need 16 bits.</p>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a></em></p>
 </blockquote>
+</td><td>
+<img src="https://xeokit.github.io/sdk/assets/images/pipe-jitter.png">
+<br>
+<img src="https://xeokit.github.io/sdk/assets/images/pipe-no-jitter.png">
+</td>
+</table>
+
 <br>
 
 <hr>
@@ -356,24 +365,31 @@ need 64 bits of storage, RTC coordinates only need 16 bits. </p>
 <a href="#scene" id="scene" style="color: inherit; text-decoration: none;">
   <h2>Scene</h2>
 </a>
-<p>A <strong>Scene</strong> is a Viewer-agnostic container of <strong>SceneModels</strong> and <strong>SceneObjects</strong>, which define the geometric and material 
-representations of our models. </p>
-<p>Note that a Scene contains the <em>contents</em> of the models, while a <strong>View</strong> controls the 
-way that content is rendered in the canvas, eg. object visibilities, opacities, emphasis etc. This is how xeokit implements 
+<table style="vertical-align:top; border: 0;"><tr><td>
+A **Scene** is a Viewer-agnostic container of **SceneModels** and **SceneObjects**, which define the geometric and material 
+representations of our models. 
+
+<p>Note that a Scene contains the <em>contents</em> of the models, while a <strong>View</strong> controls the
+way that content is rendered in the canvas, eg. object visibilities, opacities, emphasis etc. This is how xeokit implements
 <a href="#model-view-separation"><em>model-view separation</em></a>.</p>
 <p>There are three cases for which we typically use a Scene:</p>
 <ol>
-<li>Programmatically build models within a Scene and then use <a href="../functions/_xeokit_xkt.saveXKT.html">saveXKT</a> to save the Scene to an XKT file. </li>
-<li>Use a Scene as an intermediate model when converting from some source file format to xeokit&#39;s native XKT format. We might load a 
-glTF file into our Scene using <a href="../modules.html">@xeokit/gltf?loadGLTF | loadGLTF</a>, then serialize the Scene to XKT 
+<li>Programmatically build models within a Scene and then use <a href="../functions/_xeokit_xkt.saveXKT.html">saveXKT</a> to save the Scene to an XKT file.</li>
+<li>Use a Scene as an intermediate model when converting from some source file format to xeokit&#39;s native XKT format. We might load a
+glTF file into our Scene using <a href="../modules.html">@xeokit/gltf?loadGLTF | loadGLTF</a>, then serialize the Scene to XKT
 using <a href="../functions/_xeokit_xkt.saveXKT.html">saveXKT</a>.</li>
-<li>Use a Scene to provide content for a Viewer. We might load a file into the Scene, or programmatically build it, then 
+<li>Use a Scene to provide content for a Viewer. We might load a file into the Scene, or programmatically build it, then
 attach the Scene to a Viewer to view it.</li>
 </ol>
 <p>We can use a Scene in NodeJS scripts (<em>Cases 1 and 2</em>) and in the Browser (<em>Case 3</em>).</p>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html">@xeokit/scene</a></em></p>
 </blockquote>
+</td><td style="width:250px">
+<img src="https://xeokit.github.io/sdk/assets/images/xeokit_docmodel_icon.png">
+</td>
+</table>
+
 <br>
 
 
@@ -465,37 +481,52 @@ easier to understand, maintain, and scale over time.</p>
 <a href="#viewer" id="viewer" style="color: inherit; text-decoration: none;">
   <h2>Viewer</h2>
 </a>
-<p>The <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html"><strong>Viewer</strong></a> class is the central component of the xeokit SDK. </p>
-<p>In the AECO (Architecture, Engineering, Construction, and Operations) industries, the Viewer can be used in a variety 
+<table style="vertical-align:top; border: 0;"><tr><td>
+The [**Viewer**](https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html) class is the central component of the xeokit SDK. 
+
+<p>In the AECO (Architecture, Engineering, Construction, and Operations) industries, the Viewer can be used in a variety
 of ways to help streamline workflows, improve communication, and facilitate collaboration. Here are some examples:</p>
 <ul>
-<li><strong>Design review and coordination</strong>: Visualize and review 3D models of buildings and 
+<li><strong>Design review and coordination</strong>: Visualize and review 3D models of buildings and
 infrastructure, allowing stakeholders to identify and resolve design conflicts early in the design process.</li>
-<li><strong>Construction planning and sequencing</strong>: Create 3D visualizations of construction sites, 
+<li><strong>Construction planning and sequencing</strong>: Create 3D visualizations of construction sites,
 helping project teams to plan and sequence construction activities and identify potential safety hazards.</li>
-<li><strong>Facility management and operations</strong>: View 3D models of facilities and infrastructure, 
+<li><strong>Facility management and operations</strong>: View 3D models of facilities and infrastructure,
 allowing operators and maintenance personnel to easily access and visualize information about the assets they manage.</li>
-<li><strong>Sustainability analysis</strong>: Perform sustainability analysis on building designs, helping 
+<li><strong>Sustainability analysis</strong>: Perform sustainability analysis on building designs, helping
 architects and engineers to optimize energy efficiency and reduce environmental impact.</li>
-<li><strong>Client presentations</strong>: Create engaging 3D visualizations of building designs and 
-infrastructure projects, helping architects, engineers, and contractors to communicate their ideas and designs to 
+<li><strong>Client presentations</strong>: Create engaging 3D visualizations of building designs and
+infrastructure projects, helping architects, engineers, and contractors to communicate their ideas and designs to
 clients and stakeholders.</li>
 </ul>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></em></p>
 </blockquote>
+</td><td>
+<img src="http://xeokit.io/img/xeokit-viewer.png">
+</td>
+</table>
+
 <br>
 
 
 <a href="#view" id="view" style="color: inherit; text-decoration: none;">
   <h2>View</h2>
 </a>
-<p>A <strong>View</strong> is an independently-configurable view of the models currently loaded in a <strong>Viewer</strong>. Each View has its own 
-HTML canvas. A View has a <strong>ViewerObject</strong> for each object loaded in the Viewer, to represent and control how that ViewObject 
-appears within its canvas.</p>
+<table style="vertical-align:top; border: 0;"><tr><td>
+A **View** is an independently-configurable view of the models currently loaded in a **Viewer**. Each View has its own 
+HTML canvas, lights, <a href="../classes/_xeokit_viewer.Camera.html">Camera</a> and <a href="../classes/_xeokit_viewer.SectionPlane.html">SectionPlanes</a>. A 
+View also has a **ViewerObject** for each object loaded in the Viewer, to represent and control how that ViewObject 
+appears within its canvas.
+
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></em></p>
 </blockquote>
+</td><td>
+<img src="http://xeokit.io/img/xeokit-viewer.png">
+</td>
+</table>
+
 <br>
 
 

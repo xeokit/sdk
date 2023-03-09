@@ -1,0 +1,353 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@xeokit/viewer | xeokit</title><meta name="description" content="Documentation for xeokit"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><link rel="stylesheet" href="../assets/pages.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base="..">
+<div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<div class="field">
+<div id="tsd-toolbar-links"></div></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="https://xeokit.io" class="title">xeokit</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-8 col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb">
+<li><a href="../modules.html">xeokit</a></li>
+<li><a href="_xeokit_viewer.html">@xeokit/viewer</a></li></ul>
+<h1>Module @xeokit/viewer</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p><a href="https://badge.fury.io/js/%40xeokit%2Fviewer"><img src="https://badge.fury.io/js/%40xeokit%2Fviewer.svg" alt="npm version"></a>
+<a href="https://www.jsdelivr.com/package/npm/@xeokit/viewer"><img src="https://data.jsdelivr.com/v1/package/npm/@xeokit/viewer/badge" alt=""></a></p>
+<img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="../media/images/xeokit_viewer_logo.png"/>
+
+
+<a href="#web-model-viewer" id="web-model-viewer" style="color: inherit; text-decoration: none;">
+  <h1>Web Model Viewer</h1>
+</a>
+<ul>
+<li><a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a></li>
+<li>Interactively view large models, at full coordinate precision, in all major browsers including mobile</li>
+<li>Independently move/show/hide/x-ray/highlight/colorize/slice objects</li>
+<li>Combine multiple, federated models</li>
+<li>Multiple canvases</li>
+<li>Low memory footprint</li>
+<li>Double-precision coordinate accuracy</li>
+<li>Programmatically build models</li>
+<li>Load and save XKT</li>
+<li>Load XKT, glTF, LAS..</li>
+<li>Browser graphics API agnostic - adapt with WebGLRenderer</li>
+</ul>
+
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
+</a>
+<pre><code class="language-bash"><span class="hl-0">npm </span><span class="hl-1">install</span><span class="hl-0"> </span><span class="hl-1">@xeokit/viewer</span>
+</code></pre>
+
+<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+  <h2>Usage</h2>
+</a>
+<ul>
+<li><a href="#creating-a-viewer">Creating a Viewer</a></li>
+<li><a href="#creating-a-view">Creating a View</a></li>
+<li><a href="#adding-a-cameracontrol">Adding a CameraControl</a></li>
+<li><a href="#creating-a-scene">Creating a SceneModel</a></li>
+<li><a href="#reading-the-contents-of-a-scene">Reading the Contents of a SceneModel</a></li>
+<li><a href="#showing-and-hiding-objects">Showing and Hiding Objects</a></li>
+<li><a href="#highlighting-selecting-and-x-raying-objects">Highlighting, Selecting and X-Raying Objects</a></li>
+<li><a href="#creating-a-second-view">Creating a Second View</a></li>
+<li><a href="#slicing-objects">Slicing Objects</a></li>
+<li><a href="#saving-and-loading-bcf">Saving and Loading BCF</a></li>
+<li><a href="#saving-and-loading-xkt">Saving and Loading XKT</a></li>
+<li><a href="#bcf-revisited">BCF Revisited</a></li>
+<li><a href="#adding-a-viewlayer">Adding a ViewLayer</a></li>
+<li><a href="#bcf-with-viewlayers">BCF with ViewLayers</a></li>
+</ul>
+
+<a href="#creating-a-viewer" id="creating-a-viewer" style="color: inherit; text-decoration: none;">
+  <h3>Creating a Viewer</h3>
+</a>
+<p> We&#39;ll start by importing the modules we need:</p>
+<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Scene</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/scene&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">WebGLRenderer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/webglrenderer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">TrianglesPrimitive</span><span class="hl-0">, </span><span class="hl-3">LinearEncoding</span><span class="hl-0">, </span><span class="hl-3">LinearFilter</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/core/constants&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">CameraControl</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/cameracontrol&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">saveBCFViewpoint</span><span class="hl-0">, </span><span class="hl-3">loadBCFViewpoint</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/bcf&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">saveXKT</span><span class="hl-0">, </span><span class="hl-3">loadXKT</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/xkt&quot;</span><span class="hl-0">;</span>
+</code></pre>
+<p>Create a <a href="../classes/_xeokit_scene.Scene.html">Scene</a> to hold our model representations:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myScene</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Scene</span><span class="hl-0">();</span>
+</code></pre>
+<p>Create a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a> to view our Scene, configured with
+a <a href="../classes/_xeokit_webglrenderer.WebGLRenderer.html">WebGLRenderer</a>:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">scene:</span><span class="hl-0"> </span><span class="hl-3">myScene</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">WebGLRenderer</span><span class="hl-0">({ })</span><br/><span class="hl-0">});</span>
+</code></pre>
+
+<a href="#creating-a-view" id="creating-a-view" style="color: inherit; text-decoration: none;">
+  <h3>Creating a View</h3>
+</a>
+<p>Create a <a href="../classes/_xeokit_viewer.View.html">View</a> and arrange its <a href="../classes/_xeokit_viewer.Camera.html">Camera</a>:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">view1</span><span class="hl-0"> = </span><span class="hl-3">myViewer</span><span class="hl-0">.</span><span class="hl-6">createView</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myView&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">canvasId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myView1&quot;</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">view1</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">eye</span><span class="hl-0"> = [-</span><span class="hl-8">3.933</span><span class="hl-0">, </span><span class="hl-8">2.855</span><span class="hl-0">, </span><span class="hl-8">27.018</span><span class="hl-0">];</span><br/><span class="hl-3">view1</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">look</span><span class="hl-0"> = [</span><span class="hl-8">4.400</span><span class="hl-0">, </span><span class="hl-8">3.724</span><span class="hl-0">, </span><span class="hl-8">8.899</span><span class="hl-0">];</span><br/><span class="hl-3">view1</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">up</span><span class="hl-0"> = [-</span><span class="hl-8">0.018</span><span class="hl-0">, </span><span class="hl-8">0.999</span><span class="hl-0">, </span><span class="hl-8">0.039</span><span class="hl-0">];</span>
+</code></pre>
+
+<a href="#adding-a-cameracontrol" id="adding-a-cameracontrol" style="color: inherit; text-decoration: none;">
+  <h3>Adding a CameraControl</h3>
+</a>
+<blockquote>
+<p><em>See <a href="/docs/modules/_xeokit_cameracontrol.html">@xeokit/cameracontrol</a></em></p>
+</blockquote>
+<p>Add a @xeokit/cameracontrol!CameraControl to the View, to control the Camera from mouse and touch input:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myCameraControl</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">CameraControl</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">view:</span><span class="hl-0"> </span><span class="hl-3">view1</span><br/><span class="hl-0">});</span>
+</code></pre>
+
+<a href="#creating-a-scenemodel" id="creating-a-scenemodel" style="color: inherit; text-decoration: none;">
+  <h3>Creating a SceneModel</h3>
+</a>
+<blockquote>
+<p><em>See <a href="/docs/modules/_xeokit_scene.html">@xeokit/scene</a></em></p>
+</blockquote>
+<p>Our <a href="../classes/_xeokit_scene.Scene.html">Scene</a> contains geometric representations of our models and objects,
+with materials and textures.</p>
+<p>Within the Scene, create a <a href="../classes/_xeokit_scene.SceneModel.html">SceneModel</a> that contains a couple
+of textured <a href="../classes/_xeokit_scene.SceneModel.html">SceneObjects</a>:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">sceneModel</span><span class="hl-0"> = </span><span class="hl-3">myScene</span><span class="hl-0">.</span><span class="hl-6">createModel</span><span class="hl-0">();</span><br/><br/><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">createGeometry</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myGeometry&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">primitive:</span><span class="hl-0"> </span><span class="hl-3">TrianglesPrimitive</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">positions:</span><span class="hl-0"> [</span><span class="hl-8">202</span><span class="hl-0">, </span><span class="hl-8">202</span><span class="hl-0">, </span><span class="hl-8">202</span><span class="hl-0">, </span><span class="hl-8">200</span><span class="hl-0">, </span><span class="hl-8">202</span><span class="hl-0">, </span><span class="hl-8">202</span><span class="hl-0">, ...],</span><br/><span class="hl-0">     </span><span class="hl-3">indices:</span><span class="hl-0"> [</span><span class="hl-8">0</span><span class="hl-0">, </span><span class="hl-8">1</span><span class="hl-0">, </span><span class="hl-8">2</span><span class="hl-0">, </span><span class="hl-8">0</span><span class="hl-0">, </span><span class="hl-8">2</span><span class="hl-0">, </span><span class="hl-8">3</span><span class="hl-0">, </span><span class="hl-8">4</span><span class="hl-0">, </span><span class="hl-8">5</span><span class="hl-0">, </span><span class="hl-8">6</span><span class="hl-0">, </span><span class="hl-8">4</span><span class="hl-0">, ...]</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">createTexture</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myColorTexture&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">src:</span><span class="hl-0"> </span><span class="hl-1">&quot;myTexture&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">encoding:</span><span class="hl-0"> </span><span class="hl-3">LinearEncoding</span><span class="hl-0">, </span><span class="hl-7">// Demo some texture configs</span><br/><span class="hl-0">     </span><span class="hl-3">magFilter:</span><span class="hl-0"> </span><span class="hl-3">LinearFilter</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">minFilter:</span><span class="hl-0"> </span><span class="hl-3">LinearFilter</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">createTextureSet</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myTextureSet&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">colorTextureId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myColorTexture&quot;</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">createMesh</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myMesh1&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">geometryId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myGeometry&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">textureSetId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myTextureSet&quot;</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">createMesh</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myMesh2&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">geometryId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myGeometry&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">textureSetId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myTextureSet&quot;</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">createObject</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myObject1&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">meshIds:</span><span class="hl-0"> [</span><span class="hl-1">&quot;myMesh1&quot;</span><span class="hl-0">]</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">createObject</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myObject2&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">meshIds:</span><span class="hl-0"> [</span><span class="hl-1">&quot;myMesh2&quot;</span><span class="hl-0">]</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">build</span><span class="hl-0">();</span>
+</code></pre>
+<p>As soon as we&#39;ve called <a href="../classes/_xeokit_scene.SceneModel.html#build">SceneModel.build</a>, two new objects appear
+in the View&#39;s canvas.</p>
+
+<a href="#reading-the-contents-of-a-scenemodel" id="reading-the-contents-of-a-scenemodel" style="color: inherit; text-decoration: none;">
+  <h3>Reading the Contents of a SceneModel</h3>
+</a>
+<p>A <a href="../classes/_xeokit_scene.SceneModel.html">SceneModel</a> lets us read back all the geometry, materials, textures
+and objects we create within it.</p>
+<p>Let&#39;s access our SceneModel. and find some of those components within it using their IDs:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">sceneModel</span><span class="hl-0"> = </span><span class="hl-3">myScene</span><span class="hl-0">.</span><span class="hl-3">models</span><span class="hl-0">[</span><span class="hl-1">&quot;myModel&quot;</span><span class="hl-0">];</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">texture</span><span class="hl-0"> = </span><span class="hl-3">mySceneModel</span><span class="hl-0">.</span><span class="hl-3">textures</span><span class="hl-0">[</span><span class="hl-1">&quot;myColorTexture&quot;</span><span class="hl-0">];</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">textureSet</span><span class="hl-0"> = </span><span class="hl-3">mySceneModel</span><span class="hl-0">.</span><span class="hl-3">textureSets</span><span class="hl-0">[</span><span class="hl-1">&quot;myTextureSet&quot;</span><span class="hl-0">];</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myGeometry</span><span class="hl-0"> = </span><span class="hl-3">mySceneModel</span><span class="hl-0">.</span><span class="hl-3">geometries</span><span class="hl-0">[</span><span class="hl-1">&quot;myGeometry&quot;</span><span class="hl-0">];</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">bucket0</span><span class="hl-0"> = </span><span class="hl-3">myGeometry</span><span class="hl-0">.</span><span class="hl-3">buckets</span><span class="hl-0">[</span><span class="hl-8">0</span><span class="hl-0">];</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">bucket0Positions</span><span class="hl-0"> = </span><span class="hl-3">bucket0</span><span class="hl-0">.</span><span class="hl-3">positions</span><span class="hl-0">;</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">bucket0Indices</span><span class="hl-0"> = </span><span class="hl-3">bcket0</span><span class="hl-0">.</span><span class="hl-3">indices</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myMesh1</span><span class="hl-0"> = </span><span class="hl-3">mySceneModel</span><span class="hl-0">.</span><span class="hl-3">meshes</span><span class="hl-0">[</span><span class="hl-1">&quot;myMesh1&quot;</span><span class="hl-0">];</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myGeometryAgain</span><span class="hl-0"> = </span><span class="hl-3">myMesh1</span><span class="hl-0">.</span><span class="hl-3">geometry</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myObject1</span><span class="hl-0"> = </span><span class="hl-3">mySceneModel</span><span class="hl-0">.</span><span class="hl-3">objects</span><span class="hl-0">[</span><span class="hl-1">&quot;myObject1&quot;</span><span class="hl-0">];</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myObject2</span><span class="hl-0"> = </span><span class="hl-3">mySceneModel</span><span class="hl-0">.</span><span class="hl-3">objects</span><span class="hl-0">[</span><span class="hl-1">&quot;myObject2&quot;</span><span class="hl-0">];</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myMesh1Again</span><span class="hl-0"> = </span><span class="hl-3">myObject1</span><span class="hl-0">.</span><span class="hl-3">mesh</span><span class="hl-0">;</span>
+</code></pre>
+
+<a href="#showing-and-hiding-objects" id="showing-and-hiding-objects" style="color: inherit; text-decoration: none;">
+  <h3>Showing and Hiding Objects</h3>
+</a>
+<p>Hide one of the objects in the View&#39;s canvas:</p>
+<pre><code class="language-javascript"><span class="hl-3">view1</span><span class="hl-0">.</span><span class="hl-6">setObjectsVisible</span><span class="hl-0">([</span><span class="hl-1">&quot;myObject1&quot;</span><span class="hl-0">], </span><span class="hl-4">false</span><span class="hl-0">);</span>
+</code></pre>
+<p>Another way to hide the object:</p>
+<pre><code class="language-javascript"><span class="hl-3">view1</span><span class="hl-0">.</span><span class="hl-3">objects</span><span class="hl-0">[</span><span class="hl-1">&quot;myObject1&quot;</span><span class="hl-0">].</span><span class="hl-3">visible</span><span class="hl-0"> = </span><span class="hl-4">false</span><span class="hl-0">;</span>
+</code></pre>
+<p>Show the object again:</p>
+<pre><code class="language-javascript"><span class="hl-3">view1</span><span class="hl-0">.</span><span class="hl-3">objects</span><span class="hl-0">[</span><span class="hl-1">&quot;myObject1&quot;</span><span class="hl-0">].</span><span class="hl-3">visible</span><span class="hl-0"> = </span><span class="hl-4">true</span><span class="hl-0">;</span>
+</code></pre>
+
+<a href="#highlighting-selecting-and-x-raying-objects" id="highlighting-selecting-and-x-raying-objects" style="color: inherit; text-decoration: none;">
+  <h3>Highlighting, Selecting and X-Raying Objects</h3>
+</a>
+<p>The functions for highlighting, selecting, colorizing and X-raying objects work the same as hiding and
+showing, as just described.</p>
+<p>Let&#39;s highlight the first object in our View:</p>
+<pre><code class="language-javascript"><span class="hl-3">view1</span><span class="hl-0">.</span><span class="hl-3">objects</span><span class="hl-0">[</span><span class="hl-1">&quot;myObject1&quot;</span><span class="hl-0">].</span><span class="hl-3">highlighted</span><span class="hl-0"> = </span><span class="hl-4">true</span><span class="hl-0">;</span>
+</code></pre>
+
+<a href="#creating-a-second-view" id="creating-a-second-view" style="color: inherit; text-decoration: none;">
+  <h3>Creating a Second View</h3>
+</a>
+<p>A Viewer can have many Views, each providing an independent view of the Scene in a separate
+HTML canvas. Each View can have a completely different viewpoint, projection, and configuration of which objects
+are visible, x-rayed, highlighted etc.</p>
+<p>Create a second View, with a separate canvas, that shows the other object highlighted instead:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">view2</span><span class="hl-0"> = </span><span class="hl-3">myViewer</span><span class="hl-0">.</span><span class="hl-6">createView</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myView2&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">canvasId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myView2&quot;</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">view2</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">eye</span><span class="hl-0"> = [-</span><span class="hl-8">3.933</span><span class="hl-0">, </span><span class="hl-8">2.855</span><span class="hl-0">, </span><span class="hl-8">27.018</span><span class="hl-0">];</span><br/><span class="hl-3">view2</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">look</span><span class="hl-0"> = [</span><span class="hl-8">4.400</span><span class="hl-0">, </span><span class="hl-8">3.724</span><span class="hl-0">, </span><span class="hl-8">8.899</span><span class="hl-0">];</span><br/><span class="hl-3">view2</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">up</span><span class="hl-0"> = [-</span><span class="hl-8">0.018</span><span class="hl-0">, </span><span class="hl-8">0.999</span><span class="hl-0">, </span><span class="hl-8">0.039</span><span class="hl-0">];</span><br/><br/><span class="hl-3">view2</span><span class="hl-0">.</span><span class="hl-3">objects</span><span class="hl-0">[</span><span class="hl-1">&quot;myObject1&quot;</span><span class="hl-0">].</span><span class="hl-3">highlighted</span><span class="hl-0"> = </span><span class="hl-4">true</span><span class="hl-0">;</span>
+</code></pre>
+<p>A View is able to show an independent view of <a href="../classes/_xeokit_scene.SceneModel.html">SceneObjects</a> by
+proxying them with <a href="../classes/_xeokit_viewer.ViewObject.html">ViewObjects</a>, which represent and control their appearance within the View&#39;s canvas.</p>
+
+<a href="#slicing-objects" id="slicing-objects" style="color: inherit; text-decoration: none;">
+  <h3>Slicing Objects</h3>
+</a>
+<p>Each View can have an unlimited number of interactive <a href="../classes/_xeokit_viewer.SectionPlane.html">SectionPlanes</a>, with which we can use to slice open objects
+to view interior structures.</p>
+<p>Create a couple of SectionPlanes within our second View, to slice through one of our
+objects, then adjust the direction of one of the SectionPlanes:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">mySlice1</span><span class="hl-0"> = </span><span class="hl-3">view2</span><span class="hl-0">.</span><span class="hl-6">createSlice</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;mySlice1&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">pos:</span><span class="hl-0"> [</span><span class="hl-8">0</span><span class="hl-0">,</span><span class="hl-8">0</span><span class="hl-0">,</span><span class="hl-8">0</span><span class="hl-0">],</span><br/><span class="hl-0">    </span><span class="hl-3">dir:</span><span class="hl-0"> [-</span><span class="hl-8">1</span><span class="hl-0">,-</span><span class="hl-8">1</span><span class="hl-0">,-</span><span class="hl-8">1</span><span class="hl-0">]</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">mySlice2</span><span class="hl-0"> = </span><span class="hl-3">view2</span><span class="hl-0">.</span><span class="hl-6">createSlice</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;mySlice2&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">pos:</span><span class="hl-0"> [</span><span class="hl-8">0</span><span class="hl-0">,</span><span class="hl-8">0</span><span class="hl-0">,</span><span class="hl-8">0</span><span class="hl-0">],</span><br/><span class="hl-0">    </span><span class="hl-3">dir:</span><span class="hl-0"> [</span><span class="hl-8">1</span><span class="hl-0">,</span><span class="hl-8">1</span><span class="hl-0">,</span><span class="hl-8">.5</span><span class="hl-0">]</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">mySlice1</span><span class="hl-0">.</span><span class="hl-3">dir</span><span class="hl-0"> = [</span><span class="hl-8">1</span><span class="hl-0">,</span><span class="hl-8">1</span><span class="hl-0">,</span><span class="hl-8">1</span><span class="hl-0">];</span>
+</code></pre>
+
+<a href="#saving-and-loading-bcf" id="saving-and-loading-bcf" style="color: inherit; text-decoration: none;">
+  <h3>Saving and Loading BCF</h3>
+</a>
+<blockquote>
+<p><em>See <a href="/docs/modules/_xeokit_bcf.html">@xeokit/bcf</a></em></p>
+</blockquote>
+<p>The BIM Collaboration Format (BCF) is a structured file format suited to issue tracking with a building information
+model. BCF is designed primarily for defining views of a building model and associated information on collisions
+and errors connected with specific objects in the view.</p>
+<p>Save a snapshot of our second View as a JSON-encoded BCF viewpoint:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">bcfViewpoint</span><span class="hl-0"> = </span><span class="hl-6">saveBCFViewpoint</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">view:</span><span class="hl-0"> </span><span class="hl-3">view2</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>Now load that BCF viewpoint into the first View:</p>
+<pre><code class="language-javascript"><span class="hl-6">loadBCFViewpoint</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">bcfViewpoint</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">view:</span><span class="hl-0"> </span><span class="hl-3">view1</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>Now the first View shows exactly the same thing as the second View - the first first object is highlighted in both Views.</p>
+<p>In practice, you would be using this functionality to synchronize Views belonging to different Viewers, or to exchange
+viewpoints with any other BIM software that supports BCF interoperability.</p>
+
+<a href="#saving-and-loading-xkt" id="saving-and-loading-xkt" style="color: inherit; text-decoration: none;">
+  <h3>Saving and Loading XKT</h3>
+</a>
+<blockquote>
+<p><em>See <a href="/docs/modules/_xeokit_xkt.html">@xeokit/xkt</a></em></p>
+</blockquote>
+<p>XKT is xeokit&#39;s native binary model format, that compresses model representations and semantic data into
+a compact Web-friendly payload that we can load quickly over the network into a Viewer.</p>
+<p>Save our SceneModel to an XKT file within an ArrayBuffer:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">xktArrayBuffer</span><span class="hl-0"> = </span><span class="hl-6">saveXKT</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">sceneModel</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>Now let&#39;s destroy our SceneModel, then re-create it again from the XKT file we just saved:</p>
+<pre><code class="language-javascript"><span class="hl-3">sceneModel</span><span class="hl-0">.</span><span class="hl-6">destroy</span><span class="hl-0">();</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">sceneModel2</span><span class="hl-0"> = </span><span class="hl-3">myScene</span><span class="hl-0">.</span><span class="hl-6">createModel</span><span class="hl-0">();</span><br/><br/><span class="hl-6">loadXKT</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">data:</span><span class="hl-0"> </span><span class="hl-3">xktArrayBuffer</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">sceneModel:</span><span class="hl-0"> </span><span class="hl-3">sceneModel2</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">sceneModel2</span><span class="hl-0">.</span><span class="hl-6">build</span><span class="hl-0">();</span>
+</code></pre>
+<p>Both Views now show the two objects once more, in their original, unhighlighted state. Their highlighted state, after
+we highlighted them earlier,  got lost when we destroyed and recreated the SceneModel.</p>
+
+<a href="#bcf-revisited" id="bcf-revisited" style="color: inherit; text-decoration: none;">
+  <h3>BCF Revisited</h3>
+</a>
+<p>Recall that BCF viewpoint we captured from the first View, in which the first object was highlighted? To give a little
+more insight into how things fit together, let&#39;s now load that BCF viewpoint back into the first View, which will
+make that first object appear again highlighted in that canvas:</p>
+<pre><code class="language-javascript"><span class="hl-6">loadBCFViewpoint</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">bcfViewpoint</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">view:</span><span class="hl-0"> </span><span class="hl-3">view1</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>Meanwhile, both objects will remain un-highlighted in the second View.</p>
+
+<a href="#adding-a-viewlayer" id="adding-a-viewlayer" style="color: inherit; text-decoration: none;">
+  <h3>Adding a ViewLayer</h3>
+</a>
+<p>Sometimes we want to create SceneModels whose objects will never be included in any BCF viewpoints that we save, and
+will never be disturbed by any viewpoints that we load.</p>
+<p>An example of such a case is a skybox, which we&#39;d never want included in any BCF viewpoints, or hidden
+whenever we load a BCF viewpoint.</p>
+<p>TODO TODO TODO TODO</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">modelViewLayer</span><span class="hl-0"> = </span><span class="hl-3">view</span><span class="hl-0">.</span><span class="hl-6">createLayer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myEnviromentViewLayer&quot;</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>Now we&#39;ll create a SceneModel for our skybox in that ViewLayer:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">skyboxSceneModel</span><span class="hl-0"> = </span><span class="hl-3">myVScene</span><span class="hl-0">.</span><span class="hl-6">createModel</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;mySkyBox&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">viewLayerId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myEnviromentViewLayer&quot;</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">skyboxSceneModel</span><span class="hl-0">.</span><span class="hl-6">createObject</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;skyBox&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-7">//...</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-3">skyboxSceneModel</span><span class="hl-0">.</span><span class="hl-6">build</span><span class="hl-0">();</span>
+</code></pre>
+<p>Now we can save that View as a BCF viewpoint that will never include our skybox objects:</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">bcfViewpointAgain</span><span class="hl-0"> = </span><span class="hl-6">saveBCFViewpoint</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">view:</span><span class="hl-0"> </span><span class="hl-3">view2</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">excludeViewLayerIds:</span><span class="hl-0"> [</span><span class="hl-1">&quot;myEnviromentViewLayer&quot;</span><span class="hl-0">]</span><br/><span class="hl-0">});</span>
+</code></pre>
+<p>We can also load that viewpoint back into our View, in a way that won&#39;t disrupt our skybox:</p>
+<pre><code class="language-javascript"><span class="hl-6">loadBCFViewpoint</span><span class="hl-0">({</span><br/><span class="hl-0">     </span><span class="hl-3">bcfViewpoint:</span><span class="hl-0"> </span><span class="hl-3">bcfViewpointAgain</span><br/><span class="hl-0">     </span><span class="hl-3">view</span><span class="hl-0">: </span><span class="hl-3">view2</span><span class="hl-0">,</span><br/><span class="hl-0">     </span><span class="hl-3">excludeViewLayerIds:</span><span class="hl-0"> [</span><span class="hl-1">&quot;myEnviromentViewLayer&quot;</span><span class="hl-0">]</span><br/><span class="hl-0">});</span>
+</code></pre>
+</div></section><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/xeokit/sdk/blob/5d3c2c9b/packages/viewer/src/index.ts#L401">viewer/src/index.ts:401</a></li></ul></aside>
+<section class="tsd-panel-group">
+<section class="tsd-panel tsd-typography"></section></section>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<h3 class="tsd-index-heading uppercase">Index</h3>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Classes - Advanced Use</h3>
+<div class="tsd-index-list"><a href="../classes/_xeokit_viewer.RTCViewMat.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-128-path"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)" id="icon-128-text"></path></svg><span>RTCView<wbr/>Mat</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Classes - Other</h3>
+<div class="tsd-index-list"><a href="../classes/_xeokit_viewer.AmbientLight.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Ambient<wbr/>Light</span></a>
+<a href="../classes/_xeokit_viewer.Camera.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Camera</span></a>
+<a href="../classes/_xeokit_viewer.CameraFlightAnimation.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Camera<wbr/>Flight<wbr/>Animation</span></a>
+<a href="../classes/_xeokit_viewer.CustomProjection.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Custom<wbr/>Projection</span></a>
+<a href="../classes/_xeokit_viewer.DirLight.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Dir<wbr/>Light</span></a>
+<a href="../classes/_xeokit_viewer.EdgeMaterial.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Edge<wbr/>Material</span></a>
+<a href="../classes/_xeokit_viewer.EmphasisMaterial.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Emphasis<wbr/>Material</span></a>
+<a href="../classes/_xeokit_viewer.Frustum.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Frustum</span></a>
+<a href="../classes/_xeokit_viewer.Metrics.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Metrics</span></a>
+<a href="../classes/_xeokit_viewer.Ortho.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Ortho</span></a>
+<a href="../classes/_xeokit_viewer.Perspective.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Perspective</span></a>
+<a href="../classes/_xeokit_viewer.PickResult.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Pick<wbr/>Result</span></a>
+<a href="../classes/_xeokit_viewer.PointLight.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Point<wbr/>Light</span></a>
+<a href="../classes/_xeokit_viewer.PointsMaterial.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Points<wbr/>Material</span></a>
+<a href="../classes/_xeokit_viewer.SAO.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>SAO</span></a>
+<a href="../classes/_xeokit_viewer.SectionPlane.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Section<wbr/>Plane</span></a>
+<a href="../classes/_xeokit_viewer.View.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>View</span></a>
+<a href="../classes/_xeokit_viewer.ViewLayer.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>View<wbr/>Layer</span></a>
+<a href="../classes/_xeokit_viewer.ViewObject.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>View<wbr/>Object</span></a>
+<a href="../classes/_xeokit_viewer.Viewer.html" class="tsd-index-link tsd-kind-class tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg><span>Viewer</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Interfaces</h3>
+<div class="tsd-index-list"><a href="../interfaces/_xeokit_viewer.CreateModelParams.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-interface)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-256-path"></rect><path d="M9.51 16V15.016H11.298V8.224H9.51V7.24H14.19V8.224H12.402V15.016H14.19V16H9.51Z" fill="var(--color-text)" id="icon-256-text"></path></svg><span>Create<wbr/>Model<wbr/>Params</span></a>
+<a href="../interfaces/_xeokit_viewer.PickParams.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Pick<wbr/>Params</span></a>
+<a href="../interfaces/_xeokit_viewer.Renderer.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Renderer</span></a>
+<a href="../interfaces/_xeokit_viewer.ViewLayerParams.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>View<wbr/>Layer<wbr/>Params</span></a>
+<a href="../interfaces/_xeokit_viewer.ViewParams.html" class="tsd-index-link tsd-kind-interface tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>View<wbr/>Params</span></a>
+</div></section></section></section></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li class="current"><a href="../modules.html">xeokit</a>
+<ul>
+<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/CONCEPTS.html">Concepts</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/GLOSSARY.html">Glossary</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/CONTRIBUTING.html">Contributing</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_bcf.html">@xeokit/bcf</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_core_components.html">@xeokit/core/components</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_core_constants.html">@xeokit/core/constants</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_core_utils.html">@xeokit/core/utils</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_data.html">@xeokit/data</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_gltf.html">@xeokit/gltf</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_ktx2.html">@xeokit/ktx2</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_las.html">@xeokit/las</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_locale.html">@xeokit/locale</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_boundaries.html">@xeokit/math/boundaries</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_compression.html">@xeokit/math/compression</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_curves.html">@xeokit/math/curves</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_math.html">@xeokit/math/math</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_matrix.html">@xeokit/math/matrix</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_math_rtc.html">@xeokit/math/rtc</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_procgen_geometry.html">@xeokit/procgen/geometry</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_scene.html">@xeokit/scene</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_treeview.html">@xeokit/treeview</a></li>
+<li class="current selected tsd-kind-module"><a href="_xeokit_viewer.html">@xeokit/viewer</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_webglrenderer.html">@xeokit/webglrenderer</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_webglutils.html">@xeokit/webglutils</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_webgpu.html">@xeokit/webgpu</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_xkt.html">@xeokit/xkt</a></li></ul></li></ul></div></details></nav>
+<nav class="tsd-navigation secondary menu-sticky">
+<ul>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.AmbientLight.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Ambient<wbr/>Light</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.Camera.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Camera</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.CameraFlightAnimation.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Camera<wbr/>Flight<wbr/>Animation</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.CustomProjection.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Custom<wbr/>Projection</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.DirLight.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Dir<wbr/>Light</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.EdgeMaterial.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Edge<wbr/>Material</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.EmphasisMaterial.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Emphasis<wbr/>Material</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.Frustum.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Frustum</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.Metrics.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Metrics</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.Ortho.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Ortho</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.Perspective.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Perspective</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.PickResult.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Pick<wbr/>Result</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.PointLight.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Point<wbr/>Light</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.PointsMaterial.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Points<wbr/>Material</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.RTCViewMat.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>RTCView<wbr/>Mat</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.SAO.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>SAO</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.SectionPlane.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Section<wbr/>Plane</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.View.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>View</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.ViewLayer.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>View<wbr/>Layer</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.ViewObject.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>View<wbr/>Object</a></li>
+<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_xeokit_viewer.Viewer.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Viewer</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.CreateModelParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Create<wbr/>Model<wbr/>Params</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.PickParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Pick<wbr/>Params</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.Renderer.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>Renderer</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.ViewLayerParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>View<wbr/>Layer<wbr/>Params</a></li>
+<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_xeokit_viewer.ViewParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>View<wbr/>Params</a></li></ul></nav></div></div>
+<div class="container tsd-generator">
+<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
+<div class="overlay"></div><script src="../assets/main.js"></script></body></html>

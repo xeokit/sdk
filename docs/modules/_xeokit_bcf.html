@@ -24,9 +24,9 @@
 <a href="#load-and-save-viewer-state-as-bcf" id="load-and-save-viewer-state-as-bcf" style="color: inherit; text-decoration: none;">
   <h1>Load and Save <a href="_xeokit_viewer.html">Viewer</a> State as BCF</h1>
 </a>
-<p>The BIM Collaboration Format (<a href="https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#cityjson">BCF</a>) is an open file format for exchanging data and collaborating on 3D models and
-building information. It was created by the buildingSMART organization and is widely used in the architecture,
-engineering, and construction (AEC) industry.</p>
+<p>The BIM Collaboration Format (<a href="https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#cityjson">BCF</a>) is an open file
+format for exchanging data and collaborating on 3D models and building information. It was created by the
+buildingSMART organization and is widely used in the architecture, engineering, and construction (AEC) industry.</p>
 <p>The xeokit SDK provides support for BCF through functions to save and load Viewer state as BCF viewpoints.</p>
 <ul>
 <li><a href="../functions/_xeokit_bcf.loadBCFViewpoint.html">loadBCFViewpoint</a> loads a JSON-encoded BCF viewpoint into a <a href="../classes/_xeokit_viewer.View.html">View</a> or a <a href="../classes/_xeokit_viewer.ViewLayer.html">ViewLayer</a></li>
@@ -76,8 +76,8 @@ HTML canvas element.</p>
 </code></pre>
 <p>When our XKT has loaded, that call to <a href="../classes/_xeokit_scene.SceneModel.html#build">SceneModel.build</a> will finalize our SceneModel
 and cause it to immediately appear in the View&#39;s canvas.</p>
-<p>That call will also trigger {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt and
-{@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt events.</p>
+<p>That call will also trigger <a href="../classes/_xeokit_scene.SceneModel.html#onBuilt">SceneModel.onBuilt</a> and
+<a href="../classes/_xeokit_data.DataModel.html#onBuilt">DataModel.onBuilt</a> events.</p>
 <p>On the DataModel.onBuilt event, we&#39;ll customize the View by arranging the <a href="../classes/_xeokit_viewer.Camera.html">Camera</a> and applying
 an X-ray effect tp a couple of objects, then we&#39;ll use <a href="../functions/_xeokit_bcf.saveBCFViewpoint.html">saveBCFViewpoint</a> to save the state of the View to
 a BCF viewpoint.</p>
@@ -107,7 +107,7 @@ contains our SceneModel to a <a href="../interfaces/_xeokit_bcf.BCFViewpoint.htm
 </code></pre>
 </div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/sdk/blob/c7fd326b/packages/bcf/src/index.ts#L226">bcf/src/index.ts:226</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/sdk/blob/52392c90/packages/bcf/src/index.ts#L226">bcf/src/index.ts:226</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"></section></section>
 <section class="tsd-panel-group tsd-index-group">
@@ -155,7 +155,7 @@ contains our SceneModel to a <a href="../interfaces/_xeokit_bcf.BCFViewpoint.htm
 <ul>
 <li class="current"><a href="../modules.html">xeokit</a>
 <ul>
-<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/CONCEPTS.html">Concepts</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/INTRODUCTION.html">Introduction</a></li>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/GLOSSARY.html">Glossary</a></li>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/CONTRIBUTING.html">Contributing</a></li>
 <li class="current selected tsd-kind-module"><a href="_xeokit_bcf.html">@xeokit/bcf</a></li>

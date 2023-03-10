@@ -2,7 +2,6 @@ import {DEGTORAD, FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "@xeokit/math/matrix";
 import {decompressPosition} from "@xeokit/math/compression";
 
-
 const uniquePositions: number[] = [];
 const indicesLookup: number[] = [];
 const indicesReverseLookup: number[] = [];

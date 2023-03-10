@@ -182,7 +182,7 @@
  * and then use {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * to create the compressed geometry directly.
  *
- * The {@link compressGeometryParams} function perfoms these steps to compress the geometry:
+ * The {@link compressGeometryParams} function performs these steps to compress the geometry:
  *
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes

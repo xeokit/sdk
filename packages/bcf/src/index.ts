@@ -6,11 +6,9 @@
  *
  * # Load and Save {@link "@xeokit/viewer" | Viewer} State as BCF
  *
- * ## Overview
- *
- * The BIM Collaboration Format (BCF) is an open file format for exchanging data and collaborating on 3D models and
- * building information. It was created by the buildingSMART organization and is widely used in the architecture,
- * engineering, and construction (AEC) industry.
+ * The BIM Collaboration Format ([BCF](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#cityjson)) is an open file
+ * format for exchanging data and collaborating on 3D models and building information. It was created by the
+ * buildingSMART organization and is widely used in the architecture, engineering, and construction (AEC) industry.
  *
  * The xeokit SDK provides support for BCF through functions to save and load Viewer state as BCF viewpoints.
  *
@@ -109,8 +107,8 @@
  * When our XKT has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
  * and cause it to immediately appear in the View's canvas.
  *
- * That call will also trigger {@link {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and
- * {@link {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt} events.
+ * That call will also trigger {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and
+ * {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt} events.
  *
  * On the DataModel.onBuilt event, we'll customize the View by arranging the {@link @xeokit/viewer!Camera} and applying
  * an X-ray effect tp a couple of objects, then we'll use {@link saveBCFViewpoint} to save the state of the View to

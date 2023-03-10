@@ -4,7 +4,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {Capabilities} from "@xeokit/core/components";
 import {ViewObject} from "./ViewObject";
 import {RendererViewObject} from "./RendererViewObject";
-import {AddModelParams} from "./AddModelParams";
+import {CreateModelParams} from "./CreateModelParams";
 
 /**
  * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
@@ -73,7 +73,7 @@ export interface Renderer {
      *
      * @param params SceneModel addition params
      */
-    addModel(params: AddModelParams): void;
+    addModel(params: CreateModelParams): void;
 
     /**
      * Removes a {@link @xeokit/scene!SceneModel | SceneModel} from this Renderer.

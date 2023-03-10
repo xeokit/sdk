@@ -1,9 +1,8 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 
-import {Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 import {RendererViewObject} from "viewer/src/RendererViewObject";
 import type {Pickable} from "./Pickable";
-import {AddModelParams} from "@xeokit/viewer/src/AddModelParams";
 import {Capabilities, TextureTranscoder} from "@xeokit/core/components";
 
 /**
@@ -31,7 +30,7 @@ export class WebGPURenderer implements Renderer {
 
     rendererViewObjects: { [key: string]: RendererViewObject; };
 
-    addModel(params: AddModelParams): void {
+    addModel(params: CreateModelParams): void {
         throw new Error("Method not implemented.");
     }
 

@@ -4,7 +4,7 @@
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="media://images/xeokit_ktx_logo.svg"/>
  *
- * ## KTX2 Texture Transcoder
+ * ## [KTX2](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#ktx2) Texture Transcoder
  *
  * * Provides {@link KTX2TextureTranscoder}
  * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}

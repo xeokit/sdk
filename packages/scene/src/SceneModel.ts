@@ -129,28 +129,28 @@ export class SceneModel extends Component {
     readonly geometries: { [key: string]: Geometry };
 
     /**
-     * {@link Texture|Textures} within this SceneModel, each mapped to {@link Texture.id}.
+     * {@link Texture | Textures} within this SceneModel, each mapped to {@link Texture.id}.
      *
      * Created by {@link SceneModel.createTexture}.
      */
     readonly textures: { [key: string]: Texture };
 
     /**
-     * {@link TextureSet|TextureSets} within this SceneModel, each mapped to {@link TextureSet.id}.
+     * {@link TextureSet | TextureSets} within this SceneModel, each mapped to {@link TextureSet.id}.
      *
      * Created by {@link SceneModel.createTextureSet}.
      */
     readonly textureSets: { [key: string]: TextureSet };
 
     /**
-     * {@link Mesh|Meshes} within this SceneModel, each mapped to {@link Mesh.id}.
+     * {@link Mesh | Meshes} within this SceneModel, each mapped to {@link Mesh.id}.
      *
      * Created by {@link SceneModel.createMesh}.
      */
     readonly meshes: { [key: string]: Mesh };
 
     /**
-     * {@link SceneObject|SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id}.
+     * {@link SceneObject | SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id}.
      *
      * Created by {@link SceneModel.createObject}.
      */
@@ -168,7 +168,7 @@ export class SceneModel extends Component {
      *
      * Triggered by {@link SceneModel.build}.
      *
-     * @event
+     * @event onBuilt
      */
     readonly onBuilt: EventEmitter<SceneModel, null>;
 

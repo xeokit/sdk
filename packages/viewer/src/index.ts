@@ -423,4 +423,4 @@ export * from "./SAO";
 export * from "./PickParams";
 export * from "./PickResult";
 export * from "./ViewLayerParams";
-export * from "./AddModelParams";
+export * from "./CreateModelParams";

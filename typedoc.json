@@ -1,5 +1,4 @@
 {
-
   "entryPoints": [
     "packages/core/src/components.ts",
     "packages/core/src/constants.ts",
@@ -24,12 +23,22 @@
     "packages/webglrenderer/src/index.ts",
     "packages/webgpu/src/index.ts"
   ],
-  "sidebarLinks": {
-    "xeokit.io": "https://xeokit.io",
-    "Introduction": "http://example.com",
-    "Glossary": "http://example.com"
-  },
-  "readme": "./README.md",
   "out": "./docs",
-  "excludePrivate": false
+  "excludePrivate": false,
+  "pluginPages": {
+    "pages": [
+      {
+        "title": "Introduction",
+        "source": "INTRODUCTION.md"
+      },
+      {
+        "title": "Glossary",
+        "source": "GLOSSARY.md"
+      },
+      {
+        "title": "Contributing",
+        "source": "CONTRIBUTING.md"
+      }
+    ]
+  }
 }

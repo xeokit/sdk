@@ -8,11 +8,11 @@ describe('build', function () {
 
     it('create data model', () => {
 
-        const myDataModel = data.createModel({
+        const dataModel = data.createModel({
             id: "myTableModel"
         });
 
-        const tablePropertySet = myDataModel.createPropertySet({
+        const tablePropertySet = dataModel.createPropertySet({
             id: "tablePropertySet",
             name: "Table properties",
             type: ""
@@ -34,7 +34,7 @@ describe('build', function () {
             description: "Height of the thing"
         });
 
-        const legPropertySet = myDataModel.createPropertySet({
+        const legPropertySet = dataModel.createPropertySet({
             id: "tableLegPropertySet",
             name: "Table leg properties",
             type: ""
@@ -56,7 +56,7 @@ describe('build', function () {
             description: "Height of the thing"
         });
 
-        const tableTopPropertySet = myDataModel.createPropertySet({
+        const tableTopPropertySet = dataModel.createPropertySet({
             id: "tableTopPropertySet",
             name: "Table top properties",
             type: ""
@@ -78,79 +78,79 @@ describe('build', function () {
             description: "Height of the thing"
         });
 
-        myDataModel.createObject({
+        dataModel.createObject({
             id: "table",
             type: BasicEntity,
             name: "Table",
             propertySetIds: ["tablePropertySet"]
         });
 
-        myDataModel.createObject({
+        dataModel.createObject({
             id: "redLeg",
             name: "Red table Leg",
             type: BasicEntity,
             propertySetIds: ["tableLegPropertySet"]
         });
 
-        myDataModel.createObject({
+        dataModel.createObject({
             id: "greenLeg",
             name: "Green table leg",
             type: BasicEntity,
             propertySetIds: ["tableLegPropertySet"]
         });
 
-        myDataModel.createObject({
+        dataModel.createObject({
             id: "blueLeg",
             name: "Blue table leg",
             type: BasicEntity,
             propertySetIds: ["tableLegPropertySet"]
         });
 
-        myDataModel.createObject({
+        dataModel.createObject({
             id: "yellowLeg",
             name: "Yellow table leg",
             type: BasicEntity,
             propertySetIds: ["tableLegPropertySet"]
         });
 
-        myDataModel.createObject({
+        dataModel.createObject({
             id: "tableTop",
             name: "Purple table top",
             type: BasicEntity,
             propertySetIds: ["tableTopPropertySet"]
         });
 
-        myDataModel.createRelationship({
+        dataModel.createRelationship({
             type: BasicAggregation,
             relatingObjectId: "table",
             relatedObjectId: "tableTop"
         });
 
-        myDataModel.createRelationship({
+        dataModel.createRelationship({
             type: BasicAggregation,
             relatingObjectId: "tableTop",
             relatedObjectId: "redLeg"
         });
 
-        myDataModel.createRelationship({
+        dataModel.createRelationship({
             type: BasicAggregation,
             relatingObjectId: "tableTop",
             relatedObjectId: "greenLeg"
         });
 
-        myDataModel.createRelationship({
+        dataModel.createRelationship({
             type: BasicAggregation,
             relatingObjectId: "tableTop",
             relatedObjectId: "blueLeg"
         });
 
-        myDataModel.createRelationship({
+        dataModel.createRelationship({
             type: BasicAggregation,
             relatingObjectId: "tableTop",
             relatedObjectId: "yellowLeg"
         });
 
-        myDataModel.build();
+        dataModel.build();
 
         expect(dataModel.built).toBe(true);
 
@@ -177,7 +177,7 @@ describe('build', function () {
         const redLeg = data.objects["redLeg"];
         expect(redLeg).toBeDefined();
         expect(redLeg.id).toBe("redLeg");
-        expect(redLeg.name).toBe("Red table leg");
+        expect(redLeg.name).toBe("Red table Leg");
         expect(redLeg.type).toBe(BasicEntity);
 
         const greenLeg = data.objects["greenLeg"];
@@ -252,14 +252,14 @@ describe('build', function () {
         expect(_tableTopPropertySet.properties[0]).toBeDefined();
         expect(_tableTopPropertySet.properties[0].name).toBe("Weight");
         expect(_tableTopPropertySet.properties[0].description).toBe("Weight of the thing");
-        expect(_tableTopPropertySet.properties[0].value).toBe(15);
+        expect(_tableTopPropertySet.properties[0].value).toBe(5);
         expect(_tableTopPropertySet.properties[0].valueType).toBe("");
         expect(_tableTopPropertySet.properties[0].type).toBe("");
 
         expect(_tableTopPropertySet.properties[1]).toBeDefined();
         expect(_tableTopPropertySet.properties[1].name).toBe("Height");
         expect(_tableTopPropertySet.properties[1].description).toBe("Height of the thing");
-        expect(_tableTopPropertySet.properties[1].value).toBe(4);
+        expect(_tableTopPropertySet.properties[1].value).toBe(12);
         expect(_tableTopPropertySet.properties[1].valueType).toBe("");
         expect(_tableTopPropertySet.properties[1].type).toBe("");
 

@@ -32,7 +32,7 @@
 
 
 <a href="#aabb" id="aabb" style="color: inherit; text-decoration: none;">
-  <h3>AABB</h3>
+  <h2>AABB</h2>
 </a>
 <p>An Axis-Aligned Bounding Box (AABB) is a rectangular cuboid that is aligned with the x, y, and z axes of a 3D coordinate 
 system. It is defined by two points: the minimum point, which is the vertex of the cuboid with the lowest x, y, and z 
@@ -58,7 +58,7 @@ are parallel to these axes.</p>
 
 
 <a href="#bcf" id="bcf" style="color: inherit; text-decoration: none;">
-  <h3>BCF</h3>
+  <h2>BCF</h2>
 </a>
 <p>The <strong>BIM Collaboration Format</strong> (BCF) is a file format used in Building Information Modeling (BIM) to facilitate 
 collaboration between different software applications used by architects, engineers, contractors, and other stakeholders 
@@ -84,7 +84,7 @@ in the construction process.</p>
 
 
 <a href="#cityjson" id="cityjson" style="color: inherit; text-decoration: none;">
-  <h3>CityJSON</h3>
+  <h2>CityJSON</h2>
 </a>
 <p><strong>CityJSON</strong> is an open standard data format for the storage and exchange of 3D city models. It is designed to be 
 lightweight and easy to use, while also providing rich semantics and geometry to support a wide range of 
@@ -105,7 +105,7 @@ applications, including urban planning, architecture, and transportation.</p>
 
 
 <a href="#cameracontrol" id="cameracontrol" style="color: inherit; text-decoration: none;">
-  <h3>CameraControl</h3>
+  <h2>CameraControl</h2>
 </a>
 <p>A <a href="../modules.html">@xeokit/cameracontrol | CameraControl</a> is an SDK component that controls a xeokit Viewer&#39;s Camera with mouse or touch input.</p>
 <blockquote>
@@ -123,7 +123,7 @@ applications, including urban planning, architecture, and transportation.</p>
 
 
 <a href="#datamodel" id="datamodel" style="color: inherit; text-decoration: none;">
-  <h3>DataModel</h3>
+  <h2>DataModel</h2>
 </a>
 <p>A <a href="../modules.html">@xeokit/data | DataModel</a> is a semantic entity-relationship graph that&#39;s used within the xeokit SDK to represent 
 the relationships between entities in a system or domain, where entities are represented as nodes and relationships are 
@@ -141,7 +141,7 @@ connected to a wall.</p>
 
 
 <a href="#data-texture" id="data-texture" style="color: inherit; text-decoration: none;">
-  <h3>Data Texture</h3>
+  <h2>Data Texture</h2>
 </a>
 <p>A data texture is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
 information. It can be thought of as a two-dimensional array of values, where each value represents some arbitrary data, 
@@ -175,7 +175,7 @@ that generates the final texture or terrain.</p>
 
 
 <a href="#ktx2" id="ktx2" style="color: inherit; text-decoration: none;">
-  <h3>KTX2</h3>
+  <h2>KTX2</h2>
 </a>
 <p>KTX2 (Khronos Texture 2) is a texture container format developed by the Khronos Group, a non-profit consortium of 
 companies focused on the creation of open standards for graphics, media, and parallel computing.</p>
@@ -204,7 +204,7 @@ Vulkan, and DirectX.</p>
 
 
 <a href="#las" id="las" style="color: inherit; text-decoration: none;">
-  <h3>LAS</h3>
+  <h2>LAS</h2>
 </a>
 <p><strong>LAS/LAZ</strong> are file formats used for storing and exchanging 3D point cloud data. They are commonly used in the geospatial 
 industry, including applications such as LiDAR (Light Detection and Ranging) scanning, aerial photogrammetry, and 
@@ -234,7 +234,7 @@ Global Mapper, and CloudCompare.</p>
 
 
 <a href="#model-view-separation" id="model-view-separation" style="color: inherit; text-decoration: none;">
-  <h3>Model-View Separation</h3>
+  <h2>Model-View Separation</h2>
 </a>
 <p>In the context of a 3D model viewing application, <strong>model-view separation</strong> involves separating the components 
 responsible for managing and manipulating the 3D model data (the &quot;model&quot;) from the components responsible for rendering 
@@ -267,7 +267,7 @@ with no need to involve a Viewer.</p>
 
 
 <a href="#pbr" id="pbr" style="color: inherit; text-decoration: none;">
-  <h3>PBR</h3>
+  <h2>PBR</h2>
 </a>
 <p><strong>Physically-Based Rendering (PBR)</strong> is a computer graphics technique that xeokit uses to render more realistic images of models by 
 simulating the physical properties of light and materials. It is based on the laws of physics and uses mathematical 
@@ -303,7 +303,7 @@ quality previews that give a better idea of what models look like in real life.<
 
 
 <a href="#quantization" id="quantization" style="color: inherit; text-decoration: none;">
-  <h3>Quantization</h3>
+  <h2>Quantization</h2>
 </a>
 <p><strong>Quantization</strong> is a process of reducing the precision or number of distinct values of a data signal, while still 
 retaining the most important information. This is done by mapping the original values of a signal to a smaller set 
@@ -328,13 +328,26 @@ GPU using a special de-quantization matrix.</p>
 <br>
 
 
-<a href="#rtc" id="rtc" style="color: inherit; text-decoration: none;">
-  <h3>RTC</h3>
+<a href="#rounding-jitter" id="rounding-jitter" style="color: inherit; text-decoration: none;">
+  <h2>Rounding Jitter</h2>
 </a>
-<table style="vertical-align:top; border: 0;"><tr><td>
-In a **relative-to-center (RTC) coordinate system** we define the position of each geometry vertex as being relative to 
-a given center position. 
+<p>Rounding jitter, demonstrated by rendering a distantly-placed IfcFlowConnector with absolute (non-RTC) coordinates on a standard GPU with 7-digit accuracy.</p>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a></em></p>
+</blockquote>
+<div style="display: flex; justify-content: center;">
 
+<img src="https://xeokit.github.io/sdk/assets/images/xeokit-viewer-jitter.png" style="height:250px;">
+
+</div>
+<br>
+
+
+<a href="#rtc-coordinates" id="rtc-coordinates" style="color: inherit; text-decoration: none;">
+  <h2>RTC Coordinates</h2>
+</a>
+<p>In a <strong>relative-to-center (RTC) coordinate system</strong> we define the position of each geometry vertex as being relative to 
+a given center position. </p>
 <p>RTC is central to xeokit&#39;s ability to render models at full precision on low-precision GPUs. To achieve this, we
 partition our geometries into regions called <em>tiles</em>, with each geometry&#39;s vertices being relative to the center of its
 tile. When rendering the geometries for each tile, we use a version of the camera&#39;s view matrix that&#39;s specially modified
@@ -344,13 +357,6 @@ need 64 bits of storage, RTC coordinates only need 16 bits.</p>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html">@xeokit/math/rtc</a></em></p>
 </blockquote>
-</td><td>
-<img src="https://xeokit.github.io/sdk/assets/images/pipe-jitter.png">
-<br>
-<img src="https://xeokit.github.io/sdk/assets/images/pipe-no-jitter.png">
-</td>
-</table>
-
 <br>
 
 <hr>
@@ -400,8 +406,6 @@ attach the Scene to a Viewer to view it.</li>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html">@xeokit/scene</a></em></p>
 </blockquote>
-<br>
-
 <br>
 
 
@@ -481,9 +485,7 @@ easier to understand, maintain, and scale over time.</p>
 <a href="#viewer" id="viewer" style="color: inherit; text-decoration: none;">
   <h2>Viewer</h2>
 </a>
-<table style="vertical-align:top; border: 0;"><tr><td>
-The [**Viewer**](https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html) class is the central component of the xeokit SDK. 
-
+<p>The <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html"><strong>Viewer</strong></a> class is the central component of the xeokit SDK. </p>
 <p>In the AECO (Architecture, Engineering, Construction, and Operations) industries, the Viewer can be used in a variety
 of ways to help streamline workflows, improve communication, and facilitate collaboration. Here are some examples:</p>
 <ul>
@@ -502,31 +504,19 @@ clients and stakeholders.</li>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></em></p>
 </blockquote>
-</td><td>
-<img src="http://xeokit.io/img/xeokit-viewer.png">
-</td>
-</table>
-
 <br>
 
 
 <a href="#view" id="view" style="color: inherit; text-decoration: none;">
   <h2>View</h2>
 </a>
-<table style="vertical-align:top; border: 0;"><tr><td>
-A **View** is an independently-configurable view of the models currently loaded in a **Viewer**. Each View has its own 
+<p>A <strong>View</strong> is an independently-configurable view of the models currently loaded in a <strong>Viewer</strong>. Each View has its own 
 HTML canvas, lights, <a href="../classes/_xeokit_viewer.Camera.html">Camera</a> and <a href="../classes/_xeokit_viewer.SectionPlane.html">SectionPlanes</a>. A 
-View also has a **ViewerObject** for each object loaded in the Viewer, to represent and control how that ViewObject 
-appears within its canvas.
-
+View also has a <strong>ViewerObject</strong> for each object loaded in the Viewer, to represent and control how that ViewObject 
+appears within its canvas.</p>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></em></p>
 </blockquote>
-</td><td>
-<img src="http://xeokit.io/img/xeokit-viewer.png">
-</td>
-</table>
-
 <br>
 
 
@@ -640,7 +630,7 @@ development ecosystem going forwards.</p>
 <ul>
 <li class="current"><a href="../modules.html">xeokit</a>
 <ul>
-<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="CONCEPTS.html">Concepts</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="INTRODUCTION.html">Introduction</a></li>
 <li class="current selected pages-entry pages-entry-page pages-entry-depth-1"><a href="GLOSSARY.html">Glossary</a></li>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="CONTRIBUTING.html">Contributing</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_bcf.html">@xeokit/bcf</a></li>

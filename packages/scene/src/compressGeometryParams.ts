@@ -14,7 +14,7 @@ import {GeometryCompressedParams} from "./GeometryCompressedParams";
 const tempVec3a = createVec3();
 
 /**
- * Compresses a {@link @xeokit/scene!GeometryParams | GeometryParams} into a {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
+ * Compresses a {@link @xeokit/scene!GeometryParams | GeometryParams} into a {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
  *
  * See {@link @xeokit/scene} for usage examples.
  *

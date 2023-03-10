@@ -2,7 +2,7 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Flocale.svg)](https://badge.fury.io/js/%40xeokit%2Flocale)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/locale/badge)](https://www.jsdelivr.com/package/npm/@xeokit/locale)
  * 
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:150px; width:150px;" src="https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F45c3a188-6ed1-4540-9f33-37af754accbd%2Fi1n8_icon.png?id=06769198-9d4e-48fe-b891-7447f85222d1&table=block&spaceId=8ed52f91-a7f1-46bf-b39b-49af46e0a158&width=1000&userId=&cache=v2"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px; height:150px; width:150px;" src="https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F45c3a188-6ed1-4540-9f33-37af754accbd%2Fi1n8_icon.png?id=06769198-9d4e-48fe-b891-7447f85222d1&table=block&spaceId=8ed52f91-a7f1-46bf-b39b-49af46e0a158&width=1000&userId=&cache=v2"/>
  *
  * # Localization Service
  *
@@ -15,35 +15,22 @@
  * ````
  * ## Usage
  *
- *  In the example below, we'll create a {@link @xeokit/viewer!Viewer} that uses an {@link WebIFCLoaderPlugin} to load an IFC model, and a
- *  {@link TreeViewPlugin}, which shows a camera navigation cube in the corner of the canvas.
+ *  In the example below, we'll create a LocaleService instance, configured with some English, Māori and French
+ *  translations for a NavCube widget.
  *
- *  We'll also configure our Viewer with our own LocaleService instance, configured with English, Māori and French
- *  translations for our TreeViewPlugin.
+ *  Our LocaleServe will provide translations for the following terms:
  *
- *  We could instead have just used the Viewer's default LocaleService, but this example demonstrates how we might
- *  configure the Viewer our own custom LocaleService subclass.
+ * * "NavCube.front"
+ * * "NavCube.back"
+ * * "NavCube.top"
+ * * "NavCube.bottom"
+ * * "NavCube.left"
+ * * "NavCube.right"
  *
- *  The translations fetched by our TreeViewPlugin will be:
- *
- * "NavCube.front"
- * "NavCube.back"
- * "NavCube.top"
- * "NavCube.bottom"
- * "NavCube.left"
- * "NavCube.right"
- *
- *  <br>
- *  These are paths that resolve to our translations for the currently active locale, and are hard-coded within
- *  the TreeViewPlugin.
+ *  These terms are effectively paths that map to translations for the currently active locale.
  *
  *  For example, if  the LocaleService's locale is set to "fr", then the path "NavCube.back" will drill down
  *  into ````messages->fr->NavCube->front```` and fetch "Arrière".
- *
- *  If we didn't provide that particular translation in our LocaleService, or any translations for that locale,
- *  then the TreeViewPlugin will just fall back on its own default hard-coded translation, which in this case is "BACK".
- *
- *  [[Run example](https://xeokit.github.io/xeokit-sdk/examples/#localization_NavCubePlugin)]
  *
  *  ````javascript
  *  import {LocaleService} from "@xeokit/locale";
@@ -115,13 +102,11 @@
  *  localeService.clearMessages();
  *  ````
  *
- *  We can get an "updated" event from the LocaleService whenever we switch locales or load messages, which is useful
- *  for triggering UI elements to refresh themselves with updated translations.
- *
- * TODO
+ *  We can also get an event from the LocaleService whenever we switch locales or load messages, which is useful
+ *  for triggering UI elements to refresh themselves with updated translations:
  *
  *  ````javascript
- *  localeService.on("updated", () => {
+ *  localeService.onUpdated.subscribe(() => {
  *      console.log( viewer.localeService.translate("NavCube.left") );
  *  });
  *  ````

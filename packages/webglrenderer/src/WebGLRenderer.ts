@@ -16,7 +16,7 @@ import {RenderContext} from "./RenderContext";
 import {FastColorTrianglesRenderer} from "./FastColorTrianglesRenderer";
 import {getExtension, GLRenderBuffer, GLRenderBufferManager, WEBGL_INFO} from "@xeokit/webglutils";
 import {RENDER_PASSES} from "./RENDER_PASSES";
-import {AddModelParams} from "@xeokit/viewer";
+import {CreateModelParams} from "@xeokit/viewer";
 import {Pickable} from "./Pickable";
 import {RendererModelImpl} from "./RendererModelImpl";
 import {Layer} from "./Layer";
@@ -182,7 +182,7 @@ export class WebGLRenderer implements Renderer {
     /**
      * Adds a SceneModel to this renderer.
      */
-    addModel(params: AddModelParams): void {
+    addModel(params: CreateModelParams): void {
         if (!this.#renderContext) {
             throw new Error("Must register a View before you add a SceneModel");
         }

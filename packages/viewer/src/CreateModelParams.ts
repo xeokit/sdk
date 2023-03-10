@@ -6,7 +6,7 @@ import {SceneModel} from "@xeokit/scene";
 /**
  * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link Scene.createModel}.
  */
-export interface AddModelParams {
+export interface CreateModelParams {
 
     /**
      * Unique ID for the SceneModel.

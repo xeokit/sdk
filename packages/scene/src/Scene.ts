@@ -49,6 +49,9 @@ export class Scene {
      * TODO
      */
     constructor() {
+        this.models = {};
+        this.objects = {};
+
         this.#onModelBuilts = {};
         this.#onModelDestroys = {};
         this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());

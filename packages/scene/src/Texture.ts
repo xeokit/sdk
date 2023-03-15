@@ -1,4 +1,19 @@
-import {LinearMipMapNearestFilter, RepeatWrapping} from "@xeokit/core/constants";
+import {
+    ClampToEdgeWrapping,
+    GIFMediaType,
+    JPEGMediaType,
+    LinearFilter,
+    LinearMipmapLinearFilter,
+    LinearMipMapLinearFilter,
+    LinearMipMapNearestFilter,
+    MirroredRepeatWrapping,
+    NearestFilter,
+    NearestMipMapLinearFilter,
+    NearestMipMapNearestFilter,
+    PNGMediaType,
+    RepeatWrapping,
+    sRGBEncoding
+} from "@xeokit/core/constants";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {RendererTexture} from "./RendererTexture";
 import {TextureParams} from "./TextureParams";

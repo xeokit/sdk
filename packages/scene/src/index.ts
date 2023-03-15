@@ -392,6 +392,11 @@
  * @module @xeokit/scene
  */
 
+export * from "./Scene";
+export * from "./SceneModel";
+export * from "./SceneObject";
+export * from "./Texture";
+export * from "./TextureSet";
 export * from "./Geometry";
 export * from "./GeometryBucket";
 export * from "./Mesh";
@@ -403,21 +408,13 @@ export * from "./RendererModel";
 export * from "./RendererTexture";
 export * from "./RendererTextureSet";
 
-export * from "./Scene";
-export * from "./SceneModel";
-export * from "./SceneObject";
-export * from "./Texture";
-
 export * from "./MeshParams";
 export * from "./ObjectParams";
 export * from "./TextureParams";
 export * from "./TextureSetParams";
 export * from "./TransformParams";
-
 export * from "./GeometryBucketParams";
 export * from "./GeometryCompressedParams";
 export * from "./GeometryParams";
-
 export * from "./CreateSceneModelParams";
-
 export * from "./compressGeometryParams";

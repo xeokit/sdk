@@ -1,8 +1,7 @@
-
 import {createMat4, createVec3} from "@xeokit/math/matrix";
 import {collapseAABB3, expandAABB3Points3, getPositionsCenter} from "@xeokit/math/boundaries";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {FloatArrayParam} from "@xeokit/math/math";
+import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {quantizePositions} from "@xeokit/math/compression";
 
 import {buildEdgeIndices} from "./buildEdgeIndices";
@@ -43,21 +42,19 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
         indices: geometryParams.indices,
         edgeIndices: edgeIndices
     });
-    // @ts-ignore
     const numUniquePositions = uniquePositionsCompressed.length / 3;
-    const geometryBuckets = rebucketPositions({
-        // @ts-ignore
+    const geometryBuckets = <{
+        positionsCompressed: IntArrayParam,
+        indices: IntArrayParam,
+        edgeIndices: IntArrayParam
+    }[]>rebucketPositions({
         positionsCompressed: uniquePositionsCompressed,
-        // @ts-ignore
         indices: uniqueIndices,
-        // @ts-ignore
         edgeIndices: uniqueEdgeIndices,
     }, (numUniquePositions > (1 << 16)) ? 16 : 8);
-    return {
+    return { // Assume that closed triangle mesh is decomposed into open surfaces
         id: geometryParams.id,
-        primitive: (geometryParams.primitive === SolidPrimitive && geometryBuckets.length > 1) // Assume that closed triangle mesh is decomposed into open surfaces
-            ? TrianglesPrimitive
-            : geometryParams.primitive,
+        primitive: (geometryParams.primitive === SolidPrimitive && geometryBuckets.length > 1) ? TrianglesPrimitive : geometryParams.primitive,
         origin,
         aabb,
         positionsDecompressMatrix,

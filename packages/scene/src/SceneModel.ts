@@ -285,7 +285,7 @@ export class SceneModel extends Component {
      * @param textureParams Texture creation parameters.
      * @throws {Error} If SceneModel has already been built or destroyed.
      */
-    createTexture(textureParams: TextureParams): void {
+    createTexture(textureParams: TextureParams): Texture {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
@@ -312,7 +312,9 @@ export class SceneModel extends Component {
                 return;
             }
         }
-        this.textures[textureParams.id] = new Texture(textureParams);
+        const texture = new Texture(textureParams);
+        this.textures[textureParams.id] = texture;
+        return texture;
     }
 
     /**
@@ -333,7 +335,7 @@ export class SceneModel extends Component {
      * @param textureSetParams TextureSet creation parameters.
      * @throws {Error} If SceneModel has already been built or destroyed.
      */
-    createTextureSet(textureSetParams: TextureSetParams): void {
+    createTextureSet(textureSetParams: TextureSetParams): TextureSet {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
@@ -395,12 +397,14 @@ export class SceneModel extends Component {
             }
             occlusionTexture.channel = OCCLUSION_TEXTURE;
         }
-        this.textureSets[textureSetParams.colorTextureId] = new TextureSet(textureSetParams, {
+        const textureSet = new TextureSet(textureSetParams, {
             emissiveTexture,
             occlusionTexture,
             metallicRoughnessTexture,
             colorTexture
         });
+        this.textureSets[textureSetParams.colorTextureId] = textureSet;
+        return textureSet;
     }
 
     /**
@@ -538,7 +542,7 @@ export class SceneModel extends Component {
     }
 
     /**
-     * Creates an {@link Mesh} within this SceneModel.
+     * Creates a {@link Mesh} within this SceneModel.
      *
      * ````javascript
      * myScratchModel.createMesh({
@@ -560,7 +564,7 @@ export class SceneModel extends Component {
      * @param meshParams Pre-compressed mesh parameters.
      * @throws {Error} If SceneModel has already been built or destroyed.
      */
-    createMesh(meshParams: MeshParams): void {
+    createMesh(meshParams: MeshParams): Mesh {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
@@ -605,7 +609,7 @@ export class SceneModel extends Component {
         // }
         // const meshIndex = this.meshesList.length;
 
-        this.meshes[meshParams.id] = new Mesh({
+        const mesh = new Mesh({
             id: meshParams.id,
             geometry,
             textureSet,
@@ -615,6 +619,8 @@ export class SceneModel extends Component {
             roughness: meshParams.roughness,
             metallic: meshParams.metallic
         });
+        this.meshes[meshParams.id] = mesh;
+        return mesh;
     }
 
     /**
@@ -625,7 +631,7 @@ export class SceneModel extends Component {
      * @param objectParams Pre-compressed object parameters.
      * @throws {Error} If SceneModel has already been built or destroyed.
      */
-    createObject(objectParams: ObjectParams): void {
+    createObject(objectParams: ObjectParams): SceneObject {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
@@ -678,6 +684,7 @@ export class SceneModel extends Component {
             mesh.object = object;
         }
         this.objects[objectId] = object;
+        return object;
     }
 
     /**

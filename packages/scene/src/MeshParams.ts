@@ -16,7 +16,7 @@ export interface MeshParams {
     textureSetId?: string;
 
     /**
-     * ID of a geometry that was created previously with {@link @xeokit/scene!SceneModel.createGeometry|SceneModel.createGeometry} or {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
+     * ID of a geometry that was created previously with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} or {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
      */
     geometryId: string;
 

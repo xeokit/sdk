@@ -97,9 +97,7 @@ export function uniquifyPositions(mesh: any) {
     let uniqueIndices = new Uint32Array(indices.length);
 
     for (let i = 0, len = indices.length; i < len; i++) {
-        uniqueIndices[i] = remappings [
-            indices[i]
-            ];
+        uniqueIndices[i] = remappings [indices[i]];
     }
 
     let uniqueEdgeIndices;
@@ -128,7 +126,7 @@ function compareVertex(a: any, b: any) {
     }
 
     return 0;
-};
+}
 
 let seqInit: any = null;
 

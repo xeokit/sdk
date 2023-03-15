@@ -56,17 +56,17 @@ export interface DataModelParams {
     schema?: string;
 
     /**
-     * The {@link PropertySet|PropertySets} in the DataModel.
+     * The {@link PropertySet | PropertySets} in the DataModel.
      */
     propertySets?: PropertySetParams[];
 
     /**
-     * The {@link DataObject|DataObjects} in the DataModel.
+     * The {@link DataObject | DataObjects} in the DataModel.
      */
     objects?: DataObjectParams[];
 
     /**
-     * The {@link Relationship|Relationships} in the DataModel.
+     * The {@link Relationship | Relationshipships} in the DataModel.
      */
     relationships?: RelationshipParams[];
 }

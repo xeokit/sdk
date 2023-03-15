@@ -32,12 +32,12 @@ export class DataObject {
     public readonly type: number;
 
     /**
-     * {@link PropertySet|PropertySets} used by this DataObject.
+     * {@link PropertySet | PropertySets} used by this DataObject.
      */
     public readonly propertySets?: PropertySet[];
 
     /**
-     * The {@link Relationship|Relations} in which this DataObject is the {@link Relationship.relating} participant.
+     * The {@link Relationship | Relations} in which this DataObject is the {@link Relationship.relating} participant.
      *
      * Each DataObject is mapped here by {@link Relationship.type} and sub-mapped by {@link Relationship.relating}.
      */
@@ -46,7 +46,7 @@ export class DataObject {
     };
 
     /**
-     * The {@link Relationship|Relations} in which this DataObject is the {@link Relationship.related} participant.
+     * The {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.related} participant.
      *
      * Each DataObject is mapped here by {@link Relationship.type} and sub-mapped by {@link Relationship.related}.
      */
@@ -55,7 +55,7 @@ export class DataObject {
     };
 
     // /**
-    //  * IDs of one or more {@link ViewerObject|ViewerObjects} / {@link ViewObject|ViewObjects} that represent this DataObject.
+    //  * IDs of one or more {@link ViewerObject | ViewerObjects} / {@link ViewObject | ViewObjects} that represent this DataObject.
     //  *
     //  * Only DataObjects that represent some physical object, such as a wall or a roof, will have a representation.
     //  */

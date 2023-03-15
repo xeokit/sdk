@@ -25,7 +25,7 @@ export interface DataObjectParams {
     name: string;
 
     /**
-     * IDs of associated {@link PropertySet|PropertySets}, if any.
+     * IDs of associated {@link PropertySet | PropertySets}, if any.
      */
     propertySetIds?: string[];
 }

@@ -50,30 +50,30 @@ export class Data extends Component {
     public readonly models: { [key: string]: DataModel };
 
     /**
-     * The {@link PropertySet|PropertySets} belonging to this Data, each keyed to its {@link PropertySet.id}.
+     * The {@link PropertySet | PropertySets} belonging to this Data, each keyed to its {@link PropertySet.id}.
      */
     public readonly propertySets: { [key: string]: PropertySet };
 
     /**
-     * All {@link DataObject|DataObjects} belonging to this Data, each keyed to its {@link DataObject.id}.
+     * All {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id}.
      */
     public readonly objects: { [key: string]: DataObject };
 
     /**
-     * The root {@link DataObject|DataObjects} belonging to this Data, each keyed to its {@link DataObject.id}.
+     * The root {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id}.
      *
      * Root DataObjects are those with {@link DataObject.parent} set to ````null````.
      */
     public readonly rootObjects: { [key: string]: DataObject };
 
     /**
-     * The {@link DataObject|DataObjects} belonging to this Data, each map keyed to {@link DataObject.type},
-     * containing {@link DataObject|DataObjects} keyed to {@link DataObject.id}.
+     * The {@link DataObject | DataObjects} belonging to this Data, each map keyed to {@link DataObject.type},
+     * containing {@link DataObject | DataObjects} keyed to {@link DataObject.id}.
      */
     public readonly objectsByType: { [key: string]: { [key: string]: DataObject } };
 
     /**
-     * Tracks number of {@link DataObject|DataObjects} of each type.
+     * Tracks number of {@link DataObject | DataObjects} of each type.
      */
     readonly typeCounts: { [key: string]: number };
 
@@ -102,8 +102,8 @@ export class Data extends Component {
      *
      * @param  dataModelParams Data for the {@link @xeokit/data!DataModel}.
      * @param [options] Options for creating the {@link @xeokit/data!DataModel}.
-     * @param [options.includeTypes] When provided, only create {@link DataObject|DataObjects} with types in this list.
-     * @param  [options.excludeRelating] When provided, never create {@link DataObject|DataObjects} with types in this list.
+     * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
+     * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
      * @returns The new DataModel.
      * @see {@link View.createModel}
      */
@@ -131,7 +131,7 @@ export class Data extends Component {
     }
 
     /**
-     * Gets the {@link DataObject.id}s of the {@link DataObject|DataObjects} that have the given {@link DataObject.type}.
+     * Gets the {@link DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
      *
      * @param type The type.
      * @returns Array of {@link DataObject.id}s.
@@ -142,9 +142,9 @@ export class Data extends Component {
     }
 
     /**
-     * Finds {@link DataObject|DataObjects} using a customized depth-first traversal.
+     * Finds {@link DataObject | DataObjects} using a customized depth-first traversal.
      *
-     * Usually we use this method to recursively find DataObjects of specific {@link DataObject.type|types} within
+     * Usually we use this method to recursively find DataObjects of specific {@link DataObject.type | types} within
      * a hierarchy.
      *
      * See {@link Data} for usage examples.

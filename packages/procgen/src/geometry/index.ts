@@ -35,4 +35,5 @@ export * from "./buildCylinderGeometry";
 export * from "./buildSphereGeometry";
 export * from "./buildTorusGeometry";
 export * from "./buildVectorTextGeometry";
+export * from "./buildPlaneGeometry";
 export * from "./GeometryArrays";

@@ -89,6 +89,8 @@ export function modelToXKT(params: {
         lenTextures += imageData.byteLength;
     }
 
+    lenDecodeMatrices = numGeometries * 16;
+
     const xktData: XKTData = {
         metadata: dataModel ? dataModel.getJSON() : {},
         textureData: new Uint8Array(lenTextures), // All textures
@@ -113,10 +115,8 @@ export function modelToXKT(params: {
         eachBucketIndicesBitness: new Uint8Array(lenBuckets), // TODO
         eachGeometryPrimitiveType: new Uint8Array(numGeometries), // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
         eachGeometryBucketPortion: new Uint32Array(numGeometries), // TODO
-
-        // TODO: needs to be the AABB of each geometry
-        eachGeometryDecodeMatricesPortion: new Uint32Array(numGeometries), // TODO
-        matrices: new Float32Array(lenMatrices), // Modeling matrices for objects that share geometries. Each object either shares all it's geometries, or owns all its geometries exclusively. Exclusively-owned geometries are pre-transformed into World-space, and so their objects don't have modeling matrices in this array.
+        eachGeometryDecodeMatricesPortion: new Uint32Array(numGeometries), // Positions dequantization matrices
+        matrices: new Float32Array(lenMatrices), // Modeling matrices
         eachMeshGeometriesPortion: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
         eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in xktData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
         eachMeshTextureSet: new Uint32Array(numMeshes), // For each mesh, the index of its texture set in xktData.eachTextureSetTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set

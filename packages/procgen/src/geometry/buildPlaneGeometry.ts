@@ -49,7 +49,8 @@ import type {GeometryArrays} from "./GeometryArrays";
  */
 export function buildPlaneGeometry(cfg = {
     xSize: 0,
-    zSize: 0, xSegments: 1,
+    zSize: 0,
+    xSegments: 1,
     center: [0, 0, 0]
 
 }): GeometryArrays  {

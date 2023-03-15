@@ -1,5 +1,6 @@
 import * as utils from "@xeokit/core/utils";
 import type {GeometryArrays} from "./GeometryArrays";
+import {LinesPrimitive} from "@xeokit/core/constants";
 
 
 const letters = {
@@ -1723,7 +1724,7 @@ export function buildVectorTextGeometry(cfg: {
     }
 
     return utils.apply(cfg, {
-        primitive: "lines",
+        primitive: LinesPrimitive,
         positions: positions,
         indices: indices
     });

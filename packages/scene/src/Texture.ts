@@ -1,7 +1,7 @@
 import {
     ClampToEdgeWrapping,
     GIFMediaType,
-    JPEGMediaType,
+    JPEGMediaType, LinearEncoding,
     LinearFilter,
     LinearMipmapLinearFilter,
     LinearMipMapLinearFilter,
@@ -17,6 +17,7 @@ import {
 import {FloatArrayParam} from "@xeokit/math/math";
 import {RendererTexture} from "./RendererTexture";
 import {TextureParams} from "./TextureParams";
+import {createVec4} from "@xeokit/math/matrix";
 
 /**
  * Represents a texture.
@@ -156,6 +157,11 @@ export class Texture implements Texture {
     /**
      * @private
      */
+    channel?:number;
+
+    /**
+     * @private
+     */
     constructor(params: TextureParams) {
         this.id = params.id;
         this.imageData = params.imageData;
@@ -167,6 +173,9 @@ export class Texture implements Texture {
         this.wrapT = params.wrapT || RepeatWrapping;
         this.wrapR = params.wrapR || RepeatWrapping
         this.rendererTexture = null;
+        this.encoding = params.encoding || LinearEncoding;
+        this.preloadColor = createVec4(params.preloadColor || [1, 1, 1, 1]);
+        this.channel = 0;
     }
 }
 

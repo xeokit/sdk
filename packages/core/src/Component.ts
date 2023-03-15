@@ -23,7 +23,7 @@ export class Component {
      *
      * Don't use this Component if this is ````true````.
      */
-    protected destroyed: boolean;
+    public destroyed: boolean;
 
     protected dirty: boolean;
 
@@ -63,7 +63,7 @@ export class Component {
      */
     log(message: string): void {
         message = `[LOG] ${this.#prefixMessageWithID(message)}`;
-        window.console.log(message);
+        console.log(message);
     }
 
     /**
@@ -76,7 +76,7 @@ export class Component {
      */
     warn(message: string): void {
         message = `[WARN] ${this.#prefixMessageWithID(message)}`;
-        window.console.warn(message);
+        console.warn(message);
     }
 
     /**
@@ -89,7 +89,7 @@ export class Component {
      */
     error(message: string): void {
         message = `[ERROR] ${this.#prefixMessageWithID(message)}`;
-        window.console.error(message);
+        console.error(message);
     }
 
     /**

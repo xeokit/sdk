@@ -22,6 +22,10 @@ import {xktToModel} from "./xktToModel";
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
  * @returns {Promise} Resolves when XKT has been loaded.
+ * @throws {Error} If the SceneModel has already been destroyed.
+ * @throws {Error} If the SceneModel has already been built.
+ * @throws {Error} If the DataModel has already been destroyed.
+ * @throws {Error} If the DataModel has already been built.
  */
 export function loadXKT(params: {
     data: ArrayBuffer,
@@ -29,15 +33,27 @@ export function loadXKT(params: {
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
+    if (!params.data) {
+        throw new Error("Argument missing: data");
+    }
+    if (!params.sceneModel) {
+        throw new Error("Argument missing: sceneModel");
+    }
+    if (params.sceneModel.destroyed) {
+        throw new Error("SceneModel already destroyed");
+    }
+    if (params.sceneModel.built) {
+        throw new Error("SceneModel already built");
+    }
+    if (params.dataModel) {
+        if (params.dataModel.destroyed) {
+            throw new Error("DataModel already destroyed");
+        }
+        if (!params.dataModel.built) {
+            throw new Error("DataModel not yet built");
+        }
+    }
     return new Promise<void>(function (resolve, reject) {
-        if (!params.data) {
-            reject("Argument expected: data");
-            return;
-        }
-        if (!params.sceneModel) {
-            reject("Argument expected: sceneModel");
-            return;
-        }
         xktToModel({
             xktData: inflateXKT(unpackXKT(params.data)),
             sceneModel: params.sceneModel,

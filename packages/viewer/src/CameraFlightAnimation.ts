@@ -17,7 +17,7 @@ const newUp = createVec3();
 const newLookEyeVec = createVec3();
 
 /**
- * Animates its {@link View|View's} {@link @xeokit/viewer!Camera}  to look at specified objects, boundaries or locations.
+ * Animates its {@link View |View's} {@link @xeokit/viewer!Camera}  to look at specified objects, boundaries or locations.
  *
  * ## Summary
  *

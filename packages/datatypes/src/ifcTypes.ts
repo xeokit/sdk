@@ -2478,7 +2478,7 @@ export const IfcQuantityVolume = 1489;
 export const IfcQuantityWeight = 1490;
 
 /**
- * The railing is a frame assembly adjacent to human or vehicle circulation spaces and at some space boundaries where it is used in lieu of walls or to complement walls. REMOVE{ Designed to aid humans, either as an optional physical support, or to prevent injury or damage, either by falling or collision.}Designed as an optional physical support, or to prevent injury or damage, either by falling or collision.
+ * The railing is a frame assembly adjacent to human or vehicle circulation spaces and at some space boundaries where it is used in lieu of walls or to complement walls. Designed as an optional physical support, or to prevent injury or damage, either by falling or collision.
  */
 export const IfcRailing = 1491;
 
@@ -3653,7 +3653,7 @@ export const IfcTransformer = 1724;
 export const IfcTransformerType = 1725;
 
 /**
- * A transport element is a generalization of all transport related objects that move people, animals or goods within a REMOVE {building or building complex} Facility. The IfcTransportElement defines the occurrence of a transport element, that (if given), is expressed by the IfcTransportElementType .
+ * A transport element is a generalization of all transport related objects that move people, animals or goods within a facility. The IfcTransportElement defines the occurrence of a transport element, that (if given), is expressed by the IfcTransportElementType .
  */
 export const IfcTransportElement = 1726;
 

@@ -52,14 +52,14 @@ export interface ViewParams {
     colorTextureEnabled?: boolean;
 
     /**
-     * Whether the {@link @xeokit/viewer!View} will automatically create {@link ViewLayer|ViewLayers} on-demand
+     * Whether the {@link @xeokit/viewer!View} will automatically create {@link ViewLayer | ViewLayers} on-demand
      * as {@link ViewerObject|ViewerObjects} are created.
      *
-     * When ````true```` (default), the {@link @xeokit/viewer!View} will automatically create {@link ViewLayer|ViewLayers} as needed for each new
+     * When ````true```` (default), the {@link @xeokit/viewer!View} will automatically create {@link ViewLayer | ViewLayers} as needed for each new
      * {@link ViewerObject.viewLayerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
      * viewLayerId. This default setting therefore ensures that a ViewObject is created in the {@link @xeokit/viewer!View} for every ViewerObject that is created.
      *
-     * If you set this ````false````, however, then the {@link @xeokit/viewer!View} will only create {@link ViewObject|ViewObjects} for {@link ViewerObject|ViewerObjects} that have
+     * If you set this ````false````, however, then the {@link @xeokit/viewer!View} will only create {@link ViewObject | ViewObjects} for {@link ViewerObject|ViewerObjects} that have
      * a {@link ViewerObject.viewLayerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
      *
      * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only

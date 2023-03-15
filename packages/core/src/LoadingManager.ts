@@ -25,7 +25,7 @@ class LoadingManager {
 
     itemStart(url: any) {
         this.itemsTotal++;
-        if (this.isLoading === false) {
+        if (!this.isLoading) {
             if (this.onStart !== undefined) {
                 this.onStart(url, this.itemsLoaded, this.itemsTotal);
             }

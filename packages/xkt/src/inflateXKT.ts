@@ -1,6 +1,6 @@
 import {XKTDataDeflated} from "./XKTDataDeflated";
 import {XKTData} from "./XKTData";
-import {pako} from "pako";
+import * as pako from "pako";
 
 /**
  * @private
@@ -27,16 +27,16 @@ export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
         edgeIndices32Bit: new Uint32Array(inflate(xktDataDeflated.edgeIndices32Bit)),
         eachTextureSetTextures: new Int32Array(inflate(xktDataDeflated.eachTextureSetTextures)),
         decodeMatrices: new Float32Array(inflate(xktDataDeflated.decodeMatrices)),
-        eachBucketPositionsPortion: new Uint32Array(inflate(xktDataDeflated.eachGeometryPrimitiveType)),
+        eachBucketPositionsPortion: new Uint32Array(inflate(xktDataDeflated.eachBucketPositionsPortion)),
         eachBucketColorsPortion: new Uint32Array(inflate(xktDataDeflated.eachBucketColorsPortion)),
         eachBucketUVsPortion: new Uint32Array(inflate(xktDataDeflated.eachBucketUVsPortion)),
         eachBucketIndicesPortion: new Uint32Array(inflate(xktDataDeflated.eachBucketIndicesPortion)),
         eachBucketEdgeIndicesPortion: new Uint32Array(inflate(xktDataDeflated.eachBucketEdgeIndicesPortion)),
         eachBucketIndicesBitness: new Uint8Array(inflate(xktDataDeflated.eachBucketIndicesBitness)),
         eachGeometryPrimitiveType: new Uint8Array(inflate(xktDataDeflated.eachGeometryPrimitiveType)),
-        eachGeometryBucketPortion: new Uint32Array(inflate(xktDataDeflated.eachMeshGeometriesPortion)),
-        eachGeometryDecodeMatricesPortion: new Uint32Array(inflate(xktDataDeflated.eachMeshMatricesPortion)),
-        matrices: new Float32Array(inflate(xktDataDeflated.eachMeshTextureSet)), // Can be -1
+        eachGeometryBucketPortion: new Uint32Array(inflate(xktDataDeflated.eachGeometryBucketPortion)),
+        eachGeometryDecodeMatricesPortion: new Uint32Array(inflate(xktDataDeflated.eachGeometryDecodeMatricesPortion)),
+        matrices: new Float32Array(inflate(xktDataDeflated.matrices)), // Can be -1
         eachMeshGeometriesPortion: new Uint32Array(inflate(xktDataDeflated.eachMeshGeometriesPortion)),
         eachMeshMatricesPortion: new Uint32Array(inflate(xktDataDeflated.eachMeshMatricesPortion)),
         eachMeshTextureSet: new Uint32Array(inflate(xktDataDeflated.eachMeshTextureSet)),

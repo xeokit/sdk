@@ -1,6 +1,6 @@
 import {XKTDataDeflated} from "./XKTDataDeflated";
 import {XKTData} from "./XKTData";
-import {pako} from "pako";
+import * as pako from "pako";
 
 /**
  * @private
@@ -11,8 +11,8 @@ export function deflateXKT(xktData: XKTData, metaModelJSON?: any): XKTDataDeflat
         const deflatedJSON = deflateJSON(metaModelJSON);
         metaModelBytes = pako.deflate(deflatedJSON)
     } else {
-        // const deflatedJSON = deflateJSON(xktData.metadata);
-        // metaModelBytes = pako.deflate(deflatedJSON)
+        const deflatedJSON = deflateJSON(["{}"]);
+        metaModelBytes = pako.deflate(deflatedJSON)
     }
     return <XKTDataDeflated>{
         metadata: metaModelBytes,

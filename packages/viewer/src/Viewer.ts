@@ -89,7 +89,7 @@ export class Viewer extends Component {
     readonly viewList: View[];
 
     /**
-     *  The number of {@link View|Views} belonging to this Viewer.
+     *  The number of {@link View | Views} belonging to this Viewer.
      */
     numViews: number;
 
@@ -211,7 +211,7 @@ export class Viewer extends Component {
 
 
     /**
-     Trigger redraw of all {@link View|Views} belonging to this Viewer.
+     Trigger redraw of all {@link View | Views} belonging to this Viewer.
 
      @private
      */
@@ -261,7 +261,7 @@ export class Viewer extends Component {
     }
 
     /**
-     * Destroys this Viewer and all {@link View|Views} and {@link Plugin}s we've created within it.
+     * Destroys this Viewer and all {@link View | Views} and {@link Plugin}s we've created within it.
      */
     destroy(): void {
         if (this.destroyed) {

@@ -29,6 +29,10 @@ import {MeshParams} from "./MeshParams";
 import {ObjectParams} from "./ObjectParams";
 import {TextureParams} from "./TextureParams";
 import {compressGeometryParams} from "./compressGeometryParams";
+import {encode, load} from "@loaders.gl/core";
+import {KTX2BasisWriter} from "@loaders.gl/textures";
+import {ImageLoader} from '@loaders.gl/images';
+
 
 const tempVec4a = createVec4([0, 0, 0, 1]);
 const tempVec4b = createVec4([0, 0, 0, 1]);
@@ -134,35 +138,30 @@ export class SceneModel extends Component {
      * Created by {@link SceneModel.createTexture}.
      */
     readonly textures: { [key: string]: Texture };
-
     /**
      * {@link TextureSet | TextureSets} within this SceneModel, each mapped to {@link TextureSet.id}.
      *
      * Created by {@link SceneModel.createTextureSet}.
      */
     readonly textureSets: { [key: string]: TextureSet };
-
     /**
      * {@link Mesh | Meshes} within this SceneModel, each mapped to {@link Mesh.id}.
      *
      * Created by {@link SceneModel.createMesh}.
      */
     readonly meshes: { [key: string]: Mesh };
-
     /**
      * {@link SceneObject | SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id}.
      *
      * Created by {@link SceneModel.createObject}.
      */
     readonly objects: { [key: string]: SceneObject };
-
     /**
      * The axis-aligned 3D World-space boundary of this SceneModel.
      *
      * Created by {@link SceneModel.build}.
      */
     readonly aabb: Float64Array;
-
     /**
      * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has already been built.
      *
@@ -171,7 +170,6 @@ export class SceneModel extends Component {
      * @event onBuilt
      */
     readonly onBuilt: EventEmitter<SceneModel, null>;
-
     /**
      * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has been destroyed.
      *
@@ -180,14 +178,14 @@ export class SceneModel extends Component {
      * @event
      */
     readonly onDestroyed: EventEmitter<SceneModel, null>;
-
     /**
      *  Internal interface through which a SceneModel can load property updates into a renderer.
      *
      * @internal
      */
     rendererModel?: RendererModel;
-
+    #texturesList: Texture[];
+    #numObjects: number;
     #meshUsedByObject: { [key: string]: boolean };
 
     /**
@@ -208,6 +206,7 @@ export class SceneModel extends Component {
             id: cfg.id
         });
 
+        this.#numObjects = 0;
         this.#meshUsedByObject = {};
 
         this.onBuilt = new EventEmitter(new EventDispatcher<SceneModel, null>());
@@ -217,6 +216,7 @@ export class SceneModel extends Component {
         this.edgeThreshold = cfg.edgeThreshold || 10;
         this.geometries = {};
         this.textures = {};
+        this.#texturesList = [];
         this.textureSets = {};
         this.meshes = {};
         this.objects = {};
@@ -284,6 +284,8 @@ export class SceneModel extends Component {
      *
      * @param textureParams Texture creation parameters.
      * @throws {Error} If SceneModel has already been built or destroyed.
+     * @throws {Error} Invalid TextureParams were given.
+     * @throws {Error} Texture with given ID already exists.
      */
     createTexture(textureParams: TextureParams): Texture {
         if (this.destroyed) {
@@ -302,18 +304,18 @@ export class SceneModel extends Component {
             throw new Error("Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers");
         }
         if (this.textures[textureParams.id]) {
-            console.error("Texture already exists with this ID: " + textureParams.id);
-            return;
+            throw new Error(`Texture already exists with this ID: ${textureParams.id}`);
         }
         if (textureParams.src) {
             const fileExt = textureParams.src.split('.').pop();
-            if (fileExt !== "jpg" && fileExt !== "jpeg" && fileExt !== "png") {
-                console.error(`Model does not support image files with extension '${fileExt}' - won't create texture '${textureParams.id}`);
-                return;
-            }
+            // if (fileExt !== "jpg" && fileExt !== "jpeg" && fileExt !== "png") {
+            //     console.error(`Model does not support image files with extension '${fileExt}' - won't create texture '${textureParams.id}`);
+            //     return;
+            // }
         }
         const texture = new Texture(textureParams);
         this.textures[textureParams.id] = texture;
+        this.#texturesList.push(texture);
         return texture;
     }
 
@@ -333,7 +335,11 @@ export class SceneModel extends Component {
      * ````
      *
      * @param textureSetParams TextureSet creation parameters.
+     *
      * @throws {Error} If SceneModel has already been built or destroyed.
+     * @throws {Error} Invalid TextureSetParams were given.
+     * @throws {Error} TextureSet with given ID already exists in this SceneModel.
+     * @throws {Error} One or more of the given Textures could not be found in this SceneModel.
      */
     createTextureSet(textureSetParams: TextureSetParams): TextureSet {
         if (this.destroyed) {
@@ -343,21 +349,19 @@ export class SceneModel extends Component {
             throw new Error("SceneModel already built");
         }
         if (!textureSetParams) {
-            throw "Parameters expected: textureSetParams";
+            throw new Error("Parameters expected: textureSetParams");
         }
         if (textureSetParams.id === null || textureSetParams.id === undefined) {
-            throw "Parameter expected: textureSetParams.id";
+            throw new Error("Parameter expected: textureSetParams.id");
         }
         if (this.textureSets[textureSetParams.id]) {
-            console.error("TextureSet already exists with this ID: " + textureSetParams.id);
-            return;
+            throw new Error(`TextureSet already exists with this ID: ${textureSetParams.id}`);
         }
         let colorTexture;
         if (textureSetParams.colorTextureId !== undefined && textureSetParams.colorTextureId !== null) {
             colorTexture = this.textures[textureSetParams.colorTextureId];
             if (!colorTexture) {
-                console.error(`Texture not found: ${textureSetParams.colorTextureId} - ensure that you create it first with createTexture()`);
-                return;
+                throw new Error(`Texture not found: ${textureSetParams.colorTextureId} - ensure that you create it first with createTexture()`);
             }
             colorTexture.channel = COLOR_TEXTURE;
         }
@@ -365,8 +369,7 @@ export class SceneModel extends Component {
         if (textureSetParams.metallicRoughnessTextureId !== undefined && textureSetParams.metallicRoughnessTextureId !== null) {
             metallicRoughnessTexture = this.textures[textureSetParams.metallicRoughnessTextureId];
             if (!metallicRoughnessTexture) {
-                console.error(`Texture not found: ${textureSetParams.metallicRoughnessTextureId} - ensure that you create it first with createTexture()`);
-                return;
+                throw new Error(`Texture not found: ${textureSetParams.metallicRoughnessTextureId} - ensure that you create it first with createTexture()`);
             }
             metallicRoughnessTexture.channel = METALLIC_ROUGHNESS_TEXTURE;
         }
@@ -374,8 +377,7 @@ export class SceneModel extends Component {
         if (textureSetParams.normalsTextureId !== undefined && textureSetParams.normalsTextureId !== null) {
             normalsTexture = this.textures[textureSetParams.normalsTextureId];
             if (!normalsTexture) {
-                console.error(`Texture not found: ${textureSetParams.normalsTextureId} - ensure that you create it first with createTexture()`);
-                return;
+                throw new Error(`Texture not found: ${textureSetParams.normalsTextureId} - ensure that you create it first with createTexture()`);
             }
             normalsTexture.channel = NORMALS_TEXTURE;
         }
@@ -383,8 +385,7 @@ export class SceneModel extends Component {
         if (textureSetParams.emissiveTextureId !== undefined && textureSetParams.emissiveTextureId !== null) {
             emissiveTexture = this.textures[textureSetParams.emissiveTextureId];
             if (!emissiveTexture) {
-                console.error(`Texture not found: ${textureSetParams.emissiveTextureId} - ensure that you create it first with createTexture()`);
-                return;
+                throw new Error(`Texture not found: ${textureSetParams.emissiveTextureId} - ensure that you create it first with createTexture()`);
             }
             emissiveTexture.channel = EMISSIVE_TEXTURE;
         }
@@ -392,8 +393,7 @@ export class SceneModel extends Component {
         if (textureSetParams.occlusionTextureId !== undefined && textureSetParams.occlusionTextureId !== null) {
             occlusionTexture = this.textures[textureSetParams.occlusionTextureId];
             if (!occlusionTexture) {
-                console.error(`Texture not found: ${textureSetParams.occlusionTextureId} - ensure that you create it first with createTexture()`);
-                return;
+                throw new Error(`Texture not found: ${textureSetParams.occlusionTextureId} - ensure that you create it first with createTexture()`);
             }
             occlusionTexture.channel = OCCLUSION_TEXTURE;
         }
@@ -403,7 +403,7 @@ export class SceneModel extends Component {
             metallicRoughnessTexture,
             colorTexture
         });
-        this.textureSets[textureSetParams.colorTextureId] = textureSet;
+        this.textureSets[textureSetParams.id] = textureSet;
         return textureSet;
     }
 
@@ -435,7 +435,14 @@ export class SceneModel extends Component {
      * ````
      *
      * @param geometryParams Non-compressed geometry parameters.
-     * @throws {Error} If SceneModel has already been built or destroyed.
+     * @throws {Error} If this SceneModel has already been destroyed.
+     * @throws {Error} If this SceneModel has already been built.
+     * @throws {Error} Invalid GeometryParams were given.
+     * @throws {Error} Geometry of given ID already exists in this SceneModel.
+     * @throws {Error} Unsupported primitive type given.
+     * @throws {Error} Mandatory vertex positions were not given. These are mandatory for all primitive types.
+     * @throws {Error} Mandatory indices were not given for primitive type that is not {@link PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+     * @returns {Geometry} The new Geometry.
      */
     createGeometry(geometryParams: GeometryParams): Geometry {
         if (this.destroyed) {
@@ -445,28 +452,24 @@ export class SceneModel extends Component {
             throw new Error("SceneModel already built");
         }
         if (!geometryParams) {
-            throw new Error("[createGeometry] Parameters expected: geometryParams");
+            throw new Error("Parameters expected: geometryParams");
         }
         if (geometryParams.id === null || geometryParams.id === undefined) {
-            throw new Error("[createGeometry] Parameter expected: geometryParams.id");
+            throw new Error("Parameter expected: geometryParams.id");
         }
         const geometryId = geometryParams.id;
         if (this.geometries[geometryId]) {
-            this.error(`[createGeometry] Geometry with this ID already created: ${geometryId}`);
-            return;
+            throw new Error(`Geometry with this ID already created: ${geometryId}`);
         }
         const primitive = geometryParams.primitive;
         if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
-            this.error(`[createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
-            return;
+            throw new Error(`Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
         }
         if (!geometryParams.positions) {
-            this.error("[createGeometry] Param expected: geometryParams.positions");
-            return;
+            throw new Error("Param expected: geometryParams.positions");
         }
         if (!geometryParams.indices && primitive !== PointsPrimitive) {
-            this.error(`[createGeometry] Param expected: geometryParams.indices (required for primitive type)`);
-            return;
+            throw new Error(`Param expected: geometryParams.indices (required for primitive type)`);
         }
         const geometry = new Geometry(<GeometryCompressedParams>compressGeometryParams(geometryParams));
         this.geometries[geometryId] = geometry;
@@ -509,7 +512,12 @@ export class SceneModel extends Component {
      * ````
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
-     * @throws {Error} If SceneModel has already been built or destroyed.
+     * @throws {Error} If this SceneModel has already been destroyed.
+     * @throws {Error} If this SceneModel has already been built.
+     * @throws {Error} Invalid GeometryParams were given.
+     * @throws {Error} Geometry of given ID already exists in this SceneModel.
+     * @throws {Error} Unsupported primitive type given.
+     * @returns {Geometry} The new Geometry.
      */
     createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): Geometry {
         if (this.destroyed) {
@@ -519,22 +527,18 @@ export class SceneModel extends Component {
             throw new Error("SceneModel already built");
         }
         if (!geometryCompressedParams) {
-            this.error("[createGeometryCompressed] Parameters expected: geometryCompressedParams");
-            return;
+            throw new Error("Parameters expected: geometryCompressedParams");
         }
         if (geometryCompressedParams.id === null || geometryCompressedParams.id === undefined) {
-            this.error("[createGeometryCompressed] Parameter expected: geometryCompressedParams.geometryId");
-            return;
+            throw new Error("Parameter expected: geometryCompressedParams.id");
         }
         const geometryId = geometryCompressedParams.id;
         if (this.geometries[geometryId]) {
-            this.error(`[createGeometryCompressed] Geometry with this ID already created: ${geometryId}`);
-            return;
+            throw new Error(`Geometry with this ID already created: ${geometryId}`);
         }
         const primitive = geometryCompressedParams.primitive;
         if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
-            this.error(`[createGeometryCompressed] Unsupported value for geometryCompressedParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
-            return;
+            throw new Error(`Unsupported value for geometryCompressedParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
         }
         const geometry = new Geometry(geometryCompressedParams);
         this.geometries[geometryId] = geometry;
@@ -562,7 +566,13 @@ export class SceneModel extends Component {
      * An {@link Mesh} can be owned by one {@link SceneObject}, which can own multiple {@link Mesh}es.
      *
      * @param meshParams Pre-compressed mesh parameters.
-     * @throws {Error} If SceneModel has already been built or destroyed.
+     * @throws {Error} If this SceneModel has already been destroyed.
+     * @throws {Error} If this SceneModel has already been built.
+     * @throws {Error} Invalid MeshParams were given.
+     * @throws {Error} Mesh of given ID already exists in this SceneModel.
+     * @throws {Error} Specified Geometry could not be found in this SceneModel.
+     * @throws {Error} Specified TextureSet could not be found in this SceneModel.
+     * @returns {Mesh} The new Mesh.
      */
     createMesh(meshParams: MeshParams): Mesh {
         if (this.destroyed) {
@@ -572,25 +582,21 @@ export class SceneModel extends Component {
             throw new Error("SceneModel already built");
         }
         if (meshParams.id === null || meshParams.id === undefined) {
-            this.error("Parameter expected: meshParams.id");
-            return;
+            throw new Error("Parameter expected: meshParams.id");
         }
         if (meshParams.geometryId === null || meshParams.geometryId === undefined) {
-            this.error("Parameter expected: meshParams.geometryId");
-            return;
+            throw new Error("Parameter expected: meshParams.geometryId");
         }
         if (this.meshes[meshParams.id]) {
-            this.error("Mesh already exists with this ID: " + meshParams.id);
-            return;
+            throw new Error(`Mesh already exists with this ID: ${meshParams.id}`);
         }
         const geometry = this.geometries[meshParams.geometryId];
         if (!geometry) {
-            this.error("Geometry not found: " + meshParams.geometryId);
-            return;
+            throw new Error(`Geometry not found: ${meshParams.geometryId}`);
         }
         const textureSet = meshParams.textureSetId ? this.textureSets[meshParams.textureSetId] : null;
         if (meshParams.textureSetId && !textureSet) {
-            this.error("TextureSet not found: " + meshParams.textureSetId);
+            throw new Error(`TextureSet not found: ${meshParams.textureSetId}`);
         }
 
         // geometry.numInstances++;
@@ -628,8 +634,15 @@ export class SceneModel extends Component {
      *
      * Registers the new {@link SceneObject} in {@link SceneModel.objects}.
      *
-     * @param objectParams Pre-compressed object parameters.
-     * @throws {Error} If SceneModel has already been built or destroyed.
+     * @param objectParams SceneObject parameters.
+     * @throws {Error} If this SceneModel has already been destroyed.
+     * @throws {Error} If this SceneModel has already been built.
+     * @throws {Error} Invalid ObjectParams were given.
+     * @throws {Error} SceneObject of given ID already exists in this SceneModel.
+     * @throws {Error} No Meshes were specified.
+     * @throws {Error} One or more of the specified Meshes already belong to another SceneObject in this SceneModel.
+     * @throws {Error} Specified Meshes could not be found in this SceneModel.
+     * @returns {Mesh} The new SceneObject.
      */
     createObject(objectParams: ObjectParams): SceneObject {
         if (this.destroyed) {
@@ -648,15 +661,14 @@ export class SceneModel extends Component {
             throw new Error("Parameter expected: objectParams.meshIds");
         }
         if (objectParams.meshIds.length === 0) {
-            this.warn("SceneObject has no meshes - won't create: " + objectParams.id);
-            return;
+            throw new Error("SceneObject has no meshes");
         }
         let objectId = objectParams.id;
         if (this.objects[objectId]) {
             while (this.objects[objectId]) {
                 objectId = createUUID();
             }
-            this.error("SceneObject already exists with this ID: " + objectParams.id + " - substituting random ID instead: " + objectId);
+            throw new Error(`SceneObject already exists with this ID: ${objectParams.id}`);
         }
         const meshIds = objectParams.meshIds;
         const meshes = [];
@@ -664,13 +676,11 @@ export class SceneModel extends Component {
             const meshId = meshIds[meshIdIdx];
             const mesh = this.meshes[meshId];
             if (!mesh) {
-                this.error("Mesh found: " + meshId);
-                continue;
+                throw new Error(`Mesh not found: ${meshId}`);
             }
             // TODO
             if (this.#meshUsedByObject[meshId]) {
-                this.error(`Mesh ${meshId} already used by another SceneObject - will ignore`);
-                continue;
+                throw new Error(`Mesh ${meshId} already belongs to another SceneObject`);
             }
             meshes.push(mesh);
             this.#meshUsedByObject[mesh.id] = true;
@@ -683,6 +693,7 @@ export class SceneModel extends Component {
             const mesh = meshes[i];
             mesh.object = object;
         }
+        this.#numObjects++;
         this.objects[objectId] = object;
         return object;
     }
@@ -690,11 +701,14 @@ export class SceneModel extends Component {
     /**
      * Builds this SceneModel.
      *
+     * Expects this SceneModel to have at least one SceneObject.
+     *
      * Sets {@link SceneModel.built} ````true````.
      *
      * Once built, you cannot add any more components to this SceneModel.
      *
      * @throws {Error} If SceneModel has already been built or destroyed.
+     * @throws {Error} If no SceneObjects were created in this SceneModel.
      */
     async build() {
         if (this.destroyed) {
@@ -703,9 +717,11 @@ export class SceneModel extends Component {
         if (this.built) {
             throw new Error("SceneModel already built");
         }
+        if (this.#numObjects < 1) {
+            throw new Error("SceneModel must contain at least one SceneObject before you can build it");
+        }
         this.#removeUnusedTextures();
         await this.#compressTextures();
-        this.#flagSolidGeometries();
         this.built = true;
         this.onBuilt.dispatch(this, null);
     }
@@ -726,114 +742,73 @@ export class SceneModel extends Component {
     }
 
     #compressTextures() {
-        // let countTextures = this.texturesList.length;
-        // return new Promise((resolve) => {
-        //     if (countTextures === 0) {
-        //         resolve();
-        //         return;
-        //     }
-        //     for (let i = 0, leni = this.texturesList.length; i < leni; i++) {
-        //         const texture = this.texturesList[i];
-        //         const encodingOptions = TEXTURE_ENCODING_OPTIONS[texture.channel] || {};
-        //
-        //         if (texture.src) {
-        //
-        //             // Texture created with SceneModel#createTexture({ src: ... })
-        //
-        //             const src = texture.src;
-        //             const fileExt = src.split('.').pop();
-        //             switch (fileExt) {
-        //                 case "jpeg":
-        //                 case "jpg":
-        //                 case "png":
-        //                     load(src, ImageLoader, {
-        //                         image: {
-        //                             type: "data"
-        //                         }
-        //                     }).then((imageData) => {
-        //                         if (texture.compressed) {
-        //                             encode(imageData, KTX2BasisWriter, encodingOptions).then((encodedData) => {
-        //                                 const encodedImageData = new Uint8Array(encodedData);
-        //                                 texture.imageData = encodedImageData;
-        //                                 if (--countTextures <= 0) {
-        //                                     resolve();
-        //                                 }
-        //                             }).catch((err) => {
-        //                                 this.error("[SceneModel.build] Failed to encode image: " + err);
-        //                                 if (--countTextures <= 0) {
-        //                                     resolve();
-        //                                 }
-        //                             });
-        //                         } else {
-        //                             texture.imageData = new Uint8Array(1);
-        //                             if (--countTextures <= 0) {
-        //                                 resolve();
-        //                             }
-        //                         }
-        //                     }).catch((err) => {
-        //                         this.error("[SceneModel.build] Failed to load image: " + err);
-        //                         if (--countTextures <= 0) {
-        //                             resolve();
-        //                         }
-        //                     });
-        //                     break;
-        //                 default:
-        //                     if (--countTextures <= 0) {
-        //                         resolve();
-        //                     }
-        //                     break;
-        //             }
-        //         }
-        //
-        //         if (texture.imageData) {
-        //
-        //             // Texture created with SceneModel#createTexture({ imageData: ... })
-        //
-        //             if (texture.compressed) {
-        //                 encode(texture.imageData, KTX2BasisWriter, encodingOptions)
-        //                     .then((encodedImageData) => {
-        //                         texture.imageData = new Uint8Array(encodedImageData);
-        //                         if (--countTextures <= 0) {
-        //                             resolve();
-        //                         }
-        //                     }).catch((err) => {
-        //                     this.error("[SceneModel.build] Failed to encode image: " + err);
-        //                     if (--countTextures <= 0) {
-        //                         resolve();
-        //                     }
-        //                 });
-        //             } else {
-        //                 texture.imageData = new Uint8Array(1);
-        //                 if (--countTextures <= 0) {
-        //                     resolve();
-        //                 }
-        //             }
-        //         }
-        //     }
-        // });
-    }
-
-    #flagSolidGeometries() {
-        // let maxNumPositions = 0;
-        // let maxNumIndices = 0;
-        // for (let i = 0, len = this.geometriesList.length; i < len; i++) {
-        //     const geometry = this.geometriesList[i];
-        //     if (geometry.primitiveType === "triangles") {
-        //         if (geometry.positionsQuantized.length > maxNumPositions) {
-        //             maxNumPositions = geometry.positionsQuantized.length;
-        //         }
-        //         if (geometry.indices.length > maxNumIndices) {
-        //             maxNumIndices = geometry.indices.length;
-        //         }
-        //     }
-        // }
-        // let vertexIndexMapping = new Array(maxNumPositions / 3);
-        // let edges = new Array(maxNumIndices);
-        // for (let i = 0, len = this.geometriesList.length; i < len; i++) {
-        //     const geometry = this.geometriesList[i];
-        //     if (geometry.primitiveType === "triangles") {
-        //         geometry.solid = isTriangleMeshSolid(geometry.indices, geometry.positionsQuantized, vertexIndexMapping, edges);
-        //     }
-        // }
+        let countTextures = this.#texturesList.length;
+        return new Promise<void>((resolve) => {
+            if (countTextures === 0) {
+                resolve();
+                return;
+            }
+            for (let i = 0, leni = this.#texturesList.length; i < leni; i++) {
+                const texture = this.#texturesList[i];
+                const encodingOptions = TEXTURE_ENCODING_OPTIONS[texture.channel] || {};
+                if (texture.src) {  // Texture created with SceneModel#createTexture({ src: ... })
+                    const src = texture.src;
+                    const fileExt = src.split('.').pop();
+                    switch (fileExt) {
+                        case "jpeg":
+                        case "jpg":
+                        case "png":
+                            load(src, ImageLoader, {
+                                image: {
+                                    type: "data"
+                                }
+                            }).then((imageData) => {
+                                if (texture.compressed) {
+                                    encode(imageData, KTX2BasisWriter, encodingOptions).then((encodedData) => {
+                                        const encodedImageData = new Uint8Array(encodedData);
+                                        texture.imageData = encodedImageData;
+                                        if (--countTextures <= 0) {
+                                            resolve();
+                                        }
+                                    }).catch((err) => {
+                                        throw new Error(`Failed to compress texture: ${err}`);
+                                    });
+                                } else {
+                                    texture.imageData = new Uint8Array(1);
+                                    if (--countTextures <= 0) {
+                                        resolve();
+                                    }
+                                }
+                            }).catch((err) => {
+                                throw new Error(`Failed to load texture image: ${err}`);
+                            });
+                            break;
+                        default:
+                            if (--countTextures <= 0) {
+                                resolve();
+                            }
+                            break;
+                    }
+                }
+                if (texture.imageData) {// Texture created with SceneModel#createTexture({ imageData: ... })
+                    if (texture.compressed) {
+                        encode(texture.imageData, KTX2BasisWriter, encodingOptions)
+                            .then((encodedImageData) => {
+                                texture.imageData = new Uint8Array(encodedImageData);
+                                if (--countTextures <= 0) {
+                                    resolve();
+                                }
+                            }).catch((err) => {
+                            throw new Error(`Failed to compress texture: ${err}`);
+                        });
+                    } else {
+                        texture.imageData = new Uint8Array(1);
+                        if (--countTextures <= 0) {
+                            resolve();
+                        }
+                    }
+                }
+            }
+        });
     }
 }

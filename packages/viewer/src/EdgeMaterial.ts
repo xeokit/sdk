@@ -8,7 +8,7 @@ import {QualityRender} from "@xeokit/core/constants";
 
 
 /**
- * Configures the appearance of {@link ViewObject|ViewObjects} when their edges are emphasised.
+ * Configures the appearance of {@link ViewObject | ViewObjects} when their edges are emphasised.
  *
  * ## Summary
  *

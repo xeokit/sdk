@@ -249,13 +249,3 @@ const decompressColor = (function () {
     };
 })();
 
-const imagDataToImage = (function () {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    return function (imagedata) {
-        canvas.width = imagedata.width;
-        canvas.height = imagedata.height;
-        context.putImageData(imagedata, 0, 0);
-        return canvas.toDataURL();
-    };
-})();

@@ -38,12 +38,12 @@ export class Tile {
     // public readonly viewerModels: { [key: string]: ViewerModel }
 
     /**
-     * The {@link RendererObject|ViewerObjects} in this tile.
+     * The {@link RendererObject | ViewerObjects} in this tile.
      */
 //    public readonly viewerObjects: { [key: string]: RendererObject }
 
     /**
-     * The number of {@link RendererObject|ViewerObjects} in this tile.
+     * The number of {@link RendererObject | ViewerObjects} in this tile.
      */
         // public numContainedViewerObjects: number;
         //

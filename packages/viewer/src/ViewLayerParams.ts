@@ -11,7 +11,7 @@ export interface ViewLayerParams {
     id: string;
 
     /**
-     * Default initial visibility of the {@link ViewObject|ViewObjects} in the new ViewLayer.
+     * Default initial visibility of the {@link ViewObject | ViewObjects} in the new ViewLayer.
      */
     visible?: boolean;
 }

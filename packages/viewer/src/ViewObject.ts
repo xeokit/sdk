@@ -158,7 +158,7 @@ export class ViewObject {
     /**
      * Gets if this ViewObject is X-rayed.
      *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedViewObjects}.
+     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
      * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     get xrayed(): boolean {
@@ -168,7 +168,7 @@ export class ViewObject {
     /**
      * Sets if this ViewObject is X-rayed.
      *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedViewObjects}.
+     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
      * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     set xrayed(xrayed: boolean) {
@@ -203,7 +203,7 @@ export class ViewObject {
     /**
      * Gets if this ViewObject is highlighted.
      *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedViewObjects}.
+     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
      * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     get highlighted(): boolean {
@@ -213,7 +213,7 @@ export class ViewObject {
     /**
      * Sets if this ViewObject is highlighted.
      *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedViewObjects}.
+     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
      * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     set highlighted(highlighted: boolean) {
@@ -232,7 +232,7 @@ export class ViewObject {
     /**
      * Gets if this ViewObject is selected.
      *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedViewObjects}.
+     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
      * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     get selected(): boolean {
@@ -242,7 +242,7 @@ export class ViewObject {
     /**
      * Sets if this ViewObject is selected.
      *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedViewObjects}.
+     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
      * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     set selected(selected: boolean) {
@@ -306,7 +306,7 @@ export class ViewObject {
     /**
      * Gets if this ViewObject is included in boundary calculations.
      *
-     * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} and {@link ViewLayer.getAABB} will include this ViewObject's boundary.
+     * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} will include this ViewObject's boundary.
      * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
      * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
@@ -317,7 +317,7 @@ export class ViewObject {
     /**
      * Sets if this ViewObject included in boundary calculations.
      *
-     * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} and {@link ViewLayer.getAABB} will include this ViewObject's boundary.
+     * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} will include this ViewObject's boundary.
      * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
      * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */

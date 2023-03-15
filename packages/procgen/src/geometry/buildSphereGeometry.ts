@@ -1,5 +1,6 @@
 import * as utils from "@xeokit/core/utils";
 import type {GeometryArrays} from "./GeometryArrays";
+import {TrianglesPrimitive} from "@xeokit/core/constants";
 
 /**
  * Creates a sphere-shaped {@link @xeokit/scene!GeometryBucketHandle}.
@@ -160,6 +161,7 @@ export function buildSphereGeometry(cfg: {
     }
 
     return utils.apply(cfg, {
+        primitive: TrianglesPrimitive,
         positions: positions,
         normals: normals,
         uv: uvs,

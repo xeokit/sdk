@@ -1,5 +1,6 @@
 import * as utils from "@xeokit/core/utils";
 import type {GeometryArrays} from "./GeometryArrays";
+import {TrianglesPrimitive} from "@xeokit/core/constants";
 
 /**
  * Creates a cylinder-shaped {@link @xeokit/scene!GeometryBucketHandle}.
@@ -273,6 +274,7 @@ export function buildCylinderGeometry(cfg: {
     }
 
     return utils.apply(cfg, {
+        primitive: TrianglesPrimitive,
         positions: positions,
         normals: normals,
         uv: uvs,

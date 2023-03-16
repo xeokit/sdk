@@ -35,14 +35,16 @@
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/core/constants";
  * import {saveXKT} from "@xeokit/xkt";
  *
- * const scene = new Scene({});
+ * // Scene is the container of SceneModels
  *
- * const sceneModel = scene.createModel({
- *     id: "myTable"
+ * const theScene = new Scene();
+ *
+ * const sceneModel = theScene.createModel({
+ *   id: "theModel"
  * });
  *
- * sceneModel.createGeometry({
- *      id: "myBoxGeometry",
+ * const geometry = sceneModel.createGeometry({
+ *      id: "theGeometry",
  *      primitive: TrianglesPrimitive,
  *      positions: [ // Floats
  *          1, 1, 1, -1, 1, 1,
@@ -58,100 +60,120 @@
  *      ]
  *  });
  *
- * sceneModel.createTexture({
- *      id: "myColorTexture",
- *      src: "myTexture.ktx2",
- *      preloadColor: [1,0,0,1],
- *      flipY: false,
- *      encoding: LinearEncoding, // @xeokit/core/constants
- *      magFilter: LinearFilter,
- *      minFilter: LinearFilter,
- *      wrapR: ClampToEdgeWrapping,
- *      wrapS: ClampToEdgeWrapping,
- *      wrapT: ClampToEdgeWrapping,
+ * const texture = sceneModel.createTexture({
+ *     id: "colorTexture",
+ *     src: "./assets/sample_etc1s.ktx2",
+ *     preloadColor: [1, 0, 0, 1],
+ *     flipY: false,
+ *     encoding: LinearEncoding,
+ *     magFilter: LinearFilter,
+ *     minFilter: LinearFilter,
+ *     wrapR: ClampToEdgeWrapping,
+ *     wrapS: ClampToEdgeWrapping,
+ *     wrapT: ClampToEdgeWrapping,
  * });
  *
- * sceneModel.createTextureSet({
- *      id: "myTextureSet",
- *      colorTextureId: "myColorTexture"
+ * const theTextureSet = sceneModel.createTextureSet({
+ *     id: "theTextureSet",
+ *     colorTextureId: "colorTexture"
  * });
  *
- * sceneModel.createMesh({
+ * const redLegMesh = sceneModel.createMesh({
  *     id: "redLegMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [-4, -6, -4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
  *     color: [1, 0.3, 0.3],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createObject({ // Red table leg object
- *     id: "redLeg",
- *     meshIds: ["redLegMesh"]
- * });
- *
- * sceneModel.createMesh({
+ * const greenLegMesh = sceneModel.createMesh({
  *     id: "greenLegMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [4, -6, -4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
  *     color: [0.3, 1.0, 0.3],
- *     textureSetId: "myTextureSet"
+ *             textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createObject({ // Green table leg object
- *     id: "greenLeg",
- *     meshIds: ["greenLegMesh"]
- * });
- *
- * sceneModel.createMesh({
+ * const blueLegMesh = sceneModel.createMesh({
  *     id: "blueLegMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [4, -6, 4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
  *     color: [0.3, 0.3, 1.0],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createObject({ // Blue table leg object
- *     id: "blueLeg",
- *     meshIds: ["blueLegMesh"]
- * });
- *
- * sceneModel.createMesh({
+ * const yellowLegMesh = sceneModel.createMesh({
  *     id: "yellowLegMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [-4, -6, 4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
  *     color: [1.0, 1.0, 0.0],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createObject({ // Yellow table leg object
- *     id: "yellowLeg",
- *     meshIds: ["yellowLegMesh"]
- * });
- *
- * sceneModel.createMesh({
+ *  const tableTopMesh = sceneModel.createMesh({
  *     id: "tableTopMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [0, -3, 0],
  *     scale: [6, 0.5, 6],
  *     rotation: [0, 0, 0],
  *     color: [1.0, 0.3, 1.0],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createObject({ // Purple table top object
- *     id: "tableTop",
+ * // Create five SceneObjects, each using a Mesh.
+ * // A Mesh belongs to exactly one SceneObject.
+ *
+ * const redLegSceneObject = sceneModel.createObject({
+ *     id: "redLegObject",
+ *     meshIds: ["redLegMesh"]
+ * });
+ *
+ * const greenLegSceneObject = sceneModel.createObject({
+ *     id: "greenLegObject",
+ *     meshIds: ["greenLegMesh"]
+ * });
+ *
+ * const blueLegSceneObject = sceneModel.createObject({
+ *     id: "blueLegObject",
+ *     meshIds: ["blueLegMesh"]
+ * });
+ *
+ * const yellowLegSceneObject = sceneModel.createObject({
+ *     id: "yellowLegObject",
+ *     meshIds: ["yellowLegMesh"]
+ * });
+ *
+ * const tableTopSceneObject = sceneModel.createObject({
+ *     id: "tableTopObject",
  *     meshIds: ["tableTopMesh"]
  * });
  *
- * sceneModel.build();
+ * // Expect an event when we build the SceneModel
+ *
+ * sceneModel.onBuilt.subscribe((theSceneModel)=>{ });
+ *
+ * // Expect an event when we destroy the SceneModel
+ *
+ * sceneModel.onDestroyed.subscribe((theSceneModel)=>{ });
+ *
+ * // Now build the SceneModel.
+ * // This makes the SceneModel ready for use.
+ * // Among other things, this will compress the texture.
+ *
+ * sceneModel.build().then(()=> {
+ *
+ *     // When all done, destroy the SceneModel again
+ *
+ *     sceneModel.destroy();
+ * })
  *
  * const arrayBuffer = saveXKT({
  *      sceneModel
@@ -163,13 +185,13 @@
  * We can access all the components that we created within our SceneModel:
  *
  * ````javascript
- * const theSceneModel = scene.models["myModel"];
- * const theTexture = theSceneModel.textures["myTexture"];
- * const theTextureSet = theSceneModel.textureSets["myTextureSet"];
- * const theGeometry = theSceneModel.geometries["myBoxGeometry"];
+ * const theSceneModel = theScene.models["theModel"];
+ * const theTexture = theSceneModel.textures["theColorTexture"];
+ * const theTextureSet = theSceneModel.textureSets["theTextureSet"];
+ * const theGeometry = theSceneModel.geometries["theGeometry"];
  * const theTableTopMesh = theSceneModel.meshes["tableTopMesh"];
- * const theTableTopObject = theSceneModel.objects["tableTop"];
- * const theTableTopObjectAgain = scene.objects["tableTop"]; // Get SceneObject globally
+ * const theTableTopObject = theSceneModel.objects["tableTopObject"];
+ * const theTableTopObjectAgain = theScene.objects["tableTopObject"];
  * ````
  *
  * ## Geometry Compression
@@ -218,7 +240,7 @@
  * import {TrianglesPrimitive} from "@xeokit/core/constants";
  *
  * const geometryCompressedParams = compressGeometryParams({
- *      id: "myBoxGeometry",
+ *      id: "theGeometry",
  *      primitive: TrianglesPrimitive,
  *      positions: [ // Floats
  *          1, 1, 1, -1, 1, 1,
@@ -247,7 +269,7 @@
  *
  * ````javascript
  * {
- *      id: "myBoxGeometry",
+ *      id: "theGeometry",
  *      primitive: TrianglesPrimitive,
  *      origin: [200,200,200],
  *      positionsDecompressMatrix: [
@@ -285,9 +307,9 @@
  * import {Scene} from "@xeokit/scene";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/core/constants";
  * 
- * const scene = new Scene({});
+ * const theScene = new Scene({});
  *
- * const sceneModel = scene.createModel({
+ * const sceneModel = theScene.createModel({
  *     id: "myTable"
  * });
  *
@@ -307,33 +329,33 @@
  * });
  *
  * sceneModel.createTextureSet({
- *      id: "myTextureSet",
+ *      id: "theTextureSet",
  *      colorTextureId: "myColorTexture"
  * });
  *
  * sceneModel.createMesh({
  *     id: "redLegMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [-4, -6, -4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
  *     color: [1, 0.3, 0.3],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
  * sceneModel.createObject({ // Red table leg object
- *     id: "redLeg",
+ *     id: "redLegObject",
  *     meshIds: ["redLegMesh"]
  * });
  *
  * sceneModel.createMesh({
  *     id: "greenLegMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [4, -6, -4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
  *     color: [0.3, 1.0, 0.3],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
  * sceneModel.createObject({ // Green table leg object
@@ -343,12 +365,12 @@
  *
  * sceneModel.createMesh({
  *     id: "blueLegMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [4, -6, 4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
  *     color: [0.3, 0.3, 1.0],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
  * sceneModel.createObject({ // Blue table leg object
@@ -358,12 +380,12 @@
  *
  * sceneModel.createMesh({
  *     id: "yellowLegMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [-4, -6, 4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
  *     color: [1.0, 1.0, 0.0],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
  * sceneModel.createObject({ // Yellow table leg object
@@ -373,20 +395,47 @@
  *
  * sceneModel.createMesh({
  *     id: "tableTopMesh",
- *     geometryId: "myBoxGeometry",
+ *     geometryId: "theGeometry",
  *     position: [0, -3, 0],
  *     scale: [6, 0.5, 6],
  *     rotation: [0, 0, 0],
  *     color: [1.0, 0.3, 1.0],
- *     textureSetId: "myTextureSet"
+ *     textureSetId: "theTextureSet"
  * });
  *
  * sceneModel.createObject({ // Purple table top object
- *     id: "tableTop",
+ *     id: "tableTopObject",
  *     meshIds: ["tableTopMesh"]
  * });
  *
  * sceneModel.build();
+ * ````
+ *
+ * ## Viewing a SceneModel
+ *
+ * Create a {@link @xeokit/viewer!Viewer} to view our Scene, configured with
+ * a {@link @xeokit/webglrenderer!WebGLRenderer}, then create a {@link @xeokit/viewer!View} and arrange
+ * its {@link @xeokit/viewer!Camera}:
+ *
+ * ````javascript
+ * import {Scene} from "@xeokit/scene";
+ * import {Viewer} from "@xeokit/viewer";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ *
+ * const theViewer = new Viewer({
+ *     id: "theViewer",
+ *     scene: theScene,
+ *     renderer: new WebGLRenderer({ })
+ * });
+
+ * const view1 = theViewer.createView({
+ *     id: "myView",
+ *     canvasId: "myView1"
+ * });
+ *
+ * view1.camera.eye = [-3.933, 2.855, 27.018];
+ * view1.camera.look = [4.400, 3.724, 8.899];
+ * view1.camera.up = [-0.018, 0.999, 0.039];
  * ````
  *
  * @module @xeokit/scene

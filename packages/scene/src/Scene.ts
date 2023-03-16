@@ -186,7 +186,7 @@ export class Scene {
     /**
      * Removes all {@link @xeokit/scene!SceneModel | SceneModels} currently in this Scene.
      */
-    removeAllModels() {
+    clear() {
         for (let id in this.models) {
             this.models[id].destroy();
         }
@@ -201,90 +201,6 @@ export class Scene {
             //this.events.fire("aabb", true);
         }
     }
-
-    // /**
-    //  * @private
-    //  */
-    // setVisible(object: SceneObject, viewIndex: number, visible: boolean): void {
-    //     (<SceneObject>object).setVisible(viewIndex, visible);
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setHighlighted(object: SceneObject, viewIndex: number, highlighted: boolean): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setXRayed(object: SceneObject, viewIndex: number, xrayed: boolean): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setSelected(object: SceneObject, viewIndex: number, selected: boolean): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setEdges(object: SceneObject, viewIndex: number, edges: boolean): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setCulled(object: SceneObject, viewIndex: number, culled: boolean): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setClippable(object: SceneObject, viewIndex: number, clippable: boolean): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setCollidable(object: SceneObject, viewIndex: number, collidable: boolean): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setPickable(object: SceneObject, viewIndex: number, pickable: boolean): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setColorize(object: SceneObject, viewIndex: number, color?: FloatArrayParam): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setOpacity(object: SceneObject, viewIndex: number, opacity?: number): void {
-    //
-    // }
-    //
-    // /**
-    //  * @private
-    //  */
-    // setOffset(object: SceneObject, viewIndex: number, offset: FloatArrayParam): void {
-    //
-    // }
 
     /**
      * @private

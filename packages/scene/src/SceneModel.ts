@@ -240,7 +240,8 @@ export class SceneModel extends Component {
      * ````
      *
      * @param transformParams Transform creation parameters.
-     * @throws {Error} If SceneModel has already been built or destroyed.
+     * @throws {@link Error}
+     * * If SceneModel has already been built or destroyed.
      */
     createTransform(transformParams: TransformParams): void {
         if (this.destroyed) {
@@ -283,9 +284,10 @@ export class SceneModel extends Component {
      * ````
      *
      * @param textureParams Texture creation parameters.
-     * @throws {Error} If SceneModel has already been built or destroyed.
-     * @throws {Error} Invalid TextureParams were given.
-     * @throws {Error} Texture with given ID already exists.
+     * @throws {@link Error}
+     * * If SceneModel has already been built or destroyed.
+     * * Invalid TextureParams were given.
+     * * Texture with given ID already exists.
      */
     createTexture(textureParams: TextureParams): Texture {
         if (this.destroyed) {
@@ -336,10 +338,11 @@ export class SceneModel extends Component {
      *
      * @param textureSetParams TextureSet creation parameters.
      *
-     * @throws {Error} If SceneModel has already been built or destroyed.
-     * @throws {Error} Invalid TextureSetParams were given.
-     * @throws {Error} TextureSet with given ID already exists in this SceneModel.
-     * @throws {Error} One or more of the given Textures could not be found in this SceneModel.
+     * @throws {@link Error}
+     * * If SceneModel has already been built or destroyed.
+     * * Invalid TextureSetParams were given.
+     * * TextureSet with given ID already exists in this SceneModel.
+     * * One or more of the given Textures could not be found in this SceneModel.
      */
     createTextureSet(textureSetParams: TextureSetParams): TextureSet {
         if (this.destroyed) {
@@ -435,13 +438,17 @@ export class SceneModel extends Component {
      * ````
      *
      * @param geometryParams Non-compressed geometry parameters.
-     * @throws {Error} If this SceneModel has already been destroyed.
-     * @throws {Error} If this SceneModel has already been built.
-     * @throws {Error} Invalid GeometryParams were given.
-     * @throws {Error} Geometry of given ID already exists in this SceneModel.
-     * @throws {Error} Unsupported primitive type given.
-     * @throws {Error} Mandatory vertex positions were not given. These are mandatory for all primitive types.
-     * @throws {Error} Mandatory indices were not given for primitive type that is not {@link PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+     * @throws {@link Error}
+     * * If this SceneModel has already been destroyed.
+     * * If this SceneModel has already been built.
+     * * Invalid GeometryParams were given.
+     * * Geometry of given ID already exists in this SceneModel.
+     * * Unsupported primitive type given.
+     * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
+     * * Mandatory indices were not given for primitive type that is not {@link PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+     * * Indices out of range of vertex positions.
+     * * Indices out of range of vertex UVs.
+     * * Mismatch between given quantities of vertex positions and UVs.
      * @returns {Geometry} The new Geometry.
      */
     createGeometry(geometryParams: GeometryParams): Geometry {
@@ -470,6 +477,26 @@ export class SceneModel extends Component {
         }
         if (!geometryParams.indices && primitive !== PointsPrimitive) {
             throw new Error(`Param expected: geometryParams.indices (required for primitive type)`);
+        }
+        if (geometryParams.uvs) {
+            if (geometryParams.uvs.length / 2 !== geometryParams.positions.length / 3) {
+                throw new Error("Mismatch between given quantities of vertex positions and UVs");
+            }
+        }
+        if (geometryParams.indices) {
+            const lastPositionsIdx = geometryParams.positions.length / 3;
+            for (let i = 0, len = geometryParams.indices.length; i < len; i++) {
+                const idx = geometryParams.indices[i];
+                if (idx < 0 || idx >= lastPositionsIdx) {
+                    throw new Error("Indices out of range of vertex positions");
+                }
+                if (geometryParams.uvs) {
+                    const lastUVsIdx = geometryParams.uvs.length / 2;
+                    if (idx < 0 || idx >= lastUVsIdx) {
+                        throw new Error("Indices out of range of vertex UVs");
+                    }
+                }
+            }
         }
         const geometry = new Geometry(<GeometryCompressedParams>compressGeometryParams(geometryParams));
         this.geometries[geometryId] = geometry;
@@ -512,11 +539,12 @@ export class SceneModel extends Component {
      * ````
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
-     * @throws {Error} If this SceneModel has already been destroyed.
-     * @throws {Error} If this SceneModel has already been built.
-     * @throws {Error} Invalid GeometryParams were given.
-     * @throws {Error} Geometry of given ID already exists in this SceneModel.
-     * @throws {Error} Unsupported primitive type given.
+     * @throws {@link Error}
+     * * If this SceneModel has already been destroyed.
+     * * If this SceneModel has already been built.
+     * * Invalid GeometryParams were given.
+     * * Geometry of given ID already exists in this SceneModel.
+     * * Unsupported primitive type given.
      * @returns {Geometry} The new Geometry.
      */
     createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): Geometry {
@@ -566,12 +594,13 @@ export class SceneModel extends Component {
      * An {@link Mesh} can be owned by one {@link SceneObject}, which can own multiple {@link Mesh}es.
      *
      * @param meshParams Pre-compressed mesh parameters.
-     * @throws {Error} If this SceneModel has already been destroyed.
-     * @throws {Error} If this SceneModel has already been built.
-     * @throws {Error} Invalid MeshParams were given.
-     * @throws {Error} Mesh of given ID already exists in this SceneModel.
-     * @throws {Error} Specified Geometry could not be found in this SceneModel.
-     * @throws {Error} Specified TextureSet could not be found in this SceneModel.
+     * @throws {@link Error}
+     * * If this SceneModel has already been destroyed.
+     * * If this SceneModel has already been built.
+     * * Invalid MeshParams were given.
+     * * Mesh of given ID already exists in this SceneModel.
+     * * Specified Geometry could not be found in this SceneModel.
+     * * Specified TextureSet could not be found in this SceneModel.
      * @returns {Mesh} The new Mesh.
      */
     createMesh(meshParams: MeshParams): Mesh {
@@ -635,13 +664,14 @@ export class SceneModel extends Component {
      * Registers the new {@link SceneObject} in {@link SceneModel.objects}.
      *
      * @param objectParams SceneObject parameters.
-     * @throws {Error} If this SceneModel has already been destroyed.
-     * @throws {Error} If this SceneModel has already been built.
-     * @throws {Error} Invalid ObjectParams were given.
-     * @throws {Error} SceneObject of given ID already exists in this SceneModel.
-     * @throws {Error} No Meshes were specified.
-     * @throws {Error} One or more of the specified Meshes already belong to another SceneObject in this SceneModel.
-     * @throws {Error} Specified Meshes could not be found in this SceneModel.
+     * @throws {@link Error}
+     * * If this SceneModel has already been destroyed.
+     * * If this SceneModel has already been built.
+     * * Invalid ObjectParams were given.
+     * * SceneObject of given ID already exists in this SceneModel.
+     * * No Meshes were specified.
+     * * One or more of the specified Meshes already belong to another SceneObject in this SceneModel.
+     * * Specified Meshes could not be found in this SceneModel.
      * @returns {Mesh} The new SceneObject.
      */
     createObject(objectParams: ObjectParams): SceneObject {
@@ -707,8 +737,9 @@ export class SceneModel extends Component {
      *
      * Once built, you cannot add any more components to this SceneModel.
      *
-     * @throws {Error} If SceneModel has already been built or destroyed.
-     * @throws {Error} If no SceneObjects were created in this SceneModel.
+     * @throws {@link Error}
+     * * If SceneModel has already been built or destroyed.
+     * * If no SceneObjects were created in this SceneModel.
      */
     async build() {
         if (this.destroyed) {

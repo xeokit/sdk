@@ -3891,3 +3891,17 @@ export const IfcZone = 1772;
  * IfcZShapeProfileDef defines a section profile that provides the defining parameters of a Z-shape section to be used by the swept area solid. Its parameters and orientation relative to the position coordinate system are according to the following illustration. The centre of the position coordinate system is in the profile's centre of the bounding box.
  */
 export const IfcZShapeProfileDef = 1773;
+
+/**
+ * Map of names for all supported IFC types.
+ */
+export const typeNames: { [key: number]: string } = {
+    // TODO
+};
+
+/**
+ * Map of type codes for all IFC type names.
+ */
+export const typeCodes: { [key: string]: number } = {
+   // TODO
+};

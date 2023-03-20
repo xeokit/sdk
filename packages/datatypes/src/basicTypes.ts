@@ -1,8 +1,8 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdatatypes.svg)](https://badge.fury.io/js/%40xeokit%2Fdatatypes)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/datatypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/datatypes)
- * 
- * <img style="padding:10px" src="media://images/xeokit_components_icon.png"/>
+ *
+ * <img style="padding:10px; width:300px" src="media://images/xeokit_components_icon.png"/>
  *
  * ## Basic Data Types
  *
@@ -30,3 +30,20 @@ export const BasicEntity = 1000;
  * A generic aggregation relationship between two generic entities.
  */
 export const BasicAggregation = 1001;
+
+
+/**
+ * Map of names for all basic entity types.
+ */
+export const typeNames: { [key: number]: string } = {
+    [BasicEntity]: "BasicEntity",
+    [BasicAggregation]: "BasicAggregation"
+};
+
+/**
+ * Map of type codes for all basic entity type names.
+ */
+export const typeCodes: { [key: string]: number } = {
+    "BasicEntity": BasicEntity,
+    "BasicAggregation": BasicAggregation
+};

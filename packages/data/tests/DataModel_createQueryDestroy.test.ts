@@ -151,11 +151,19 @@ describe('build', function () {
         expect(tableTopAggregations[3].relatingObject.id).toBe("tableTop");
         expect(tableTopAggregations[3].relatedObject.id).toBe("yellowLeg");
 
-        // Does the DataModel serialize correctly to JSON?
 
-        // const dataModelJSON = dataModel.getJSON();
-        // console.log(JSON.stringify(dataModelJSON, null, "\t"));
-        // expect(testUtils.deepEquals(testUtils.sampleDataModelJSON, dataModelJSON)).toBe(true);
+        const resultObjectIds = [];
+
+        data.searchDataObjects({
+            startObjectId: "tableTop",
+            includeRelated: [BasicAggregation],
+            resultObjectIds
+        });
+
+        console.log(resultObjectIds);
+        expect(resultObjectIds).toStrictEqual([
+            "table", "redLeg", "greenLeg", "blueLeg", "yellowLeg", "tableTop"
+        ]);
 
         dataModel.destroy();
 

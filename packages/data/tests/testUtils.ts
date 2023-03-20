@@ -155,80 +155,77 @@ export const sampleDataModelJSON = { // DataModel
 //     return true;
 // }
 
-    function isObject(object) {
-        return object != null && typeof object === 'object';
+function isObject(object) {
+    return object != null && typeof object === 'object';
+}
+
+var getClass = function (val) {
+    return Object.prototype.toString.call(val).match(/^\[object\s(.*)\]$/)[1];
+};
+
+var whatis = function (val) {
+    if (val === undefined)
+        return 'undefined';
+    if (val === null)
+        return 'null';
+    var type: any = typeof val;
+    if (type === 'object')
+        type = getClass(val).toLowerCase();
+    if (type === 'number') {
+        if (val.toString().indexOf('.') > 0)
+            return 'float';
+        else
+            return 'integer';
     }
+    return type;
+};
 
-    var getClass = function (val) {
-        return Object.prototype.toString.call(val).match(/^\[object\s(.*)\]$/)[1];
-    };
-
-    var whatis = function (val) {
-        if (val === undefined)
-            return 'undefined';
-        if (val === null)
-            return 'null';
-        var type = typeof val;
-        if (type === 'object')
-            type = getClass(val).toLowerCase();
-        if (type === 'number') {
-            if (val.toString().indexOf('.') > 0)
-                return 'float';
-            else
-                return 'integer';
-        }
-        return type;
-    };
-
-    var compareObjects = function (a, b) {
-        if (a === b)
-            return true;
-        for (var i in a) {
-            if (b.hasOwnProperty(i)) {
-                if (!deepEquals(a[i], b[i])) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
-        for (var i in b) {
-            if (!a.hasOwnProperty(i)) {
-                return false;
-            }
-        }
+var compareObjects = function (a, b) {
+    if (a === b)
         return true;
-    };
-
-    var compareArrays = function (a, b) {
-        if (a === b)
-            return true;
-        if (a.length !== b.length)
+    for (var i in a) {
+        if (b.hasOwnProperty(i)) {
+            if (!deepEquals(a[i], b[i])) {
+                return false;
+            }
+        } else {
             return false;
-        for (var i = 0; i < a.length; i++) {
-            if (!deepEquals(a[i], b[i])) return false;
         }
-        return true;
-    };
+    }
+    for (var i in b) {
+        if (!a.hasOwnProperty(i)) {
+            return false;
+        }
+    }
+    return true;
+};
 
-    var _equal = {};
-    // @ts-ignore
+var compareArrays = function (a, b) {
+    if (a === b)
+        return true;
+    if (a.length !== b.length)
+        return false;
+    for (var i = 0; i < a.length; i++) {
+        if (!deepEquals(a[i], b[i])) return false;
+    }
+    return true;
+};
+
+var _equal = {};
+// @ts-ignore
 _equal.array = compareArrays;
-    // @ts-ignore
+// @ts-ignore
 _equal.object = compareObjects;
-    // @ts-ignore
+// @ts-ignore
 _equal.date = function (a, b) {
-        return a.getTime() === b.getTime();
-    };
-    // @ts-ignore
+    return a.getTime() === b.getTime();
+};
+// @ts-ignore
 _equal.regexp = function (a, b) {
-        return a.toString() === b.toString();
-    };
+    return a.toString() === b.toString();
+};
 //	uncoment to support function as string compare
 //	_equal.fucntion =  _equal.regexp;
-
-
-
 
 
 /*
@@ -237,7 +234,7 @@ _equal.regexp = function (a, b) {
  * @param b {any}
  * @return {boolean} Are equal?
  */
-export function deepEquals (a, b) {
+export function deepEquals(a, b) {
     if (a !== b) {
         var atype = whatis(a), btype = whatis(b);
 

@@ -181,15 +181,17 @@ export class Viewer extends Component {
      * ````
      *
      * @param params View configuration.
+     * @throws {@link Error}
+     * * If View already exists with the given ID.
+     * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
      */
     createView(params: ViewParams): View {
         if (this.viewList.length >= this.capabilities.maxViews) {
             throw new Error(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
         }
-        let viewId = params.viewId || createUUID();
+        let viewId = params.id || createUUID();
         if (this.views[viewId]) {
-            this.error(`View with ID "${viewId}" already exists - will randomly-generate ID`);
-            viewId = createUUID();
+            throw new Error(`View with ID "${viewId}" already exists`);
         }
         // @ts-ignore
         const canvasElement = params.canvasElement || document.getElementById(params.canvasId);

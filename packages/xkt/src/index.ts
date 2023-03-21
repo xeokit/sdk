@@ -6,9 +6,12 @@
  *
  * # XKT Model Loader and Saver
  *
- * * XKT is xeokit's native compressed sceneModel format, which contains geometry, materials, objects and semantic data in a compact, Web-friendly payload.
- * * {@link loadXKT} loads XKT into a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}.
- * * {@link saveXKT} saves XKT from a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}.
+ * * [XKT](/docs/pages/GLOSSARY.html#xkt) is xeokit's native compressed sceneModel format, which contains geometry, materials, objects and semantic data in a
+ * compact, Web-friendly payload.
+ * * {@link loadXKT} loads XKT into a {@link @xeokit/scene!SceneModel | SceneModel} and an
+ * optional {@link @xeokit/data!DataModel | DataModel}.
+ * * {@link saveXKT} saves XKT from a {@link @xeokit/scene!SceneModel | SceneModel} and
+ * an optional {@link @xeokit/data!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -104,7 +107,6 @@
  *         });
  *
  *         sceneModel.build();
- *
  *         dataModel.build();
  *     });
  * });

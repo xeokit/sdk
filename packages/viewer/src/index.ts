@@ -74,7 +74,7 @@
  *
  * ### Creating a View
  *
- * Create a {@link @xeokit/viewer!View} and arrange its {@link @xeokit/viewer!Camera}:
+ * Within our Viewer, create a {@link @xeokit/viewer!View} and arrange its {@link @xeokit/viewer!Camera}:
  *
  * ````javascript
  * const view1 = myViewer.createView({

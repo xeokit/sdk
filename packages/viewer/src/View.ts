@@ -30,6 +30,8 @@ import {RendererViewObject} from "./RendererViewObject";
 /**
  * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
  *
+ * See {@link @xeokit/viewer} for usage.
+ *
  * ## Overview
  *
  * A View is an independently-configurable view of the {@link RendererViewObject | ViewerObjects} existing within a Viewer, with

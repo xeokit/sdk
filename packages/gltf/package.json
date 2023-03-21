@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "glTF loader for xeokit",
   "scripts": {
-    "publish": "npm publish --access public"
+    "publish": "npm publish --access public",
+    "XXtest": "jest --silent=false"
   },
   "repository": {
     "type": "git",
@@ -44,9 +45,13 @@
     "3d-viewer"
   ],
   "dependencies": {
+    "@jest/globals": "^29.5.0",
     "@loaders.gl/core": "^3.2.6",
     "@loaders.gl/gltf": "^3.2.6",
     "@loaders.gl/polyfills": "^3.2.6",
-    "@loaders.gl/textures": "^3.2.6"
+    "@loaders.gl/textures": "^3.2.6",
+    "core-js": "^3.22.5",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
   }
 }

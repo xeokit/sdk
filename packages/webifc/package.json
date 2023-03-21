@@ -1,0 +1,53 @@
+{
+  "name": "@xeokit/webifc",
+  "version": "0.0.1",
+  "description": "CityJSON loader for xeokit",
+  "scripts": {
+    "publish": "npm publish --access public",
+    "XXtest": "jest --silent=false"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xeokit/sdk.git"
+  },
+  "author": "Lindsay Kay",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/xeokit/sdk/issues"
+  },
+  "homepage": "https://xeokit.io",
+  "files": [
+    "src/",
+    "README.md",
+    "package.json",
+    "package-lock.json"
+  ],
+  "keywords": [
+    "webgl",
+    "webgpu",
+    "javascript",
+    "xeokit",
+    "xeolabs",
+    "creoox",
+    "ifc",
+    "bcf",
+    "bim",
+    "gis",
+    "cad",
+    "openbim",
+    "opensource",
+    "cityJSON",
+    "3dxml",
+    "obj",
+    "stl",
+    "las",
+    "pointcloud",
+    "3d-viewer"
+  ],
+  "dependencies": {
+    "@xeokit/core": "^0.0.1",
+    "@xeokit/math": "^0.0.1",
+    "web-ifc": "^0.0.35"
+  }
+}
+

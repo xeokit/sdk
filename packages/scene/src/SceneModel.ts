@@ -87,7 +87,10 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 };
 
 /**
- * A buildable scene model representation, containing objects, meshes, geometries, materials and textures.
+ * Scene model representation.
+ *
+ * * Contains {@link SceneObject | SceneObjects},
+ *  {@link Mesh | Meshes}, {@link Geometry | Geometries} and of {@link Texture | Textures}.
  *
  * See usage in:
  *

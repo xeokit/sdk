@@ -11,6 +11,8 @@ import {Scene, SceneModel} from "@xeokit/scene";
 /**
  * A layer of {@link ViewObject | ViewObjects} in a {@link @xeokit/viewer!View}.
  *
+ * See {@link "@xeokit/viewer"} for usage.
+ *
  * ## Summary
  *
  * * Automatically stores a {@link ViewObject} for each existing {@link RendererObject} that has a matching {@link RendererObject.viewLayerId | ViewerObject.viewLayerId}

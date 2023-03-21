@@ -6,8 +6,9 @@
  *
  * # glTF Model Loader
  *
- * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models
- * * {@link loadGLTF} loads glTF into a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}.
+ * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models.
+ * * {@link loadGLTF} loads glTF into a {@link @xeokit/scene!SceneModel | SceneModel} and an
+ * optional {@link @xeokit/data!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -17,47 +18,33 @@
  *
  * ## Usage
  *
- * Loading a glTF file into a {@link @xeokit/scene!SceneModel | SceneModel}:
+ * Loading a glTF file into a {@link @xeokit/scene!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
+ * import {Data} from "@xeokit/data";
  * import {Scene} from "@xeokit/scene";
  * import {loadGLTF} from "@xeokit/gltf";
  *
+ * const data = new Data();
  * const scene = new Scene();
  *
- * const sceneModel = scene.createModel();
+ * const dataModel = data.createModel({
+ *     id: "myModel
+ * });
+ *
+ * const sceneModel = scene.createModel({
+ *     id: "myModel
+ * });
  *
  * fetch("myModel.glb").then(response => {
+ *
  *     response.arrayBuffer().then(data => {
  *
- *          loadGLTF({ data, sceneModel });
+ *          loadGLTF({ data, dataModel, sceneModel });
+ *
+ *          dataModel.build();
  *          sceneModel.build();
  *     })
- * });
- * ````
- *
- * Loading a glTF file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel}:
- *
- * ````javascript
- * import {Viewer} from "@xeokit/viewer";
- * import {loadGLTF} from "@xeokit/gltf";
- *
- * const myViewer = new Viewer({
- *     //...
- * });
- *
- * //...
- *
- * const sceneModel = myViewer.scene.createModel({
- *     id: "sceneModel"
- * });
- *
- * fetch("myModel.glb").then(response => {
- *     response.arrayBuffer().then(data => {
- *
- *          loadGLTF({ data, sceneModel });
- *          sceneModel.build();
- *      });
  * });
  * ````
  *

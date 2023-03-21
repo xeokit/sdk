@@ -78,7 +78,7 @@ export class Data extends Component {
     readonly typeCounts: { [key: string]: number };
 
     /**
-     *
+     * Creates a new Data.
      */
     constructor() {
 
@@ -105,7 +105,6 @@ export class Data extends Component {
      * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
      * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
      * @returns The new DataModel.
-     * @see {@link View.createModel}
      */
     createModel(
         dataModelParams: DataModelParams,
@@ -147,7 +146,7 @@ export class Data extends Component {
      * Usually we use this method to recursively find DataObjects of specific {@link DataObject.type | types} within
      * a hierarchy.
      *
-     * See {@link Data} for usage examples.
+     * See {@link "@xeokit/data"} for usage examples.
      *
      * @param searchParams
      */

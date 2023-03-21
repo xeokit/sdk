@@ -6,8 +6,9 @@
  *
  * # CityJSON Model Loader
  *
- * * [CityJSON](https://en.wikipedia.org/wiki/Cityjson) is an industry standard format for 3D scenes and models
- * * {@link loadCityJSON} loads CityJSON into a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}.
+ * * [CityJSON](/docs/pages/GLOSSARY.html#cityjson) is an industry standard format for 3D scenes and models
+ * * {@link loadCityJSON} loads CityJSON into a {@link @xeokit/scene!SceneModel | SceneModel} and an
+ * optional {@link @xeokit/data!DataModel | DataModel}.
  *
  * ## Installation
  *
@@ -17,7 +18,7 @@
  *
  * ## Usage
  *
- * Loading a CityJSON file into a {@link @xeokit/scene!SceneModel | SceneModel}:
+ * Loading a CityJSON file into a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}:
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
@@ -27,45 +28,34 @@
  * const scene = new Scene();
  * const data = new Data();
  *
- * const sceneModel = scene.createModel();
- * const dataModel = data.createModel();
- *
- * fetch("myModel.glb").then(response => {
- *     response.arrayBuffer().then(data => {
- *
- *          loadCityJSON({ data, sceneModel, dataModel });
- *
- *          sceneModel.build();
- *          dataModel.build();
- *     })
+ * const dataModel = data.createModel({
+ *     id: "myModel"
  * });
+ *
+ * const sceneModel = scene.createModel({
+ *     id: "myModel"
+ * });
+ *
+ * fetch("myModel.json")
+ *      .then(function (response) {
+ *          return response.json();
+ *      })
+ *      .then(function (data) {
+ *          const fileData = JSON.parse(data);
+ *
+ *          loadCityJSON({
+ *              data: fileData,
+ *              sceneModel,
+ *              dataModel
+ *          }, {
+ *              rotateX: true
+ *          }).then(() => {
+ *
+ *         sceneModel.build();
+ *         dataModel.build();
+ *    });
  * ````
  *
- * Loading a CityJSON file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel}:
- *
- * ````javascript
- * import {Viewer} from "@xeokit/viewer";
- * import {loadCityJSON} from "@xeokit/cityjson";
- *
- * const myViewer = new Viewer({
- *     //...
- * });
- *
- * //...
- *
- * const sceneModel = myViewer.scene.createModel({
- *     id: "sceneModel"
- * });
- *
- * fetch("myModel.glb").then(response => {
- *     response.arrayBuffer().then(data => {
- *
- *          loadCityJSON({ data, sceneModel });
- *
- *          sceneModel.build();
- *      });
- * });
- * ````
  *
  * @module @xeokit/cityjson
  */

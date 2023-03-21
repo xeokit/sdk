@@ -49,8 +49,8 @@ export function loadXKT(params: {
         if (params.dataModel.destroyed) {
             throw new Error("DataModel already destroyed");
         }
-        if (!params.dataModel.built) {
-            throw new Error("DataModel not yet built");
+        if (params.dataModel.built) {
+            throw new Error("DataModel already built");
         }
     }
     return new Promise<void>(function (resolve, reject) {

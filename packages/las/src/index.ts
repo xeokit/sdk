@@ -19,47 +19,33 @@
  *
  * ## Usage
  *
- * Loading a LAS file into a {@link @xeokit/scene!SceneModel | SceneModel}:
+ * Loading an LAS file into a {@link @xeokit/scene!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
- * import {SceneModel} from "@xeokit/scene";
+ * import {Data} from "@xeokit/data";
+ * import {Scene} from "@xeokit/scene";
  * import {loadLAS} from "@xeokit/las";
  *
- * const sceneModel = new SceneModel();
+ * const data = new Data();
+ * const scene = new Scene();
  *
- * fetch("myModel.las").then(response => {
- *     response.arrayBuffer().then(data => {
- *                  
- *         loadLAS({ data, sceneModel });
- *
- *         sceneModel.build();
- *     });
- * });
- * ````
- *
- * Loading a LAS file into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/scene!SceneModel | SceneModel}:
- *
- * ````javascript
- * import {Viewer} from "@xeokit/viewer";
- * import {loadLAS} from "@xeokit/las";
- *
- * const myViewer = new Viewer({
- *     //...
+ * const dataModel = data.createModel({
+ *     id: "myModel
  * });
  *
- * //...
- *
- * const sceneModel= myViewer.scene.createModel({
- *     id: "sceneModel"
+ * const sceneModel = scene.createModel({
+ *     id: "myModel
  * });
  *
  * fetch("myModel.las").then(response => {
+ *
  *     response.arrayBuffer().then(data => {
  *
- *         loadLAS({ data, sceneModel });
+ *          loadLAS({ data, dataModel, sceneModel });
  *
- *         sceneModel.build();
- *     });
+ *          dataModel.build();
+ *          sceneModel.build();
+ *     })
  * });
  * ````
  *

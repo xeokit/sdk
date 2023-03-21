@@ -50,15 +50,13 @@ export function loadGLTF(params: {
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
+    if (!params.data) {
+        throw new Error("Argument expected: data");
+    }
+    if (!params.sceneModel) {
+        throw new Error("Argument expected: sceneModel");
+    }
     return new Promise<void>(function (resolve, reject) {
-        if (!params.data) {
-            reject("Argument expected: data");
-            return;
-        }
-        if (!params.sceneModel) {
-            reject("Argument expected: sceneModel");
-            return;
-        }
         parse(params.data, GLTFLoader, {}).then((gltfData) => {
             const ctx: ParsingContext = {
                 gltfData,

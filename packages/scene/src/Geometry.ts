@@ -79,7 +79,7 @@ export class Geometry {
      *
      * @internal
      */
-    rendererGeometry? : RendererGeometry;
+    rendererGeometry?: RendererGeometry;
 
     constructor(params: GeometryCompressedParams) {
         this.geometryBuckets = params.geometryBuckets;

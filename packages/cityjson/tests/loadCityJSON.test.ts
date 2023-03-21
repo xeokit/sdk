@@ -2,6 +2,7 @@ import {Scene} from "@xeokit/scene";
 import {Data} from "@xeokit/data";
 import {loadCityJSON} from "../src";
 import {railwayMeshGeometryIds, railwayObjectIds, railwayObjectMeshes} from "./assets/testUtils";
+import {BasicAggregation} from "@xeokit/datatypes/src/cityJSONTypes_1_1_3";
 
 const fs = require('fs');
 
@@ -86,6 +87,21 @@ describe('loadCityJSON Test', () => {
 
                             // SceneModel.createGeometry etc. is already tested in @xeokit/scene
                         }
+
+                        // Test query
+
+                        const resultObjectIds = [];
+
+                        data.searchDataObjects({
+                            startObjectId: "GMLID_BUI130363_1235_6047",
+                            includeRelated: [BasicAggregation],
+                            resultObjectIds
+                        });
+
+                        //    console.log(resultObjectIds)
+                        expect(resultObjectIds).toStrictEqual([
+                            "UUID_31689e39-de68-44f1-a882-cd2574ffd67f"
+                        ]);
                     }
                 });
             });

@@ -2,15 +2,15 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fbcf.svg)](https://badge.fury.io/js/%40xeokit%2Fbcf)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/bcf/badge)](https://www.jsdelivr.com/package/npm/@xeokit/bcf)
  * 
- * <img style="padding:20px" src="media://images/xeokit_bcf_logo.png"/>
+ * <img style="padding:20px; padding-bottom:10px; " src="media://images/xeokit_bcf_logo.png"/>
  *
- * # Load and Save {@link "@xeokit/viewer" | Viewer} State as BCF
+ * # Import and Export BCF
  *
- * The BIM Collaboration Format ([BCF](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#cityjson)) is an open file
+ * The BIM Collaboration Format ({@link BCFViewpoint}) is an open file
  * format for exchanging data and collaborating on 3D models and building information. It was created by the
  * buildingSMART organization and is widely used in the architecture, engineering, and construction (AEC) industry.
  *
- * The xeokit SDK provides support for BCF through functions to save and load Viewer state as BCF viewpoints.
+ * The xeokit SDK provides support for BCF through functions to import and export Viewer state as BCF viewpoints.
  *
  * * {@link loadBCFViewpoint} loads a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer}
  * * {@link saveBCFViewpoint} saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a JSON-encoded BCF viewpoint
@@ -65,8 +65,8 @@
  * Then we'll fetch an ArrayBuffer containing an XKT file and use {@link @xeokit/xkt!loadXKT} to
  * load it into our SceneModel and DataModel.
  *
- * > See {@link "@xeokit/scene"} for more info on creating SceneModels.
- * > See {@link "@xeokit/data"} for more info on creating DataModels.
+ * > * See {@link "@xeokit/scene"} for info on creating SceneModels.
+ * > * See {@link "@xeokit/data"} for info on creating DataModels.
  *
  * ````javascript
  * fetch("myModel.xkt").then(response => {
@@ -86,7 +86,7 @@
  * Viewer with a {@link @xeokit/webglrenderer!WebGLRenderer}, so that it will use the browser's WebGL graphics API
  * for rendering.
  *
- * As always, we also need to give our Viewer at least one {@link @xeokit/viewer!View}, to bind it to an
+ * As always, we also need to give our Viewer at least one {@link @xeokit/viewer!View | View}, to bind it to an
  * HTML canvas element.
  *
  * ````javascript
@@ -136,7 +136,8 @@
  * });
  * ````
  *
- * Use {@link loadBCFViewpoint} to load the {@link BCFViewpoint} back into the {@link @xeokit/viewer!View | View}:
+ * Now that we've saved the {@link BCFViewpoint}, we could now use {@link loadBCFViewpoint} to load
+ * the {@link BCFViewpoint} back into the {@link @xeokit/viewer!View | View}:
  *
  * ````javascript
  * loadBCFViewpoint({
@@ -149,8 +150,9 @@
  *
  * As before, let's create a Viewer with a View and a SceneModel.
  *
- * This time, we'll add two ViewLayers to our View, and we'll associate our SceneModel with one of those
- * ViewLayers.
+ * This time, we'll add two {@link @xeokit/viewer!ViewLayer | ViewLayers} to our View, and we'll associate our SceneModel with one of those
+ * ViewLayers. ViewLayers allow us to partition our ViewObjects into bins, so that we can conveniently focus certain operations (eg. import/export
+ * BCF) only on the relevant ViewObjects.
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
@@ -199,8 +201,9 @@
  * myOtherSceneModel.build();
  * ````
  *
- * Now we can use {@link saveBCFViewpoint} to save specifically the {@link @xeokit/viewer!ViewLayer | ViewLayer} that
- * contains our SceneModel to a {@link BCFViewpoint}, while ignoring the other ViewLayer:
+ * Now we can use {@link saveBCFViewpoint} to save the states of only the {@link @xeokit/viewer!ViewObject | ViewObjects} in the
+ * {@link @xeokit/viewer!ViewLayer | ViewLayer} that contains our SceneModel to a {@link BCFViewpoint}, while ignoring the
+ * other ViewLayer:
  *
  * ````javascript
  * const myBCFViewpoint = saveBCFViewpoint({

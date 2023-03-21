@@ -4,7 +4,7 @@
 export interface Capabilities {
 
     /**
-     * Maximum number of {@link View|Views} allowed.
+     * Maximum number of Views allowed.
      */
     maxViews: number;
 

@@ -324,18 +324,18 @@
  * a tree view of an IFC element hierarchy.
  *
  * ````javascript
- * const objectIds = [];
+ * const resultObjectIds = [];
  *
  * myData.searchDataObjects({
  *     startObjectId: "table",
  *     includeObjects: [basicTypes.BasicEntity],
- *     includerelatedObjectId: [basicTypes.BasicAggregation],
- *     objectIds
+ *     includeRelated: [basicTypes.BasicAggregation],
+ *     resultObjectIds
  * });
  *
- * // objectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
+ * // resultObjectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
  *
- * view.setObjectsHighlighted(objectIds, true);
+ * view.setObjectsHighlighted(resultObjectIds, true);
  * ````
  *
  * * ### Example 4. Traversing DataObjects

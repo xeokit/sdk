@@ -131,8 +131,6 @@ export class Component {
         if (this.destroyed) {
             return;
         }
-        this.onDestroyed.dispatch(this, null);
-        this.onDestroyed.clear();
         this.destroyed = true;
         if (this.#ownedComponents) {
             for (let id in this.#ownedComponents) {
@@ -145,6 +143,8 @@ export class Component {
         }
         this.#ownedComponents = null;
         this.dirty = false;
+        this.onDestroyed.dispatch(this, null);
+        this.onDestroyed.clear();
     }
 
     #prefixMessageWithID(message: string): string {

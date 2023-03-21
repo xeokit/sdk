@@ -12,7 +12,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import {PropertyParams} from "./PropertyParams";
 
 /**
- * A buildable entity-relationship semantic data model.
+ * A semantic data model, as an entity-relationship graph.
  *
  * See {@link "@xeokit/data"} for usage.
  *
@@ -21,8 +21,8 @@ import {PropertyParams} from "./PropertyParams";
  *  * A DataModel is a generic entity-relationship graph of {@link DataObject | DataObjects},
  *  {@link PropertySet | PropertySets} and {@link Relationship | Relationships}
  *  * Can be used for IFC and all other schemas that are expressable as an ER graph
- *  * Created with {@link Data.createModel}
- *  * Stored in {@link Data.models}
+ *  * Created with {@link Data.createModel | Data.createModel}
+ *  * Stored in {@link Data.models | Data.models
  */
 class DataModel extends Component {
 

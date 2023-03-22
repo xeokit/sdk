@@ -1,26 +1,26 @@
 /**
- * Parameters to create a {@link DataObject} with {@link @xeokit/data!DataModel.createObject}.
+ * Parameters to create a {@link DataObject} with {@link DataModel.createObject | DataModel.createObject}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
 export interface DataObjectParams {
 
     /**
-     * Globally-unique ID for the new {@link DataObject}.
+     * Globally-unique ID for the {@link DataObject}.
      *
-     * DataObject instances are registered by this ID in {@link Data.objects} and {@link @xeokit/data!DataModel.objects}.
+     * DataObjects are stored by ID in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | Data.objects}, {@link DataModel.rootObjects | Data.rootObjects}.
      *
      * See {@link Data} for usage examples.
      */
     id: string;
 
     /**
-     * The {@link DataObject}'s type.
+     * The {@link DataObject} type.
      */
     type: number;
 
     /**
-     * Human-readable name.
+     * Human-readable name for the DataObject.
      */
     name: string;
 

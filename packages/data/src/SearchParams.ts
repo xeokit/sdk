@@ -1,27 +1,9 @@
 import type {DataObject} from "./DataObject";
 
-// const foo = {
-//     startAt: "myObject",
-//     include: {
-//         relations: {
-//             relatingObjectId: [0, 2],
-//             relatedObjectId: [1]
-//         },
-//         objectTypes: [4]
-//     },
-//     exclude: {
-//         relations: {
-//             relatingObjectId: [3],
-//             relatedObjectId: [2]
-//         },
-//         objectTypes: [4]
-//     }
-// }
-
 /**
- * Parameters for finding {@link DataObject | DataObjects} with {@link Data.searchDataObjects}.
+ * Parameters for finding {@link DataObject | DataObjects} with {@link Data.searchObjects | Data.searchObjects}.
  *
- * These parameters configure the way that {@link Data.searchDataObjects} performs its depth-first
+ * These parameters configure the way that {@link Data.searchObjects | Data.searchObjects} performs its depth-first
  * search to find our {@link DataObject | DataObjects}.
  *
  * See {@link "@xeokit/data"} for usage.
@@ -60,22 +42,22 @@ export interface SearchParams {
     excludeObjects?: number[];
 
     /**
-     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.relating}.
+     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.relating | DataObject.relating}.
      */
     includeRelating?: number[];
 
     /**
-     * Which {@link Relationship} types to never follow in each {@link DataObject.related}.
+     * Which {@link Relationship} types to never follow in each {@link DataObject.related | DataObject.related}.
      */
     excludeRelating?: number[];
 
     /**
-     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.related}.
+     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.related | DataObject.related}.
      */
     includeRelated?: number[];
 
     /**
-     * Which {@link Relationship} types to never follow in each {@link DataObject.relating}.
+     * Which {@link Relationship} types to never follow in each {@link DataObject.relating | DataObject.relating}.
      */
     excludeRelated?: number[];
 

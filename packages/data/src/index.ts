@@ -4,15 +4,18 @@
  *
  * <img style="padding:50px" src="media://images/xeokit_datamodel_icon.png"/>
  *
- * # Entity-Relationship Data Model
+ * # Semantic Data Model
  *
- * * {@link @xeokit/data!Data | Data}, {@link @xeokit/data!DataModel | DataModel}
- * * Entity-relationship (ER) graph that can be used with a {@link @xeokit/viewer!Viewer} to classify models
- * * Extensible entity and relationship types - use with an external set of types (eg. {@link "@xeokit/datatypes/basicTypes" | basicTypes}, {@link "@xeokit/datatypes/ifcTypes" | ifcTypes})
- * * A single graph into which we can merge multiple ER data models - objects, properties and relationships
- * * Builder API to programmatically create data models
- * * Dynamically create and destroy data models
- * * Find data objects with traversals
+ * * An entity-relationship semantic data graph.
+ * * {@link @xeokit/data!Data} is a container for {@link @xeokit/data!DataModel | DataModels}, which contain {@link DataObject | DataObjects}, {@link PropertySet | PropertySets} and {@link Relationship | Relationships}.
+ * * Import DataModels from various model file formats using {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS},
+ * {@link "@xeokit/cityjson" | loadCityJSON}, {@link "@xeokit/xkt" | loadXKT} etc.
+ * * Export DataModels to native XKT format using {@link "@xeokit/xkt" | saveXKT}.
+ * * Programmatically build DataModels using builder methods {@link @xeokit/data!Data.createModel | Data.createModel},
+ * {@link @xeokit/data!DataModel.createObject | DataModel.createObject},
+ * {@link @xeokit/data!DataModel.createPropertySet | DataModel.createPropertySet} and {@link @xeokit/data!DataModel.createRelationship | DataModel.createRelationship}
+ * * Query DataObjects using method {@link @xeokit/data!Data.searchObjects | Data.searchObjects}.
+ * * Use alongside {@link @xeokit/scene!SceneModel | SceneModel} to attach semantic data to models.
  *
  * ## Installation
  *
@@ -36,14 +39,14 @@
  * each DataObject as a {@link @xeokit/datatypes/basicTypes!BasicEntity | BasicEntity}, and each Relationship as a
  * {@link @xeokit/datatypes/basicTypes!BasicAggregation | BasicAggregation}.
  *
- * When we've created our DataModel, we'll query it with {@link Data.searchDataObjects | Data.searchDataObjects}, which will
+ * When we've created our DataModel, we'll query it with {@link Data.searchObjects | Data.searchObjects}, which will
  * traverse our BasicAggregation Relationships and fetch all the BasicEntity DataObjects for us.
  *
  * ### Notes
  *
  * * In a real application, we'd likely use a more complex set of types, such as {@link "@xeokit/datatypes/ifcTypes" | ifcTypes}.
  * * We can't mix different sets of data types within our {@link Data}. That's because when we traverse the DataObjects
- * with Data.searchDataObjects, we need those traversals to be guided uniformly by the same set of types, for all the
+ * with Data.searchObjects, we need those traversals to be guided uniformly by the same set of types, for all the
  * DataObjects and Relationships in the graph.
  *
  * ### Example 1. Creating a DataModel from a single JSON object
@@ -317,7 +320,7 @@
  *
  * ### Example 3. Querying DataObjects
  *
- * In our third example, we'll extend our previous example to use the {@link Data.searchDataObjects} method to
+ * In our third example, we'll extend our previous example to use the {@link Data.searchObjects} method to
  * traverse our data graph and fetch the IDs of the {@link DataObject | DataObjects} we find on that path.
  *
  * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
@@ -326,7 +329,7 @@
  * ````javascript
  * const resultObjectIds = [];
  *
- * myData.searchDataObjects({
+ * myData.searchObjects({
  *     startObjectId: "table",
  *     includeObjects: [basicTypes.BasicEntity],
  *     includeRelated: [basicTypes.BasicAggregation],

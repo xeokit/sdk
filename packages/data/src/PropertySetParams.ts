@@ -1,26 +1,21 @@
 import type {PropertyParams} from "./PropertyParams";
 
 /**
- * Parameters for creating a {@link PropertySet}.
+ * Parameters for creating a {@link PropertySet} with {@link DataModel.createPropertySet | DataModel.createPropertySet}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
 export interface PropertySetParams {
 
     /**
-     * Unique ID of each PropertySet.
+     * Unique ID of the PropertySet.
      *
-     * PropertySets are stored by ID in {@link Data.propertySets} and {@link DataModel.propertySets}.
+     * PropertySets are stored by ID in {@link Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | DataModel.propertySets}.
      */
     id: string;
 
     /**
-     * ID of each PropertySet's corresponding object within the originating system, if any.
-     */
-    originalSystemId?: string;
-
-    /**
-     * Human-readable name of each PropertySet.
+     * Human-readable name of the PropertySet.
      */
     name: string;
 
@@ -30,7 +25,7 @@ export interface PropertySetParams {
     type: string;
 
     /**
-     * The {@link Property | Properties} with each PropertySet.
+     * The {@link Property | Properties} within the PropertySet.
      */
     properties?: PropertyParams[]
 }

@@ -4,7 +4,7 @@ import type {DataObjectParams} from "./DataObjectParams";
 import type {RelationshipParams} from "./RelationshipParams";
 
 /**
- * Parameters for creating a {@link @xeokit/data!DataModel} with {@link Data.createModel}.
+ * Parameters for creating a {@link DataModel} with {@link Data.createModel | Data.createModel}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -13,17 +13,9 @@ export interface DataModelParams {
     /**
      * Unique ID of the DataModel.
      *
-     * The DataModel is stored in {@link Data.models} under this ID.
+     * The DataModel is stored in {@link Data.models | Data.models} under this ID.
      */
     id?: string;
-
-    // /**
-    //  * Optional dictionary to translate numeric ID values into strings.
-    //  *
-    //  * When this is provided, then ID properties on all elements within these parameters
-    //  * will be converted to strings via this dictionary, when found in this dictionary.
-    //  */
-    // dictionary?: { [key: number]: string ;
 
     /**
      * The project ID, if available.

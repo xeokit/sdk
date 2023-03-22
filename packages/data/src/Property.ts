@@ -6,7 +6,7 @@ import type {PropertyParams} from "./PropertyParams";
  *
  * See {@link "@xeokit/data"} for usage.
  */
-class Property {
+export class Property {
 
     /**
      * The PropertySet to which this Property belongs.
@@ -53,5 +53,3 @@ class Property {
         this.description = propertyCfg.description;
     }
 }
-
-export {Property};

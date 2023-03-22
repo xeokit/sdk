@@ -6,19 +6,23 @@ import type {PropertySetParams} from "./PropertySetParams";
 /**
  * A set of {@link Property | Properties} in a {@link @xeokit/data!DataModel | DataModel}.
  *
+ * * Created with {@link DataModel.createPropertySet | DataModel.createPropertySet}
+ * * Stored in {@link Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | Data.propertySets}
+ *
  * See {@link "@xeokit/data"} for usage.
  */
-class PropertySet {
+export class PropertySet {
 
     /**
      * The DataModels to which this PropertySet belongs.
      */
-    public readonly dataModels: DataModel[];
+    public readonly models: DataModel[];
 
     /**
      * Unique ID.
      *
-     * PropertySet instances are registered by this ID in {@link Data#propertySets} and {@link @xeokit/data!DataModel#propertySets}.
+     * PropertySet instances are registered by this ID in {@link Data.propertySets | Data.propertySets}
+     * and {@link DataModel.propertySets | DataModel.propertySets}.
      */
     public readonly id: string;
 
@@ -44,33 +48,20 @@ class PropertySet {
 
     /**
      * @private
-     * @ignore
      */
     constructor(
         dataModel: DataModel,
         propertySetCfg: PropertySetParams) {
-        this.dataModels = [dataModel];
+        this.models = [dataModel];
         this.id = propertySetCfg.id;
-        this.originalSystemId = propertySetCfg.originalSystemId;
         this.name = propertySetCfg.name;
         this.type = propertySetCfg.type;
         this.properties = [];
         if (propertySetCfg.properties) {
             for (let i = 0, len = propertySetCfg.properties.length; i < len; i++) {
-                this.createProperty(propertySetCfg.properties[i]);
+                const property = new Property(this, propertySetCfg.properties[i]);
+                this.properties.push(property);
             }
         }
     }
-
-    /**
-     * Creates a Property within this PropertySet.
-     * @param propertyCfg
-     */
-    createProperty(propertyCfg: PropertyParams): Property {
-        const property = new Property(this, propertyCfg);
-        this.properties.push(property);
-        return property;
-    }
 }
-
-export {PropertySet};

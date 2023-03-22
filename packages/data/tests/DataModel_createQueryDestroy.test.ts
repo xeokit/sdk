@@ -154,7 +154,7 @@ describe('build', function () {
 
         const resultObjectIds = [];
 
-        data.searchDataObjects({
+        data.searchObjects({
             startObjectId: "tableTop",
             includeRelated: [BasicAggregation],
             resultObjectIds

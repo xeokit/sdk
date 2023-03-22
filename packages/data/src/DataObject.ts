@@ -5,19 +5,22 @@ import {Relationship} from "./Relationship";
 /**
  * An object in a {@link @xeokit/data!DataModel}.
  *
+ * * Created with {@link DataModel.createObject | DataModel.createObject}
+ * * Stored in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | Data.objects}, {@link DataModel.rootObjects | Data.rootObjects}
+ *
  * See {@link "@xeokit/data"} for usage.
  */
 export class DataObject {
 
     /**
-     * SceneModel metadata.
+     * {@link DataModel | DataModels} that share this DataObject.
      */
     public models: DataModel[];
 
     /**
      * Globally-unique ID.
      *
-     * DataObjects are stored by ID in {@link Data.objects} and {@link @xeokit/data!DataModel.objects}.
+     * DataObjects are stored by ID in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | Data.objects}, {@link DataModel.rootObjects | Data.rootObjects}.
      */
     public readonly id: string;
 
@@ -32,14 +35,14 @@ export class DataObject {
     public readonly type: number;
 
     /**
-     * {@link PropertySet | PropertySets} used by this DataObject.
+     * {@link PropertySet | PropertySets} referenced by this DataObject.
      */
     public readonly propertySets?: PropertySet[];
 
     /**
      * The {@link Relationship | Relations} in which this DataObject is the {@link Relationship.relating} participant.
      *
-     * Each DataObject is mapped here by {@link Relationship.type} and sub-mapped by {@link Relationship.relating}.
+     * Each DataObject is mapped here by {@link Relationship.type | Relationship.type} and sub-mapped by {@link Relationship.relating | Relationship.relating}.
      */
     public readonly relating: {
         [key: number]: Relationship[]
@@ -48,18 +51,11 @@ export class DataObject {
     /**
      * The {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.related} participant.
      *
-     * Each DataObject is mapped here by {@link Relationship.type} and sub-mapped by {@link Relationship.related}.
+     * Each DataObject is mapped here by {@link Relationship.type | Relationship.type} and sub-mapped by {@link Relationship.related | Relationship.related}.
      */
     public readonly related: {
         [key: number]: Relationship[]
     };
-
-    // /**
-    //  * IDs of one or more {@link ViewerObject | ViewerObjects} / {@link ViewObject | ViewObjects} that represent this DataObject.
-    //  *
-    //  * Only DataObjects that represent some physical object, such as a wall or a roof, will have a representation.
-    //  */
-    // public readonly representation: string[] | null;
 
     /**
      * @private
@@ -78,23 +74,5 @@ export class DataObject {
         this.propertySets = propertySets || [];
         this.related = {};
         this.relating = {};
-        //    this.representation = null;
-    }
-
-    /**
-     * Creates a {@link Relationship} with another {@link DataObject}.
-     *
-     * @param relationType The relationship type
-     * @param relatedObjectId ID of the related DataObject.
-     */
-    createRelation(relationType: number, relatedObjectId: string) {
-        const relatedObject = this.models[0].data.objects[relatedObjectId];
-        if (!relatedObject) {
-            console.error(`[createRelation] DataObject not found: ${relatedObjectId}`);
-            return;
-        }
-        const relation = new Relationship(relationType, this, relatedObject);
-        relatedObject.relating[relationType].push(relation);
-        this.related[relationType].push(relation);
     }
 }

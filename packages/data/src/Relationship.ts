@@ -17,14 +17,16 @@ export class Relationship {
     /**
      * The relating {@link DataObject} in this Relationship.
      *
-     * This Relationship will be stored by {@link DataObject.type} in the DataObject's {@link DataObject.relatedObject} attribute.
+     * This Relationship will be stored by {@link DataObject.type | DataObject.type}
+     * in the DataObject's {@link DataObject.relatedObject | DataObject.relatedObject} attribute.
      */
     readonly relatingObject: DataObject;
 
     /**
      * The related {@link DataObject} in this Relationship.
      *
-     * This Relationship will be stored by {@link DataObject.type} in the DataObject's {@link DataObject.relatingObject} attribute.
+     * This Relationship will be stored by {@link DataObject.type | DataObject.type} in
+     * the DataObject's {@link DataObject.relatingObject | DataObject.relatingObject} attribute.
      */
     readonly relatedObject: DataObject;
 

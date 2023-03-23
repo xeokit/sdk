@@ -25,9 +25,18 @@
  *
  * ## Usage
  *
- * Let's create a data model that describes the structure of a simple item of
- * furniture - a table, comprised of a tabletop with four legs attached. Then we'll query the data model to
- * find all the objects within it.
+ * * [Creating a DataModel from JSON](#creating-a-scenemodel)
+ * * [Creating a DataModel using Builder Methods](#creating-a-scenemodel)
+ * * [Reading DataObjects](#reading-dataobjects)
+ * * [Searching DataObjects](#searching-dataobjects)
+ *
+ * ### Creating a DataModel from JSON
+ *
+ * In our first example, we'll create our {@link @xeokit/data!DataModel | DataModel} from a single parameter object, of type
+ * {@link @xeokit/data!DataModelParams DataModelParams}.
+ *
+ * Our DataModel describes the structure of a simple item of furniture - a table, comprised of a tabletop with four legs
+ * attached. Then we'll query the data model to find all the objects within it.
  *
  * To do this, we'll create a {@link @xeokit/data!DataModel | DataModel} containing six {@link DataObject | DataObjects}, one
  * for the table, one the tabletop, and one for each of the four legs. Our DataModel also gets
@@ -39,20 +48,10 @@
  * each DataObject as a {@link @xeokit/datatypes/basicTypes!BasicEntity | BasicEntity}, and each Relationship as a
  * {@link @xeokit/datatypes/basicTypes!BasicAggregation | BasicAggregation}.
  *
- * When we've created our DataModel, we'll query it with {@link Data.searchObjects | Data.searchObjects}, which will
- * traverse our BasicAggregation Relationships and fetch all the BasicEntity DataObjects for us.
- *
- * ### Notes
- *
- * * In a real application, we'd likely use a more complex set of types, such as {@link "@xeokit/datatypes/ifcTypes" | ifcTypes}.
- * * We can't mix different sets of data types within our {@link Data}. That's because when we traverse the DataObjects
+ * > * In a real application, we'd likely use a more complex set of types, such as {@link "@xeokit/datatypes/ifcTypes" | ifcTypes}.
+ * > * We can't mix different sets of data types within our {@link Data}. That's because when we traverse the DataObjects
  * with Data.searchObjects, we need those traversals to be guided uniformly by the same set of types, for all the
  * DataObjects and Relationships in the graph.
- *
- * ### Example 1. Creating a DataModel from a single JSON object
- *
- * In our first example, we'll create our {@link @xeokit/data!DataModel | DataModel} from a single JSON object of
- * type {@link @xeokit/data!DataModelParams DataModelParams}.
  *
  * ````javascript
  * import {Data} from "@xeokit/data";
@@ -182,7 +181,7 @@
  * myDataModel.build(); // Ready for action
  * ````
  *
- * ### Example 2. Creating a DataModel using builder methods
+ * ### Creating a DataModel using Builder Methods
  *
  * In our second example, we'll create our {@link @xeokit/data!DataModel | DataModel} again, this time instantiating
  * each {@link PropertySet}, {@link Property}, {@link DataObject} and {@link Relationship} individually, using the
@@ -192,8 +191,7 @@
  * import {Data} from "@xeokit/data";
  * import * as basicTypes from "@xeokit/datatypes/basicTypes";
  *
- * const myData = new Data({
- * });
+ * const myData = new Data();
  *
  * const myDataModel = myData.createModel({
  *     id: "myTableModel"
@@ -318,10 +316,10 @@
  * myDataModel.build(); // Ready for action
  * ````
  *
- * ### Example 3. Querying DataObjects
+ * ### Reading DataObjects
  *
- * In our third example, we'll extend our previous example to use the {@link Data.searchObjects} method to
- * traverse our data graph and fetch the IDs of the {@link DataObject | DataObjects} we find on that path.
+ * With our SceneModel built, we'll now use the {@link Data.searchObjects} method to
+ * traverse it to fetch the IDs of the {@link DataObject | DataObjects} we find on that path.
  *
  * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
  * a tree view of an IFC element hierarchy.
@@ -339,7 +337,7 @@
  * // resultObjectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
  * ````
  *
- * * ### Example 4. Traversing DataObjects
+ * ### Searching DataObjects
  *
  * In our fourth example, we'll demonstrate how to traverse the {@link DataObject | DataObjects} along their
  * {@link Relationship | Relationships}. We'll start at the root DataObject and visit all the DataObjects

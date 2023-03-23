@@ -26,12 +26,14 @@ interface ParsingContext {
     nextId: number;
     log: any;
     error: (msg) => void;
-    sceneModel: SceneModel;
+    dataModel?:DataModel;
+    sceneModel?: SceneModel;
     objectCreated: { [key: string]: boolean }
 }
 
 /**
- * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and (optionally) a {@link @xeokit/data!DataModel | DataModel}.
+ * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and/or
+ * a {@link @xeokit/data!DataModel | DataModel}.
  *
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
@@ -46,15 +48,27 @@ interface ParsingContext {
  */
 export function loadGLTF(params: {
     data: ArrayBuffer,
-    sceneModel: SceneModel,
+    sceneModel?: SceneModel,
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
-    if (!params.data) {
-        throw new Error("Argument expected: data");
+    const dataModel = params.dataModel;
+    const sceneModel = params.sceneModel;
+    if (sceneModel) {
+        if (sceneModel.destroyed) {
+            throw new Error("SceneModel already destroyed");
+        }
+        if (sceneModel.built) {
+            throw new Error("SceneModel already built");
+        }
     }
-    if (!params.sceneModel) {
-        throw new Error("Argument expected: sceneModel");
+    if (dataModel) {
+        if (dataModel.destroyed) {
+            throw new Error("DataModel already destroyed");
+        }
+        if (dataModel.built) {
+            throw new Error("DataModel already built");
+        }
     }
     return new Promise<void>(function (resolve, reject) {
         parse(params.data, GLTFLoader, {}).then((gltfData) => {
@@ -66,7 +80,8 @@ export function loadGLTF(params: {
                 error: function (msg) {
                     console.error(msg);
                 },
-                sceneModel: params.sceneModel,
+                dataModel,
+                sceneModel,
                 objectCreated: {}
             };
             parseTextures(ctx);
@@ -80,6 +95,9 @@ export function loadGLTF(params: {
 }
 
 function parseTextures(ctx) {
+    if (!ctx.sceneModel) {
+        return;
+    }
     const gltfData = ctx.gltfData;
     const textures = gltfData.textures;
     if (textures) {
@@ -179,6 +197,9 @@ function parseTexture(ctx, texture) {
 }
 
 function parseMaterials(ctx: ParsingContext): void {
+    if (!ctx.sceneModel) {
+        return;
+    }
     const gltfData = ctx.gltfData;
     const materials = gltfData.materials;
     if (materials) {

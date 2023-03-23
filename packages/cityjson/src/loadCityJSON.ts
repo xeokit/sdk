@@ -21,12 +21,12 @@ const tempVec3b = createVec3();
 const tempVec3c = createVec3();
 
 /**
- * Loads CityJSON into a {@link @xeokit/scene!SceneModel | SceneModel} and/or {@link @xeokit/data!DataModel | DataModel}.
+ * Loads CityJSON into a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel}.
  *
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
- * See {@link @xeokit/gltf} for usage.
+ * See {@link "@xeokit/cityjson"} for usage.
  *
  * @param params - Loading parameters.
  * @param params.data - CityJSON file data.
@@ -50,22 +50,21 @@ export function loadCityJSON(params: {
                              } = {
                                  rotateX: false
                              }): Promise<any> {
-    if (!params.data) {
-        throw new Error("Argument missing: data");
-    }
-    if (params.sceneModel) {
-        if (params.sceneModel.destroyed) {
+    const dataModel = params.dataModel;
+    const sceneModel = params.sceneModel;
+    if (sceneModel) {
+        if (sceneModel.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
-        if (params.sceneModel.built) {
+        if (sceneModel.built) {
             throw new Error("SceneModel already built");
         }
     }
-    if (params.dataModel) {
-        if (params.dataModel.destroyed) {
+    if (dataModel) {
+        if (dataModel.destroyed) {
             throw new Error("DataModel already destroyed");
         }
-        if (params.dataModel.built) {
+        if (dataModel.built) {
             throw new Error("DataModel already built");
         }
     }
@@ -120,7 +119,7 @@ function parseCityObject(ctx, cityObject, objectId) {
         ctx.dataModel.createObject({
             id: objectId,
             name: cityObject.type + " : " + objectId,
-            type:  typeCodes[cityObject.type] | 0,
+            type: typeCodes[cityObject.type] | 0,
             parent: cityObject.parents ? cityObject.parents[0] : null
         });
     }

@@ -6,7 +6,7 @@
  *
  * <br>
  *
- * # LAS/LAZ Point Cloud Loader
+ * # LAS/LAZ Point Cloud Importer
  *
  * * [LAS/LAZ](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#las) is an industry standard format for 3D point cloud scans
  * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}

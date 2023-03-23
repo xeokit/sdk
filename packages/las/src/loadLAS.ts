@@ -21,15 +21,27 @@ export function loadLAS(params: {
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
+    const dataModel = params.dataModel;
+    const sceneModel = params.sceneModel;
+    if (sceneModel) {
+        if (sceneModel.destroyed) {
+            throw new Error("SceneModel already destroyed");
+        }
+        if (sceneModel.built) {
+            throw new Error("SceneModel already built");
+        }
+    }
+    if (dataModel) {
+        if (dataModel.destroyed) {
+            throw new Error("DataModel already destroyed");
+        }
+        if (dataModel.built) {
+            throw new Error("DataModel already built");
+        }
+    }
     return new Promise<void>(function (resolve, reject) {
-        if (!params.data) {
-            reject("Argument expected: data");
-            return;
-        }
-        if (!params.sceneModel) {
-            reject("Argument expected: sceneModel");
-            return;
-        }
+        // TODO
+
         resolve();
     });
 }

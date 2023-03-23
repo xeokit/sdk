@@ -18,7 +18,7 @@
  *
  * ## Usage
  *
- * Loading a glTF file into a {@link @xeokit/scene!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
+ * Loading a glTF file into a {@link @xeokit/data!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
  * import {Data} from "@xeokit/data";

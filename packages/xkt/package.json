@@ -4,7 +4,7 @@
   "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
   "scripts": {
     "publish": "npm publish --access public",
-    "XXtest": "jest"
+    "test": "jest"
   },
   "repository": {
     "type": "git",

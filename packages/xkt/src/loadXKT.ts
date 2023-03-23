@@ -5,8 +5,8 @@ import {unpackXKT} from "./unpackXKT";
 import {xktToModel} from "./xktToModel";
 
 /**
- * Loads XKT file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and (optionally) a {@link @xeokit/data!DataModel | DataModel}.
+ * Imports XKT file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel}
+ * and/or a {@link @xeokit/data!DataModel | DataModel}.
  *
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and
  * {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
@@ -29,35 +29,33 @@ import {xktToModel} from "./xktToModel";
  */
 export function loadXKT(params: {
     data: ArrayBuffer,
-    sceneModel: SceneModel,
+    sceneModel?: SceneModel,
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
-    if (!params.data) {
-        throw new Error("Argument missing: data");
+    const sceneModel = params.sceneModel
+    const dataModel = params.dataModel;
+    if (sceneModel) {
+        if (sceneModel.destroyed) {
+            throw new Error("SceneModel already destroyed");
+        }
+        if (sceneModel.built) {
+            throw new Error("SceneModel already built");
+        }
     }
-    if (!params.sceneModel) {
-        throw new Error("Argument missing: sceneModel");
-    }
-    if (params.sceneModel.destroyed) {
-        throw new Error("SceneModel already destroyed");
-    }
-    if (params.sceneModel.built) {
-        throw new Error("SceneModel already built");
-    }
-    if (params.dataModel) {
-        if (params.dataModel.destroyed) {
+    if (dataModel) {
+        if (dataModel.destroyed) {
             throw new Error("DataModel already destroyed");
         }
-        if (params.dataModel.built) {
+        if (dataModel.built) {
             throw new Error("DataModel already built");
         }
     }
     return new Promise<void>(function (resolve, reject) {
         xktToModel({
             xktData: inflateXKT(unpackXKT(params.data)),
-            sceneModel: params.sceneModel,
-            dataModel: params.dataModel
+            sceneModel,
+            dataModel
         });
         resolve();
     });

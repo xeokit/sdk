@@ -38,6 +38,18 @@ meshes, materials, and textures. This allows developers to create highly-detaile
 <p>Performance: Xeokit is designed for high-performance 3D rendering in web browsers, with efficient memory management and optimized rendering algorithms.</p>
 <p>Overall, the Xeokit SDK is a powerful and flexible tool for building 3D web applications and visualizations. It provides a range of advanced features for creating highly-realistic and interactive 3D scenes, and is highly customizable and compatible with a range of web technologies.</p>
 
+<a href="#differences-from-v2" id="differences-from-v2" style="color: inherit; text-decoration: none;">
+  <h2>Differences from V2</h2>
+</a>
+
+<a href="#fail-fast-instead-of-fault-tolerant" id="fail-fast-instead-of-fault-tolerant" style="color: inherit; text-decoration: none;">
+  <h2>Fail-Fast Instead of Fault-Tolerant</h2>
+</a>
+<p><em>Fail-fast instead of fault-tolerant</em> - methods throw exceptions as soon as any aspect of the API contract is broken by the 
+caller. In xeokit V2 we tended to automatically compensate for errors and log them. This tended to cause confusion about 
+side effects. Now, using TypeScript and TypeDoc to clearly define the contract, the caller is more able to properly ensure 
+that the method has everything it needs. </p>
+
 <a href="#credits" id="credits" style="color: inherit; text-decoration: none;">
   <h1>Credits</h1>
 </a>

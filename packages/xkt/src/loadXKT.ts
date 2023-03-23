@@ -22,10 +22,10 @@ import {xktToModel} from "./xktToModel";
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
  * @returns {Promise} Resolves when XKT has been loaded.
- * @throws {Error} If the SceneModel has already been destroyed.
- * @throws {Error} If the SceneModel has already been built.
- * @throws {Error} If the DataModel has already been destroyed.
- * @throws {Error} If the DataModel has already been built.
+ * @throws {@link Error} If the SceneModel has already been destroyed.
+ * @throws {@link Error} If the SceneModel has already been built.
+ * @throws {@link Error} If the DataModel has already been destroyed.
+ * @throws {@link Error} If the DataModel has already been built.
  */
 export function loadXKT(params: {
     data: ArrayBuffer,

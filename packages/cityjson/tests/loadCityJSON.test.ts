@@ -92,7 +92,7 @@ describe('loadCityJSON Test', () => {
 
                         const resultObjectIds = [];
 
-                        data.searchDataObjects({
+                        data.searchObjects({
                             startObjectId: "GMLID_BUI130363_1235_6047",
                             includeRelated: [BasicAggregation],
                             resultObjectIds

@@ -33,10 +33,10 @@ interface ParsingContext {
  * @param params.ifcAPI - WebIFC API.
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
- * @throws {Error} If the SceneModel has already been destroyed.
- * @throws {Error} If the SceneModel has already been built.
- * @throws {Error} If the DataModel has already been destroyed.
- * @throws {Error} If the DataModel has already been built.
+ * @throws {@link Error} If the SceneModel has already been destroyed.
+ * @throws {@link Error} If the SceneModel has already been built.
+ * @throws {@link Error} If the DataModel has already been destroyed.
+ * @throws {@link Error} If the DataModel has already been built.
  * @returns {Promise} Resolves when IFC has been loaded into the SceneModel and/or DataModel.
  */
 export function loadWebIFC(params: {

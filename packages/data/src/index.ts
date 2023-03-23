@@ -202,45 +202,45 @@
  * const tablePropertySet = myDataModel.createPropertySet({
  *     id: "tablePropertySet",
  *     name: "Table properties",
- *     type: ""
- * });
- *
- * tablePropertySet.createProperty({
- *     name: "Weight",
- *     value: 5,
  *     type: "",
- *     valueType: "",
- *     description: "Weight of the thing"
- * });
- *
- * tablePropertySet.createProperty({
- *     name: "Height",
- *     value: 12,
- *     type: "",
- *     valueType: "",
- *     description: "Height of the thing"
- * });
+ *     properties: [ // Property[]
+ *         {
+ *             name: "Weight",
+ *             value: 5,
+ *             type: "",
+ *             valueType: "",
+ *             description: "Weight of the thing"
+ *         },
+ *         {
+ *             name: "Height",
+ *             value: 12,
+ *             type: "",
+ *             valueType: "",
+ *             description: "Height of the thing"
+ *         }
+ *      ]
+ *  });
  *
  * const legPropertySet = myDataModel.createPropertySet({
  *     id: "legPropertySet",
  *     name: "Table leg properties",
- *     type: ""
- * });
- *
- * legPropertySet.createProperty({
- *     name: "Weight",
- *     value: 5,
  *     type: "",
- *     valueType: "",
- *     description: "Weight of the thing"
- * });
- *
- * legPropertySet.createProperty({
- *     name: "Height",
- *     value: 12,
- *     type: "",
- *     valueType: "",
- *     description: "Height of the thing"
+ *     properties: [
+ *         {
+ *             name: "Weight",
+ *             value: 5,
+ *             type: "",
+ *             valueType: "",
+ *             description: "Weight of the thing"
+ *         },
+ *         {
+ *             name: "Height",
+ *             value: 12,
+ *             type: "",
+ *             valueType: "",
+ *             description: "Height of the thing"
+ *         }
+ *     ]
  * });
  *
  * myDataModel.createObject({

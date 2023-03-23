@@ -99,17 +99,18 @@ export class DataModel extends Component {
     /**
      * The count of each type of {@link DataObject} in this DataModel, mapped to {@link DataObject.type | DataObject.type}.
      */
-    public typeCounts: { [key: string]: number };
+    public readonly typeCounts: { [key: string]: number };
 
     /**
      * Emits an event when the {@link @xeokit/data!DataModel} has been built.
      *
      * * The DataModel is built using {@link DataModel.build | DataModel.build}.
      * * {@link DataModel.built | DataModel.built} indicates if the DataModel is currently built.
+     * * Don't create anything more in this DataModel once it's built.
      *
      * @event
      */
-    readonly onBuilt: EventEmitter<DataModel, null>;
+   public readonly onBuilt: EventEmitter<DataModel, null>;
 
     /**
      * Indicates if this DataModel has been built.
@@ -160,14 +161,25 @@ export class DataModel extends Component {
     }
 
     /**
-     * Adds the given {@link PropertySet | PropertySets}, {@link DataObject | DataObjects}
-     * and {@link Relationship | PropertySets} to this DataModel.
+     * Adds the given components to this DataModel.
      *
      * See {@link "@xeokit/data"} for usage.
      *
      * @param dataModelParams
+     * @throws {@link Error}
+     * * If this DataModel has already been built.
+     * * If this DataModel has already been destroyed.
+     * * A duplicate PropertySet was already created for this DataModel.
+     * * A duplicate DataObject was already created in this DataModel.
+     * * DataObjects were not found for a Relationship.
      */
     fromJSON(dataModelParams: DataModelParams) {
+        if (this.destroyed) {
+            throw new Error("DataModel already destroyed");
+        }
+        if (this.built) {
+            throw new Error("DataModel already built");
+        }
         if (dataModelParams.propertySets) {
             for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
                 this.createPropertySet(dataModelParams.propertySets[i]);
@@ -194,7 +206,29 @@ export class DataModel extends Component {
      * when IDs given to {@link DataModel.createPropertySet | DataModel.createPropertySet} match existing PropertySet
      * instances in the same Data.
      *
-     * See {@link "@xeokit/data"} for usage.
+     * ### Usage
+     *
+     * ````javascript
+     *  const propertySet = dataModel.createPropertySet({
+     *      id: "myPropertySet",
+     *      name: "My properties",
+     *      properties: [{
+     *          name: "Weight",
+     *          value: 5,
+     *          type: "",
+     *          valueType: "",
+     *          description: "Weight of a thing"
+     *      }, {
+     *          name: "Height",
+     *          value: 12,
+     *          type: "",
+     *          valueType: "",
+     *          description: "Height of a thing"
+     *      }]
+     * });
+     * ````
+     *
+     * See {@link "@xeokit/data"} for more usage info.
      *
      * @param propertySetCfg - PropertySet creation parameters.
      * @throws {@link Error}
@@ -206,10 +240,10 @@ export class DataModel extends Component {
      */
     createPropertySet(propertySetCfg: PropertySetParams): null | PropertySet {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed - not allowed to add property sets");
+            throw new Error("DataModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DataModel already built - not allowed to add property sets");
+            throw new Error("DataModel already built");
         }
         if (this.propertySets[propertySetCfg.id]) {
             throw new Error("PropertySet already created in this DataModel (note: OK to have duplicates between DataModels, but they must be unique within each DataModel)")
@@ -235,7 +269,28 @@ export class DataModel extends Component {
      * IDs given to {@link DataModel.createObject | DataModel.createObject} match existing DataObject instances in the same
      * Data. This feature is part of how xeokit supports [*federated data models*](/docs/pages/GLOSSARY.html#federated-models).
      *
-     * See {@link "@xeokit/data"} for usage.
+     * ### Usage
+     *
+     * ````javascript
+     * const myDataObject = dataModel.createObject({
+     *     id: "myDataObject",
+     *     type: BasicEntity,     // @xeokit/datatypes!basicTypes
+     *     name: "My Object",
+     *     propertySetIds: ["myPropertySet"]
+     * });
+     *
+     * const myDataObject2 = dataModel.createObject({
+     *     id: "myDataObject2",
+     *     name: "My Other Object",
+     *     type: BasicEntity,
+     *     propertySetIds: ["myPropertySet"]
+     * });
+     *
+     * const gotMyDataObject = dataModel.objects["myDataObject"];
+     * const gotMyDataObjectAgain = data.objects["myDataObject"];
+     * ````
+     *
+     * See {@link "@xeokit/data"} for more usage info.
      *
      * @param dataObjectParams - DataObject creation parameters.
      * @throws {@link Error}
@@ -247,10 +302,10 @@ export class DataModel extends Component {
      */
     createObject(dataObjectParams: DataObjectParams): null | DataObject {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed - not allowed to add objects");
+            throw new Error("DataModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DataModel already built - not allowed to add objects");
+            throw new Error("DataModel already built");
         }
         const id = dataObjectParams.id;
         if (this.objects[id]) {
@@ -326,7 +381,23 @@ export class DataModel extends Component {
      *   - {@link DataObject.related | DataObject.related} on the *relating* DataObject, and
      *   - {@link DataObject.relating | DataObject.relating} on the *related* DataObject.
      *
-     * See {@link "@xeokit/data"} for usage.
+     * ### Usage
+     *
+     * ````javascript
+     * const myRelationship = dataModel.createRelationship({
+     *     type: BasicAggregation,            // @xeokit/datatypes!basicTypes
+     *     relatingObjectId: "myDataObject",
+     *     relatedObjectId: "myDataObject2"
+     * });
+     *
+     * const myDataObject = dataModel.objects["myDataObject"];
+     * const myDataObject2 = dataModel.objects["myDataObject2"];
+     *
+     * const gotMyRelationship = myDataObject.related[BasicAggregation][0];
+     * const gotMyRelationshipAgain = myDataObject2.relating[BasicAggregation][0];
+     * ````
+     *
+     * See {@link "@xeokit/data"} for more usage info.
      *
      * @param relationshipParams - Relationship creation parameters.
      * @throws {@link Error}
@@ -336,10 +407,10 @@ export class DataModel extends Component {
      */
     createRelationship(relationshipParams: RelationshipParams): Relationship {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed - not allowed to add relationships");
+            throw new Error("DataModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DataModel already built - not allowed to add relationships");
+            throw new Error("DataModel already built");
         }
         const relatingObject = this.data.objects[relationshipParams.relatingObjectId];
         if (!relatingObject) {
@@ -367,8 +438,21 @@ export class DataModel extends Component {
      *
      * * Fires an event via {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | DataModel.onCreated}, to indicate to subscribers that
      * the DataModel is complete and ready to use.
+     * * Sets {@link DataModel.built | DataModel.built} ````true````.
      * * You can only call this method once on a DataModel.
      * * Once built, no more components can be created in a DataModel.
+     *
+     * ````javascript
+     * dataModel.onBuilt.subscribe(()=>{
+     *     // Our DataModel is built and ready to use
+     * });
+     *
+     * data.onModelCreated.subscribe((dataModel)=>{
+     *     // Another way to subscribe to DataModel readiness
+     * });
+     *
+     * dataModel.build(); // Synchronous
+     * ````
      *
      * See {@link "@xeokit/data"} for usage.
      *

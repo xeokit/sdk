@@ -9,39 +9,11 @@ import {EventDispatcher} from "strongly-typed-events";
 import type {SearchParams} from "./SearchParams";
 
 /**
- * An entity-relationship data model.
+ * An entity-relationship semantic data model.
  *
  * See {@link "@xeokit/data"} for usage.
  */
 export class Data extends Component {
-
-    /**
-     * Emits an event each time a {@link @xeokit/data!DataModel} has been created.
-     *
-     * @event
-     */
-    readonly onModelCreated: EventEmitter<Data, DataModel>;
-
-    /**
-     * Emits an event each time a {@link @xeokit/data!DataModel} has been destroyed.
-     *
-     * @event
-     */
-    readonly onModelDestroyed: EventEmitter<Data, DataModel>;
-
-    /**
-     * Emits an event each time a {@link DataObject} is created.
-     *
-     * @event
-     */
-    readonly onObjectCreated: EventEmitter<Data, DataObject>;
-
-    /**
-     * Emits an event each time a {@link DataObject} is destroyed.
-     *
-     * @event
-     */
-    readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
 
     /**
      * The {@link @xeokit/data!DataModel | DataModels} belonging to this Data, each keyed to
@@ -77,7 +49,35 @@ export class Data extends Component {
     /**
      * Tracks number of {@link DataObject | DataObjects} of each type in this Data.
      */
-    readonly typeCounts: { [key: string]: number };
+   public readonly typeCounts: { [key: string]: number };
+
+    /**
+     * Emits an event each time a {@link @xeokit/data!DataModel} has been created in this Data.
+     *
+     * @event
+     */
+   public readonly onModelCreated: EventEmitter<Data, DataModel>;
+
+    /**
+     * Emits an event each time a {@link @xeokit/data!DataModel} has been destroyed within this Data.
+     *
+     * @event
+     */
+   public readonly onModelDestroyed: EventEmitter<Data, DataModel>;
+
+    /**
+     * Emits an event each time a {@link DataObject} is created within this Data.
+     *
+     * @event
+     */
+   public readonly onObjectCreated: EventEmitter<Data, DataObject>;
+
+    /**
+     * Emits an event each time a {@link DataObject} is destroyed within this Data.
+     *
+     * @event
+     */
+   public readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
 
     /**
      * Creates a new Data.
@@ -135,9 +135,9 @@ export class Data extends Component {
         if (this.destroyed) {
             throw new Error("Data already destroyed");
         }
-        let id = dataModelParams.id || utils.createUUID();
+        let id = dataModelParams.id ;
         if (this.models[id]) {
-           throw new Error(`DataModel already created in Data: ${id}`);
+           throw new Error(`DataModel already created in this Data: ${id}`);
         }
         // @ts-ignore
         const dataModel = new DataModel(this, id, dataModelParams, options);
@@ -273,7 +273,7 @@ export class Data extends Component {
      * Destroys this Data and all contained {@link DataModel | DataModels}.
      *
      * * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
-     * for each existing DataModel in this Data.
+     * for each existing DataModels in this Data.
      * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.onModelCreated}, {@link Data.onModelDestroyed | Data.onModelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
      *
      * See {@link "@xeokit/data"} for usage.

@@ -1,43 +1,47 @@
-import {EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter} from "@xeokit/core/components";
 import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
 import {EventDispatcher} from "strongly-typed-events";
 import {Tiles} from "@xeokit/viewer/src/Tiles";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
-import {CreateSceneModelParams} from "./CreateSceneModelParams";
+import {SceneModelParams} from "./SceneModelParams";
 
 /**
  * A scene representation.
  *
  * A Scene is a container of {@link SceneModel | SceneModels} and {@link SceneObject | SceneObjects}.
  */
-export class Scene {
+export class Scene extends Component {
 
     /**
-     * The SceneModels in this Scene.
+     * The {@link @xeokit/scene!SceneModel | SceneModels} belonging to this Scene, each keyed to
+     * its {@link @xeokit/scene!SceneModel.id | SceneModel.id}.
      */
-    readonly models: { [key: string]: SceneModel };
+    public readonly models: { [key: string]: SceneModel };
 
     /**
-     * SceneObjects in this Scene.
+     * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
      */
-    readonly objects: { [key: string]: SceneObject };
+    public readonly objects: { [key: string]: SceneObject };
 
     /**
      * Emits an event each time a {@link SceneModel} is created in this Scene.
      *
      * @event
      */
-    readonly onModelCreated: EventEmitter<Scene, SceneModel>;
+    public readonly onModelCreated: EventEmitter<Scene, SceneModel>;
 
     /**
      * Emits an event each time a {@link SceneModel} is destroyed in this Scene.
      *
      * @event
      */
-    readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
+    public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
 
-    readonly tiles: Tiles;
+    /**
+     *
+     */
+    public readonly tiles: Tiles;
 
     #onModelBuilts: { [key: string]: any };
     #onModelDestroys: { [key: string]: any };
@@ -46,9 +50,14 @@ export class Scene {
     #aabb: Float64Array;
 
     /**
-     * TODO
+     * Creates a new Scene.
+     *
+     * See {@link "@xeokit/scene"} for usage.
      */
     constructor() {
+
+        super(null, {});
+
         this.models = {};
         this.objects = {};
 
@@ -59,7 +68,7 @@ export class Scene {
     }
 
     /**
-     * TODO
+     * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
      */
     get center(): Float64Array {
         if (this.#aabbDirty) {
@@ -72,7 +81,9 @@ export class Scene {
     }
 
     /**
-     * TOSO
+     * Gets the collective World-space 3D [axis-aligned boundary](/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
+     *
+     * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
      */
     get aabb(): FloatArrayParam {
         if (this.#aabbDirty) {
@@ -133,35 +144,88 @@ export class Scene {
     }
 
     /**
-     * Creates a {@link @xeokit/scene!SceneModel} in this Scene.
+     * Creates a new {@link @xeokit/scene!SceneModel} in this Scene.
      *
-     * @param params SceneModel configuration
-     * @returns The new SceneModel
+     * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or loading the SceneModel. That will
+     * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
+     * indicate to any subscribers that the SceneModel is built and ready for use.
+     *
+     * See {@link "@xeokit/scene"} for more details on usage.
+     *
+     * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
+     * @throws {@link Error}
+     * * This Scene has already been destroyed.
+     * * A SceneModel with the given ID already exists in this Scene.
      */
-    createModel(params: CreateSceneModelParams): SceneModel {
-        if (!params.id) {
-            throw new Error("Parameter expected: id");
+    createModel(sceneModelParams: SceneModelParams): SceneModel {
+        if (this.destroyed) {
+            throw new Error("Scene already destroyed");
         }
-        if (this.models[params.id]) {
-            throw new Error(`SceneModel with this ID already created in this Scene: "${params.id}"`);
+        const id = sceneModelParams.id;
+        if (this.models[id]) {
+            throw new Error(`SceneModel already created in this Scene: ${id}`);
         }
-        const id = params.id;
-        const sceneModel = new SceneModel({id});
+        const sceneModel = new SceneModel(this,sceneModelParams);
         this.models[id] = sceneModel;
-        this.#registerObjects(sceneModel);
-        this.onModelCreated.dispatch(this, sceneModel);
-        this.#onModelBuilts[id] =  sceneModel.onBuilt.one(() => {
+        sceneModel.onDestroyed.one(() => { // SceneModel#destroy() called
+            delete this.models[sceneModel.id];
+            this.#deregisterObjects(sceneModel);
+            this.onModelDestroyed.dispatch(this, sceneModel);
+        });
+        sceneModel.onBuilt.one(() => { // SceneModel#build() called
             this.#registerObjects(sceneModel);
             this.onModelCreated.dispatch(this, sceneModel);
         });
-        this.#onModelDestroys[id] = sceneModel.onDestroyed.one(() => {
-            delete this.models[id];
-            this.#deregisterObjects(sceneModel);
-            sceneModel.onBuilt.unsubscribe(this.#onModelBuilts[id]);
-            sceneModel.onDestroyed.unsubscribe(this.#onModelDestroys[id]);
-            this.onModelDestroyed.dispatch(this, sceneModel);
-        });
         return sceneModel;
+    }
+
+    /**
+     * @private
+     */
+    setAABBDirty() {
+        if (!this.#aabbDirty) {
+            this.#aabbDirty = true;
+            //this.events.fire("aabb", true);
+        }
+    }
+
+    /**
+     * Destroys all contained {@link SceneModel | SceneModels}.
+     *
+     * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+     * for each existing SceneModel in this Scene.
+     *
+     * See {@link "@xeokit/scene"} for usage.
+     *
+     * @throws {@link Error}
+     * * This Scene has already been destroyed.
+     */
+    clear(): void {
+        if (this.destroyed) {
+            throw new Error("Scene already destroyed");
+        }
+        for (let id in this.models) {
+            this.models[id].destroy();
+        }
+    }
+
+    /**
+     * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
+     *
+     * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+     * for each existing SceneModels in this Data.
+     * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+     *
+     * See {@link "@xeokit/scene"} for usage.
+     *
+     * @throws {@link Error}
+     * * This Scene has already been destroyed.
+     */
+    destroy(): void {
+        this.clear();
+        this.onModelCreated.clear();
+        this.onModelDestroyed.clear();
+        super.destroy();
     }
 
     #registerObjects(model: SceneModel) {
@@ -180,36 +244,5 @@ export class Scene {
             delete this.objects[object.id];
         }
         this.#aabbDirty = true;
-    }
-
-
-    /**
-     * Removes all {@link @xeokit/scene!SceneModel | SceneModels} currently in this Scene.
-     */
-    clear() {
-        for (let id in this.models) {
-            this.models[id].destroy();
-        }
-    }
-
-    /**
-     * @private
-     */
-    setAABBDirty() {
-        if (!this.#aabbDirty) {
-            this.#aabbDirty = true;
-            //this.events.fire("aabb", true);
-        }
-    }
-
-    /**
-     * @private
-     */
-    destroy(): void {
-        this.onModelCreated.clear();
-        this.onModelDestroyed.clear();
-        for (let id in this.models) {
-            this.models[id].destroy();
-        }
     }
 }

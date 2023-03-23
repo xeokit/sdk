@@ -1,7 +1,7 @@
+import {KTX2BasisWriter} from "@loaders.gl/textures";
+import {ImageLoader} from '@loaders.gl/images';
 import {EventDispatcher} from "strongly-typed-events";
-
 import {Component, EventEmitter} from "@xeokit/core/components";
-
 import {
     LinesPrimitive,
     PointsPrimitive,
@@ -9,10 +9,6 @@ import {
     SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/core/constants";
-
-import {createMat4, createVec4} from "@xeokit/math/matrix";
-
-import {createUUID} from "@xeokit/core/utils";
 import {createAABB3} from "@xeokit/math/boundaries";
 
 import {Geometry} from "./Geometry";
@@ -26,18 +22,12 @@ import {TextureSetParams} from "./TextureSetParams";
 import {GeometryParams} from "./GeometryParams";
 import {GeometryCompressedParams} from "./GeometryCompressedParams";
 import {MeshParams} from "./MeshParams";
-import {ObjectParams} from "./ObjectParams";
+import {SceneObjectParams} from "./SceneObjectParams";
 import {TextureParams} from "./TextureParams";
 import {compressGeometryParams} from "./compressGeometryParams";
 import {encode, load} from "@loaders.gl/core";
-import {KTX2BasisWriter} from "@loaders.gl/textures";
-import {ImageLoader} from '@loaders.gl/images';
-
-
-const tempVec4a = createVec4([0, 0, 0, 1]);
-const tempVec4b = createVec4([0, 0, 0, 1]);
-const tempMat4 = createMat4();
-const tempMat4b = createMat4();
+import {SceneModelParams} from "./SceneModelParams";
+import {Scene} from "./Scene";
 
 // XKT texture types
 
@@ -89,8 +79,13 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 /**
  * Scene model representation.
  *
- * * Contains {@link SceneObject | SceneObjects},
- *  {@link Mesh | Meshes}, {@link Geometry | Geometries} and of {@link Texture | Textures}.
+ * * Contains {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries} and {@link Texture | Textures}.
+ * * Compresses textures using [Basis]()
+ * * Compresses geometry using [bucketing]() and [quantization]()
+ * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
+ * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/xkt!loadXKT} (etc)
+ * * Exportable to XKT format using {@link @xeokit/xkt!saveXKT}
+ * * Programmatically buildable using builder methods
  *
  * See usage in:
  *
@@ -101,122 +96,131 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 export class SceneModel extends Component {
 
     /**
-     * The SceneModel's ID.
+     * The {@link Scene} that contains this SceneModel.
      */
-    readonly id: string;
+    public readonly scene: Scene;
+
+    /**
+     * Unique ID of this SceneModel.
+     *
+     * SceneModel are stored against this ID in {@link Scene.models}.
+     */
+    public readonly id: string;
 
     /**
      * Indicates if this SceneModel has already been built.
      *
-     * Set ````true```` by {@link SceneModel.build}.
-     *
-     * Don't create anything more in this SceneModel once it's built.
+     * * Set ````true```` by {@link SceneModel.build | SceneModel.build}.
+     * * Subscribe to updates using {@link SceneModel.onBuilt | SceneModel.onBuilt} and {@link Scene.onModelCreated | Scene.onModelCreated}.
+     * * Don't create anything more in this SceneModel once it's built.
      */
-    declare built: boolean;
+    public built: boolean;
 
     /**
      * Indicates if this SceneModel has been destroyed.
      *
-     * Set ````true```` by {@link SceneModel.destroy}.
-     *
-     * Don't create anything more in this SceneModel once it's destroyed.
+     * * Set ````true```` by {@link SceneModel.destroy | SceneModel.destroy}.
+     * * Don't create anything more in this SceneModel once it's destroyed.
      */
     declare readonly destroyed: boolean;
 
     /**
-     * The edge threshold.
+     * The edge threshold for automatic [edge primitive generation](/docs/pages/GLOSSARY.html#geometry-edge-generation).
      */
-    readonly edgeThreshold: number;
+    public readonly edgeThreshold: number;
 
     /**
      * {@link @xeokit/scene!Geometry|Geometries} within this SceneModel, each mapped to {@link @xeokit/scene!Geometry.id}.
      *
-     * Created by {@link SceneModel.createGeometry}.
+     * * Created by {@link SceneModel.createGeometry | SceneModel.createGeometry}.
      */
-    readonly geometries: { [key: string]: Geometry };
+    public readonly geometries: { [key: string]: Geometry };
 
     /**
-     * {@link Texture | Textures} within this SceneModel, each mapped to {@link Texture.id}.
+     * {@link Texture | Textures} within this SceneModel, each mapped to {@link Texture.id | Texture.id}.
      *
-     * Created by {@link SceneModel.createTexture}.
+     * * Created by {@link SceneModel.createTexture | SceneModel.createTexture}.
+     * * Compressed asynchronously in {@link SceneModel.build | SceneModel.build}.
      */
-    readonly textures: { [key: string]: Texture };
+    public readonly textures: { [key: string]: Texture };
+
     /**
-     * {@link TextureSet | TextureSets} within this SceneModel, each mapped to {@link TextureSet.id}.
+     * {@link TextureSet | TextureSets} within this SceneModel, each mapped to {@link TextureSet.id | TextureSet.id}.
      *
-     * Created by {@link SceneModel.createTextureSet}.
+     * * Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
      */
-    readonly textureSets: { [key: string]: TextureSet };
+    public readonly textureSets: { [key: string]: TextureSet };
+
     /**
-     * {@link Mesh | Meshes} within this SceneModel, each mapped to {@link Mesh.id}.
+     * {@link Mesh | Meshes} within this SceneModel, each mapped to {@link Mesh.id | Mesh.id}.
      *
-     * Created by {@link SceneModel.createMesh}.
+     * * Created by {@link SceneModel.createMesh | SceneModel.createMesh}.
      */
-    readonly meshes: { [key: string]: Mesh };
+    public readonly meshes: { [key: string]: Mesh };
+
     /**
-     * {@link SceneObject | SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id}.
+     * {@link SceneObject | SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id | SceneObject.id}.
      *
-     * Created by {@link SceneModel.createObject}.
+     * * Created by {@link SceneModel.createObject | SceneModel.createObject}.
      */
     readonly objects: { [key: string]: SceneObject };
+
     /**
      * The axis-aligned 3D World-space boundary of this SceneModel.
      *
-     * Created by {@link SceneModel.build}.
+     * * Created by {@link SceneModel.build | SceneModel.build}.
      */
-    readonly aabb: Float64Array;
+    public readonly aabb: Float64Array;
+
     /**
-     * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has already been built.
+     * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has been built.
      *
-     * Triggered by {@link SceneModel.build}.
+     * * Triggered by {@link SceneModel.build | SceneModel.build}.
      *
      * @event onBuilt
      */
-    readonly onBuilt: EventEmitter<SceneModel, null>;
+    public readonly onBuilt: EventEmitter<SceneModel, null>;
+
     /**
      * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has been destroyed.
      *
-     * Triggered by {@link SceneModel.destroy}.
+     * * Triggered by {@link SceneModel.destroy | SceneModel.destroy}.
      *
      * @event
      */
-    readonly onDestroyed: EventEmitter<SceneModel, null>;
+    public readonly onDestroyed: EventEmitter<SceneModel, null>;
+
     /**
      *  Internal interface through which a SceneModel can load property updates into a renderer.
      *
      * @internal
      */
-    rendererModel?: RendererModel;
+    public rendererModel?: RendererModel;
+
+
     #texturesList: Texture[];
     #numObjects: number;
     #meshUsedByObject: { [key: string]: boolean };
 
     /**
-     * Constructs a new SceneModel.
-     *
-     * ````javascript
-     * const myScratchModel = new SceneModel();
-     * ````
-     *
-     * @param [cfg] Configuration
-     * @param {Number} [cfg.edgeThreshold=10]
+     * @private
      */
-    constructor(cfg: { id: string, edgeThreshold?: number } = {
-        id: "default",
-        edgeThreshold: 10
-    }) {
-        super(null, {
-            id: cfg.id
+    constructor(scene, sceneModelParams: SceneModelParams) {
+        super(scene, {
+            id: sceneModelParams.id
         });
 
-        this.#numObjects = 0;
-        this.#meshUsedByObject = {};
+        this.scene = scene;
 
         this.onBuilt = new EventEmitter(new EventDispatcher<SceneModel, null>());
         this.onDestroyed = new EventEmitter(new EventDispatcher<SceneModel, null>());
 
-        this.id = cfg.id || "default";
-        this.edgeThreshold = cfg.edgeThreshold || 10;
+        this.#numObjects = 0;
+        this.#meshUsedByObject = {};
+
+        this.id = sceneModelParams.id || "default";
+        //   this.edgeThreshold = sceneModelPrams.edgeThreshold || 10;
+        this.edgeThreshold = 10;
         this.geometries = {};
         this.textures = {};
         this.#texturesList = [];
@@ -225,22 +229,72 @@ export class SceneModel extends Component {
         this.objects = {};
         this.aabb = createAABB3();
         this.built = false;
+
+        this.fromJSON(sceneModelParams);
+    }
+
+    /**
+     * Adds components to this SceneModel.
+     *
+     * See {@link "@xeokit/scene"} for usage.
+     *
+     * @param sceneModelParams
+     * @throws {@link Error}
+     * * If this SceneModel has already been built.
+     * * If this SceneModel has already been destroyed.
+     * * A duplicate component ({@link SceneObject}, {@link Mesh}, {@link Geometry}, {@link Texture} etc.) was already created within this SceneModel.
+     */
+    fromJSON(sceneModelParams: SceneModelParams) {
+        if (this.destroyed) {
+            throw new Error("SceneModel already destroyed");
+        }
+        if (this.built) {
+            throw new Error("SceneModel already built");
+        }
+        if (sceneModelParams.geometries) {
+            for (let i = 0, len = sceneModelParams.geometries.length; i < len; i++) {
+                this.createGeometry(sceneModelParams.geometries[i]);
+            }
+        }
+        if (sceneModelParams.textures) {
+            for (let i = 0, len = sceneModelParams.textures.length; i < len; i++) {
+                this.createTexture(sceneModelParams.textures[i]);
+            }
+        }
+        if (sceneModelParams.textureSets) {
+            for (let i = 0, len = sceneModelParams.textureSets.length; i < len; i++) {
+                this.createTextureSet(sceneModelParams.textureSets[i]);
+            }
+        }
+        if (sceneModelParams.meshes) {
+            for (let i = 0, len = sceneModelParams.meshes.length; i < len; i++) {
+                this.createMesh(sceneModelParams.meshes[i]);
+            }
+        }
+        if (sceneModelParams.objects) {
+            for (let i = 0, len = sceneModelParams.objects.length; i < len; i++) {
+                this.createObject(sceneModelParams.objects[i]);
+            }
+        }
     }
 
     /**
      * Creates a new {@link Transform} within this SceneModel.
      *
-     * Registers the new {@link Transform} in {@link SceneModel.transforms}.
+     * * Stores the new {@link Transform} in {@link SceneModel.transforms | SceneModel.transforms}.
+     *
+     * ### Usage
      *
      * ````javascript
-     * myScratchModel.createTransform({
-     *      id: "myTransform",
-     *      //...
+     * const spinningTransform = sceneModel.createTransform({
+     *      id: "spinningTransform",
+     *      rotation: [0, 10, 0]
      * });
      *
-     * // SceneModel is a SceneModel, so we can access the TextureSet we just created
-     * const textureSet = myScratchModel.textureSets["myTextureSet"];
+     * const spinningTransformAgain = sceneModel.transforms["spinningTransform"];
      * ````
+     *
+     * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param transformParams Transform creation parameters.
      * @throws {@link Error}
@@ -253,21 +307,19 @@ export class SceneModel extends Component {
         if (this.built) {
             throw new Error("SceneModel already built");
         }
-        if (!transformParams) {
-            throw new Error("Parameters expected: transformParams");
-        }
-        if (transformParams.id === null || transformParams.id === undefined) {
-            throw new Error("Parameter expected: params.transformId");
-        }
+        //...
     }
 
     /**
      * Creates a new {@link Texture} within this SceneModel.
      *
-     * Registers the new {@link Texture} in {@link SceneModel.textures}.
+     * * Stores the new {@link Texture} in {@link SceneModel.textures | SceneModel.textures}.
+     * * Textures are compressed asynchronously by {@link SceneModel.build | SceneModel.build}.
+     *
+     * ### Usage
      *
      * ````javascript
-     * myScratchModel.createTexture({
+     * const texture = sceneModel.createTexture({
      *      id: "myColorTexture",
      *      src: // Path to JPEG, PNG, KTX2,
      *      image: // HTMLImageElement,
@@ -282,15 +334,16 @@ export class SceneModel extends Component {
      *      wrapT: ClampToEdgeWrapping,
      * });
      *
-     * // SceneModel is a SceneModel, so we can access the TextureSet we just created
-     * const textureSet = myScratchModel.textureSets["myTextureSet"];
+     * const textureAgain = sceneModel.textures["myColorTexture"];
      * ````
      *
-     * @param textureParams Texture creation parameters.
+     * See {@link "@xeokit/scene"} for more usage info.
+     *
+     * @param textureParams - Texture creation parameters.
      * @throws {@link Error}
      * * If SceneModel has already been built or destroyed.
      * * Invalid TextureParams were given.
-     * * Texture with given ID already exists.
+     * * Texture with given ID already exists in this Scene.
      */
     createTexture(textureParams: TextureParams): Texture {
         if (this.destroyed) {
@@ -327,17 +380,20 @@ export class SceneModel extends Component {
     /**
      * Creates a new {@link TextureSet} within this SceneModel.
      *
-     * Registers the new {@link TextureSet} in {@link SceneModel.textureSets}.
+     * * Stores the new {@link TextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
+     *
+     * ### Usage
      *
      * ````javascript
-     * myScratchModel.createTextureSet({
+     * const textureSet = sceneModel.createTextureSet({
      *      id: "myTextureSet",
      *      colorTextureId: "myColorTexture"
      * });
      *
-     * // SceneModel is a SceneModel, so we can access the TextureSet we just created
-     * const textureSet = myScratchModel.textureSets["myTextureSet"];
+     * const textureSetAgain = sceneModel.textureSets["myTextureSet"];
      * ````
+     *
+     * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param textureSetParams TextureSet creation parameters.
      *
@@ -416,11 +472,13 @@ export class SceneModel extends Component {
     /**
      * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from non-compressed geometry parameters.
      *
+     * * Stores the new {@link Geometry} in {@link SceneModel.geometries | SceneModel.geometries}.
+     *
      * ### Usage
      *
      * ````javascript
-     * myScratchModel.createGeometry({
-     *      id: "myBoxGeometry",
+     * const boxGeometry = sceneModel.createGeometry({
+     *      id: "boxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positions: [
      *          1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
@@ -436,9 +494,10 @@ export class SceneModel extends Component {
      *      ]
      *  });
      *
-     * // SceneModel is a SceneModel, so we can access the Geometry we just created
-     * const geometry = myScratchModel.geometries["myBoxGeometry"];
+     * const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
      * ````
+     *
+     * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param geometryParams Non-compressed geometry parameters.
      * @throws {@link Error}
@@ -509,11 +568,14 @@ export class SceneModel extends Component {
     /**
      * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from pre-compressed geometry parameters.
      *
-     * Use {@link @xeokit/math/compression!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
+     * * Stores the new {@link Geometry} in {@link SceneModel.geometries | SceneModel.geometries}.
+     * * Use {@link @xeokit/math/compression!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
+     *
+     * ### Usage
      *
      * ````javascript
-     * myScratchModel.createGeometryCompressed({
-     *      id: "myBoxGeometry",
+     * const boxGeometry = sceneModel.createGeometryCompressed({
+     *      id: "boxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/core/constants
      *      positionsDecompressMatrix: [
      *          0.00003052270125906143, 0, 0, 0,
@@ -537,9 +599,10 @@ export class SceneModel extends Component {
      *      ]
      * });
      *
-     * // SceneModel is a SceneModel, so we can access the Geometry we just created
-     * const geometry = myScratchModel.geometries["myBoxGeometry"];
+     * const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
      * ````
+     *
+     * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
      * @throws {@link Error}
@@ -548,6 +611,11 @@ export class SceneModel extends Component {
      * * Invalid GeometryParams were given.
      * * Geometry of given ID already exists in this SceneModel.
      * * Unsupported primitive type given.
+     * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
+     * * Mandatory indices were not given for primitive type that is not {@link PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+     * * Indices out of range of vertex positions.
+     * * Indices out of range of vertex UVs.
+     * * Mismatch between given quantities of vertex positions and UVs.
      * @returns {Geometry} The new Geometry.
      */
     createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): Geometry {
@@ -577,12 +645,17 @@ export class SceneModel extends Component {
     }
 
     /**
-     * Creates a {@link Mesh} within this SceneModel.
+     * Creates a new {@link Mesh} within this SceneModel.
+     *
+     * * Stores the new {@link Mesh} in {@link SceneModel.meshes | SceneModel.meshes}.
+     * * A {@link Mesh} can be owned by one {@link SceneObject}, which can own multiple {@link Mesh}es.
+     *
+     * ### Usage
      *
      * ````javascript
-     * myScratchModel.createMesh({
-     *      id: "redLegMesh",
-     *      geometryId: "myBoxGeometry",
+     * const redBoxMesh = sceneModel.createMesh({
+     *      id: "redBoxMesh",
+     *      geometryId: "boxGeometry",
      *      textureSetId: "myTextureSet",
      *      position: [-4, -6, -4],
      *      scale: [1, 3, 1],
@@ -590,11 +663,10 @@ export class SceneModel extends Component {
      *      color: [1, 0.3, 0.3]
      * });
      *
-     * // SceneModel is a SceneModel, so we can access the Mesh we just created
-     * const mesh = myScratchModel.meshes["redLegMesh"];
+     * const redBoxMeshAgain = sceneModel.meshes["redBoxMesh"];
      * ````
      *
-     * An {@link Mesh} can be owned by one {@link SceneObject}, which can own multiple {@link Mesh}es.
+     * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param meshParams Pre-compressed mesh parameters.
      * @throws {@link Error}
@@ -662,46 +734,50 @@ export class SceneModel extends Component {
     }
 
     /**
-     * Creates an {@link SceneObject} within this SceneModel.
+     * Creates a new {@link SceneObject}.
      *
-     * Registers the new {@link SceneObject} in {@link SceneModel.objects}.
+     * * Stores the new {@link SceneObject} in {@link SceneModel.objects | SceneModel.objects} and {@link Scene.objects | Scene.objects}.
+     * * Fires an event via {@link Scene.onObjectCreated | Scene.onObjectCreated}.
+     * * Each {@link Mesh} is allowed to belong to one SceneObject.
+     * * SceneObject IDs must be unique within the SceneModel's {@link Scene}.
+     *
+     * ### Usage
+     *
+     * ````javascript
+     * const redBoxObject = sceneModel.createObject({
+     *     id: "redBoxObject",
+     *     meshIds: ["redBoxMesh"]
+     * });
+     *
+     * const redBoxObjectAgain = sceneModel.objects["redBoxObject"];
+     * const redBoxObjectOnceMore = scene.objects["redBoxObject"];
+     * ````
+     *
+     * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param objectParams SceneObject parameters.
      * @throws {@link Error}
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid ObjectParams were given.
-     * * SceneObject of given ID already exists in this SceneModel.
+     * * SceneObject of given ID already exists in this SceneModel's Scene. Note that SceneObject IDs must be unique within the Scene.
      * * No Meshes were specified.
      * * One or more of the specified Meshes already belong to another SceneObject in this SceneModel.
      * * Specified Meshes could not be found in this SceneModel.
      * @returns {Mesh} The new SceneObject.
      */
-    createObject(objectParams: ObjectParams): SceneObject {
+    createObject(objectParams: SceneObjectParams): SceneObject {
         if (this.destroyed) {
             throw new Error("SceneModel already destroyed");
         }
         if (this.built) {
             throw new Error("SceneModel already built");
         }
-        if (!objectParams) {
-            throw new Error("Parameters expected: objectParams");
-        }
-        if (objectParams.id === null || objectParams.id === undefined) {
-            throw new Error("Parameter expected: objectParams.id");
-        }
-        if (!objectParams.meshIds) {
-            throw new Error("Parameter expected: objectParams.meshIds");
-        }
         if (objectParams.meshIds.length === 0) {
             throw new Error("SceneObject has no meshes");
         }
-        let objectId = objectParams.id;
-        if (this.objects[objectId]) {
-            while (this.objects[objectId]) {
-                objectId = createUUID();
-            }
-            throw new Error(`SceneObject already exists with this ID: ${objectParams.id}`);
+        if (this.scene.objects[objectParams.id]) {
+            throw new Error(`SceneObject already exists in Scene: ${objectParams.id}`);
         }
         const meshIds = objectParams.meshIds;
         const meshes = [];
@@ -711,34 +787,52 @@ export class SceneModel extends Component {
             if (!mesh) {
                 throw new Error(`Mesh not found: ${meshId}`);
             }
-            // TODO
             if (this.#meshUsedByObject[meshId]) {
                 throw new Error(`Mesh ${meshId} already belongs to another SceneObject`);
             }
             meshes.push(mesh);
             this.#meshUsedByObject[mesh.id] = true;
         }
-        const object = new SceneObject({
-            id: objectId,
+        const sceneObject = new SceneObject({
+            id: objectParams.id,
             meshes
         });
         for (let i = 0, len = meshes.length; i < len; i++) {
             const mesh = meshes[i];
-            mesh.object = object;
+            mesh.object = sceneObject;
         }
         this.#numObjects++;
-        this.objects[objectId] = object;
-        return object;
+        this.objects[objectParams.id] = sceneObject;
+        return sceneObject;
     }
 
     /**
-     * Builds this SceneModel.
+     * Finalizes this SceneModel, readying it for use.
      *
-     * Expects this SceneModel to have at least one SceneObject.
+     * * Fires an event via {@link SceneModel.onBuilt | SceneModel.onBuilt} and {@link Scene.onModelCreated | SceneModel.onCreated}, to indicate to subscribers that
+     * the SceneModel is complete and ready to use.
+     * * Sets {@link SceneModel.built | SceneModel.built} ````true````.
+     * * You can only call this method once on a SceneModel.
+     * * The SceneModel must have at least one {@link SceneObject}.
+     * * Once built, no more components can be created in a SceneModel.
      *
-     * Sets {@link SceneModel.built} ````true````.
+     * ### Usage
      *
-     * Once built, you cannot add any more components to this SceneModel.
+     * ````javascript
+     * sceneMode.onBuilt.subscribe(()=>{
+     *     // Our SceneModel is built and ready to use
+     * });
+     *
+     * myScene.onModelCreated.subscribe((sceneModel)=>{
+     *     // Another way to subscribe to SceneModel readiness
+     * });
+     *
+     * mySceneModel.build().then(() => { // Asynchronous (texture compression etc).
+     *      // Now we can do things with our SceneModel
+     * });
+     * ````
+     *
+     * See {@link "@xeokit/scene"} for more usage info.
      *
      * @throws {@link Error}
      * * If SceneModel has already been built or destroyed.

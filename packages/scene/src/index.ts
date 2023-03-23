@@ -6,12 +6,20 @@
  *
  * ## Scene Representation
  *
- * * {@link @xeokit/scene!Scene | Scene}, {@link @xeokit/scene!SceneModel | SceneModel}
- * * Contains geometry, materials, textures, transforms and objects
- * * Build programmatically with builder methods
- * * Load from files (see: {@link @xeokit/xkt!loadXKT | loadXKT}, {@link @xeokit/gltf!loadGLTF | loadGLTF}, {@link @xeokit/las!loadLAS | loadLAS}...)
- * * Save to files (see: {@link @xeokit/xkt!saveXKT | saveXKT} ...)
- * * Visualize with a {@link @xeokit/viewer!Viewer} or use headless
+ * * {@link @xeokit/scene!Scene} is a container for {@link @xeokit/scene!SceneModel | SceneModels},
+ * which contain {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries} and {@link Texture | Textures}.
+ * * Texture compressed using [Basis](/docs/pages/GLOSSARY.html#basis)
+ * * Geometry compressed using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
+ * * View SceneModels in the Browser using a {@link "@xeokit/viewer" | Viewer}
+ * * Import SceneModels from various model file formats using importer functions such as
+ * {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS},
+ * {@link "@xeokit/cityjson" | loadCityJSON}, {@link "@xeokit/xkt" | loadXKT} etc.
+ * * Export SceneModels to native XKT format using {@link "@xeokit/xkt" | saveXKT}
+ * * Programmatically build SceneModels using builder methods {@link @xeokit/scene!Scene.createModel | Scene.createModel},
+ * {@link @xeokit/scene!SceneModel.createobject | SceneModel.createobject},
+ * {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
+ * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} and
+ * {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
  *
  * ## Installation
  *
@@ -24,11 +32,10 @@
  * In the example below, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} with a couple of
  * objects, a geometry and a texture.
  *
- * We'll create the geometry from Human-readable uncompressed arrays, which we'll pre-compress
- * with {@link @xeokit/scene!compressGeometryParams | compressGeometryParams}.
+ * When we've finished constructing our SceneModel, we'll call {@link SceneModel.build | SceneModel.build}, which
+ * (asynchronously) compresses our texture and geometry.
  *
- * When we've finished constructing our SceneModel, we'll call {@link SceneModel.build | SceneModel.build},
- * and then we'll use {@link @xeokit/xkt!saveXKT | saveXKT} to save it as an XKT file in an ArrayBuffer.
+ * When our SceneModel is built, we'll then export it to an XKT file using {@link @xeokit/xkt!saveXKT | saveXKT}.
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
@@ -458,12 +465,12 @@ export * from "./RendererTexture";
 export * from "./RendererTextureSet";
 
 export * from "./MeshParams";
-export * from "./ObjectParams";
+export * from "./SceneObjectParams";
 export * from "./TextureParams";
 export * from "./TextureSetParams";
 export * from "./TransformParams";
 export * from "./GeometryBucketParams";
 export * from "./GeometryCompressedParams";
 export * from "./GeometryParams";
-export * from "./CreateSceneModelParams";
+export * from "./SceneModelParams";
 export * from "./compressGeometryParams";

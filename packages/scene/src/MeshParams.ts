@@ -1,22 +1,22 @@
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**
- * Mesh creation parameters for {@link @xeokit/scene!SceneModel.createMesh}.
+ * {@link Mesh} creation parameters for {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
  */
 export interface MeshParams {
 
     /**
-     * ID for the mesh, unique within the {@link @xeokit/scene!SceneModel}.
+     * ID for the new {@link Mesh}, unique within the {@link @xeokit/scene!SceneModel}.
      */
     id: string;
 
     /**
-     * ID of a texture set that was created previously with {@link @xeokit/scene!SceneModel.createTextureSet}.
+     * ID of a {@link TextureSet} that was created previously with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
      */
     textureSetId?: string;
 
     /**
-     * ID of a geometry that was created previously with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} or {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
+     * ID of a {@link Geometry} that was created previously with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} or {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
      */
     geometryId: string;
 
@@ -26,46 +26,46 @@ export interface MeshParams {
     transformId?: string;
 
     /**
-     * RGB base color of the mesh.
+     * RGB base color of the new {@link Mesh}.
      *
-     * Default is ````[1,1,1]````.
+     * * Default is ````[1,1,1]````.
      */
     color?: FloatArrayParam;
 
     /**
-     * RGB pick color of the mesh.
+     * RGB pick color of the new {@link Mesh}.
      *
      * This is used internally within {@link @xeokit/scene!SceneModel}.
      */
     pickColor?: FloatArrayParam;
 
     /**
-     * Opacity of the mesh.
+     * Opacity of the new {@link Mesh}.
      *
      * Default is 1.
      */
     opacity?: number;
 
     /**
-     * The metallic-ness of the mesh.
+     * The metallic-ness of new {@link Mesh}.
      *
-     * This is a continuous factor in the range ````[0,1]````, where 0 is fully non-metallic and 1 is fully metallic.
-     *
-     * Default is 0.
+     * * This is a continuous factor in the range ````[0,1]````, where 0 is fully non-metallic and 1 is fully metallic.
+     * * Default is 0.
+     * * See [*Physically-Based Rendering*](/docs/pages/GLOSSARY.html#physically-based-rendering)
      */
     metallic?: number;
 
     /**
-     * The roughness of the mesh.
+     * The roughness of new {@link Mesh}.
      *
-     * This is a continuous factor in the range ````[0,1]````, where 0 is fully rough and 1 is perfectly smooth.
-     *
-     * Default is 1.
+     * * This is a continuous factor in the range ````[0,1]````, where 0 is fully rough and 1 is perfectly smooth.
+     * * Default is 1.
+     * * See [*Physically-Based Rendering*](/docs/pages/GLOSSARY.html#physically-based-rendering)
      */
     roughness?: number;
 
     /**
-     * Optional 3D World-space origin, relative to {@link @xeokit/scene!SceneModel.origin}.
+     * Optional 3D World-space origin, relative to {@link @xeokit/scene!SceneModel.origin | SceneModel.origin}.
      *
      * When this is given, then 3D positions given in {@link @xeokit/scene!GeometryParams.positions} or
      * {@link @xeokit/scene!GeometryBucketParams.positionsCompressed} are assumed to be relative to this.

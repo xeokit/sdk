@@ -5,13 +5,13 @@ import {Geometry} from "./Geometry";
 import {TextureSet} from "./TextureSet";
 
 /**
- * Represents a mesh.
+ * A mesh in a {@link SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
  * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
  * * Referenced by {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}
  *
- * See usage in [@xeokit/scene](/docs/modules/_xeokit_scene.html).
+ * See {@link "@xeokit/scene"} for usage.
  */
 export class Mesh {
 

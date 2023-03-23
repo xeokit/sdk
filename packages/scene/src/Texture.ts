@@ -20,7 +20,7 @@ import {TextureParams} from "./TextureParams";
 import {createVec4} from "@xeokit/math/matrix";
 
 /**
- * Represents a texture.
+ * A texture in a {@link SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
  * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
@@ -28,10 +28,7 @@ import {createVec4} from "@xeokit/math/matrix";
  * {@link TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
  * {@link TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link TextureSet.emissiveTexture | TextureSet.emissiveTexture}
  *
- * See usage in:
- *
- * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
- * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
+ * See {@link "@xeokit/scene"} for usage.
  */
 export class Texture implements Texture {
 

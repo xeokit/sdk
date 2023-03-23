@@ -4,22 +4,21 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {RendererObject} from "./RendererObject";
 
 /**
- * Represents an object in a {@link @xeokit/scene!SceneModel}.
+ * An object in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.objects | SceneModel.objects} and {@link @xeokit/scene!Scene.objects | Scene.objects}
  * * Created with {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}
  *
- * See usage in:
- *
- * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
- * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
+ * See {@link "@xeokit/scene"} for usage.
  */
 export class SceneObject  {
 
     /**
      * Unique ID of this SceneObject.
+     *
+     * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects} and {@link SceneModel.objects | SceneModel.objects}.
      */
-    id: string;
+   public readonly id: string;
 
     /**
      * The {@link Mesh | Meshes} belonging to this SceneObject.

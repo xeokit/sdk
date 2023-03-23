@@ -1,5 +1,5 @@
 /**
- * Object creation parameters for {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}.
+ * {@link SceneObject} creation parameters for {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}.
  */
 export interface SceneObjectParams {
 

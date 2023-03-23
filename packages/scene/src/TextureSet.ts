@@ -3,16 +3,13 @@ import {TextureSetParams} from "./TextureSetParams";
 import {RendererTextureSet} from "./RendererTextureSet";
 
 /**
- * Represents a set of textures.
+ * A set of {@link Texture | Textures} in a {@link SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}
  * * Created with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}
  * * Referenced by {@link Mesh.textureSet | Mesh.textureSet}
  *
- * See usage in:
- *
- * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
- * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
+ * See {@link "@xeokit/scene"} for usage.
  */
 export class TextureSet {
 

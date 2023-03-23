@@ -16,7 +16,7 @@
  * {@link "@xeokit/cityjson" | loadCityJSON}, {@link "@xeokit/xkt" | loadXKT} etc.
  * * Export SceneModels to native XKT format using {@link "@xeokit/xkt" | saveXKT}
  * * Programmatically build SceneModels using builder methods {@link @xeokit/scene!Scene.createModel | Scene.createModel},
- * {@link @xeokit/scene!SceneModel.createobject | SceneModel.createobject},
+ * {@link @xeokit/scene!SceneModel.createobject | SceneModel.createObject},
  * {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} and
  * {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
@@ -29,18 +29,18 @@
  *
  * ## Usage
  *
- * In the example below, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} with a couple of
- * objects, a geometry and a texture.
+ * ### Creating a SceneModel
+ *
+ * In the example below, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} with five
+ * {@link @xeokit/scene!SceneObject | SceneObjects}, five {@link @xeokit/scene!Mesh | Meshes},
+ * a {@link @xeokit/scene!Geometry | Geometry} and a {@link @xeokit/scene!Texture | Texture} .
  *
  * When we've finished constructing our SceneModel, we'll call {@link SceneModel.build | SceneModel.build}, which
- * (asynchronously) compresses our texture and geometry.
- *
- * When our SceneModel is built, we'll then export it to an XKT file using {@link @xeokit/xkt!saveXKT | saveXKT}.
+ * (asynchronously) compresses our Texture.
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/core/constants";
- * import {saveXKT} from "@xeokit/xkt";
  *
  * // Scene is the container of SceneModels
  *
@@ -51,7 +51,7 @@
  * });
  *
  * const geometry = sceneModel.createGeometry({
- *      id: "theGeometry",
+ *      id: "boxGeometry",
  *      primitive: TrianglesPrimitive,
  *      positions: [ // Floats
  *          1, 1, 1, -1, 1, 1,
@@ -87,7 +87,7 @@
  *
  * const redLegMesh = sceneModel.createMesh({
  *     id: "redLegMesh",
- *     geometryId: "theGeometry",
+ *     geometryId: "boxGeometry",
  *     position: [-4, -6, -4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
@@ -97,7 +97,7 @@
  *
  * const greenLegMesh = sceneModel.createMesh({
  *     id: "greenLegMesh",
- *     geometryId: "theGeometry",
+ *     geometryId: "boxGeometry",
  *     position: [4, -6, -4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
@@ -107,7 +107,7 @@
  *
  * const blueLegMesh = sceneModel.createMesh({
  *     id: "blueLegMesh",
- *     geometryId: "theGeometry",
+ *     geometryId: "boxGeometry",
  *     position: [4, -6, 4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
@@ -117,7 +117,7 @@
  *
  * const yellowLegMesh = sceneModel.createMesh({
  *     id: "yellowLegMesh",
- *     geometryId: "theGeometry",
+ *     geometryId: "boxGeometry",
  *     position: [-4, -6, 4],
  *     scale: [1, 3, 1],
  *     rotation: [0, 0, 0],
@@ -127,7 +127,7 @@
  *
  *  const tableTopMesh = sceneModel.createMesh({
  *     id: "tableTopMesh",
- *     geometryId: "theGeometry",
+ *     geometryId: "boxGeometry",
  *     position: [0, -3, 0],
  *     scale: [6, 0.5, 6],
  *     rotation: [0, 0, 0],
@@ -177,35 +177,30 @@
  *
  * sceneModel.build().then(()=> {
  *
- *     // When all done, destroy the SceneModel again
- *
- *     sceneModel.destroy();
+ *     // SceneModel is ready for use
  * })
- *
- * const arrayBuffer = saveXKT({
- *      sceneModel
- * });
  * ````
  *
- * ## Querying the SceneModel
+ * ### Querying the SceneModel
  *
- * We can access all the components that we created within our SceneModel:
+ * After we've build the SceneModel, we can access all of its components. The {@link Texture} and {@link Geometry} 
+ * we just created will now be compressed.
  *
  * ````javascript
  * const theSceneModel = theScene.models["theModel"];
  * const theTexture = theSceneModel.textures["theColorTexture"];
  * const theTextureSet = theSceneModel.textureSets["theTextureSet"];
- * const theGeometry = theSceneModel.geometries["theGeometry"];
+ * const boxGeometry = theSceneModel.geometries["boxGeometry"];
  * const theTableTopMesh = theSceneModel.meshes["tableTopMesh"];
  * const theTableTopObject = theSceneModel.objects["tableTopObject"];
  * const theTableTopObjectAgain = theScene.objects["tableTopObject"];
  * ````
  *
- * ## Geometry Compression
+ * ### Geometry Compression
  *
  * The geometry from our query example requires a closer look. Internally, the {@link SceneModel.createGeometry}
- * method uses the {@link compressGeometryParams} function to compress the geometry, and when triangles are concerned,
- * also generate indices for rendering it as a wireframe.
+ * method uses the {@link compressGeometryParams} function to compress the geometry and generate edge indices for 
+ * rendering it as a wireframe.
  *
  * We provide that function as part of the API in case users want to pre-compress the geometry themselves
  * and then use {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
@@ -223,7 +218,7 @@
  * Our compressed geometry then looks like this:
  *
  * ````javascript
- * const bucket0 = theGeometry.buckets[0];
+ * const bucket0 = boxGeometry.buckets[0];
  * const bucket0Positions = bucket0.positions;
  * const bucketindices = bucket0.indices;
  * const bucketEdgeIndices = bucket0.edgeIndices;
@@ -247,7 +242,7 @@
  * import {TrianglesPrimitive} from "@xeokit/core/constants";
  *
  * const geometryCompressedParams = compressGeometryParams({
- *      id: "theGeometry",
+ *      id: "boxGeometry",
  *      primitive: TrianglesPrimitive,
  *      positions: [ // Floats
  *          1, 1, 1, -1, 1, 1,
@@ -276,7 +271,7 @@
  *
  * ````javascript
  * {
- *      id: "theGeometry",
+ *      id: "boxGeometry",
  *      primitive: TrianglesPrimitive,
  *      origin: [200,200,200],
  *      positionsDecompressMatrix: [
@@ -307,144 +302,7 @@
  *      ]
  * }
  * ````
- *
- * TODO TODO
- *
- * ````javascript
- * import {Scene} from "@xeokit/scene";
- * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/core/constants";
- * 
- * const theScene = new Scene({});
- *
- * const sceneModel = theScene.createModel({
- *     id: "myTable"
- * });
- *
- * sceneModel.createGeometryCompressed(geometryCompressedParams);
- *
- * sceneModel.createTexture({
- *      id: "myColorTexture",
- *      src: "myTexture.ktx2",
- *      preloadColor: [1,0,0,1],
- *      flipY: false,
- *      encoding: LinearEncoding, // @xeokit/core/constants
- *      magFilter: LinearFilter,
- *      minFilter: LinearFilter,
- *      wrapR: ClampToEdgeWrapping,
- *      wrapS: ClampToEdgeWrapping,
- *      wrapT: ClampToEdgeWrapping,
- * });
- *
- * sceneModel.createTextureSet({
- *      id: "theTextureSet",
- *      colorTextureId: "myColorTexture"
- * });
- *
- * sceneModel.createMesh({
- *     id: "redLegMesh",
- *     geometryId: "theGeometry",
- *     position: [-4, -6, -4],
- *     scale: [1, 3, 1],
- *     rotation: [0, 0, 0],
- *     color: [1, 0.3, 0.3],
- *     textureSetId: "theTextureSet"
- * });
- *
- * sceneModel.createObject({ // Red table leg object
- *     id: "redLegObject",
- *     meshIds: ["redLegMesh"]
- * });
- *
- * sceneModel.createMesh({
- *     id: "greenLegMesh",
- *     geometryId: "theGeometry",
- *     position: [4, -6, -4],
- *     scale: [1, 3, 1],
- *     rotation: [0, 0, 0],
- *     color: [0.3, 1.0, 0.3],
- *     textureSetId: "theTextureSet"
- * });
- *
- * sceneModel.createObject({ // Green table leg object
- *     id: "greenLeg",
- *     meshIds: ["greenLegMesh"]
- * });
- *
- * sceneModel.createMesh({
- *     id: "blueLegMesh",
- *     geometryId: "theGeometry",
- *     position: [4, -6, 4],
- *     scale: [1, 3, 1],
- *     rotation: [0, 0, 0],
- *     color: [0.3, 0.3, 1.0],
- *     textureSetId: "theTextureSet"
- * });
- *
- * sceneModel.createObject({ // Blue table leg object
- *     id: "blueLeg",
- *     meshIds: ["blueLegMesh"]
- * });
- *
- * sceneModel.createMesh({
- *     id: "yellowLegMesh",
- *     geometryId: "theGeometry",
- *     position: [-4, -6, 4],
- *     scale: [1, 3, 1],
- *     rotation: [0, 0, 0],
- *     color: [1.0, 1.0, 0.0],
- *     textureSetId: "theTextureSet"
- * });
- *
- * sceneModel.createObject({ // Yellow table leg object
- *     id: "yellowLeg",
- *     meshIds: ["yellowLegMesh"]
- * });
- *
- * sceneModel.createMesh({
- *     id: "tableTopMesh",
- *     geometryId: "theGeometry",
- *     position: [0, -3, 0],
- *     scale: [6, 0.5, 6],
- *     rotation: [0, 0, 0],
- *     color: [1.0, 0.3, 1.0],
- *     textureSetId: "theTextureSet"
- * });
- *
- * sceneModel.createObject({ // Purple table top object
- *     id: "tableTopObject",
- *     meshIds: ["tableTopMesh"]
- * });
- *
- * sceneModel.build();
- * ````
- *
- * ## Viewing a SceneModel
- *
- * Create a {@link @xeokit/viewer!Viewer} to view our Scene, configured with
- * a {@link @xeokit/webglrenderer!WebGLRenderer}, then create a {@link @xeokit/viewer!View} and arrange
- * its {@link @xeokit/viewer!Camera}:
- *
- * ````javascript
- * import {Scene} from "@xeokit/scene";
- * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webglrenderer";
- *
- * const theViewer = new Viewer({
- *     id: "theViewer",
- *     scene: theScene,
- *     renderer: new WebGLRenderer({ })
- * });
 
- * const view1 = theViewer.createView({
- *     id: "myView",
- *     canvasId: "myView1"
- * });
- *
- * view1.camera.eye = [-3.933, 2.855, 27.018];
- * view1.camera.look = [4.400, 3.724, 8.899];
- * view1.camera.up = [-0.018, 0.999, 0.039];
- * ````
- *
  * @module @xeokit/scene
  */
 

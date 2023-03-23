@@ -1,5 +1,5 @@
 /**
- * Texture set creation parameters for {@link @xeokit/scene!SceneModel.createTextureSet}.
+ * {@link TextureSet} creation parameters for {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
  */
 export interface TextureSetParams {
 

@@ -4,18 +4,14 @@ import {GeometryCompressedParams} from "./GeometryCompressedParams";
 import {RendererGeometry} from "./RendererGeometry";
 
 /**
- * Represents an element of reusable geometry.
+ * A geometry in a {@link SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}
  * * Created with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}
  * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Referenced by {@link @xeokit/scene!SceneObject.geometry}
  *
- * See usage in:
- *
- * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
- * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
- * * [@xeokit/xkt](/docs/modules/_xeokit_xkt.html)
+ * See {@link "@xeokit/scene"} for usage.
  */
 export class Geometry {
 

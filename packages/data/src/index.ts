@@ -337,14 +337,12 @@
  * });
  *
  * // resultObjectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
- *
- * view.setObjectsHighlighted(resultObjectIds, true);
  * ````
  *
  * * ### Example 4. Traversing DataObjects
  *
  * In our fourth example, we'll demonstrate how to traverse the {@link DataObject | DataObjects} along their
- * {@link Relationship | Relationships}. We'll start at the root DataObject and highlight all the DataObjects
+ * {@link Relationship | Relationships}. We'll start at the root DataObject and visit all the DataObjects
  * we encounter along the outgoing Relationships.
  *
  * ````javascript
@@ -356,11 +354,8 @@
  *
  *      const relation = relations[i];
  *      const dataObject = relation.related;
- *      const viewObject = view.objects[dataObject.id];
  *
- *      if (viewObject) {
- *          viewObject.highlighted = true;
- *      }
+ *      //..
  * }
  * ````
  *

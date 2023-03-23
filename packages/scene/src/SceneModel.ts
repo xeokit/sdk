@@ -77,7 +77,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 };
 
 /**
- * Scene model representation.
+ * A model representation within a {@link Scene}.
  *
  * * Contains {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries} and {@link Texture | Textures}.
  * * Compresses textures using [Basis]()
@@ -87,11 +87,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  * * Exportable to XKT format using {@link @xeokit/xkt!saveXKT}
  * * Programmatically buildable using builder methods
  *
- * See usage in:
- *
- * * [@xeokit/scene](/docs/modules/_xeokit_scene.html)
- * * [@xeokit/viewer](/docs/modules/_xeokit_viewer.html)
- * * [@xeokit/xkt](/docs/modules/_xeokit_xkt.html)
+ * See {@link "@xeokit/scene"} for usage.
  */
 export class SceneModel extends Component {
 
@@ -130,7 +126,7 @@ export class SceneModel extends Component {
     public readonly edgeThreshold: number;
 
     /**
-     * {@link @xeokit/scene!Geometry|Geometries} within this SceneModel, each mapped to {@link @xeokit/scene!Geometry.id}.
+     * {@link @xeokit/scene!Geometry | Geometries} within this SceneModel, each mapped to {@link @xeokit/scene!Geometry.id | Geometry.id}.
      *
      * * Created by {@link SceneModel.createGeometry | SceneModel.createGeometry}.
      */

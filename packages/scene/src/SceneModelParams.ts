@@ -10,7 +10,7 @@ import {SceneObjectParams} from "./SceneObjectParams";
 
 
 /**
- * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link Scene.createModel}.
+ * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link Scene.createModel | Scene.createModel}.
  *
  * See {@link "@xeokit/scene"} for usage.
  */

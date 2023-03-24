@@ -30,46 +30,7 @@ The SDK manages model representations in a scene graph that contains the model's
 | [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
    
    
-```mermaid
-classDiagram
-direction LR
-    class Scene
-    Scene "1" --> "1..*" SceneModel
-    Scene "1" --> "1..*" SceneObject
-    Scene : +createModel()
-    Scene : +objects
-    Scene : +models
-    SceneModel : +createGeometry()
-    SceneModel : +createTexture()
-    SceneModel : +createMesh()
-    SceneModel : +createObject()
-    SceneModel : +build()
-    SceneModel : +destroy()
-    SceneModel : +id
-    SceneModel : +objects
-    SceneModel : +geometries
-    SceneModel : +textures
-    SceneModel : +meshes
-    SceneModel "1" --> "*" SceneObject
-    SceneObject "1" --> "*" Mesh
-    SceneObject : +id
-    Mesh "*" --> "0..1" Geometry
-    Mesh "*" --> "0..1" TextureSet
-    Mesh : geometry
-    Mesh : textureSet
-    Mesh : color
-    Mesh : metallic
-    Mesh : roughness
-    TextureSet "*" --> "*" Texture
-    Geometry : positions
-    Geometry : uvs
-    Geometry : indices
-    TextureSet : colorTexture
-    TextureSet : roughnessTexture
-    TextureSet : metallicTexture
-    TextureSet : opacityTexture
- 
-```
+[![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww)
 
 ## Data Graph
     

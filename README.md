@@ -16,20 +16,15 @@
 
 ## Modules
 
-```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
-```
+
+
 
 The xeokit SDK is modular and designed for maximum extensibility. Our philosophy is to rigorously follow SOLID
 principles of software
 design in order to keep the SDK comprehensive, extensible and robust.
 
 ### Model Representation and Semantics
-
+    
 The SDK manages model representation (geometry and materials) and model semantics (entities, relationships and
 properties) in two separate, independent
 data structures.
@@ -44,6 +39,26 @@ between various file formats, or provide some content for a viewer to render.
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
 | [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship graph that contains model semantic data.                 |
 | [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
+
+```mermaid
+graph TD;
+    Scene-->SceneModel;
+    SceneModel-->SceneObject;
+    SceneObject-->Mesh;
+    Mesh-->Geometry;
+    Mesh-->TextureSet;
+    TextureSet-->Texture;
+```
+    
+```mermaid
+graph TD;
+    Data-->DataModel;
+    DataModel-->DataObject;
+    DataObject-->PropertySet;
+    PropertySet-->Property;
+    Relationship-->SceneObject;
+    DataModel-->Relationship
+```
 
 ### Viewing Models
 

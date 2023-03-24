@@ -101,14 +101,24 @@ Most of the SDK's internal and lower-level functionality is provided as fully-do
 
 ## Quick Start
 
-A minimal Web application built with xeokit - a spinning, textured box:
+Let's make a simple application using xeokit - a spinning, textured box. 
+
+First import the npm modules we need from the SDK:
+
+````bash
+npm install @xeokit/scene
+npm install @xeokit/viewer
+npm install @xeokit/webglrenderer
+npm install @xeokit/core/constants
+````
+
+Here's the JavaScript for our spinning box app:
 
 ````javascript
 import {Scene} from "@xeokit/scene";
+import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
 import {Viewer} from "@xeokit/viewer";
 import {WebGLRenderer} from "@xeokit/webglrenderer";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
-import {CameraControl} from "@xeokit/cameracontrol";
 
 const scene = new Scene(); // Scene graph
 

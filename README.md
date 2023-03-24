@@ -61,18 +61,7 @@ annotations etc.
 | [`@xeokit/treeview`](https://www.npmjs.com/package/@xeokit/treeview)     | [`@xeokit/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_treeview.html)                 | HTML tree view widget for a Viewer                          |
 | [`@xeokit/locale`](https://www.npmjs.com/package/@xeokit/locale)     | [`@xeokit/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_locale.html)                 | Localization service for a viewer                         |
 
-```mermaid
-classDiagram
-Viewer-->Renderer
-Viewer-->Scene: Views
-Scene *-- SceneObject
-Viewer-->View
-View-->ViewObject
-ViewObject *-- SceneObject: Represents
-View-->Camera
-View-->Light
-View-->SectionPlane
-```
+[![](https://mermaid.ink/img/pako:eNqtVF9PwyAQ_yoNj8at743Ziz5qNC7xqYm5wm3FUWiATqfZdxfKoUx9c02a3h2_P8eV8MG4EcgaxhU4dyNha2Fo9ZxVTxJf0VYfra7CowwHhWu0e8kxlRxHTeE-YF2rjyU3M033gty7lHAY0ALxQ1ka_aBA40_y_UzKElJkGyc7le1RBQjSUi-3vQrvV-HNwiHHAF1XGFzPTWRxPGCV92h2KZrGAr4u-syk0biKWELaqkDfSHsb-8jIuJyh3ChjqxL9iFqgpTFfXUHnvAXuV6vSP8751zRPl3_PK6ynP7hYrLJLUZpZTZi1m0DJ9_gDks_FYlFKFpQYpJSSEkEN_GA3YYOjRYc6tkzUazoDlOaBfRXKecdNSr7Lh7G3uKla1ns_uqau39DspF9upe-nbilN7cSuFoa7eh4Nuvo5QZ73M3-ZZJa9H1TLghDJRkrLSq-zOJ36_OFCQzuHV5I6dST5U186_P_1TDLffiSbvNglC9kAUoS7ZT6TLfM9DtiyJoQCNzApH3s6BihM3qwPmrPG2wkv2TQK8Ei3EWs2oFyoopDe2Du6r-Ln-AmCVquH?type=png)](https://mermaid.live/edit#pako:eNqtVF9PwyAQ_yoNj8at743Ziz5qNC7xqYm5wm3FUWiATqfZdxfKoUx9c02a3h2_P8eV8MG4EcgaxhU4dyNha2Fo9ZxVTxJf0VYfra7CowwHhWu0e8kxlRxHTeE-YF2rjyU3M033gty7lHAY0ALxQ1ka_aBA40_y_UzKElJkGyc7le1RBQjSUi-3vQrvV-HNwiHHAF1XGFzPTWRxPGCV92h2KZrGAr4u-syk0biKWELaqkDfSHsb-8jIuJyh3ChjqxL9iFqgpTFfXUHnvAXuV6vSP8751zRPl3_PK6ynP7hYrLJLUZpZTZi1m0DJ9_gDks_FYlFKFpQYpJSSEkEN_GA3YYOjRYc6tkzUazoDlOaBfRXKecdNSr7Lh7G3uKla1ns_uqau39DspF9upe-nbilN7cSuFoa7eh4Nuvo5QZ73M3-ZZJa9H1TLghDJRkrLSq-zOJ36_OFCQzuHV5I6dST5U186_P_1TDLffiSbvNglC9kAUoS7ZT6TLfM9DtiyJoQCNzApH3s6BihM3qwPmrPG2wkv2TQK8Ei3EWs2oFyoopDe2Du6r-Ln-AmCVquH)
 
 ## Model Importers and Exporters
 

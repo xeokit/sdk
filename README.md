@@ -21,9 +21,10 @@ design in order to keep the SDK comprehensive, extensible and robust.
 
 ### Model Representation and Semantics
 
-The SDK manages model representation and model semantics in two separate data structures. The SDK lets us just work with either 
-of these aspects independently. You're free to ignore our semantic model (an ER graph), or use a different one. These representations are usable 
-with or without a viewer, in Browser or NodeJS. Use them to generate models, convert models between file formats, or provide content for a viewer to render.
+The SDK manages model representation (geometry and materials) and model semantics (entities, relationships and properties) in two separate, independent 
+data structures. The SDK lets us just work with either of these model aspects independently. You're free to ignore our semantic model (an ER graph), or 
+use a different one. We can use these structures with or without a viewer, in Browser or NodeJS. Use them to build models, convert models 
+between various file formats, or provide some content for a viewer to render.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|

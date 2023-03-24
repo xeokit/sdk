@@ -377,6 +377,7 @@ Here's the JavaScript for our converter script:
 
 ````javascript
 import {Scene} from "@xeokit/scene";
+import {Data} from "@xeokit/data";
 import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
 import {loadGLTF} from "@xeokit/gltf";
 import {saveXKT} from "@xeokit/xkt";
@@ -413,10 +414,10 @@ function toArrayBuffer(buf) {
 }
 ````
 
-## License
+# License
 
 Copyright 2020, AGPL3 License.
 
-## Credits
+# Credits
 
 See [*Credits*](/credits.html).

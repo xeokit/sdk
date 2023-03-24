@@ -12,7 +12,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import {PropertyParams} from "./PropertyParams";
 
 /**
- * A semantic data model, as an entity-relationship graph.
+ * xeokit Semantic Data Model.
  *
  * See {@link "@xeokit/data"} for usage.
  */

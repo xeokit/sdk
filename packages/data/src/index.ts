@@ -4,9 +4,9 @@
  *
  * <img style="padding:50px" src="media://images/xeokit_datamodel_icon.png"/>
  *
- * # Semantic Data Model
+ * # xeokit Semantic Data Model
  *
- * * An entity-relationship semantic data graph.
+ * * An entity-relationship graph to represent semantic data for models.
  * * {@link @xeokit/data!Data} is a container for {@link @xeokit/data!DataModel | DataModels}, which contain {@link DataObject | DataObjects}, {@link PropertySet | PropertySets} and {@link Relationship | Relationships}.
  * * Import DataModels from various model file formats using {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS},
  * {@link "@xeokit/cityjson" | loadCityJSON}, {@link "@xeokit/xkt" | loadXKT} etc.

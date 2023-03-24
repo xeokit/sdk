@@ -289,16 +289,20 @@ import {saveXKT} from "@xeokit/xkt";
 const fs = require('fs');
 
 const scene = new Scene(); // Scene graph
-const sceneModel = scene.createModel(); // Start building the scene graph
+const sceneModel = scene.createModel({ id: "myModel" }); // Start building the scene graph
+
+const data = new Data();
+const dataModel = data.createModel({ id: "myModel" }); // Will model the glTF scene hierarchy
 
 fs.readFile("./tests/assets/HousePlan.glb", (err, buffer) => {
     const arraybuffer = toArrayBuffer(buffer);
     loadGLTF({
         data: arrayBuffer,
-        sceneModel
+        sceneModel,
+        dataModel
     }).then(() => {
         sceneModel.build().then(() => { // Compresses textures, geometries etc.
-            const arrayBuffer = saveXKT({ sceneModel });
+            const arrayBuffer = saveXKT({ sceneModel, dataModel });
             fs.writeFile('myModel.xkt', arrayBuffer, err => {});
         });
     })

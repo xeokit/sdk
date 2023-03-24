@@ -74,17 +74,23 @@ classDiagram
     TextureSet : roughnessTexture
     TextureSet : metallicTexture
     TextureSet : opacityTexture
-  
+ 
 ```
-    
+   
 ```mermaid
 classDiagram
     Data *-- DataModel
+    Data : createModel()
+    Data : models
+    Data : objects
     DataModel *-- DataObject
     DataObject *-- PropertySet
     PropertySet *-- Property
     Relationship *-- SceneObject
     DataModel *-- Relationship
+    DataModel : createObject()
+    DataModel : createRelationship()
+    DataModel : createPropertySet()
 ```
 
 ### Viewing Models

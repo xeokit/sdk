@@ -1,5 +1,6 @@
 {
   "entryPoints": [
+    "packages/cameracontrol/index.ts",
     "packages/core/src/components.ts",
     "packages/core/src/constants.ts",
     "packages/core/src/utils.ts",
@@ -13,6 +14,7 @@
     "packages/data/src/index.ts",
     "packages/datatypes/src/basicTypes.ts",
     "packages/datatypes/src/ifcTypes.ts",
+    "packages/datatypes/src/cityJSONTypes_1_1_3.ts",
     "packages/scene/src/index.ts",
     "packages/treeview/src/index.ts",
     "packages/viewer/src/index.ts",

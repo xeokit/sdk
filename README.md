@@ -16,7 +16,15 @@
 
 ## Modules
 
-### Representing Models
+The xeokit SDK is modular and designed for maximum extensibility. Our philosophy is to rigorously follow SOLID principles of software 
+design in order to keep the SDK comprehensive, extensible and robust.
+
+### Model Representation and Semantics
+
+The SDK manages model representation and model semantics in two separate data structures. The SDK lets us just work with either 
+of these aspects independently. You're free to ignore the semantic model, or use a different one. These representations are usable 
+with or without a viewer, in the browser or NodeJS. Use them to generate files, convert file formats, or provide content for a 
+viewer to render.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -24,6 +32,10 @@
 | [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Model representations (geometries, materials, textures and objects)                 |
 
 ### Viewing Models 
+
+The SDK provides a high-performance Browser-based viewer for viewing our model representations. The viewer is extensible 
+via a pluggable renderer strategy to use different browser graphics APIs, such as WebGL or WebGPU. The viewer can view multiple 
+models, and can create multiple views of them in separate canvases. 
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -34,6 +46,9 @@
 
 ### Importing and Exporting Models
 
+The SDK provides various functions to import and export model representations and semantics as various industry-standard AECO file formats. Use 
+these in NodeJS scripts to convert file formats, or in the browser to view various file formats with a viewer.
+
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
 | [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)               | [`@xeokit/xkt`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)                           | Import and export XKT files                          |
@@ -41,13 +56,18 @@
 | [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)               | [`@xeokit/las`](https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html)                           | Import LAS pointcloud scans                          |
 | [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson)     | [`@xeokit/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)                 | Import CityJSON files                               |
 
-### BIM Software Interoperability
+### Interoperating with BIM Software
+
+The SDK provides functions to share bookmarks of viewer state with other BIM software, as industry-standard *BCF Viewpoints*. Use these to 
+build apps for collaborating on construction projects.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
 | [`@xeokit/bcf`](https://www.npmjs.com/package/@xeokit/bcf)               | [`@xeokit/bcf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html)                           | Load and save BCF                    |
 
 ### Utility Libraries
+
+Most of the SDK's internal and lower-level functionality is provided as fully-documented utility libraries. 
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -66,29 +86,6 @@
 | [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webglutils)      | [`@xeokit/webglutils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html)             | WebGL utilities library        |
 | [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html) | Geometry generation functions                     |
 | [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                         | Compressed texture support              |
-
-## Getting Started
-
-TODO
-
-## Concepts
-
-### SOLID
-
-In software engineering, SOLID is a mnemonic acronym for five design principles intended to make object-oriented designs
-more understandable, flexible, and maintainable.
-
-* **S**ingle responsibility
-* **O**pen-closed principle
-* **L**iskove substitution principle
-* **I**nterface seggregation principle
-* **D**ependency inversion principle
-
-S - @xeokit/datamodel knows nothing of viewer etc, divided geometry functions into @xeokit/compression and @xeokit/compression/texture, with allows the documentation for each package to focus on its own techniques.
-O - factoring all internally-used utlity libraries out into their own public libraries
-L - ViewerModel and ScratchModel both implement interfaces Model, which enables us to load and save TODO  
-I -
-D - Viewer and WebGLRenderer
 
 ## License
 

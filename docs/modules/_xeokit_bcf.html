@@ -21,17 +21,16 @@
 <img style="padding:20px; padding-bottom:10px; " src="../media/images/xeokit_bcf_logo.png"/>
 
 
-<a href="#import-and-export-bcf" id="import-and-export-bcf" style="color: inherit; text-decoration: none;">
-  <h1>Import and Export BCF</h1>
+<a href="#xeokit-bcf-importer-and-exporter" id="xeokit-bcf-importer-and-exporter" style="color: inherit; text-decoration: none;">
+  <h1>xeokit BCF Importer and Exporter</h1>
 </a>
-<p>The BIM Collaboration Format (<a href="../interfaces/_xeokit_bcf.BCFViewpoint.html">BCFViewpoint</a>) is an open file
-format for exchanging data and collaborating on 3D models and building information. It was created by the
-buildingSMART organization and is widely used in the architecture, engineering, and construction (AEC) industry.</p>
-<p>The xeokit SDK provides support for BCF through functions to import and export Viewer state as BCF viewpoints.</p>
 <ul>
-<li><a href="../functions/_xeokit_bcf.loadBCFViewpoint.html">loadBCFViewpoint</a> loads a JSON-encoded BCF viewpoint into a <a href="../classes/_xeokit_viewer.View.html">View</a> or a <a href="../classes/_xeokit_viewer.ViewLayer.html">ViewLayer</a></li>
-<li><a href="../functions/_xeokit_bcf.saveBCFViewpoint.html">saveBCFViewpoint</a> saves a <a href="../classes/_xeokit_viewer.View.html">View</a> or a <a href="../classes/_xeokit_viewer.ViewLayer.html">ViewLayer</a> to a JSON-encoded BCF viewpoint</li>
-<li><a href="../interfaces/_xeokit_bcf.BCFViewpoint.html">BCFViewpoint</a> represents a BCF viewpoint</li>
+<li>The BIM Collaboration Format (<a href="../interfaces/_xeokit_bcf.BCFViewpoint.html">BCFViewpoint</a>) is an open file
+format for exchanging data and collaborating on 3D models and building information. The xeokit SDK uses BCF to
+exchange bookmarks of <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a> state with other BIM software.</li>
+<li>Use <a href="../functions/_xeokit_bcf.loadBCFViewpoint.html">loadBCFViewpoint</a> to import a JSON-encoded BCF viewpoint into a <a href="../classes/_xeokit_viewer.View.html">View</a> belonging to a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a>.</li>
+<li>Use <a href="../functions/_xeokit_bcf.saveBCFViewpoint.html">saveBCFViewpoint</a> to export the state of a <a href="../classes/_xeokit_viewer.View.html">View</a> as a JSON-encoded BCF viewpoint.</li>
+<li>See <a href="../interfaces/_xeokit_bcf.BCFViewpoint.html">BCFViewpoint</a> for the BCF viewpoint format.</li>
 </ul>
 
 <a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
@@ -112,7 +111,7 @@ other ViewLayer:</p>
 </code></pre>
 </div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/1d7b5c83/packages/bcf/src/index.ts#L229">bcf/src/index.ts:229</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/55426850/packages/bcf/src/index.ts#L226">bcf/src/index.ts:226</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"></section></section>
 <section class="tsd-panel-group tsd-index-group">

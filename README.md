@@ -39,47 +39,6 @@ between various file formats, or provide some content for a viewer to render.
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
 | [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship graph that contains model semantic data.                 |
 | [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
-
-
-```mermaid
-classDiagram
-direction LR
-    class Scene
-    Scene "1" --> "1..*" SceneModel
-    Scene "1" --> "1..*" SceneObject
-    Scene : +createModel()
-    Scene : +objects
-    SceneModel : +createGeometry()
-    SceneModel : +createTexture()
-    SceneModel : +createMesh()
-    SceneModel : +createObject()
-    SceneModel : +build()
-    SceneModel : +destroy()
-    SceneModel : +id
-    SceneModel : +objects
-    SceneModel : +geometries
-    SceneModel : +textures
-    SceneModel : +meshes
-    SceneModel "1" --> "*" SceneObject
-    SceneObject "1" --> "*" Mesh
-    SceneObject : +id
-    Mesh "*" --> "0..1" Geometry
-    Mesh "*" --> "0..1" TextureSet
-    Mesh : geometry
-    Mesh : textureSet
-    Mesh : color
-    Mesh : metallic
-    Mesh : roughness
-    TextureSet "*" --> "*" Texture
-    Geometry : positions
-    Geometry : uvs
-    Geometry : indices
-    TextureSet : colorTexture
-    TextureSet : roughnessTexture
-    TextureSet : metallicTexture
-    TextureSet : opacityTexture
- 
-```
    
 ```mermaid
 classDiagram
@@ -117,6 +76,50 @@ direction LR
     Data : traverseObjects
     DataModel : id
 ```
+
+
+
+```mermaid
+classDiagram
+direction LR
+    class Scene
+    Scene "1" --> "1..*" SceneModel
+    Scene "1" --> "1..*" SceneObject
+    Scene : +createModel()
+    Scene : +objects
+    Scene : +models
+    SceneModel : +createGeometry()
+    SceneModel : +createTexture()
+    SceneModel : +createMesh()
+    SceneModel : +createObject()
+    SceneModel : +build()
+    SceneModel : +destroy()
+    SceneModel : +id
+    SceneModel : +objects
+    SceneModel : +geometries
+    SceneModel : +textures
+    SceneModel : +meshes
+    SceneModel "1" --> "*" SceneObject
+    SceneObject "1" --> "*" Mesh
+    SceneObject : +id
+    Mesh "*" --> "0..1" Geometry
+    Mesh "*" --> "0..1" TextureSet
+    Mesh : geometry
+    Mesh : textureSet
+    Mesh : color
+    Mesh : metallic
+    Mesh : roughness
+    TextureSet "*" --> "*" Texture
+    Geometry : positions
+    Geometry : uvs
+    Geometry : indices
+    TextureSet : colorTexture
+    TextureSet : roughnessTexture
+    TextureSet : metallicTexture
+    TextureSet : opacityTexture
+ 
+```
+
 
 ### Viewing Models
 

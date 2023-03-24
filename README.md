@@ -16,26 +16,35 @@
 
 ## Modules
 
-The xeokit SDK is modular and designed for maximum extensibility. Our philosophy is to rigorously follow SOLID principles of software 
+The xeokit SDK is modular and designed for maximum extensibility. Our philosophy is to rigorously follow SOLID
+principles of software
 design in order to keep the SDK comprehensive, extensible and robust.
 
 ### Model Representation and Semantics
 
-The SDK manages model representation (geometry and materials) and model semantics (entities, relationships and properties) in two separate, independent 
-data structures. The SDK lets us just work with either of these model aspects independently. You're free to ignore our semantic model (an ER graph), or 
-use a different one. We can use these structures with or without a viewer, in Browser or NodeJS. Use them to build models, convert models 
+The SDK manages model representation (geometry and materials) and model semantics (entities, relationships and
+properties) in two separate, independent
+data structures.
+
+The SDK lets us just work with either of these model aspects independently. You're free to ignore our semantic model (an
+ER graph), or
+use a different one. We can use these structures with or without a viewer, in Browser or NodeJS. Use them to build
+models, convert models
 between various file formats, or provide some content for a viewer to render.
 
-| Package                                                                  | Modules                                                               | Description                                          |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
-| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship semantic data model      |
-| [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Model representations (geometries, materials, textures and objects)                 |
+| Package                                                                  | Modules                                                               | Description                                                                  |
+|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship graph that contains model semantic data.                 |
+| [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
 
-### Viewing Models 
+### Viewing Models
 
-The SDK provides a high-performance Browser-based viewer for viewing our model representations. The viewer is extensible 
-via a pluggable renderer strategy to use different browser graphics APIs, such as WebGL or WebGPU. The viewer can view multiple 
-models, and can create multiple views of our models in separate canvases.  
+The SDK provides a high-performance Browser-based viewer for viewing our model representations.
+
+The viewer is extensible via a pluggable renderer strategy to use different browser graphics APIs, such as WebGL or
+WebGPU. The viewer can
+view multiple models, and can create multiple views of our models in separate canvases, with lights, section planes,
+annotations etc.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -46,19 +55,22 @@ models, and can create multiple views of our models in separate canvases.
 
 ### Importing and Exporting Models
 
-The SDK provides various functions to import and export model representations and semantics as various industry-standard AECO file formats. Use 
-these in NodeJS scripts to convert file formats, or in the browser to view various file formats with a viewer.
+The SDK provides various functions to import and export its model representations and semantics as various
+industry-standard AECO file formats. Use
+these in NodeJS scripts to convert file formats, or in the Browser to load various file formats into our viewer.
 
-| Package                                                                  | Modules                                                               | Description                                          |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
-| [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)               | [`@xeokit/xkt`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)                           | Import and export XKT files                          |
-| [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)             | [`@xeokit/gltf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html)                         | Import and export glTF files                         |
-| [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)               | [`@xeokit/las`](https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html)                           | Import LAS pointcloud scans                          |
-| [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson)     | [`@xeokit/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)                 | Import CityJSON files                               |
+| Package                                                              | Modules                                                                               | Description                |
+|----------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------------|
+| [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)           | [`@xeokit/xkt`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)           | Import and export XKT files |
+| [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)         | [`@xeokit/gltf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html)         | Import glTF files |
+| [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)           | [`@xeokit/las`](https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html)           | Import LAS pointcloud scans |
+| [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson) | [`@xeokit/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html) | Import CityJSON files      |
+| [`@xeokit/webifc`](https://www.npmjs.com/package/@xeokit/webifc)     | [`@xeokit/webifc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html)     | Import IFC files           |
 
 ### Interoperating with BIM Software
 
-The SDK provides functions to share bookmarks of viewer state with other BIM software, as industry-standard *BCF Viewpoints*. Use these to 
+The SDK provides functions to share bookmarks of viewer state with other BIM software, as industry-standard *BCF
+Viewpoints*. Use these to
 build apps for collaborating on construction projects.
 
 | Package                                                                  | Modules                                                               | Description                                          |
@@ -67,7 +79,7 @@ build apps for collaborating on construction projects.
 
 ### Utility Libraries
 
-Most of the SDK's internal and lower-level functionality is provided as fully-documented utility libraries. 
+Most of the SDK's internal and lower-level functionality is provided as fully-documented utility libraries.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -86,6 +98,85 @@ Most of the SDK's internal and lower-level functionality is provided as fully-do
 | [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webglutils)      | [`@xeokit/webglutils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html)             | WebGL utilities library        |
 | [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html) | Geometry generation functions                     |
 | [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                         | Compressed texture support              |
+
+## Quick Start
+
+A minimal Web application built with xeokit - a spinning, textured box:
+
+````javascript
+import {Scene} from "@xeokit/scene";
+import {Viewer} from "@xeokit/viewer";
+import {WebGLRenderer} from "@xeokit/webglrenderer";
+import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
+import {CameraControl} from "@xeokit/cameracontrol";
+
+const scene = new Scene(); // Scene graph
+
+const viewer = new Viewer({ // Browser-based viewer
+    id: "myViewer",
+    scene,
+    renderer: new WebGLRenderer({})
+});
+
+const view = myViewer.createView({ // Independent view in a canvas
+    id: "myView",
+    canvasId: "myView1"
+});
+
+view.camera.eye = [0, 0, 10]; // Looking down the -Z axis
+view.camera.look = [0, 0, 0];
+view.camera.up = [0, 1, 0];
+
+const sceneModel = scene.createModel(); // Start building the scene graph
+
+sceneModel.createGeometry({ // Defines a box-shaped geometry
+    id: "boxGeometry",
+    primitive: TrianglesPrimitive,
+    positions: [-1, -1, -1, 1, -1, -1, ...],
+    uvs: [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, ...],
+    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
+});
+
+sceneModel.createTexture({
+    id: "boxColorTexture",
+    src: "myTexture.png",
+    encoding: LinearEncoding,
+    magFilter: LinearFilter,
+    minFilter: LinearFilter
+});
+
+sceneModel.createTextureSet({
+    id: "boxTextureSet",
+    colorTextureId: "boxColorTexture"
+});
+
+sceneModel.createMesh({
+    id: "boxMesh",
+    geometryId: "boxGeometry",
+    textureSetId: "boxTextureSet"
+});
+
+sceneModel.createObject({
+    id: "boxObject",
+    meshIds: ["boxMesh"]
+});
+
+sceneModel.build().then(() => { // Compresses textures, geometries etc.
+
+    // A textured box object now appears on our View's canvas.
+
+    // We can now show/hide/select/highlight our box through the View:
+
+    view.objects["boxObject"].visible = true;
+    view.objects["boxObject"].highlighted = false;  // etc.
+
+    // Start orbiting the camera:
+
+    viewer.onTick.subscribe(() => {
+        view.camera.orbitYaw(1.0);
+    });
+});
+````
 
 ## License
 

@@ -43,6 +43,7 @@ between various file formats, or provide some content for a viewer to render.
 
 ```mermaid
 classDiagram
+direction LR
     class Scene
     Scene "1" --> "1..*" SceneModel
     Scene "1" --> "1..*" SceneObject
@@ -82,6 +83,7 @@ classDiagram
    
 ```mermaid
 classDiagram
+direction LR
     Data *-- DataModel
     Data : createModel()
     Data : models

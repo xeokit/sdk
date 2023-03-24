@@ -71,7 +71,7 @@ direction LR
  
 ```
 
-## Semantic Data Graph
+## Data Graph
     
 The SDK provides an entity-relationship data graph that we can use to attach semantic data to our scene graph objects. The data graph works in both the browser and NodeJS. The data graph can also be loaded and saved as various file formats.  
 

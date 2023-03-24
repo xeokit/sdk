@@ -83,6 +83,7 @@ classDiagram
     Data : createModel()
     Data : models
     Data : objects
+    Data : propertySets
     DataModel *-- DataObject
     DataObject *-- PropertySet
     PropertySet *-- Property
@@ -91,6 +92,11 @@ classDiagram
     DataModel : createObject()
     DataModel : createRelationship()
     DataModel : createPropertySet()
+    DataModel : objects
+    DataModel : propertySets
+    DataModel : relationships
+    Data : searchObjects
+    Data : traverseObjects
 ```
 
 ### Viewing Models

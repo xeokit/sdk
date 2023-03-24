@@ -28,6 +28,11 @@
  * //..TODO
  * ````
  *
+ * ````mermaid
+ *  graph TB
+ *  mermaid.js --> TypeDoc;
+ *  ````
+ *
  * @module @xeokit/math/boundaries
  */
 

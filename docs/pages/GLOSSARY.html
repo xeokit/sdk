@@ -6,7 +6,7 @@
 <div id="tsd-toolbar-links"></div></div>
 <ul class="results">
 <li class="state loading">Preparing search index...</li>
-<li class="state failure">The search index is not available</li></ul><a href="https://xeokit.io" class="title">xeokit - v0.0.1</a></div>
+<li class="state failure">The search index is not available</li></ul><a href="https://github.com/xeokit/sdk" class="title">xeokit - v0.0.1</a></div>
 <div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
 <div class="container container-main">
 <div class="col-8 col-content">
@@ -56,11 +56,6 @@ are parallel to these axes.</p>
 <hr>
 <br>
 
-
-<a href="#basis" id="basis" style="color: inherit; text-decoration: none;">
-  <h2>Basis</h2>
-</a>
-<p>TODO</p>
 
 <a href="#bcf" id="bcf" style="color: inherit; text-decoration: none;">
   <h2>BCF</h2>
@@ -127,12 +122,6 @@ applications, including urban planning, architecture, and transportation.</p>
 <br>
 
 
-<a href="#data" id="data" style="color: inherit; text-decoration: none;">
-  <h2>Data</h2>
-</a>
-<br>
-
-
 <a href="#datamodel" id="datamodel" style="color: inherit; text-decoration: none;">
   <h2>DataModel</h2>
 </a>
@@ -174,63 +163,8 @@ that generates the final texture or terrain.</p>
 <hr>
 <br>
 
-
-<a href="#federated-models" id="federated-models" style="color: inherit; text-decoration: none;">
-  <h2>Federated Models</h2>
-</a>
-<p>A Federated model usually relates to BIM and means a set of models related to specific disciplines (architectural, 
-structural, MEP engineering, etc.) that are integrated into a single view to create a single complete digital twin 
-model of the building that is multidisciplinary and comprehensive.</p>
-<p>The xeokit SDK supports the viewing of federated models by allowing us to compose our semantic data models and
-scene representations from multiple models, whose objects become interconnected to form a unified data or scene model.</p>
-<blockquote>
-<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html">@xeokit/data</a></em></p>
-<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html">@xeokit/scene</a></em></p>
-</blockquote>
 <br>
 
-<hr>
-
-<a href="#g-1" id="g-1" style="color: inherit; text-decoration: none;">
-  <h1>G</h1>
-</a>
-<hr>
-<br>
-
-
-<a href="#geometry-bucketing" id="geometry-bucketing" style="color: inherit; text-decoration: none;">
-  <h2>Geometry Bucketing</h2>
-</a>
-<p>TODO</p>
-
-<a href="#geometry-quantization" id="geometry-quantization" style="color: inherit; text-decoration: none;">
-  <h2>Geometry Quantization</h2>
-</a>
-<p>TODO</p>
-<hr>
-
-<a href="#i" id="i" style="color: inherit; text-decoration: none;">
-  <h1>I</h1>
-</a>
-<hr>
-
-<a href="#ifc" id="ifc" style="color: inherit; text-decoration: none;">
-  <h2>IFC</h2>
-</a>
-<p>Industry Foundation Classes (IFC) is a data model for building information modeling (BIM) used in the architecture, 
-engineering, and construction (AEC) industry. It is an open, neutral and internationally standardized format for 
-exchanging data between different software applications used in the AEC industry.</p>
-<p>IFC provides a common language for describing building and construction data, including geometry, spatial relationships, 
-properties, and quantities. This allows various software applications to exchange information with each other and ensures 
-that the information is consistent across the different applications.</p>
-<p>IFC files can be used to represent various types of building data such as buildings, bridges, tunnels, and other 
-structures. It allows architects, engineers, and construction professionals to work collaboratively, improving 
-communication, reducing errors, and increasing efficiency.</p>
-<p>IFC is maintained and developed by the International Organization for Standardization (ISO) and the International 
-Building Smart Association (IBSA).</p>
-<blockquote>
-<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html">@xeokit/webifc</a></em></p>
-</blockquote>
 <hr>
 
 <a href="#k" id="k" style="color: inherit; text-decoration: none;">
@@ -332,8 +266,8 @@ with no need to involve a Viewer.</p>
 <br>
 
 
-<a href="#physically-based-rendering" id="physically-based-rendering" style="color: inherit; text-decoration: none;">
-  <h2>Physically-Based Rendering</h2>
+<a href="#pbr" id="pbr" style="color: inherit; text-decoration: none;">
+  <h2>PBR</h2>
 </a>
 <p><strong>Physically-Based Rendering (PBR)</strong> is a computer graphics technique that xeokit uses to render more realistic images of models by 
 simulating the physical properties of light and materials. It is based on the laws of physics and uses mathematical 
@@ -541,14 +475,6 @@ easier to understand, maintain, and scale over time.</p>
 
 <hr>
 
-<a href="#t" id="t" style="color: inherit; text-decoration: none;">
-  <h1>T</h1>
-</a>
-<hr>
-<br>
-
-<hr>
-
 <a href="#v" id="v" style="color: inherit; text-decoration: none;">
   <h1>V</h1>
 </a>
@@ -615,9 +541,6 @@ imporing or exporting Viewer state as <a href="#bcf">BCF</a>.</p>
 <p>A <strong>ViewObject</strong> represents and controls how a single object appears within the HTML canvas managed by 
 a <strong>View</strong>. A View automatically has a ViewObject for each object loaded into the viewer, through which we can update and 
 query the visual state of that object in the canvas.</p>
-<blockquote>
-<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html">@xeokit/viewer</a></em></p>
-</blockquote>
 <br>
 
 <hr>

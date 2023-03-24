@@ -43,22 +43,48 @@ between various file formats, or provide some content for a viewer to render.
 
 ```mermaid
 classDiagram
-    Scene-->SceneModel
-    SceneModel-->SceneObject
-    SceneObject-->Mesh
-    Mesh-->Geometry
-    Mesh-->TextureSet
-    TextureSet-->Texture
+    Scene --> SceneModel
+    Scene --> SceneObject
+    Scene : createModel()
+    Scene : objects
+    SceneModel : createGeometry()
+    SceneModel : createTexture()
+    SceneModel : createMesh()
+    SceneModel : createObject()
+    SceneModel : build()
+    SceneModel : objects
+    SceneModel : geometries
+    SceneModel : textures
+    SceneModel : meshes
+    SceneModel --> SceneObject
+    SceneObject --> Mesh
+    SceneObject : id
+    Mesh --> Geometry
+    Mesh --> TextureSet
+    Mesh : geometry
+    Mesh : TextureSet
+    Mesh : color
+    Mesh : metallic
+    Mesh : roughness
+    TextureSet --> Texture
+    Geometry : positions
+    Geometry : uvs
+    Geometry : indices
+    TextureSet : colorTexture
+    TextureSet : roughnessTexture
+    TextureSet : metallicTexture
+    TextureSet : opacityTexture
+  
 ```
     
 ```mermaid
 classDiagram
-    Data-->DataModel
-    DataModel-->DataObject
-    DataObject-->PropertySet
-    PropertySet-->Property
-    Relationship-->SceneObject
-    DataModel-->Relationship
+    Data *-- DataModel
+    DataModel *-- DataObject
+    DataObject *-- PropertySet
+    PropertySet *-- Property
+    Relationship *-- SceneObject
+    DataModel *-- Relationship
 ```
 
 ### Viewing Models
@@ -81,9 +107,11 @@ annotations etc.
 ```mermaid
 classDiagram
 Viewer-->Renderer
-Viewer-->Scene
+Viewer-->Scene: Views
+Scene *-- SceneObject
 Viewer-->View
 View-->ViewObject
+ViewObject *-- SceneObject: Represents
 View-->Camera
 View-->Light
 View-->SectionPlane

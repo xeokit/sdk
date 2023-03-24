@@ -73,15 +73,8 @@ direction LR
 
 ## Semantic Data Graph
     
-The SDK manages model representation (geometry and materials) and model semantics (entities, relationships and
-properties) in two separate, independent
-data structures.
+The SDK provides an entity-relationship data graph that we can use to attach semantic data to our scene graph objects. The data graph works in both the browser and NodeJS. The data graph can also be loaded and saved as various file formats.  
 
-The SDK lets us just work with either of these model aspects independently. You're free to ignore our semantic model (an
-ER graph), or
-use a different one. We can use these structures with or without a viewer, in Browser or NodeJS. Use them to build
-models, convert models
-between various file formats, or provide some content for a viewer to render.
 
 | Package                                                                  | Modules                                                               | Description                                                                  |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|

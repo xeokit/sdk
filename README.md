@@ -21,7 +21,7 @@ principles of software
 design in order to keep the SDK comprehensive, extensible and robust.
 
 
-## Model Representation: Scene Graph
+## Scene Graph
    
 The SDK manages model representations in a scene graph that contains the model's objects, geometries and materials. The scene graph works in both the browser and in NodeJS, and can be used to generate models, convert between model formats, and provide content for the SDK's model viewer. 
    

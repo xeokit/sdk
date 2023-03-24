@@ -43,32 +43,33 @@ between various file formats, or provide some content for a viewer to render.
 
 ```mermaid
 classDiagram
-    Scene --> SceneModel
-    Scene --> SceneObject
-    Scene : createModel()
-    Scene : objects
-    SceneModel : createGeometry()
-    SceneModel : createTexture()
-    SceneModel : createMesh()
-    SceneModel : createObject()
-    SceneModel : build()
-    SceneModel : destroy()
-    SceneModel : id
-    SceneModel : objects
-    SceneModel : geometries
-    SceneModel : textures
-    SceneModel : meshes
-    SceneModel --> SceneObject
-    SceneObject --> Mesh
-    SceneObject : id
-    Mesh --> Geometry
-    Mesh --> TextureSet
+    class Scene
+    Scene "1" --> "1..*" SceneModel
+    Scene "1" --> "1..*" SceneObject
+    Scene : +createModel()
+    Scene : +objects
+    SceneModel : +createGeometry()
+    SceneModel : +createTexture()
+    SceneModel : +createMesh()
+    SceneModel : +createObject()
+    SceneModel : +build()
+    SceneModel : +destroy()
+    SceneModel : +id
+    SceneModel : +objects
+    SceneModel : +geometries
+    SceneModel : +textures
+    SceneModel : +meshes
+    SceneModel "1" --> "*" SceneObject
+    SceneObject "1" --> "*" Mesh
+    SceneObject : +id
+    Mesh "*" --> "0..1" Geometry
+    Mesh "*" --> "0..1" TextureSet
     Mesh : geometry
-    Mesh : TextureSet
+    Mesh : textureSet
     Mesh : color
     Mesh : metallic
     Mesh : roughness
-    TextureSet --> Texture
+    TextureSet "*" --> "*" Texture
     Geometry : positions
     Geometry : uvs
     Geometry : indices

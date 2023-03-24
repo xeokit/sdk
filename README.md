@@ -16,6 +16,14 @@
 
 ## Modules
 
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
 The xeokit SDK is modular and designed for maximum extensibility. Our philosophy is to rigorously follow SOLID
 principles of software
 design in order to keep the SDK comprehensive, extensible and robust.
@@ -101,7 +109,9 @@ Most of the SDK's internal and lower-level functionality is provided as fully-do
 
 ## Quick Start
 
-Let's make a simple application using xeokit - a spinning, textured box. 
+### Spinning Textured Box
+
+Let's make a simple application using xeokit - a spinning, textured box.
 
 First import the npm modules we need from the SDK:
 
@@ -122,13 +132,14 @@ import {WebGLRenderer} from "@xeokit/webglrenderer";
 
 const scene = new Scene(); // Scene graph
 
-const viewer = new Viewer({ // Browser-based viewer
-    id: "myViewer",
+const renderer = new WebGLRenderer({}); // WebGL renderer kernel
+
+const viewer = new Viewer({ // Browser-base viewer
     scene,
-    renderer: new WebGLRenderer({})
+    renderer
 });
 
-const view = myViewer.createView({ // Independent view in a canvas
+const view = myViewer.createView({ // Independent view 
     id: "myView",
     canvasId: "myView1"
 });
@@ -139,7 +150,7 @@ view.camera.up = [0, 1, 0];
 
 const sceneModel = scene.createModel(); // Start building the scene graph
 
-sceneModel.createGeometry({ // Defines a box-shaped geometry
+sceneModel.createGeometry({ // Define a box-shaped geometry
     id: "boxGeometry",
     primitive: TrianglesPrimitive,
     positions: [-1, -1, -1, 1, -1, -1, ...],
@@ -147,7 +158,7 @@ sceneModel.createGeometry({ // Defines a box-shaped geometry
     indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
 });
 
-sceneModel.createTexture({
+sceneModel.createTexture({ // 
     id: "boxColorTexture",
     src: "myTexture.png",
     encoding: LinearEncoding,
@@ -163,6 +174,9 @@ sceneModel.createTextureSet({
 sceneModel.createMesh({
     id: "boxMesh",
     geometryId: "boxGeometry",
+    color: [1, 1, 1],
+    metallic: 0.8, // PBR material attributes
+    roughness: 0.3,
     textureSetId: "boxTextureSet"
 });
 
@@ -186,6 +200,118 @@ sceneModel.build().then(() => { // Compresses textures, geometries etc.
         view.camera.orbitYaw(1.0);
     });
 });
+````
+
+### glTF Model Viewer
+
+Let's make a simple application that views a glTF file in the browser.
+
+First import the npm modules we need from the SDK:
+
+````bash
+npm install @xeokit/scene
+npm install @xeokit/viewer
+npm install @xeokit/webglrenderer
+npm install @xeokit/core/constants
+npm install @xeokit/gltf
+````
+
+Here's the JavaScript for our glTF viewer app:
+
+````javascript
+import {Scene} from "@xeokit/scene";
+import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
+import {Viewer} from "@xeokit/viewer";
+import {WebGLRenderer} from "@xeokit/webglrenderer";
+import {loadGLTF} from "@xeokit/gltf";
+
+const scene = new Scene(); // Scene graph
+
+const renderer = new WebGLRenderer({}); // WebGL renderer kernel
+
+const viewer = new Viewer({ // Browser-base viewer
+    scene,
+    renderer
+});
+
+const view = myViewer.createView({ // Independent view 
+    id: "myView",
+    canvasId: "myView1"
+});
+
+view.camera.eye = [0, 0, 10]; // Looking down the -Z axis
+view.camera.look = [0, 0, 0];
+view.camera.up = [0, 1, 0];
+
+const sceneModel = scene.createModel(); // Start building the scene graph
+
+loadGLTF({src: "myHouse.glb", scene}).then(() => {
+
+    sceneModel.build().then(() => { // Compresses textures, geometries etc.
+
+        // A model now appears on our View's canvas.
+
+        // We can now show/hide/select/highlight the model's objects through the View:
+
+        view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;
+        view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
+
+        // Start orbiting the camera:
+
+        viewer.onTick.subscribe(() => {
+            view.camera.orbitYaw(1.0);
+        });
+    });
+});
+````
+
+### Convert a glTF file to XKT 
+
+Let's make a simple NodeJS script that converts a glTF file into xeokit's native XKT format.
+
+First import the npm modules we need from the SDK. Note that we don't need the viewer for this example.
+
+````bash
+npm install @xeokit/scene
+npm install @xeokit/core/constants
+npm install @xeokit/gltf
+npm install @xeokit/xkt
+````
+
+Here's the JavaScript for our converter script:
+
+````javascript
+import {Scene} from "@xeokit/scene";
+import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
+import {loadGLTF} from "@xeokit/gltf";
+import {saveXKT} from "@xeokit/xkt";
+
+const fs = require('fs');
+
+const scene = new Scene(); // Scene graph
+const sceneModel = scene.createModel(); // Start building the scene graph
+
+fs.readFile("./tests/assets/HousePlan.glb", (err, buffer) => {
+    const arraybuffer = toArrayBuffer(buffer);
+    loadGLTF({
+        data: arrayBuffer,
+        sceneModel
+    }).then(() => {
+        sceneModel.build().then(() => { // Compresses textures, geometries etc.
+            const arrayBuffer = saveXKT({ sceneModel });
+            fs.writeFile('myModel.xkt', arrayBuffer, err => {});
+        });
+    })
+});
+
+function toArrayBuffer(buf) {
+    const ab = new ArrayBuffer(buf.length);
+    const view = new Uint8Array(ab);
+    for (let i = 0; i < buf.length; ++i) {
+        view[i] = buf[i];
+    }
+    return ab;
+}
 ````
 
 ## License

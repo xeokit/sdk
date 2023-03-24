@@ -334,21 +334,27 @@ view.camera.up = [0, 1, 0];
 
 const sceneModel = scene.createModel(); // Start building the scene graph
 
-loadGLTF({src: "myHouse.glb", scene}).then(() => {
+fetch("myModel.xkt").then(response => {
+  
+    response.arrayBuffer().then(data => {
+       
+        loadGLTF({data, scene}).then(() => {
 
-    sceneModel.build().then(() => { // Compresses textures, geometries etc.
+            sceneModel.build().then(() => { // Compresses textures, geometries etc.
 
-        // A model now appears on our View's canvas.
+                // A model now appears on our View's canvas.
 
-        // We can now show/hide/select/highlight the model's objects through the View:
+                // We can now show/hide/select/highlight the model's objects through the View:
 
-        view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;
-        view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
+                view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;    
+                view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
 
-        // Start orbiting the camera:
+                // Start orbiting the camera:
 
-        viewer.onTick.subscribe(() => {
-            view.camera.orbitYaw(1.0);
+                viewer.onTick.subscribe(() => {
+                    view.camera.orbitYaw(1.0);
+                });
+            });
         });
     });
 });

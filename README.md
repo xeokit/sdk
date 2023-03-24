@@ -14,71 +14,22 @@
 * Natively TypeScript
 * SOLID
 
-## Modules
-
-
-
+# Modules
 
 The xeokit SDK is modular and designed for maximum extensibility. Our philosophy is to rigorously follow SOLID
 principles of software
 design in order to keep the SDK comprehensive, extensible and robust.
 
-### Model Representation and Semantics
-    
-The SDK manages model representation (geometry and materials) and model semantics (entities, relationships and
-properties) in two separate, independent
-data structures.
 
-The SDK lets us just work with either of these model aspects independently. You're free to ignore our semantic model (an
-ER graph), or
-use a different one. We can use these structures with or without a viewer, in Browser or NodeJS. Use them to build
-models, convert models
-between various file formats, or provide some content for a viewer to render.
-
+## Model Representation: Scene Graph
+   
+The SDK manages model representations in a scene graph that contains the model's objects, geometries and materials. The scene graph works in both the browser and in NodeJS, and can be used to generate models, convert between model formats, and provide content for the SDK's model viewer. 
+   
 | Package                                                                  | Modules                                                               | Description                                                                  |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship graph that contains model semantic data.                 |
 | [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
    
-```mermaid
-classDiagram
-direction LR
-    Data *-- DataModel
-    Data : createModel()
-    Data : models
-    Data : objects
-    Data : propertySets
-    DataModel *-- DataObject
-    DataObject *-- PropertySet
-    DataObject : id
-    DataObject : type
-    DataObject : name
-    PropertySet *-- Property
-    PropertySet : properties
-    Property : name
-    Property : value
-    Property : type
-    Relationship *-- DataObject : relating
-    Relationship *-- DataObject : related
-    Relationship : type
-    Relationship : related
-    Relationship : relating
-    DataModel *-- Relationship
-    DataModel : createObject()
-    DataModel : createRelationship()
-    DataModel : createPropertySet()
-    DataModel : objects
-    DataModel : propertySets
-    DataModel : relationships
-    DataModel : build()
-    DataModel : destroy()
-    Data : searchObjects
-    Data : traverseObjects
-    DataModel : id
-```
-
-
-
+   
 ```mermaid
 classDiagram
 direction LR
@@ -118,6 +69,59 @@ direction LR
     TextureSet : metallicTexture
     TextureSet : opacityTexture
  
+```
+
+## Semantic Data Graph
+    
+The SDK manages model representation (geometry and materials) and model semantics (entities, relationships and
+properties) in two separate, independent
+data structures.
+
+The SDK lets us just work with either of these model aspects independently. You're free to ignore our semantic model (an
+ER graph), or
+use a different one. We can use these structures with or without a viewer, in Browser or NodeJS. Use them to build
+models, convert models
+between various file formats, or provide some content for a viewer to render.
+
+| Package                                                                  | Modules                                                               | Description                                                                  |
+|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship graph that contains model semantic data.                 |
+   
+```mermaid
+classDiagram
+direction LR
+    Data *-- DataModel
+    Data : createModel()
+    Data : models
+    Data : objects
+    Data : propertySets
+    DataModel *-- DataObject
+    DataObject *-- PropertySet
+    DataObject : id
+    DataObject : type
+    DataObject : name
+    PropertySet *-- Property
+    PropertySet : properties
+    Property : name
+    Property : value
+    Property : type
+    Relationship *-- DataObject : relating
+    Relationship *-- DataObject : related
+    Relationship : type
+    Relationship : related
+    Relationship : relating
+    DataModel *-- Relationship
+    DataModel : createObject()
+    DataModel : createRelationship()
+    DataModel : createPropertySet()
+    DataModel : objects
+    DataModel : propertySets
+    DataModel : relationships
+    DataModel : build()
+    DataModel : destroy()
+    Data : searchObjects
+    Data : traverseObjects
+    DataModel : id
 ```
 
 

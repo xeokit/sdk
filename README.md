@@ -22,9 +22,8 @@ design in order to keep the SDK comprehensive, extensible and robust.
 ### Model Representation and Semantics
 
 The SDK manages model representation and model semantics in two separate data structures. The SDK lets us just work with either 
-of these aspects independently. You're free to ignore the semantic model, or use a different one. These representations are usable 
-with or without a viewer, in the browser or NodeJS. Use them to generate files, convert file formats, or provide content for a 
-viewer to render.
+of these aspects independently. You're free to ignore our semantic model (an ER graph), or use a different one. These representations are usable 
+with or without a viewer, in Browser or NodeJS. Use them to generate models, convert models between file formats, or provide content for a viewer to render.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -35,7 +34,7 @@ viewer to render.
 
 The SDK provides a high-performance Browser-based viewer for viewing our model representations. The viewer is extensible 
 via a pluggable renderer strategy to use different browser graphics APIs, such as WebGL or WebGPU. The viewer can view multiple 
-models, and can create multiple views of them in separate canvases. 
+models, and can create multiple views of our models in separate canvases.  
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|

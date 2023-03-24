@@ -14,38 +14,37 @@
 * Natively TypeScript
 * SOLID
 
-## Modules
-
-```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
-```
+# Modules
 
 The xeokit SDK is modular and designed for maximum extensibility. Our philosophy is to rigorously follow SOLID
 principles of software
 design in order to keep the SDK comprehensive, extensible and robust.
 
-### Model Representation and Semantics
 
-The SDK manages model representation (geometry and materials) and model semantics (entities, relationships and
-properties) in two separate, independent
-data structures.
+## Scene Graph
+   
+The SDK manages model representations in a scene graph that contains the model's objects, geometries and materials. The scene graph works in both the browser and in NodeJS, and can be used to generate models, convert between model formats, and provide content for the SDK's model viewer. 
+   
+| Package                                                                  | Modules                                                               | Description                                                                  |
+|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
+   
+   
+[![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww)
 
-The SDK lets us just work with either of these model aspects independently. You're free to ignore our semantic model (an
-ER graph), or
-use a different one. We can use these structures with or without a viewer, in Browser or NodeJS. Use them to build
-models, convert models
-between various file formats, or provide some content for a viewer to render.
+## Data Graph
+    
+The SDK provides an entity-relationship data graph that we can use to attach semantic data to our scene graph objects. The data graph works in both the browser and NodeJS. The data graph can also be loaded and saved as various file formats.  
+
 
 | Package                                                                  | Modules                                                               | Description                                                                  |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
 | [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship graph that contains model semantic data.                 |
-| [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
+   
+[![](https://mermaid.ink/img/pako:eNqNVMFunDAU_BX0Tu1qgxaW9QLnHBOlSm4VFwc7WVeAkTFV6Wr_vcZmu89A0nIBzxvPmzdGPkMpGYccyop23b2g74rWRcOE4qUWsgkenosmsI9lBPdU0_MVcrjiVPNHI1N9-epVOk5VeXp6_WG0ulmtrExxhtWjRudB0m32sFbJlis9vHC_cP2-LB1bd9i2YGixbLLewk3q5sHWHf7MKzpG1p1Eu6x-uyni4msvKoYBxjut5HCDVqZxDrxT8OYJ9NByvF4bZ6aL_CFhLDuJCP4viQAJNLRGTn7SqkdLbHOmhcPEev5kyrKadxfIDOfMh_92GCMMCogK2NzdmXcYbgq4_SaYZoF1ri_-seaS5xDD3kzsnWOjI_hA9hPWwuk61cvVCl7JN2f5eqz_v3WePPKxzOhanMiwhZqrmgpmLiV78AXoEzd_EeTmk_E32le6gKK5GCrttXwZmhJyrXq-hb5lpv10jUH-RqvOoC1tID_DL8hjEoVRdDxEJE73GSHZYQuDgeMwyY7kkGTRMSbp_nDZwm8pjcIuTGOSJGS_yxKSpjvD50xoqR6na3N82Q7fLX-0cfkD0IeHkg?type=png)](https://mermaid.live/edit#pako:eNqNVMFunDAU_BX0Tu1qgxaW9QLnHBOlSm4VFwc7WVeAkTFV6Wr_vcZmu89A0nIBzxvPmzdGPkMpGYccyop23b2g74rWRcOE4qUWsgkenosmsI9lBPdU0_MVcrjiVPNHI1N9-epVOk5VeXp6_WG0ulmtrExxhtWjRudB0m32sFbJlis9vHC_cP2-LB1bd9i2YGixbLLewk3q5sHWHf7MKzpG1p1Eu6x-uyni4msvKoYBxjut5HCDVqZxDrxT8OYJ9NByvF4bZ6aL_CFhLDuJCP4viQAJNLRGTn7SqkdLbHOmhcPEev5kyrKadxfIDOfMh_92GCMMCogK2NzdmXcYbgq4_SaYZoF1ri_-seaS5xDD3kzsnWOjI_hA9hPWwuk61cvVCl7JN2f5eqz_v3WePPKxzOhanMiwhZqrmgpmLiV78AXoEzd_EeTmk_E32le6gKK5GCrttXwZmhJyrXq-hb5lpv10jUH-RqvOoC1tID_DL8hjEoVRdDxEJE73GSHZYQuDgeMwyY7kkGTRMSbp_nDZwm8pjcIuTGOSJGS_yxKSpjvD50xoqR6na3N82Q7fLX-0cfkD0IeHkg)
 
-### Viewing Models
+
+## Model Viewer
 
 The SDK provides a high-performance Browser-based viewer for viewing our model representations.
 
@@ -60,8 +59,11 @@ annotations etc.
 | [`@xeokit/cameracontrol`](https://www.npmjs.com/package/@xeokit/cameracontrol)  | [`@xeokit/cameracontrol`](https://xeokit.github.io/sdk/docs/modules/cameracontrol.html)        | Interactive camera control for a viewer                     |
 | [`@xeokit/webglrenderer`](https://www.npmjs.com/package/@xeokit/webglrenderer)  | [`@xeokit/webglrenderer`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html) | WebGL rendering strategy for a viewer       |
 | [`@xeokit/treeview`](https://www.npmjs.com/package/@xeokit/treeview)     | [`@xeokit/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_treeview.html)                 | HTML tree view widget for a Viewer                          |
+| [`@xeokit/locale`](https://www.npmjs.com/package/@xeokit/locale)     | [`@xeokit/locale`](https://xeokit.github.io/sdk/docs/modules/_xeokit_locale.html)                 | Localization service for a viewer                         |
 
-### Importing and Exporting Models
+[![](https://mermaid.ink/img/pako:eNqtVktv2zAM_iuGTtvQJBuwk1H00gK9pFiR7nExUMgyE2uRLU-Ss6Rd__uolyMn7i5rDjElfvz4ECn7mTBZAckJE1TrG043ijZFW3EFzHDZZstV0Tpd9p3Db1DZc9Fm-BOSUQEPoHacgd_SDNog7hCrvaigrUCB8iumgBqwVO_eF-1Lyh2ZGW13NBjL8ifGoaOiAUWDLx_evaAtBLWgB1A6dbO0O9bPceshsRtrlnxTm7OgHEWMjFcTUf3qqeDmsHJpnlh_ccBT8x3XvBSxaCAQAkFVYxDCBhI39goDCDKTQir-FAyZ4F1HB56Os-1xRWlZJrFcu8rFOOAAWTxEufVS3yXwtEjRqJM6C1bYHFmCvuHK1S4irTpCXchZil6FdnDoy0taaqMoM1dXCeYHlLfLETBRLtPGiz4b0Jpuhk5wkDQh25kDFhteTPaX64M7qx5aQwBVo6ZwVA4T-SY4_LlHkrLnooqLCjBheTjnnO4VTKy2aQ3YO9w4BW1ANmDUwa8M7E2vsEImOYPIZqgQnIXJlP2mxvGJtegow0YOSGoU3yd-b4OP1Dcq_aVQkE8Fmc2u3HM1DPyE0qWa43BoOzZPNjW3dQR9CCBfj1fV7giC1sv_ZgiLFGRLWbTu3y5jiLdDNceqj_M5ar8m1U3kAfV5gJznjxi75RVn2zHcRE7DSrLIcYo6BRpa23aTZO7e8jovhvBfczg6pOtw0Z4xx1GfUKV3RtEOw3v5ZzY7mec8400noPHRnyPvv70CxRuPbeNrqFawzgpSG9PpfLHYg9xyM99wU_flnMuFrraLSjK9cO0LevHoIY87Zz_3NPPaNNg5mS8I0lqTgqS-3sTT2M-ElzD9b-HLU409Bvqx3_BW-F-fnuboL9B6X-SC4KqhvMJvDHd1FMTUeKIFyVGsYE17YWxMLwilvZEPh5aR3KgeLkjfVXibhq8Skq-p0LgLFTdS3YXvFvt4-QsNG_td?type=png)](https://mermaid.live/edit#pako:eNqtVktv2zAM_iuGTtvQJBuwk1H00gK9pFiR7nExUMgyE2uRLU-Ss6Rd__uolyMn7i5rDjElfvz4ECn7mTBZAckJE1TrG043ijZFW3EFzHDZZstV0Tpd9p3Db1DZc9Fm-BOSUQEPoHacgd_SDNog7hCrvaigrUCB8iumgBqwVO_eF-1Lyh2ZGW13NBjL8ifGoaOiAUWDLx_evaAtBLWgB1A6dbO0O9bPceshsRtrlnxTm7OgHEWMjFcTUf3qqeDmsHJpnlh_ccBT8x3XvBSxaCAQAkFVYxDCBhI39goDCDKTQir-FAyZ4F1HB56Os-1xRWlZJrFcu8rFOOAAWTxEufVS3yXwtEjRqJM6C1bYHFmCvuHK1S4irTpCXchZil6FdnDoy0taaqMoM1dXCeYHlLfLETBRLtPGiz4b0Jpuhk5wkDQh25kDFhteTPaX64M7qx5aQwBVo6ZwVA4T-SY4_LlHkrLnooqLCjBheTjnnO4VTKy2aQ3YO9w4BW1ANmDUwa8M7E2vsEImOYPIZqgQnIXJlP2mxvGJtegow0YOSGoU3yd-b4OP1Dcq_aVQkE8Fmc2u3HM1DPyE0qWa43BoOzZPNjW3dQR9CCBfj1fV7giC1sv_ZgiLFGRLWbTu3y5jiLdDNceqj_M5ar8m1U3kAfV5gJznjxi75RVn2zHcRE7DSrLIcYo6BRpa23aTZO7e8jovhvBfczg6pOtw0Z4xx1GfUKV3RtEOw3v5ZzY7mec8400noPHRnyPvv70CxRuPbeNrqFawzgpSG9PpfLHYg9xyM99wU_flnMuFrraLSjK9cO0LevHoIY87Zz_3NPPaNNg5mS8I0lqTgqS-3sTT2M-ElzD9b-HLU409Bvqx3_BW-F-fnuboL9B6X-SC4KqhvMJvDHd1FMTUeKIFyVGsYE17YWxMLwilvZEPh5aR3KgeLkjfVXibhq8Skq-p0LgLFTdS3YXvFvt4-QsNG_td)
+
+## Model Importers and Exporters
 
 The SDK provides various functions to import and export its model representations and semantics as various
 industry-standard AECO file formats. Use
@@ -107,7 +109,9 @@ Most of the SDK's internal and lower-level functionality is provided as fully-do
 | [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html) | Geometry generation functions                     |
 | [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                         | Compressed texture support              |
 
-## Quick Start
+# Quick Start
+
+## Examples
 
 ### Spinning Textured Box
 
@@ -245,21 +249,27 @@ view.camera.up = [0, 1, 0];
 
 const sceneModel = scene.createModel(); // Start building the scene graph
 
-loadGLTF({src: "myHouse.glb", scene}).then(() => {
+fetch("myModel.xkt").then(response => {
+  
+    response.arrayBuffer().then(data => {
+       
+        loadGLTF({data, scene}).then(() => {
 
-    sceneModel.build().then(() => { // Compresses textures, geometries etc.
+            sceneModel.build().then(() => { // Compresses textures, geometries etc.
 
-        // A model now appears on our View's canvas.
+                // A model now appears on our View's canvas.
 
-        // We can now show/hide/select/highlight the model's objects through the View:
+                // We can now show/hide/select/highlight the model's objects through the View:
 
-        view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;
-        view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
+                view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;    
+                view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
 
-        // Start orbiting the camera:
+                // Start orbiting the camera:
 
-        viewer.onTick.subscribe(() => {
-            view.camera.orbitYaw(1.0);
+                viewer.onTick.subscribe(() => {
+                    view.camera.orbitYaw(1.0);
+                });
+            });
         });
     });
 });
@@ -282,6 +292,7 @@ Here's the JavaScript for our converter script:
 
 ````javascript
 import {Scene} from "@xeokit/scene";
+import {Data} from "@xeokit/data";
 import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
 import {loadGLTF} from "@xeokit/gltf";
 import {saveXKT} from "@xeokit/xkt";
@@ -318,10 +329,10 @@ function toArrayBuffer(buf) {
 }
 ````
 
-## License
+# License
 
 Copyright 2020, AGPL3 License.
 
-## Credits
+# Credits
 
 See [*Credits*](/credits.html).

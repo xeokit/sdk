@@ -4,7 +4,7 @@
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:100px;" src="media://images/xeokit_webgl_logo.svg"/>
  *
- * # WebGL2 Utilities Library
+ * # xeokit WebGL2 Utilities Library
  *
  * * Used internally by {@link "@xeokit/webglrenderer"}
  * * Convenience wrappers for WebGL2 classes

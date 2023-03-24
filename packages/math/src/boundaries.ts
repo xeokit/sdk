@@ -4,7 +4,7 @@
  *
  * <img src="http://xeokit.io/img/kdtree.jpeg" />
  *
- * # 3D Boundaries Math Library
+ * # xeokit 3D Boundaries Math Library
  *
  * * Axis-aligned boundaries (AABB)
  * * Object-aligned boundaries (OBB)

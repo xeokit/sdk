@@ -4,7 +4,7 @@
  *
  * <img style="padding:10px" src="media://images/xeokit_components_icon.png"/>
  *
- * ## Basic SDK Component Types
+ * ## xeokit SDK Core Components
  *
  * * {@link Component} base class
  * * Various common nterfaces that are implemented throughout the SDK.

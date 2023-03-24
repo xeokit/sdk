@@ -4,7 +4,7 @@
  *
  * <img style="padding-top:20px; padding-bottom: 10px;" src="media://images/ifc_logo.png"/>
  *
- * ## IFC Data Types
+ * # xeokit IFC Data Types
  *
  * * Defines numeric constants for IFC entity and relationship types.
  * * Use with {@link "@xeokit/data"} to assign IFC types to {@link @xeokit/data!DataObject | DataObjects} and

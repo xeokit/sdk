@@ -4,12 +4,12 @@
  *
  * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="media://images/xeokit_logo_mesh.png"/>
  *
- * # XKT Importer and Exporter
+ * # xeokit XKT Importer and Exporter
  *
  * * [XKT](/docs/pages/GLOSSARY.html#xkt) is xeokit's native compressed model format, which contains geometry, materials, objects and semantic data in a
  * compact, Web-friendly payload.
- * * {@link loadXKT} loads XKT into a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel}.
- * * {@link saveXKT} saves XKT from a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel}.
+ * * Use {@link loadXKT} to import XKT files into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
+ * * Use {@link saveXKT} to export {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels} to XKT files.
  *
  * ## Installation
  *
@@ -50,7 +50,7 @@
  * ````
  *
  * Using {@link saveXKT} to export the {@link @xeokit/data!DataModel | DataModel} and {@link @xeokit/scene!SceneModel | SceneModel} to
- * an XKT file in an ArrayBuffer:
+ * XKT file data in an ArrayBuffer:
  *
  * ````javascript
  * const arrayBuffer = saveXKT({

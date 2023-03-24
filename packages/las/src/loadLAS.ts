@@ -2,12 +2,12 @@ import {SceneModel} from "@xeokit/scene";
 import {DataModel} from "@xeokit/data";
 
 /**
- * Loads LAS/LAZ file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and (optionally) a {@link @xeokit/data!DataModel | DataModel}.
+ * Loads LAS/LAZ file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel}.
  *
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
- * See {@link @xeokit/las} for usage.
+ * See {@link "@xeokit/las"} for usage.
  *
  * @param params - Loading parameters.
  * @param params.data - LAS/LAZ file data

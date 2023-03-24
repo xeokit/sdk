@@ -4,7 +4,7 @@
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="media://images/xeokit_viewer_logo.png"/>
  *
- * # Web Model Viewer
+ * # xeokit Web Model Viewer
  *
  * * {@link @xeokit/viewer!Viewer}
  * * Interactively view large models, at full coordinate precision, in all major browsers including mobile
@@ -30,16 +30,11 @@
  * * [Creating a View](#creating-a-view)
  * * [Adding a CameraControl](#adding-a-cameracontrol)
  * * [Creating a SceneModel](#creating-a-scene)
- * * [Reading the Contents of a SceneModel](#reading-the-contents-of-a-scene)
  * * [Showing and Hiding Objects](#showing-and-hiding-objects)
  * * [Highlighting, Selecting and X-Raying Objects](#highlighting-selecting-and-x-raying-objects)
  * * [Creating a Second View](#creating-a-second-view)
  * * [Slicing Objects](#slicing-objects)
- * * [Saving and Loading BCF](#saving-and-loading-bcf)
- * * [Saving and Loading XKT](#saving-and-loading-xkt)
- * * [BCF Revisited](#bcf-revisited)
  * * [Adding a ViewLayer](#adding-a-viewlayer)
- * * [BCF with ViewLayers](#bcf-with-viewlayers)
  *
  * ### Creating a Viewer
  *
@@ -51,14 +46,13 @@
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
  * import {CameraControl} from "@xeokit/cameracontrol";
- * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
- * import {saveXKT, loadXKT} from "@xeokit/xkt";
+
  * ````
  *
  * Create a {@link @xeokit/scene!Scene} to hold our model representations:
  *
  * ````javascript
- * const myScene = new Scene();
+ * const scene = new Scene();
  * ````
  *
  * Create a {@link @xeokit/viewer!Viewer} to view our Scene, configured with
@@ -67,7 +61,7 @@
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     scene: myScene,
+ *     scene,
  *     renderer: new WebGLRenderer({ })
  * });
  * ````
@@ -106,11 +100,11 @@
  * Our {@link @xeokit/scene!Scene | Scene } contains geometric representations of our models and objects,
  * with materials and textures.
  *
- * Within the Scene, create a {@link @xeokit/scene!SceneModel | SceneModel} that contains a couple
+ * Within the Scene, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} that contains a couple
  * of textured {@link @xeokit/scene!SceneModel | SceneObjects}:
  *
  * ````javascript
- * const sceneModel = myScene.createModel();
+ * const sceneModel = scene.createModel();
  *
  * sceneModel.createGeometry({
  *      id: "myGeometry",
@@ -159,32 +153,6 @@
  *
  * As soon as we've called {@link @xeokit/scene!SceneModel.build | SceneModel.build}, two new objects appear
  * in the View's canvas.
- *
- * ### Reading the Contents of a SceneModel
- *
- * A {@link @xeokit/scene!SceneModel | SceneModel} lets us read back all the geometry, materials, textures
- * and objects we create within it.
- *
- * Let's access our SceneModel. and find some of those components within it using their IDs:
- *
- * ```` javascript
- * const sceneModel = myScene.models["myModel"];
- * const texture = mySceneModel.textures["myColorTexture"];
- * const textureSet = mySceneModel.textureSets["myTextureSet"];
- *
- * const myGeometry = mySceneModel.geometries["myGeometry"];
- * const bucket0 = myGeometry.buckets[0];
- * const bucket0Positions = bucket0.positions;
- * const bucket0Indices = bcket0.indices;
- *
- * const myMesh1 = mySceneModel.meshes["myMesh1"];
- * const myGeometryAgain = myMesh1.geometry;
- *
- * const myObject1 = mySceneModel.objects["myObject1"];
- * const myObject2 = mySceneModel.objects["myObject2"];
- *
- * const myMesh1Again = myObject1.mesh;
- * ````
  *
  * ### Showing and Hiding Objects
  *
@@ -238,8 +206,8 @@
  * view2.objects["myObject1"].highlighted = true;
  * ````
  *
- * A View is able to show an independent view of {@link @xeokit/scene!SceneModel | SceneObjects} by
- * proxying them with {@link ViewObject | ViewObjects}, which represent and control their appearance within the View's canvas.
+ * To show an independent view of {@link @xeokit/scene!SceneModel | SceneObjects}, a View
+ * proxies them with {@link ViewObject | ViewObjects}, which represent and control their appearance within the View's canvas.
  *
  * ### Slicing Objects
  *
@@ -264,84 +232,6 @@
  *
  * mySlice1.dir = [1,1,1];
  * ````
- * 
- * ### Saving and Loading BCF
- *
- * > *See [@xeokit/bcf](/docs/modules/_xeokit_bcf.html)*
- *
- * The BIM Collaboration Format (BCF) is a structured file format suited to issue tracking with a building information
- * model. BCF is designed primarily for defining views of a building model and associated information on collisions
- * and errors connected with specific objects in the view.
- *
- * Save a snapshot of our second View as a JSON-encoded BCF viewpoint:
- *
- * ````javascript
- * const bcfViewpoint = saveBCFViewpoint({
- *      view: view2
- * });
- * ````
- *
- * Now load that BCF viewpoint into the first View:
- *
- * ````javascript
- * loadBCFViewpoint({
- *      bcfViewpoint,
- *      view: view1
- * });
- * ````
- *
- * Now the first View shows exactly the same thing as the second View - the first first object is highlighted in both Views.
- *
- * In practice, you would be using this functionality to synchronize Views belonging to different Viewers, or to exchange
- * viewpoints with any other BIM software that supports BCF interoperability.
- *
- * ### Saving and Loading XKT
- *
- * > *See [@xeokit/xkt](/docs/modules/_xeokit_xkt.html)*
- *
- * XKT is xeokit's native binary model format, that compresses model representations and semantic data into
- * a compact Web-friendly payload that we can load quickly over the network into a Viewer.
- *
- * Save our SceneModel to an XKT file within an ArrayBuffer:
- *
- * ````javascript
- * const xktArrayBuffer = saveXKT({
- *     sceneModel
- * });
- *````
- *
- * Now let's destroy our SceneModel, then re-create it again from the XKT file we just saved:
- *
- * ````javascript
- * sceneModel.destroy();
- *
- * const sceneModel2 = myScene.createModel();
- *
- * loadXKT({
- *     data: xktArrayBuffer,
- *     sceneModel: sceneModel2
- * });
- *
- * sceneModel2.build();
- * ````
- *
- * Both Views now show the two objects once more, in their original, unhighlighted state. Their highlighted state, after
- * we highlighted them earlier,  got lost when we destroyed and recreated the SceneModel.
- *
- * ### BCF Revisited
- *
- * Recall that BCF viewpoint we captured from the first View, in which the first object was highlighted? To give a little
- * more insight into how things fit together, let's now load that BCF viewpoint back into the first View, which will
- * make that first object appear again highlighted in that canvas:
- *
- * ````javascript
- * loadBCFViewpoint({
- *      bcfViewpoint,
- *      view: view1
- * });
- * ````
- *
- * Meanwhile, both objects will remain un-highlighted in the second View.
  *
  * ### Adding a ViewLayer
  *
@@ -396,8 +286,6 @@
  *
  * @module @xeokit/viewer
  */
-
-
 export * from "./Viewer";
 export * from "./ViewParams";
 export * from "./Renderer";

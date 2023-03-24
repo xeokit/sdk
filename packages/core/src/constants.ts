@@ -1,5 +1,5 @@
 /**
- * ## Constants used throughout the xeokit SDK
+ * ## xeokit SDK Constant Definitions
  *
  * ## Installation
  *

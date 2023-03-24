@@ -6,10 +6,10 @@
  *
  * <br>
  *
- * # LAS/LAZ Point Cloud Importer
+ * # xeokit LAS/LAZ Importer
  *
- * * [LAS/LAZ](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#las) is an industry standard format for 3D point cloud scans
- * * {@link loadLAS} loads LAS/LAZ into a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}
+ * * [LAS/LAZ](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#las) is an industry standard format for 3D point cloud scans.
+ * * Use {@link loadLAS} to import LAS/LAZ files into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
  *
  * ## Installation
  *
@@ -19,7 +19,7 @@
  *
  * ## Usage
  *
- * Loading an LAS file into a {@link @xeokit/scene!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
+ * Loading an LAS file into a {@link @xeokit/data!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
  *
  * ````javascript
  * import {Data} from "@xeokit/data";

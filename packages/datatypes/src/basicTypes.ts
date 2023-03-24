@@ -4,7 +4,7 @@
  *
  * <img style="padding:10px; width:300px" src="media://images/xeokit_components_icon.png"/>
  *
- * ## Basic Data Types
+ * # xeokit Basic Semantic Data Types
  *
  * * Defines numeric constants for a basic set of entity and relationship types.
  * * Use with {@link "@xeokit/data"} to assign basic types to {@link @xeokit/data!DataObject | DataObjects}

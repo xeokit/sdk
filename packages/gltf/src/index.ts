@@ -4,11 +4,10 @@
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/xeokit_gltf_logo.svg"/>
  *
- * # glTF Model Loader
+ * # xeokit glTF Importer
  *
  * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models.
- * * {@link loadGLTF} loads glTF into a {@link @xeokit/scene!SceneModel | SceneModel} and an
- * optional {@link @xeokit/data!DataModel | DataModel}.
+ * * Use {@link loadGLTF} to import glTF into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
  *
  * ## Installation
  *

@@ -4,12 +4,12 @@
  *
  * <img style="width:150px; padding-top:20px; padding-bottom: 20px;" src="media://images/ifc_logo.png"/>
  *
- * # IFC Model Loader
+ * # xeokit IFC Importer
  *
  * * Industry Foundation Classes ([IFC](/docs/pages/GLOSSARY.html#ifc)) is a data model for building information modeling
  * ([BIM](https://en.wikipedia.org/wiki/Cityjson)) used in the architecture, engineering, and construction (AEC) industry.
- * * {@link loadWebIFC} uses the [web-ifc](https://github.com/IFCjs/web-ifc) API to load IFC files into
- * a {@link @xeokit/scene!SceneModel | SceneModel} and an optional {@link @xeokit/data!DataModel | DataModel}.
+ * * Use {@link loadWebIFC} to load IFC files into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
+ * * Internally, loadWebIFC uses the [web-ifc](https://github.com/IFCjs/web-ifc) API to parse geometry and data from the IFC file.
  *
  * ## Installation
  *

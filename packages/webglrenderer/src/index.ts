@@ -4,7 +4,7 @@
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:100px;" src="media://images/xeokit_webgl_logo.svg"/>
  *
- * # WebGL2-Based Rendering Strategy
+ * # xeokit WebGL2 Rendering Strategy
  *
  * * Plug a {@link WebGLRenderer} into a {@link @xeokit/viewer!Viewer} to use WebGL for model storage and rendering
  * * Compact texture-based model representation

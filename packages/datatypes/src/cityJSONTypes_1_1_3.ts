@@ -4,7 +4,7 @@
  *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/cityJSONLogo.svg"/>
  *
- * ## CityJSON 1.1.3 Types
+ * # xeokit CityJSON 1.1.3 Data Types
  *
  * * Defines numeric constants for the set of [CityJSON](/docs/pages/GLOSSARY.html#cityjson) 1.1.3 entity and relationship types.
  * * Use with {@link "@xeokit/data"} to assign CityJSON types to {@link @xeokit/data!DataObject | DataObjects}

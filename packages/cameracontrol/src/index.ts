@@ -4,9 +4,9 @@
  * 
  * <img style="padding:30px" src="media://images/xeokit_controls_icon.png"/>
  *
- * ## Camera Navigation Controls for a {@link "@xeokit/viewer" | Viewer}
+ * # xeokit Camera Navigation Controls
  *
- * * {@link CameraControl} - controls a {@link @xeokit/viewer!View | View's} {@link @xeokit/viewer!Camera}
+ * * Use {@link CameraControl} to control a {@link @xeokit/viewer!Camera}, which belongs to a {@link @xeokit/viewer!View | View}, which belongs to a {@link @xeokit/viewer!Viewer | Viewer}.
  * * Reads touch, mouse and keyboard input
  * * Three navigation modes: "orbit", "firstPerson" and "planView"
  * * Dynamic key mapping

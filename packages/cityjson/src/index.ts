@@ -4,11 +4,10 @@
  *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/cityJSONLogo.svg"/>
  *
- * # CityJSON Model Importer
+ * # xeokit CityJSON Importer
  *
- * * [CityJSON](/docs/pages/GLOSSARY.html#cityjson) is an industry standard format for 3D scenes and models
- * * {@link loadCityJSON} loads CityJSON into a {@link @xeokit/scene!SceneModel | SceneModel} and an
- * optional {@link @xeokit/data!DataModel | DataModel}.
+ * * [CityJSON](/docs/pages/GLOSSARY.html#cityjson) is an industry standard format for 3D scenes and models.
+ * * Use {@link loadCityJSON} to import CityJSON into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}..
  *
  * ## Installation
  *

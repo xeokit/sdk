@@ -4,7 +4,7 @@
  *
  * <img style="padding:20px" src="media://images/xeokit_docmodel_greyscale_icon.png"/>
  *
- * ## Scene Representation
+ * ## xeokit Geometry and Materials Model
  *
  * * {@link @xeokit/scene!Scene} is a container for {@link @xeokit/scene!SceneModel | SceneModels},
  * which contain {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries} and {@link Texture | Textures}.

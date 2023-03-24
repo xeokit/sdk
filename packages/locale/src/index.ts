@@ -4,7 +4,7 @@
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:20px; height:150px; width:150px;" src="https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F45c3a188-6ed1-4540-9f33-37af754accbd%2Fi1n8_icon.png?id=06769198-9d4e-48fe-b891-7447f85222d1&table=block&spaceId=8ed52f91-a7f1-46bf-b39b-49af46e0a158&width=1000&userId=&cache=v2"/>
  *
- * # Localization Service
+ * # xeokit Localization Service
  *
  * A container of string translations ("messages") for various locales.
  *

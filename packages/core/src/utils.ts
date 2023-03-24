@@ -1,5 +1,5 @@
 /**
- * ## Core Utilities Library
+ * ## xeokit SDK Core Utilities Library
  *
  * ## Installation
  *

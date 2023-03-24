@@ -6,7 +6,7 @@
  *
  * <br>
  *
- * ## HTML Tree View for a {@link "@xeokit/viewer" | Viewer}
+ * ## xeokit Tree View UI
  *
  * * {@link @xeokit/treeview!TreeView}
  * * Fast HTML tree view to navigate federated models in a {@link @xeokit/viewer!Viewer}

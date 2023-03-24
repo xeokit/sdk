@@ -2,7 +2,7 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fmath.svg)](https://badge.fury.io/js/%40xeokit%2Fmath)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/math/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math)
  *
- * # Curves Math Library
+ * # xeokit Curves Math Library
  *
  * ## Installation
  *

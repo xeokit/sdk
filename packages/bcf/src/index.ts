@@ -4,17 +4,14 @@
  * 
  * <img style="padding:20px; padding-bottom:10px; " src="media://images/xeokit_bcf_logo.png"/>
  *
- * # Import and Export BCF
+ * # xeokit BCF Importer and Exporter
  *
- * The BIM Collaboration Format ({@link BCFViewpoint}) is an open file
- * format for exchanging data and collaborating on 3D models and building information. It was created by the
- * buildingSMART organization and is widely used in the architecture, engineering, and construction (AEC) industry.
- *
- * The xeokit SDK provides support for BCF through functions to import and export Viewer state as BCF viewpoints.
- *
- * * {@link loadBCFViewpoint} loads a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer}
- * * {@link saveBCFViewpoint} saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a JSON-encoded BCF viewpoint
- * * {@link BCFViewpoint} represents a BCF viewpoint
+ * * The BIM Collaboration Format ({@link BCFViewpoint}) is an open file
+ * format for exchanging data and collaborating on 3D models and building information. The xeokit SDK uses BCF to
+ * exchange bookmarks of {@link @xeokit/viewer!Viewer} state with other BIM software.
+ * * Use {@link loadBCFViewpoint} to import a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} belonging to a {@link @xeokit/viewer!Viewer | Viewer}.
+ * * Use {@link saveBCFViewpoint} to export the state of a {@link @xeokit/viewer!View | View} as a JSON-encoded BCF viewpoint.
+ * * See {@link BCFViewpoint} for the BCF viewpoint format.
  *
  * ## Installation
  *

@@ -77,11 +77,12 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 };
 
 /**
- * A model representation within a {@link Scene}.
+ * xeokit Geometry and Materials Model.
  *
+ * * A representation of a model's geometry and materials within a {@link Scene}.
  * * Contains {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries} and {@link Texture | Textures}.
- * * Compresses textures using [Basis]()
- * * Compresses geometry using [bucketing]() and [quantization]()
+ * * Compresses textures using [Basis](/docs/pages/GLOSSARY.html#basis)
+ * * Compresses geometry using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
  * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/xkt!loadXKT} (etc)
  * * Exportable to XKT format using {@link @xeokit/xkt!saveXKT}

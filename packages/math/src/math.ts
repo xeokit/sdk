@@ -4,7 +4,7 @@
  *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="media://images/math_icon.png"/>
  *
- * # Core Math Utilities
+ * # xeokit Core Math Utilities
  *
  * ## Installation
  *

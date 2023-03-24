@@ -4,7 +4,7 @@
  * 
  * <img style="padding:20px" src="media://images/geometry_icon.png"/>
  *
- * ## Geometry Compression / Decompression Utilities
+ * ## xeokit Geometry Compression / Decompression Utilities
  *
  * This library provides a set of functions that are used internally within
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to

@@ -52,6 +52,8 @@ classDiagram
     SceneModel : createMesh()
     SceneModel : createObject()
     SceneModel : build()
+    SceneModel : destroy()
+    SceneModel : id
     SceneModel : objects
     SceneModel : geometries
     SceneModel : textures
@@ -86,8 +88,16 @@ classDiagram
     Data : propertySets
     DataModel *-- DataObject
     DataObject *-- PropertySet
+    DataObject : id
+    DataObject : type
+    DataObject : name
     PropertySet *-- Property
+    PropertySet : properties
+    Property : name
+    Property : value
+    Property : type
     Relationship *-- SceneObject
+    Relationship : type
     DataModel *-- Relationship
     DataModel : createObject()
     DataModel : createRelationship()
@@ -95,8 +105,11 @@ classDiagram
     DataModel : objects
     DataModel : propertySets
     DataModel : relationships
+    DataModel : build()
+    DataModel : destroy()
     Data : searchObjects
     Data : traverseObjects
+    DataModel : id
 ```
 
 ### Viewing Models

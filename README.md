@@ -96,8 +96,11 @@ classDiagram
     Property : name
     Property : value
     Property : type
-    Relationship *-- SceneObject
+    Relationship *-- DataObject : relating
+    Relationship *-- DataObject : related
     Relationship : type
+    Relationship : related
+    Relationship : relating
     DataModel *-- Relationship
     DataModel : createObject()
     DataModel : createRelationship()

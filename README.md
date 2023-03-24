@@ -40,23 +40,24 @@ between various file formats, or provide some content for a viewer to render.
 | [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship graph that contains model semantic data.                 |
 | [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
 
+
 ```mermaid
-graph TD;
-    Scene-->SceneModel;
-    SceneModel-->SceneObject;
-    SceneObject-->Mesh;
-    Mesh-->Geometry;
-    Mesh-->TextureSet;
-    TextureSet-->Texture;
+classDiagram
+    Scene-->SceneModel
+    SceneModel-->SceneObject
+    SceneObject-->Mesh
+    Mesh-->Geometry
+    Mesh-->TextureSet
+    TextureSet-->Texture
 ```
     
 ```mermaid
-graph TD;
-    Data-->DataModel;
-    DataModel-->DataObject;
-    DataObject-->PropertySet;
-    PropertySet-->Property;
-    Relationship-->SceneObject;
+classDiagram
+    Data-->DataModel
+    DataModel-->DataObject
+    DataObject-->PropertySet
+    PropertySet-->Property
+    Relationship-->SceneObject
     DataModel-->Relationship
 ```
 
@@ -75,6 +76,18 @@ annotations etc.
 | [`@xeokit/cameracontrol`](https://www.npmjs.com/package/@xeokit/cameracontrol)  | [`@xeokit/cameracontrol`](https://xeokit.github.io/sdk/docs/modules/cameracontrol.html)        | Interactive camera control for a viewer                     |
 | [`@xeokit/webglrenderer`](https://www.npmjs.com/package/@xeokit/webglrenderer)  | [`@xeokit/webglrenderer`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html) | WebGL rendering strategy for a viewer       |
 | [`@xeokit/treeview`](https://www.npmjs.com/package/@xeokit/treeview)     | [`@xeokit/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_treeview.html)                 | HTML tree view widget for a Viewer                          |
+| [`@xeokit/locale`](https://www.npmjs.com/package/@xeokit/locale)     | [`@xeokit/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_locale.html)                 | Localization service for a viewer                         |
+
+```mermaid
+classDiagram
+Viewer-->Renderer
+Viewer-->Scene
+Viewer-->View
+View-->ViewObject
+View-->Camera
+View-->Light
+View-->SectionPlane
+```
 
 ### Importing and Exporting Models
 

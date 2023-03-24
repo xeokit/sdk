@@ -71,7 +71,7 @@
 </code></pre>
 <p>Create a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a> to view our Scene, configured with
 a <a href="../classes/_xeokit_webglrenderer.WebGLRenderer.html">WebGLRenderer</a>:</p>
-<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">scene</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">WebGLRenderer</span><span class="hl-0">({ })</span><br/><span class="hl-0">});</span>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">scene</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">WebGLRenderer</span><span class="hl-0">({</span><br/><span class="hl-0">         </span><span class="hl-3">textureTranscoder:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">KTX2TextureTranscoder</span><span class="hl-0">({  </span><span class="hl-7">// Optional, this is the default</span><br/><span class="hl-0">             </span><span class="hl-3">transcoderPath:</span><span class="hl-0"> </span><span class="hl-1">&quot;./../dist/basis/&quot;</span><span class="hl-0"> </span><span class="hl-7">// Optional, defaults to CDN</span><br/><span class="hl-0">         })</span><br/><span class="hl-0">     })</span><br/><span class="hl-0">});</span>
 </code></pre>
 
 <a href="#creating-a-view" id="creating-a-view" style="color: inherit; text-decoration: none;">
@@ -171,7 +171,7 @@ whenever we load a BCF viewpoint.</p>
 </code></pre>
 </div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/6490a7f3/packages/viewer/src/index.ts#L291">viewer/src/index.ts:291</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/5b49030c/packages/viewer/src/index.ts#L295">viewer/src/index.ts:295</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"></section></section>
 <section class="tsd-panel-group tsd-index-group">

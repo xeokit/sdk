@@ -4,7 +4,7 @@
  *
  * <img style="padding:50px" src="media://images/xeokit_datamodel_icon.png"/>
  *
- * # xeokit Semantic Data Model
+ * # xeokit Data Graph
  *
  * * An entity-relationship graph to represent semantic data for models.
  * * {@link @xeokit/data!Data} is a container for {@link @xeokit/data!DataModel | DataModels}, which contain {@link DataObject | DataObjects}, {@link PropertySet | PropertySets} and {@link Relationship | Relationships}.

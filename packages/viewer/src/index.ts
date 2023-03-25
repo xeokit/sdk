@@ -6,19 +6,25 @@
  *
  * # xeokit Web Model Viewer
  *
- * * {@link @xeokit/viewer!Viewer}
- * * Interactively view large models, at full coordinate precision, in all major browsers including mobile
- * * Independently move/show/hide/x-ray/highlight/colorize/slice objects
- * * Combine multiple, federated models
- * * Multiple canvases
- * * Low memory footprint
- * * Double-precision coordinate accuracy
- * * Programmatically build models
- * * Load and save XKT
- * * Load XKT, glTF, LAS..
- * * Browser graphics API agnostic - adapt with {@link WebGLRenderer}
+ * ## Features
  *
- * [![](https://mermaid.ink/img/pako:eNp9VU1v2zAM_SuGTtvQFNvVCHJpgV1crEiw7eILLbOJVln2JDtb2vW_j_py5NhpLqb5Hqkn5kl-ZbytkeWMSzDmXsBeQ1OqWmjkvWhVVmxL5bDsh8A_qLPXUmX0ky0HiTvUR8HRpwxHFcIjcY0PNaoaNWr_xjVCj7bVh4-lekt7x84c1BFCcVv9Ih0mAg1qCMuL_SHmjZf6KEFhSEk4oTbpkoXN2DXPqV1SN0UK230m0LWIKkW9oPD3AFL0p63b8kX1N0e8LD8KIyoZB4iSKBigA4lw24yJv5oEhJi3stXiJRRyKboOxj6d4M_nN4CqSrTcuSlGHXjCLP6h7bOPhi6hp0OKRV1rslBFRskS9r3QbnaRaeFIdZKzlL0N1nDs9Roq02vg_WaTcH5i9bWYEBOwSE0Y12zQGNiPTnAUVzNuyfp0ZJP95aLbnBMeLDyaQyLoiS1cK8d51xe-l3dAbFYNQtbxpUbaenua9567hnB_Ekv2pWSr1cY9t-MpWwCL6VldYLi1cvKpsQ5-scNzqTPpUyB5QVdhN4uA-vhqh0sZhNuUB2bptCrEFppswOdz8lWn0aCy419s5k6yx3zIPt_evrPgZFZ34RqadY7mX4DSU1Sq0c7rf6vVhcPzTDSdxMarnzMfv1-hshtGuhoQNd3mzi8l6w-EliynsMYnGCQNjRxEVBj6dndSnOW9HvCGDV1NDg33P8ufQBrKYi36Vj-EL4R9vP0HhNkRFw?type=png)](https://mermaid.live/edit#pako:eNp9VU1v2zAM_SuGTtvQFNvVCHJpgV1crEiw7eILLbOJVln2JDtb2vW_j_py5NhpLqb5Hqkn5kl-ZbytkeWMSzDmXsBeQ1OqWmjkvWhVVmxL5bDsh8A_qLPXUmX0ky0HiTvUR8HRpwxHFcIjcY0PNaoaNWr_xjVCj7bVh4-lekt7x84c1BFCcVv9Ih0mAg1qCMuL_SHmjZf6KEFhSEk4oTbpkoXN2DXPqV1SN0UK230m0LWIKkW9oPD3AFL0p63b8kX1N0e8LD8KIyoZB4iSKBigA4lw24yJv5oEhJi3stXiJRRyKboOxj6d4M_nN4CqSrTcuSlGHXjCLP6h7bOPhi6hp0OKRV1rslBFRskS9r3QbnaRaeFIdZKzlL0N1nDs9Roq02vg_WaTcH5i9bWYEBOwSE0Y12zQGNiPTnAUVzNuyfp0ZJP95aLbnBMeLDyaQyLoiS1cK8d51xe-l3dAbFYNQtbxpUbaenua9567hnB_Ekv2pWSr1cY9t-MpWwCL6VldYLi1cvKpsQ5-scNzqTPpUyB5QVdhN4uA-vhqh0sZhNuUB2bptCrEFppswOdz8lWn0aCy419s5k6yx3zIPt_evrPgZFZ34RqadY7mX4DSU1Sq0c7rf6vVhcPzTDSdxMarnzMfv1-hshtGuhoQNd3mzi8l6w-EliynsMYnGCQNjRxEVBj6dndSnOW9HvCGDV1NDg33P8ufQBrKYi36Vj-EL4R9vP0HhNkRFw)
+ * * Use a {@link @xeokit/viewer!Viewer} to interactively view a {@link @xeokit/scene!Scene} in all major browsers, including mobile.
+ * * A Viewer has a {@link @xeokit/viewer!Renderer}, which is a pluggable strategy that adapts the Viewer to use various browser graphics APIs. Currently we have two
+ * Renderer implementations:
+ * {@link @xeokit/webglrenderer!WebGLRenderer} and WebGPURenderer.
+ * * A Viewer can have multiple {@link @xeokit/viewer!View | Views}, each providing an independently configurable view of the Scene in a separate HTML canvas.
+ * * Each View has a {@link @xeokit/viewer!ViewObject} for each of the {@link @xeokit/scene!SceneObject | SceneObjects} in the Scene, which represnts and controls that
+ * SceneObject's appearance in the View's canvas.
+ * The View creates and destroys its ViewObjects automatically, in order to proxy the SceneObjects.
+ * * Each View also has it's own {@link @xeokit/viewer!Camera}, {@link @xeokit/viewer!DirLight | Lights} and {@link @xeokit/viewer!SectionPlane | SectionPlanes}.
+ * * Each View can optionally organize its ViewObjects into {@link @xeokit/viewer!ViewLayer | ViewLayers}. These allow us to partition our ViewObjects into
+ * different *bins* depending on what they represent in the View, and then conveniently focus our updates (toggle visibility, select, highlight, slice etc.)
+ * eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer's [phycially-based](/docs/pages/GLOSSARY.html#pbr)
+ * quality rendering mode. This allows us to disable wasteful quality rendering for objects that are not supposed to appear realistic, such as grids and other 3D helper objects.
+ *
+ * <br>
+ *
+ * [![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBp7aIg-YqGL44QHqwEcPu48ILRW1iJhSpkpQbN82_l-9QtlzUF1E7s7PL9ZB6RVS2gGpEOdH6lpFHRTosWqaAGiZFtdpi4bHqO4NfoKpXLKrwUyBaUKBCQFMQEJYHy9RhSRUQAy71w8cQweKtVEx6lIgDiUmyebLVkwLpQJGw5uxxn-I6NLjhREAMcXIENSq8cpFUOYR2Rd4YWTl1Fxo16CVSl6yd6PDnQDgzx60fx0n2vSeeph-YZg2HtBFuKRChvW3CbzMFXpRtIK6p5FKx3zGRctb3JOv0jD6_vxHSNEUvSz_F1AccoYojk_I5rIY-yij5FEZUpJdDSyK91FVUsXYp_9dbpvwsE9PBieq3MHLBNtrIs-dz0mijCDWLRcH5Ac3dakQs9zZoI7tN7juV7YhR7KXchbNoRq3v-aThvBnWDs7-4EDUyBleynP-aY2gFUyQxJqB8Ta9tGB3K4_n2ufGsTgW4RBidIPRbLbwz20-hhPgLpzK8MjApwiEIhdhv7-IhvVFhdPSFnehOl4Fbn0Ghtw6D-w95imjLUSuNUuvQIMwumKi-vJ1vco3x2QNf3rrdDHkCEafr6__o53RLJfxJjorlPxep_vpjFGeHyyiUKm9sf31jnSYxu-V2ctJ5NT9WORzMv8zm50cnbpiXc-hcxOcYm6-XaCW18hSCmva7Hx_33t_juDRjG_CjNEVsoyOsNZ-cnw6RmZva2BU22ULD2Tg9u-3apZKBiN3R0FRbdQAV2joW3ua4kcK1Q-EaxuFlhmp1vEz5h5vfwF9HEi3?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBp7aIg-YqGL44QHqwEcPu48ILRW1iJhSpkpQbN82_l-9QtlzUF1E7s7PL9ZB6RVS2gGpEOdH6lpFHRTosWqaAGiZFtdpi4bHqO4NfoKpXLKrwUyBaUKBCQFMQEJYHy9RhSRUQAy71w8cQweKtVEx6lIgDiUmyebLVkwLpQJGw5uxxn-I6NLjhREAMcXIENSq8cpFUOYR2Rd4YWTl1Fxo16CVSl6yd6PDnQDgzx60fx0n2vSeeph-YZg2HtBFuKRChvW3CbzMFXpRtIK6p5FKx3zGRctb3JOv0jD6_vxHSNEUvSz_F1AccoYojk_I5rIY-yij5FEZUpJdDSyK91FVUsXYp_9dbpvwsE9PBieq3MHLBNtrIs-dz0mijCDWLRcH5Ac3dakQs9zZoI7tN7juV7YhR7KXchbNoRq3v-aThvBnWDs7-4EDUyBleynP-aY2gFUyQxJqB8Ta9tGB3K4_n2ufGsTgW4RBidIPRbLbwz20-hhPgLpzK8MjApwiEIhdhv7-IhvVFhdPSFnehOl4Fbn0Ghtw6D-w95imjLUSuNUuvQIMwumKi-vJ1vco3x2QNf3rrdDHkCEafr6__o53RLJfxJjorlPxep_vpjFGeHyyiUKm9sf31jnSYxu-V2ctJ5NT9WORzMv8zm50cnbpiXc-hcxOcYm6-XaCW18hSCmva7Hx_33t_juDRjG_CjNEVsoyOsNZ-cnw6RmZva2BU22ULD2Tg9u-3apZKBiN3R0FRbdQAV2joW3ua4kcK1Q-EaxuFlhmp1vEz5h5vfwF9HEi3)
  *
  * ## Installation
  *
@@ -40,31 +46,49 @@
  *
  * ### Creating a Viewer
  *
- *  We'll start by importing the modules we need:
+ * Install these NPM modules:
+ *
+ * ````bash
+ * npm install @xeokit/scene
+ * npm install @xeokit/viewer
+ * npm install @xeokit/ktx2
+ * npm install @xeokit/webglrenderer
+ * npm install @xeokit/core/constants
+ * npm install @xeokit/cameracontrol
+ * ````
+ *
+ *  In our JavaScript, import the modules:
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {KTX2TextureTranscoder} from "@xeokit/ktx2";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
  * import {CameraControl} from "@xeokit/cameracontrol";
-
  * ````
  *
- * Create a {@link @xeokit/scene!Scene} to hold our model representations:
+ * Create a {@link @xeokit/scene!Scene} to hold our scene graph:
  *
  * ````javascript
  * const scene = new Scene();
  * ````
  *
- * Create a {@link @xeokit/viewer!Viewer} to view our Scene, configured with
- * a {@link @xeokit/webglrenderer!WebGLRenderer}:
+ * Create a {@link @xeokit/viewer!Viewer} to view our Scene.
+ *
+ * We'll configured it with
+ * a {@link @xeokit/webglrenderer!WebGLRenderer}, which will adapt the Viewer to use the browser's WebGL graphics API.
+ * We'll also equip our WebGLRenderer with a {@link @xeokit/ktx2!KTX2TextureTranscoder} so we that we can view compressed textures.
  *
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     scene,
- *     renderer: new WebGLRenderer({ })
+ *     renderer: new WebGLRenderer({
+ *          textureTranscoder: new KTX2TextureTranscoder({  // Optional, this is the default
+ *              transcoderPath: "./../dist/basis/" // Optional, defaults to CDN
+ *          })
+ *      })
  * });
  * ````
  *

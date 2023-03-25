@@ -2,7 +2,6 @@ import {apply, createUUID, inQuotes} from "@xeokit/core/utils";
 import {Capabilities, Component, EventEmitter} from "@xeokit/core/components";
 import {EventDispatcher} from "strongly-typed-events";
 import {FloatArrayParam} from "@xeokit/math/math";
-import {LocaleService} from "@xeokit/locale";
 import {Scene} from "@xeokit/scene";
 
 import {View} from "./View";
@@ -65,16 +64,6 @@ export class Viewer extends Component {
     readonly scene: Scene;
 
     /**
-     * Provides locale string translations for this Viewer.
-
-     This may be configured via the Viewer's constructor.
-
-     By default, this service will be an instance of {@link LocaleService}, which will just return
-     null translations for all given strings and phrases.
-     */
-    readonly localeService: LocaleService;
-
-    /**
      * Map of all the Views in this Viewer.
      *
      * Each {@link @xeokit/viewer!View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
@@ -119,7 +108,6 @@ export class Viewer extends Component {
     constructor(params: {
         scene?: Scene,
         renderer: Renderer,
-        localeService?: LocaleService,
         id?: string,
         units?: string,
         scale?: number,
@@ -132,7 +120,6 @@ export class Viewer extends Component {
         this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());
 
         this.id = params.id || createUUID();
-        this.localeService = params.localeService || new LocaleService();
 
         this.viewList = [];
         this.numViews = 0;

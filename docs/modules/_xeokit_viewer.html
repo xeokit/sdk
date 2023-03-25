@@ -24,20 +24,28 @@
 <a href="#xeokit-web-model-viewer" id="xeokit-web-model-viewer" style="color: inherit; text-decoration: none;">
   <h1>xeokit Web Model Viewer</h1>
 </a>
+
+<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+  <h2>Features</h2>
+</a>
 <ul>
-<li><a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a></li>
-<li>Interactively view large models, at full coordinate precision, in all major browsers including mobile</li>
-<li>Independently move/show/hide/x-ray/highlight/colorize/slice objects</li>
-<li>Combine multiple, federated models</li>
-<li>Multiple canvases</li>
-<li>Low memory footprint</li>
-<li>Double-precision coordinate accuracy</li>
-<li>Programmatically build models</li>
-<li>Load and save XKT</li>
-<li>Load XKT, glTF, LAS..</li>
-<li>Browser graphics API agnostic - adapt with WebGLRenderer</li>
+<li>Use a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a> to interactively view a <a href="../classes/_xeokit_scene.Scene.html">Scene</a> in all major browsers, including mobile.</li>
+<li>A Viewer has a <a href="../interfaces/_xeokit_viewer.Renderer.html">Renderer</a>, which is a pluggable strategy that adapts the Viewer to use various browser graphics APIs. Currently we have two
+Renderer implementations:
+<a href="../classes/_xeokit_webglrenderer.WebGLRenderer.html">WebGLRenderer</a> and WebGPURenderer.</li>
+<li>A Viewer can have multiple <a href="../classes/_xeokit_viewer.View.html">Views</a>, each providing an independently configurable view of the Scene in a separate HTML canvas.</li>
+<li>Each View has a <a href="../classes/_xeokit_viewer.ViewObject.html">ViewObject</a> for each of the <a href="../classes/_xeokit_scene.SceneObject.html">SceneObjects</a> in the Scene, which represnts and controls that
+SceneObject&#39;s appearance in the View&#39;s canvas.
+The View creates and destroys its ViewObjects automatically, in order to proxy the SceneObjects.</li>
+<li>Each View also has it&#39;s own <a href="../classes/_xeokit_viewer.Camera.html">Camera</a>, <a href="../classes/_xeokit_viewer.DirLight.html">Lights</a> and <a href="../classes/_xeokit_viewer.SectionPlane.html">SectionPlanes</a>.</li>
+<li>Each View can optionally organize its ViewObjects into <a href="../classes/_xeokit_viewer.ViewLayer.html">ViewLayers</a>. These allow us to partition our ViewObjects into
+different <em>bins</em> depending on what they represent in the View, and then conveniently focus our updates (toggle visibility, select, highlight, slice etc.)
+eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer&#39;s <a href="/docs/pages/GLOSSARY.html#pbr">phycially-based</a>
+quality rendering mode. This allows us to disable wasteful quality rendering for objects that are not supposed to appear realistic, such as grids and other 3D helper objects.</li>
 </ul>
-<p><a href="https://mermaid.live/edit#pako:eNp9VU1v2zAM_SuGTtvQFNvVCHJpgV1crEiw7eILLbOJVln2JDtb2vW_j_py5NhpLqb5Hqkn5kl-ZbytkeWMSzDmXsBeQ1OqWmjkvWhVVmxL5bDsh8A_qLPXUmX0ky0HiTvUR8HRpwxHFcIjcY0PNaoaNWr_xjVCj7bVh4-lekt7x84c1BFCcVv9Ih0mAg1qCMuL_SHmjZf6KEFhSEk4oTbpkoXN2DXPqV1SN0UK230m0LWIKkW9oPD3AFL0p63b8kX1N0e8LD8KIyoZB4iSKBigA4lw24yJv5oEhJi3stXiJRRyKboOxj6d4M_nN4CqSrTcuSlGHXjCLP6h7bOPhi6hp0OKRV1rslBFRskS9r3QbnaRaeFIdZKzlL0N1nDs9Roq02vg_WaTcH5i9bWYEBOwSE0Y12zQGNiPTnAUVzNuyfp0ZJP95aLbnBMeLDyaQyLoiS1cK8d51xe-l3dAbFYNQtbxpUbaenua9567hnB_Ekv2pWSr1cY9t-MpWwCL6VldYLi1cvKpsQ5-scNzqTPpUyB5QVdhN4uA-vhqh0sZhNuUB2bptCrEFppswOdz8lWn0aCy419s5k6yx3zIPt_evrPgZFZ34RqadY7mX4DSU1Sq0c7rf6vVhcPzTDSdxMarnzMfv1-hshtGuhoQNd3mzi8l6w-EliynsMYnGCQNjRxEVBj6dndSnOW9HvCGDV1NDg33P8ufQBrKYi36Vj-EL4R9vP0HhNkRFw"><img src="https://mermaid.ink/img/pako:eNp9VU1v2zAM_SuGTtvQFNvVCHJpgV1crEiw7eILLbOJVln2JDtb2vW_j_py5NhpLqb5Hqkn5kl-ZbytkeWMSzDmXsBeQ1OqWmjkvWhVVmxL5bDsh8A_qLPXUmX0ky0HiTvUR8HRpwxHFcIjcY0PNaoaNWr_xjVCj7bVh4-lekt7x84c1BFCcVv9Ih0mAg1qCMuL_SHmjZf6KEFhSEk4oTbpkoXN2DXPqV1SN0UK230m0LWIKkW9oPD3AFL0p63b8kX1N0e8LD8KIyoZB4iSKBigA4lw24yJv5oEhJi3stXiJRRyKboOxj6d4M_nN4CqSrTcuSlGHXjCLP6h7bOPhi6hp0OKRV1rslBFRskS9r3QbnaRaeFIdZKzlL0N1nDs9Roq02vg_WaTcH5i9bWYEBOwSE0Y12zQGNiPTnAUVzNuyfp0ZJP95aLbnBMeLDyaQyLoiS1cK8d51xe-l3dAbFYNQtbxpUbaenua9567hnB_Ekv2pWSr1cY9t-MpWwCL6VldYLi1cvKpsQ5-scNzqTPpUyB5QVdhN4uA-vhqh0sZhNuUB2bptCrEFppswOdz8lWn0aCy419s5k6yx3zIPt_evrPgZFZ34RqadY7mX4DSU1Sq0c7rf6vVhcPzTDSdxMarnzMfv1-hshtGuhoQNd3mzi8l6w-EliynsMYnGCQNjRxEVBj6dndSnOW9HvCGDV1NDg33P8ufQBrKYi36Vj-EL4R9vP0HhNkRFw?type=png" alt=""></a></p>
+<br>
+
+<p><a href="https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBp7aIg-YqGL44QHqwEcPu48ILRW1iJhSpkpQbN82_l-9QtlzUF1E7s7PL9ZB6RVS2gGpEOdH6lpFHRTosWqaAGiZFtdpi4bHqO4NfoKpXLKrwUyBaUKBCQFMQEJYHy9RhSRUQAy71w8cQweKtVEx6lIgDiUmyebLVkwLpQJGw5uxxn-I6NLjhREAMcXIENSq8cpFUOYR2Rd4YWTl1Fxo16CVSl6yd6PDnQDgzx60fx0n2vSeeph-YZg2HtBFuKRChvW3CbzMFXpRtIK6p5FKx3zGRctb3JOv0jD6_vxHSNEUvSz_F1AccoYojk_I5rIY-yij5FEZUpJdDSyK91FVUsXYp_9dbpvwsE9PBieq3MHLBNtrIs-dz0mijCDWLRcH5Ac3dakQs9zZoI7tN7juV7YhR7KXchbNoRq3v-aThvBnWDs7-4EDUyBleynP-aY2gFUyQxJqB8Ta9tGB3K4_n2ufGsTgW4RBidIPRbLbwz20-hhPgLpzK8MjApwiEIhdhv7-IhvVFhdPSFnehOl4Fbn0Ghtw6D-w95imjLUSuNUuvQIMwumKi-vJ1vco3x2QNf3rrdDHkCEafr6__o53RLJfxJjorlPxep_vpjFGeHyyiUKm9sf31jnSYxu-V2ctJ5NT9WORzMv8zm50cnbpiXc-hcxOcYm6-XaCW18hSCmva7Hx_33t_juDRjG_CjNEVsoyOsNZ-cnw6RmZva2BU22ULD2Tg9u-3apZKBiN3R0FRbdQAV2joW3ua4kcK1Q-EaxuFlhmp1vEz5h5vfwF9HEi3"><img src="https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBp7aIg-YqGL44QHqwEcPu48ILRW1iJhSpkpQbN82_l-9QtlzUF1E7s7PL9ZB6RVS2gGpEOdH6lpFHRTosWqaAGiZFtdpi4bHqO4NfoKpXLKrwUyBaUKBCQFMQEJYHy9RhSRUQAy71w8cQweKtVEx6lIgDiUmyebLVkwLpQJGw5uxxn-I6NLjhREAMcXIENSq8cpFUOYR2Rd4YWTl1Fxo16CVSl6yd6PDnQDgzx60fx0n2vSeeph-YZg2HtBFuKRChvW3CbzMFXpRtIK6p5FKx3zGRctb3JOv0jD6_vxHSNEUvSz_F1AccoYojk_I5rIY-yij5FEZUpJdDSyK91FVUsXYp_9dbpvwsE9PBieq3MHLBNtrIs-dz0mijCDWLRcH5Ac3dakQs9zZoI7tN7juV7YhR7KXchbNoRq3v-aThvBnWDs7-4EDUyBleynP-aY2gFUyQxJqB8Ta9tGB3K4_n2ufGsTgW4RBidIPRbLbwz20-hhPgLpzK8MjApwiEIhdhv7-IhvVFhdPSFnehOl4Fbn0Ghtw6D-w95imjLUSuNUuvQIMwumKi-vJ1vco3x2QNf3rrdDHkCEafr6__o53RLJfxJjorlPxep_vpjFGeHyyiUKm9sf31jnSYxu-V2ctJ5NT9WORzMv8zm50cnbpiXc-hcxOcYm6-XaCW18hSCmva7Hx_33t_juDRjG_CjNEVsoyOsNZ-cnw6RmZva2BU22ULD2Tg9u-3apZKBiN3R0FRbdQAV2joW3ua4kcK1Q-EaxuFlhmp1vEz5h5vfwF9HEi3?type=png" alt=""></a></p>
 
 <a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
   <h2>Installation</h2>
@@ -63,14 +71,19 @@
 <a href="#creating-a-viewer" id="creating-a-viewer" style="color: inherit; text-decoration: none;">
   <h3>Creating a Viewer</h3>
 </a>
-<p> We&#39;ll start by importing the modules we need:</p>
-<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Scene</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/scene&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">WebGLRenderer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/webglrenderer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">TrianglesPrimitive</span><span class="hl-0">, </span><span class="hl-3">LinearEncoding</span><span class="hl-0">, </span><span class="hl-3">LinearFilter</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/core/constants&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">CameraControl</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/cameracontrol&quot;</span><span class="hl-0">;</span><br/>
+<p>Install these NPM modules:</p>
+<pre><code class="language-bash"><span class="hl-0">npm </span><span class="hl-1">install</span><span class="hl-0"> </span><span class="hl-1">@xeokit/scene</span><br/><span class="hl-0">npm </span><span class="hl-1">install</span><span class="hl-0"> </span><span class="hl-1">@xeokit/viewer</span><br/><span class="hl-0">npm </span><span class="hl-1">install</span><span class="hl-0"> </span><span class="hl-1">@xeokit/ktx2</span><br/><span class="hl-0">npm </span><span class="hl-1">install</span><span class="hl-0"> </span><span class="hl-1">@xeokit/webglrenderer</span><br/><span class="hl-0">npm </span><span class="hl-1">install</span><span class="hl-0"> </span><span class="hl-1">@xeokit/core/constants</span><br/><span class="hl-0">npm </span><span class="hl-1">install</span><span class="hl-0"> </span><span class="hl-1">@xeokit/cameracontrol</span>
 </code></pre>
-<p>Create a <a href="../classes/_xeokit_scene.Scene.html">Scene</a> to hold our model representations:</p>
+<p> In our JavaScript, import the modules:</p>
+<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Scene</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/scene&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">WebGLRenderer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/webglrenderer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">KTX2TextureTranscoder</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/ktx2&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">TrianglesPrimitive</span><span class="hl-0">, </span><span class="hl-3">LinearEncoding</span><span class="hl-0">, </span><span class="hl-3">LinearFilter</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/core/constants&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">CameraControl</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/cameracontrol&quot;</span><span class="hl-0">;</span>
+</code></pre>
+<p>Create a <a href="../classes/_xeokit_scene.Scene.html">Scene</a> to hold our scene graph:</p>
 <pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">scene</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Scene</span><span class="hl-0">();</span>
 </code></pre>
-<p>Create a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a> to view our Scene, configured with
-a <a href="../classes/_xeokit_webglrenderer.WebGLRenderer.html">WebGLRenderer</a>:</p>
+<p>Create a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a> to view our Scene.</p>
+<p>We&#39;ll configured it with
+a <a href="../classes/_xeokit_webglrenderer.WebGLRenderer.html">WebGLRenderer</a>, which will adapt the Viewer to use the browser&#39;s WebGL graphics API.
+We&#39;ll also equip our WebGLRenderer with a <a href="../classes/_xeokit_ktx2.KTX2TextureTranscoder.html">KTX2TextureTranscoder</a> so we that we can view compressed textures.</p>
 <pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">scene</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">WebGLRenderer</span><span class="hl-0">({</span><br/><span class="hl-0">         </span><span class="hl-3">textureTranscoder:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">KTX2TextureTranscoder</span><span class="hl-0">({  </span><span class="hl-7">// Optional, this is the default</span><br/><span class="hl-0">             </span><span class="hl-3">transcoderPath:</span><span class="hl-0"> </span><span class="hl-1">&quot;./../dist/basis/&quot;</span><span class="hl-0"> </span><span class="hl-7">// Optional, defaults to CDN</span><br/><span class="hl-0">         })</span><br/><span class="hl-0">     })</span><br/><span class="hl-0">});</span>
 </code></pre>
 
@@ -171,7 +184,7 @@ whenever we load a BCF viewpoint.</p>
 </code></pre>
 </div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/5b49030c/packages/viewer/src/index.ts#L295">viewer/src/index.ts:295</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/99413c7b/packages/viewer/src/index.ts#L315">viewer/src/index.ts:315</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"></section></section>
 <section class="tsd-panel-group tsd-index-group">

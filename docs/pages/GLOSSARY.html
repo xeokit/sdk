@@ -157,12 +157,65 @@ that generates the final texture or terrain.</p>
 
 <hr>
 
+<a href="#e" id="e" style="color: inherit; text-decoration: none;">
+  <h1>E</h1>
+</a>
+<hr>
+<br>
+
+
+<a href="#error-objects" id="error-objects" style="color: inherit; text-decoration: none;">
+  <h2>Error Objects</h2>
+</a>
+<p><strong>Returning an error object from a TypeScript function instead of throwing an exception</strong> allows the function to gracefully handle errors and communicate
+them to the calling code without disrupting the program&#39;s flow. This approach enables the calling code to handle the error more effectively and to
+make informed decisions about how to proceed. By using error objects, developers can also include additional information about the error, such as
+error codes, error messages, and error contexts. Additionally, this approach can make the code more testable and easier to reason about since it
+doesn&#39;t rely on exceptions that can&#39;t be easily caught and mocked during unit testing.</p>
+<p>Instead of throwing exceptions, xeokit SDK functions and methods usually return an Error object. This
+enables TypeScript to insist that we check for error in returned results.</p>
+<p>For example:</p>
+<pre><code class="language-javascript"><span class="hl-4">function</span><span class="hl-0"> </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">() : </span><span class="hl-9">Error</span><span class="hl-0"> | </span><span class="hl-9">number</span><span class="hl-0"> {</span><br/><span class="hl-0">  </span><span class="hl-7">// ...</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">riskyNumber</span><span class="hl-0"> = </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">();</span><br/><br/><span class="hl-7">// Compiler error because you can&#39;t add an Error and a number</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">badComputedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-8">2</span><span class="hl-0">;</span><br/><br/><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-4">typeof</span><span class="hl-0"> </span><span class="hl-3">riskyNumber</span><span class="hl-0"> !== </span><span class="hl-3">Error</span><span class="hl-0">) {</span><br/><span class="hl-0">    </span><span class="hl-7">// This is ok as we&#39;ve guarded against the error case</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">computedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-8">2</span><span class="hl-0">;</span><br/><span class="hl-0">}</span>
+</code></pre>
+<blockquote>
+<p><em>See <a href="https://dev.to/supermetrics/simple-and-maintainable-error-handling-in-typescript-56lm">Simple and Maintainable Error Handling in TypeScript</a></em></p>
+</blockquote>
+<br>
+
+<hr>
+
 <a href="#g" id="g" style="color: inherit; text-decoration: none;">
   <h1>G</h1>
 </a>
 <hr>
 <br>
 
+
+<a href="#geometry-bucketing" id="geometry-bucketing" style="color: inherit; text-decoration: none;">
+  <h2>Geometry Bucketing</h2>
+</a>
+<p>TODO</p>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html">@xeokit/math/compression</a></em></p>
+</blockquote>
+<br>
+
+
+<a href="#geometry-quantization" id="geometry-quantization" style="color: inherit; text-decoration: none;">
+  <h2>Geometry Quantization</h2>
+</a>
+<p><strong>Geometry quantization</strong> is a process of reducing the precision or number of distinct values of geometry, while still
+retaining the most important information. This is done by mapping the original values of a signal to a smaller set
+of discrete values.</p>
+<p>Quantization is commonly used in digital signal processing, image and video compression, and data compression. For
+example, in image and video compression, quantization is used to reduce the number of bits required to represent
+an image or video frame.</p>
+<p>We use quantization as part of the way we compress geometry in xeokit. Specifically, we use it to store
+32-bit and 64-bit floating point coordinate values as 16-bit integers, which we then decompress dynamically on the
+GPU using a special de-quantization matrix.</p>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html">@xeokit/math/compression</a></em></p>
+</blockquote>
 <br>
 
 <hr>
@@ -177,7 +230,7 @@ that generates the final texture or terrain.</p>
 <a href="#ktx2" id="ktx2" style="color: inherit; text-decoration: none;">
   <h2>KTX2</h2>
 </a>
-<p>KTX2 (Khronos Texture 2) is a texture container format developed by the Khronos Group, a non-profit consortium of 
+<p><strong>KTX2 (Khronos Texture 2)</strong> is a texture container format developed by the Khronos Group, a non-profit consortium of 
 companies focused on the creation of open standards for graphics, media, and parallel computing.</p>
 <p>KTX2 is designed to be a more efficient replacement for the original KTX format, with better compression and faster 
 loading times. It supports a wide range of texture formats, including compressed, uncompressed, and block-compressed 
@@ -290,32 +343,6 @@ quality previews that give a better idea of what models look like in real life.<
 <li><em><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html">@xeokit/xkt</a> - loads and saves XKT files, which have PBR materials</em></li>
 <li><em><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html">@xeokit/gltf</a> - loads glTF with PBR materials into xeokit&#39;s scene representation</em></li>
 </ul>
-</blockquote>
-<br>
-
-<hr>
-
-<a href="#q" id="q" style="color: inherit; text-decoration: none;">
-  <h1>Q</h1>
-</a>
-<hr>
-<br>
-
-
-<a href="#quantization" id="quantization" style="color: inherit; text-decoration: none;">
-  <h2>Quantization</h2>
-</a>
-<p><strong>Quantization</strong> is a process of reducing the precision or number of distinct values of a data signal, while still 
-retaining the most important information. This is done by mapping the original values of a signal to a smaller set 
-of discrete values.</p>
-<p>Quantization is commonly used in digital signal processing, image and video compression, and data compression. For 
-example, in image and video compression, quantization is used to reduce the number of bits required to represent 
-an image or video frame.</p>
-<p>We use quantization as part of the way we compress geometry in xeokit. Specifically, we use it to store 
-32-bit and 64-bit floating point coordinate values as 16-bit integers, which we then decompress dynamically on the 
-GPU using a special de-quantization matrix.</p>
-<blockquote>
-<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html">@xeokit/math/compression</a></em></p>
 </blockquote>
 <br>
 
@@ -471,6 +498,17 @@ should use interfaces or abstract classes to decouple the implementation details
 </ol>
 <p>These principles are considered best practices in software development, and following them can result in code that is 
 easier to understand, maintain, and scale over time.</p>
+<br>
+
+
+<a href="#strongly-typed-events" id="strongly-typed-events" style="color: inherit; text-decoration: none;">
+  <h2>Strongly Typed Events</h2>
+</a>
+<p><strong>Strongly typed events</strong> in TypeScript refer to an approach of defining and handling events in a way that leverages the language&#39;s type system
+to ensure type safety and better code maintainability. In this approach, events are defined as classes with specific properties and methods,
+and event handlers are defined as functions that take the event object as an argument. By using this approach, developers can ensure that event
+handlers receive the correct event object with the appropriate properties and types, and they can also easily add, remove, or modify event
+handlers. Additionally, this approach allows for better code documentation and IntelliSense support in code editors.</p>
 <br>
 
 <hr>

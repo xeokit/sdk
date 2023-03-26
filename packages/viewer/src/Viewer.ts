@@ -1,5 +1,5 @@
 import {apply, createUUID, inQuotes} from "@xeokit/core/utils";
-import {Capabilities, Component, EventEmitter} from "@xeokit/core/components";
+import {Capabilities, Component, EventEmitter, SDKError} from "@xeokit/core/components";
 import {EventDispatcher} from "strongly-typed-events";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {Scene} from "@xeokit/scene";
@@ -160,30 +160,36 @@ export class Viewer extends Component {
      *      canvasId: "myView1"
      *  });
      *
-     * view1.camera.eye = [-3.933, 2.855, 27.018];
-     * view1.camera.look = [4.400, 3.724, 8.899];
-     * view1.camera.up = [-0.018, 0.999, 0.039];
+     * if (view1 instanceof SDKError) {
+     *      console.log(view1.message);
+     * } else {
+     *      view1.camera.eye = [-3.933, 2.855, 27.018];
+     *      view1.camera.look = [4.400, 3.724, 8.899];
+     *      view1.camera.up = [-0.018, 0.999, 0.039];
      *
-     * //...
+     *      //...
+     * }
      * ````
      *
      * @param params View configuration.
-     * @throws {@link Error}
+     * @returns *{@link View}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If View already exists with the given ID.
      * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
      */
-    createView(params: ViewParams): View {
+    createView(params: ViewParams): View | SDKError {
         if (this.viewList.length >= this.capabilities.maxViews) {
-            throw new Error(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
+            return new SDKError(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
         }
         let viewId = params.id || createUUID();
         if (this.views[viewId]) {
-            throw new Error(`View with ID "${viewId}" already exists`);
+            return new SDKError(`View with ID "${viewId}" already exists`);
         }
         // @ts-ignore
         const canvasElement = params.canvasElement || document.getElementById(params.canvasId);
         if (!(canvasElement instanceof HTMLCanvasElement)) {
-            throw new Error("Mandatory View config expected: valid canvasId or canvasElement");
+            return new SDKError("Mandatory View config expected: valid canvasId or canvasElement");
         }
         const view = new View(apply({viewId, viewer: this}, params));
         this.#registerView(view);

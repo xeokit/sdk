@@ -17,10 +17,10 @@ import {packXKT} from "./packXKT";
  * @param params.model - The SceneModel to export to XKT.
  * @param params.dataModel - The DataModel to export to XKT.
  * @returns The XKT file data in an ArrayBuffer.
- * @throws {@link Error} If the SceneModel has already been destroyed.
- * @throws {@link Error} If the SceneModel has not yet been built.
- * @throws {@link Error} If the DataModel has already been destroyed.
- * @throws {@link Error} If the DataModel has not yet been built.
+ * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been destroyed.
+ * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has not yet been built.
+ * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been destroyed.
+ * @returns {@link @xeokit/core/components!SDKError} If the DataModel has not yet been built.
  */
 export function saveXKT(params: {
     sceneModel?: SceneModel,

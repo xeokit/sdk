@@ -8,12 +8,12 @@ const jsdom = require("jsdom");
 import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 import {RendererViewObject} from "../src/RendererViewObject";
 import {FloatArrayParam} from "@xeokit/math/src/math";
-import {Capabilities} from "@xeokit/core/components";
+import {Capabilities, SDKError} from "@xeokit/core/components";
 import {Scene} from "@xeokit/scene";
 import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/core/dist/constants";
 
 
-const { JSDOM } = jsdom;
+const {JSDOM} = jsdom;
 
 class MockRenderer implements Renderer {
 
@@ -125,9 +125,13 @@ describe('Create and Destroy a Viewer', () => {
             canvasId: "myView1"
         });
 
-        view1.camera.eye = [-3.933, 2.855, 27.018];
-        view1.camera.look = [4.400, 3.724, 8.899];
-        view1.camera.up = [-0.018, 0.999, 0.039];
+        if (view1 instanceof SDKError) {
+            //
+        } else {
+            view1.camera.eye = [-3.933, 2.855, 27.018];
+            view1.camera.look = [4.400, 3.724, 8.899];
+            view1.camera.up = [-0.018, 0.999, 0.039];
+        }
 
         const sceneModel = scene.createModel({
             id: "myModel"

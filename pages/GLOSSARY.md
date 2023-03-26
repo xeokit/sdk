@@ -99,7 +99,7 @@ A {@link @xeokit/cameracontrol | CameraControl} is an SDK component that control
 
 ## DataModel
 
-A {@link @xeokit/data | DataModel} is a semantic entity-relationship graph that's used within the xeokit SDK to represent 
+A **[DataModel](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)** is a semantic entity-relationship graph that's used within the xeokit SDK to represent 
 the relationships between entities in a system or domain, where entities are represented as nodes and relationships are 
 represented as edges.
 
@@ -117,7 +117,7 @@ connected to a wall.
 
 ## Data Texture
 
-A data texture is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
+A **data texture** is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
 information. It can be thought of as a two-dimensional array of values, where each value represents some arbitrary data, 
 such as depth, density, temperature, or any other quantity that can be represented as a scalar value.
 
@@ -131,10 +131,90 @@ that generates the final texture or terrain.
 <br>
 
 ---
+# E
+---
+
+<br>
+
+## Error Objects
+
+**Returning an error object** from a TypeScript function instead of throwing an exception allows the function to gracefully handle errors and communicate
+them to the calling code without disrupting the program's flow. This approach enables the calling code to handle the error more effectively and to
+make informed decisions about how to proceed. By using error objects, developers can also include additional information about the error, such as
+error codes, error messages, and error contexts. Additionally, this approach can make the code more testable and easier to reason about since it
+doesn't rely on exceptions that can't be easily caught and mocked during unit testing.
+
+All xeokit functions and methods will return an [SDKError](https://xeokit.github.io/sdk/docs/classes/_xeokit_core_components.SDKError.html) object if something goes wrong. This
+enables TypeScript's static checking to insist that we check for the possibility of that SDKError before using any results.
+
+For example:
+
+````javascript
+function doSomethingRisky() : SDKError | number {
+  // ...
+}
+
+const riskyNumber = doSomethingRisky();
+
+// Compiler error because you can't add an Error and a number
+const badComputedValue = riskyNumber + 2;
+
+if (riskyNumber instanceof SDKError) {
+    console.error(riskyNumber.message);
+} else {
+    // This is ok as we've guarded against the error case
+    const computedValue = riskyNumber + 2;
+}
+````
+
+> *See [Simple and Maintainable Error Handling in TypeScript](https://dev.to/supermetrics/simple-and-maintainable-error-handling-in-typescript-56lm)*
+
+<br>
+
+---
+# F
+---
+
+<br>
+
+## Federated Models
+
+TODO
+
+> *See: [@xeokit/data](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)*
+
+<br>
+
+---
 # G
 ---
 
 <br>
+
+## Geometry Bucketing
+
+TODO
+
+> *See: [@xeokit/math/compression](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)*
+
+
+<br>
+
+## Geometry Quantization
+
+**Geometry quantization** is a process of reducing the precision of geometry values, while still
+retaining the most important information. This is done by mapping the original values of a value to a smaller set
+of discrete values.
+
+Quantization is commonly used in digital signal processing, image and video compression, and data compression. For
+example, in image and video compression, quantization is used to reduce the number of bits required to represent
+an image or video frame.
+
+We use quantization as part of the way we compress geometry in the xeokit SDK. Specifically, we use it to store
+32-bit and 64-bit floating point coordinate values as 16-bit integers, which we then decompress dynamically on the
+GPU using a de-quantization transform matrix.
+
+> *See: [@xeokit/math/compression](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)*
 
 <br>
 
@@ -146,7 +226,7 @@ that generates the final texture or terrain.
 
 ## KTX2
 
-KTX2 (Khronos Texture 2) is a texture container format developed by the Khronos Group, a non-profit consortium of 
+**KTX2 (Khronos Texture 2)** is a texture container format developed by the Khronos Group, a non-profit consortium of 
 companies focused on the creation of open standards for graphics, media, and parallel computing.
 
 KTX2 is designed to be a more efficient replacement for the original KTX format, with better compression and faster 
@@ -260,30 +340,6 @@ The xeokit {@link Viewer} uses a *metallic-roughness* PBR shading model that has
 <br>
 
 ---
-# Q
----
-
-<br>
-
-## Quantization
-
-**Quantization** is a process of reducing the precision or number of distinct values of a data signal, while still 
-retaining the most important information. This is done by mapping the original values of a signal to a smaller set 
-of discrete values.
-
-Quantization is commonly used in digital signal processing, image and video compression, and data compression. For 
-example, in image and video compression, quantization is used to reduce the number of bits required to represent 
-an image or video frame.
-
-We use quantization as part of the way we compress geometry in xeokit. Specifically, we use it to store 
-32-bit and 64-bit floating point coordinate values as 16-bit integers, which we then decompress dynamically on the 
-GPU using a special de-quantization matrix.
-
-> *See: [@xeokit/math/compression](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)*
-
-<br>
-
----
 # R
 ---
 
@@ -327,37 +383,19 @@ need 64 bits of storage, RTC coordinates only need 16 bits.
 
 ## Scene
 
-<table style="vertical-align:top; border: 0;"><tr><td>
-A **Scene** is a Viewer-agnostic container of **SceneModels** and **SceneObjects**, which define the geometric and material 
-representations of our models. 
-
-Note that a Scene contains the *contents* of the models, while a **View** controls the
-way that content is rendered in the canvas, eg. object visibilities, opacities, emphasis etc. This is how xeokit implements
-[*model-view separation*](#model-view-separation).
-
-There are three cases for which we typically use a Scene:
-
-1. Programmatically build models within a Scene and then use {@link @xeokit/xkt!saveXKT | saveXKT} to save the Scene to an XKT file.
-2. Use a Scene as an intermediate model when converting from some source file format to xeokit's native XKT format. We might load a
-   glTF file into our Scene using {@link @xeokit/gltf?loadGLTF | loadGLTF}, then serialize the Scene to XKT
-   using {@link @xeokit/xkt!saveXKT | saveXKT}.
-3. Use a Scene to provide content for a Viewer. We might load a file into the Scene, or programmatically build it, then
-   attach the Scene to a Viewer to view it.
-
-We can use a Scene in NodeJS scripts (*Cases 1 and 2*) and in the Browser (*Case 3*).
+The xeokit SDK manages model representations in a scene graph that contains the model's objects, geometries and materials. The scene
+graph works in both the browser and in NodeJS, and can be used to generate models, convert between model formats, and provide
+content for the SDK's model viewer.
 
 > *See: [@xeokit/scene](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)*
-
-</td><td style="width:250px">
-<img src="https://xeokit.github.io/sdk/assets/images/xeokit_docmodel_icon.png">
-</td>
-</table>
 
 <br>
 
 ## SceneModel
 
-A **SceneModel** represents a model within a **Scene**.
+A **[SceneModel](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)** represents a model within a **Scene**.
+
+TODO
 
 > *See: [@xeokit/scene](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)*
 
@@ -420,6 +458,16 @@ should use interfaces or abstract classes to decouple the implementation details
 
 These principles are considered best practices in software development, and following them can result in code that is 
 easier to understand, maintain, and scale over time.
+
+<br>
+
+## Strongly Typed Events
+
+**Strongly typed events** in TypeScript refer to an approach of defining and handling events in a way that leverages the language's type system
+to ensure type safety and better code maintainability. In this approach, events are defined as classes with specific properties and methods,
+and event handlers are defined as functions that take the event object as an argument. By using this approach, developers can ensure that event
+handlers receive the correct event object with the appropriate properties and types, and they can also easily add, remove, or modify event
+handlers. Additionally, this approach allows for better code documentation and IntelliSense support in code editors.
 
 <br>
 

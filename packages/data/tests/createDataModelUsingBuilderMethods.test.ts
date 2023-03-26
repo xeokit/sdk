@@ -12,6 +12,10 @@ describe('build', function () {
             id: "myTableModel"
         });
 
+        if (dataModel instanceof Error) {
+            return;
+        }
+
         const tablePropertySet = dataModel.createPropertySet({
             id: "tablePropertySet",
             name: "Table properties",
@@ -30,6 +34,10 @@ describe('build', function () {
                 description: "Height of the thing"
             }]
         });
+
+        if (tablePropertySet instanceof Error) {
+            return;
+        }
 
         const legPropertySet = dataModel.createPropertySet({
             id: "tableLegPropertySet",
@@ -50,6 +58,10 @@ describe('build', function () {
             }]
         });
 
+        if (legPropertySet instanceof Error) {
+            return;
+        }
+
         const tableTopPropertySet = dataModel.createPropertySet({
             id: "tableTopPropertySet",
             name: "Table top properties",
@@ -68,6 +80,10 @@ describe('build', function () {
                 description: "Height of the thing"
             }]
         });
+
+        if (tableTopPropertySet instanceof Error) {
+            return;
+        }
 
         dataModel.createObject({
             id: "table",

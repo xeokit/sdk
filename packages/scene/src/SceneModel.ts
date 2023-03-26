@@ -1,7 +1,7 @@
 import {KTX2BasisWriter} from "@loaders.gl/textures";
 import {ImageLoader} from '@loaders.gl/images';
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter, SDKError} from "@xeokit/core/components";
 import {
     LinesPrimitive,
     PointsPrimitive,
@@ -236,17 +236,19 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for usage.
      *
      * @param sceneModelParams
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this SceneModel has already been built.
      * * If this SceneModel has already been destroyed.
      * * A duplicate component ({@link SceneObject}, {@link Mesh}, {@link Geometry}, {@link Texture} etc.) was already created within this SceneModel.
      */
-    fromJSON(sceneModelParams: SceneModelParams) {
+    fromJSON(sceneModelParams: SceneModelParams): void | SDKError  {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to add components to SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
+            return new SDKError("Failed to add components to SceneModel - SceneModel already built");
         }
         if (sceneModelParams.geometries) {
             for (let i = 0, len = sceneModelParams.geometries.length; i < len; i++) {
@@ -294,15 +296,17 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param transformParams Transform creation parameters.
-     * @throws {@link Error}
+     * @returns *{Transform}*
+     * * On success
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If SceneModel has already been built or destroyed.
      */
-    createTransform(transformParams: TransformParams): void {
+    createTransform(transformParams: TransformParams): void | SDKError {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to create Transform in SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
+            return new SDKError("Failed to create Transform in SceneModel - SceneModel already built");
         }
         //...
     }
@@ -337,29 +341,25 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param textureParams - Texture creation parameters.
-     * @throws {@link Error}
+     * @returns *{@link Texture}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * Invalid TextureParams were given.
      * * Texture with given ID already exists in this Scene.
      */
-    createTexture(textureParams: TextureParams): Texture {
+    createTexture(textureParams: TextureParams): Texture | SDKError {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to create Texture in SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
-        }
-        if (!textureParams) {
-            throw new Error("Parameters expected: textureParams");
-        }
-        if (textureParams.id === null || textureParams.id === undefined) {
-            throw new Error("Parameter expected: textureParams.id");
+            return new SDKError("Failed to create Texture in SceneModel - SceneModel already built");
         }
         if (!textureParams.imageData && !textureParams.src && !textureParams.buffers) {
-            throw new Error("Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers");
+            return new SDKError("Failed to create Texture in SceneModel - Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers");
         }
         if (this.textures[textureParams.id]) {
-            throw new Error(`Texture already exists with this ID: ${textureParams.id}`);
+            return new SDKError(`Failed to create Texture in SceneModel - Texture already exists with this ID: ${textureParams.id}`);
         }
         if (textureParams.src) {
             const fileExt = textureParams.src.split('.').pop();
@@ -394,33 +394,29 @@ export class SceneModel extends Component {
      *
      * @param textureSetParams TextureSet creation parameters.
      *
-     * @throws {@link Error}
+     * @returns *{@link TextureSet}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * Invalid TextureSetParams were given.
      * * TextureSet with given ID already exists in this SceneModel.
      * * One or more of the given Textures could not be found in this SceneModel.
      */
-    createTextureSet(textureSetParams: TextureSetParams): TextureSet {
+    createTextureSet(textureSetParams: TextureSetParams): TextureSet | SDKError {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to create TextureSet in SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
-        }
-        if (!textureSetParams) {
-            throw new Error("Parameters expected: textureSetParams");
-        }
-        if (textureSetParams.id === null || textureSetParams.id === undefined) {
-            throw new Error("Parameter expected: textureSetParams.id");
+            return new SDKError("Failed to create TextureSet in SceneModel - SceneModel already built");
         }
         if (this.textureSets[textureSetParams.id]) {
-            throw new Error(`TextureSet already exists with this ID: ${textureSetParams.id}`);
+            return new SDKError(`Failed to create TextureSet in SceneModel - TextureSet already exists with this ID: ${textureSetParams.id}`);
         }
         let colorTexture;
         if (textureSetParams.colorTextureId !== undefined && textureSetParams.colorTextureId !== null) {
             colorTexture = this.textures[textureSetParams.colorTextureId];
             if (!colorTexture) {
-                throw new Error(`Texture not found: ${textureSetParams.colorTextureId} - ensure that you create it first with createTexture()`);
+                return new SDKError(`Failed to create TextureSet in SceneModel - Texture not found: ${textureSetParams.colorTextureId} - ensure that you create it first with createTexture()`);
             }
             colorTexture.channel = COLOR_TEXTURE;
         }
@@ -428,7 +424,7 @@ export class SceneModel extends Component {
         if (textureSetParams.metallicRoughnessTextureId !== undefined && textureSetParams.metallicRoughnessTextureId !== null) {
             metallicRoughnessTexture = this.textures[textureSetParams.metallicRoughnessTextureId];
             if (!metallicRoughnessTexture) {
-                throw new Error(`Texture not found: ${textureSetParams.metallicRoughnessTextureId} - ensure that you create it first with createTexture()`);
+                return new SDKError(`Failed to create TextureSet in SceneModel - Texture not found: ${textureSetParams.metallicRoughnessTextureId} - ensure that you create it first with createTexture()`);
             }
             metallicRoughnessTexture.channel = METALLIC_ROUGHNESS_TEXTURE;
         }
@@ -436,7 +432,7 @@ export class SceneModel extends Component {
         if (textureSetParams.normalsTextureId !== undefined && textureSetParams.normalsTextureId !== null) {
             normalsTexture = this.textures[textureSetParams.normalsTextureId];
             if (!normalsTexture) {
-                throw new Error(`Texture not found: ${textureSetParams.normalsTextureId} - ensure that you create it first with createTexture()`);
+                return new SDKError(`Failed to create TextureSet in SceneModel - Texture not found: ${textureSetParams.normalsTextureId} - ensure that you create it first with createTexture()`);
             }
             normalsTexture.channel = NORMALS_TEXTURE;
         }
@@ -444,7 +440,7 @@ export class SceneModel extends Component {
         if (textureSetParams.emissiveTextureId !== undefined && textureSetParams.emissiveTextureId !== null) {
             emissiveTexture = this.textures[textureSetParams.emissiveTextureId];
             if (!emissiveTexture) {
-                throw new Error(`Texture not found: ${textureSetParams.emissiveTextureId} - ensure that you create it first with createTexture()`);
+                return new SDKError(`Failed to create TextureSet in SceneModel - Texture not found: ${textureSetParams.emissiveTextureId} - ensure that you create it first with createTexture()`);
             }
             emissiveTexture.channel = EMISSIVE_TEXTURE;
         }
@@ -452,7 +448,7 @@ export class SceneModel extends Component {
         if (textureSetParams.occlusionTextureId !== undefined && textureSetParams.occlusionTextureId !== null) {
             occlusionTexture = this.textures[textureSetParams.occlusionTextureId];
             if (!occlusionTexture) {
-                throw new Error(`Texture not found: ${textureSetParams.occlusionTextureId} - ensure that you create it first with createTexture()`);
+                return new SDKError(`Failed to create TextureSet in SceneModel - Texture not found: ${textureSetParams.occlusionTextureId} - ensure that you create it first with createTexture()`);
             }
             occlusionTexture.channel = OCCLUSION_TEXTURE;
         }
@@ -491,13 +487,19 @@ export class SceneModel extends Component {
      *      ]
      *  });
      *
-     * const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
+     * if (boxGeometry instanceof SDKError) {
+     *     console.log(boxGeometry.message);
+     * } else {
+     *      const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
+     * }
      * ````
      *
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param geometryParams Non-compressed geometry parameters.
-     * @throws {@link Error}
+     * @returns *{Geometry}*
+     *  * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid GeometryParams were given.
@@ -508,38 +510,37 @@ export class SceneModel extends Component {
      * * Indices out of range of vertex positions.
      * * Indices out of range of vertex UVs.
      * * Mismatch between given quantities of vertex positions and UVs.
-     * @returns {Geometry} The new Geometry.
      */
-    createGeometry(geometryParams: GeometryParams): Geometry {
+    createGeometry(geometryParams: GeometryParams): Geometry | SDKError {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to create Geometry in SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
+            return new SDKError("Failed to create Geometry in SceneModel - SceneModel already built");
         }
         if (!geometryParams) {
-            throw new Error("Parameters expected: geometryParams");
+            return new SDKError("Failed to create Geometry in SceneModel - Parameters expected: geometryParams");
         }
         if (geometryParams.id === null || geometryParams.id === undefined) {
-            throw new Error("Parameter expected: geometryParams.id");
+            return new SDKError("Failed to create Geometry in SceneModel - Parameter expected: geometryParams.id");
         }
         const geometryId = geometryParams.id;
         if (this.geometries[geometryId]) {
-            throw new Error(`Geometry with this ID already created: ${geometryId}`);
+            return new SDKError(`Failed to create Geometry in SceneModel - Geometry with this ID already created: ${geometryId}`);
         }
         const primitive = geometryParams.primitive;
         if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
-            throw new Error(`Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
+            return new SDKError(`Failed to create Geometry in SceneModel - Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
         }
         if (!geometryParams.positions) {
-            throw new Error("Param expected: geometryParams.positions");
+            return new SDKError("Failed to create Geometry in SceneModel - Param expected: geometryParams.positions");
         }
         if (!geometryParams.indices && primitive !== PointsPrimitive) {
-            throw new Error(`Param expected: geometryParams.indices (required for primitive type)`);
+            return new SDKError(`Failed to create Geometry in SceneModel - Param expected: geometryParams.indices (required for primitive type)`);
         }
         if (geometryParams.uvs) {
             if (geometryParams.uvs.length / 2 !== geometryParams.positions.length / 3) {
-                throw new Error("Mismatch between given quantities of vertex positions and UVs");
+                return new SDKError("Failed to create Geometry in SceneModel - mismatch between given quantities of vertex positions and UVs");
             }
         }
         if (geometryParams.indices) {
@@ -547,12 +548,12 @@ export class SceneModel extends Component {
             for (let i = 0, len = geometryParams.indices.length; i < len; i++) {
                 const idx = geometryParams.indices[i];
                 if (idx < 0 || idx >= lastPositionsIdx) {
-                    throw new Error("Indices out of range of vertex positions");
+                    return new SDKError("Failed to create Geometry in SceneModel - indices out of range of vertex positions");
                 }
                 if (geometryParams.uvs) {
                     const lastUVsIdx = geometryParams.uvs.length / 2;
                     if (idx < 0 || idx >= lastUVsIdx) {
-                        throw new Error("Indices out of range of vertex UVs");
+                        return new SDKError("Failed to create Geometry in SceneModel - indices out of range of vertex UVs");
                     }
                 }
             }
@@ -596,13 +597,19 @@ export class SceneModel extends Component {
      *      ]
      * });
      *
-     * const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
+     * if (boxGeometry instanceof SDKError) {
+     *     console.log(boxGeometry.message);
+     * } else {
+     *      const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
+     * }
      * ````
      *
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
-     * @throws {@link Error}
+     * @returns *{Geometry}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid GeometryParams were given.
@@ -613,28 +620,24 @@ export class SceneModel extends Component {
      * * Indices out of range of vertex positions.
      * * Indices out of range of vertex UVs.
      * * Mismatch between given quantities of vertex positions and UVs.
-     * @returns {Geometry} The new Geometry.
      */
-    createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): Geometry {
+    createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): Geometry | SDKError {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to add compressed Geometry to SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
+            return new SDKError("Failed to add compressed Geometry to SceneModel - SceneModel already built");
         }
         if (!geometryCompressedParams) {
-            throw new Error("Parameters expected: geometryCompressedParams");
-        }
-        if (geometryCompressedParams.id === null || geometryCompressedParams.id === undefined) {
-            throw new Error("Parameter expected: geometryCompressedParams.id");
+            return new SDKError("Failed to add compressed Geometry to SceneModel - Parameters expected: geometryCompressedParams");
         }
         const geometryId = geometryCompressedParams.id;
         if (this.geometries[geometryId]) {
-            throw new Error(`Geometry with this ID already created: ${geometryId}`);
+            return new SDKError(`Failed to add compressed Geometry to SceneModel - Geometry with this ID already created: ${geometryId}`);
         }
         const primitive = geometryCompressedParams.primitive;
         if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
-            throw new Error(`Unsupported value for geometryCompressedParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
+            return new SDKError(`Failed to add compressed Geometry to SceneModel - Unsupported value for geometryCompressedParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`);
         }
         const geometry = new Geometry(geometryCompressedParams);
         this.geometries[geometryId] = geometry;
@@ -660,44 +663,43 @@ export class SceneModel extends Component {
      *      color: [1, 0.3, 0.3]
      * });
      *
-     * const redBoxMeshAgain = sceneModel.meshes["redBoxMesh"];
+     * if (redBoxMesh instanceof SDKError) {
+     *      console.log(redBoxMesh.message);
+     * } else {
+     *      const redBoxMeshAgain = sceneModel.meshes["redBoxMesh"];
+     * }
      * ````
      *
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param meshParams Pre-compressed mesh parameters.
-     * @throws {@link Error}
+     * @returns *{Mesh}*
+     *  * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid MeshParams were given.
      * * Mesh of given ID already exists in this SceneModel.
      * * Specified Geometry could not be found in this SceneModel.
      * * Specified TextureSet could not be found in this SceneModel.
-     * @returns {Mesh} The new Mesh.
      */
-    createMesh(meshParams: MeshParams): Mesh {
+    createMesh(meshParams: MeshParams): Mesh | SDKError {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to create Mesh in SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
-        }
-        if (meshParams.id === null || meshParams.id === undefined) {
-            throw new Error("Parameter expected: meshParams.id");
-        }
-        if (meshParams.geometryId === null || meshParams.geometryId === undefined) {
-            throw new Error("Parameter expected: meshParams.geometryId");
+            return new SDKError("Failed to create Mesh in SceneModel - SceneModel already built");
         }
         if (this.meshes[meshParams.id]) {
-            throw new Error(`Mesh already exists with this ID: ${meshParams.id}`);
+            return new SDKError(`Failed to create Mesh in SceneModel - Mesh already exists with this ID: ${meshParams.id}`);
         }
         const geometry = this.geometries[meshParams.geometryId];
         if (!geometry) {
-            throw new Error(`Geometry not found: ${meshParams.geometryId}`);
+            return new SDKError(`Failed to create Mesh in SceneModel - Geometry not found: ${meshParams.geometryId}`);
         }
         const textureSet = meshParams.textureSetId ? this.textureSets[meshParams.textureSetId] : null;
         if (meshParams.textureSetId && !textureSet) {
-            throw new Error(`TextureSet not found: ${meshParams.textureSetId}`);
+            return new SDKError(`Failed to create Mesh in SceneModel - TextureSet not found: ${meshParams.textureSetId}`);
         }
 
         // geometry.numInstances++;
@@ -746,14 +748,20 @@ export class SceneModel extends Component {
      *     meshIds: ["redBoxMesh"]
      * });
      *
-     * const redBoxObjectAgain = sceneModel.objects["redBoxObject"];
-     * const redBoxObjectOnceMore = scene.objects["redBoxObject"];
+     * if (redBoxObject instanceof SDKError) {
+     *      console.log(redBoxObject.message);
+     * } else {
+     *      const redBoxObjectAgain = sceneModel.objects["redBoxObject"];
+     *      const redBoxObjectOnceMore = scene.objects["redBoxObject"];
+     * }
      * ````
      *
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param objectParams SceneObject parameters.
-     * @throws {@link Error}
+     * @returns *{SceneObject}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid ObjectParams were given.
@@ -761,20 +769,19 @@ export class SceneModel extends Component {
      * * No Meshes were specified.
      * * One or more of the specified Meshes already belong to another SceneObject in this SceneModel.
      * * Specified Meshes could not be found in this SceneModel.
-     * @returns {Mesh} The new SceneObject.
      */
-    createObject(objectParams: SceneObjectParams): SceneObject {
+    createObject(objectParams: SceneObjectParams): SceneObject | SDKError {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to create SceneObject - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
+            return new SDKError("Failed to create SceneObject SceneModel already built");
         }
         if (objectParams.meshIds.length === 0) {
-            throw new Error("SceneObject has no meshes");
+            return new SDKError("Failed to create SceneObject - no meshes specified");
         }
         if (this.scene.objects[objectParams.id]) {
-            throw new Error(`SceneObject already exists in Scene: ${objectParams.id}`);
+            return new SDKError(`Failed to create SceneObject - SceneObject already exists in Scene: ${objectParams.id}`);
         }
         const meshIds = objectParams.meshIds;
         const meshes = [];
@@ -782,10 +789,10 @@ export class SceneModel extends Component {
             const meshId = meshIds[meshIdIdx];
             const mesh = this.meshes[meshId];
             if (!mesh) {
-                throw new Error(`Mesh not found: ${meshId}`);
+                return new SDKError(`Failed to create SceneObject - Mesh not found: ${meshId}`);
             }
             if (this.#meshUsedByObject[meshId]) {
-                throw new Error(`Mesh ${meshId} already belongs to another SceneObject`);
+                return new SDKError(`Failed to create SceneObject - Mesh ${meshId} already belongs to another SceneObject`);
             }
             meshes.push(mesh);
             this.#meshUsedByObject[mesh.id] = true;
@@ -824,26 +831,30 @@ export class SceneModel extends Component {
      *     // Another way to subscribe to SceneModel readiness
      * });
      *
-     * mySceneModel.build().then(() => { // Asynchronous (texture compression etc).
-     *      // Now we can do things with our SceneModel
+     * mySceneModel.build().then((result) => { // Asynchronous (texture compression etc).
+     *      if (result instanceof SDKError) {
+     *          console.log(result.message);
+     *      }  else {
+     *          // Now we can do things with our SceneModel
+     *      }
      * });
      * ````
      *
      * See {@link "@xeokit/scene"} for more usage info.
      *
-     * @throws {@link Error}
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * If no SceneObjects were created in this SceneModel.
      */
-    async build() {
+    async build(): Promise<SDKError> {
         if (this.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            return new SDKError("Failed to build SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            throw new Error("SceneModel already built");
+            return new SDKError("Failed to build SceneModel - SceneModel already built");
         }
         if (this.#numObjects < 1) {
-            throw new Error("SceneModel must contain at least one SceneObject before you can build it");
+            return new SDKError("Failed to build SceneModel - SceneModel must contain at least one SceneObject before you can build it");
         }
         this.#removeUnusedTextures();
         await this.#compressTextures();
@@ -866,7 +877,7 @@ export class SceneModel extends Component {
         // this.textures = textures;
     }
 
-    #compressTextures() {
+    #compressTextures(): Promise<any> {
         let countTextures = this.#texturesList.length;
         return new Promise<void>((resolve) => {
             if (countTextures === 0) {
@@ -896,7 +907,7 @@ export class SceneModel extends Component {
                                             resolve();
                                         }
                                     }).catch((err) => {
-                                        throw new Error(`Failed to compress texture: ${err}`);
+                                        return new SDKError(`Failed to compress texture: ${err}`);
                                     });
                                 } else {
                                     texture.imageData = new Uint8Array(1);
@@ -905,7 +916,7 @@ export class SceneModel extends Component {
                                     }
                                 }
                             }).catch((err) => {
-                                throw new Error(`Failed to load texture image: ${err}`);
+                                return new SDKError(`Failed to load texture image: ${err}`);
                             });
                             break;
                         default:
@@ -924,7 +935,7 @@ export class SceneModel extends Component {
                                     resolve();
                                 }
                             }).catch((err) => {
-                            throw new Error(`Failed to compress texture: ${err}`);
+                            return new SDKError(`Failed to compress texture: ${err}`);
                         });
                     } else {
                         texture.imageData = new Uint8Array(1);

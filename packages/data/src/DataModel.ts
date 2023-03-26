@@ -1,5 +1,4 @@
-import {Component, EventEmitter} from "@xeokit/core/components";
-
+import {Component, EventEmitter, SDKError} from "@xeokit/core/components";
 import type {Data} from "./Data";
 import {PropertySet} from "./PropertySet";
 import {DataObject} from "./DataObject";
@@ -110,7 +109,7 @@ export class DataModel extends Component {
      *
      * @event
      */
-   public readonly onBuilt: EventEmitter<DataModel, null>;
+    public readonly onBuilt: EventEmitter<DataModel, null>;
 
     /**
      * Indicates if this DataModel has been built.
@@ -166,19 +165,21 @@ export class DataModel extends Component {
      * See {@link "@xeokit/data"} for usage.
      *
      * @param dataModelParams
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this DataModel has already been built.
      * * If this DataModel has already been destroyed.
      * * A duplicate PropertySet was already created for this DataModel.
      * * A duplicate DataObject was already created in this DataModel.
      * * DataObjects were not found for a Relationship.
      */
-    fromJSON(dataModelParams: DataModelParams) {
+    fromJSON(dataModelParams: DataModelParams): void | SDKError {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed");
+            return new SDKError("Failed to add components to DataModel - DataModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DataModel already built");
+            throw new SDKError("Failed to add components to DataModel - DataModel already built");
         }
         if (dataModelParams.propertySets) {
             for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
@@ -226,27 +227,35 @@ export class DataModel extends Component {
      *          description: "Height of a thing"
      *      }]
      * });
+     *
+     * if (propertySet instanceof SDKError) {
+     *     console.error(propertySet.message);
+     * } else {
+     *     // Success
+     * }
      * ````
      *
      * See {@link "@xeokit/data"} for more usage info.
      *
      * @param propertySetCfg - PropertySet creation parameters.
-     * @throws {@link Error}
+     * @returns *{@link PropertySet}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this DataModel has already been built.
      * * If this DataModel has already been destroyed.
      * * A PropertySet of the given ID was already created for this DataModel. While it's OK
      * for multiple DataModels to *share* PropertySets with duplicate IDs between them, it's not permitted to
      * create duplicate PropertySets within the same DataModel.
      */
-    createPropertySet(propertySetCfg: PropertySetParams): null | PropertySet {
+    createPropertySet(propertySetCfg: PropertySetParams): PropertySet | SDKError {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed");
+            return new SDKError("Failed to create PropertySet - DataModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DataModel already built");
+            return new SDKError("DataModel already built");
         }
         if (this.propertySets[propertySetCfg.id]) {
-            throw new Error("PropertySet already created in this DataModel (note: OK to have duplicates between DataModels, but they must be unique within each DataModel)")
+            return new SDKError("Failed to create PropertySet - PropertySet with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel.")
         }
         let propertySet = this.data.propertySets[propertySetCfg.id];
         if (propertySet) {
@@ -286,30 +295,41 @@ export class DataModel extends Component {
      *     propertySetIds: ["myPropertySet"]
      * });
      *
-     * const gotMyDataObject = dataModel.objects["myDataObject"];
-     * const gotMyDataObjectAgain = data.objects["myDataObject"];
+     * if (myDataObject instanceof SDKError) {
+     *     console.error(myDataObject.message);
+     *
+     * } else if (myDataObject2 instanceof SDKError) {
+     *     console.error(myDataObject2.message);
+     *
+     * } else { // Success
+     *     const gotMyDataObject = dataModel.objects["myDataObject"];
+     *     const gotMyDataObjectAgain = data.objects["myDataObject"];
+     * }
      * ````
      *
      * See {@link "@xeokit/data"} for more usage info.
      *
      * @param dataObjectParams - DataObject creation parameters.
-     * @throws {@link Error}
+     * @returns *{@link DataObject}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this DataModel has already been built.
      * * If this DataModel has already been destroyed.
      * * A DataObject of the given ID was already created in this DataModel. While it's OK
      * for multiple DataModels to *share* DataObjects with duplicate IDs between them, we're not permitted to
      * create duplicate DataObjects within the same DataModel.
+     * * A specified PropertySet could not be found.
      */
-    createObject(dataObjectParams: DataObjectParams): null | DataObject {
+    createObject(dataObjectParams: DataObjectParams): DataObject | SDKError {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed");
+            return new SDKError("Failed to create DataObject - DataModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DataModel already built");
+            return new SDKError("Failed to create DataObject - DataModel already built");
         }
         const id = dataObjectParams.id;
         if (this.objects[id]) {
-            throw new Error("DataObject already created in this DataModel (note: OK to have duplicates between DataModels, but they must be unique within each DataModel)")
+            return new SDKError("Failed to create DataObject - DataObject with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel.")
         }
         const type = dataObjectParams.type;
         let dataObject = this.data.objects[id];
@@ -320,7 +340,7 @@ export class DataModel extends Component {
                     const propertySetId = dataObjectParams.propertySetIds[i];
                     const propertySet = this.propertySets[propertySetId];
                     if (!propertySet) {
-                        console.error(`PropertySet not found: "${propertySetId}"`);
+                        return new SDKError(`Failed to create DataObject - PropertySet not found: "${propertySetId}"`);
                     } else {
                         propertySets.push(propertySet);
                     }
@@ -390,35 +410,42 @@ export class DataModel extends Component {
      *     relatedObjectId: "myDataObject2"
      * });
      *
-     * const myDataObject = dataModel.objects["myDataObject"];
-     * const myDataObject2 = dataModel.objects["myDataObject2"];
+     * if (myRelationship instanceof SDKError) {
+     *     console.error(myRelationship.message);
      *
-     * const gotMyRelationship = myDataObject.related[BasicAggregation][0];
-     * const gotMyRelationshipAgain = myDataObject2.relating[BasicAggregation][0];
+     * } else { // Success
+     *     const myDataObject = dataModel.objects["myDataObject"];
+     *     const myDataObject2 = dataModel.objects["myDataObject2"];
+     *
+     *     const gotMyRelationship = myDataObject.related[BasicAggregation][0];
+     *     const gotMyRelationshipAgain = myDataObject2.relating[BasicAggregation][0];
+     * }
      * ````
      *
      * See {@link "@xeokit/data"} for more usage info.
      *
      * @param relationshipParams - Relationship creation parameters.
-     * @throws {@link Error}
+     * @returns *{@link Relationship}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this DataModel has already been built or destroyed.
      * * The *relating* DataObject was not found in the {@link Data} that contains this DataModel.
      * * The *related* DataObject was not found in the Data that contains this DataModel.
      */
-    createRelationship(relationshipParams: RelationshipParams): Relationship {
+    createRelationship(relationshipParams: RelationshipParams): Relationship | SDKError {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed");
+            return new SDKError("Failed to create Relationship - DataModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DataModel already built");
+            return new SDKError("Failed to create Relationship - DataModel already built");
         }
         const relatingObject = this.data.objects[relationshipParams.relatingObjectId];
         if (!relatingObject) {
-            throw new Error(`Relating DataObject not found: ${relationshipParams.relatingObjectId}`);
+            return new SDKError(`Failed to create Relationship - relating DataObject not found: ${relationshipParams.relatingObjectId}`);
         }
         const relatedObject = this.data.objects[relationshipParams.relatedObjectId];
         if (!relatedObject) {
-            throw new Error(`Related DataObject not found: ${relationshipParams.relatedObjectId}`);
+            return new SDKError(`Failed to create Relationship - related DataObject not found: ${relationshipParams.relatedObjectId}`);
         }
         const relation = new Relationship(relationshipParams.type, relatingObject, relatedObject);
         if (!relatedObject.relating[relationshipParams.type]) {
@@ -451,26 +478,40 @@ export class DataModel extends Component {
      *     // Another way to subscribe to DataModel readiness
      * });
      *
-     * dataModel.build(); // Synchronous
+     * const result = dataModel.build();
+     *
+     * if (result instanceof SDKError) {
+     *     console.error(result.message);
+     * } else {
+     *     // Success
+     * }
      * ````
      *
      * See {@link "@xeokit/data"} for usage.
      *
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this DataModel has already been built or destroyed.
      */
-    build(): void {
+    build(): void | SDKError {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed");
+            return new SDKError("Failed to build DataModel - DataModel already destroyed");
         }
         if (this.built) {
-            throw new Error("DataModel already built");
+            return new SDKError("Failed to build DataModel - DataModel already built");
         }
         this.built = true;
         this.onBuilt.dispatch(this, null);
     }
 
-    getJSON(): DataModelParams {
+    getJSON(): DataModelParams | SDKError {
+        if (this.destroyed) {
+            return new SDKError("DataModel already destroyed");
+        }
+        if (this.built) {
+            return new SDKError("DataModel already built");
+        }
         const dataModelParams = <DataModelParams>{
             id: this.id,
             propertySets: [],
@@ -536,12 +577,14 @@ export class DataModel extends Component {
      *
      * See {@link "@xeokit/data"} for usage.
      *
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * If this DataModel has already been destroyed.
      */
-    destroy() {
+    destroy(): void | SDKError {
         if (this.destroyed) {
-            throw new Error("DataModel already destroyed");
+            return new SDKError("Failed to destroy DataModel - DataModel already destroyed");
         }
         for (let id in this.objects) {
             const dataObject = this.objects[id];

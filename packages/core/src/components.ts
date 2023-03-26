@@ -19,6 +19,7 @@
  */
 
 export * from "./Component";
+export * from "./SDKError";
 export * from "./EventEmitter";
 export * from "./Capabilities";
 export * from "./TextureTranscoder";

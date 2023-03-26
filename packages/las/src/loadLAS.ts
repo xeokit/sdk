@@ -1,5 +1,6 @@
 import {SceneModel} from "@xeokit/scene";
 import {DataModel} from "@xeokit/data";
+import {SDKError} from "@xeokit/core/components";
 
 /**
  * Loads LAS/LAZ file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel}.
@@ -21,25 +22,26 @@ export function loadLAS(params: {
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
-    const dataModel = params.dataModel;
-    const sceneModel = params.sceneModel;
-    if (sceneModel) {
-        if (sceneModel.destroyed) {
-            throw new Error("SceneModel already destroyed");
-        }
-        if (sceneModel.built) {
-            throw new Error("SceneModel already built");
-        }
-    }
-    if (dataModel) {
-        if (dataModel.destroyed) {
-            throw new Error("DataModel already destroyed");
-        }
-        if (dataModel.built) {
-            throw new Error("DataModel already built");
-        }
-    }
     return new Promise<void>(function (resolve, reject) {
+        const dataModel = params.dataModel;
+        const sceneModel = params.sceneModel;
+        if (sceneModel) {
+            if (sceneModel.destroyed) {
+                reject(new SDKError("SceneModel already destroyed"));
+            }
+            if (sceneModel.built) {
+                reject(new SDKError("SceneModel already built"));
+            }
+        }
+        if (dataModel) {
+            if (dataModel.destroyed) {
+                reject(new SDKError("DataModel already destroyed"));
+            }
+            if (dataModel.built) {
+                reject(new SDKError("DataModel already built"));
+            }
+        }
+
         // TODO
 
         resolve();

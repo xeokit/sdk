@@ -1,4 +1,4 @@
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter, SDKError} from "@xeokit/core/components";
 import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
 import {EventDispatcher} from "strongly-typed-events";
 import {Tiles} from "@xeokit/viewer/src/Tiles";
@@ -153,19 +153,21 @@ export class Scene extends Component {
      * See {@link "@xeokit/scene"} for more details on usage.
      *
      * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
-     * @throws {@link Error}
+     * @returns *{@link SceneModel}*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Scene has already been destroyed.
      * * A SceneModel with the given ID already exists in this Scene.
      */
-    createModel(sceneModelParams: SceneModelParams): SceneModel {
+    createModel(sceneModelParams: SceneModelParams): SceneModel | SDKError {
         if (this.destroyed) {
-            throw new Error("Scene already destroyed");
+            return new SDKError("Scene already destroyed");
         }
         const id = sceneModelParams.id;
         if (this.models[id]) {
-            throw new Error(`SceneModel already created in this Scene: ${id}`);
+            return new SDKError(`SceneModel already created in this Scene: ${id}`);
         }
-        const sceneModel = new SceneModel(this,sceneModelParams);
+        const sceneModel = new SceneModel(this, sceneModelParams);
         this.models[id] = sceneModel;
         sceneModel.onDestroyed.one(() => { // SceneModel#destroy() called
             delete this.models[sceneModel.id];
@@ -196,13 +198,14 @@ export class Scene extends Component {
      * for each existing SceneModel in this Scene.
      *
      * See {@link "@xeokit/scene"} for usage.
-     *
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Scene has already been destroyed.
      */
-    clear(): void {
+    clear(): void | SDKError {
         if (this.destroyed) {
-            throw new Error("Scene already destroyed");
+            return new SDKError("Scene already destroyed");
         }
         for (let id in this.models) {
             this.models[id].destroy();
@@ -218,10 +221,12 @@ export class Scene extends Component {
      *
      * See {@link "@xeokit/scene"} for usage.
      *
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Scene has already been destroyed.
      */
-    destroy(): void {
+    destroy(): void | SDKError {
         this.clear();
         this.onModelCreated.clear();
         this.onModelDestroyed.clear();

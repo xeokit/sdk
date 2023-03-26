@@ -7,6 +7,7 @@ import {BCFViewpoint, loadBCFViewpoint, saveBCFViewpoint} from "@xeokit/bcf";
 import {LocaleService} from "@xeokit/locale";
 import {Data, DataModel} from "@xeokit/data";
 import {SceneModel} from "@xeokit/scene";
+import {SDKError} from "@xeokit/core/components";
 
 
 /**
@@ -88,9 +89,15 @@ export class BIMViewer extends Viewer {
 
         this.data = new Data();
 
-        this.view = this.createView({
+        const view = this.createView({
             canvasElement: cfg.canvasElement
         });
+
+        if (view instanceof SDKError) {
+
+        } else {
+            this.view = view;
+        }
 
         this.modelsViewLayer = this.view.createLayer({
             id: "models"

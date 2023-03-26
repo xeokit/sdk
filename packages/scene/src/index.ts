@@ -4,24 +4,32 @@
  *
  * <img style="padding:20px" src="media://images/xeokit_docmodel_greyscale_icon.png"/>
  *
- * ## xeokit Scene Graph
+ * # xeokit Scene Graph
  *
- * * {@link @xeokit/scene!Scene} is a container for {@link @xeokit/scene!SceneModel | SceneModels},
- * which contain {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries} and {@link Texture | Textures}.
- * * Texture compressed using [Basis](/docs/pages/GLOSSARY.html#basis)
- * * Geometry compressed using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
- * * View SceneModels in the Browser using a {@link "@xeokit/viewer" | Viewer}
- * * Import SceneModels from various model file formats using importer functions such as
- * {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS},
- * {@link "@xeokit/cityjson" | loadCityJSON}, {@link "@xeokit/xkt" | loadXKT} etc.
- * * Export SceneModels to native XKT format using {@link "@xeokit/xkt" | saveXKT}
- * * Programmatically build SceneModels using builder methods {@link @xeokit/scene!Scene.createModel | Scene.createModel},
- * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject},
- * {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
- * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} and
- * {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
+ * The xeokit SDK facilitates the management of model representations through a scene graph that incorporates the
+ * model's objects, geometries, and materials. This scene graph functions seamlessly in both the browser and NodeJS
+ * environments, enabling the generation of models, format conversion, and the provision of content for the SDK's
+ * model viewer.
+ *
+ * To elaborate further:
+ *
+ * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn, comprise {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries}, and {@link Texture | Textures}.
+ * * Textures undergo compression via Basis Universal.
+ * * Geometry undergoes compression through bucketing and quantization.
+ * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser.
+ * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/xkt" | loadXKT}.
+ * * Export SceneModels to the native XKT format through {@link "@xeokit/xkt" | saveXKT}.
+ * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel}, {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}, {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
+ *
+ * <br>
  *
  * [![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww)
+ *
+ * #### Notes
+ *
+ * * TextureSets are collections of textures that are shared among Meshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
+ * * Geometries are arranged automatically into {@link @xeokit/scene!GeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.
+ * * Each Mesh can be assigned to only one SceneObject, whereas each Geometry and TextureSet can be allocated to an unlimited number of Meshes.
  *
  * ## Installation
  *
@@ -61,135 +69,168 @@
  *   id: "theModel"
  * });
  *
- * const geometry = sceneModel.createGeometry({
- *      id: "boxGeometry",
- *      primitive: TrianglesPrimitive,
- *      positions: [ // Floats
- *          1, 1, 1, -1, 1, 1,
- *          -1, -1, 1, 1, -1, 1, 1,
- *          -1, -1, 1, 1, -1, -1, 1, -1, -1,
- *          -1, -1
- *      ],
- *      indices: [
- *          0, 1, 2, 0, 2, 3, 4, 5, 6, 4,
- *          6, 7, 8, 9, 10, 8, 10, 11, 12,
- *          13, 14, 12, 14, 15, 16, 17, 18,
- *          16, 18, 19, 20, 21, 22, 20, 22, 23
- *      ]
- *  });
+ * if (sceneModel instanceof SDKError) {
  *
- * const texture = sceneModel.createTexture({
- *     id: "colorTexture",
- *     src: "./assets/sample_etc1s.ktx2",
- *     preloadColor: [1, 0, 0, 1],
- *     flipY: false,
- *     encoding: LinearEncoding,
- *     magFilter: LinearFilter,
- *     minFilter: LinearFilter,
- *     wrapR: ClampToEdgeWrapping,
- *     wrapS: ClampToEdgeWrapping,
- *     wrapT: ClampToEdgeWrapping,
- * });
+ *      // Most SDK methods return an SDKError when
+ *      // something goes wrong.
  *
- * const theTextureSet = sceneModel.createTextureSet({
- *     id: "theTextureSet",
- *     colorTextureId: "colorTexture"
- * });
+ *      // We'll use some SDKErrors in this example
+ *      // to demonstrate where we can use them.
  *
- * const redLegMesh = sceneModel.createMesh({
- *     id: "redLegMesh",
- *     geometryId: "boxGeometry",
- *     position: [-4, -6, -4],
- *     scale: [1, 3, 1],
- *     rotation: [0, 0, 0],
- *     color: [1, 0.3, 0.3],
- *     textureSetId: "theTextureSet"
- * });
+ *      console.log(sceneModel.message);
  *
- * const greenLegMesh = sceneModel.createMesh({
- *     id: "greenLegMesh",
- *     geometryId: "boxGeometry",
- *     position: [4, -6, -4],
- *     scale: [1, 3, 1],
- *     rotation: [0, 0, 0],
- *     color: [0.3, 1.0, 0.3],
- *             textureSetId: "theTextureSet"
- * });
+ * } else {
  *
- * const blueLegMesh = sceneModel.createMesh({
- *     id: "blueLegMesh",
- *     geometryId: "boxGeometry",
- *     position: [4, -6, 4],
- *     scale: [1, 3, 1],
- *     rotation: [0, 0, 0],
- *     color: [0.3, 0.3, 1.0],
- *     textureSetId: "theTextureSet"
- * });
+ *      const geometry = sceneModel.createGeometry({
+ *          id: "boxGeometry",
+ *          primitive: TrianglesPrimitive,
+ *          positions: [ // Floats
+ *              1, 1, 1, -1, 1, 1,
+ *              -1, -1, 1, 1, -1, 1, 1,
+ *              -1, -1, 1, 1, -1, -1, 1, -1, -1,
+ *              -1, -1
+ *          ],
+ *          indices: [
+ *              0, 1, 2, 0, 2, 3, 4, 5, 6, 4,
+ *              6, 7, 8, 9, 10, 8, 10, 11, 12,
+ *              13, 14, 12, 14, 15, 16, 17, 18,
+ *              16, 18, 19, 20, 21, 22, 20, 22, 23
+ *          ]
+ *      });
  *
- * const yellowLegMesh = sceneModel.createMesh({
- *     id: "yellowLegMesh",
- *     geometryId: "boxGeometry",
- *     position: [-4, -6, 4],
- *     scale: [1, 3, 1],
- *     rotation: [0, 0, 0],
- *     color: [1.0, 1.0, 0.0],
- *     textureSetId: "theTextureSet"
- * });
+ *      if (geometry instanceof SDKError) {
+ *          console.log(geometry.message);
+ *      }
  *
- *  const tableTopMesh = sceneModel.createMesh({
- *     id: "tableTopMesh",
- *     geometryId: "boxGeometry",
- *     position: [0, -3, 0],
- *     scale: [6, 0.5, 6],
- *     rotation: [0, 0, 0],
- *     color: [1.0, 0.3, 1.0],
- *     textureSetId: "theTextureSet"
- * });
+ *      const texture = sceneModel.createTexture({
+ *          id: "colorTexture",
+ *          src: "./assets/sample_etc1s.ktx2",
+ *          preloadColor: [1, 0, 0, 1],
+ *          flipY: false,
+ *          encoding: LinearEncoding,
+ *          magFilter: LinearFilter,
+ *          minFilter: LinearFilter,
+ *          wrapR: ClampToEdgeWrapping,
+ *          wrapS: ClampToEdgeWrapping,
+ *          wrapT: ClampToEdgeWrapping,
+ *      });
  *
- * // Create five SceneObjects, each using a Mesh.
- * // A Mesh belongs to exactly one SceneObject.
+ *      if (texture instanceof SDKError) {
+ *          console.log(texture.message);
+ *      }
  *
- * const redLegSceneObject = sceneModel.createObject({
- *     id: "redLegObject",
- *     meshIds: ["redLegMesh"]
- * });
+ *      const theTextureSet = sceneModel.createTextureSet({
+ *          id: "theTextureSet",
+ *          colorTextureId: "colorTexture"
+ *      });
  *
- * const greenLegSceneObject = sceneModel.createObject({
- *     id: "greenLegObject",
- *     meshIds: ["greenLegMesh"]
- * });
+ *      if (theTextureSet instanceof SDKError) {
+ *          console.log(theTextureSet.message);
+ *      }
  *
- * const blueLegSceneObject = sceneModel.createObject({
- *     id: "blueLegObject",
- *     meshIds: ["blueLegMesh"]
- * });
+ *      const redLegMesh = sceneModel.createMesh({
+ *          id: "redLegMesh",
+ *          geometryId: "boxGeometry",
+ *          position: [-4, -6, -4],
+ *          scale: [1, 3, 1],
+ *          rotation: [0, 0, 0],
+ *          color: [1, 0.3, 0.3],
+ *          textureSetId: "theTextureSet"
+ *      });
  *
- * const yellowLegSceneObject = sceneModel.createObject({
- *     id: "yellowLegObject",
- *     meshIds: ["yellowLegMesh"]
- * });
+ *      if (redLegMesh instanceof SDKError) {
+ *          console.log(redLegMesh.message);
+ *      }
  *
- * const tableTopSceneObject = sceneModel.createObject({
- *     id: "tableTopObject",
- *     meshIds: ["tableTopMesh"]
- * });
+ *      const greenLegMesh = sceneModel.createMesh({
+ *          id: "greenLegMesh",
+ *          geometryId: "boxGeometry",
+ *          position: [4, -6, -4],
+ *          scale: [1, 3, 1],
+ *          rotation: [0, 0, 0],
+ *          color: [0.3, 1.0, 0.3],
+ *          textureSetId: "theTextureSet"
+ *      });
  *
- * // Expect an event when we build the SceneModel
+ *      const blueLegMesh = sceneModel.createMesh({
+ *          id: "blueLegMesh",
+ *          geometryId: "boxGeometry",
+ *          position: [4, -6, 4],
+ *          scale: [1, 3, 1],
+ *          rotation: [0, 0, 0],
+ *          color: [0.3, 0.3, 1.0],
+ *          textureSetId: "theTextureSet"
+ *      });
  *
- * sceneModel.onBuilt.subscribe((theSceneModel)=>{ });
+ *      const yellowLegMesh = sceneModel.createMesh({
+ *          id: "yellowLegMesh",
+ *          geometryId: "boxGeometry",
+ *          position: [-4, -6, 4],
+ *          scale: [1, 3, 1],
+ *          rotation: [0, 0, 0],
+ *          color: [1.0, 1.0, 0.0],
+ *          textureSetId: "theTextureSet"
+ *      });
  *
- * // Expect an event when we destroy the SceneModel
+ *      const tableTopMesh = sceneModel.createMesh({
+ *          id: "tableTopMesh",
+ *          geometryId: "boxGeometry",
+ *          position: [0, -3, 0],
+ *          scale: [6, 0.5, 6],
+ *          rotation: [0, 0, 0],
+ *          color: [1.0, 0.3, 1.0],
+ *          textureSetId: "theTextureSet"
+ *      });
  *
- * sceneModel.onDestroyed.subscribe((theSceneModel)=>{ });
+ *      // Create five SceneObjects, each using a Mesh.
+ *      // A Mesh belongs to exactly one SceneObject.
  *
- * // Now build the SceneModel.
- * // This makes the SceneModel ready for use.
- * // Among other things, this will compress the texture.
+ *      const redLegSceneObject = sceneModel.createObject({
+ *          id: "redLegObject",
+ *          meshIds: ["redLegMesh"]
+ *      });
  *
- * sceneModel.build().then(()=> {
+ *      if (redLegSceneObject instanceof SDKError) {
+ *          console.log(redLegSceneObject.message);
+ *      }
  *
- *     // SceneModel is ready for use
- * })
+ *      const greenLegSceneObject = sceneModel.createObject({
+ *          id: "greenLegObject",
+ *          meshIds: ["greenLegMesh"]
+ *      });
+ *
+ *      const blueLegSceneObject = sceneModel.createObject({
+ *          id: "blueLegObject",
+ *          meshIds: ["blueLegMesh"]
+ *      });
+ *
+ *      const yellowLegSceneObject = sceneModel.createObject({
+ *          id: "yellowLegObject",
+ *          meshIds: ["yellowLegMesh"]
+ *      });
+ *
+ *      const tableTopSceneObject = sceneModel.createObject({
+ *          id: "tableTopObject",
+ *          meshIds: ["tableTopMesh"]
+ *      });
+ *
+ *      // Expect an event when we build the SceneModel
+ *
+ *      sceneModel.onBuilt.subscribe((theSceneModel)=>{ });
+ *
+ *      // Expect an event when we destroy the SceneModel
+ *
+ *      sceneModel.onDestroyed.subscribe((theSceneModel)=>{ });
+ *
+ *      // Now build the SceneModel.
+ *      // This makes the SceneModel ready for use.
+ *      // Among other things, this will compress the texture.
+ *
+ *      sceneModel.build().then(()=> {
+ *
+ *          // SceneModel is ready for use
+ *      });
+ * }
  * ````
  *
  * ### Reading the SceneModel

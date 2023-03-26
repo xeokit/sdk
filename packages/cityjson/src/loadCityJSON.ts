@@ -34,10 +34,10 @@ const tempVec3c = createVec3();
  * @param params.dataModel - DataModel to load into.
  * @param options - CityJSON loading options
  * @param options.rotateX - True to rotate the model about the X-axis. Default is false.
- * @throws {@link Error} If the SceneModel has already been destroyed.
- * @throws {@link Error} If the SceneModel has already been built.
- * @throws {@link Error} If the DataModel has already been destroyed.
- * @throws {@link Error} If the DataModel has already been built.
+ * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been destroyed.
+ * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been built.
+ * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been destroyed.
+ * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been built.
  * @returns {Promise} Resolves when CityJSON has been loaded into the SceneModel and/or DataModel.
  */
 export function loadCityJSON(params: {

@@ -1,5 +1,4 @@
-import * as utils from "@xeokit/core/utils";
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter, SDKError} from "@xeokit/core/components";
 
 import {DataModel} from "./DataModel";
 import type {DataObject} from "./DataObject";
@@ -49,35 +48,35 @@ export class Data extends Component {
     /**
      * Tracks number of {@link DataObject | DataObjects} of each type in this Data.
      */
-   public readonly typeCounts: { [key: string]: number };
+    public readonly typeCounts: { [key: string]: number };
 
     /**
      * Emits an event each time a {@link @xeokit/data!DataModel} has been created in this Data.
      *
      * @event
      */
-   public readonly onModelCreated: EventEmitter<Data, DataModel>;
+    public readonly onModelCreated: EventEmitter<Data, DataModel>;
 
     /**
      * Emits an event each time a {@link @xeokit/data!DataModel} has been destroyed within this Data.
      *
      * @event
      */
-   public readonly onModelDestroyed: EventEmitter<Data, DataModel>;
+    public readonly onModelDestroyed: EventEmitter<Data, DataModel>;
 
     /**
      * Emits an event each time a {@link DataObject} is created within this Data.
      *
      * @event
      */
-   public readonly onObjectCreated: EventEmitter<Data, DataObject>;
+    public readonly onObjectCreated: EventEmitter<Data, DataObject>;
 
     /**
      * Emits an event each time a {@link DataObject} is destroyed within this Data.
      *
      * @event
      */
-   public readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
+    public readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
 
     /**
      * Creates a new Data.
@@ -121,7 +120,9 @@ export class Data extends Component {
      * @param [options] Options for creating the {@link @xeokit/data!DataModel}.
      * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
      * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
-     * @throws {@link Error}
+     * @returns {@link DataModel}
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Data has already been destroyed.
      * * A DataModel with the given ID already exists in this Data.
      */
@@ -131,13 +132,13 @@ export class Data extends Component {
             includeRelating?: string[],
             excludeRelating?: string[],
         }
-    ): DataModel {
+    ): DataModel | SDKError {
         if (this.destroyed) {
-            throw new Error("Data already destroyed");
+            return new SDKError("Data already destroyed");
         }
-        let id = dataModelParams.id ;
+        let id = dataModelParams.id;
         if (this.models[id]) {
-           throw new Error(`DataModel already created in this Data: ${id}`);
+            return new SDKError(`DataModel already created in this Data: ${id}`);
         }
         // @ts-ignore
         const dataModel = new DataModel(this, id, dataModelParams, options);
@@ -158,13 +159,14 @@ export class Data extends Component {
      * See {@link "@xeokit/data"} for usage.
      *
      * @param type The type.
-     * @returns Array of {@link DataObject.id}s.
-     * @throws {@link Error}
+     * @returns {string[]}
+     * * Array of {@link DataObject.id}s on success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Data has already been destroyed.
      */
-    getObjectIdsByType(type: string) {
+    getObjectIdsByType(type: string): string[] | SDKError {
         if (this.destroyed) {
-            throw new Error("Data already destroyed");
+            return new SDKError("Data already destroyed");
         }
         const objects = this.objectsByType[type];
         return objects ? Object.keys(objects) : [];
@@ -179,17 +181,20 @@ export class Data extends Component {
      * See {@link "@xeokit/data"} for usage.
      *
      * @param searchParams Search parameters.
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Data has already been destroyed.
      */
-    searchObjects(searchParams: SearchParams) {
+    searchObjects(searchParams: SearchParams): void | SDKError {
         if (this.destroyed) {
-            throw new Error("Data already destroyed");
+            return new SDKError("Data already destroyed");
         }
         const includeObjects = (searchParams.includeObjects && searchParams.includeObjects.length > 0) ? arrayToMap(searchParams.includeObjects) : null;
         const excludeObjects = (searchParams.excludeObjects && searchParams.excludeObjects.length > 0) ? arrayToMap(searchParams.excludeObjects) : null;
         const includeRelating = (searchParams.includeRelating && searchParams.includeRelating.length > 0) ? arrayToMap(searchParams.includeRelating) : null;
         const excludeRelating = (searchParams.excludeRelating && searchParams.excludeRelating.length > 0) ? arrayToMap(searchParams.excludeRelating) : null;
+
         function visit(dataObject: DataObject) {
             if (!dataObject) {
                 return;
@@ -257,12 +262,14 @@ export class Data extends Component {
      *
      * See {@link "@xeokit/data"} for usage.
      *
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Data has already been destroyed.
      */
-    clear(): void {
+    clear(): void | SDKError {
         if (this.destroyed) {
-            throw new Error("Data already destroyed");
+            return new SDKError("Data already destroyed");
         }
         for (let id in this.models) {
             this.models[id].destroy();
@@ -278,10 +285,15 @@ export class Data extends Component {
      *
      * See {@link "@xeokit/data"} for usage.
      *
-     * @throws {@link Error}
+     * @returns *void*
+     * * On success.
+     * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Data has already been destroyed.
      */
-    destroy(): void {
+    destroy(): void | SDKError {
+        if (this.destroyed) {
+            return new SDKError("Data already destroyed");
+        }
         this.clear();
         this.onModelCreated.clear();
         this.onModelDestroyed.clear();

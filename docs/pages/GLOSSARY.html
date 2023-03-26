@@ -125,7 +125,7 @@ applications, including urban planning, architecture, and transportation.</p>
 <a href="#datamodel" id="datamodel" style="color: inherit; text-decoration: none;">
   <h2>DataModel</h2>
 </a>
-<p>A <a href="../modules.html">@xeokit/data | DataModel</a> is a semantic entity-relationship graph that&#39;s used within the xeokit SDK to represent 
+<p>A <strong><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html">DataModel</a></strong> is a semantic entity-relationship graph that&#39;s used within the xeokit SDK to represent 
 the relationships between entities in a system or domain, where entities are represented as nodes and relationships are 
 represented as edges.</p>
 <p>In the context of Building Information Modeling (BIM), we can use a representation 
@@ -143,7 +143,7 @@ connected to a wall.</p>
 <a href="#data-texture" id="data-texture" style="color: inherit; text-decoration: none;">
   <h2>Data Texture</h2>
 </a>
-<p>A data texture is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
+<p>A <strong>data texture</strong> is a type of texture used in computer graphics that contains arbitrary data, instead of color or normal 
 information. It can be thought of as a two-dimensional array of values, where each value represents some arbitrary data, 
 such as depth, density, temperature, or any other quantity that can be represented as a scalar value.</p>
 <p>Data textures are often used in scientific visualization and simulations, where they can be used to store and display 
@@ -167,18 +167,36 @@ that generates the final texture or terrain.</p>
 <a href="#error-objects" id="error-objects" style="color: inherit; text-decoration: none;">
   <h2>Error Objects</h2>
 </a>
-<p><strong>Returning an error object from a TypeScript function instead of throwing an exception</strong> allows the function to gracefully handle errors and communicate
+<p><strong>Returning an error object</strong> from a TypeScript function instead of throwing an exception allows the function to gracefully handle errors and communicate
 them to the calling code without disrupting the program&#39;s flow. This approach enables the calling code to handle the error more effectively and to
 make informed decisions about how to proceed. By using error objects, developers can also include additional information about the error, such as
 error codes, error messages, and error contexts. Additionally, this approach can make the code more testable and easier to reason about since it
 doesn&#39;t rely on exceptions that can&#39;t be easily caught and mocked during unit testing.</p>
-<p>Instead of throwing exceptions, xeokit SDK functions and methods usually return an Error object. This
-enables TypeScript to insist that we check for error in returned results.</p>
+<p>All xeokit functions and methods will return an <a href="https://xeokit.github.io/sdk/docs/classes/_xeokit_core_components.SDKError.html">SDKError</a> object if something goes wrong. This
+enables TypeScript&#39;s static checking to insist that we check for the possibility of that SDKError before using any results.</p>
 <p>For example:</p>
-<pre><code class="language-javascript"><span class="hl-4">function</span><span class="hl-0"> </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">() : </span><span class="hl-9">Error</span><span class="hl-0"> | </span><span class="hl-9">number</span><span class="hl-0"> {</span><br/><span class="hl-0">  </span><span class="hl-7">// ...</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">riskyNumber</span><span class="hl-0"> = </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">();</span><br/><br/><span class="hl-7">// Compiler error because you can&#39;t add an Error and a number</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">badComputedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-8">2</span><span class="hl-0">;</span><br/><br/><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-4">typeof</span><span class="hl-0"> </span><span class="hl-3">riskyNumber</span><span class="hl-0"> !== </span><span class="hl-3">Error</span><span class="hl-0">) {</span><br/><span class="hl-0">    </span><span class="hl-7">// This is ok as we&#39;ve guarded against the error case</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">computedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-8">2</span><span class="hl-0">;</span><br/><span class="hl-0">}</span>
+<pre><code class="language-javascript"><span class="hl-4">function</span><span class="hl-0"> </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">() : </span><span class="hl-9">SDKError</span><span class="hl-0"> | </span><span class="hl-9">number</span><span class="hl-0"> {</span><br/><span class="hl-0">  </span><span class="hl-7">// ...</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">riskyNumber</span><span class="hl-0"> = </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">();</span><br/><br/><span class="hl-7">// Compiler error because you can&#39;t add an Error and a number</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">badComputedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-8">2</span><span class="hl-0">;</span><br/><br/><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-3">riskyNumber</span><span class="hl-0"> </span><span class="hl-4">instanceof</span><span class="hl-0"> </span><span class="hl-9">SDKError</span><span class="hl-0">) {</span><br/><span class="hl-0">    </span><span class="hl-3">console</span><span class="hl-0">.</span><span class="hl-6">error</span><span class="hl-0">(</span><span class="hl-3">riskyNumber</span><span class="hl-0">.</span><span class="hl-3">message</span><span class="hl-0">);</span><br/><span class="hl-0">} </span><span class="hl-2">else</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-7">// This is ok as we&#39;ve guarded against the error case</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">computedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-8">2</span><span class="hl-0">;</span><br/><span class="hl-0">}</span>
 </code></pre>
 <blockquote>
 <p><em>See <a href="https://dev.to/supermetrics/simple-and-maintainable-error-handling-in-typescript-56lm">Simple and Maintainable Error Handling in TypeScript</a></em></p>
+</blockquote>
+<br>
+
+<hr>
+
+<a href="#f" id="f" style="color: inherit; text-decoration: none;">
+  <h1>F</h1>
+</a>
+<hr>
+<br>
+
+
+<a href="#federated-models" id="federated-models" style="color: inherit; text-decoration: none;">
+  <h2>Federated Models</h2>
+</a>
+<p>TODO</p>
+<blockquote>
+<p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html">@xeokit/data</a></em></p>
 </blockquote>
 <br>
 
@@ -204,15 +222,15 @@ enables TypeScript to insist that we check for error in returned results.</p>
 <a href="#geometry-quantization" id="geometry-quantization" style="color: inherit; text-decoration: none;">
   <h2>Geometry Quantization</h2>
 </a>
-<p><strong>Geometry quantization</strong> is a process of reducing the precision or number of distinct values of geometry, while still
-retaining the most important information. This is done by mapping the original values of a signal to a smaller set
+<p><strong>Geometry quantization</strong> is a process of reducing the precision of geometry values, while still
+retaining the most important information. This is done by mapping the original values of a value to a smaller set
 of discrete values.</p>
 <p>Quantization is commonly used in digital signal processing, image and video compression, and data compression. For
 example, in image and video compression, quantization is used to reduce the number of bits required to represent
 an image or video frame.</p>
-<p>We use quantization as part of the way we compress geometry in xeokit. Specifically, we use it to store
+<p>We use quantization as part of the way we compress geometry in the xeokit SDK. Specifically, we use it to store
 32-bit and 64-bit floating point coordinate values as 16-bit integers, which we then decompress dynamically on the
-GPU using a special de-quantization matrix.</p>
+GPU using a de-quantization transform matrix.</p>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html">@xeokit/math/compression</a></em></p>
 </blockquote>
@@ -398,38 +416,20 @@ need 64 bits of storage, RTC coordinates only need 16 bits.</p>
 <a href="#scene" id="scene" style="color: inherit; text-decoration: none;">
   <h2>Scene</h2>
 </a>
-<table style="vertical-align:top; border: 0;"><tr><td>
-A **Scene** is a Viewer-agnostic container of **SceneModels** and **SceneObjects**, which define the geometric and material 
-representations of our models. 
-
-<p>Note that a Scene contains the <em>contents</em> of the models, while a <strong>View</strong> controls the
-way that content is rendered in the canvas, eg. object visibilities, opacities, emphasis etc. This is how xeokit implements
-<a href="#model-view-separation"><em>model-view separation</em></a>.</p>
-<p>There are three cases for which we typically use a Scene:</p>
-<ol>
-<li>Programmatically build models within a Scene and then use <a href="../functions/_xeokit_xkt.saveXKT.html">saveXKT</a> to save the Scene to an XKT file.</li>
-<li>Use a Scene as an intermediate model when converting from some source file format to xeokit&#39;s native XKT format. We might load a
-glTF file into our Scene using <a href="../modules.html">@xeokit/gltf?loadGLTF | loadGLTF</a>, then serialize the Scene to XKT
-using <a href="../functions/_xeokit_xkt.saveXKT.html">saveXKT</a>.</li>
-<li>Use a Scene to provide content for a Viewer. We might load a file into the Scene, or programmatically build it, then
-attach the Scene to a Viewer to view it.</li>
-</ol>
-<p>We can use a Scene in NodeJS scripts (<em>Cases 1 and 2</em>) and in the Browser (<em>Case 3</em>).</p>
+<p>The xeokit SDK manages model representations in a scene graph that contains the model&#39;s objects, geometries and materials. The scene
+graph works in both the browser and in NodeJS, and can be used to generate models, convert between model formats, and provide
+content for the SDK&#39;s model viewer.</p>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html">@xeokit/scene</a></em></p>
 </blockquote>
-</td><td style="width:250px">
-<img src="https://xeokit.github.io/sdk/assets/images/xeokit_docmodel_icon.png">
-</td>
-</table>
-
 <br>
 
 
 <a href="#scenemodel" id="scenemodel" style="color: inherit; text-decoration: none;">
   <h2>SceneModel</h2>
 </a>
-<p>A <strong>SceneModel</strong> represents a model within a <strong>Scene</strong>.</p>
+<p>A <strong><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html">SceneModel</a></strong> represents a model within a <strong>Scene</strong>.</p>
+<p>TODO</p>
 <blockquote>
 <p><em>See: <a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html">@xeokit/scene</a></em></p>
 </blockquote>

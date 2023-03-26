@@ -1,10 +1,14 @@
 # @xeokit
 
-Welcome to the xeokit SDK - a flexible and powerful tool for creating stunning visualizations of AECO models in your browser. 
+#### Welcome to the xeokit SDK - a flexible and powerful tool for creating stunning visualizations of AECO models in your browser. 
 
 Built with TypeScript, xeokit offers lightning-fast loading and rendering of even the most complex models, while using minimal 
-system resources. The scene graph works seamlessly on both browser and NodeJS platforms, allowing you to create, convert and 
-provide content for the model viewer. Benefit from built-in support for multiple canvases, utility libraries with complete 
+system resources. 
+
+The scene graph works seamlessly on both browser and NodeJS platforms, allowing you to create, convert and 
+provide content for the model viewer. 
+
+Benefit from built-in support for multiple canvases, utility libraries with complete 
 documentation, and the ability to import/export models as industry-standard AECO file formats. Collaborate with other BIM software 
 via BCF Viewpoints and bring your AECO models to life with xeokit.
 
@@ -161,9 +165,9 @@ const sceneModel = scene.createModel(); // Start building the scene graph
 sceneModel.createGeometry({ // Define a box-shaped geometry
     id: "boxGeometry",
     primitive: TrianglesPrimitive,
-    positions: [-1, -1, -1, 1, -1, -1, ...],
-    uvs: [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, ...],
-    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
+    positions: [-1, -1, -1, 1, -1, -1, ],
+    uvs: [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, ],
+    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ]
 });
 
 sceneModel.createTexture({ // 

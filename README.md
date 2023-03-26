@@ -332,18 +332,6 @@ function toArrayBuffer(buf) {
     return ab;
 }
 ````
-The script does the following steps:
-
-1. Import packages and modules relevant to Xeokit, as well as Node's file system module, which is used to read and write files.
-2. Create a new Scene instance.
-3. Create a new Data instance and Model with ID "myModel".
-4. Use Node's fs module to read file called "HousePlan.glb" asynchronously.
-5. Create an ArrayBuffer from the file using the toArrayBuffer() function.
-6. Invoke the xeokit method loadGLTF() to load the model.
-7. Invoke the xeokit method build() to prepare the scene model.
-8. Invoke the xeokit method saveXKT() to create an XKT file from the scene model and data model.
-9. Use Node's fs module to write the XKT file to disk.
-10. The toArrayBuffer() function is called to create an ArrayBuffer from a Buffer object.
 
 # License
 

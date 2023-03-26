@@ -1,6 +1,6 @@
 # @xeokit
 
-Introducing the xeokit SDK - a flexible and powerful tool for creating stunning visualizations of AECO models in your browser. 
+Welcome to the xeokit SDK - a flexible and powerful tool for creating stunning visualizations of AECO models in your browser. 
 
 Built with TypeScript, xeokit offers lightning-fast loading and rendering of even the most complex models, while using minimal 
 system resources. The scene graph works seamlessly on both browser and NodeJS platforms, allowing you to create, convert and 
@@ -70,7 +70,7 @@ various file formats into the viewer.
 | [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson) | [`@xeokit/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html) | Import CityJSON files      |
 | [`@xeokit/webifc`](https://www.npmjs.com/package/@xeokit/webifc)     | [`@xeokit/webifc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html)     | Import IFC files           |
 
-### Interoperating with BIM Software
+## Interoperating with BIM Software
 
 The SDK offers functions for sharing bookmarks of viewer state with other BIM software as industry-standard BCF Viewpoints. 
 These functions can be used to develop applications that facilitate collaboration on construction projects.
@@ -101,13 +101,9 @@ The SDK's internal and lower-level functionalities are mostly available as utili
 | [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html) | Geometry generation functions                     |
 | [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                         | Compressed texture support              |
 
+# Examples
 
-
-# Quick Start
-
-## Examples
-
-### Spinning Textured Box
+## Spinning Textured Box
 
 Let's make a simple application using xeokit - a spinning, textured box.
 
@@ -214,19 +210,7 @@ sceneModel.build().then(() => { // Compresses textures, geometries etc.
 });
 ````
 
-In this example:
-
-1. The code imports necessary modules needed to create a 3D scene application: Scene, TrianglesPrimitive, LinearEncoding, LinearFilter, Viewer, and WebGLRenderer.
-2. A new Scene object is initialized and a WebGLRenderer object is instantiated.
-3. A new Viewer object is also instantiated with the Scene and Renderer objects as parameters.
-4. A view is then created with a given ID and canvas ID. The camera parameters such as eye, look and up are set.
-5. A sceneModel is created which includes a geometry with positions, uvs and indices, a texture and textureSet.
-6. A mesh is then created with the geometry, color, metallic, roughness and textureSet.
-7. A 3D object is created with the mesh.
-8. The sceneModel is built and the object's visibility and highlight is set to true and false respectively.
-9. Finally a callback function to the viewer is set to orbit the camera's yaw by 1.0 on each tick.
-
-### glTF Model Viewer
+## glTF Model Viewer
 
 Let's make a simple application that views a glTF file in the browser.
 
@@ -295,15 +279,7 @@ fetch("myModel.glb").then(response => {
 });
 ````
 
-In this example, we are:
-
-1. Instantiating a Scene and WebGLRenderer instance, and attaching them to a Viewer.
-2. Creating a view, and setting its camera to view the scene from a certain position.
-3. Fetching a model in GLTF format, and loading it into the Scene.
-4. Making a couple of objects visible and un-highlighted.
-5. Subscribing to the Viewer's onTick event, and setting the view's camera to orbit around the model.
-
-### Convert a glTF file to XKT
+## Convert a glTF file to XKT
 
 Let's make a simple NodeJS script that converts a glTF file into xeokit's native XKT format.
 

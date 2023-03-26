@@ -1,13 +1,20 @@
 # @xeokit
 
-The xeokit SDK is a development kit for creating browser-based visualizations of AECO models. 
+The xeokit SDK is a powerful tool for creating visualizations of AECO models in your browser. It's built with TypeScript and 
+designed to be flexible, making it easy to customize and extend to meet your needs.
 
-The SDK offers fast model loading and rendering, low memory usage, and support for multiple canvases. The SDK is written in 
-TypeScript and follows SOLID principles for software design, enabling maximum extensibility and robustness. Its scene graph 
-works on both browser and NodeJS platforms and can be used to create models, convert between formats, and provide content 
-for the model viewer. The SDK provides functions for importing and exporting its models as industry-standard AECO file 
-formats and allows for interoperability with BIM software via BCF Viewpoints. It also offers utility libraries with 
-complete documentation for lower-level functionalities.
+With xeokit, you get lightning-fast loading and rendering, even on complex models, while using minimal system resources. The SDK's 
+scene graph works on both the browser and NodeJS platforms, allowing you to create models, convert between formats, and provide 
+content for the model viewer.
+
+In addition, xeokit offers built-in support for multiple canvases, so you can easily view your models from different angles or 
+perspectives. Plus, the SDK comes with utility libraries that provide complete documentation for lower-level functionalities.
+
+With xeokit, you can also import and export your models as industry-standard AECO file formats, and even collaborate with other 
+BIM software via BCF Viewpoints.
+
+
+# Modules
 
 ## Scene Graph
 

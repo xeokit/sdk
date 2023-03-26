@@ -1,29 +1,20 @@
 # @xeokit
 
-*A complete graphics SDK for browser-based AECO model visualization.*
+The xeokit SDK is a development kit for creating browser-based visualizations of AECO models. 
 
-## Features
-
-* Browser-based 3D/2D viewer
-* Fast model loading
-* Fast rendering
-* Low memory footprint
-* Multiple canvases
-* Semantic ER data model
-* Pluggable graphics engine (WebGL, WebGPU..)
-* Natively TypeScript
-* SOLID
-
-# Modules
-
-The xeokit SDK is modular and designed for maximum extensibility. Our philosophy is to rigorously follow SOLID
-principles of software
-design in order to keep the SDK comprehensive, extensible and robust.
-
+The SDK offers fast model loading and rendering, low memory usage, and support for multiple canvases. The SDK is written in 
+TypeScript and follows SOLID principles for software design, enabling maximum extensibility and robustness. Its scene graph 
+works on both browser and NodeJS platforms and can be used to create models, convert between formats, and provide content 
+for the model viewer. The SDK provides functions for importing and exporting its models as industry-standard AECO file 
+formats and allows for interoperability with BIM software via BCF Viewpoints. It also offers utility libraries with 
+complete documentation for lower-level functionalities.
 
 ## Scene Graph
-   
-The SDK manages model representations in a scene graph that contains the model's objects, geometries and materials. The scene graph works in both the browser and in NodeJS, and can be used to generate models, convert between model formats, and provide content for the SDK's model viewer. 
+
+The SDK represents models in a scene graph that include the model's objects, geometries, and materials. This scene graph works on 
+both the browser and NodeJS platforms and can be used to create models, convert between model formats, and provide content for the 
+SDK's model viewer.
+
    
 | Package                                                                  | Modules                                                               | Description                                                                  |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
@@ -33,8 +24,10 @@ The SDK manages model representations in a scene graph that contains the model's
 [![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww)
 
 ## Data Graph
-    
-The SDK provides an entity-relationship data graph that we can use to attach semantic data to our scene graph objects. The data graph works in both the browser and NodeJS. The data graph can also be loaded and saved as various file formats.  
+
+The SDK employs a generic entity-relationship data graph to manage model semantics, which includes entities, properties, and 
+relationships. This data graph is compatible with both the browser and NodeJS and facilitates model generation, format conversion, 
+and content navigation within the SDK's model viewer.
 
 
 | Package                                                                  | Modules                                                               | Description                                                                  |
@@ -46,12 +39,11 @@ The SDK provides an entity-relationship data graph that we can use to attach sem
 
 ## Model Viewer
 
-The SDK provides a high-performance Browser-based viewer for viewing our model representations.
+The SDK contains a high-performance Web viewer for displaying our model representations. Through a pluggable renderer strategy, 
+the viewer can be extended to utilize various browser graphics APIs, including WebGL and WebGPU. Multiple models can be viewed 
+simultaneously, and the viewer allows for the creation of separate canvases, featuring lights, section planes, annotations, 
+and other elements, to display multiple views of our models.
 
-The viewer is extensible via a pluggable renderer strategy to use different browser graphics APIs, such as WebGL or
-WebGPU. The viewer can
-view multiple models, and can create multiple views of our models in separate canvases, with lights, section planes,
-annotations etc.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -65,9 +57,9 @@ annotations etc.
 
 ## Model Importers and Exporters
 
-The SDK provides various functions to import and export its model representations and semantics as various
-industry-standard AECO file formats. Use
-these in NodeJS scripts to convert file formats, or in the Browser to load various file formats into our viewer.
+The SDK provides functions for importing and exporting its model representations and semantics as industry-standard 
+AECO file formats. These functions can be used in NodeJS scripts for file format conversion or in the browser to load 
+various file formats into the viewer.
 
 | Package                                                              | Modules                                                                               | Description                |
 |----------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------------|
@@ -79,9 +71,8 @@ these in NodeJS scripts to convert file formats, or in the Browser to load vario
 
 ### Interoperating with BIM Software
 
-The SDK provides functions to share bookmarks of viewer state with other BIM software, as industry-standard *BCF
-Viewpoints*. Use these to
-build apps for collaborating on construction projects.
+The SDK offers functions for sharing bookmarks of viewer state with other BIM software as industry-standard BCF Viewpoints. 
+These functions can be used to develop applications that facilitate collaboration on construction projects.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -89,7 +80,7 @@ build apps for collaborating on construction projects.
 
 ### Utility Libraries
 
-Most of the SDK's internal and lower-level functionality is provided as fully-documented utility libraries.
+The SDK's internal and lower-level functionalities are mostly available as utility libraries with complete documentation.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
@@ -108,6 +99,8 @@ Most of the SDK's internal and lower-level functionality is provided as fully-do
 | [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webglutils)      | [`@xeokit/webglutils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html)             | WebGL utilities library        |
 | [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html) | Geometry generation functions                     |
 | [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                         | Compressed texture support              |
+
+
 
 # Quick Start
 
@@ -157,9 +150,9 @@ const sceneModel = scene.createModel(); // Start building the scene graph
 sceneModel.createGeometry({ // Define a box-shaped geometry
     id: "boxGeometry",
     primitive: TrianglesPrimitive,
-    positions: [-1, -1, -1, 1, -1, -1, ...],
-    uvs: [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, ...],
-    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
+    positions: [-1, -1, -1, 1, -1, -1, ],
+    uvs: [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, ],
+    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ]
 });
 
 sceneModel.createTexture({ // 
@@ -335,4 +328,4 @@ Copyright 2020, AGPL3 License.
 
 # Credits
 
-See [*Credits*](/credits.html).
+See [*Credits*]().

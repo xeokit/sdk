@@ -123,76 +123,60 @@ npm install @xeokit/core/constants
 Here's the JavaScript for our spinning box app:
 
 ````javascript
-import {Scene} from "@xeokit/scene";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
-import {Viewer} from "@xeokit/viewer";
-import {WebGLRenderer} from "@xeokit/webglrenderer";
+import { Scene } from "@xeokit/scene";
+import { TrianglesPrimitive, LinearEncoding, LinearFilter } from "@xeokit/core/constants";
+import { Viewer } from "@xeokit/viewer";
+import { WebGLRenderer } from "@xeokit/webglrenderer";
 
-const scene = new Scene(); // Scene graph
+const scene = new Scene();
+const renderer = new WebGLRenderer({});
+const viewer = new Viewer({ scene, renderer });
 
-const renderer = new WebGLRenderer({}); // WebGL renderer kernel
-
-const viewer = new Viewer({ // Browser-base viewer
-    scene,
-    renderer
-});
-
-const view = myViewer.createView({ // Independent view 
-    id: "myView",
-    canvasId: "myView1"
-});
-
-view.camera.eye = [0, 0, 10]; // Looking down the -Z axis
+const view = viewer.createView({ id: "myView", canvasId: "myView1" });
+view.camera.eye = [0, 0, 10];
 view.camera.look = [0, 0, 0];
 view.camera.up = [0, 1, 0];
 
-const sceneModel = scene.createModel(); // Start building the scene graph
+const sceneModel = scene.createModel();
 
-sceneModel.createGeometry({ // Define a box-shaped geometry
+sceneModel.createGeometry({
     id: "boxGeometry",
     primitive: TrianglesPrimitive,
-    positions: [-1, -1, -1, 1, -1, -1, ],
-    uvs: [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, ],
-    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ]
+    positions: [-1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1],
+    uvs: [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 0, 3, 7, 0, 4, 7, 1, 2, 6, 1, 6, 5]
 });
 
-sceneModel.createTexture({ // 
+sceneModel.createTexture({
     id: "boxColorTexture",
     src: "myTexture.png",
     encoding: LinearEncoding,
     magFilter: LinearFilter,
-    minFilter: LinearFilter
+    minFilter: LinearFilter,
 });
 
-sceneModel.createTextureSet({
+const boxTextureSet = sceneModel.createTextureSet({
     id: "boxTextureSet",
-    colorTextureId: "boxColorTexture"
+    colorTextureId: "boxColorTexture",
 });
 
 sceneModel.createMesh({
     id: "boxMesh",
     geometryId: "boxGeometry",
     color: [1, 1, 1],
-    metallic: 0.8, // PBR material attributes
+    metallic: 0.8,
     roughness: 0.3,
-    textureSetId: "boxTextureSet"
+    textureSetId: "boxTextureSet",
 });
 
 sceneModel.createObject({
     id: "boxObject",
-    meshIds: ["boxMesh"]
+    meshIds: ["boxMesh"],
 });
 
-sceneModel.build().then(() => { // Compresses textures, geometries etc.
-
-    // A textured box object now appears on our View's canvas.
-
-    // We can now show/hide/select/highlight our box through the View:
-
+sceneModel.build().then(() => {
     view.objects["boxObject"].visible = true;
-    view.objects["boxObject"].highlighted = false;  // etc.
-
-    // Start orbiting the camera:
+    view.objects["boxObject"].highlighted = false;
 
     viewer.onTick.subscribe(() => {
         view.camera.orbitYaw(1.0);
@@ -217,56 +201,36 @@ npm install @xeokit/gltf
 Here's the JavaScript for our glTF viewer app:
 
 ````javascript
-import {Scene} from "@xeokit/scene";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
-import {Viewer} from "@xeokit/viewer";
-import {WebGLRenderer} from "@xeokit/webglrenderer";
-import {loadGLTF} from "@xeokit/gltf";
+import { Scene } from "@xeokit/scene";
+import { TrianglesPrimitive, LinearEncoding, LinearFilter } from "@xeokit/core/constants";
+import { Viewer } from "@xeokit/viewer";
+import { WebGLRenderer } from "@xeokit/webglrenderer";
+import { loadGLTF } from "@xeokit/gltf";
 
-const scene = new Scene(); // Scene graph
+const scene = new Scene();
+const renderer = new WebGLRenderer({});
+const viewer = new Viewer({ scene, renderer });
+const view = viewer.createView({ id: "myView", canvasId: "myView1" });
 
-const renderer = new WebGLRenderer({}); // WebGL renderer kernel
-
-const viewer = new Viewer({ // Browser-base viewer
-    scene,
-    renderer
-});
-
-const view = myViewer.createView({ // Independent view 
-    id: "myView",
-    canvasId: "myView1"
-});
-
-view.camera.eye = [0, 0, 10]; // Looking down the -Z axis
+view.camera.eye = [0, 0, 10];
 view.camera.look = [0, 0, 0];
 view.camera.up = [0, 1, 0];
 
-const sceneModel = scene.createModel(); // Start building the scene graph
+const sceneModel = scene.createModel();
 
-fetch("myModel.xkt").then(response => {
-  
-    response.arrayBuffer().then(data => {
-       
-        loadGLTF({data, scene}).then(() => {
+fetch("myModel.xkt")
+    .then(response => response.arrayBuffer())
+    .then(data => loadGLTF({ data, scene }))
+    .then(() => {
+        sceneModel.build().then(() => {
+            view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;
+            view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;
 
-            sceneModel.build().then(() => { // Compresses textures, geometries etc.
-
-                // A model now appears on our View's canvas.
-
-                // We can now show/hide/select/highlight the model's objects through the View:
-
-                view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;    
-                view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
-
-                // Start orbiting the camera:
-
-                viewer.onTick.subscribe(() => {
-                    view.camera.orbitYaw(1.0);
-                });
+            viewer.onTick.subscribe(() => {
+                view.camera.orbitYaw(1.0);
             });
         });
     });
-});
 ````
 
 ### Convert a glTF file to XKT 
@@ -285,32 +249,26 @@ npm install @xeokit/xkt
 Here's the JavaScript for our converter script:
 
 ````javascript
-import {Scene} from "@xeokit/scene";
-import {Data} from "@xeokit/data";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
-import {loadGLTF} from "@xeokit/gltf";
-import {saveXKT} from "@xeokit/xkt";
-
+import { Scene } from '@xeokit/scene';
+import { Data } from '@xeokit/data';
+import { TrianglesPrimitive, LinearEncoding, LinearFilter } from '@xeokit/core/constants';
+import { loadGLTF } from '@xeokit/gltf';
+import { saveXKT } from '@xeokit/xkt';
 const fs = require('fs');
 
-const scene = new Scene(); // Scene graph
-const sceneModel = scene.createModel({ id: "myModel" }); // Start building the scene graph
-
+const scene = new Scene();
+const sceneModel = scene.createModel({ id: 'myModel' });
 const data = new Data();
-const dataModel = data.createModel({ id: "myModel" }); // Will model the glTF scene hierarchy
+const dataModel = data.createModel({ id: 'myModel' });
 
-fs.readFile("./tests/assets/HousePlan.glb", (err, buffer) => {
+fs.readFile('./tests/assets/HousePlan.glb', (err, buffer) => {
     const arraybuffer = toArrayBuffer(buffer);
-    loadGLTF({
-        data: arrayBuffer,
-        sceneModel,
-        dataModel
-    }).then(() => {
-        sceneModel.build().then(() => { // Compresses textures, geometries etc.
-            const arrayBuffer = saveXKT({ sceneModel, dataModel });
-            fs.writeFile('myModel.xkt', arrayBuffer, err => {});
+    loadGLTF({ data: arraybuffer, sceneModel, dataModel }).then(() => {
+        sceneModel.build().then(() => {
+            const arraybuffer = saveXKT({ sceneModel, dataModel });
+            fs.writeFile('myModel.xkt', arraybuffer, (err) => {});
         });
-    })
+    });
 });
 
 function toArrayBuffer(buf) {
@@ -321,6 +279,7 @@ function toArrayBuffer(buf) {
     }
     return ab;
 }
+
 ````
 
 # License

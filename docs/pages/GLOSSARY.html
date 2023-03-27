@@ -175,7 +175,7 @@ doesn&#39;t rely on exceptions that can&#39;t be easily caught and mocked during
 <p>All xeokit functions and methods will return an <a href="https://xeokit.github.io/sdk/docs/classes/_xeokit_core_components.SDKError.html">SDKError</a> object if something goes wrong. This
 enables TypeScript&#39;s static checking to insist that we check for the possibility of that SDKError before using any results.</p>
 <p>For example:</p>
-<pre><code class="language-javascript"><span class="hl-4">function</span><span class="hl-0"> </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">() : </span><span class="hl-9">SDKError</span><span class="hl-0"> | </span><span class="hl-9">number</span><span class="hl-0"> {</span><br/><span class="hl-0">  </span><span class="hl-7">// ...</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">riskyNumber</span><span class="hl-0"> = </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">();</span><br/><br/><span class="hl-7">// Compiler error because you can&#39;t add an Error and a number</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">badComputedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-8">2</span><span class="hl-0">;</span><br/><br/><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-3">riskyNumber</span><span class="hl-0"> </span><span class="hl-4">instanceof</span><span class="hl-0"> </span><span class="hl-9">SDKError</span><span class="hl-0">) {</span><br/><span class="hl-0">    </span><span class="hl-3">console</span><span class="hl-0">.</span><span class="hl-6">error</span><span class="hl-0">(</span><span class="hl-3">riskyNumber</span><span class="hl-0">.</span><span class="hl-3">message</span><span class="hl-0">);</span><br/><span class="hl-0">} </span><span class="hl-2">else</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-7">// This is ok as we&#39;ve guarded against the error case</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">computedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-8">2</span><span class="hl-0">;</span><br/><span class="hl-0">}</span>
+<pre><code class="language-javascript"><span class="hl-4">function</span><span class="hl-0"> </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">() : </span><span class="hl-9">SDKError</span><span class="hl-0"> | </span><span class="hl-9">number</span><span class="hl-0"> {</span><br/><span class="hl-0">  </span><span class="hl-8">// ...</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">riskyNumber</span><span class="hl-0"> = </span><span class="hl-6">doSomethingRisky</span><span class="hl-0">();</span><br/><br/><span class="hl-8">// Compiler error because you can&#39;t add an Error and a number</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">badComputedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-7">2</span><span class="hl-0">;</span><br/><br/><span class="hl-2">if</span><span class="hl-0"> (</span><span class="hl-3">riskyNumber</span><span class="hl-0"> </span><span class="hl-4">instanceof</span><span class="hl-0"> </span><span class="hl-9">SDKError</span><span class="hl-0">) {</span><br/><span class="hl-0">    </span><span class="hl-3">console</span><span class="hl-0">.</span><span class="hl-6">error</span><span class="hl-0">(</span><span class="hl-3">riskyNumber</span><span class="hl-0">.</span><span class="hl-3">message</span><span class="hl-0">);</span><br/><span class="hl-0">} </span><span class="hl-2">else</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-8">// This is ok as we&#39;ve guarded against the error case</span><br/><span class="hl-0">    </span><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">computedValue</span><span class="hl-0"> = </span><span class="hl-3">riskyNumber</span><span class="hl-0"> + </span><span class="hl-7">2</span><span class="hl-0">;</span><br/><span class="hl-0">}</span>
 </code></pre>
 <blockquote>
 <p><em>See <a href="https://dev.to/supermetrics/simple-and-maintainable-error-handling-in-typescript-56lm">Simple and Maintainable Error Handling in TypeScript</a></em></p>
@@ -328,6 +328,22 @@ with no need to involve a Viewer.</p>
 </blockquote>
 <br>
 
+<hr>
+
+<a href="#o" id="o" style="color: inherit; text-decoration: none;">
+  <h1>O</h1>
+</a>
+<hr>
+<br>
+
+
+<a href="#occlusion-culling" id="occlusion-culling" style="color: inherit; text-decoration: none;">
+  <h1>Occlusion Culling</h1>
+</a>
+<p>WebGL occlusion culling is a technique used to improve rendering performance by avoiding the rendering of objects that are not visible to the viewer. The technique works by using a process called frustum culling.</p>
+<p>In frustum culling, the WebGL renderer determines which objects are visible to the viewer based on their position and orientation in the 3D scene. It creates a frustum, which is a truncated pyramid that represents the viewer&#39;s field of view. Any objects that fall outside the frustum are not visible and can be culled or skipped from the rendering process.</p>
+<p>WebGL occlusion culling can further improve performance by using a technique called occlusion testing. In occlusion testing, the renderer checks whether an object is visible by testing whether it is occluded, or hidden, by other objects in the scene. The renderer uses a technique called occlusion queries to determine whether an object is visible or occluded.</p>
+<p>Occlusion queries involve rendering a simplified version of the scene to the depth buffer without actually rendering the visible objects. The renderer then checks the depth buffer to determine whether the object is visible or occluded. If the object is occluded, it can be skipped from the rendering process, improving performance</p>
 <hr>
 
 <a href="#p" id="p" style="color: inherit; text-decoration: none;">

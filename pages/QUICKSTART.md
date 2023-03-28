@@ -1,6 +1,3 @@
-
-# Quick Start
-
 ### Spinning Textured Box
 
 Let's make a simple application using xeokit - a spinning, textured box.
@@ -262,11 +259,3 @@ The script does the following steps:
 8. Invoke the xeokit method saveXKT() to create an XKT file from the scene model and data model.
 9. Use Node's fs module to write the XKT file to disk.
 10. The toArrayBuffer() function is called to create an ArrayBuffer from a Buffer object.
-
-# License
-
-Copyright 2020, AGPL3 License.
-
-# Credits
-
-See [*Credits*](/credits.html).

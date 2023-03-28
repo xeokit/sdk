@@ -6,7 +6,8 @@
  *
  * # xeokit BCF Importer and Exporter
  *
- * The xeokit SDK uses the [BCF](/docs/pages/GLOSSARY.html#bcf) format to exchange bookmarks of Viewer state with other BIM software.
+ * The xeokit SDK uses the [BCF](/docs/pages/GLOSSARY.html#bcf) format to exchange bookmarks of Viewer state with other
+ * BIM software.
  *
  * BCF (Building Collaboration Format) is an open file format that enables data exchange and collaboration on 3D models and building
  * information. A *BCF viewpoint* is a snapshot of a specific issue related to a building project, containing information such as the

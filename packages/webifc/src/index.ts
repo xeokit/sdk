@@ -6,10 +6,13 @@
  *
  * # xeokit IFC Importer
  *
- * * Industry Foundation Classes ([IFC](/docs/pages/GLOSSARY.html#ifc)) is a data model for building information modeling
- * ([BIM](https://en.wikipedia.org/wiki/Cityjson)) used in the architecture, engineering, and construction (AEC) industry.
- * * Use {@link loadWebIFC} to load IFC files into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
- * * Internally, loadWebIFC uses the [web-ifc](https://github.com/IFCjs/web-ifc) API to parse geometry and data from the IFC file.
+ * The xeokit SDK can import 3D building models from  Industry Foundation Classes ([IFC](/docs/pages/GLOSSARY.html#ifc)) files,
+ * a standard file format used in the field of Building Information Modeling (BIM) to exchange information between
+ * different software applications used in the construction and building industries.
+ *
+ * To import a medium-sized IFC model into xeokit, use the {@link loadWebIFC} function, which will load the file into
+ * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}. Internally, loadWebIFC
+ * uses the [web-ifc](https://github.com/IFCjs/web-ifc) API to parse geometry and data from the IFC file.
  *
  * <br>
  *
@@ -25,7 +28,10 @@
  *
  * ## Usage
  *
- * Loading an IFC file into a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}:
+ * In the example below, we'll import an IFC file into a {@link @xeokit/scene!SceneModel | SceneModel}
+ * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core/components!SDKError} class
+ * is used to handle errors that may occur during the process. Note how we initialize the
+ * [WebIFC](https://github.com/IFCjs/web-ifc) API externally and pass it in as a parameter for {@link loadWebIFC}.
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";

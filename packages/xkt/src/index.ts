@@ -6,10 +6,17 @@
  *
  * # xeokit XKT Importer and Exporter
  *
- * * [XKT](/docs/pages/GLOSSARY.html#xkt) is xeokit's native compressed model format, which contains geometry, materials, objects and semantic data in a
- * compact, Web-friendly payload.
- * * Use {@link loadXKT} to import XKT files into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
- * * Use {@link saveXKT} to export {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels} to XKT files.
+ * The xeokit SDK allows us to import 3D models from [XKT](/docs/pages/GLOSSARY.html#xkt), which is xeokit's
+ * native runtime asset delivery format for model representations and semantics.
+ *
+ * The XKT format compresses large double-precision model representations and semantic data to a compact payload that
+ * loads quickly over the Web into a xeokit viewer running in the browser.
+ *
+ * To import an XKT model into xeokit, use the {@link loadXKT} function, which will load the file into
+ * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
+ *
+ * To export an XKT model from xeokit, use the {@link saveXKT} function, which will save a
+ * {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel} to XKT file data.
  *
  * <br>
  *
@@ -25,7 +32,9 @@
  *
  * ## Usage
  *
- * Using {@link loadXKT} to import an XKT file into a {@link @xeokit/data!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
+ * In the example below, we'll use {@link loadXKT} to import an XKT file into a {@link @xeokit/data!DataModel | DataModel} and
+ * a {@link @xeokit/scene!SceneModel | SceneModel}. The {@link @xeokit/core/components!SDKError} class
+ * is used to handle errors that may occur during the process:
  *
  * ````javascript
  * import {Data} from "@xeokit/data";
@@ -43,15 +52,21 @@
  *     id: "myModel
  * });
  *
- * fetch("myModel.xkt").then(response => {
+ * if (dataModel instanceof SDKError) {
+ *      console.error(dataModel.message);
+ * } else if (sceneModel instanceof SDKError) {
+ *      console.error(dataModel.message);
+ * } else {
+ *      fetch("myModel.xkt").then(response => {
  *
- *     response.arrayBuffer().then(data => {
+ *         response.arrayBuffer().then(data => {
  *
- *          loadXKT({ data, dataModel, sceneModel });
+ *              loadXKT({ data, dataModel, sceneModel });
  *
- *          dataModel.build();
- *          sceneModel.build();
- *     })
+ *              dataModel.build();
+ *              sceneModel.build();
+ *          });
+ *      });
  * });
  * ````
  *

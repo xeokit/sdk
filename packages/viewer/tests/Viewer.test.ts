@@ -114,28 +114,32 @@ describe('Create and Destroy a Viewer', () => {
 
         const renderer = new MockRenderer({});
 
-        const viewer = new Viewer({
+        const viewer: Viewer = new Viewer({
             id: "myViewer",
             scene,
             renderer
         });
 
-        const view1 = viewer.createView({
+        const view1: View | SDKError = viewer.createView({
             id: "myView",
             canvasId: "myView1"
         });
 
         if (view1 instanceof SDKError) {
-            //
-        } else {
-            view1.camera.eye = [-3.933, 2.855, 27.018];
-            view1.camera.look = [4.400, 3.724, 8.899];
-            view1.camera.up = [-0.018, 0.999, 0.039];
+            throw new Error("Failed to create new View with Viewer.createView()");
         }
+
+        view1.camera.eye = [-3.933, 2.855, 27.018];
+        view1.camera.look = [4.400, 3.724, 8.899];
+        view1.camera.up = [-0.018, 0.999, 0.039];
 
         const sceneModel = scene.createModel({
             id: "myModel"
         });
+
+        if (sceneModel instanceof SDKError) {
+            throw new Error("Failed to create new SceneModel with Scene.createModel()");
+        }
 
         sceneModel.createGeometry({
             id: "theGeometry",

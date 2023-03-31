@@ -1,6 +1,7 @@
 import type {PropertySet} from "./PropertySet";
 import type {DataModel} from "./DataModel";
 import {Relationship} from "./Relationship";
+import {Data} from "./Data";
 
 /**
  * An object in a {@link @xeokit/data!DataModel}.
@@ -11,6 +12,11 @@ import {Relationship} from "./Relationship";
  * See {@link "@xeokit/data"} for usage.
  */
 export class DataObject {
+
+    /**
+     *  {@link Data} that contains this DataObject.
+     */
+    public data: Data;
 
     /**
      * {@link DataModel | DataModels} that share this DataObject.
@@ -61,12 +67,14 @@ export class DataObject {
      * @private
      */
     constructor(
+        data: Data,
         model: DataModel,
         id: string,
         name: string,
         type: number,
         propertySets?: PropertySet[]) {
 
+        this.data = data;
         this.models = [model];
         this.id = id;
         this.name = name;

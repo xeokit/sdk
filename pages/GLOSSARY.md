@@ -309,6 +309,22 @@ with no need to involve a Viewer.
 <br>
 
 ---
+# O
+---
+
+<br>
+
+# Occlusion Culling
+
+WebGL occlusion culling is a technique used to improve rendering performance by avoiding the rendering of objects that are not visible to the viewer. The technique works by using a process called frustum culling.
+
+In frustum culling, the WebGL renderer determines which objects are visible to the viewer based on their position and orientation in the 3D scene. It creates a frustum, which is a truncated pyramid that represents the viewer's field of view. Any objects that fall outside the frustum are not visible and can be culled or skipped from the rendering process.
+
+WebGL occlusion culling can further improve performance by using a technique called occlusion testing. In occlusion testing, the renderer checks whether an object is visible by testing whether it is occluded, or hidden, by other objects in the scene. The renderer uses a technique called occlusion queries to determine whether an object is visible or occluded.
+
+Occlusion queries involve rendering a simplified version of the scene to the depth buffer without actually rendering the visible objects. The renderer then checks the depth buffer to determine whether the object is visible or occluded. If the object is occluded, it can be skipped from the rendering process, improving performance
+
+---
 # P
 ---
 

@@ -6,32 +6,34 @@
  *
  * # xeokit Data Graph
  *
- *
  * The xeokit SDK employs a generic entity-relationship data graph to manage model semantics. This graph includes entities,
  * properties, and relationships and is compatible with both the browser and NodeJS. It serves as a versatile tool for generating
  * models, converting between model formats, and navigating content within the model viewer.
  *
- * In more detail, the xeokit SDK utilizes a Data container class that holds DataModels consisting of DataObjects, PropertySets, and
- * Relationships, as shown in the diagram below.
+ * In more detail, the xeokit SDK utilizes a {@link @xeokit/data!Data | data} container class that holds
+ * {@link @xeokit/data!DataModel | DataModels} consisting of {@link @xeokit/data!DataObject | DataObjects},
+ * {@link @xeokit/data!PropertySet | PropertySets}, and
+ * {@link @xeokit/data!Relationship | Relationships}, as shown in the diagram below.
  *
  * <br>
  *
  * [![](https://mermaid.ink/img/pako:eNqNVMFunDAU_BX0Tu1qgxaW9QLnHBOlSm4VFwc7WVeAkTFV6Wr_vcZmu89A0nIBzxvPmzdGPkMpGYccyop23b2g74rWRcOE4qUWsgkenosmsI9lBPdU0_MVcrjiVPNHI1N9-epVOk5VeXp6_WG0ulmtrExxhtWjRudB0m32sFbJlis9vHC_cP2-LB1bd9i2YGixbLLewk3q5sHWHf7MKzpG1p1Eu6x-uyni4msvKoYBxjut5HCDVqZxDrxT8OYJ9NByvF4bZ6aL_CFhLDuJCP4viQAJNLRGTn7SqkdLbHOmhcPEev5kyrKadxfIDOfMh_92GCMMCogK2NzdmXcYbgq4_SaYZoF1ri_-seaS5xDD3kzsnWOjI_hA9hPWwuk61cvVCl7JN2f5eqz_v3WePPKxzOhanMiwhZqrmgpmLiV78AXoEzd_EeTmk_E32le6gKK5GCrttXwZmhJyrXq-hb5lpv10jUH-RqvOoC1tID_DL8hjEoVRdDxEJE73GSHZYQuDgeMwyY7kkGTRMSbp_nDZwm8pjcIuTGOSJGS_yxKSpjvD50xoqR6na3N82Q7fLX-0cfkD0IeHkg?type=png)](https://mermaid.live/edit#pako:eNqNVMFunDAU_BX0Tu1qgxaW9QLnHBOlSm4VFwc7WVeAkTFV6Wr_vcZmu89A0nIBzxvPmzdGPkMpGYccyop23b2g74rWRcOE4qUWsgkenosmsI9lBPdU0_MVcrjiVPNHI1N9-epVOk5VeXp6_WG0ulmtrExxhtWjRudB0m32sFbJlis9vHC_cP2-LB1bd9i2YGixbLLewk3q5sHWHf7MKzpG1p1Eu6x-uyni4msvKoYBxjut5HCDVqZxDrxT8OYJ9NByvF4bZ6aL_CFhLDuJCP4viQAJNLRGTn7SqkdLbHOmhcPEev5kyrKadxfIDOfMh_92GCMMCogK2NzdmXcYbgq4_SaYZoF1ri_-seaS5xDD3kzsnWOjI_hA9hPWwuk61cvVCl7JN2f5eqz_v3WePPKxzOhanMiwhZqrmgpmLiV78AXoEzd_EeTmk_E32le6gKK5GCrttXwZmhJyrXq-hb5lpv10jUH-RqvOoC1tID_DL8hjEoVRdDxEJE73GSHZYQuDgeMwyY7kkGTRMSbp_nDZwm8pjcIuTGOSJGS_yxKSpjvD50xoqR6na3N82Q7fLX-0cfkD0IeHkg)
  *
- * Various model file formats can be imported into DataModels using methods such as loadGLTF, loadLAS, loadCityJSON, and loadXKT,
- * while DataModels can be exported to the native XKT format using saveXKT.
+ * Various model file formats can be imported into DataModels using methods such as {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS},
+ * {@link @xeokit/cityjson!loadCityJSON}, and {@link @xeokit/xkt!loadXKT},
+ * while DataModels can be exported to the native [XKT](/docs/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}.
  *
  * To programmatically build DataModels, builder methods
- * such as Data.createModel, DataModel.createObject, DataModel.createPropertySet, and DataModel.createRelationship can be employed.
- * DataObjects can be queried using the Data.searchObjects method, and semantic data can be attached to model representations by
+ * such as {@link @xeokit/data!Data.createModel | Data.createModel}, {@link @xeokit/data!DataModel.createObject | DataModel.createObject},
+ * {@link @xeokit/data!DataModel.createPropertySet | DataModel.createPropertySet}, and
+ * {@link @xeokit/data!DataModel.createRelationship | DataModel.createRelationship} can be employed.
+ * DataObjects can be queried using the {@link @xeokit/data!Data.searchObjects | Data.searchObjects} method, and
+ * semantic data can be attached to model representations by
  * using it alongside SceneModel.
  *
- * It's important to note that DataObjects and PropertySets are global, created on their DataModels but stored globally on the Data.
- * Additionally, DataModels automatically reuse DataObjects and PropertySets wherever they're already created by other DataModels. Finally,
- * DataObjects can have Relationships with other DataObjects in different DataModels.
- *
- * To use the xeokit SDK, install it with npm install @xeokit/data. Users can then create a DataModel from JSON or using builder methods,
- * read DataObjects, and search for DataObjects.
+ * It's important to note that DataObjects and PropertySets are global, created on their DataModels but stored globally
+ * on the Data. Additionally, DataModels automatically reuse DataObjects and PropertySets wherever they're already
+ * created by other DataModels. Finally, DataObjects can have Relationships with other DataObjects in different DataModels.
  *
  * ## Installation
  *
@@ -48,26 +50,28 @@
  *
  * ### Creating a DataModel from JSON
  *
- * We will start with an example where we create a DataModel using a single parameter object of type DataModelParams.
+ * We will start with an example where we create a {@link DataModel} using a single parameter object of type {@link DataModelParams}.
  * The DataModel we create will define a simple piece of furniture - a table consisting of a tabletop and four legs.
- * We will then query the data model to retrieve all the objects within it.
+ * We will then query the data model to retrieve all the {@link DataObject | DataObjects} within it.
  *
- * To achieve this, we will create a DataModel that contains six DataObjects: one for the table, one for the tabletop,
- * and one for each of the four legs. We will also define Relationships to connect the DataObjects into an aggregation
- * hierarchy, and we will assign PropertySets to the DataObjects to give them attributes such as height and weight.
+ * To achieve this, we will create a DataModel that contains six DataObjects: one for the
+ * table, one for the tabletop, and one for each of the four legs. We will also define Relationships
+ * to connect the DataObjects into an aggregation hierarchy, and we will assign {@link Property | Properties} to the
+ * DataObjects to give them attributes such as height and weight.
  *
- * To give the DataObjects and Relationships semantic meaning, we will assign them types from one of the SDK's bundled
- * data type sets, basicTypes. This set of types classifies each DataObject as a BasicEntity and each Relationship as a BasicAggregation.
+ * To give the DataObjects and {@link Relationship | Relationships} semantic meaning, we will assign
+ * them types from one of the SDK's bundled data type sets, basicTypes. This set of types classifies each DataObject
+ * as a {@link @xeokit/datatypes/basicTypes!BasicEntity | BasicEntity} and each Relationship as
+ * a {@link @xeokit/datatypes/basicTypes!BasicAggregation | BasicAggregation}.
  *
  * It's worth noting that in a real-world scenario, we would likely use a more complex set of data types, such as
- * ifcTypes. However, we cannot mix different sets of data types within our Data, as traversals of the DataObjects
- * with Data.searchObjects must be guided uniformly by the same set of types across all the DataObjects and Relationships
- * in the graph.
+ * {@link "@xeokit/datatypes/ifcTypes" | ifcTypes}. However, we cannot mix different sets of data types within our {@link Data},
+ * as traversals of the DataObjects with {@link Data.searchObjects | Data.searchObjects } must be
+ * guided uniformly by the same set of types across all the DataObjects and Relationships in the graph.
  *
- * To create our DataModel, we will use the following code, which creates a new Data object and then creates a DataModel
- * from a set of objects, relationships, and property sets. The SDKError class is used to handle errors that may occur
- * during the process:
- *
+ * To create our DataModel, we will use the following code, which creates a new Data object and then
+ * creates a DataModel from a set of objects, relationships, and property sets. The {@link @xeokit/core/components!SDKError} class
+ * is used to handle errors that may occur during the process:
  *
  * ````javascript
  * import { SDKError } from "@xeokit/core/components";
@@ -200,9 +204,9 @@
  *
  * ### Creating a DataModel using Builder Methods
  *
- * In our second example, we'll create our {@link @xeokit/data!DataModel | DataModel} again, this time instantiating
+ * In our second example, we'll create our {@link DataModel} again, this time instantiating
  * each {@link PropertySet}, {@link Property}, {@link DataObject} and {@link Relationship} individually, using the
- * DataModel's builder methods.
+ * {@link DataModel | DataModel's} builder methods.
  *
  * ````javascript
  * import {SDKError} from "@xeokit/core/components";
@@ -360,7 +364,7 @@
  *
  * ### Reading DataObjects
  *
- * With our SceneModel built, we'll now use the {@link Data.searchObjects} method to
+ * With our {@link SceneModel} built, we'll now use the {@link Data.searchObjects} method to
  * traverse it to fetch the IDs of the {@link DataObject | DataObjects} we find on that path.
  *
  * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building

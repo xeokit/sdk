@@ -6,8 +6,21 @@
  *
  * # xeokit glTF Importer
  *
- * * [glTF](https://en.wikipedia.org/wiki/GlTF) is an industry standard format for 3D scenes and models.
- * * Use {@link loadGLTF} to import glTF into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
+ * The xeokit SDK allows us to import 3D models from [glTF](/docs/pages/GLOSSARY.html#gltf) (GL Transmission Format), a
+ * file format that is a runtime asset delivery format for 3D scenes and models.
+ *
+ * glTF is a compact and efficient format for 3D content, allowing fast loading and rendering in apps and web
+ * browsers. It stores geometry, materials, textures, animations, and scene hierarchy, and is open and royalty-free,
+ * making it a popular choice for 3D content distribution and exchange.
+ *
+ * To import a glTF model into xeokit, use the {@link loadGLTF} function, which will load the file into
+ * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
+ *
+ * <br>
+ *
+ * [![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)
+ *
+ * <br>
  *
  * ## Installation
  *
@@ -17,7 +30,9 @@
  *
  * ## Usage
  *
- * Loading a glTF file into a {@link @xeokit/data!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
+ * In the example below, we'll import a glTF file into a {@link @xeokit/scene!SceneModel | SceneModel}
+ * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core/components!SDKError} class
+ * is used to handle errors that may occur during the process:
  *
  * ````javascript
  * import {Data} from "@xeokit/data";
@@ -35,16 +50,23 @@
  *     id: "myModel
  * });
  *
- * fetch("myModel.glb").then(response => {
+ * if (dataModel instanceof SDKError) {
+ *      console.error(dataModel.message);
  *
- *     response.arrayBuffer().then(data => {
+ * } else if (sceneModel instanceof SDKError) {
+ *      console.error(dataModel.message);
  *
- *          loadGLTF({ data, dataModel, sceneModel });
+ * } else {
+ *      fetch("myModel.glb").then(response => {
+ *          response.arrayBuffer().then(data => {
  *
- *          dataModel.build();
- *          sceneModel.build();
- *     })
- * });
+ *              loadGLTF({ data, dataModel, sceneModel });
+ *
+ *                  dataModel.build();
+ *                  sceneModel.build();
+ *              });
+ *         });
+ *     }
  * ````
  *
  * @module @xeokit/gltf

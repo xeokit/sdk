@@ -34,12 +34,20 @@
         "source": "INTRODUCTION.md"
       },
       {
-        "title": "Glossary",
-        "source": "GLOSSARY.md"
+        "title": "Overview",
+        "source": "OVERVIEW.md"
+      },
+      {
+        "title": "Quickstart",
+        "source": "QUICKSTART.md"
       },
       {
         "title": "Contributing",
         "source": "CONTRIBUTING.md"
+      },
+      {
+        "title": "Glossary",
+        "source": "GLOSSARY.md"
       }
     ]
   }

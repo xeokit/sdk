@@ -6,8 +6,21 @@
  *
  * # xeokit CityJSON Importer
  *
- * * [CityJSON](/docs/pages/GLOSSARY.html#cityjson) is an industry standard format for 3D scenes and models.
- * * Use {@link loadCityJSON} to import CityJSON into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
+ * The xeokit SDK allows us to import 3D urban models from [CityJSON](/docs/pages/GLOSSARY.html#cityjson), a JSON-based
+ * file format specifically designed for lightweight, user-friendly, and human-readable storage and sharing of 3D models.
+ *
+ * CityJSON can represent both basic geometric shapes and intricate objects such as buildings and trees, offering a
+ * simple alternative to other formats like CityGML. This format is built to be seamlessly incorporated into existing
+ * workflows and tools.
+ *
+ * To import a CityJSON model into xeokit, simply use the {@link loadCityJSON} function, which will load the file into both
+ * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
+ *
+ * <br>
+ *
+ * [![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)
+ *
+ * <br>
  *
  * ## Installation
  *
@@ -17,44 +30,45 @@
  *
  * ## Usage
  *
- * Import a CityJSON file into a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}:
+ * In the example below, we'll import a CityJSON file into a {@link @xeokit/scene!SceneModel | SceneModel}
+ * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core/components!SDKError} class
+ * is used to handle errors that may occur during the process:
  *
  * ````javascript
- * import {Scene} from "@xeokit/scene";
- * import {Data} from "@xeokit/data";
- * import {loadCityJSON} from "@xeokit/cityjson";
+ * import { Scene } from "@xeokit/scene";
+ * import { Data } from "@xeokit/data";
+ * import { loadCityJSON } from "@xeokit/cityjson";
  *
  * const scene = new Scene();
  * const data = new Data();
+ * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModel = scene.createModel({ id: "myModel" });
  *
- * const dataModel = data.createModel({
- *     id: "myModel"
- * });
+ * if (dataModel instanceof SDKError) {
+ *      console.error(dataModel.message);
+ * } else if (sceneModel instanceof SDKError) {
+ *      console.error(dataModel.message);
+ * } else {
+ *      fetch("myModel.json")
+ *          .then(response => response.json())
+ *          .then(data => {
  *
- * const sceneModel = scene.createModel({
- *     id: "myModel"
- * });
+ *              const fileData = JSON.parse(data);
  *
- * fetch("myModel.json")
- *      .then(function (response) {
- *          return response.json();
- *      })
- *      .then(function (data) {
- *          const fileData = JSON.parse(data);
+ *              return loadCityJSON({
+ *                  data: fileData,
+ *                  sceneModel,
+ *                  dataModel
+ *              }, {
+ *                  rotateX: true
+ *              });
  *
- *          loadCityJSON({
- *              data: fileData,
- *              sceneModel,
- *              dataModel
- *          }, {
- *              rotateX: true
  *          }).then(() => {
- *
- *         sceneModel.build();
- *         dataModel.build();
- *    });
+ *              sceneModel.build();
+ *              dataModel.build();
+ *          });
+ * }
  * ````
- *
  *
  * @module @xeokit/cityjson
  */

@@ -8,8 +8,21 @@
  *
  * # xeokit LAS/LAZ Importer
  *
- * * [LAS/LAZ](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#las) is an industry standard format for 3D point cloud scans.
- * * Use {@link loadLAS} to import LAS/LAZ files into {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/data!DataModel | DataModels}.
+ * The xeokit SDK allows us to import 3D models from [LAS](/docs/pages/GLOSSARY.html#las) (GL Transmission Format), a
+ * file format that is a runtime asset delivery format for 3D scenes and models.
+ *
+ * The LAS file format is a standardized binary format used for storing and sharing 3D point cloud data from LiDAR
+ * scanners. It includes header information and point data attributes, supports compressed and uncompressed data, and
+ * is widely used in surveying, mapping, and other industries.
+ *
+ * To import an LAS model into xeokit, use the {@link loadLAS} function, which will load the file into
+ * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
+ *
+ * <br>
+ *
+ * [![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)
+ *
+ * <br>
  *
  * ## Installation
  *
@@ -19,7 +32,9 @@
  *
  * ## Usage
  *
- * Loading an LAS file into a {@link @xeokit/data!DataModel | DataModel} and a {@link @xeokit/scene!SceneModel | SceneModel}:
+ * In the example below, we'll import an LAS file into a {@link @xeokit/scene!SceneModel | SceneModel}
+ * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core/components!SDKError} class
+ * is used to handle errors that may occur during the process:
  *
  * ````javascript
  * import {Data} from "@xeokit/data";

@@ -6,12 +6,25 @@
  *
  * # xeokit BCF Importer and Exporter
  *
- * * The BIM Collaboration Format ({@link BCFViewpoint}) is an open file
- * format for exchanging data and collaborating on 3D models and building information. The xeokit SDK uses BCF to
- * exchange bookmarks of {@link @xeokit/viewer!Viewer} state with other BIM software.
- * * Use {@link loadBCFViewpoint} to import a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} belonging to a {@link @xeokit/viewer!Viewer | Viewer}.
- * * Use {@link saveBCFViewpoint} to export the state of a {@link @xeokit/viewer!View | View} as a JSON-encoded BCF viewpoint.
- * * See {@link BCFViewpoint} for the BCF viewpoint format.
+ * The xeokit SDK uses the [BCF](/docs/pages/GLOSSARY.html#bcf) format to exchange bookmarks of Viewer state with other
+ * BIM software.
+ *
+ * BCF (Building Collaboration Format) is an open file format that enables data exchange and collaboration on 3D models and building
+ * information. A *BCF viewpoint* is a snapshot of a specific issue related to a building project, containing information such as the
+ * problem description, location, and proposed solutions. It is used to facilitate communication and collaboration among
+ * project stakeholders in BIM workflows.
+ *
+ * To import a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} belonging to a {@link @xeokit/viewer!Viewer | Viewer}, use the
+ * {@link loadBCFViewpoint} function. Similarly, to export the state of a View as a JSON-encoded BCF viewpoint, use
+ * the {@link saveBCFViewpoint} function.
+ *
+ * Refer to {@link BCFViewpoint} for information on the BCF viewpoint format.
+ *
+ * <br>
+ *
+ * [![](https://mermaid.ink/img/pako:eNqlVFFP2zAQ_ivRPUJADe2oZKE-UMRTJlWrxsNmhNz4CkaJbcVOR1f1v2O7SUiyaGJaH1rfd9999-Uu9QEyxREIZDkz5k6w55IVVFLJRYmZFUpG6Tcfh3z0IPAXltGBysh9zqOdiw2Vxz6jTQvenHK2x_JPZurhaISvNq-ufb8gVYzfLu99nVZC2hVzXk1TfXOjfYwWy8Wikdlk25be9dw2dNIVx7R2dwLxrQd2HOQDBx-9t5UM0_KtOwVrtsN_tPwf9syg21_snRZJIaFwcbGgcEbhITQO30M49KJyfAEUJjU7aUQ-QeymqRwOtmGNC5Hou0ETtcMz_onGRz1i7hPEvrnhWBvWuNCouWZDXXq9nNNStSNq_4fb4VPmCktGPHn1AS8D2q3JhUQTaKk7_Xzs5jbCFkyfsrfh3M9nudBayOcnnbNGZVljKw_16UY6sRdlA29dBz09VWglUdpaqg3D-wYxOPMFE9zdNOG5KdgXLJACcUeOW1blloIjOyqrrFrvZQbElhXGUGnOLNZ3E5Aty41DNZNADvAGZBLDHsg0uZwm1_PJbH41mU3nX2ZXxxh-K-UqkhiQC6vKr_Vd53-Cwo-Q922O73wUsH8?type=png)](https://mermaid.live/edit#pako:eNqlVFFP2zAQ_ivRPUJADe2oZKE-UMRTJlWrxsNmhNz4CkaJbcVOR1f1v2O7SUiyaGJaH1rfd9999-Uu9QEyxREIZDkz5k6w55IVVFLJRYmZFUpG6Tcfh3z0IPAXltGBysh9zqOdiw2Vxz6jTQvenHK2x_JPZurhaISvNq-ufb8gVYzfLu99nVZC2hVzXk1TfXOjfYwWy8Wikdlk25be9dw2dNIVx7R2dwLxrQd2HOQDBx-9t5UM0_KtOwVrtsN_tPwf9syg21_snRZJIaFwcbGgcEbhITQO30M49KJyfAEUJjU7aUQ-QeymqRwOtmGNC5Hou0ETtcMz_onGRz1i7hPEvrnhWBvWuNCouWZDXXq9nNNStSNq_4fb4VPmCktGPHn1AS8D2q3JhUQTaKk7_Xzs5jbCFkyfsrfh3M9nudBayOcnnbNGZVljKw_16UY6sRdlA29dBz09VWglUdpaqg3D-wYxOPMFE9zdNOG5KdgXLJACcUeOW1blloIjOyqrrFrvZQbElhXGUGnOLNZ3E5Aty41DNZNADvAGZBLDHsg0uZwm1_PJbH41mU3nX2ZXxxh-K-UqkhiQC6vKr_Vd53-Cwo-Q922O73wUsH8)
+ *
+ * <br>
  *
  * ## Installation
  *
@@ -23,7 +36,16 @@
  *
  * ### Saving and Loading a View as BCF
  *
- * First, import the components we need:
+ * In this example we'll set up a xeokit Viewer in a web browser, load a BIM model into it, and then demonstrate how we
+ * can save and load bookmarks of our Viewer state as BCF viewpoints, using the model.
+ *
+ * We'll start by
+ *
+ * * creating a Scene and Data,
+ * * initializing a Viewer with a WebGLRenderer and the Scene,
+ * * create a new View, SceneModel and DataModel,
+ * * load an XKT file using the loadXKT function, and
+ * * build the Scene and Data models, rendering the 3D model in the web browser.
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
@@ -33,71 +55,36 @@
  * import {loadXKT} from "@xeokit/loadXKT";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
  * import * as ifcTypes from "@xeokit/datatypes/ifcTypes";
- * ````
  *
- * Create a {@link @xeokit/scene!Scene}, which will contain our model objects, materials and geometry.
+ * const scene = new Scene();
+ * const data = new Data();
  *
- * Within the Scene, create a {@link @xeokit/scene!SceneModel}.
+ * const viewer = new Viewer({
+ *      scene,
+ *      renderer: new WebGLRenderer()
+ * });
  *
- * ````javascript
- * const myScene = new Scene();
+ * const view = viewer.createView({
+ *     id: "myView",
+ *     canvasId: "myCanvas"
+ * });
  *
- * const mySceneModel = myScene.createModel({
+ * const sceneModel = scene.createModel({
  *     id: "myModel"
  * });
- * ````
  *
- * Create a {@link @xeokit/data!Data}, which will contain our model's semantic data as en entity-relationship graph.
- *
- * Within the Data, create a {@link @xeokit/data!DataModel}.
- *
- * ````javascript
- * const myData = new Data();
- *
- * const myDataModel = myData.createModel({
+ * const dataModel = data.createModel({
  *     id: "myModel"
  * });
- * ````
  *
- * Then we'll fetch an ArrayBuffer containing an XKT file and use {@link @xeokit/xkt!loadXKT} to
- * load it into our SceneModel and DataModel.
- *
- * > * See {@link "@xeokit/scene"} for info on creating SceneModels.
- * > * See {@link "@xeokit/data"} for info on creating DataModels.
- *
- * ````javascript
  * fetch("myModel.xkt").then(response => {
  *     response.arrayBuffer().then(data => {
  *
  *          loadXKT({ data, sceneModel, dataModel });
  *
- *          mySceneModel.build();
- *          myDataModel.build();
- *    });
- * });
- * ````
- *
- * That will happen asynchronously.
- *
- * In the meantime, let's create a {@link @xeokit/viewer!Viewer} and connect it to our Scene. We'll configure our
- * Viewer with a {@link @xeokit/webglrenderer!WebGLRenderer}, so that it will use the browser's WebGL graphics API
- * for rendering.
- *
- * As always, we also need to give our Viewer at least one {@link @xeokit/viewer!View | View}, to bind it to an
- * HTML canvas element.
- *
- * ````javascript
- * const myViewer = new Viewer({
- *      id: "myViewer",
- *      scene: myScene,
- *      renderer: new WebGLRenderer({
- *         //...
- *      })
- * });
- *
- * const myView = myViewer.createView({
- *     id: "myView",
- *     canvasId: "myCanvas"
+ *          sceneModel.build();
+ *          dataModel.build();
+ *     });
  * });
  * ````
  *
@@ -111,25 +98,24 @@
  * an X-ray effect tp a couple of objects, then we'll use {@link saveBCFViewpoint} to save the state of the View to
  * a BCF viewpoint.
  *
- * > Once the SceneModel and DataModel have been built, we can no longer add anything to them.
+ * Once the SceneModel and DataModel have been built, we can no longer add anything to them.
  *
  * ````javascript
- * myDataModel.onBuilt.one(()=>{
+ * dataModel.onBuilt.one(()=>{
  *
- *      myView.camera.eye = [0,0,-33];
- *      myView.camera.look = [0,0,0];
- *      myView.camera.up = [0,0,0];
+ *     view.camera.eye = [0,0,-33];
+ *     view.camera.look = [0,0,0];
+ *     view.camera.up = [0,0,0];
  *
- *      myView.setObjectsVisible(myView.objectIds, false);
- *      myView.setObjectsVisible(["myObject1", "myObject2", "myObject3", ...], true);
+ *     view.setObjectsVisible(view.objectIds, false);
+ *     view.setObjectsVisible(["myObject1", "myObject2", "myObject3", ...], true);
  *
- *      myView.setObjectsXRayed(["myObject1", "myObject", ...], true);
+ *     view.setObjectsXRayed(["myObject1", "myObject", ...], true);
  *
- *      const myBCFViewpoint = saveBCFViewpoint({
- *          view: myView
- *      });
+ *     const bcfViewpoint = saveBCFViewpoint({
+ *         view: view
+ *     });
  *
- *      // ...
  * });
  * ````
  *
@@ -138,8 +124,8 @@
  *
  * ````javascript
  * loadBCFViewpoint({
- *     bcfViewpoint: myBCFViewpoint,
- *     view: myView
+ *     bcfViewpoint,
+ *     view
  * });
  * ````
  *
@@ -158,37 +144,37 @@
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {loadBCFViewpoint} from "@xeokit/bcf";
  *
- * const myViewer = new Viewer({
+ * const viewer = new Viewer({
  *     id: "myViewer",
- *     scene; myScene,
+ *     scene,
  *     renderer: new WebGLRenderer({
  *         //...
  *     })
  * });
  *
- * const myView = myViewer.createView({
+ * const view = viewer.createView({
  *     id: "myView",
  *     canvasId: "myView1"
  * });
  *
- * const foregroundViewLayer = myView.createLayer({
+ * const foregroundViewLayer = view.createLayer({
  *     id: "foreground"
  * });
  *
- * const backgroundViewLayer = myView.createLayer({
+ * const backgroundViewLayer = view.createLayer({
  *     id: "background"
  * });
  *
- * const mySceneModel = myScene.createModel({
+ * const sceneModel = scene.createModel({
  *      id: "myModel",
  *      viewLayerId: "foreground"
  * });
  *
  * //...create some objects, load XKT etc
  *
- * mySceneModel.build();
+ * sceneModel.build();
  *
- * const myOtherSceneModel = myScene.createModel({
+ * const myOtherSceneModel = scene.createModel({
  *      id: "myOtherModel",
  *      viewLayerId: "background"
  * });
@@ -203,8 +189,8 @@
  * other ViewLayer:
  *
  * ````javascript
- * const myBCFViewpoint = saveBCFViewpoint({
- *      view: myView,
+ * const bcfViewpoint = saveBCFViewpoint({
+ *      view,
  *      includeViewLayerIds: ["foreground"],
  *      excludeViewLayerIds: ["background"] // Unnecessary, but we'll show it anyway
  * });
@@ -214,8 +200,8 @@
  *
  * ````javascript
  * loadBCFViewpoint({
- *     bcfViewpoint: myBCFViewpoint,
- *     view: myView,
+ *     bcfViewpoint,
+ *     view,
  *     includeViewLayerIds: ["foreground"],
  *     excludeViewLayerIds: ["background"]
  * });

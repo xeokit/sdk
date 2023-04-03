@@ -243,7 +243,7 @@ export class SceneModel extends Component {
      * * If this SceneModel has already been destroyed.
      * * A duplicate component ({@link SceneObject}, {@link Mesh}, {@link Geometry}, {@link Texture} etc.) was already created within this SceneModel.
      */
-    fromJSON(sceneModelParams: SceneModelParams): void | SDKError  {
+    fromJSON(sceneModelParams: SceneModelParams): void | SDKError {
         if (this.destroyed) {
             return new SDKError("Failed to add components to SceneModel - SceneModel already destroyed");
         }
@@ -837,29 +837,37 @@ export class SceneModel extends Component {
      *      }  else {
      *          // Now we can do things with our SceneModel
      *      }
-     * });
+     * }).catch(sdkError) {// SDKError
+     *     console.log(sdkError.message);
+     * };
      * ````
      *
      * See {@link "@xeokit/scene"} for more usage info.
      *
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @throws *{@link @xeokit/core/components!SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * If no SceneObjects were created in this SceneModel.
      */
-    async build(): Promise<SDKError> {
-        if (this.destroyed) {
-            return new SDKError("Failed to build SceneModel - SceneModel already destroyed");
-        }
-        if (this.built) {
-            return new SDKError("Failed to build SceneModel - SceneModel already built");
-        }
-        if (this.#numObjects < 1) {
-            return new SDKError("Failed to build SceneModel - SceneModel must contain at least one SceneObject before you can build it");
-        }
-        this.#removeUnusedTextures();
-        await this.#compressTextures();
-        this.built = true;
-        this.onBuilt.dispatch(this, null);
+    async build(): Promise<SceneModel> {
+        return new Promise<SceneModel>((resolve) => {
+            if (this.destroyed) {
+                throw new SDKError("Failed to build SceneModel - SceneModel already destroyed");
+            }
+            if (this.built) {
+                throw new SDKError("Failed to build SceneModel - SceneModel already built");
+            }
+            if (this.#numObjects < 1) {
+                throw new SDKError("Failed to build SceneModel - SceneModel must contain at least one SceneObject before you can build it");
+            }
+            this.#removeUnusedTextures();
+            this.#compressTextures().then(() => {
+                this.built = true;
+                this.onBuilt.dispatch(this, null);
+                resolve(this);
+            }).catch((e) => {
+                throw e;
+            });
+        });
     }
 
     #removeUnusedTextures() {
@@ -894,6 +902,7 @@ export class SceneModel extends Component {
                         case "jpeg":
                         case "jpg":
                         case "png":
+
                             load(src, ImageLoader, {
                                 image: {
                                     type: "data"

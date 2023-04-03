@@ -1,5 +1,4 @@
 import {Data} from "@xeokit/data";
-import {BasicAggregation, BasicEntity} from "@xeokit/datatypes/basicTypes";
 import * as testUtils from "./testUtils";
 
 describe('build', function () {
@@ -23,7 +22,7 @@ describe('build', function () {
         expect(tableTop).toBeDefined();
         expect(tableTop.id).toBe("tableTop");
         expect(tableTop.name).toBe("Purple table top");
-        expect(tableTop.type).toBe(BasicEntity);
+        expect(tableTop.type).toBe(testUtils.BasicEntity);
 
         const tableTop2 = dataModel.objects["tableTop"]; // Find object on DataModel
         expect(tableTop2).toBeDefined();
@@ -33,31 +32,31 @@ describe('build', function () {
         expect(table).toBeDefined();
         expect(table.id).toBe("table");
         expect(table.name).toBe("Table");
-        expect(table.type).toBe(BasicEntity);
+        expect(table.type).toBe(testUtils.BasicEntity);
 
         const redLeg = data.objects["redLeg"];
         expect(redLeg).toBeDefined();
         expect(redLeg.id).toBe("redLeg");
         expect(redLeg.name).toBe("Red table leg");
-        expect(redLeg.type).toBe(BasicEntity);
+        expect(redLeg.type).toBe(testUtils.LoadBearingEntity);
 
         const greenLeg = data.objects["greenLeg"];
         expect(greenLeg).toBeDefined();
         expect(greenLeg.id).toBe("greenLeg");
         expect(greenLeg.name).toBe("Green table leg");
-        expect(greenLeg.type).toBe(BasicEntity);
+        expect(greenLeg.type).toBe(testUtils.LoadBearingEntity);
 
         const yellowLeg = data.objects["yellowLeg"];
         expect(yellowLeg).toBeDefined();
         expect(yellowLeg.id).toBe("yellowLeg");
         expect(yellowLeg.name).toBe("Yellow table leg");
-        expect(yellowLeg.type).toBe(BasicEntity);
+        expect(yellowLeg.type).toBe(testUtils.LoadBearingEntity);
 
         const blueLeg = data.objects["blueLeg"];
         expect(blueLeg).toBeDefined();
         expect(blueLeg.id).toBe("blueLeg");
         expect(blueLeg.name).toBe("Blue table leg");
-        expect(blueLeg.type).toBe(BasicEntity);
+        expect(blueLeg.type).toBe(testUtils.LoadBearingEntity);
 
         // Properties created OK?
 
@@ -126,44 +125,60 @@ describe('build', function () {
 
         // Relationships created OK?
 
-        const tableAggregations = dataModel.objects["table"].related[BasicAggregation];
+        const tableAggregations = dataModel.objects["table"].related[testUtils.BasicAggregation];
         expect(tableAggregations).toBeDefined();
-        expect(tableAggregations[0].type).toBe(BasicAggregation);
+        expect(tableAggregations[0].type).toBe(testUtils.BasicAggregation);
         expect(tableAggregations[0].relatingObject.id).toBe("table");
         expect(tableAggregations[0].relatedObject.id).toBe("tableTop");
 
-        const tableTopAggregations = dataModel.objects["tableTop"].related[BasicAggregation];
+        const tableTopAggregations = dataModel.objects["tableTop"].related[testUtils.BasicAggregation];
         expect(tableTopAggregations).toBeDefined();
 
-        expect(tableTopAggregations[0].type).toBe(BasicAggregation);
+        expect(tableTopAggregations[0].type).toBe(testUtils.BasicAggregation);
         expect(tableTopAggregations[0].relatingObject.id).toBe("tableTop");
         expect(tableTopAggregations[0].relatedObject.id).toBe("redLeg");
 
-        expect(tableTopAggregations[1].type).toBe(BasicAggregation);
+        expect(tableTopAggregations[1].type).toBe(testUtils.BasicAggregation);
         expect(tableTopAggregations[1].relatingObject.id).toBe("tableTop");
         expect(tableTopAggregations[1].relatedObject.id).toBe("greenLeg");
 
-        expect(tableTopAggregations[2].type).toBe(BasicAggregation);
+        expect(tableTopAggregations[2].type).toBe(testUtils.BasicAggregation);
         expect(tableTopAggregations[2].relatingObject.id).toBe("tableTop");
         expect(tableTopAggregations[2].relatedObject.id).toBe("blueLeg");
 
-        expect(tableTopAggregations[3].type).toBe(BasicAggregation);
+        expect(tableTopAggregations[3].type).toBe(testUtils.BasicAggregation);
         expect(tableTopAggregations[3].relatingObject.id).toBe("tableTop");
         expect(tableTopAggregations[3].relatedObject.id).toBe("yellowLeg");
 
 
-        const resultObjectIds = [];
-
+        let resultObjectIds = [];
         data.searchObjects({
-            startObjectId: "tableTop",
-            includeRelated: [BasicAggregation],
+            startObjectId: "table",
+            includeRelated: [testUtils.BasicAggregation],
             resultObjectIds
         });
+        expect(resultObjectIds).toStrictEqual(['table', 'tableTop', 'redLeg', 'greenLeg', 'blueLeg', 'yellowLeg']);
 
-        console.log(resultObjectIds);
-        expect(resultObjectIds).toStrictEqual([
-            "table", "redLeg", "greenLeg", "blueLeg", "yellowLeg", "tableTop"
-        ]);
+
+        resultObjectIds = [];
+        data.searchObjects({
+            startObjectId: "table",
+            includeStart: false,
+            includeRelated: [testUtils.BasicAggregation],
+            resultObjectIds
+        });
+        expect(resultObjectIds).toStrictEqual(['tableTop', 'redLeg', 'greenLeg', 'blueLeg', 'yellowLeg']);
+
+
+        resultObjectIds = [];
+        data.searchObjects({
+            startObjectId: "tableTop",
+            includeStart: true,
+            excludeObjects:[testUtils.BasicEntity],
+            includeRelated: [testUtils.BasicAggregation],
+            resultObjectIds
+        });
+        expect(resultObjectIds).toStrictEqual(['redLeg', 'greenLeg', 'blueLeg', 'yellowLeg']);
 
         dataModel.destroy();
 

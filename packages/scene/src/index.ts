@@ -228,8 +228,12 @@
  *
  *      sceneModel.build().then(()=> {
  *
- *          // SceneModel is ready for use
- *      });
+ *      // SceneModel is ready for use
+ *
+ *      }).catch((e) => {
+ *          console.log(e);
+ *          throw e;
+ *       });
  * }
  * ````
  *

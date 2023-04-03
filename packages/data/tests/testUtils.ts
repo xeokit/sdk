@@ -1,4 +1,8 @@
-import {BasicAggregation, BasicEntity} from "@xeokit/datatypes/src/basicTypes";
+
+
+export const BasicAggregation = 0;
+export const BasicEntity = 1;
+export const LoadBearingEntity = 2;
 
 /**
  * Mock JSON-encoded DataModel definition.
@@ -15,25 +19,25 @@ export const sampleDataModelJSON = { // DataModel
         {
             id: "redLeg",
             name: "Red table leg",
-            type: BasicEntity,
+            type: LoadBearingEntity,
             propertySetIds: ["tableLegPropertySet"]
         },
         {
             id: "greenLeg",
             name: "Green table leg",
-            type: BasicEntity,
+            type: LoadBearingEntity,
             propertySetIds: ["tableLegPropertySet"]
         },
         {
             id: "blueLeg",
             name: "Blue table leg",
-            type: BasicEntity,
+            type: LoadBearingEntity,
             propertySetIds: ["tableLegPropertySet"]
         },
         {
             id: "yellowLeg",
             name: "Yellow table leg",
-            type: BasicEntity,
+            type: LoadBearingEntity,
             propertySetIds: ["tableLegPropertySet"]
         },
         {

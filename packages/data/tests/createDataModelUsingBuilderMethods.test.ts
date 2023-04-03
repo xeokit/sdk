@@ -1,5 +1,6 @@
 import {Data} from "@xeokit/data";
 import {BasicAggregation, BasicEntity} from "@xeokit/datatypes/basicTypes";
+import {SDKError} from "@xeokit/core/components";
 
 describe('build', function () {
 
@@ -12,7 +13,7 @@ describe('build', function () {
             id: "myTableModel"
         });
 
-        if (dataModel instanceof Error) {
+        if (dataModel instanceof SDKError) {
             return;
         }
 
@@ -35,7 +36,7 @@ describe('build', function () {
             }]
         });
 
-        if (tablePropertySet instanceof Error) {
+        if (tablePropertySet instanceof SDKError) {
             return;
         }
 
@@ -58,7 +59,7 @@ describe('build', function () {
             }]
         });
 
-        if (legPropertySet instanceof Error) {
+        if (legPropertySet instanceof SDKError) {
             return;
         }
 
@@ -81,7 +82,7 @@ describe('build', function () {
             }]
         });
 
-        if (tableTopPropertySet instanceof Error) {
+        if (tableTopPropertySet instanceof SDKError) {
             return;
         }
 

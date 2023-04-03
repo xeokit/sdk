@@ -185,6 +185,8 @@ export class Data extends Component {
      * * On success.
      * @returns *{@link @xeokit/core/components!SDKError}*
      * * This Data has already been destroyed.
+     * * The specified starting DataObject was not found in this Data.
+     * * The specified starting DataObject is contained in a different Data than this one.
      */
     searchObjects(searchParams: SearchParams): void | SDKError {
         if (this.destroyed) {
@@ -195,18 +197,20 @@ export class Data extends Component {
         const includeRelating = (searchParams.includeRelating && searchParams.includeRelating.length > 0) ? arrayToMap(searchParams.includeRelating) : null;
         const excludeRelating = (searchParams.excludeRelating && searchParams.excludeRelating.length > 0) ? arrayToMap(searchParams.excludeRelating) : null;
 
-        function visit(dataObject: DataObject) {
+        function visit(dataObject: DataObject, depth) {
             if (!dataObject) {
                 return;
             }
             let includeObject = true;
-            // @ts-ignore
             if (excludeObjects && excludeObjects[dataObject.type]) {
                 includeObject = false;
             } else { // @ts-ignore
                 if (includeObjects && (!includeObjects[dataObject.type])) {
                     includeObject = false;
                 }
+            }
+            if (depth === 0 && searchParams.includeStart === false) {
+                includeObject = false;
             }
             if (includeObject) {
                 if (searchParams.resultObjectIds) {
@@ -215,41 +219,45 @@ export class Data extends Component {
                     searchParams.resultObjects.push(dataObject);
                 } else if (searchParams.resultCallback) {
                     if (searchParams.resultCallback(dataObject)) {
-                        return;
                     }
                 }
             }
-            // const relations = dataObject.related[searchParams.type];
-            // if (relations) {
-            //     for (let i = 0, len = relations.length; i < len; i++) {
-            //         let includeRelation = true;
-            //         // @ts-ignore
-            //         if (excludeRelating && excludeRelating[dataObject.type]) {
-            //             includeRelation = false;
-            //         } else { // @ts-ignore
-            //             if (includeRelating && (!includeRelating[dataObject.type])) {
-            //                 includeRelation = false;
-            //             }
-            //         }
-            //         if (includeRelation) {
-            //             visit(relations[i].related);
-            //         }
-            //     }
-            // }
+            const related = dataObject.related;
+            for (let type in related) {
+                const relations = related[type];
+                if (relations) {
+                    for (let i = 0, len = relations.length; i < len; i++) {
+                        let includeRelation = true;
+                        if (excludeRelating && excludeRelating[dataObject.type]) {
+                            includeRelation = false;
+                        } else {
+                            if (includeRelating && (!includeRelating[dataObject.type])) {
+                                includeRelation = false;
+                            }
+                        }
+                        if (includeRelation) {
+                            visit(relations[i].relatedObject, depth + 1);
+                        }
+                    }
+                }
+            }
         }
 
+        const depth = 0;
         if (searchParams.startObjectId) {
             const startObject = this.objects[searchParams.startObjectId];
-            if (startObject) {
-                visit(startObject);
+            if (!startObject) {
+                return new SDKError(`Failed to search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`);
             }
+            visit(startObject, depth);
         } else if (searchParams.startObject) {
-            if (searchParams.startObject) {
-                visit(searchParams.startObject);
+            if (searchParams.startObject.data != this) {
+                return new SDKError(`Failed to search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`);
             }
+            visit(searchParams.startObject, depth + 1);
         } else {
             for (let id in this.rootObjects) {
-                visit(this.rootObjects[id]);
+                visit(this.rootObjects[id], depth + 1);
             }
         }
     }

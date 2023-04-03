@@ -1,9 +1,10 @@
 {
-  "name": "@xeokit/webifc",
+  "name": "@xeokit/kdtree",
   "version": "0.0.1",
-  "description": "webifc tools for xeokit",
+  "description": "glTF loader for xeokit",
   "scripts": {
-    "publish": "npm publish --access public"
+    "publish": "npm publish --access public",
+    "XXtest": "jest --silent=false"
   },
   "repository": {
     "type": "git",
@@ -43,9 +44,9 @@
     "pointcloud",
     "3d-viewer"
   ],
-  "main": "src/index.ts",
   "dependencies": {
-    "web-ifc": "^0.0.35",
-    "@xeokit/core": "^0.0.1"
+    "core-js": "^3.22.5",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
   }
 }

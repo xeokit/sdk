@@ -202,7 +202,6 @@ export class Data extends Component {
                 return;
             }
             let includeObject = true;
-            // @ts-ignore
             if (excludeObjects && excludeObjects[dataObject.type]) {
                 includeObject = false;
             } else { // @ts-ignore
@@ -229,10 +228,9 @@ export class Data extends Component {
                 if (relations) {
                     for (let i = 0, len = relations.length; i < len; i++) {
                         let includeRelation = true;
-                        // @ts-ignore
                         if (excludeRelating && excludeRelating[dataObject.type]) {
                             includeRelation = false;
-                        } else { // @ts-ignore
+                        } else {
                             if (includeRelating && (!includeRelating[dataObject.type])) {
                                 includeRelation = false;
                             }
@@ -246,7 +244,6 @@ export class Data extends Component {
         }
 
         const depth = 0;
-
         if (searchParams.startObjectId) {
             const startObject = this.objects[searchParams.startObjectId];
             if (!startObject) {

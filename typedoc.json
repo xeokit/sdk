@@ -23,7 +23,8 @@
     "packages/xkt/src/index.ts",
     "packages/webglutils/src/index.ts",
     "packages/webglrenderer/src/index.ts",
-    "packages/webgpu/src/index.ts"
+    "packages/webgpu/src/index.ts".
+    "packages/kdrtree/src/index.ts"
   ],
   "out": "./docs",
   "excludePrivate": false,

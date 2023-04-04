@@ -74,12 +74,10 @@ CityJSON is capable of representing a wide range of features found in 3D city mo
 terrain, vegetation, and more. It supports both geometric and semantic information, allowing users to store detailed 
 attributes for each feature, such as height, materials, and function.
 
-CityJSON is gaining popularity in the 3D modeling and GIS (Geographic Information System) communities, and many 
-software tools now support its use. It is considered a flexible and efficient format for storing and exchanging 3D 
-city models, and has the potential to greatly facilitate the integration of city models into a wide range of 
-applications, including urban planning, architecture, and transportation.
-
-> *See: [@xeokit/cityjson](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)*
+> *See:*
+> * [@xeokit/cityjson](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)
+> * [@xeokit/datatypes/cityJSONTypes_1_1_3](https://xeokit.github.io/sdk/docs/modules/_cityJSONTypes_1_1_3)
+ 
 
 <br>
 

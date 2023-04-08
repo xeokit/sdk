@@ -400,3 +400,5 @@ export * from "./GeometryCompressedParams";
 export * from "./GeometryParams";
 export * from "./SceneModelParams";
 export * from "./compressGeometryParams";
+
+export * from "./getWorldPositions";

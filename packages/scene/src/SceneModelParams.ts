@@ -83,6 +83,8 @@ export interface SceneModelParams {
     /**
      * If we want to view the SceneModel with a {@link @xeokit/viewer!Viewer}, an
      * optional ID of the {@link @xeokit/viewer!ViewLayer | ViewLayer} to view the SceneModel in.
+     *
+     * Will be "default" by default.
      */
-    viewLayerId?: string;
+    layerId?: string;
 }

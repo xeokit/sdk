@@ -1,8 +1,9 @@
-import {FloatArrayParam} from "@xeokit/math/math";
-import {createVec3} from "@xeokit/math/matrix";
+import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
+import {createVec3, transformPositions3} from "@xeokit/math/matrix";
 import {RendererMesh} from "./RendererMesh";
 import {Geometry} from "./Geometry";
 import {TextureSet} from "./TextureSet";
+import {decompressPositions} from "@xeokit/math/compression";
 
 /**
  * A mesh in a {@link SceneModel}.
@@ -139,6 +140,19 @@ export class Mesh {
     }
 
     /**
+     * Gets this Mesh's metallic factor.
+     *
+     * This is in the range ````[0..1]```` and indicates how metallic this Mesh is.
+     *
+     * ````1```` is metal, ````0```` is non-metal.
+     *
+     * Default value is ````1.0````.
+     */
+    get metallic(): number {
+        return this.#metallic;
+    }
+
+    /**
      * Sets this Mesh's metallic factor.
      *
      * This is in the range ````[0..1]```` and indicates how metallic this Mesh is.
@@ -159,16 +173,14 @@ export class Mesh {
     }
 
     /**
-     * Gets this Mesh's metallic factor.
+     * Gets this Mesh's roughness factor.
      *
-     * This is in the range ````[0..1]```` and indicates how metallic this Mesh is.
-     *
-     * ````1```` is metal, ````0```` is non-metal.
+     * This factor is in the range ````[0..1]````, where ````0```` is fully smooth,````1```` is fully rough.
      *
      * Default value is ````1.0````.
      */
-    get metallic(): number {
-        return this.#metallic;
+    get roughness(): number {
+        return this.#roughness;
     }
 
     /**
@@ -190,14 +202,12 @@ export class Mesh {
     }
 
     /**
-     * Gets this Mesh's roughness factor.
+     * Gets the opacity factor for this Mesh.
      *
-     * This factor is in the range ````[0..1]````, where ````0```` is fully smooth,````1```` is fully rough.
-     *
-     * Default value is ````1.0````.
+     * This is a factor in range ````[0..1]````.
      */
-    get roughness(): number {
-        return this.#roughness;
+    get opacity(): number {
+        return this.#opacity;
     }
 
     /**
@@ -212,16 +222,37 @@ export class Mesh {
         }
         this.#opacity = opacity;
         if (this.rendererMesh) {
-     //       this.rendererMesh.setOpacity(this.#opacity);
+            //       this.rendererMesh.setOpacity(this.#opacity);
         }
     }
 
     /**
-     * Gets the opacity factor for this Mesh.
+     * Gets the decompressed 3D World-space geometry of each {@link GeometryBucket} in each
+     * {@link Geometry} in this Mesh.
      *
-     * This is a factor in range ````[0..1]````.
+     * If the callback returns ````true````, then this method immediately stops iterating and also returns ````true````.
+     *
+     * @param withGeometry - The callback.
      */
-    get opacity(): number {
-        return this.#opacity;
+    getGeometry(
+        withGeometry: (primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam)
+            => boolean | undefined): boolean | undefined {
+        const geometry = this.geometry;
+        const positionsDecompressMatrix = geometry.positionsDecompressMatrix;
+        const matrix = this.matrix;
+        for (let j = 0, lenj = geometry.geometryBuckets.length; j < lenj; j++) {
+            const bucket = geometry.geometryBuckets[j];
+            const bucketPositionsCompressed = bucket.positionsCompressed;
+
+            // TODO: resuse cached positions arrays
+
+            const bucketPositions = new Float32Array(bucketPositionsCompressed.length);
+            const worldPositions = new Float64Array(bucketPositionsCompressed.length);
+            decompressPositions(bucketPositionsCompressed, positionsDecompressMatrix, bucketPositions);
+            transformPositions3(bucketPositions, matrix, worldPositions);
+            if (withGeometry(geometry.primitive, worldPositions, bucket.indices)) {
+                return true;
+            }
+        }
     }
 }

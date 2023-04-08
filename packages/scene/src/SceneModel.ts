@@ -105,6 +105,12 @@ export class SceneModel extends Component {
     public readonly id: string;
 
     /**
+     * If we want to view this SceneModel with a {@link @xeokit/viewer}, an
+     * optional ID of a {@link @xeokit/viewer!ViewLayer | ViewLayer} to view it in.
+     */
+    public readonly layerId?: string;
+
+    /**
      * Indicates if this SceneModel has already been built.
      *
      * * Set ````true```` by {@link SceneModel.build | SceneModel.build}.
@@ -216,7 +222,7 @@ export class SceneModel extends Component {
         this.#meshUsedByObject = {};
 
         this.id = sceneModelParams.id || "default";
-        //   this.edgeThreshold = sceneModelPrams.edgeThreshold || 10;
+        this.layerId = sceneModelParams.layerId;
         this.edgeThreshold = 10;
         this.geometries = {};
         this.textures = {};
@@ -799,6 +805,8 @@ export class SceneModel extends Component {
         }
         const sceneObject = new SceneObject({
             id: objectParams.id,
+            layerId: objectParams.layerId || this.layerId,
+            model: this,
             meshes
         });
         for (let i = 0, len = meshes.length; i < len; i++) {

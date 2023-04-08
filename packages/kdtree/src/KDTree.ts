@@ -1,61 +1,87 @@
-
 import {Scene, SceneModel, SceneObject} from "@xeokit/scene";
 
-import {containsAABB3, expandAABB3, Frustum, frustumIntersectsAABB3} from "@xeokit/math/src/boundaries";
-import {FloatArrayParam} from "@xeokit/math/src/math";
+import {containsAABB3, expandAABB3} from "@xeokit/math/src/boundaries";
 import {EventEmitter} from "@xeokit/core/dist/EventEmitter";
 import {EventDispatcher} from "strongly-typed-events";
 import {SDKError} from "@xeokit/core/components";
-import {KDQuery} from "./KDQuery";
+import {KDNode} from "./KDNode";
+import {KDObject} from "./KDObject";
 
-
-const MAX_KD_TREE_DEPTH = 8; // Increase if greater precision needed
+const MAX_KD_TREE_DEPTH = 10; // Increase if greater precision needed
 
 const kdTreeDimLength = new Float32Array(3);
 
 /**
- * TODO
+ * Parameters for creating a {@link KDTree}.
  */
 export interface KDTreeParams {
+
+    /**
+     * The {@link @xeokit/scene!Scene | Scene} whose {@link @xeokit/scene!SceneObject | SceneObjects} are tracked by the new KDTRee.
+     */
     scene: Scene;
-    maxDepth: number;
 
+    /**
+     * Maximum depth of the kd-tree. This is `10` by default.
+     */
+     maxDepth?: number;
+
+    /**
+     * Option to include only the SceneObjects that are associated with the specified {@link @xeokit/viewer!ViewLayer | ViewLayers}.
+     */
+    includeLayerIds?: string[];
+
+    /**
+     * Option to never include the SceneObjects that are associated with the specified {@link @xeokit/viewer!ViewLayer | ViewLayers}.
+     */
+    excludeLayerIds?: string[];
 }
 
-/**
- * TODO
- */
-
 
 /**
- * TODO
- */
-export class KDNode {
-    index: number;
-    aabb: FloatArrayParam;
-    left?: KDNode;
-    right?: KDNode;
-    objects?: SceneObject[];
-}
-
-/**
- * A KD tree
+ * Automatically organizes a {@link @xeokit/scene!Scene | Scene}'s {@link @xeokit/scene!SceneObject | SceneObects}
+ * into a spatial search index that supports fast intersection queries against boundaries and volumes.
+ *
+ * See {@link "@xeokit/kdtree"} for usage.
  */
 export class KDTree {
 
+    /**
+     * The {@link @xeokit/scene!Scene | Scene} whose {@link @xeokit/scene!SceneObject | SceneObjects} are tracked by this KDTRee.
+     */
     public scene: Scene;
-    public root: KDNode;
+
+    /**
+     * Option to include only the SceneObjects that are associated with the specified {@link @xeokit/viewer!ViewLayer | ViewLayers}.
+     */
+    public readonly includeLayerIds?: string[];
+
+    /**
+     * Option to never include the SceneObjects that are associated with the specified {@link @xeokit/viewer!ViewLayer | ViewLayers}.
+     */
+    public readonly excludeLayerIds?: string[];
+
+    /**
+     * Fires an event whenever this KDTree has been rebuilt.
+     */
     public readonly onBuilt: EventEmitter<KDTree, KDTree>;
-    queries: {};
-    #onSceneModelCreated: () => void;
-    #onSceneModelDestroyed: () => void;
-    #onSceneDestroyed: () => void;
+
+    #root: KDNode;
     #maxDepth: any;
     #dirty: boolean;
     #destroyed: boolean;
+    #includeLayerIdsMap: { [key: string]: boolean };
+    #excludeLayerIdsMap: { [key: string]: boolean };
+
+    #onSceneModelCreated: () => void;
+    #onSceneModelDestroyed: () => void;
+    #onSceneDestroyed: () => void;
+
     #numNodes: number;
+    #numObjects: number;
 
     /**
+     * Creates a new KDTree.
      *
      * @param params
      */
@@ -63,27 +89,52 @@ export class KDTree {
         this.#maxDepth = params.maxDepth || MAX_KD_TREE_DEPTH;
         this.#dirty = true;
         this.scene = params.scene;
-        this.root = null;
+        this.#root = null;
         this.#onSceneModelCreated = this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.#dirty = true;
+            if (sceneModel.layerId) {
+                if (this.#includeLayerIdsMap && !this.#includeLayerIdsMap[sceneModel.layerId]) {
+                    return;
+                }
+                if (this.#excludeLayerIdsMap && this.#excludeLayerIdsMap[sceneModel.layerId]) {
+                    return;
+                }
+            }
+            this.#insertModel(sceneModel);
         });
         this.#onSceneModelDestroyed = this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
+            // TODO: Handle case where model can be removed by simply pruning a kd-tree branch and rebuilding boundaries at parent nodes
             this.#dirty = true;
+            this.#root = null;
         });
-        this.#onSceneDestroyed = this.scene.onDestroyed.one((s) => {
+        this.#onSceneDestroyed = this.scene.onDestroyed.one(() => {
             this.#dirty = true;
             this.scene = null;
-            this.root = null;
+            this.#root = null;
         });
         this.onBuilt = new EventEmitter(new EventDispatcher<KDTree, KDTree>());
         this.#destroyed = false;
         this.#numNodes = 0;
+        this.#numNodes = 0;
+        this.includeLayerIds = params.includeLayerIds;
+        this.excludeLayerIds = params.excludeLayerIds;
+        this.#includeLayerIdsMap = params.includeLayerIds ? arrayToMap(params.includeLayerIds) : null;
+        this.#excludeLayerIdsMap = params.excludeLayerIds ? arrayToMap(params.excludeLayerIds) : null;
     }
 
     /**
-     * TODO
+     * Gets the root {@link KDNode} of this KDTree.
      */
-    destroy() {
+    get root(): KDNode {
+        if (this.#dirty) {
+            this.#build();
+        }
+        return this.#root;
+    }
+
+    /**
+     * Destroys this KDTree.
+     */
+    destroy(): void | SDKError {
         if (this.#destroyed) {
             return new SDKError("KDTree already destroyed");
         }
@@ -91,28 +142,47 @@ export class KDTree {
         this.scene.onModelDestroyed.unsubscribe(this.#onSceneModelDestroyed);
         this.scene.onDestroyed.unsubscribe(this.#onSceneDestroyed);
         this.scene = null;
-        this.root = null;
+        this.#root = null;
         this.#destroyed = true;
     }
 
     #build() {
-        const depth = 0;
-        this.root = {
+        this.#numNodes = 0;
+        this.#numObjects = 0;
+        this.#root = {
             aabb: this.scene.aabb,
             index: this.#numNodes++
         };
-        for (let objectId in this.scene.objects) {
-            const sceneObject = this.scene.objects[objectId];
-            this.#insertObject(this.root, sceneObject, depth + 1);
+        for (let modelId in this.scene.models) {
+            const sceneModel = this.scene.models[modelId];
+            const layerId = sceneModel.layerId || "default";
+            if (sceneModel.layerId) {
+                if (this.#includeLayerIdsMap && !this.#includeLayerIdsMap[layerId]) {
+                    continue;
+                }
+                if (this.#excludeLayerIdsMap && this.#excludeLayerIdsMap[layerId]) {
+                    continue;
+                }
+            }
+            this.#insertModel(sceneModel);
         }
         this.#dirty = false;
+    }
+
+    #insertModel(sceneModel: SceneModel) {
+        for (let objectId in sceneModel.objects) {
+            this.#insertObject(this.#root, sceneModel.objects[objectId], 1);
+        }
     }
 
     #insertObject(node: KDNode, sceneObject: SceneObject, depth: number) {
         const objectAABB = sceneObject.aabb;
         if (depth >= this.#maxDepth) {
             node.objects = node.objects || [];
-            node.objects.push(sceneObject);
+            node.objects.push(<KDObject>{
+                index: this.#numObjects++,
+                object: sceneObject
+            });
             expandAABB3(node.aabb, objectAABB);
             return;
         }
@@ -164,7 +234,18 @@ export class KDTree {
             }
         }
         node.objects = node.objects || [];
-        node.objects.push(sceneObject);
+        node.objects.push(<KDObject>{
+            index: this.#numObjects++,
+            object: sceneObject
+        });
         expandAABB3(node.aabb, objectAABB);
     }
+}
+
+function arrayToMap(array: any[]): { [key: string]: any } {
+    const map: { [key: string]: any } = {};
+    for (let i = 0, len = array.length; i < len; i++) {
+        map[array[i]] = true;
+    }
+    return map;
 }

@@ -8,28 +8,28 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "@xeokit/math/matrix";
 
 /**
- * Perspective projection configuration for a {@link @xeokit/viewer!Camera} .
+ * PerspectiveProjection projection configuration for a {@link @xeokit/viewer!Camera} .
  *
  * ## Summary
  *
- * * Located at {@link Camera.perspective}.
- * * Implicitly sets the left, right, top, bottom frustum planes using {@link Perspective.fov}.
- * * {@link Perspective.near} and {@link Perspective.far} specify the distances to the clipping planes.
- * * {@link Perspective.onProjMatrix} will fire an event whenever {@link Perspective.projMatrix} updates, which indicates that one or more other properties have updated.
+ * * Located at {@link Camera.perspectiveProjection}.
+ * * Implicitly sets the left, right, top, bottom frustum planes using {@link PerspectiveProjection.fov}.
+ * * {@link PerspectiveProjection.near} and {@link PerspectiveProjection.far} specify the distances to the clipping planes.
+ * * {@link PerspectiveProjection.onProjMatrix} will fire an event whenever {@link PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-class Perspective extends Component {
+export class PerspectiveProjection extends Component {
 
     /**
-     * The Camera this Perspective belongs to.
+     * The Camera this PerspectiveProjection belongs to.
      */
     public readonly camera: Camera;
 
     /**
-     * Emits an event each time {@link Perspective.projMatrix} updates.
+     * Emits an event each time {@link PerspectiveProjection.projMatrix} updates.
      *
      * @event
      */
-    readonly onProjMatrix: EventEmitter<Perspective, FloatArrayParam>;
+    readonly onProjMatrix: EventEmitter<PerspectiveProjection, FloatArrayParam>;
 
     /**
      * The type of this projection.
@@ -82,11 +82,11 @@ class Perspective extends Component {
             this.setDirty();
         });
 
-        this.onProjMatrix = new EventEmitter(new EventDispatcher<Perspective, FloatArrayParam>());
+        this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, FloatArrayParam>());
     }
 
     /**
-     * Gets the Perspective's field-of-view angle (FOV).
+     * Gets the PerspectiveProjection's field-of-view angle (FOV).
      *
      * Default value is ````60.0````.
      *
@@ -97,7 +97,7 @@ class Perspective extends Component {
     }
 
     /**
-     * Sets the Perspective's field-of-view angle (FOV).
+     * Sets the PerspectiveProjection's field-of-view angle (FOV).
      *
      * Default value is ````60.0````.
      *
@@ -112,7 +112,7 @@ class Perspective extends Component {
      }
 
     /**
-     * Gets the Perspective's FOV axis.
+     * Gets the PerspectiveProjection's FOV axis.
      *
      * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
      *
@@ -125,7 +125,7 @@ class Perspective extends Component {
     }
 
     /**
-     * Sets the Perspective's FOV axis.
+     * Sets the PerspectiveProjection's FOV axis.
      *
      * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis. 
      *
@@ -147,22 +147,22 @@ class Perspective extends Component {
     }
 
     /**
-     * Gets the position of the Perspective's near plane on the positive View-space Z-axis.
+     * Gets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
      *
      * Default value is ````0.1````.
      *
-     * @returns The Perspective's near plane position.
+     * @returns The PerspectiveProjection's near plane position.
      */
     get near(): number {
         return this.#state.near;
     }
 
     /**
-     * Sets the position of the Perspective's near plane on the positive View-space Z-axis.
+     * Sets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
      *
      * Default value is ````0.1````.
      *
-     * @param value New Perspective near plane position.
+     * @param value New PerspectiveProjection near plane position.
      */
     set near(value: number) {
         if (this.#state.near === value) {
@@ -173,18 +173,18 @@ class Perspective extends Component {
     }
 
     /**
-     * Gets the position of this Perspective's far plane on the positive View-space Z-axis.
+     * Gets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
      *
-     * @return {Number} The Perspective's far plane position.
+     * @return {Number} The PerspectiveProjection's far plane position.
      */
     get far(): number {
         return this.#state.far;
     }
 
     /**
-     * Sets the position of this Perspective's far plane on the positive View-space Z-axis.
+     * Sets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
      *
-     * @param value New Perspective far plane position.
+     * @param value New PerspectiveProjection far plane position.
      */
     set far(value: number) {
         if (this.#state.far === value) {
@@ -195,11 +195,11 @@ class Perspective extends Component {
     }
 
     /**
-     * Gets the Perspective's projection transform matrix.
+     * Gets the PerspectiveProjection's projection transform matrix.
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
-     * @returns  The Perspective's projection matrix.
+     * @returns  The PerspectiveProjection's projection matrix.
      */
     get projMatrix(): FloatArrayParam {
         if (this.dirty) {
@@ -209,9 +209,9 @@ class Perspective extends Component {
     }
 
     /**
-     * Gets the inverse of {@link Perspective.projMatrix}.
+     * Gets the inverse of {@link PerspectiveProjection.projMatrix}.
      *
-     * @returns  The inverse of {@link Perspective.projMatrix}.
+     * @returns  The inverse of {@link PerspectiveProjection.projMatrix}.
      */
     get inverseProjMatrix(): FloatArrayParam {
         if (this.dirty) {
@@ -225,9 +225,9 @@ class Perspective extends Component {
     }
 
     /**
-     * Gets the transpose of {@link Perspective.projMatrix}.
+     * Gets the transpose of {@link PerspectiveProjection.projMatrix}.
      *
-     * @returns  The transpose of {@link Perspective.projMatrix}.
+     * @returns  The transpose of {@link PerspectiveProjection.projMatrix}.
      */
     get transposedProjMatrix(): FloatArrayParam {
         if (this.dirty) {
@@ -262,7 +262,7 @@ class Perspective extends Component {
     }
 
     /**
-     * Un-projects the given View-space coordinates and Screen-space depth, using this Perspective projection.
+     * Un-projects the given View-space coordinates and Screen-space depth, using this PerspectiveProjection projection.
      *
      * @param canvasPos Inputs 2D View-space coordinates.
      * @param screenZ Inputs Screen-space Z coordinate.
@@ -301,5 +301,3 @@ class Perspective extends Component {
         this.onProjMatrix.clear();
     }
 }
-
-export {Perspective};

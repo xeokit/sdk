@@ -1,19 +1,26 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {
-    createVec3,
-    createMat4,
-    identityMat4,
-    lenVec3,
-    subVec3,
-    normalizeVec3,
-    mulVec3Scalar,
     addVec3,
-    lookAtMat4v, mulMat4, inverseMat4, transposeMat4, rotationMat4v, transformPoint3, dotVec3, cross3Vec3
+    createMat4,
+    createVec3,
+    cross3Vec3,
+    dotVec3,
+    identityMat4,
+    inverseMat4,
+    lenVec3,
+    lookAtMat4v,
+    mulMat4,
+    mulVec3Scalar,
+    normalizeVec3,
+    rotationMat4v,
+    subVec3,
+    transformPoint3,
+    transposeMat4
 } from "@xeokit/math/matrix";
 
-import {Perspective} from './Perspective';
-import {Ortho} from './Ortho';
-import {Frustum} from './Frustum';
+import {PerspectiveProjection} from './PerspectiveProjection';
+import {OrthoProjection} from './OrthoProjection';
+import {FrustumProjection} from './FrustumProjection';
 import {CustomProjection} from './CustomProjection';
 import type {View} from "./View";
 import {RTCViewMat} from "./RTCViewMat";
@@ -25,7 +32,7 @@ import {
     OrthoProjectionType,
     PerspectiveProjectionType
 } from "@xeokit/core/constants";
-
+import {Frustum, setFrustum} from "@xeokit/math/boundaries";
 
 
 const tempVec3 = createVec3();
@@ -52,7 +59,7 @@ const offsetEye = createVec3();
  * * Controls camera viewing and projection transforms
  * * Provides methods to pan, zoom and orbit
  * * Dynamically configurable World-space axis
- * * Has {@link Perspective}, {@link Ortho} and {@link Frustum} and {@link CustomProjection}, which you can dynamically switch between
+ * * Has {@link PerspectiveProjection}, {@link OrthoProjection} and {@link FrustumProjection} and {@link CustomProjection}, which you can dynamically switch between
  * * Switchable gimbal lock
  * * Can be flown to look at targets using the View's {@link CameraFlightAnimation}
  * * Can be animated along a path using a {@link CameraPathAnimation}
@@ -62,8 +69,6 @@ const offsetEye = createVec3();
  * Let's create a {@link @xeokit/viewer!Viewer} with a single {@link @xeokit/viewer!View}, from which we'll get a Camera:
  *
  * ````javascript
- * import {Viewer} from "xeokit-viewer.es.js";
- *
  * const viewer = new Viewer();
  *
  * const view = new View(viewer, {
@@ -89,16 +94,9 @@ const offsetEye = createVec3();
  *
  * ````javascript
  * var viewMatrix = camera.viewMatrix;
- * var viewNormalMatrix = camera.normalMatrix;
  * ````
  *
- * The Camera's *view normal matrix* transforms normal vectors from World-space to View-space:
- *
- * ````javascript
- * var viewNormalMatrix = camera.normalMatrix;
- * ````
- *
- * {@link Camera.onViewMatrix} fires whenever {@link Camera.viewMatrix} and {@link Camera.viewNormalMatrix} update:
+ * {@link Camera.onViewMatrix} fires whenever {@link Camera.viewMatrix} updates:
  *
  * ````javascript
  * camera.onViewMatrix.subscribe((camera, matrix) => { ... });
@@ -144,35 +142,35 @@ const offsetEye = createVec3();
  *
  * ## Projection
  *
- * The Camera has a Component to manage each projection type, which are: {@link Perspective}, {@link Ortho}
- * and {@link Frustum} and {@link CustomProjection}.
+ * The Camera has a Component to manage each projection type, which are: {@link PerspectiveProjection}, {@link OrthoProjection}
+ * and {@link FrustumProjection} and {@link CustomProjection}.
  *
  * You can configure those components at any time, regardless of which is currently active:
  *
- * The Camera has a {@link Perspective} to manage perspective
+ * The Camera has a {@link PerspectiveProjection} to manage perspective
  * ````javascript
  *
- * // Set some properties on Perspective
- * camera.perspective.near = 0.4;
- * camera.perspective.fov = 45;
+ * // Set some properties on PerspectiveProjection
+ * camera.perspectiveProjection.near = 0.4;
+ * camera.perspectiveProjection.fov = 45;
  *
- * // Set some properties on Ortho
- * camera.ortho.near = 0.8;
- * camera.ortho.far = 1000;
+ * // Set some properties on OrthoProjection
+ * camera.orthoProjection.near = 0.8;
+ * camera.orthoProjection.far = 1000;
  *
- * // Set some properties on Frustum
- * camera.frustum.left = -1.0;
- * camera.frustum.right = 1.0;
- * camera.frustum.far = 1000.0;
+ * // Set some properties on FrustumProjection
+ * camera.frustumProjection.left = -1.0;
+ * camera.frustumProjection.right = 1.0;
+ * camera.frustumProjection.far = 1000.0;
  *
  * // Set the matrix property on CustomProjection
  * camera.customProjection.projMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
  *
  * // Switch between the projection types
- * camera.projection = PerspectiveProjectionType; // Switch to perspective
- * camera.projection = "frustum"; // Switch to frustum
- * camera.projection = OrthoProjectionType; // Switch to ortho
- * camera.projection = "customProjection"; // Switch to custom
+ * Camera.projectionType = PerspectiveProjectionType; // Switch to perspective
+ * Camera.projectionType = FrustumProjectiontype; // Switch to frustum
+ * Camera.projectionType = OrthoProjectionType; // Switch to ortho
+ * Camera.projectionType = CustomProjectionType; // Switch to custom
  * ````
  *
  * Camera provides the projection matrix for the currently active projection in {@link Camera.projMatrix}.
@@ -242,7 +240,86 @@ class Camera extends Component {
      * @final
      */
     public readonly view: View;
-
+    /**
+     * The perspective projection.
+     *
+     * The Camera uses this while {@link Camera.projectionType} equals {@link PerspectiveProjectionType}.
+     */
+    public readonly perspectiveProjection: PerspectiveProjection;
+    /**
+     * The orthographic projection.
+     *
+     * The Camera uses this while {@link Camera.projectionType} equals {@link OrthoProjectionType}.
+     */
+    public readonly orthoProjection: OrthoProjection;
+    /**
+     * The frustum projection.
+     *
+     * The Camera uses this while {@link Camera.projectionType} equals {@link FrustumProjectionType}.
+     */
+    public readonly frustumProjection: FrustumProjection;
+    /**
+     * The custom projection.
+     *
+     * The Camera uses this while {@link Camera.projectionType} equals {@link CustomProjectionType}.
+     */
+    public readonly customProjection: CustomProjection;
+    /**
+     * View matrices for relative-to-center (RTC) coordinate system origins.
+     *
+     * Created and destroyed with {@link Camera.getRTCViewMat} and {@link Camera.putRTCViewMat}.
+     */
+    public readonly rtcViewMats: { [key: string]: RTCViewMat };
+    /**
+     * Emits an event each time {@link Camera.projectionType} updates.
+     *
+     * ````javascript
+     * myView.camera.onProjectionType.subscribe((camera, projType) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onProjectionType: EventEmitter<Camera, number>;
+    /**
+     * Emits an event each time {@link Camera.viewMatrix} updates.
+     *
+     * ````javascript
+     * myView.camera.onViewMatrix.subscribe((camera, viewMatrix) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onViewMatrix: EventEmitter<Camera, FloatArrayParam>;
+    /**
+     * Emits an event each time {@link Camera.projMatrix} updates.
+     *
+     * ````javascript
+     * myView.camera.onProjMatrix.subscribe((camera, projMatrix) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onProjMatrix: EventEmitter<Camera, FloatArrayParam>;
+    /**
+     * Emits an event each time {@link Camera.worldAxis} updates.
+     *
+     * ````javascript
+     * myView.camera.onWorldAxis.subscribe((camera, worldAxis) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onWorldAxis: EventEmitter<Camera, FloatArrayParam>;
+    /**
+     * Emits an event each time {@link Camera.frustum} updates.
+     *
+     * ````javascript
+     * myView.camera.onFrustum.subscribe((camera, frustum) => { ... });
+     * ````
+     *
+     * @event
+     */
+    readonly onFrustum: EventEmitter<Camera, Frustum>;
     readonly #state: {
         deviceMatrix: FloatArrayParam,
         viewNormalMatrix: FloatArrayParam,
@@ -260,87 +337,11 @@ class Camera extends Component {
         constrainPitch: boolean,
         projectionType: number
     };
-
     /**
-     * The perspective projection.
-     *
-     * The Camera uses this while {@link Camera.projection} equals {@link PerspectiveProjectionType}.
+     * The viewing frustum.
      */
-    public readonly perspective: Perspective;
-
-    /**
-     * The orthographic projection.
-     *
-     * The Camera uses this while {@link Camera.projection} equals {@link OrthoProjectionType}.
-     */
-    public readonly ortho: Ortho;
-
-    /**
-     * The frustum projection.
-     *
-     * The Camera uses this while {@link Camera.projection} equals {@link FrustumProjectionType}.
-     */
-    public readonly frustum: Frustum;
-
-    /**
-     * The custom projection.
-     *
-     * The Camera uses this while {@link Camera.projection} equals {@link CustomProjectionType}.
-     */
-    public readonly customProjection: CustomProjection;
-
-    #activeProjection: Perspective | Ortho | Frustum | CustomProjection;
-
-    /**
-     * View matrices for relative-to-center (RTC) coordinate system origins.
-     *
-     * Created and destroyed with {@link Camera.getRTCViewMat} and {@link Camera.putRTCViewMat}.
-     */
-    public readonly rtcViewMats: { [key: string]: RTCViewMat };
-
-    /**
-     * Emits an event each time {@link Camera.projection} updates.
-     *
-     * ````javascript
-     * myView.camera.onProjType.subscribe((camera, projType) => { ... });
-     * ````
-     *
-     * @event
-     */
-    readonly onProjType: EventEmitter<Camera, number>;
-
-    /**
-     * Emits an event each time {@link Camera.viewMatrix} updates.
-     *
-     * ````javascript
-     * myView.camera.onViewMatrix.subscribe((camera, viewMatrix) => { ... });
-     * ````
-     *
-     * @event
-     */
-    readonly onViewMatrix: EventEmitter<Camera, FloatArrayParam>;
-
-    /**
-     * Emits an event each time {@link Camera.projMatrix} updates.
-     *
-     * ````javascript
-     * myView.camera.onProjMatrix.subscribe((camera, projMatrix) => { ... });
-     * ````
-     *
-     * @event
-     */
-    readonly onProjMatrix: EventEmitter<Camera, FloatArrayParam>;
-
-    /**
-     * Emits an event each time {@link Camera.worldAxis} updates.
-     *
-     * ````javascript
-     * myView.camera.onWorldAxis.subscribe((camera, worldAxis) => { ... });
-     * ````
-     *
-     * @event
-     */
-    readonly onWorldAxis: EventEmitter<Camera, FloatArrayParam>;
+    #frustum: Frustum;
+    #activeProjection: PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection;
 
     /**
      * @private
@@ -358,10 +359,11 @@ class Camera extends Component {
 
         super(view, cfg);
 
-        this.onProjType = new EventEmitter(new EventDispatcher<Camera, number>());
+        this.onProjectionType = new EventEmitter(new EventDispatcher<Camera, number>());
         this.onViewMatrix = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
         this.onProjMatrix = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
         this.onWorldAxis = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
+        this.onFrustum = new EventEmitter(new EventDispatcher<Camera, Frustum>());
 
         this.view = view;
 
@@ -385,28 +387,29 @@ class Camera extends Component {
 
         this.rtcViewMats = {};
 
-        this.perspective = new Perspective(this);
-        this.ortho = new Ortho(this);
-        this.frustum = new Frustum(this);
+        this.#frustum = new Frustum();
+
+        this.perspectiveProjection = new PerspectiveProjection(this);
+        this.orthoProjection = new OrthoProjection(this);
         this.customProjection = new CustomProjection(this);
 
-        this.#activeProjection = this.perspective;
+        this.#activeProjection = this.perspectiveProjection;
 
-        this.perspective.onProjMatrix.subscribe(() => {
+        this.perspectiveProjection.onProjMatrix.subscribe(() => {
             if (this.#state.projectionType === PerspectiveProjectionType) {
-                this.onProjMatrix.dispatch(this, this.perspective.projMatrix);
+                this.onProjMatrix.dispatch(this, this.perspectiveProjection.projMatrix);
             }
         });
 
-        this.ortho.onProjMatrix.subscribe(() => {
+        this.orthoProjection.onProjMatrix.subscribe(() => {
             if (this.#state.projectionType === OrthoProjectionType) {
-                this.onProjMatrix.dispatch(this, this.ortho.projMatrix);
+                this.onProjMatrix.dispatch(this, this.orthoProjection.projMatrix);
             }
         });
 
-        this.frustum.onProjMatrix.subscribe(() => {
+        this.frustumProjection.onProjMatrix.subscribe(() => {
             if (this.#state.projectionType === FrustumProjectionType) {
-                this.onProjMatrix.dispatch(this, this.frustum.projMatrix);
+                this.onProjMatrix.dispatch(this, this.frustumProjection.projMatrix);
             }
         });
 
@@ -417,15 +420,14 @@ class Camera extends Component {
         });
     }
 
-
     /**
      * Gets the currently active projection for this Camera.
      *
-     * The currently active project is selected with {@link Camera.projection}.
+     * The currently active project is selected with {@link Camera.projectionType}.
      *
-     * @returns {Perspective|Ortho|Frustum|CustomProjection} The currently active projection is active.
+     * @returns {PerspectiveProjection|OrthoProjection|FrustumProjection|CustomProjection} The currently active projection is active.
      */
-    get project(): Perspective | Ortho | Frustum | CustomProjection {
+    get project(): PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection {
         return this.#activeProjection;
     }
 
@@ -689,21 +691,7 @@ class Camera extends Component {
     }
 
     /**
-     * The Camera's viewing normal transformation matrix.
-     *
-     * @returns {Number[]} The viewing normal transform matrix.
-     */
-    get viewNormalMatrix(): FloatArrayParam {
-        if (this.dirty) {
-            this.cleanIfDirty();
-        }
-        return this.#state.viewNormalMatrix;
-    }
-
-    /**
      * Gets the inverse of the Camera's viewing transform matrix.
-     *
-     * This has the same value as {@link Camera.viewNormalMatrix}.
      *
      * @returns {Number[]} The inverse viewing transform matrix.
      */
@@ -721,7 +709,19 @@ class Camera extends Component {
      */
     get projMatrix(): FloatArrayParam {
         // @ts-ignore
-        return this[this.projection].projMatrix;
+        return this.#activeProjection.projMatrix;
+    }
+
+    /**
+     * Gets the Camera's 3D World-space viewing frustum.
+     *
+     * @returns {Frustum} The frustum.
+     */
+    get frustum() {
+        if (this.dirty) {
+            this.cleanIfDirty();
+        }
+        return this.#frustum;
     }
 
     /**
@@ -733,7 +733,7 @@ class Camera extends Component {
      *
      * @returns {number} Identifies the active projection type.
      */
-    get projection(): number {
+    get projectionType(): number {
         return this.#state.projectionType;
     }
 
@@ -746,30 +746,29 @@ class Camera extends Component {
      *
      * @param value Identifies the active projection type.
      */
-    set projection(value: number | undefined) {
+    set projectionType(value: number | undefined) {
         value = value || PerspectiveProjectionType;
         if (this.#state.projectionType === value) {
             return;
         }
         if (value === PerspectiveProjectionType) {
-            this.#activeProjection = this.perspective;
+            this.#activeProjection = this.perspectiveProjection;
         } else if (value === OrthoProjectionType) {
-            this.#activeProjection = this.ortho;
+            this.#activeProjection = this.orthoProjection;
         } else if (value === FrustumProjectionType) {
-            this.#activeProjection = this.frustum;
+            this.#activeProjection = this.frustumProjection;
         } else if (value === CustomProjectionType) {
             this.#activeProjection = this.customProjection;
         } else {
             this.error("Unsupported value for 'projection': " + value + " defaulting to PerspectiveProjectionType");
-            this.#activeProjection = this.perspective;
+            this.#activeProjection = this.perspectiveProjection;
             value = PerspectiveProjectionType;
         }
         // @ts-ignore
         this.#activeProjection.clean();
         this.#state.projectionType = value;
-        this.view.redraw();
-        this.clean(); // Need to rebuild lookat matrix with full eye, look & up
-        this.onProjType.dispatch(this, this.#state.projectionType);
+        this.clean();
+        this.onProjectionType.dispatch(this, this.#state.projectionType);
         this.onProjMatrix.dispatch(this, this.#activeProjection.projMatrix);
     }
 
@@ -780,7 +779,7 @@ class Camera extends Component {
         // the front off the view (not a problem with perspective, since objects close enough
         // to be clipped by the front plane are usually too big to see anything of their cross-sections).
         let eye;
-        if (this.projection === OrthoProjectionType) {
+        if (this.projectionType === OrthoProjectionType) {
             subVec3(this.#state.eye, this.#state.look, eyeLookVec);
             normalizeVec3(eyeLookVec, eyeLookVecNorm);
             mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
@@ -799,7 +798,9 @@ class Camera extends Component {
         transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
         this.#invalidateRTCViewMatrices();
         this.view.redraw();
+        setFrustum(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
         this.onViewMatrix.dispatch(this, this.#state.viewMatrix);
+        this.onFrustum.dispatch(this, this.#frustum);
     }
 
     /**
@@ -918,12 +919,6 @@ class Camera extends Component {
         this.eye = addVec3(this.#state.look, mulVec3Scalar(dir, newLenLook), tempVec3d);
     }
 
-    #invalidateRTCViewMatrices(): void {
-        Object.values(this.rtcViewMats).forEach((rtcViewMat) => {
-            rtcViewMat.dirty = true;
-        });
-    }
-
     /**
      * Gets an RTC view matrix for the given relative-to-center (RTC) coordinate system origin.
      *
@@ -964,10 +959,16 @@ class Camera extends Component {
      */
     destroy() {
         super.destroy();
-        this.onProjType.clear();
+        this.onProjectionType.clear();
         this.onViewMatrix.clear();
         this.onProjMatrix.clear();
         this.onWorldAxis.clear();
+    }
+
+    #invalidateRTCViewMatrices(): void {
+        Object.values(this.rtcViewMats).forEach((rtcViewMat) => {
+            rtcViewMat.dirty = true;
+        });
     }
 }
 

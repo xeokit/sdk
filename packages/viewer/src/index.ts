@@ -280,7 +280,7 @@
  * ````javascript
  * const skyboxSceneModel = myVScene.createModel({
  *      id: "mySkyBox",
- *      viewLayerId: "myEnviromentViewLayer"
+ *      layerId: "myEnviromentViewLayer"
  * });
  *
  * skyboxSceneModel.createObject({
@@ -296,7 +296,7 @@
  * ````javascript
  * const bcfViewpointAgain = saveBCFViewpoint({
  *      view: view2,
- *      excludeViewLayerIds: ["myEnviromentViewLayer"]
+ *      excludeLayerIds: ["myEnviromentViewLayer"]
  * });
  * ````
  *
@@ -306,7 +306,7 @@
  * loadBCFViewpoint({
  *      bcfViewpoint: bcfViewpointAgain
  *      view: view2,
- *      excludeViewLayerIds: ["myEnviromentViewLayer"]
+ *      excludeLayerIds: ["myEnviromentViewLayer"]
  * });
  * ````
  *
@@ -317,9 +317,9 @@ export * from "./ViewParams";
 export * from "./Renderer";
 export * from "./Camera";
 export * from "./RTCViewMat";
-export * from "./Frustum";
-export * from "./Ortho";
-export * from "./Perspective";
+export * from "./FrustumProjection";
+export * from "./OrthoProjection";
+export * from "./PerspectiveProjection";
 export * from "./CustomProjection";
 export * from "./CameraFlightAnimation";
 export * from "./AmbientLight";

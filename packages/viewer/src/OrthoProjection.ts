@@ -9,26 +9,26 @@ import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transpose
 /**
  * Orthographic projection configuration for a {@link @xeokit/viewer!Camera} .
  *
- * * Located at {@link Camera.ortho}.
+ * * Located at {@link Camera.orthoProjection}.
  * * Works like Blender's orthographic projection, where the positions of the left, right, top and bottom planes are implicitly
- * indicated with a single {@link Ortho.scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
- * contain the number of units given by {@link Ortho.scale}.
- * * {@link Ortho.near} and {@link Ortho.far} indicated the distances to the clipping planes.
- * * {@link Ortho.onProjMatrix} will fire an event whenever {@link Ortho.projMatrix} updates, which indicates that one or more other properties have updated.
+ * indicated with a single {@link OrthoProjection.scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
+ * contain the number of units given by {@link OrthoProjection.scale}.
+ * * {@link OrthoProjection.near} and {@link OrthoProjection.far} indicated the distances to the clipping planes.
+ * * {@link OrthoProjection.onProjMatrix} will fire an event whenever {@link OrthoProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-class Ortho extends Component {
+export class OrthoProjection extends Component {
 
     /**
-     * The Camera this Ortho belongs to.
+     * The Camera this OrthoProjection belongs to.
      */
     public readonly camera: Camera;
 
     /**
-     * Emits an event each time {@link Ortho.projMatrix} updates.
+     * Emits an event each time {@link OrthoProjection.projMatrix} updates.
      *
      * @event
      */
-    readonly onProjMatrix: EventEmitter<Ortho, FloatArrayParam>;
+    readonly onProjMatrix: EventEmitter<OrthoProjection, FloatArrayParam>;
 
     /**
      * The type of this projection.
@@ -70,7 +70,7 @@ class Ortho extends Component {
             transposedProjMatrix: createMat4()
         };
 
-        this.onProjMatrix = new EventEmitter(new EventDispatcher<Ortho, FloatArrayParam>());
+        this.onProjMatrix = new EventEmitter(new EventDispatcher<OrthoProjection, FloatArrayParam>());
 
         this.#inverseMatrixDirty = true;
         this.#transposedProjMatrixDirty = true;
@@ -81,20 +81,20 @@ class Ortho extends Component {
     }
 
     /**
-     * Gets scale factor for this Ortho's extents on X and Y axis.
+     * Gets scale factor for this OrthoProjection's extents on X and Y axis.
      *
      * Clamps to minimum value of ````0.01```.
      *
      * Default value is ````1.0````
      *
-     * returns New Ortho scale value.
+     * returns New OrthoProjection scale value.
      */
     get scale(): number {
         return this.#state.scale;
     }
 
     /**
-     * Sets scale factor for this Ortho's extents on X and Y axis.
+     * Sets scale factor for this OrthoProjection's extents on X and Y axis.
      *
      * Clamps to minimum value of ````0.01```.
      *
@@ -110,22 +110,22 @@ class Ortho extends Component {
     }
 
     /**
-     * Gets the position of the Ortho's near plane on the positive View-space Z-axis.
+     * Gets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
      *
      * Default value is ````0.1````.
      *
-     * returns New Ortho near plane position.
+     * returns New OrthoProjection near plane position.
      */
     get near(): number {
         return this.#state.near;
     }
 
     /**
-     * Sets the position of the Ortho's near plane on the positive View-space Z-axis.
+     * Sets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
      *
      * Default value is ````0.1````.
      *
-     * @param value New Ortho near plane position.
+     * @param value New OrthoProjection near plane position.
      */
     set near(value: number) {
         if (this.#state.near === value) {
@@ -136,7 +136,7 @@ class Ortho extends Component {
     }
 
     /**
-     * Gets the position of the Ortho's far plane on the positive View-space Z-axis.
+     * Gets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
      *
      * Default value is ````10000.0````.
      *
@@ -147,7 +147,7 @@ class Ortho extends Component {
     }
 
     /**
-     * Sets the position of the Ortho's far plane on the positive View-space Z-axis.
+     * Sets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
      *
      * Default value is ````2000.0````.
      *
@@ -162,11 +162,11 @@ class Ortho extends Component {
     }
 
     /**
-     * Gets the Ortho's projection transform matrix.
+     * Gets the OrthoProjection's projection transform matrix.
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
-     * @returns  The Ortho's projection matrix.
+     * @returns  The OrthoProjection's projection matrix.
      */
     get projMatrix(): FloatArrayParam {
         if (this.dirty) {
@@ -176,9 +176,9 @@ class Ortho extends Component {
     }
 
     /**
-     * Gets the inverse of {@link Ortho.projMatrix}.
+     * Gets the inverse of {@link OrthoProjection.projMatrix}.
      *
-     * @returns  The inverse of {@link Ortho.projMatrix}.
+     * @returns  The inverse of {@link OrthoProjection.projMatrix}.
      */
     get inverseProjMatrix(): FloatArrayParam {
         if (this.dirty) {
@@ -192,9 +192,9 @@ class Ortho extends Component {
     }
 
     /**
-     * Gets the transpose of {@link Ortho.projMatrix}.
+     * Gets the transpose of {@link OrthoProjection.projMatrix}.
      *
-     * @returns  The transpose of {@link Ortho.projMatrix}.
+     * @returns  The transpose of {@link OrthoProjection.projMatrix}.
      */
     get transposedProjMatrix(): FloatArrayParam {
         if (this.dirty) {
@@ -253,7 +253,7 @@ class Ortho extends Component {
     }
 
     /**
-     * Un-projects the given View-space coordinates, using this Ortho projection.
+     * Un-projects the given View-space coordinates, using this OrthoProjection projection.
      *
      * @param canvasPos Inputs 2D View-space coordinates.
      * @param screenZ Inputs Screen-space Z coordinate.
@@ -299,4 +299,3 @@ class Ortho extends Component {
     }
 }
 
-export {Ortho};

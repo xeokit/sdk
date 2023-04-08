@@ -15,7 +15,7 @@ import {Scene, SceneModel} from "@xeokit/scene";
  *
  * ## Summary
  *
- * * Automatically stores a {@link ViewObject} for each existing {@link RendererObject} that has a matching {@link RendererObject.viewLayerId | ViewerObject.viewLayerId}
+ * * Automatically stores a {@link ViewObject} for each existing {@link RendererObject} that has a matching {@link RendererObject.layerId | ViewerObject.layerId}
  * * Useful for segreggating {@link ViewObject | ViewObjects} into layers
  * * Created automatically or manually (see {@link View.createLayer | View.createLayer})
  * * Stored in {@link View.layers | View.layers}
@@ -42,7 +42,7 @@ import {Scene, SceneModel} from "@xeokit/scene";
  * Recall that, whenever a {@link RendererObject} is created, each existing {@link @xeokit/viewer!View} will automatically create a
  * corresponding {@link ViewObject} to represent and control that ViewerObject's appearance within the View's canvas.
  *
- * If the {@link RendererObject} also happens to have a value set on its {@link RendererObject.viewLayerId} ID property, then the View
+ * If the {@link RendererObject} also happens to have a value set on its {@link RendererObject.layerId} ID property, then the View
  * will also automatically ensure that it contains a matching {@link ViewLayer}, and will register the new ViewObject
  * in that ViewLayer. Note that each ViewObject can belong to a maximum of one ViewLayer.
  *
@@ -54,7 +54,7 @@ import {Scene, SceneModel} from "@xeokit/scene";
  * We can configure a {@link @xeokit/viewer!View} to **not** automatically create ViewLayers, and instead rely on us to manually create them.
  *
  * When we do that, the View will only create the {@link ViewObject | ViewObjects} within itself for the ViewLayers that we created. The
- * View will ignore all ViewerObjects that don't have {@link RendererObject.viewLayerId} values that match the IDs of our
+ * View will ignore all ViewerObjects that don't have {@link RendererObject.layerId} values that match the IDs of our
  * manually-created ViewLayers.
  *
  * This feature is useful for ensuring that aspect-focused Views don't contain huge numbers of unused ViewObjects for
@@ -109,25 +109,25 @@ import {Scene, SceneModel} from "@xeokit/scene";
  * sceneModel.createObject({
  *      id: "ground",
  *      meshIds: ["groundMesh}],
- *      viewLayerId: "environment"
+ *      layerId: "environment"
  * });
  *
  * sceneModel.createObject({
  *      id: "skyBox",
  *      meshIds: ["skyBoxMesh}],
- *      viewLayerId: "environment"
+ *      layerId: "environment"
  * });
  *
  * sceneModel.createObject({
  *      id: "houseFoundation",
  *      meshIds: ["myMesh}],
- *      viewLayerId: "model"
+ *      layerId: "model"
  * });
  *
  * sceneModel.createObject({
  *      id: "houseWalls",
  *      meshIds: ["myMesh}],
- *      viewLayerId: "model"
+ *      layerId: "model"
  * });
  *
  * sceneModel.build();
@@ -207,25 +207,25 @@ import {Scene, SceneModel} from "@xeokit/scene";
  * sceneModel.createObject({
  *      id: "ground",
  *      meshIds: ["groundMesh}],
- *      viewLayerId: "environment"
+ *      layerId: "environment"
  * });
  *
  * sceneModel.createObject({
  *      id: "skyBox",
  *      meshIds: ["skyBoxMesh}],
- *      viewLayerId: "environment"
+ *      layerId: "environment"
  * });
  *
  * sceneModel.createObject({
  *      id: "houseFoundation",
  *      meshIds: ["myMesh}],
- *      viewLayerId: "model"
+ *      layerId: "model"
  * });
  *
  * sceneModel.createObject({
  *      id: "houseWalls",
  *      meshIds: ["myMesh}],
- *      viewLayerId: "model"
+ *      layerId: "model"
  * });
  *
  * sceneModel.build();
@@ -269,7 +269,7 @@ class ViewLayer extends Component {
     /**
      * Map of the all {@link ViewObject | ViewObjects} in this ViewLayer.
      *
-     * These are the ViewObjects for which {@link ViewObject.viewLayerId} has the same value as {@link ViewLayer.id}.
+     * These are the ViewObjects for which {@link ViewObject.layerId} has the same value as {@link ViewLayer.id}.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
@@ -896,7 +896,7 @@ class ViewLayer extends Component {
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
             const rendererViewObject = this.viewer.renderer.rendererViewObjects[id];
-            if (rendererViewObject.viewLayerId == this.id) {
+            if (rendererViewObject.layerId == this.id) {
                 const viewObject = new ViewObject(this, sceneObject, rendererViewObject,{});
                 this.objects[viewObject.id] = viewObject;
                 this.#numObjects++;

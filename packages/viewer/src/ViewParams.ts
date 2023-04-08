@@ -56,11 +56,11 @@ export interface ViewParams {
      * as {@link ViewObject | ViewObjects} are created.
      *
      * When ````true```` (default), the {@link @xeokit/viewer!View} will automatically create {@link ViewLayer | ViewLayers} as needed for each new
-     * {@link ViewObject.viewLayerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
-     * viewLayerId. This default setting therefore ensures that a ViewObject is created in the {@link @xeokit/viewer!View} for every ViewerObject that is created.
+     * {@link ViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+     * layerId. This default setting therefore ensures that a ViewObject is created in the {@link @xeokit/viewer!View} for every ViewerObject that is created.
      *
      * If you set this ````false````, however, then the {@link @xeokit/viewer!View} will only create {@link ViewObject | ViewObjects} for {@link ViewObject | ViewObjects} that have
-     * a {@link ViewObject.viewLayerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
+     * a {@link ViewObject.layerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
      *
      * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
      * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects

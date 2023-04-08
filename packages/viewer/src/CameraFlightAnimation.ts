@@ -141,7 +141,7 @@ class CameraFlightAnimation extends Component {
      * @param [params.eye] Position to fly the eye position to.
      * @param [params.look] Position to fly the look position to.
      * @param [params.up] Position to fly the up vector to.
-     * @param [params.projection] Projection type to transition into as we fly. Can be any of the values of {@link Camera.projection}.
+     * @param [params.projection] Projection type to transition into as we fly. Can be any of the values of {@link Camera.projectionType}.
      * @param [params.fit=true] Whether to fit the target to the view volume. Overrides {@link CameraFlightAnimation.fit}.
      * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link ViewerObject} or its AABB should
      * fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
@@ -178,7 +178,7 @@ class CameraFlightAnimation extends Component {
         this.#callback = callback;
 
         const camera = this.camera;
-        const flyToProjection = (!!params.projection) && (params.projection !== camera.projection);
+        const flyToProjection = (!!params.projection) && (params.projection !== camera.projectionType);
 
         this.#eye1[0] = camera.eye[0];
         this.#eye1[1] = camera.eye[1];
@@ -192,7 +192,7 @@ class CameraFlightAnimation extends Component {
         this.#up1[1] = camera.up[1];
         this.#up1[2] = camera.up[2];
 
-        this.#orthoScale1 = camera.ortho.scale;
+        this.#orthoScale1 = camera.orthoProjection.scale;
         this.#orthoScale2 = params.orthoScale || this.#orthoScale1;
 
         let aabb: FloatArrayParam;
@@ -288,18 +288,18 @@ class CameraFlightAnimation extends Component {
 
         if (flyToProjection) {
 
-            if (params.projection === OrthoProjectionType && camera.projection !== OrthoProjectionType) {
+            if (params.projection === OrthoProjectionType && camera.projectionType !== OrthoProjectionType) {
                 this.#projection2 = OrthoProjectionType;
                 this.#projMatrix1 = camera.projMatrix.slice();
-                this.#projMatrix2 = camera.ortho.projMatrix.slice();
-                camera.projection = CustomProjectionType;
+                this.#projMatrix2 = camera.orthoProjection.projMatrix.slice();
+                camera.projectionType = CustomProjectionType;
             }
 
-            if (params.projection === PerspectiveProjectionType && camera.projection !== PerspectiveProjectionType) {
+            if (params.projection === PerspectiveProjectionType && camera.projectionType !== PerspectiveProjectionType) {
                 this.#projection2 = PerspectiveProjectionType;
                 this.#projMatrix1 = camera.projMatrix.slice();
-                this.#projMatrix2 = camera.perspective.projMatrix.slice();
-                camera.projection = CustomProjectionType;
+                this.#projMatrix2 = camera.perspectiveProjection.projMatrix.slice();
+                camera.projectionType = CustomProjectionType;
             }
         } else {
             // @ts-ignore
@@ -329,7 +329,7 @@ class CameraFlightAnimation extends Component {
      * @param [params.eye] Position to fly the eye position to.
      * @param [params.look]  Position to fly the look position to.
      * @param [params.up] Position to fly the up vector to.
-     * @param [params.projection] Projection type to transition into. Can be any of the values of {@link Camera.projection}.
+     * @param [params.projection] Projection type to transition into. Can be any of the values of {@link Camera.projectionType}.
      * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link ViewerObject} or its AABB should fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
      * @param [params.fit] Whether to fit the target to the view volume. Overrides {@link CameraFlightAnimation.fit}.
      */
@@ -394,7 +394,7 @@ class CameraFlightAnimation extends Component {
             camera.eye = addVec3(newLook, newLookEyeVec, tempVec3);
             camera.look = newLook;
 
-            this.camera.ortho.scale = diag * 1.1;
+            this.camera.orthoProjection.scale = diag * 1.1;
             // @ts-ignore
         } else if (newEye || newLook || newUp) {
             // @ts-ignore
@@ -410,7 +410,7 @@ class CameraFlightAnimation extends Component {
         }
 
         if (params.projection) {
-            camera.projection = params.projection;
+            camera.projectionType = params.projection;
         }
     }
 
@@ -453,11 +453,11 @@ class CameraFlightAnimation extends Component {
             camera.customProjection.projMatrix = lerpMat4(tProj, 0, 1, this.#projMatrix1, this.#projMatrix2);
 
         } else {
-            camera.ortho.scale = this.#orthoScale1 + (t * (this.#orthoScale2 - this.#orthoScale1));
+            camera.orthoProjection.scale = this.#orthoScale1 + (t * (this.#orthoScale2 - this.#orthoScale1));
         }
 
         if (stopping) {
-            camera.ortho.scale = this.#orthoScale2;
+            camera.orthoProjection.scale = this.#orthoScale2;
             this.stop();
             return;
         }
@@ -489,7 +489,7 @@ class CameraFlightAnimation extends Component {
         this.#time1 = null;
         this.#time2 = null;
         if (this.#projection2) {
-            this.camera.projection = this.#projection2;
+            this.camera.projectionType = this.#projection2;
         }
         const callback = this.#callback;
         if (callback) {

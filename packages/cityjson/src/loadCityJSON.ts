@@ -52,21 +52,17 @@ export function loadCityJSON(params: {
                              }): Promise<any> {
     const dataModel = params.dataModel;
     const sceneModel = params.sceneModel;
-    if (sceneModel) {
-        if (sceneModel.destroyed) {
-            throw new Error("SceneModel already destroyed");
-        }
-        if (sceneModel.built) {
-            throw new Error("SceneModel already built");
-        }
+    if (sceneModel?.destroyed) {
+        throw new Error("SceneModel already destroyed");
     }
-    if (dataModel) {
-        if (dataModel.destroyed) {
-            throw new Error("DataModel already destroyed");
-        }
-        if (dataModel.built) {
-            throw new Error("DataModel already built");
-        }
+    if (sceneModel?.built) {
+        throw new Error("SceneModel already built");
+    }
+    if (dataModel?.destroyed) {
+        throw new Error("DataModel already destroyed");
+    }
+    if (dataModel?.built) {
+        throw new Error("DataModel already built");
     }
     return new Promise<void>(function (resolve, reject) {
         const data = params.data;

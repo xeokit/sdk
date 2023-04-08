@@ -39,12 +39,12 @@
  * In this example we'll set up a xeokit Viewer in a web browser, load a BIM model into it, and then demonstrate how we
  * can save and load bookmarks of our Viewer state as BCF viewpoints, using the model.
  *
- * We'll start by
+ * We'll start with these steps:
  *
- * * creating a Scene and Data,
- * * initializing a Viewer with a WebGLRenderer and the Scene,
- * * create a new View, SceneModel and DataModel,
- * * load an XKT file using the loadXKT function, and
+ * * create a {@link @xeokit/scene!Scene | Scene} and a {@link @xeokit/data!Data | Data},
+ * * initialize a Viewer with the Scene and a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer},
+ * * create a new {@link @xeokit/viewer!View | View}, {@link @xeokit/scene!SceneModel | SceneModel} and {@link @xeokit/data!DataModel | DataModel},
+ * * load an XKT file using the {@link @xeokit/xkt!loadXKT | loadXKT} function, and
  * * build the Scene and Data models, rendering the 3D model in the web browser.
  *
  * ````javascript

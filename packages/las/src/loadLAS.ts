@@ -25,23 +25,18 @@ export function loadLAS(params: {
     return new Promise<void>(function (resolve, reject) {
         const dataModel = params.dataModel;
         const sceneModel = params.sceneModel;
-        if (sceneModel) {
-            if (sceneModel.destroyed) {
-                reject(new SDKError("SceneModel already destroyed"));
-            }
-            if (sceneModel.built) {
-                reject(new SDKError("SceneModel already built"));
-            }
+        if (sceneModel?.destroyed) {
+            throw new Error("SceneModel already destroyed");
         }
-        if (dataModel) {
-            if (dataModel.destroyed) {
-                reject(new SDKError("DataModel already destroyed"));
-            }
-            if (dataModel.built) {
-                reject(new SDKError("DataModel already built"));
-            }
+        if (sceneModel?.built) {
+            throw new Error("SceneModel already built");
         }
-
+        if (dataModel?.destroyed) {
+            throw new Error("DataModel already destroyed");
+        }
+        if (dataModel?.built) {
+            throw new Error("DataModel already built");
+        }
         // TODO
 
         resolve();

@@ -256,7 +256,7 @@ class CameraUpdater {
                         }
                     } else {
                         camera.pan([0, 0, dollyDeltaForDist]);
-                        camera.ortho.scale = camera.ortho.scale - dollyDeltaForDist;
+                        camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDeltaForDist;
                     }
 
                     if (configs.constrainVertical) {
@@ -284,7 +284,7 @@ class CameraUpdater {
                             states.followPointerDirty = true;
                         }
                     } else {
-                        camera.ortho.scale = camera.ortho.scale + dollyDeltaForDist;
+                        camera.orthoProjection.scale = camera.orthoProjection.scale + dollyDeltaForDist;
                         camera.zoom(dollyDeltaForDist);
                     }
 
@@ -296,7 +296,7 @@ class CameraUpdater {
                             states.followPointerDirty = true;
                         }
                     } else {
-                        camera.ortho.scale = camera.ortho.scale + dollyDeltaForDist;
+                        camera.orthoProjection.scale = camera.orthoProjection.scale + dollyDeltaForDist;
                         camera.zoom(dollyDeltaForDist);
                     }
                 }

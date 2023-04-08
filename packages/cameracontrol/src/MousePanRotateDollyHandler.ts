@@ -151,18 +151,18 @@ export class MousePanRotateDollyHandler {
 
                 // We use only canvasHeight here so that aspect ratio does not distort speed
 
-                if (camera.projection === PerspectiveProjectionType) {
+                if (camera.projectionType === PerspectiveProjectionType) {
 
                     const depth = Math.abs(mouseDownPicked ? lenVec3(subVec3(pickedWorldPos, this.#view.camera.eye, [])) : this.#view.camera.eyeLookDist);
-                    const targetDistance = depth * Math.tan((camera.perspective.fov / 2) * Math.PI / 180.0);
+                    const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
                     updates.panDeltaX += (1.5 * xPanDelta * targetDistance / canvasHeight);
                     updates.panDeltaY += (1.5 * yPanDelta * targetDistance / canvasHeight);
 
                 } else {
 
-                    updates.panDeltaX += 0.5 * camera.ortho.scale * (xPanDelta / canvasHeight);
-                    updates.panDeltaY += 0.5 * camera.ortho.scale * (yPanDelta / canvasHeight);
+                    updates.panDeltaX += 0.5 * camera.orthoProjection.scale * (xPanDelta / canvasHeight);
+                    updates.panDeltaY += 0.5 * camera.orthoProjection.scale * (yPanDelta / canvasHeight);
                 }
 
             } else if (mouseDownLeft && !mouseDownMiddle && !mouseDownRight) {

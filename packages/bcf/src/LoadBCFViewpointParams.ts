@@ -32,10 +32,10 @@ export interface LoadBCFViewpointParams {
      * The {@link loadBCFViewpoint} function will silently ignore each component state that has no corresponding
      * ViewObject in any of these ViewLayers.
      *
-     * Each ViewLayer's occurrence in {@link LoadBCFViewpointParams.excludeViewLayerIds} will override
+     * Each ViewLayer's occurrence in {@link LoadBCFViewpointParams.excludeLayerIds} will override
      * its appearance in this list.
      */
-    includeViewLayerIds?: string[]
+    includeLayerIds?: string[]
 
     /**
      * Never load BCF viewpoint components if their corresponding {@link @xeokit/view!ViewObject | ViewObjects}
@@ -45,7 +45,7 @@ export interface LoadBCFViewpointParams {
      * ViewObject in any of these ViewLayers.
      *
      * Each ViewLayer's occurrence in this list will override its occurrance
-     * in {@link LoadBCFViewpointParams.includeViewLayerIds}.
+     * in {@link LoadBCFViewpointParams.includeLayerIds}.
      */
-    excludeViewLayerIds?: string[]
+    excludeLayerIds?: string[]
 }

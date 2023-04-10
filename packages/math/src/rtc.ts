@@ -88,6 +88,22 @@ export function worldToRTCPos(worldPos: math.FloatArrayParam, rtcCenter: math.Fl
 }
 
 /**
+ * Converts a World-space 3D position to RTC.
+ *
+ * Given a double-precision World-space position, returns a double-precision relative-to-center (RTC) center.
+ *
+ * @param worldCenter The World-space position.
+ * @param rtcCenter Double-precision relative-to-center (RTC) center pos.
+ * @param [cellSize=200] The size of each coordinate cell within the RTC coordinate system.
+ */
+export function worldToRTCCenter(worldCenter: math.FloatArrayParam, rtcCenter: math.FloatArrayParam, cellSize = 200) {
+    rtcCenter[0] = Math.round(worldCenter[0] / cellSize) * cellSize;
+    rtcCenter[1] = Math.round(worldCenter[1] / cellSize) * cellSize;
+    rtcCenter[2] = Math.round(worldCenter[2] / cellSize) * cellSize;
+    return rtcCenter;
+}
+
+/**
  * Converts a flat array of double-precision positions to RTC positions.
  *
  * Returns the RTC positions, along with a computed RTC center for those positions.

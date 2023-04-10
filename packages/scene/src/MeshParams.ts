@@ -65,14 +65,6 @@ export interface MeshParams {
     roughness?: number;
 
     /**
-     * Optional 3D World-space origin, relative to {@link @xeokit/scene!SceneModel.origin | SceneModel.origin}.
-     *
-     * When this is given, then 3D positions given in {@link @xeokit/scene!GeometryParams.positions} or
-     * {@link @xeokit/scene!GeometryBucketParams.positionsCompressed} are assumed to be relative to this.
-     */
-    origin?: FloatArrayParam;
-
-    /**
      * Optional local 3D translation vector.
      */
     position?: FloatArrayParam;

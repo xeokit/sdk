@@ -213,7 +213,7 @@ export class BIMViewer extends Viewer {
         loadBCFViewpoint({
             bcfViewpoint,
             view: this.view,
-            includeViewLayerIds: [this.modelsViewLayer.id]
+            includeLayerIds: [this.modelsViewLayer.id]
         });
     }
 
@@ -223,7 +223,7 @@ export class BIMViewer extends Viewer {
     saveBCF(): BCFViewpoint {
         return saveBCFViewpoint({
             view: this.view,
-            includeViewLayerIds: [this.modelsViewLayer.id]
+            includeLayerIds: [this.modelsViewLayer.id]
         });
     }
 }

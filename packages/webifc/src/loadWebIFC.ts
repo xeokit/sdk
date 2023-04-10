@@ -242,14 +242,14 @@ function parseSceneModel(ctx: ParsingContext) {
             ctx.sceneModel.createGeometry({
                 id: geometryId,
                 primitive: TrianglesPrimitive,
-                origin: rtcNeeded ? origin : null,
-                positions: positions,
-                indices: indices
+                positions,
+                indices
             });
             const meshId = "" + ctx.nextId++;
             ctx.sceneModel.createMesh({
                 id: meshId,
                 geometryId,
+                // TODO: matrix with translation if rtcNeeded
                 color: [placedGeometry.color.x, placedGeometry.color.y, placedGeometry.color.z],
                 opacity: placedGeometry.color.w
             });

@@ -23,13 +23,17 @@
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww)
+ * [![](https://mermaid.ink/img/pako:eNqNVcuO2jAU_RXkVTtiogEMJCy6aEeaTVGlAbVSlY3HuQNunTiynSkU8e91HgY7DzrZJDn3-J778LVPiIoE0ApRTpR6ZGQnSRpnCZNANRPZ6OtznI2qp2KMNhQyOFmswiUQDWvjhn_46Bk4EOlDaclSLiJefhmlC3TuUatcO5IsuX63lpcSoPbgAjsQKWjJPFDDQRcSNqB7UAeqk_tWqbipNEkbrS76VAseu5Zt7X_QYMJxbS8F44kLJKC0FI7jvnLVwXotcivWrlDLRZnSaKDYVHAhr79SFLt9Bsopl8mbcB8SOaFMHx0OMc04XP-b_jiMa3MGgmzK1R9nP9c4u5lWQ2ulwhl9tll2GIJSXigzJB0LpEwp9gYtQysyu0-G4solS5k2bhxIKFaOpXoEKtLcbFW1bpWzeLthtLX-XNDfMDh1Tx7LDe-i_6URgMRT7oOZOU0o_E_rO4M_npJNfnvM-wrwQ0h-U8SX2YF2hqNb-UtU9l2xRzGaxOju_t68g-AuRs6B5BErZIBdS77Hbw-zhrr8ckwt8ZJNh-U30vKrEXe4DtFSnKHxnGLDbW3qHm9bZ36vjRhogV36qV7bU4j3LXQ3kl2JxigFmRKWmBuu6nWM9B5SiNHKfCbwSgquYxRnZ0MlhRabY0bR6pVwBWNU5Ik5m5tL8YJCwrSQ6-baLF9jlJMMrU7ogFbTxUMwmSxxuJjOoxlezvAYHQ08C3C0XIQ4wpMwXEbh9DxGf4Uwbh-CcLrAeDGN8DLEczyPKn8_K6OWBZz_ATNYPes?type=png)](https://mermaid.live/edit#pako:eNqNVcuO2jAU_RXkVTtiogEMJCy6aEeaTVGlAbVSlY3HuQNunTiynSkU8e91HgY7DzrZJDn3-J778LVPiIoE0ApRTpR6ZGQnSRpnCZNANRPZ6OtznI2qp2KMNhQyOFmswiUQDWvjhn_46Bk4EOlDaclSLiJefhmlC3TuUatcO5IsuX63lpcSoPbgAjsQKWjJPFDDQRcSNqB7UAeqk_tWqbipNEkbrS76VAseu5Zt7X_QYMJxbS8F44kLJKC0FI7jvnLVwXotcivWrlDLRZnSaKDYVHAhr79SFLt9Bsopl8mbcB8SOaFMHx0OMc04XP-b_jiMa3MGgmzK1R9nP9c4u5lWQ2ulwhl9tll2GIJSXigzJB0LpEwp9gYtQysyu0-G4solS5k2bhxIKFaOpXoEKtLcbFW1bpWzeLthtLX-XNDfMDh1Tx7LDe-i_6URgMRT7oOZOU0o_E_rO4M_npJNfnvM-wrwQ0h-U8SX2YF2hqNb-UtU9l2xRzGaxOju_t68g-AuRs6B5BErZIBdS77Hbw-zhrr8ckwt8ZJNh-U30vKrEXe4DtFSnKHxnGLDbW3qHm9bZ36vjRhogV36qV7bU4j3LXQ3kl2JxigFmRKWmBuu6nWM9B5SiNHKfCbwSgquYxRnZ0MlhRabY0bR6pVwBWNU5Ik5m5tL8YJCwrSQ6-baLF9jlJMMrU7ogFbTxUMwmSxxuJjOoxlezvAYHQ08C3C0XIQ4wpMwXEbh9DxGf4Uwbh-CcLrAeDGN8DLEczyPKn8_K6OWBZz_ATNYPes)
+ *
+ * <br>
  *
  * #### Notes
  *
  * * TextureSets are collections of textures that are shared among Meshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
  * * Geometries are arranged automatically into {@link @xeokit/scene!GeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.
  * * Each Mesh can be assigned to only one SceneObject, whereas each Geometry and TextureSet can be allocated to an unlimited number of Meshes.
+ * * The {@link getSceneObjectGeometry} function can be used to conveniently iterate the World-space geometry within each
+ * {@link SceneObject | SceneObject} - useful for building k-d trees, finding intersections etc.
  *
  * ## Installation
  *
@@ -228,7 +232,7 @@
  *
  *      sceneModel.build().then(()=> {
  *
- *      // SceneModel is ready for use
+ *           // SceneModel is ready for use
  *
  *      }).catch((e) => {
  *          console.log(e);
@@ -255,7 +259,7 @@
  * ### Geometry Compression
  *
  * The geometry from our query example requires a closer look. Internally, the {@link SceneModel.createGeometry}
- * method uses the {@link compressGeometryParams} function to compress the geometry and generate edge indices for 
+ * method uses the {@link compressGeometryParams} function to compress the geometry and generate edge indices for
  * rendering it as a wireframe.
  *
  * We provide that function as part of the API in case users want to pre-compress the geometry themselves
@@ -267,7 +271,6 @@
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)
- * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned integers
  * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
@@ -320,7 +323,7 @@
  * We can see that:
  *
  * * We get one bucket, because we have only a small number of indices
- * * Vertex positions are now relative to ````origin```` and quantized to 16-bit integers
+ * * Vertex positions are now quantized to 16-bit integers
  * * Duplicate positions are removed and indices adjusted
  * * Edge indices generated for our TrianglesPrimitive
  * * A ````positionsDecompressMatrix```` to de-quantize the positions within the Viewer
@@ -329,7 +332,6 @@
  * {
  *      id: "boxGeometry",
  *      primitive: TrianglesPrimitive,
- *      origin: [200,200,200],
  *      positionsDecompressMatrix: [
  *          0.00003052270125906143, 0, 0, 0,
  *          0, 0.00003052270125906143, 0, 0,
@@ -401,4 +403,4 @@ export * from "./GeometryParams";
 export * from "./SceneModelParams";
 export * from "./compressGeometryParams";
 
-export * from "./getWorldPositions";
+export * from "./getSceneObjectGeometry";

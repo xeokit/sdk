@@ -305,7 +305,7 @@ export class SAOOcclusionRenderer {
         const projectionMatrix = project.projMatrix;
         const inverseProjectionMatrix = this.#getInverseProjectMat();
         const randomSeed = Math.random();
-        const perspective = (view.camera.projection === PerspectiveProjectionType);
+        const perspective = (view.camera.projectionType === PerspectiveProjectionType);
 
         tempVec2[0] = viewportWidth;
         tempVec2[1] = viewportHeight;

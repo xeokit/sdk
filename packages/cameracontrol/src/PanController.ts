@@ -58,9 +58,9 @@ class PanController {
             dolliedThroughSurface = (eyeWorldPosDist < dollyDelta);
         }
 
-        if (camera.projection === PerspectiveProjectionType) {
+        if (camera.projectionType === PerspectiveProjectionType) {
 
-            camera.ortho.scale = camera.ortho.scale - dollyDelta;
+            camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
 
             const unprojectedWorldPos = this.#unproject(targetCanvasPos, tempVec4a);
             const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec4c);
@@ -83,7 +83,7 @@ class PanController {
                 camera.look = [camera.eye[0] + eyeLookVec[0], camera.eye[1] + eyeLookVec[1], camera.eye[2] + eyeLookVec[2]];
             }
 
-        } else if (camera.projection === OrthoProjectionType) {
+        } else if (camera.projectionType === OrthoProjectionType) {
 
             // - set ortho scale, getting the unprojected targetCanvasPos before and after, get that difference in a vector;
             // - get the vector in which we're dollying;
@@ -91,8 +91,8 @@ class PanController {
 
             const worldPos1 = this.#unproject(targetCanvasPos, tempVec4a);
 
-            camera.ortho.scale = camera.ortho.scale - dollyDelta;
-            camera.ortho.clean(); // HACK
+            camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
+            camera.orthoProjection.clean(); // HACK
 
             const worldPos2 = this.#unproject(targetCanvasPos, tempVec4b);
             const offset = subVec3(worldPos2, worldPos1, tempVec4c);

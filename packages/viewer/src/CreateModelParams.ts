@@ -50,5 +50,5 @@ export interface CreateModelParams {
     /**
      * Optional ID of the {@link @xeokit/viewer!ViewLayer | ViewLayer} this SceneModel appears in.
      */
-    viewLayerId?: string;
+    layerId?: string;
 }

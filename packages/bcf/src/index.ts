@@ -167,7 +167,7 @@
  *
  * const sceneModel = scene.createModel({
  *      id: "myModel",
- *      viewLayerId: "foreground"
+ *      layerId: "foreground"
  * });
  *
  * //...create some objects, load XKT etc
@@ -176,7 +176,7 @@
  *
  * const myOtherSceneModel = scene.createModel({
  *      id: "myOtherModel",
- *      viewLayerId: "background"
+ *      layerId: "background"
  * });
  *
  * //...create some objects, load XKT etc

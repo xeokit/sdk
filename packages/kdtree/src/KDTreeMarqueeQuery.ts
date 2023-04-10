@@ -2,21 +2,22 @@ import {createAABB2, Frustum, frustumIntersectsAABB3, INTERSECT, OUTSIDE} from "
 import {SceneObject} from "@xeokit/scene";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {createMat4} from "@xeokit/math/matrix";
-import {KDTree} from "./KDTree";
-import {KDNode} from "./KDNode";
+import {KDObjectTree} from "./KDObjectTree";
+import {KDObjectNode} from "./KDObjectNode";
 import {SDKError} from "@xeokit/core/components";
+import {testFrustumIntersectsSceneObject} from "./testFrustumIntersectsSceneObject";
 
 /**
- * Queries a {@link KDTree} for {@link @xeokit/scene!SceneObject | SceneObjects} that intersect a 2D canvas boundary.
+ * Queries a {@link KDObjectTree} for {@link @xeokit/scene!SceneObject | SceneObjects} that intersect a 2D canvas boundary.
  *
  * See {@link "@xeokit/kdtree"} for usage.
  */
 export class KDTreeMarqueeQuery {
 
     /**
-     * The {@link KDTree} that this KDTreeMarqueeQuery will query.
+     * The {@link KDObjectTree} that this KDTreeMarqueeQuery will query.
      */
-    public readonly kdTree: KDTree;
+    public readonly kdTree: KDObjectTree;
 
     /**
      * Contains the {@link @xeokit/scene!SceneObject | SceneObjects} found to intersect with the last call to {@link @doQuery}.
@@ -34,7 +35,7 @@ export class KDTreeMarqueeQuery {
      * Creates a new KDTreeMarqueeQuery.
      */
     constructor(params: {
-        kdTree: KDTree;
+        kdTree: KDObjectTree;
         viewMatrix?: FloatArrayParam;
         projMatrix?: FloatArrayParam;
         canvasBoundary?: FloatArrayParam;
@@ -103,7 +104,7 @@ export class KDTreeMarqueeQuery {
         this.#destroyed = true;
     }
 
-    #queryNode(node: KDNode, intersectionState: number): void {
+    #queryNode(node: KDObjectNode, intersectionState: number): void {
         if (intersectionState === OUTSIDE) {
             return;
         }
@@ -118,7 +119,9 @@ export class KDTreeMarqueeQuery {
                 const sceneObject = kdObject.object;
                 const objectIntersectionState = frustumIntersectsAABB3(this.#frustum, sceneObject.aabb);
                 if (objectIntersectionState !== OUTSIDE) {
-                    this.objects.push(sceneObject);
+                    if (testFrustumIntersectsSceneObject(this.#frustum, sceneObject)) {
+                        this.objects.push(sceneObject);
+                    }
                 }
             }
         }

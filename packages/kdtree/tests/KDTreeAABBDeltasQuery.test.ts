@@ -1,7 +1,7 @@
 import {Scene} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core/components";
 import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
-import {KDTree, KDTreeAABBDeltasQuery} from "../src";
+import {KDObjectTree, KDTreeAABBDeltasQuery} from "../src";
 
 const fs = require('fs');
 
@@ -9,7 +9,7 @@ describe('KDTreeAABBDeltasQuery Test', () => {
 
     const scene = new Scene();
 
-    const kdTree = new KDTree({
+    const kdTree = new KDObjectTree({
         scene
     });
 

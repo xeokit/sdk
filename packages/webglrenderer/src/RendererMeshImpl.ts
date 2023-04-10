@@ -5,6 +5,11 @@ import {createAABB3} from "@xeokit/math/boundaries";
 import type {RenderContext} from "./RenderContext";
 import type {Layer} from "./Layer";
 import {Pickable} from "./Pickable";
+import {createMat4, mulMat4, transformPoint3, translationMat4c} from "@xeokit/math/matrix";
+import {Tile, TileManager} from "./TileManager";
+
+const tempMat4a = createMat4();
+const tempMat4b = createMat4();
 
 
 /**
@@ -21,7 +26,8 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
     roughness: number;
     opacity: number;
     pickId: number;
-
+    tileManager: TileManager;
+    tile: Tile;
     sceneObjectRenderer: RendererObject | null;
     aabb: FloatArrayParam;
     layer: Layer;
@@ -30,7 +36,9 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
     colorizing: boolean;
     transparent: boolean;
 
+
     constructor(params: {
+        tileManager: TileManager,
         layer: Layer,
         id: string,
         matrix: FloatArrayParam;
@@ -43,13 +51,13 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
         meshIndex: number
     }) {
         this.sceneObjectRenderer = null;
+        this.tileManager = params.tileManager;
         this.id = params.id;
         this.pickId = 0;
         this.color = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
         this.colorize = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
         this.colorizing = false;
         this.transparent = (params.opacity < 255);
-        this.sceneObjectRenderer = null;
         this.layer = params.layer;
         this.matrix = params.matrix;
         this.metallic = params.metallic;
@@ -86,6 +94,18 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
     }
 
     setMatrix(matrix: FloatArrayParam): void {
+        const center = transformPoint3(matrix, [0, 0, 0]);
+        const oldTile = this.tile;
+        this.tile = oldTile ? this.tileManager.updateTileCenter(oldTile, center) : this.tileManager.getTile(center);
+        const tileChanged = !oldTile || oldTile.id !== this.tile.id;
+        const tileCenter = this.tile.center;
+        const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
+        this.layer.setMeshMatrix(this.meshIndex, needRTC
+            ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b)
+            : matrix);
+        if (tileChanged) {
+            this.layer.setMeshViewMatrixIndex(this.meshIndex, this.tile.index);
+        }
     }
 
     setMetallic(metallic: number): void {
@@ -132,10 +152,6 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
         if (changingTransparency) {
             this.layer.setMeshTransparent(this.meshIndex, flags, newTransparent);
         }
-    }
-
-    setOffset(offset: FloatArrayParam) {
-        this.layer.setMeshOffset(this.meshIndex, offset);
     }
 
     setHighlighted(flags: number) {
@@ -195,7 +211,8 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
     // }
 
     destroy() {
+        if (this.tile && this.tileManager) {
+            this.tileManager.putTile(this.tile);
+        }
     }
-
-
 }

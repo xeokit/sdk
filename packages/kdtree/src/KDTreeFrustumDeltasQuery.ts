@@ -1,11 +1,11 @@
 import {SceneObject} from "@xeokit/scene";
 import {Frustum, frustumIntersectsAABB3, INTERSECT, OUTSIDE} from "@xeokit/math/boundaries";
-import {KDTree} from "./KDTree";
-import {KDNode} from "./KDNode";
+import {KDObjectTree} from "./KDObjectTree";
+import {KDObjectNode} from "./KDObjectNode";
 import {SDKError} from "@xeokit/core/components";
 
 /**
- * Tracks changes in intersection status of {@link @xeokit/scene!SceneObject | SceneObjects} in a {@link KDTree} with respect to
+ * Tracks changes in intersection status of {@link @xeokit/scene!SceneObject | SceneObjects} in a {@link KDObjectTree} with respect to
  * a 3D World-space {@link @xeokit/math/boundaries!Frustum | Frustum}.
  *
  * See {@link "@xeokit/kdtree"} for usage.
@@ -13,9 +13,9 @@ import {SDKError} from "@xeokit/core/components";
 export class KDTreeFrustumDeltasQuery {
 
     /**
-     * The {@link KDTree} to query.
+     * The {@link KDObjectTree} to query.
      */
-    public readonly kdTree: KDTree;
+    public readonly kdTree: KDObjectTree;
 
     /**
      * The 3D World-space {@link @xeokit/math/boundaries!Frustum | Frustum}.
@@ -50,7 +50,7 @@ export class KDTreeFrustumDeltasQuery {
     /**
      * Creates a new KDTreeFrustumDeltasQuery
      */
-    constructor(params: { kdTree: KDTree, frustum?: Frustum }) {
+    constructor(params: { kdTree: KDObjectTree, frustum?: Frustum }) {
         this.kdTree = params.kdTree;
         this.frustum = params.frustum || new Frustum();
         this.objects = [];
@@ -87,7 +87,7 @@ export class KDTreeFrustumDeltasQuery {
         this.#destroyed = true;
     }
 
-    #queryNode(node: KDNode, intersectionState: number) {
+    #queryNode(node: KDObjectNode, intersectionState: number) {
         if (intersectionState === OUTSIDE && this.#lastNodeIntersectionStates[node.index] === intersectionState) {
             return;
         }

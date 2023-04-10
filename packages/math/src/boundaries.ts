@@ -12,7 +12,7 @@
  * * Transformable OOBs
  * * Create boundaries from positions
  * * Find center of positions
- * * Frustum-boundary intersection tests
+ * * FrustumProjection-boundary intersection tests
  *
  * ## Installation
  *
@@ -37,6 +37,7 @@
  */
 
 import * as math from "./math";
+import {FloatArrayParam, IntArrayParam} from "./math";
 import * as matrix from "./matrix";
 import {decompressPosition} from "./compression";
 
@@ -44,6 +45,7 @@ import {decompressPosition} from "./compression";
 const tempVec3a = matrix.createVec3();
 const tempVec3b = matrix.createVec3();
 const tempMat4a = matrix.createMat4();
+
 
 /**
  * Returns a new, uninitialized 3D axis-aligned bounding box.
@@ -697,6 +699,21 @@ export class FrustumPlane {
 }
 
 /**
+ * Intersection state in which first boundary is completely inside the second.
+ */
+export const INSIDE: number = 1;
+
+/**
+ * Intersection state in which two boundaries partially intersect.
+ */
+export const INTERSECT: number = 2;
+
+/**
+ * Intersection state in which two boundaries do not intersect.
+ */
+export const OUTSIDE: number = 3;
+
+/**
  * A frustum defined as six planes.
  */
 export class Frustum {
@@ -707,14 +724,7 @@ export class Frustum {
     public planes: FrustumPlane[];
 
     /**
-     *
-     */
-    static INSIDE: number = 0;
-    static INTERSECT: number = 1;
-    static OUTSIDE: number = 2;
-
-    /**
-     * Creates a new Frustum
+     * Creates a new FrustumProjection
      */
     constructor() {
         this.planes = [
@@ -726,11 +736,9 @@ export class Frustum {
 
 /**
  * Sets the extents of a frustum to the World-space volume defined by view and projection matrices.
- * @param frustum
- * @param viewMat
- * @param projMat
+ * Creates the frustum first if not given.
  */
-export function setFrustum(frustum: Frustum, viewMat: math.FloatArrayParam, projMat: math.FloatArrayParam) {
+export function setFrustum(viewMat: math.FloatArrayParam, projMat: math.FloatArrayParam, frustum?: Frustum) {
     const m = matrix.mulMat4(projMat, viewMat, tempMat4a);
     const m0 = m[0];
     const m1 = m[1];
@@ -748,12 +756,14 @@ export function setFrustum(frustum: Frustum, viewMat: math.FloatArrayParam, proj
     const m13 = m[13];
     const m14 = m[14];
     const m15 = m[15];
+    frustum = frustum || new Frustum();
     frustum.planes[0].set(m3 - m0, m7 - m4, m11 - m8, m15 - m12);
     frustum.planes[1].set(m3 + m0, m7 + m4, m11 + m8, m15 + m12);
     frustum.planes[2].set(m3 - m1, m7 - m5, m11 - m9, m15 - m13);
     frustum.planes[3].set(m3 + m1, m7 + m5, m11 + m9, m15 + m13);
     frustum.planes[4].set(m3 - m2, m7 - m6, m11 - m10, m15 - m14);
     frustum.planes[5].set(m3 + m2, m7 + m6, m11 + m10, m15 + m14);
+    return frustum;
 }
 
 /**
@@ -762,7 +772,7 @@ export function setFrustum(frustum: Frustum, viewMat: math.FloatArrayParam, proj
  * @param aabb
  */
 export function frustumIntersectsAABB3(frustum: Frustum, aabb: math.FloatArrayParam): number {
-    let ret = Frustum.INSIDE;
+    let ret = INSIDE;
     const min = tempVec3a;
     const max = tempVec3b;
     min[0] = aabb[0];
@@ -778,14 +788,163 @@ export function frustumIntersectsAABB3(frustum: Frustum, aabb: math.FloatArrayPa
             (plane.normal[1] * bminmax[plane.testVertex[1]][1]) +
             (plane.normal[2] * bminmax[plane.testVertex[2]][2]) +
             (plane.offset)) < 0.0) {
-            return Frustum.OUTSIDE;
+            return OUTSIDE;
         }
         if (((plane.normal[0] * bminmax[1 - plane.testVertex[0]][0]) +
             (plane.normal[1] * bminmax[1 - plane.testVertex[1]][1]) +
             (plane.normal[2] * bminmax[1 - plane.testVertex[2]][2]) +
             (plane.offset)) < 0.0) {
-            ret = Frustum.INTERSECT;
+            ret = INTERSECT;
         }
     }
     return ret;
+}
+
+/**
+ * Tests for intersection between two axis-aligned 3D boundaries.
+ * @param aabb1
+ * @param aabb2
+ */
+export function testAABB3IntersectsAABB3(aabb1: math.FloatArrayParam, aabb2: math.FloatArrayParam): number {
+
+    return INTERSECT;
+    // let ret = INSIDE;
+    // const min = tempVec3a;
+    // const max = tempVec3b;
+    // min[0] = aabb[0];
+    // min[1] = aabb[1];
+    // min[2] = aabb[2];
+    // max[0] = aabb[3];
+    // max[1] = aabb[4];
+    // max[2] = aabb[5];
+    // const bminmax = [min, max];
+    // for (let i = 0; i < 6; ++i) {
+    //     const plane = frustum.planes[i];
+    //     if (((plane.normal[0] * bminmax[plane.testVertex[0]][0]) +
+    //         (plane.normal[1] * bminmax[plane.testVertex[1]][1]) +
+    //         (plane.normal[2] * bminmax[plane.testVertex[2]][2]) +
+    //         (plane.offset)) < 0.0) {
+    //         return OUTSIDE;
+    //     }
+    //     if (((plane.normal[0] * bminmax[1 - plane.testVertex[0]][0]) +
+    //         (plane.normal[1] * bminmax[1 - plane.testVertex[1]][1]) +
+    //         (plane.normal[2] * bminmax[1 - plane.testVertex[2]][2]) +
+    //         (plane.offset)) < 0.0) {
+    //         ret = INTERSECT;
+    //     }
+    // }
+    // return ret;
+}
+
+
+/**
+ * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given {@link @xeokit/core/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
+ *
+ * Returns ```` true```` if intersection else ````false````.
+ *
+ * @param frustum
+ * @param positions
+ * @param indices
+ */
+export function testFrustumIntersectsTriangles(frustum: Frustum, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+    return true;
+}
+
+/**
+ * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given {@link @xeokit/core/constants!LinesPrimitive | LinesPrimitive} geometry.
+ *
+ * Returns ```` true```` if intersection else ````false````.
+ *
+ * @param frustum
+ * @param positions
+ * @param indices
+ */
+export function testFrustumIntersectsLines(frustum: Frustum, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+    return true;
+}
+
+/**
+ * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given {@link @xeokit/core/constants!PointsPrimitive | PointsPrimitive} geometry.
+ *
+ * Returns ```` true```` if intersection else ````false````.
+ *
+ * @param frustum
+ * @param positions
+ */
+export function testFrustumIntersectsPoints(frustum: Frustum, positions: FloatArrayParam): boolean {
+    return true;
+}
+
+/**
+ * Tests if the given AABB intersects the given {@link @xeokit/core/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
+ *
+ * Returns ```` true```` if intersection else ````false````.
+ *
+ * @param aabb
+ * @param positions
+ * @param indices
+ */
+export function testAABB3IntersectsTriangles(aabb: FloatArrayParam, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+    for (let i = 0, len = indices.length; i < len; i += 3) {
+        // if (aabbIntersectsTriangle(positions, indices[i], indices[i + 1], indices[i + 2], aabb)) {
+        //     return true;
+        // }
+    }
+    return false;
+}
+
+
+/**
+ * Tests if the given AABB intersects the given {@link @xeokit/core/constants!LinesPrimitive | LinesPrimitive} geometry.
+ *
+ * Returns ```` true```` if intersection else ````false````.
+ *
+ * @param aabb
+ * @param positions
+ * @param indices
+ */
+export function testAABB3IntersectsLines(aabb: FloatArrayParam, positions: FloatArrayParam, indices: IntArrayParam) {
+    return false;
+}
+
+/**
+ * Tests if the given AABB intersects the given {@link @xeokit/core/constants!PointsPrimitive | PointsPrimitive} vertex positions.
+ *
+ * Returns ```` true```` if intersection else ````false````.
+ *
+ * @param aabb
+ * @param positions
+ */
+export function testAABB3IntersectsPoints(aabb: FloatArrayParam, positions: FloatArrayParam) {
+    const xmin = aabb[0];
+    const ymin = aabb[1];
+    const zmin = aabb[2];
+    const xmax = aabb[3];
+    const ymax = aabb[4];
+    const zmax = aabb[5];
+    for (let i = 0, len = positions.length; i < len; i += 3) {
+        const x = positions[i];
+        if (xmin <= x && x <= xmax) {
+            const y = positions[i + 1];
+            if (ymin <= y && y <= ymax) {
+                const z = positions[i + 2];
+                if (zmin <= z && z <= zmax) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Tets if the given AABB contains the given 3D position.
+ * @param aabb
+ * @param p
+ */
+export function testAABB3ContainsPoint3(aabb: FloatArrayParam, p: FloatArrayParam) {
+    return (
+        aabb[0] <= p[0] && p[0] <= aabb[3] &&
+        aabb[1] <= p[1] && p[1] <= aabb[4] &&
+        aabb[2] <= p[2] && p[2] <= aabb[5]);
 }

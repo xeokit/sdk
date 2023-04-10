@@ -12,24 +12,24 @@ import { SceneModel} from "@xeokit/scene";
 export interface RendererViewObject {
 
     /**
-     * Unique ID of this RendererViewObjectCommands.
+     * Unique ID of this RendererViewObject.
      */
     readonly id: string;
 
     /**
-     * The {@link @xeokit/scene!SceneModel | SceneModel} that contains this RendererViewObjectCommands.
+     * The {@link @xeokit/scene!SceneModel | SceneModel} that contains this RendererViewObject.
      */
     readonly model: SceneModel;
 
     /**
-     * The axis-aligned World-space 3D boundary of this RendererViewObjectCommands.
+     * The axis-aligned World-space 3D boundary of this RendererViewObject.
      */
     readonly aabb: FloatArrayParam;
 
     /**
      * The ID of a {@link @xeokit/viewer!ViewLayer | ViewLayer} for the object to exclusively appear in.
      */
-    readonly viewLayerId: string | null;
+    readonly layerId: string | null;
 
     /**
      * TODO

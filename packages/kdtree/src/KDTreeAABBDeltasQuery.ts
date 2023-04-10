@@ -1,12 +1,12 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 import {SceneObject} from "@xeokit/scene";
 import {testAABB3IntersectsAABB3, collapseAABB3, createAABB3, INTERSECT, OUTSIDE} from "@xeokit/math/boundaries";
-import {KDTree} from "./KDTree";
-import {KDNode} from "./KDNode";
+import {KDObjectTree} from "./KDObjectTree";
+import {KDObjectNode} from "./KDObjectNode";
 import {SDKError} from "@xeokit/core/components";
 
 /**
- * Tracks changes in intersection status of {@link @xeokit/scene!SceneObject | SceneObjects} in a {@link KDTree} with respect to
+ * Tracks changes in intersection status of {@link @xeokit/scene!SceneObject | SceneObjects} in a {@link KDObjectTree} with respect to
  * a 3D World-space axis-aligned bounding box (AABB).
  *
  * See {@link "@xeokit/kdtree"} for usage.
@@ -14,9 +14,9 @@ import {SDKError} from "@xeokit/core/components";
 export class KDTreeAABBDeltasQuery {
 
     /**
-     * The {@link KDTree} to query.
+     * The {@link KDObjectTree} to query.
      */
-    public readonly kdTree: KDTree;
+    public readonly kdTree: KDObjectTree;
 
     /**
      * The 3D World-space axis-aligned bounding box (AABB).
@@ -52,7 +52,7 @@ export class KDTreeAABBDeltasQuery {
      * Creates a new KDTreeAABBDeltasQuery
      */
     constructor(params: {
-        kdTree: KDTree,
+        kdTree: KDObjectTree,
         aabb?: FloatArrayParam
     }) {
 
@@ -107,7 +107,7 @@ export class KDTreeAABBDeltasQuery {
         this.#destroyed = true;
     }
 
-    #queryNode(node: KDNode, intersectionState: number) {
+    #queryNode(node: KDObjectNode, intersectionState: number) {
         if (intersectionState === OUTSIDE && this.#lastNodeIntersectionStates[node.index] === intersectionState) {
             return;
         }

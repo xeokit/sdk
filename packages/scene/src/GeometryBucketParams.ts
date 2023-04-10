@@ -15,8 +15,7 @@ export interface GeometryBucketParams {
     /**
      * GeometryBucketHandle bucket's 3D vertex positions, quantized as 16-bit integers.
      *
-     * Internally, the Viewer uses {@link @xeokit/scene!GeometryCompressedParams.positionsDecompressMatrix} to decompress (dequantize)
-     * these back to 32-bit floating-point relative-to-center (RTC) positions that are relative to {@link @xeokit/scene!GeometryCompressedParams.origin}.
+     * Internally, the Viewer decompresses thses with {@link @xeokit/scene!GeometryCompressedParams.positionsDecompressMatrix}.
      *
      * Vertex positions are required for all primitive types.
      */

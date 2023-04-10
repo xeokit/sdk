@@ -30,7 +30,7 @@ import {createVec4} from "@xeokit/math/matrix";
  *
  * See {@link "@xeokit/scene"} for usage.
  */
-export class Texture implements Texture {
+export class Texture  {
 
     /**
      *  Internal interface through which this {@link Texture} can load property updates into a renderer.

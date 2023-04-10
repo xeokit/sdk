@@ -107,7 +107,7 @@ export class RendererModelImpl extends Component implements RendererModel {
     #viewMatrixDirty: boolean;
     #worldMatrixNonIdentity: boolean;
     #onCameraViewMatrix: () => void;
-    #viewLayerId: string | undefined;
+    #layerId: string | undefined;
 
     readonly onBuilt: EventEmitter<RendererModel, null>;
     readonly onDestroyed: EventEmitter<Component, null>;
@@ -127,7 +127,7 @@ export class RendererModelImpl extends Component implements RendererModel {
         edgeThreshold?: number;
         textureTranscoder: TextureTranscoder;
         qualityRender?: boolean;
-        viewLayerId?: string;
+        layerId?: string;
     }) {
 
         super(params.view);
@@ -187,7 +187,7 @@ export class RendererModelImpl extends Component implements RendererModel {
 
         this.qualityRender = (params.qualityRender !== false);
 
-        this.#viewLayerId = params.viewLayerId;
+        this.#layerId = params.layerId;
 
         this.#onCameraViewMatrix = this.#view.camera.onViewMatrix.subscribe((camera: Camera, viewMatrix: FloatArrayParam) => {
             this.#viewMatrixDirty = true;
@@ -373,11 +373,11 @@ export class RendererModelImpl extends Component implements RendererModel {
         //     origin[2] += geometry.origin[2];
         // }
 
-        if (mesh.origin) {
-            origin[0] += mesh.origin[0];
-            origin[1] += mesh.origin[1];
-            origin[2] += mesh.origin[2];
-        }
+        // if (mesh.origin) {
+        //     origin[0] += mesh.origin[0];
+        //     origin[1] += mesh.origin[1];
+        //     origin[2] += mesh.origin[2];
+        // }
 
         const layer = this.#getLayer(origin, mesh.textureSet.id, mesh.geometry);
 
@@ -401,6 +401,7 @@ export class RendererModelImpl extends Component implements RendererModel {
         const roughness = (mesh.roughness !== undefined && mesh.roughness !== null) ? Math.floor(mesh.roughness * 255) : 255;
 
         const meshRenderer = new RendererMeshImpl({
+            tileManager: this.#webglRenderer.tileManager,
             id: mesh.id,
             layer,
             color,
@@ -463,7 +464,7 @@ export class RendererModelImpl extends Component implements RendererModel {
             rendererModel: this,
             rendererMeshes,
             aabb: sceneObject.aabb,
-            viewLayerId: this.#viewLayerId
+            layerId: this.#layerId
         });
         this.rendererObjectsList.push(objectRenderer);
         this.rendererObjects[objectId] = objectRenderer;

@@ -41,15 +41,15 @@
  * import {Scene} from "@xeokit/scene";
  * import {SDKError} from "@xeokit/core/components";
  * import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
- * import {KDTree, KDTreeAABBQuery} from "@xeokit/kdtree";
+ * import {KDObjectTree, KDObjectTreeAABBSearch} from "@xeokit/kdtree";
  *
  * const scene = new Scene();
  *
- * const kdTree = new KDTree({
+ * const kdTree = new KDObjectTree({
  *      scene
  * });
  *
- * const aabbQuery = new KDTreeAABBQuery({
+ * const aabbQuery = new KDObjectTreeAABBSearch({
  *      kdTree
  * });
  *
@@ -163,9 +163,9 @@
  * @module @xeokit/kdtree
  */
 
-export * from "./KDTree";
-export * from "./KDNode";
-export * from "./KDTreeAABBQuery";
+export * from "./KDObjectTree";
+export * from "./KDObjectNode";
+export * from "./KDObjectTreeAABBSearch";
 export * from "./KDTreeAABBDeltasQuery";
 export * from "./KDTreeFrustumQuery";
 export * from "./KDTreeFrustumDeltasQuery";

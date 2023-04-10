@@ -1,8 +1,10 @@
 import {Mesh} from "./Mesh";
-import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
+import {FloatArrayParam} from "@xeokit/math/math";
 import {RendererObject} from "./RendererObject";
 import {Scene} from "./Scene";
 import {SceneModel} from "./SceneModel";
+import {collapseAABB3, createAABB3, expandAABB3Points3} from "@xeokit/math/boundaries";
+import {getSceneObjectGeometry} from "./getSceneObjectGeometry";
 
 /**
  * An object in a {@link @xeokit/scene!SceneModel}.
@@ -29,12 +31,12 @@ export class SceneObject {
     /**
      * The {@link Mesh | Meshes} belonging to this SceneObject.
      */
-    public meshes: Mesh[];
+    public readonly meshes: Mesh[];
 
     /**
      * Optional layer ID for this SceneObject.
      */
-    public layerId?: string;
+    public readonly layerId?: string;
 
     /**
      *  Internal interface through which a {@link SceneObject} can load property updates into a renderer.
@@ -45,6 +47,12 @@ export class SceneObject {
      */
     rendererObject?: RendererObject;
 
+    #aabb: FloatArrayParam;
+    #aabbDirty: boolean;
+
+    /**
+     * @private
+     */
     constructor(cfg: {
         model: SceneModel;
         meshes: Mesh[];
@@ -54,36 +62,29 @@ export class SceneObject {
         this.id = cfg.id;
         this.layerId = cfg.layerId;
         this.meshes = cfg.meshes;
+        this.#aabb = createAABB3();
+        this.#aabbDirty = true;
     }
 
     /**
      * Gets the axis-aligned 3D World-space boundary of this SceneObject.
      */
     get aabb(): FloatArrayParam {
-        //this.#aabb
-        this.getGeometry((positions, indices): boolean | undefined => {
-            return;
-        });
-        return undefined;
+        if (this.#aabbDirty) {
+            collapseAABB3(this.#aabb);
+            getSceneObjectGeometry(this, (geometryView) => {
+                expandAABB3Points3(this.#aabb, geometryView.positionsWorld);
+                return false;
+            });
+            this.#aabbDirty = false;
+        }
+        return this.#aabb;
     }
 
     /**
-     * Gets the decompressed 3D World-space geometry of each {@link GeometryBucket} in each
-     * {@link Geometry} in each {@link Mesh} in this SceneObject.
-     *
-     * If the callback returns ````true````, then this method immediately stops iterating and also returns ````true````.
-     *
-     * @param withGeometry
+     * @private
      */
-    getGeometry(
-        withGeometry: (primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam)
-            => boolean | undefined)
-        : boolean | undefined {
-        for (let i = 0, len = this.meshes.length; i < len; i++) {
-            const mesh = this.meshes[i];
-            if (mesh.getGeometry(withGeometry)) {
-                return true;
-            }
-        }
+    setAABBDirty() {
+        this.#aabbDirty = true;
     }
 }

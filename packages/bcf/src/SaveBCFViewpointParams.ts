@@ -22,10 +22,10 @@ export interface SaveBCFViewpointParams {
      * The {@link saveBCFViewpoint} function will silently ignore each component state that has no corresponding
      * ViewObject in any of these ViewLayers.
      *
-     * Each ViewLayer's occurrence in {@link SaveBCFViewpointParams.excludeViewLayerIds} will override
+     * Each ViewLayer's occurrence in {@link SaveBCFViewpointParams.excludeLayerIds} will override
      * its appearance in this list.
      */
-    includeViewLayerIds?: string[]
+    includeLayerIds?: string[]
 
     /**
      * Never save BCF viewpoint components if their corresponding {@link @xeokit/view!ViewObject | ViewObjects}
@@ -35,7 +35,7 @@ export interface SaveBCFViewpointParams {
      * ViewObject in any of these ViewLayers.
      *
      * Each ViewLayer's occurrence in this list will override its occurrance
-     * in {@link SaveBCFViewpointParams.includeViewLayerIds}.
+     * in {@link SaveBCFViewpointParams.includeLayerIds}.
      */
-    excludeViewLayerIds?: string[]
+    excludeLayerIds?: string[]
 }

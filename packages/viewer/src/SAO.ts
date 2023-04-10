@@ -119,11 +119,11 @@ export class SAO extends Component {
         if (!this.#state.enabled) {
             return false;
         }
-        const projection = this.view.camera.projection;
-        if (projection === CustomProjectionType) {
+        const projectionType = this.view.camera.projectionType;
+        if (projectionType === CustomProjectionType) {
             return false;
         }
-        if (projection === FrustumProjectionType) {
+        if (projectionType === FrustumProjectionType) {
             return false;
         }
         return true;

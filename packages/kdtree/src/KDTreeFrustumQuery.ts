@@ -1,12 +1,12 @@
 import {Frustum, frustumIntersectsAABB3, INTERSECT, OUTSIDE} from "@xeokit/math/boundaries";
 import {SceneObject} from "@xeokit/scene";
-import {KDTree} from "./KDTree";
-import {KDNode} from "./KDNode";
+import {KDObjectTree} from "./KDObjectTree";
+import {KDObjectNode} from "./KDObjectNode";
 import {SDKError} from "@xeokit/core/components";
-import {frustumIntersectsSceneObject} from "./frustumIntersectsSceneObject";
+import {testFrustumIntersectsSceneObject} from "./testFrustumIntersectsSceneObject";
 
 /**
- * Queries a {@link KDTree} for {@link @xeokit/scene!SceneObject | SceneObjects} that intersect a
+ * Queries a {@link KDObjectTree} for {@link @xeokit/scene!SceneObject | SceneObjects} that intersect a
  * 3D World-space {@link @xeokit/math/boundaries!Frustum | Frustum}.
  *
  * See {@link "@xeokit/kdtree"} for usage.
@@ -14,13 +14,13 @@ import {frustumIntersectsSceneObject} from "./frustumIntersectsSceneObject";
 export class KDTreeFrustumQuery {
 
     /**
-     * The {@link KDTree} that this KDTreeFrustumQuery will query.
+     * The {@link KDObjectTree} that this KDTreeFrustumQuery will query.
      */
-    public readonly kdTree: KDTree;
+    public readonly kdTree: KDObjectTree;
 
     /**
      * The World-space 3D {@link @xeokit/math/boundaries!FrustumProjection | FrustumProjection} that this KDTreeFrustumQuery
-     * tests for intersection with its {@link KDTree}.
+     * tests for intersection with its {@link KDObjectTree}.
      */
     public readonly frustum: Frustum;
 
@@ -35,7 +35,7 @@ export class KDTreeFrustumQuery {
      * Creates a new KDTreeFrustumQuery.
      */
     constructor(params: {
-        kdTree: KDTree,
+        kdTree: KDObjectTree,
         frustum?: Frustum
     }) {
         this.kdTree = params.kdTree;
@@ -49,23 +49,23 @@ export class KDTreeFrustumQuery {
      */
     doQuery(): SDKError | void {
         if (this.#destroyed) {
-            return new SDKError("KDTreeAABBQuery already destroyed");
+            return new SDKError("KDObjectTreeAABBSearch already destroyed");
         }
         this.objects.length = 0;
         this.#queryNode(this.kdTree.root, INTERSECT);
     }
 
     /**
-     * Destroys this KDTreeAABBQuery.
+     * Destroys this KDObjectTreeAABBSearch.
      */
     destroy(): SDKError | void {
         if (this.#destroyed) {
-            return new SDKError("KDTreeAABBQuery already destroyed");
+            return new SDKError("KDObjectTreeAABBSearch already destroyed");
         }
         this.#destroyed = true;
     }
 
-    #queryNode(node: KDNode, intersectionState: number): void {
+    #queryNode(node: KDObjectNode, intersectionState: number): void {
         if (intersectionState === OUTSIDE) {
             return;
         }
@@ -80,7 +80,7 @@ export class KDTreeFrustumQuery {
                 const sceneObject = kdObject.object;
                 const aabbIntersection = frustumIntersectsAABB3(this.frustum, sceneObject.aabb);
                 if (aabbIntersection !== OUTSIDE) {
-                    if (frustumIntersectsSceneObject(this.frustum, sceneObject)) {
+                    if (testFrustumIntersectsSceneObject(this.frustum, sceneObject)) {
                         this.objects.push(sceneObject);
                     }
                 }

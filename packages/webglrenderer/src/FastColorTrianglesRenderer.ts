@@ -16,10 +16,11 @@ export class FastColorTrianglesRenderer extends LayerRenderer {
         
                 uniform int                 renderPass;   
             
-                uniform highp   mat4        viewMatrix;
                 uniform highp   mat4        projMatrix;
                 uniform highp   mat4        worldMatrix;
-                        
+                      
+                uniform mediump sampler2D   viewMatrices;
+                           
                 uniform mediump usampler2D  eachPrimitiveMesh;
                 uniform lowp    usampler2D  eachMeshAttributes;
                 
@@ -73,6 +74,14 @@ export class FastColorTrianglesRenderer extends LayerRenderer {
 
                     mat4 positionsDecompressMatrix = mat4 (texelFetch (eachMeshMatrices, ivec2(0, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(1, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(2, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(3, meshIndex), 0));
                     mat4 meshMatrix = mat4 (texelFetch (eachMeshMatrices, ivec2(4, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(5, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(6, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(7, meshIndex), 0));
+
+                    ivec4 packedViewMatrixIndex = ivec4(texelFetch (eachMeshAttributes, ivec2(7, meshIndex), 0));
+                    int viewMatrixIndex = (packedViewMatrixIndex.r << 24) + (packedViewMatrixIndex.g << 16) + (packedViewMatrixIndex.b << 8) + packedViewMatrixIndex.a;
+                    mat4 viewMatrix = mat4 (
+                        texelFetch (viewMatrices, ivec2(4, viewMatrixIndex), 0), 
+                        texelFetch (viewMatrices, ivec2(5, viewMatrixIndex), 0), 
+                        texelFetch (viewMatrices, ivec2(6, viewMatrixIndex), 0), 
+                        texelFetch (viewMatrices, ivec2(7, viewMatrixIndex), 0));
 
                     vec3 _positions[3];
                    

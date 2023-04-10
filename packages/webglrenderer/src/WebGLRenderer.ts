@@ -9,22 +9,20 @@ import {
     TrianglesPrimitive
 } from "@xeokit/core/constants";
 
-import {Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {RenderContext} from "./RenderContext";
 import {FastColorTrianglesRenderer} from "./FastColorTrianglesRenderer";
 import {getExtension, GLRenderBuffer, GLRenderBufferManager, WEBGL_INFO} from "@xeokit/webglutils";
 import {RENDER_PASSES} from "./RENDER_PASSES";
-import {CreateModelParams} from "@xeokit/viewer";
 import {Pickable} from "./Pickable";
 import {RendererModelImpl} from "./RendererModelImpl";
 import {Layer} from "./Layer";
 import {RendererViewObject} from "@xeokit/viewer/src/RendererViewObject";
 import {Capabilities, Component, TextureTranscoder} from "@xeokit/core/components";
 import {SceneModel} from "@xeokit/scene";
-
-
+import {TileManager} from "./TileManager";
 
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
@@ -39,10 +37,9 @@ const isSafari = (ua && ua[1].toLowerCase() === "safari");
  */
 export class WebGLRenderer implements Renderer {
 
-    #sceneModels: { [key: string]: SceneModel };
-
     rendererViewObjects: { [key: string]: RendererViewObject };
-
+    tileManager: TileManager;
+    #sceneModels: { [key: string]: SceneModel };
     #viewer: Viewer;
     #view: View;
     #renderContext: RenderContext;
@@ -78,6 +75,7 @@ export class WebGLRenderer implements Renderer {
         // silhouetteTriangles: SilhouetteTrianglesLayerRenderer;
         // silhouetteLines: SilhouetteLinesRenderer;
     };
+    #viewMatrixDirty: boolean;
 
     /**
      Creates a WebGLRenderer.
@@ -91,6 +89,7 @@ export class WebGLRenderer implements Renderer {
     constructor(params: {
         textureTranscoder?: TextureTranscoder
     }) {
+        this.tileManager = null;
         this.#sceneModels = {};
         this.rendererViewObjects = {};
 
@@ -114,6 +113,7 @@ export class WebGLRenderer implements Renderer {
         // this.#renderBufferManager = null;
         this.#logarithmicDepthBufferEnabled = false;
         this.#rendererModels = {};
+        this.#viewMatrixDirty = true;
     }
 
     init(viewer: Viewer): void {
@@ -164,6 +164,10 @@ export class WebGLRenderer implements Renderer {
             gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
         }
         this.#renderContext = new RenderContext(this.#viewer, this.#view, gl);
+        this.tileManager = new TileManager({
+            camera: view.camera,
+            gl
+        });
         this.#layerRenderers = {
             //       colorPoints: new ColorPointsLayerRenderer(this.#renderContext),
             colorTriangles: new FastColorTrianglesRenderer(this.#renderContext),
@@ -173,6 +177,9 @@ export class WebGLRenderer implements Renderer {
             // silhouetteTriangles: new SilhouetteTrianglesLayerRenderer(this.#renderContext),
             // silhouetteLines: new SilhouetteLinesRenderer(this.#renderContext)
         };
+        view.camera.onViewMatrix.sub(() => {
+            this.#viewMatrixDirty = true;
+        })
         return 0;
     }
 
@@ -192,7 +199,7 @@ export class WebGLRenderer implements Renderer {
             textureTranscoder: this.#textureTranscoder,
             webglRenderer: this,
             renderContext: this.#renderContext,
-            viewLayerId: params.viewLayerId
+            layerId: params.layerId
         }, params));
 
         this.#rendererModels[rendererModel.id] = rendererModel;
@@ -218,43 +225,6 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
-    #registerRendererViewObjects(rendererModel: RendererModelImpl) {
-        const rendererObjects = rendererModel.rendererViewObjects;
-        for (let id in rendererObjects) {
-            this.rendererViewObjects[id] = rendererObjects[id];
-        }
-    }
-
-    #deregisterRendererViewObjects(rendererModel: RendererModelImpl) {
-        const rendererViewObjects = rendererModel.rendererViewObjects;
-        for (let id in rendererViewObjects) {
-            delete this.rendererViewObjects[id];
-        }
-    }
-
-    //
-    // createModel(params: ModelParams): SceneModel {
-    //     if (!this.#renderContext) {
-    //         throw "Must register a View before you create a model";
-    //     }
-    //     const WebGLSceneModelRenderer = new WebGLSceneModelRenderer(apply({
-    //         view: this.#view,
-    //         textureTranscoder: this.#textureTranscoder,
-    //         webglRenderer: this,
-    //         renderContext: this.#renderContext,
-    //         viewLayerId: params.viewLayerId
-    //     }, params));
-    //     WebGLSceneModelRenderer.onBuilt.one((buildsceneModelRenderer: SceneModel) => {
-    //         this.#rendererModels[buildsceneModelRenderer.id] = <WebGLSceneModelRenderer>buildsceneModelRenderer;
-    //         this.#layerListDirty = true;
-    //     });
-    //     WebGLSceneModelRenderer.onDestroyed.one((destroyedsceneModelRenderer: Component) => {
-    //         delete this.#rendererModels[destroyedsceneModelRenderer.id];
-    //         this.#layerListDirty = true;
-    //     });
-    //     return WebGLSceneModelRenderer;
-    // }
-
     /**
      * @private
      */
@@ -268,6 +238,29 @@ export class WebGLRenderer implements Renderer {
     deregisterPickable(pickId: number) {
         this.#pickIDs.removeItem(pickId);
     }
+
+    //
+    // createModel(params: ModelParams): SceneModel {
+    //     if (!this.#renderContext) {
+    //         throw "Must register a View before you create a model";
+    //     }
+    //     const WebGLSceneModelRenderer = new WebGLSceneModelRenderer(apply({
+    //         view: this.#view,
+    //         textureTranscoder: this.#textureTranscoder,
+    //         webglRenderer: this,
+    //         renderContext: this.#renderContext,
+    //         layerId: params.layerId
+    //     }, params));
+    //     WebGLSceneModelRenderer.onBuilt.one((buildsceneModelRenderer: SceneModel) => {
+    //         this.#rendererModels[buildsceneModelRenderer.id] = <WebGLSceneModelRenderer>buildsceneModelRenderer;
+    //         this.#layerListDirty = true;
+    //     });
+    //     WebGLSceneModelRenderer.onDestroyed.one((destroyedsceneModelRenderer: Component) => {
+    //         delete this.#rendererModels[destroyedsceneModelRenderer.id];
+    //         this.#layerListDirty = true;
+    //     });
+    //     return WebGLSceneModelRenderer;
+    // }
 
     setImageDirty(viewIndex?: number) {
         this.#imageDirty = true;
@@ -331,6 +324,10 @@ export class WebGLRenderer implements Renderer {
         if (params.force) {
             this.#imageDirty = true;
         }
+        if (this.#viewMatrixDirty) {
+            this.tileManager.refreshMatrices();
+            this.#viewMatrixDirty = false;
+        }
         this.#updateLayerList();
         if (this.#imageDirty) {
             this.#draw({clear: true});
@@ -341,6 +338,20 @@ export class WebGLRenderer implements Renderer {
     pickSceneObject(viewIndex: number, params: {}): ViewObject | null {
         return null;
     };
+
+    #registerRendererViewObjects(rendererModel: RendererModelImpl) {
+        const rendererObjects = rendererModel.rendererViewObjects;
+        for (let id in rendererObjects) {
+            this.rendererViewObjects[id] = rendererObjects[id];
+        }
+    }
+
+    #deregisterRendererViewObjects(rendererModel: RendererModelImpl) {
+        const rendererViewObjects = rendererModel.rendererViewObjects;
+        for (let id in rendererViewObjects) {
+            delete this.rendererViewObjects[id];
+        }
+    }
 
     #updateLayerList() {
         if (this.#layerListDirty) {

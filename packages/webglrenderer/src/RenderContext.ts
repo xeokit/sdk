@@ -1,5 +1,5 @@
 import {View, Viewer} from "@xeokit/viewer";
-import {GLAbstractTexture, WEBGL_INFO} from "@xeokit/webglutils";
+import {GLAbstractTexture, GLDataTexture, WEBGL_INFO} from "@xeokit/webglutils";
 
 
 
@@ -22,6 +22,8 @@ export class RenderContext {
      * The WebGL rendering context.
      */
     public gl: WebGL2RenderingContext;
+
+    public viewMatrixDataTexture: GLDataTexture;
 
     /**
      * Whether to render a quality representation for triangle surfaces.

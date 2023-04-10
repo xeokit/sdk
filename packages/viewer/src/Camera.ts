@@ -23,7 +23,6 @@ import {OrthoProjection} from './OrthoProjection';
 import {FrustumProjection} from './FrustumProjection';
 import {CustomProjection} from './CustomProjection';
 import type {View} from "./View";
-import {RTCViewMat} from "./RTCViewMat";
 import {Component, EventEmitter} from "@xeokit/core/components";
 import {DEGTORAD, FloatArrayParam} from "@xeokit/math/math";
 import {
@@ -240,36 +239,35 @@ class Camera extends Component {
      * @final
      */
     public readonly view: View;
+
     /**
      * The perspective projection.
      *
      * The Camera uses this while {@link Camera.projectionType} equals {@link PerspectiveProjectionType}.
      */
     public readonly perspectiveProjection: PerspectiveProjection;
+
     /**
      * The orthographic projection.
      *
      * The Camera uses this while {@link Camera.projectionType} equals {@link OrthoProjectionType}.
      */
     public readonly orthoProjection: OrthoProjection;
+
     /**
      * The frustum projection.
      *
      * The Camera uses this while {@link Camera.projectionType} equals {@link FrustumProjectionType}.
      */
     public readonly frustumProjection: FrustumProjection;
+
     /**
      * The custom projection.
      *
      * The Camera uses this while {@link Camera.projectionType} equals {@link CustomProjectionType}.
      */
     public readonly customProjection: CustomProjection;
-    /**
-     * View matrices for relative-to-center (RTC) coordinate system origins.
-     *
-     * Created and destroyed with {@link Camera.getRTCViewMat} and {@link Camera.putRTCViewMat}.
-     */
-    public readonly rtcViewMats: { [key: string]: RTCViewMat };
+
     /**
      * Emits an event each time {@link Camera.projectionType} updates.
      *
@@ -280,6 +278,7 @@ class Camera extends Component {
      * @event
      */
     readonly onProjectionType: EventEmitter<Camera, number>;
+
     /**
      * Emits an event each time {@link Camera.viewMatrix} updates.
      *
@@ -290,6 +289,7 @@ class Camera extends Component {
      * @event
      */
     readonly onViewMatrix: EventEmitter<Camera, FloatArrayParam>;
+
     /**
      * Emits an event each time {@link Camera.projMatrix} updates.
      *
@@ -300,6 +300,7 @@ class Camera extends Component {
      * @event
      */
     readonly onProjMatrix: EventEmitter<Camera, FloatArrayParam>;
+
     /**
      * Emits an event each time {@link Camera.worldAxis} updates.
      *
@@ -310,6 +311,7 @@ class Camera extends Component {
      * @event
      */
     readonly onWorldAxis: EventEmitter<Camera, FloatArrayParam>;
+
     /**
      * Emits an event each time {@link Camera.frustum} updates.
      *
@@ -320,6 +322,7 @@ class Camera extends Component {
      * @event
      */
     readonly onFrustum: EventEmitter<Camera, Frustum>;
+
     readonly #state: {
         deviceMatrix: FloatArrayParam,
         viewNormalMatrix: FloatArrayParam,
@@ -337,6 +340,7 @@ class Camera extends Component {
         constrainPitch: boolean,
         projectionType: number
     };
+
     /**
      * The viewing frustum.
      */
@@ -384,8 +388,6 @@ class Camera extends Component {
             viewNormalMatrix: createMat4(),
             inverseViewMatrix: createMat4()
         };
-
-        this.rtcViewMats = {};
 
         this.#frustum = new Frustum();
 
@@ -796,7 +798,6 @@ class Camera extends Component {
         }
         inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
         transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
-        this.#invalidateRTCViewMatrices();
         this.view.redraw();
         setFrustum(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
         this.onViewMatrix.dispatch(this, this.#state.viewMatrix);
@@ -919,40 +920,6 @@ class Camera extends Component {
         this.eye = addVec3(this.#state.look, mulVec3Scalar(dir, newLenLook), tempVec3d);
     }
 
-    /**
-     * Gets an RTC view matrix for the given relative-to-center (RTC) coordinate system origin.
-     *
-     * The RTCViewMat returned by this method will provide a dynamically-synchronized
-     * version of {@link Camera.viewMatrix} for the given RTC origin. Whenever {@link Camera.viewMatrix}
-     * updates, {@link RTCViewMat.viewMatrix} will update also.
-     *
-     * Make sure to release it with {@link putRTCViewMat} or {@link RTCViewMat.release} when you no longer need it.
-     *
-     * @param origin The RTC coordinate origin.
-     * @returns An RTC view matrix for the given RTC coordinate origin.
-     */
-    getRTCViewMat(origin: FloatArrayParam): RTCViewMat {
-        const id = `${origin[0]}_${origin[1]}_${origin[2]}`;
-        let rtcViewMat = this.rtcViewMats[id];
-        if (!rtcViewMat) {
-            rtcViewMat = new RTCViewMat(this, id, origin);
-            this.rtcViewMats[id] = rtcViewMat;
-        }
-        rtcViewMat.useCount++;
-        return rtcViewMat;
-    }
-
-    /**
-     * Releases an RTC view matrix.
-     *
-     * @param rtcViewMat The RTC view matrix.
-     */
-    putRTCViewMat(rtcViewMat: RTCViewMat): void {
-        rtcViewMat.useCount--;
-        if (rtcViewMat.useCount <= 0) {
-            delete this.rtcViewMats[rtcViewMat.id];
-        }
-    }
 
     /**
      * @private
@@ -965,11 +932,7 @@ class Camera extends Component {
         this.onWorldAxis.clear();
     }
 
-    #invalidateRTCViewMatrices(): void {
-        Object.values(this.rtcViewMats).forEach((rtcViewMat) => {
-            rtcViewMat.dirty = true;
-        });
-    }
+
 }
 
 export {Camera};

@@ -137,6 +137,7 @@ export class Viewer extends Component {
         };
 
         this.scene = params.scene || new Scene();
+
         this.renderer = params.renderer;
         this.renderer.getCapabilities(this.capabilities);
         this.renderer.init(this);

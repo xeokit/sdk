@@ -176,6 +176,7 @@ class View extends Component {
      * each {@link RendererViewObject} in the {@link @xeokit/viewer!Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
+
     /**
      * Map of the currently visible {@link ViewObject | ViewObjects} in this View.
      *
@@ -184,6 +185,7 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly visibleObjects: { [key: string]: ViewObject };
+
     /**
      * Map of currently x-rayed {@link ViewObject | ViewObjects} in this View.
      *
@@ -192,6 +194,7 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly xrayedObjects: { [key: string]: ViewObject };
+
     /**
      * Map of currently highlighted {@link ViewObject | ViewObjects} in this View.
      *
@@ -200,6 +203,7 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly highlightedObjects: { [key: string]: ViewObject };
+
     /**
      * Map of currently selected {@link ViewObject | ViewObjects} in this View.
      *
@@ -208,18 +212,21 @@ class View extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly selectedObjects: { [key: string]: ViewObject };
+
     /**
      * Map of currently colorized {@link ViewObject | ViewObjects} in this View.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly colorizedObjects: { [key: string]: ViewObject };
+
     /**
      * Map of {@link ViewObject | ViewObjects} in this View whose opacity has been updated.
      *
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      */
     readonly opacityObjects: { [key: string]: ViewObject };
+
     /**
      * Map of {@link SectionPlane}s in this View.
      *
@@ -255,11 +262,11 @@ class View extends Component {
      * as {@link RendererViewObject | ViewerObjects} are created.
      *
      * When ````true```` (default), the View will automatically create {@link ViewLayer | ViewLayers} as needed for each new
-     * {@link RendererViewObject.viewLayerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
-     * viewLayerId. This default setting therefore ensures that a ViewObject is created in the View for every ViewerObject that is created.
+     * {@link RendererViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+     * layerId. This default setting therefore ensures that a ViewObject is created in the View for every ViewerObject that is created.
      *
      * If you set this ````false````, however, then the View will only create {@link ViewObject | ViewObjects} for {@link RendererViewObject | ViewerObjects} that have
-     * a {@link RendererViewObject.viewLayerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
+     * a {@link RendererViewObject.layerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
      *
      * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
      * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
@@ -295,7 +302,7 @@ class View extends Component {
     /**
      * Emits an event each time a {@link ViewLayer} is created in this View.
      *
-     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link View.createModel} and {@link CreateModelParams.viewLayerId}.
+     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link View.createModel} and {@link CreateModelParams.layerId}.
      *
      * @event
      */
@@ -325,6 +332,7 @@ class View extends Component {
     readonly onSectionPlaneDestroyed: EventEmitter<View, SectionPlane>;
 
     #onTick: () => void;
+
     #backgroundColor: FloatArrayParam;
     #backgroundColorFromAmbientLight: boolean;
     #resolutionScale: number;
@@ -1372,19 +1380,19 @@ class View extends Component {
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
             const rendererObject = rendererObjects[id];
-            //     const viewLayerId = viewerObject.viewLayerId || "default";
-            const viewLayerId = "default";
-            let viewLayer = this.layers[viewLayerId];
+            //     const layerId = viewerObject.layerId || "default";
+            const layerId = "default";
+            let viewLayer = this.layers[layerId];
             if (!viewLayer) {
                 if (!this.autoLayers) {
                     continue;
                 }
                 viewLayer = new ViewLayer({
-                    id: viewLayerId,
+                    id: layerId,
                     view: this,
                     viewer: this.viewer
                 });
-                this.layers[viewLayerId] = viewLayer;
+                this.layers[layerId] = viewLayer;
                 viewLayer.onDestroyed.one(() => {
                     delete this.layers[viewLayer.id];
                     this.onLayerDestroyed.dispatch(this, viewLayer);
@@ -1401,9 +1409,9 @@ class View extends Component {
         const objects = model.objects;
         for (let id in objects) {
             const object = objects[id];
-            //     const viewLayerId = object.viewLayerId || "main";
-            const viewLayerId = "default";
-            let viewLayer = this.layers[viewLayerId];
+            //     const layerId = object.layerId || "main";
+            const layerId = "default";
+            let viewLayer = this.layers[layerId];
             const viewObject = this.objects[object.id];
             this.deregisterViewObject(viewObject);
             if (viewLayer) {

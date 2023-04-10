@@ -1,10 +1,9 @@
 import {identityMat4, transformPoint4, createVec3, createVec4} from "@xeokit/math/matrix";
-import { RTCViewMat, View} from "@xeokit/viewer";
+import { View} from "@xeokit/viewer";
 import {FloatArrayParam} from "@xeokit/math/math";
 
 import type {RendererModelImpl} from "./RendererModelImpl";
 import {DataTextureSet} from "./DataTextureSet";
-import {DataTextureFactory} from "./DataTextureFactory";
 import {MeshCounts} from "./MeshCounts";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import {RENDER_PASSES} from './RENDER_PASSES';
@@ -12,6 +11,13 @@ import {LinesPrimitive, PointsPrimitive} from "@xeokit/core/constants";
 import {AABB3ToOBB3, collapseAABB3, expandAABB3Point3} from "@xeokit/math/boundaries";
 import {GeometryCompressedParams, GeometryBucketParams, MeshParams, RendererTextureSet} from "@xeokit/scene";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
+import {
+    createEachEdgeOffsetDataTexture,
+    createEachMeshAttributesDataTexture, createEachMeshMatricesDataTexture, createEdgeIndices16BitDataTexture,
+    createEdgeIndices32BitDataTexture, createEdgeIndices8BitDataTexture, createIndices16BitDataTexture,
+    createIndices32BitDataTexture,
+    createIndices8BitDataTexture, createPositionsDataTexture
+} from "./dataTextures";
 
 const MAX_MESH_PARTS = (1 << 12); // 12 bits 
 const MAX_DATATEXTURE_HEIGHT = (1 << 11); // 2048
@@ -33,7 +39,6 @@ export interface LayerParams { // Params for Layer constructor
     view: View;
     rendererModel: RendererModelImpl;
     primitive: number;
-    origin: FloatArrayParam;
     layerIndex: number;
     textureSet?: RendererTextureSet;
 }
@@ -71,7 +76,6 @@ export interface LayerRenderState { // What a LayerRenderer needs to render this
     materialTextureSet: RendererTextureSetImpl; // Color, opacity, metal/roughness, ambient occlusion maps
     dataTextureSet: DataTextureSet;  // Data textures containing geometry, transforms, flags and material attributes
     primitive: number; // Layer primitive type
-    origin: FloatArrayParam; // Layer's RTC coordinate origin
     numIndices8Bits: number; // How many 8-bit encodable indices in layer
     numIndices16Bits: number; // How many 16-bit encodable indices in layer
     numIndices32Bits: number; // How many 32-bit encodable indices in layer
@@ -149,7 +153,6 @@ export class Layer {
 
     rendererModel: RendererModelImpl;
     layerIndex: number;
-    rtcViewMat: RTCViewMat;
     meshCounts: MeshCounts;
     renderState: LayerRenderState;
 
@@ -172,7 +175,6 @@ export class Layer {
         this.renderState = <LayerRenderState>{
             primitive: layerParams.primitive,
             dataTextureSet: new DataTextureSet(),
-            origin: createVec3(layerParams.origin),
             numIndices8Bits: 0,
             numIndices16Bits: 0,
             numIndices32Bits: 0,
@@ -190,13 +192,11 @@ export class Layer {
         this.#meshPartHandles = [];
         this.#built = false;
 
-        this.rtcViewMat = layerParams.view.camera.getRTCViewMat(this.renderState.origin);
-
         this.beginDeferredFlags();
     }
 
     get hash() {
-        return `layer-${this.renderState.primitive}-${this.renderState.origin[0]}-${this.renderState.origin[1]}-${this.renderState.origin[2]}`;
+        return `layer-${this.renderState.primitive}`;
     }
 
     canCreateMesh(geometryCompressedParams: GeometryCompressedParams): boolean {
@@ -319,15 +319,6 @@ export class Layer {
         if (this.#built) {
             throw new Error("Already built");
         }
-        // if (origin) {
-        //     this.renderState.origin = origin;
-        //     worldAABB[0] += origin[0];
-        //     worldAABB[1] += origin[1];
-        //     worldAABB[2] += origin[2];
-        //     worldAABB[3] += origin[0];
-        //     worldAABB[4] += origin[1];
-        //     worldAABB[5] += origin[2];
-        // }
         const meshIndex = this.meshCounts.numMeshes;
         const meshPartIds: number[] = [];
         if (!meshParams.geometryId) {
@@ -458,30 +449,29 @@ export class Layer {
             throw new Error("Already built");
         }
         const gl = this.#gl;
-        const dataTextureFactory = new DataTextureFactory();
         const dataTextureBuffer = this.#dataTextureBuffer;
         const dataTextureSet = this.renderState.dataTextureSet;
-        dataTextureSet.positions = dataTextureFactory.createPositionsDataTexture(gl, dataTextureBuffer.positionsCompressed);
-        dataTextureSet.indices_8Bits = dataTextureFactory.createIndices8BitDataTexture(gl, dataTextureBuffer.indices_8Bits);
-        dataTextureSet.indices_16Bits = dataTextureFactory.createIndices16BitDataTexture(gl, dataTextureBuffer.indices_16Bits);
-        dataTextureSet.indices_32Bits = dataTextureFactory.createIndices32BitDataTexture(gl, dataTextureBuffer.indices_32Bits);
-        dataTextureSet.edgeIndices_8Bits = dataTextureFactory.createEdgeIndices8BitDataTexture(gl, dataTextureBuffer.edgeIndices_8Bits);
-        dataTextureSet.edgeIndices_16Bits = dataTextureFactory.createEdgeIndices16BitDataTexture(gl, dataTextureBuffer.edgeIndices_16Bits);
-        dataTextureSet.edgeIndices_32Bits = dataTextureFactory.createEdgeIndices32BitDataTexture(gl, dataTextureBuffer.edgeIndices_32Bits);
-        dataTextureSet.eachMeshAttributes = dataTextureFactory.createEachMeshAttributesDataTexture(gl,
+        dataTextureSet.positions = createPositionsDataTexture(gl, dataTextureBuffer.positionsCompressed);
+        dataTextureSet.indices_8Bits = createIndices8BitDataTexture(gl, dataTextureBuffer.indices_8Bits);
+        dataTextureSet.indices_16Bits = createIndices16BitDataTexture(gl, dataTextureBuffer.indices_16Bits);
+        dataTextureSet.indices_32Bits = createIndices32BitDataTexture(gl, dataTextureBuffer.indices_32Bits);
+        dataTextureSet.edgeIndices_8Bits = createEdgeIndices8BitDataTexture(gl, dataTextureBuffer.edgeIndices_8Bits);
+        dataTextureSet.edgeIndices_16Bits = createEdgeIndices16BitDataTexture(gl, dataTextureBuffer.edgeIndices_16Bits);
+        dataTextureSet.edgeIndices_32Bits = createEdgeIndices32BitDataTexture(gl, dataTextureBuffer.edgeIndices_32Bits);
+        dataTextureSet.eachMeshAttributes = createEachMeshAttributesDataTexture(gl,
             dataTextureBuffer.eachMeshColor,
             dataTextureBuffer.eachMeshPickColor,
             dataTextureBuffer.eachMeshVertexPortionBase,
             dataTextureBuffer.eachMeshVertexPortionOffset,
             dataTextureBuffer.eachMeshEdgeIndicesOffset);
-        dataTextureSet.eachMeshMatrices = dataTextureFactory.createEachMeshMatricesDataTexture(gl, dataTextureBuffer.eachMeshPositionsDecompressMatrix, dataTextureBuffer.eachMeshMatrices);
-        // dataTextureSet.eachPrimitiveMesh8BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_8Bits);
-        // dataTextureSet.eachPrimitiveMesh16BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_16Bits);
-        // dataTextureSet.eachPrimitiveMesh32BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_32Bits);
-        // dataTextureSet.eachEdgeMesh8BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_8Bits);
-        // dataTextureSet.eachEdgeMesh16BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_16Bits);
-        // dataTextureSet.eachEdgeMesh32BitsDataTexture = dataTextureFactory.createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_32Bits);
-        dataTextureSet.eachEdgeOffset = dataTextureFactory.createEachEdgeOffsetDataTexture(gl, dataTextureBuffer.eachEdgeOffset);
+        dataTextureSet.eachMeshMatrices = createEachMeshMatricesDataTexture(gl, dataTextureBuffer.eachMeshPositionsDecompressMatrix, dataTextureBuffer.eachMeshMatrices);
+        // dataTextureSet.eachPrimitiveMesh8BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_8Bits);
+        // dataTextureSet.eachPrimitiveMesh16BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_16Bits);
+        // dataTextureSet.eachPrimitiveMesh32BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_32Bits);
+        // dataTextureSet.eachEdgeMesh8BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_8Bits);
+        // dataTextureSet.eachEdgeMesh16BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_16Bits);
+        // dataTextureSet.eachEdgeMesh32BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_32Bits);
+        dataTextureSet.eachEdgeOffset = createEachEdgeOffsetDataTexture(gl, dataTextureBuffer.eachEdgeOffset);
         dataTextureSet.build();
         // @ts-ignore
         this.#dataTextureBuffer = null;
@@ -803,8 +793,43 @@ export class Layer {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
+    setMeshMatrix(meshIndex: number, matrix: FloatArrayParam) {
+        if (!this.#built) {
+            throw "Not built";
+        }
+        const dataTextureSet = this.renderState.dataTextureSet;
+        const gl = this.#gl;
+
+        if (this.#deferredSetFlagsActive) {
+            this.#deferredSetFlagsDirty = true;
+            return;
+        }
+
+    }
+
+    setMeshViewMatrixIndex(meshIndex: number, index: number) {
+        if (!this.#built) {
+            throw "Not built";
+        }
+        const dataTextureSet = this.renderState.dataTextureSet;
+        const gl = this.#gl;
+        // tempUint8Array4 [0] = color[0];
+        // tempUint8Array4 [1] = color[1];
+        // tempUint8Array4 [2] = color[2];
+        // tempUint8Array4 [3] = color[3];
+        // // @ts-ignore
+        // dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshIndex * 28);
+        if (this.#deferredSetFlagsActive) {
+            this.#deferredSetFlagsDirty = true;
+            return;
+        }
+        // // @ts-ignore
+        // gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
+        // gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshIndex, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
+        // // gl.bindTexture (gl.TEXTURE_2D, null);
+    }
+
     destroy() {
-        this.#view.camera.putRTCViewMat(this.rtcViewMat);
         this.renderState.dataTextureSet.destroy();
     }
 }

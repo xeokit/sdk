@@ -199,8 +199,8 @@ describe('build', function () {
 
         const bcfViewpoint = saveBCFViewpoint(({
             view,
-            includeViewLayerIds: [],
-            excludeViewLayerIds: []
+            includeLayerIds: [],
+            excludeLayerIds: []
         }));
 
 

@@ -34,11 +34,6 @@ export interface GeometryParams {
     primitive: number;
 
     /**
-     * RTC origin for {@link GeometryParams.positions}.
-     */
-    origin?: FloatArrayParam;
-
-    /**
      * Flat array of uncompressed floating point 3D vertex positions.
      */
     positions: FloatArrayParam;
@@ -59,15 +54,4 @@ export interface GeometryParams {
      * Ignored for primitive type {@link @xeokit/core/constants!PointsPrimitive}, which does not need indices.
      */
     indices?: IntArrayParam;
-
-    /**
-     * The threshold angle, in degrees, beyond which the deviation in normal directions of each pair of adjacent faces
-     * results in an edge being automatically generated between them.
-     *
-     * Only works for primitive types {@link @xeokit/core/constants!SolidPrimitive},
-     * {@link @xeokit/core/constants!SurfacePrimitive} and {@link @xeokit/core/constants!TrianglesPrimitive}.
-     *
-     * Default is 10.
-     */
-    edgeThreshold?: number;
 }

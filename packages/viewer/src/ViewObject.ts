@@ -12,7 +12,7 @@ import {RendererViewObject} from "./RendererViewObject";
  *
  * * Stored in {@link View.objects | View.objects} and {@link ViewLayer.objects | ViewLayer.objects}
  * * Viewer automatically creates one of these in each existing {@link @xeokit/viewer!View} for each {@link @xeokit/scene!SceneModel | SceneObject} created
- * * {@link SceneObject.viewLayerId | SceneObject.viewLayerId} determines which of the View's {@link ViewLayer | ViewLayers} to put the ViewObject in
+ * * {@link SceneObject.layerId | SceneObject.layerId} determines which of the View's {@link ViewLayer | ViewLayers} to put the ViewObject in
  *
  * ## Overview
  *
@@ -134,7 +134,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
      */
     get visible(): boolean {
-        return <boolean>this.#state.visible;
+        return this.#state.visible;
     }
 
     /**
@@ -162,7 +162,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     get xrayed(): boolean {
-        return <boolean>this.#state.xrayed;
+        return this.#state.xrayed;
     }
 
     /**
@@ -185,7 +185,7 @@ export class ViewObject {
      * Gets if this ViewObject shows edges.
      */
     get edges(): boolean {
-        return <boolean>this.#state.edges;
+        return this.#state.edges;
     }
 
     /**
@@ -207,7 +207,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     get highlighted(): boolean {
-        return <boolean>this.#state.highlighted;
+        return this.#state.highlighted;
     }
 
     /**
@@ -236,7 +236,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     get selected(): boolean {
-        return <boolean>this.#state.selected;
+        return this.#state.selected;
     }
 
     /**
@@ -262,7 +262,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */
     get culled(): boolean {
-        return <boolean>this.#state.culled;
+        return this.#state.culled;
     }
 
     /**
@@ -286,7 +286,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
      */
     get clippable(): boolean {
-        return <boolean>this.#state.clippable;
+        return this.#state.clippable;
     }
 
     /**
@@ -311,7 +311,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
     get collidable(): boolean {
-        return <boolean>this.#state.collidable;
+        return this.#state.collidable;
     }
 
     /**
@@ -337,7 +337,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
     get pickable(): boolean {
-        return <boolean>this.#state.pickable;
+        return this.#state.pickable;
     }
 
     /**
@@ -363,7 +363,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
     get colorize(): Float32Array {
-        return <Float32Array>this.#state.colorize;
+        return this.#state.colorize;
     }
 
     /**

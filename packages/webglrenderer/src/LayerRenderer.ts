@@ -1,6 +1,6 @@
 import {createVec4} from "@xeokit/math/matrix";
 import {OrthoProjectionType} from "@xeokit/core/constants";
-import {AmbientLight, DirLight, Perspective, PointLight} from "@xeokit/viewer";
+import {AmbientLight, DirLight, PerspectiveProjection, PointLight} from "@xeokit/viewer";
 
 import type {RenderContext} from "./RenderContext";
 import {RENDER_PASSES} from "./RENDER_PASSES";
@@ -55,6 +55,7 @@ export abstract class LayerRenderer {
     }
 
     #samplers: {
+        viewMatrices: GLSampler;
         positions: GLSampler;
         indices: GLSampler;
         edgeIndices: GLSampler;
@@ -150,6 +151,7 @@ export abstract class LayerRenderer {
         }
 
         this.#samplers = {
+            viewMatrices: program.getSampler("viewMatrices"),
             positions: program.getSampler("positions"),
             indices: program.getSampler("indices"),
             edgeIndices: program.getSampler("edgeIndices"),
@@ -248,9 +250,10 @@ export abstract class LayerRenderer {
             gl.uniform1i(uniforms.renderPass, renderPass);
         }
 
-        if (uniforms.viewMatrix) {
-            gl.uniformMatrix4fv(uniforms.viewMatrix, false, <Float32Array | GLfloat[]>layer.rtcViewMat.viewMatrix);
-        }
+        // if (uniforms.viewMatrix) {
+        //     //gl.uniformMatrix4fv(uniforms.viewMatrix, false, <Float32Array | GLfloat[]>layer.rtcViewMat.viewMatrix);
+        //     gl.uniformMatrix4fv(uniforms.viewMatrix, false, <Float32Array | GLfloat[]>view.camera.viewMatrix);
+        // }
 
         if (uniforms.projMatrix) {
             gl.uniformMatrix4fv(uniforms.projMatrix, false, <Float32Array | GLfloat[]>view.camera.projMatrix);
@@ -309,6 +312,10 @@ export abstract class LayerRenderer {
         //     }
         // }
 
+        if (samplers.viewMatrices) {
+            // @ts-ignore
+            renderState.dataTextureSet.viewMatrices.bindTexture(program, samplers.viewMatrices, renderContext.nextTextureUnit);
+        }
         if (samplers.positions) {
             // @ts-ignore
             renderState.dataTextureSet.positions.bindTexture(program, samplers.positions, renderContext.nextTextureUnit);
@@ -414,7 +421,7 @@ export abstract class LayerRenderer {
             gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
         }
         if (uniforms.nearPlaneHeight) {
-            gl.uniform1f(uniforms.nearPlaneHeight, (view.camera.projection === OrthoProjectionType) ? 1.0 : (gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspective.fov * Math.PI / 180.0))));
+            gl.uniform1f(uniforms.nearPlaneHeight, (view.camera.projectionType === OrthoProjectionType) ? 1.0 : (gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180.0))));
         }
         if (uniforms.pickZNear) {
             gl.uniform1f(uniforms.pickZNear, this.renderContext.pickZNear);
@@ -424,7 +431,7 @@ export abstract class LayerRenderer {
             gl.uniform1i(uniforms.pickInvisible, this.renderContext.pickInvisible ? 1 : 0);
         }
         if (uniforms.logDepthBufFC) {
-            const logDepthBufFC = 2.0 / (Math.log((project as Perspective).far + 1.0) / Math.LN2);
+            const logDepthBufFC = 2.0 / (Math.log((project as PerspectiveProjection).far + 1.0) / Math.LN2);
             gl.uniform1f(uniforms.logDepthBufFC, logDepthBufFC);
         }
     }

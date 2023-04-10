@@ -177,21 +177,21 @@ class TouchPanRotateAndDollyHandler {
 
                     // We use only canvasHeight here so that aspect ratio does not distort speed
 
-                    if (camera.projection === PerspectiveProjectionType) {
+                    if (camera.projectionType === PerspectiveProjectionType) {
 
                         const touchPicked = false;
                         const pickedWorldPos = [0, 0, 0];
 
                         const depth = Math.abs(touchPicked ? lenVec3(subVec3(pickedWorldPos, this.#view.camera.eye, [])) : this.#view.camera.eyeLookDist);
-                        const targetDistance = depth * Math.tan((camera.perspective.fov / 2) * Math.PI / 180.0);
+                        const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
                         updates.panDeltaX += (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
                         updates.panDeltaY += (yPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
 
                     } else {
 
-                        updates.panDeltaX += 0.5 * camera.ortho.scale * (xPanDelta / canvasHeight) * configs.touchPanRate;
-                        updates.panDeltaY += 0.5 * camera.ortho.scale * (yPanDelta / canvasHeight) * configs.touchPanRate;
+                        updates.panDeltaX += 0.5 * camera.orthoProjection.scale * (xPanDelta / canvasHeight) * configs.touchPanRate;
+                        updates.panDeltaY += 0.5 * camera.orthoProjection.scale * (yPanDelta / canvasHeight) * configs.touchPanRate;
                     }
 
                 } else {
@@ -232,19 +232,19 @@ class TouchPanRotateAndDollyHandler {
 
                     // We use only canvasHeight here so that aspect ratio does not distort speed
 
-                    if (camera.projection === PerspectiveProjectionType) {
+                    if (camera.projectionType === PerspectiveProjectionType) {
                         const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : getAABB3Center(this.#view.aabb);
 
                         const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, this.#view.camera.eye, [])));
-                        const targetDistance = depth * Math.tan((camera.perspective.fov / 2) * Math.PI / 180.0);
+                        const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
                         updates.panDeltaX -= (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
                         updates.panDeltaY -= (yPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
 
                     } else {
 
-                        updates.panDeltaX -= 0.5 * camera.ortho.scale * (xPanDelta / canvasHeight) * configs.touchPanRate;
-                        updates.panDeltaY -= 0.5 * camera.ortho.scale * (yPanDelta / canvasHeight) * configs.touchPanRate;
+                        updates.panDeltaX -= 0.5 * camera.orthoProjection.scale * (xPanDelta / canvasHeight) * configs.touchPanRate;
+                        updates.panDeltaY -= 0.5 * camera.orthoProjection.scale * (yPanDelta / canvasHeight) * configs.touchPanRate;
                     }
                 }
 

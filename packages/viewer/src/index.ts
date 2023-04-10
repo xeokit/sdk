@@ -316,7 +316,6 @@ export * from "./Viewer";
 export * from "./ViewParams";
 export * from "./Renderer";
 export * from "./Camera";
-export * from "./RTCViewMat";
 export * from "./FrustumProjection";
 export * from "./OrthoProjection";
 export * from "./PerspectiveProjection";

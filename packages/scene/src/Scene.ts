@@ -1,7 +1,6 @@
 import {Component, EventEmitter, SDKError} from "@xeokit/core/components";
 import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
 import {EventDispatcher} from "strongly-typed-events";
-import {Tiles} from "@xeokit/viewer/src/Tiles";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
 import {SceneModelParams} from "./SceneModelParams";
@@ -37,11 +36,6 @@ export class Scene extends Component {
      * @event
      */
     public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
-
-    /**
-     *
-     */
-    public readonly tiles: Tiles;
 
     #onModelBuilts: { [key: string]: any };
     #onModelDestroys: { [key: string]: any };

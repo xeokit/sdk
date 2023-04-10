@@ -1,9 +1,9 @@
-import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
-import {createVec3, transformPositions3} from "@xeokit/math/matrix";
+import {FloatArrayParam} from "@xeokit/math/math";
+import {createMat4, createVec3, identityMat4} from "@xeokit/math/matrix";
 import {RendererMesh} from "./RendererMesh";
 import {Geometry} from "./Geometry";
 import {TextureSet} from "./TextureSet";
-import {decompressPositions} from "@xeokit/math/compression";
+import {SceneObject} from "./SceneObject";
 
 /**
  * A mesh in a {@link SceneModel}.
@@ -16,7 +16,6 @@ import {decompressPositions} from "@xeokit/math/compression";
  */
 export class Mesh {
 
-
     /**
      * Unique ID of this Mesh.
      *
@@ -25,28 +24,25 @@ export class Mesh {
     id: string;
 
     /**
-     * Optional 3D World-space origin.
-     */
-    origin?: FloatArrayParam;
-
-    /**
      * {@link @xeokit/scene!Geometry} used by this Mesh.
      */
     geometry: Geometry;
 
     /**
-     * {@link TextureSet} used by this Mesh.
+     * {@link @xeokit/scene!TextureSet} used by this Mesh.
      */
     textureSet?: TextureSet;
 
     /**
      *  Internal interface through which a {@link Mesh} can load property updates into a renderer.
      *
-     *  This is defined when the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */
     rendererMesh?: RendererMesh;
+
+    object: SceneObject;
 
     #color: FloatArrayParam;
     #matrix: FloatArrayParam;
@@ -54,6 +50,9 @@ export class Mesh {
     #roughness: number;
     #opacity: number;
 
+    /**
+     * @private
+     */
     constructor(meshParams: {
         id: string;
         geometry: Geometry;
@@ -65,10 +64,12 @@ export class Mesh {
         metallic: number;
     }) {
         this.id = meshParams.id;
+        this.object = null;
+        this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
         this.rendererMesh = null;
         this.geometry = meshParams.geometry;
         this.textureSet = meshParams.textureSet;
-        this.matrix = meshParams.matrix;
+
         this.color = meshParams.color || createVec3([1, 1, 1]);
         this.metallic = (meshParams.metallic !== null && meshParams.metallic !== undefined) ? meshParams.metallic : 0;
         this.roughness = (meshParams.roughness !== null && meshParams.roughness !== undefined) ? meshParams.roughness : 1;
@@ -114,18 +115,10 @@ export class Mesh {
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
-     * @type {Number[]}
+     * @type {FloatArrayParam}
      */
     get matrix(): FloatArrayParam {
-        // if (this._localMatrixDirty) {
-        //     if (!this.__localMatrix) {
-        //         this.__localMatrix = math.identityMat4();
-        //     }
-        //     math.composeMat4(this._position, this._quaternion, this._scale, this.__localMatrix);
-        //     this._localMatrixDirty = false;
-        // }
-        // return this.__localMatrix;
-        return [];
+        return this.#matrix;
     }
 
     /**
@@ -133,10 +126,21 @@ export class Mesh {
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
-     * @type {Number[]}
+     * @type {FloatArrayParam}
      */
     set matrix(matrix: FloatArrayParam) {
-
+        if (matrix) {
+            // @ts-ignore
+            this.#matrix.set(matrix);
+        } else {
+            identityMat4(this.#matrix);
+        }
+        if (this.rendererMesh) {
+            this.rendererMesh.setMatrix(this.#matrix);
+        }
+        if (this.object) {
+            this.object.setAABBDirty();
+        }
     }
 
     /**
@@ -223,36 +227,6 @@ export class Mesh {
         this.#opacity = opacity;
         if (this.rendererMesh) {
             //       this.rendererMesh.setOpacity(this.#opacity);
-        }
-    }
-
-    /**
-     * Gets the decompressed 3D World-space geometry of each {@link GeometryBucket} in each
-     * {@link Geometry} in this Mesh.
-     *
-     * If the callback returns ````true````, then this method immediately stops iterating and also returns ````true````.
-     *
-     * @param withGeometry - The callback.
-     */
-    getGeometry(
-        withGeometry: (primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam)
-            => boolean | undefined): boolean | undefined {
-        const geometry = this.geometry;
-        const positionsDecompressMatrix = geometry.positionsDecompressMatrix;
-        const matrix = this.matrix;
-        for (let j = 0, lenj = geometry.geometryBuckets.length; j < lenj; j++) {
-            const bucket = geometry.geometryBuckets[j];
-            const bucketPositionsCompressed = bucket.positionsCompressed;
-
-            // TODO: resuse cached positions arrays
-
-            const bucketPositions = new Float32Array(bucketPositionsCompressed.length);
-            const worldPositions = new Float64Array(bucketPositionsCompressed.length);
-            decompressPositions(bucketPositionsCompressed, positionsDecompressMatrix, bucketPositions);
-            transformPositions3(bucketPositions, matrix, worldPositions);
-            if (withGeometry(geometry.primitive, worldPositions, bucket.indices)) {
-                return true;
-            }
         }
     }
 }

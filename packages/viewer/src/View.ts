@@ -654,7 +654,7 @@ class View extends Component {
     /**
      * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
      *
-     * This is a common way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
+     * This is a kdtree3d way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
      * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
      * a performance boost.
      *
@@ -667,7 +667,7 @@ class View extends Component {
     /**
      * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
      *
-     * This is a common way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
+     * This is a kdtree3d way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
      * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
      * a performance boost.
      *

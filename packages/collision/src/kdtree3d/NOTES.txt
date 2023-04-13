@@ -1,0 +1,6 @@
+Maya have one point in triangle center and if that point is in selection rectangle then triangle is selected. This is most simplest and fastest solution, but it require from user to be more precise.
+
+How do you test triangle-frustum intersection? For each triangle vertex check its distance from frustum planes and side (positive or negative distance) and then test edges. Isn’t there too much math?
+My suggestion is to calc sphere around whole triangle and then calc distance from sphere center to all frustum planes. If smallest distance is less than sphere radius or sphere center is inside frustum then this triangle could be candidate for ray-triangle intersection. Worst case is when camera is very close to object so triangles becomes huge.
+
+Whole trick is to discard as many triangles as you can using cheapest method before you send them to expensive ray-triangle intersection check.

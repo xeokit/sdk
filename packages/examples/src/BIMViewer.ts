@@ -1,13 +1,14 @@
 import {View, Viewer, ViewLayer} from "@xeokit/viewer";
 import {WebGLRenderer} from "@xeokit/webglrenderer";
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
-import {saveXKT} from "@xeokit/xkt";
+import {loadXKT, saveXKT} from "@xeokit/xkt";
 import {CameraControl} from "@xeokit/cameracontrol";
 import {BCFViewpoint, loadBCFViewpoint, saveBCFViewpoint} from "@xeokit/bcf";
 import {LocaleService} from "@xeokit/locale";
 import {Data, DataModel} from "@xeokit/data";
-import {SceneModel} from "@xeokit/scene";
+import {Scene, SceneModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core/components";
+
 
 
 /**
@@ -29,7 +30,7 @@ export class Project {
 /**
  * TODO
  */
-export class BIMViewer extends Viewer {
+export class BIMViewer {
 
     /**
      * TODO
@@ -70,6 +71,8 @@ export class BIMViewer extends Viewer {
      *
      */
     readonly backgroundViewLayer: ViewLayer;
+    private viewer: Viewer;
+    private scene: Scene;
 
     /**
      * TODO
@@ -78,37 +81,25 @@ export class BIMViewer extends Viewer {
     constructor(cfg: {
         canvasElement: HTMLCanvasElement;
     }) {
-        super({
+        this.scene = new Scene();
+        this.viewer = new Viewer({
             id: "myViewer",
             renderer: new WebGLRenderer({
                 textureTranscoder: new KTX2TextureTranscoder({
                     //  transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
                 })
-            })
+            }),
+            scene: this.scene
         });
-
         this.data = new Data();
-
-        const view = this.createView({
-            canvasElement: cfg.canvasElement
-        });
-
+        const view = this.viewer.createView({canvasElement: cfg.canvasElement});
         if (view instanceof SDKError) {
-
         } else {
             this.view = view;
         }
-
-        this.modelsViewLayer = this.view.createLayer({
-            id: "models"
-        });
-
-        this.backgroundViewLayer = this.view.createLayer({
-            id: "background"
-        });
-
+        this.modelsViewLayer = this.view.createLayer({id: "models"});
+        this.backgroundViewLayer = this.view.createLayer({id: "background"});
         this.cameraControl = new CameraControl(this.view, {});
-
         this.localeService = new LocaleService({});
 
         this.options = {};
@@ -116,73 +107,53 @@ export class BIMViewer extends Viewer {
         this.project = null;
     }
 
-    /**
-     * TODO
-     * @param project
-     */
-    loadProject(project: LoadProjectParams) {
-
-        // if (this.project) {
-        //     // this.project.destroy();
-        // }
-        //
-        // this.project = new Project({
-        //
-        // });
-        //
-        // return this.project;
-    }
 
     /**
+     * Loads a model from XKT format.
      *
      * @param cfg
      */
-    loadDataModel(cfg: {
-        id: string;
-        src: string;
-    }) {
-
-    }
-
-    /**
-     * TODO
-     * @param cfg
-     */
-    loadModel(cfg: {
-        id: string;
-        src: string;
-    }) {
+    loadModel(cfg
+                  :
+                  {
+                      id: string;
+                      src: string;
+                  }
+    ) {
+        const id = cfg.id;
         return new Promise<void>((resolve, reject) => {
-
-            // const model = this.createModel({
-            //     id: cfg.id
-            // });
-            // const dataModel = this.data.createModel({
-            //     id: cfg.id
-            // })
-            // fetch(cfg.src)
-            //     .then(response => {
-            //         if (response.ok) {
-            //             response.arrayBuffer()
-            //                 .then(data => {
-            //                     loadXKT({data, model, dataModel})
-            //                         .then(() => {
-            //                             model.build();
-            //                             dataModel.build();
-            //                             resolve();
-            //                         });
-            //                 })
-            //         }
-            //     });
+            const sceneModel = this.scene.createModel({id});
+            const dataModel = this.data.createModel({id});
+            if (dataModel instanceof SDKError) {
+                reject(dataModel.message);
+            } else if (sceneModel instanceof SDKError) {
+                reject(sceneModel.message);
+            } else {
+                fetch(cfg.src).then(response => {
+                    if (response.ok) {
+                        response.arrayBuffer().then(data => {
+                            loadXKT({data, sceneModel, dataModel}).then(() => {
+                                sceneModel.build().then(() => {
+                                    dataModel.build();
+        //                            this.#viewObjectsKDTree = null;
+                                    resolve();
+                                });
+                            });
+                        })
+                    }
+                });
+            }
         });
-
     }
 
     /**
-     * TODO
+     * Unloads the model with the given ID.
      * @param id
      */
-    unloadModel(id: string) {
+    unloadModel(id
+                    :
+                    string
+    ) {
 
     }
 
@@ -190,7 +161,11 @@ export class BIMViewer extends Viewer {
      * Save a model as an XKT ArrayBuffer.
      * @param id
      */
-    saveModel(id: string): ArrayBuffer {
+    saveModel(id
+                  :
+                  string
+    ):
+        ArrayBuffer {
         const sceneModel = this.scene.models[id];
         if (!sceneModel) {
             throw new Error(`Model not found: '$id'`);
@@ -209,7 +184,10 @@ export class BIMViewer extends Viewer {
      * TODO
      * @param bcfViewpoint
      */
-    loadBCF(bcfViewpoint: BCFViewpoint) {
+    loadBCF(bcfViewpoint
+                :
+                BCFViewpoint
+    ) {
         loadBCFViewpoint({
             bcfViewpoint,
             view: this.view,
@@ -220,7 +198,9 @@ export class BIMViewer extends Viewer {
     /**
      * TODO
      */
-    saveBCF(): BCFViewpoint {
+    saveBCF()
+        :
+        BCFViewpoint {
         return saveBCFViewpoint({
             view: this.view,
             includeLayerIds: [this.modelsViewLayer.id]

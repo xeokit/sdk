@@ -56,6 +56,14 @@ export function createAABB3(values?: math.FloatArrayParam): Float64Array {
 }
 
 /**
+ * Returns a new, uninitialized 3D axis-aligned bounding box.
+ */
+export function createAABB3Int16(values?: math.IntArrayParam): Int16Array {
+    // @ts-ignore
+    return new Int16Array(values || 6);
+}
+
+/**
  * Returns a new, uninitialized 2D axis-aligned bounding box.
  */
 export function createAABB2(values?: math.FloatArrayParam): math.FloatArrayParam {
@@ -135,7 +143,20 @@ export function transformOBB3(
     return p2;
 }
 
-/** Returns true if the first AABB contains the second AABB.
+
+/** Returns true if the first AABB2 contains the second AABB2.
+ */
+export function containsAABB2(
+    aabb1: math.FloatArrayParam,
+    aabb2: math.FloatArrayParam
+): boolean {
+    return aabb1[0] <= aabb2[0] &&
+        aabb2[3] <= aabb1[3] &&
+        aabb1[1] <= aabb2[1] &&
+        aabb1[2] <= aabb2[2];
+}
+
+/** Returns true if the first AABB3 contains the second AABB3.
  */
 export function containsAABB3(
     aabb1: math.FloatArrayParam,
@@ -254,6 +275,20 @@ export function collapseAABB3(aabb: math.FloatArrayParam = createAABB3()): math.
 }
 
 /**
+ * Collapses a 3D axis-aligned boundary, ready to expand to fit 3D points.
+ * Creates new AABB if none supplied.
+ */
+export function collapseAABB3Int16(aabb: math.IntArrayParam = createAABB3Int16()): math.IntArrayParam {
+    aabb[0] = 65535;
+    aabb[1] = 65535;
+    aabb[2] = 65535;
+    aabb[3] = -65535;
+    aabb[4] = -65535;
+    aabb[5] = -65535;
+    return aabb;
+}
+
+/**
  * Converts an axis-aligned 3D boundary into an oriented boundary consisting of
  * an array of eight 3D positions, one for each corner of the boundary.
  *
@@ -328,6 +363,24 @@ export function expandAABB3(aabb1: math.FloatArrayParam, aabb2: math.FloatArrayP
     return aabb1;
 }
 
+/**
+ * Expands the first axis-aligned 2D boundary to enclose the second, if required.
+ */
+export function expandAABB2(aabb1: math.FloatArrayParam, aabb2: math.FloatArrayParam) {
+    if (aabb1[0] > aabb2[0]) {
+        aabb1[0] = aabb2[0];
+    }
+    if (aabb1[1] > aabb2[1]) {
+        aabb1[1] = aabb2[1];
+    }
+    if (aabb1[3] < aabb2[3]) {
+        aabb1[3] = aabb2[3];
+    }
+    if (aabb1[4] < aabb2[4]) {
+        aabb1[4] = aabb2[4];
+    }
+    return aabb1;
+}
 
 /**
  * Expands an axis-aligned 3D boundary to enclose the given point, if needed.
@@ -356,6 +409,30 @@ export function expandAABB3Point3(aabb: math.FloatArrayParam, p: math.FloatArray
 
     if (aabb[5] < p[2]) {
         aabb[5] = p[2];
+    }
+
+    return aabb;
+}
+
+/**
+ * Expands an axis-aligned 2D boundary to enclose the given point, if needed.
+ */
+export function expandAABB2Point2(aabb: math.FloatArrayParam, p: math.FloatArrayParam) {
+
+    if (aabb[0] > p[0]) {
+        aabb[0] = p[0];
+    }
+
+    if (aabb[1] > p[1]) {
+        aabb[1] = p[1];
+    }
+
+    if (aabb[3] < p[0]) {
+        aabb[3] = p[0];
+    }
+
+    if (aabb[4] < p[1]) {
+        aabb[4] = p[1];
     }
 
     return aabb;
@@ -771,7 +848,7 @@ export function setFrustum(viewMat: math.FloatArrayParam, projMat: math.FloatArr
  * @param frustum
  * @param aabb
  */
-export function frustumIntersectsAABB3(frustum: Frustum, aabb: math.FloatArrayParam): number {
+export function testFrustumIntersectsAABB3(frustum: Frustum, aabb: math.FloatArrayParam): number {
     let ret = INSIDE;
     const min = tempVec3a;
     const max = tempVec3b;
@@ -851,6 +928,20 @@ export function testFrustumIntersectsTriangles(frustum: Frustum, positions: Floa
 }
 
 /**
+ * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given triangle primitive.
+ *
+ * Returns ```` true```` if intersection else ````false````.
+ *
+ * @param frustum
+ * @param a
+ * @param b
+ * @param c
+ */
+export function testFrustumIntersectsTriangle(frustum: Frustum, a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam): boolean {
+    return true;
+}
+
+/**
  * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given {@link @xeokit/core/constants!LinesPrimitive | LinesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
@@ -872,6 +963,18 @@ export function testFrustumIntersectsLines(frustum: Frustum, positions: FloatArr
  * @param positions
  */
 export function testFrustumIntersectsPoints(frustum: Frustum, positions: FloatArrayParam): boolean {
+    return true;
+}
+
+/**
+ * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given position.
+ *
+ * Returns ```` true```` if intersection else ````false````.
+ *
+ * @param frustum
+ * @param position
+ */
+export function testFrustumIntersectsPoint(frustum: Frustum, position: FloatArrayParam): boolean {
     return true;
 }
 
@@ -938,7 +1041,7 @@ export function testAABB3IntersectsPoints(aabb: FloatArrayParam, positions: Floa
 }
 
 /**
- * Tets if the given AABB contains the given 3D position.
+ * Tets if the given 3D AABB contains the given 3D position.
  * @param aabb
  * @param p
  */
@@ -947,4 +1050,15 @@ export function testAABB3ContainsPoint3(aabb: FloatArrayParam, p: FloatArrayPara
         aabb[0] <= p[0] && p[0] <= aabb[3] &&
         aabb[1] <= p[1] && p[1] <= aabb[4] &&
         aabb[2] <= p[2] && p[2] <= aabb[5]);
+}
+
+/**
+ * Tets if the given 2D AABB contains the given 2D position.
+ * @param aabb
+ * @param p
+ */
+export function testAABB2ContainsPoint2(aabb: FloatArrayParam, p: FloatArrayParam) {
+    return (
+        aabb[0] <= p[0] && p[0] <= aabb[3] &&
+        aabb[1] <= p[1] && p[1] <= aabb[4]);
 }

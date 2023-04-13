@@ -65,7 +65,10 @@ export class Geometry {
     rendererGeometry?: RendererGeometry;
 
     constructor(params: GeometryCompressedParams) {
-        this.geometryBuckets = params.geometryBuckets;
+        this.geometryBuckets = [];
+        for (let i = 0, len = params.geometryBuckets.length; i < len; i++) {
+            this.geometryBuckets[i] = new GeometryBucket(params.geometryBuckets[i]);
+        }
         this.id = params.id;
         this.positionsDecompressMatrix = params.positionsDecompressMatrix;
         this.primitive = params.primitive;

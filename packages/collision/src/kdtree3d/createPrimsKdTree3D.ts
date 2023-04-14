@@ -2,9 +2,10 @@ import {createAABB3Int16, expandAABB3Points3} from "@xeokit/math/src/boundaries"
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
 import {KdTree3D} from "./KdTree3D";
-import {KdTrianglePrim} from "./KdTrianglePrim";
-import {KdLinePrim} from "./KdLinePrim";
-import {KdPointPrim} from "./KdPointPrim";
+import {KdTriangle3D} from "./KdTriangle3D";
+import {KdLine3D} from "./KdLine3D";
+import {KdPoint3D} from "./KdPoint3D";
+import {PrimsKdTree3D} from "./PrimsKdTree3D";
 
 const tempAABBInt16 = new Int16Array(6);
 
@@ -15,8 +16,8 @@ const tempAABBInt16 = new Int16Array(6);
  *
  * This function also works for coordinates of any precision (ie. Float32Array, Float64Array, Int16Array, Int32Array etc).
  */
-export function createKdTree3DFromArrayPrims(primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam): KdTree3D {
-    const kdTree = new KdTree3D({
+export function createPrimsKdTree3D(primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam): PrimsKdTree3D {
+    const kdTree = new PrimsKdTree3D({
         aabb: <IntArrayParam>expandAABB3Points3(createAABB3Int16(), positions)
     });
 
@@ -48,7 +49,7 @@ function insertPoint(positions: FloatArrayParam, a: number, kdTree: KdTree3D) {
     aabb[0] = aabb[3] = ax;
     aabb[1] = aabb[4] = ay;
     aabb[2] = aabb[5] = az;
-    kdTree.insertItem(<KdPointPrim>{a}, aabb);
+    kdTree.insertItem(<KdPoint3D>{a}, aabb);
 }
 
 function insertLine(positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3D) {
@@ -65,7 +66,7 @@ function insertLine(positions: FloatArrayParam, a: number, b: number, kdTree: Kd
     aabb[3] = Math.max(ax, bx);
     aabb[4] = Math.max(ay, by);
     aabb[5] = Math.max(az, bz);
-    kdTree.insertItem(<KdLinePrim>{a, b}, aabb);
+    kdTree.insertItem(<KdLine3D>{a, b}, aabb);
 }
 
 function insertTriangle(positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3D) {
@@ -85,5 +86,5 @@ function insertTriangle(positions: FloatArrayParam, a: number, b: number, c: num
     aabb[3] = Math.max(ax, bx, cx);
     aabb[4] = Math.max(ay, by, cy);
     aabb[5] = Math.max(az, bz, cz);
-    kdTree.insertItem(<KdTrianglePrim>{a, b, c}, aabb);
+    kdTree.insertItem(<KdTriangle3D>{a, b, c}, aabb);
 }

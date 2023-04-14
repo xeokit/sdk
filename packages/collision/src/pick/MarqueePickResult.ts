@@ -1,5 +1,4 @@
-import {GeometryBucket, Mesh, SceneObject} from "@xeokit/scene";
-import {KdLinePrim, KdPointPrim, KdTrianglePrim} from "../kdtree3d";
+import {SceneObject} from "@xeokit/scene";
 
 /**
  * Results returned by {@link marqueePick}.
@@ -7,46 +6,7 @@ import {KdLinePrim, KdPointPrim, KdTrianglePrim} from "../kdtree3d";
 export interface MarqueePickResult {
 
     /**
-     * TODO
+     * Contains the SceneObjects that were marquee-picked.
      */
-    sceneObjects: {
-
-        /**
-         * TODO
-         */
-        sceneObject: SceneObject,
-
-        /**
-         * TODO
-         */
-        meshes: {
-
-            /**
-             * TODO
-             */
-            mesh: Mesh,
-
-            /**
-             * TODO
-             */
-            geometryBuckets: {
-
-                /**
-                 * TODO
-                 */
-                geometryBucket: GeometryBucket,
-
-                /**
-                 * TODO
-                 */
-                primitiveHits: {
-
-                    /**
-                     * TODO
-                     */
-                    primitive: (KdTrianglePrim | KdLinePrim | KdPointPrim)
-                }[]
-            }[]
-        }[]
-    }[]
+    sceneObjects: SceneObject[];
 }

@@ -4,7 +4,7 @@
  *
  * <img style="padding:30px; height:160px;" src="media://images/kdtree3d.png"/>
  *
- * # xeokit 2D Collision and Search
+ * # xeokit 2D Collision Detection
  *
  * <br>
  *

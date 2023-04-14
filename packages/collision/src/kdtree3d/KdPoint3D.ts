@@ -1,6 +1,6 @@
 /**
  * TODO
  */
-export interface KdPointPrim {
+export interface KdPoint3D {
     a: number;
 }

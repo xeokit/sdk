@@ -1,7 +1,8 @@
 /**
  * TODO
  */
-export interface KdLinePrim {
+export interface KdTriangle3D {
     a: number;
     b: number;
+    c: number;
 }

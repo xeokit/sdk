@@ -4,26 +4,28 @@
  *
  * <img style="padding:30px; height:160px;" src="media://images/kdtree3d.png"/>
  *
- * # xeokit 3D Collision and Search
+ * # xeokit 3D Collision Detection
  *
- * A {@link KdTree3D} automatically organizes a {@link @xeokit/scene!Scene | Scene}'s {@link @xeokit/scene!SceneObject | SceneObects}
- * into a fast spatial search index that allows us efficiently query it for SceneObjects that intersect given boundaries and
- * volumes. These sorts of queries are useful for operations like view frustum culling and marquee selection.
+ * A {@link KdTree3D} organizes items with 3D axis-aligned boundaries into a fast spatial search index that
+ * allows us efficiently search it for items whose boundaries intersect given boundaries and volumes.
  *
- * To query {@link @xeokit/scene!SceneObject | SceneObects} from a {@link KdTree3D}, this module provides the following command classes:
+ * This module provides the following functions to build KdTree3Ds:
  *
- * * {@link searchKdTree3DWithAABB}: Finds the SceneObjects that intersect a given 3D axis-aligned boundary (AABB) in the World-space.
- * * {@link searchKdTree3DWithFrustum}: Finds the SceneObjects that collide with a given 3D frustum volume in the World-space.
- * * {@link searchKdTree3DWithMarquee}: Finds the SceneObjects that intersect a given 2D marque boundary in Canvas-space.
+ * * {@link createPrimsKdTree3D}: Creates a KdTree3D containing primitives from the given set of geometry arrays, organized by their coordinate 3D boundaries.
+ * * {@link createSceneObjectPrimsKdTree3D}: Creates a KdTree3D containing primitives belonging to the given SceneObjects, organized by their World-space 3D boundaries.
+ * * {@link createSceneObjectsKdTree3D}: Create a kdTree3D containing the given SceneObjects, organized by their World-space 3D boundaries.
  *
- * Additionally, each of these command classes has a corresponding version that only reports the SceneObjects whose
- * intersection states have changed since the last query execution:
+ * This module provides the following functions to search KdTree3Ds:
  *
- * * {@link KDObjectsFrustumChangesSearch}: Finds each SceneObject whose intersection state has changed with respect to a given World-space 3D frustum volume.
- * * {@link KDObjectsAABBChangesSearch}: Finds each SceneObject whose intersection state has changed with respect to a given World-space 3D AABB.
+ * * {@link searchKdTree3DWithAABB}: Finds the items that collide with a given 3D axis-aligned boundary (AABB).
+ * * {@link searchKdTree3DWithFrustum}: Finds the items that collide with a given 3D frustum volume.
+ * * {@link searchKdTree3DWithRay}: Finds the items that collide with a given 3D ray.
  *
- * These delta queries are particularly useful for tracking changes in SceneObject intersection states, such as in the case
- * of a moving boundary or volume.
+ * With these components, applications can implement (at least):
+ *
+ * * Frustum culling for SceneObjects
+ * * Ray-picking SceneObjects
+ * * Marquee selection of SceneObjects
  *
  * <br>
  *
@@ -106,7 +108,7 @@
  *
  *         .then(() => {
  *
- *             const kdTree = createKdTree3DFromSceneObjects(Object.values(scene.objects));
+ *             const kdTree = createSceneObjectsKdTree3D(Object.values(scene.objects));
  *
  *             const sceneObjects = searchKdTree3DWithAABB({
  *                 kdTree,
@@ -134,14 +136,16 @@
  * @module @xeokit/collision/kdtree3d
  */
 export * from "./KdTree3D";
-export * from "./createKdTree3DFromSceneObjects";
-export * from "./createKdTree3DFromSceneObjectPrims";
-export * from "./createKdTree3DFromArrayPrims";
+export * from "./createSceneObjectsKdTree3D";
+export * from "./createSceneObjectPrimsKdTree3D";
+export * from "./createPrimsKdTree3D";
 export * from "./searchKdTree3DWithAABB";
 export * from "./searchKdTree3DWithFrustum";
 export * from "./searchKdTree3DWithRay";
-export * from "./KdTrianglePrim";
-export * from "./KdLinePrim";
-export * from "./KdPointPrim";
-export * from "./KdSceneObjectPrim";
+export * from "./KdSceneObjectPrim3D";
+export * from "./KdTriangle3D";
+export * from "./KdLine3D";
+export * from "./KdPoint3D";
+export {PrimsKdTree3D} from "./PrimsKdTree3D";
+
 

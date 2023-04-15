@@ -716,7 +716,7 @@ export class SceneModel extends Component {
         //     const rotation = meshParams.rotation;
         //     if (position || scale || rotation) {
         //         matrix = identityMat4();
-        //         const quaternion = eulerToQuaternion(rotation || [0, 0, 0], "XYZ", identityQuaternion());
+        //         const quaternion = eulerToQuat(rotation || [0, 0, 0], "XYZ", identityQuat());
         //         composeMat4(position || [0, 0, 0], quaternion, scale || [1, 1, 1], matrix)
         //     } else {
         //         matrix = identityMat4();

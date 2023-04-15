@@ -1,4 +1,4 @@
-import {containsAABB3, expandAABB3, testAABB2ContainsPoint2} from "@xeokit/math/src/boundaries";
+import {containsAABB3, expandAABB3, containsAABB2Point2} from "@xeokit/math/src/boundaries";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 
 

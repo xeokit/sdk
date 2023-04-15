@@ -4,11 +4,16 @@
  *
  * <img src="http://xeokit.io/img/kdtree.jpeg" />
  *
- * # xeokit 3D Boundaries Math Library
+ * # xeokit Boundaries Math Library
  *
- * * Axis-aligned boundaries (AABB)
+ * ---
+ *
+ * ### *Math functions for 2D and 3D boundary analysis, boundary transformation, and collision detection*
+ *
+ * ---
+ *
+ * * Axis-aligned boundaries (AABB2 and AABB3)
  * * Object-aligned boundaries (OBB)
- * * 2D and 3D
  * * Transformable OOBs
  * * Create boundaries from positions
  * * Find center of positions
@@ -39,7 +44,7 @@
 import * as math from "./math";
 import {FloatArrayParam, IntArrayParam} from "./math";
 import * as matrix from "./matrix";
-import {decompressPosition} from "./compression";
+import {decompressPoint3} from "./compression";
 
 
 const tempVec3a = matrix.createVec3();
@@ -552,7 +557,7 @@ export const positions3ToAABB3 = (() => {
                 p[1] = positions[i + 1];
                 p[2] = positions[i + 2];
 
-                decompressPosition(p, positionsDecompressMatrix, p);
+                decompressPoint3(p, positionsDecompressMatrix, p);
 
                 x = p[0];
                 y = p[1];
@@ -718,7 +723,7 @@ export function points3ToAABB3(
 /**
  * Gets the 3D center of the given flat array of 3D positions.
  */
-export function getPositionsCenter(
+export function getPositions3Center(
     positions: math.FloatArrayParam,
     center: math.FloatArrayParam = matrix.createVec3()
 ): math.FloatArrayParam {
@@ -739,9 +744,9 @@ export function getPositionsCenter(
 
 
 /**
- * A plane within a {@link Frustum}.
+ * A plane within a {@link Frustum3}.
  */
-export class FrustumPlane {
+export class FrustumPlane3 {
 
     public testVertex: math.FloatArrayParam;
     public offset: number;
@@ -791,22 +796,22 @@ export const INTERSECT: number = 2;
 export const OUTSIDE: number = 3;
 
 /**
- * A frustum defined as six planes.
+ * A 3D frustum defined as six planes.
  */
-export class Frustum {
+export class Frustum3 {
 
     /**
      * The six planes that comprise the frustum boundary.
      */
-    public planes: FrustumPlane[];
+    public planes: FrustumPlane3[];
 
     /**
      * Creates a new FrustumProjection
      */
     constructor() {
         this.planes = [
-            new FrustumPlane(), new FrustumPlane(), new FrustumPlane(),
-            new FrustumPlane(), new FrustumPlane(), new FrustumPlane()
+            new FrustumPlane3(), new FrustumPlane3(), new FrustumPlane3(),
+            new FrustumPlane3(), new FrustumPlane3(), new FrustumPlane3()
         ];
     }
 }
@@ -815,7 +820,7 @@ export class Frustum {
  * Sets the extents of a frustum to the World-space volume defined by view and projection matrices.
  * Creates the frustum first if not given.
  */
-export function setFrustum(viewMat: math.FloatArrayParam, projMat: math.FloatArrayParam, frustum?: Frustum) {
+export function setFrustum3(viewMat: math.FloatArrayParam, projMat: math.FloatArrayParam, frustum?: Frustum3) {
     const m = matrix.mulMat4(projMat, viewMat, tempMat4a);
     const m0 = m[0];
     const m1 = m[1];
@@ -833,7 +838,7 @@ export function setFrustum(viewMat: math.FloatArrayParam, projMat: math.FloatArr
     const m13 = m[13];
     const m14 = m[14];
     const m15 = m[15];
-    frustum = frustum || new Frustum();
+    frustum = frustum || new Frustum3();
     frustum.planes[0].set(m3 - m0, m7 - m4, m11 - m8, m15 - m12);
     frustum.planes[1].set(m3 + m0, m7 + m4, m11 + m8, m15 + m12);
     frustum.planes[2].set(m3 - m1, m7 - m5, m11 - m9, m15 - m13);
@@ -848,7 +853,7 @@ export function setFrustum(viewMat: math.FloatArrayParam, projMat: math.FloatArr
  * @param frustum
  * @param aabb
  */
-export function testFrustumIntersectsAABB3(frustum: Frustum, aabb: math.FloatArrayParam): number {
+export function intersectFrustum3AABB3(frustum: Frustum3, aabb: math.FloatArrayParam): number {
     let ret = INSIDE;
     const min = tempVec3a;
     const max = tempVec3b;
@@ -882,7 +887,7 @@ export function testFrustumIntersectsAABB3(frustum: Frustum, aabb: math.FloatArr
  * @param aabb1
  * @param aabb2
  */
-export function testAABB3IntersectsAABB3(aabb1: math.FloatArrayParam, aabb2: math.FloatArrayParam): number {
+export function intersectAABB3s(aabb1: math.FloatArrayParam, aabb2: math.FloatArrayParam): number {
 
     return INTERSECT;
     // let ret = INSIDE;
@@ -915,7 +920,7 @@ export function testAABB3IntersectsAABB3(aabb1: math.FloatArrayParam, aabb2: mat
 
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given {@link @xeokit/core/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
+ * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/core/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -923,12 +928,12 @@ export function testAABB3IntersectsAABB3(aabb1: math.FloatArrayParam, aabb2: mat
  * @param positions
  * @param indices
  */
-export function testFrustumIntersectsTriangles(frustum: Frustum, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+export function intersectFrustum3Triangles3(frustum: Frustum3, positions: FloatArrayParam, indices: IntArrayParam): boolean {
     return true;
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given triangle primitive.
+ * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given triangle primitive.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -937,12 +942,12 @@ export function testFrustumIntersectsTriangles(frustum: Frustum, positions: Floa
  * @param b
  * @param c
  */
-export function testFrustumIntersectsTriangle(frustum: Frustum, a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam): boolean {
+export function intersectFrustum3Triangle3(frustum: Frustum3, a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam): boolean {
     return true;
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given {@link @xeokit/core/constants!LinesPrimitive | LinesPrimitive} geometry.
+ * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/core/constants!LinesPrimitive | LinesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -950,31 +955,31 @@ export function testFrustumIntersectsTriangle(frustum: Frustum, a: FloatArrayPar
  * @param positions
  * @param indices
  */
-export function testFrustumIntersectsLines(frustum: Frustum, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+export function intersectFrustum3Lines3(frustum: Frustum3, positions: FloatArrayParam, indices: IntArrayParam): boolean {
     return true;
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given {@link @xeokit/core/constants!PointsPrimitive | PointsPrimitive} geometry.
+ * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/core/constants!PointsPrimitive | PointsPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
  * @param frustum
  * @param positions
  */
-export function testFrustumIntersectsPoints(frustum: Frustum, positions: FloatArrayParam): boolean {
+export function intersectFrustum3Positions3(frustum: Frustum3, positions: FloatArrayParam): boolean {
     return true;
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum | Frustum} intersects the given position.
+ * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given position.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
  * @param frustum
  * @param position
  */
-export function testFrustumIntersectsPoint(frustum: Frustum, position: FloatArrayParam): boolean {
+export function intersectFrustum3Point3(frustum: Frustum3, position: FloatArrayParam): boolean {
     return true;
 }
 
@@ -987,7 +992,7 @@ export function testFrustumIntersectsPoint(frustum: Frustum, position: FloatArra
  * @param positions
  * @param indices
  */
-export function testAABB3IntersectsTriangles(aabb: FloatArrayParam, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+export function intersectAABB3Triangles3(aabb: FloatArrayParam, positions: FloatArrayParam, indices: IntArrayParam): boolean {
     for (let i = 0, len = indices.length; i < len; i += 3) {
         // if (aabbIntersectsTriangle(positions, indices[i], indices[i + 1], indices[i + 2], aabb)) {
         //     return true;
@@ -1006,7 +1011,7 @@ export function testAABB3IntersectsTriangles(aabb: FloatArrayParam, positions: F
  * @param positions
  * @param indices
  */
-export function testAABB3IntersectsLines(aabb: FloatArrayParam, positions: FloatArrayParam, indices: IntArrayParam) {
+export function intersectAABB3Lines3(aabb: FloatArrayParam, positions: FloatArrayParam, indices: IntArrayParam) {
     return false;
 }
 
@@ -1018,7 +1023,7 @@ export function testAABB3IntersectsLines(aabb: FloatArrayParam, positions: Float
  * @param aabb
  * @param positions
  */
-export function testAABB3IntersectsPoints(aabb: FloatArrayParam, positions: FloatArrayParam) {
+export function intersectAABB3Positions3(aabb: FloatArrayParam, positions: FloatArrayParam) {
     const xmin = aabb[0];
     const ymin = aabb[1];
     const zmin = aabb[2];
@@ -1045,7 +1050,7 @@ export function testAABB3IntersectsPoints(aabb: FloatArrayParam, positions: Floa
  * @param aabb
  * @param p
  */
-export function testAABB3ContainsPoint3(aabb: FloatArrayParam, p: FloatArrayParam) {
+export function containsAABB3Point3(aabb: FloatArrayParam, p: FloatArrayParam) {
     return (
         aabb[0] <= p[0] && p[0] <= aabb[3] &&
         aabb[1] <= p[1] && p[1] <= aabb[4] &&
@@ -1057,7 +1062,7 @@ export function testAABB3ContainsPoint3(aabb: FloatArrayParam, p: FloatArrayPara
  * @param aabb
  * @param p
  */
-export function testAABB2ContainsPoint2(aabb: FloatArrayParam, p: FloatArrayParam) {
+export function containsAABB2Point2(aabb: FloatArrayParam, p: FloatArrayParam) {
     return (
         aabb[0] <= p[0] && p[0] <= aabb[3] &&
         aabb[1] <= p[1] && p[1] <= aabb[4]);

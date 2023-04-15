@@ -6,6 +6,12 @@
  *
  * # xeokit RTC Coordinate Utilities
  *
+ * ---
+ *
+ * ### *Utility functions for working with RTC cartesian coordinates*
+ *
+ * ---
+ *
  * * Math functions for working with relative-to-center (RTC) coordinate systems
  * * Used internally within {@link @xeokit/viewer!Viewer}
  *
@@ -121,7 +127,7 @@ export function worldToRTCCenter(worldCenter: math.FloatArrayParam, rtcCenter: m
  */
 export function worldToRTCPositions(worldPositions: math.FloatArrayParam, rtcPositions: math.FloatArrayParam, rtcCenter: math.FloatArrayParam, cellSize = 200): boolean {
 
-    const center = boundaries.getPositionsCenter(worldPositions, tempVec3a);
+    const center = boundaries.getPositions3Center(worldPositions, tempVec3a);
 
     const rtcCenterX = Math.round(center[0] / cellSize) * cellSize;
     const rtcCenterY = Math.round(center[1] / cellSize) * cellSize;

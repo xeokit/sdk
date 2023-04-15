@@ -1,8 +1,8 @@
 import {
     createPrimsKdTree3D,
-    KdLine3D,
-    KdPoint3D,
-    KdTriangle3D,
+    KdLinePrim,
+    KdPointPrim,
+    KdTrianglePrim,
     SceneObjectsKdTree3D,
     searchKdTree3DWithFrustum,
     searchKdTree3DWithRay
@@ -11,7 +11,7 @@ import {FloatArrayParam} from "@xeokit/math/math";
 import {RayPickResult} from "./RayPickResult";
 import {MarqueePickResult} from "./MarqueePickResult";
 import {PickPrimsCache} from "./PickPrimsCache";
-import {decompressPositions} from "@xeokit/math/compression";
+import {decompressPositions3} from "@xeokit/math/compression";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
 import {Geometry, GeometryBucket} from "@xeokit/scene";
 
@@ -67,7 +67,7 @@ export class Picker {
                         switch (geometry.primitive) {
                             case TrianglesPrimitive:
                                 for (let l = 0, lenl = primitives.length; l < lenl; l++) {
-                                    const triangle = <KdTriangle3D>primitives[l];
+                                    const triangle = <KdTrianglePrim>primitives[l];
                                     const a = triangle.a;
                                     const b = triangle.b;
                                     const c = triangle.c;
@@ -84,13 +84,13 @@ export class Picker {
                                 break;
                             case LinesPrimitive:
                                 for (let l = 0, lenl = primitives.length; l < lenl; l++) {
-                                    const line = <KdLine3D>primitives[l];
+                                    const line = <KdLinePrim>primitives[l];
                                     //     primitiveHits.push({primitive: line, worldPos});
                                 }
                                 break;
                             case PointsPrimitive:
                                 for (let l = 0, lenl = primitives.length; l < lenl; l++) {
-                                    const point = <KdPoint3D>primitives[l];
+                                    const point = <KdPointPrim>primitives[l];
                                     //      primitiveHits.push({primitive: point, worldPos});
                                 }
                                 break;
@@ -114,7 +114,7 @@ export class Picker {
     /**
      * Picks a {@link SceneObjectsKdTree3D} using a 2D marquee to obtain a {@link MarqueePickResult}
      * containing picked {@link SceneObject | SceneObjects}, {@link Mesh}, {@link Geometry},
-     * {@link GeometryBucket | GeometryBuckets}, {@link KdTriangle3D}, {@link KdLine3D} and {@link KdPoint3D}.
+     * {@link GeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
      * @param params
      */
     marqueePick(params: {
@@ -155,7 +155,7 @@ export class Picker {
                             case TrianglesPrimitive:
                                 for (let l = 0, lenl = items.length; l < lenl; l++) {
                                     const item = items[l];
-                                    const triangle = <KdTriangle3D>item.item.prim;
+                                    const triangle = <KdTrianglePrim>item.item.prim;
                                     const a = triangle.a;
                                     const b = triangle.b;
                                     const c = triangle.c;
@@ -171,14 +171,14 @@ export class Picker {
                             case LinesPrimitive:
                                 for (let l = 0, lenl = items.length; l < lenl; l++) {
                                     const item = items[l];
-                                    const line = <KdLine3D>item.item.prim;
+                                    const line = <KdLinePrim>item.item.prim;
                                     // prims.push({primitive: line, worldPos});
                                 }
                                 break;
                             case PointsPrimitive:
                                 for (let l = 0, lenl = items.length; l < lenl; l++) {
                                     const item = items[l];
-                                    const point = <KdPoint3D>item.item.prim;
+                                    const point = <KdPointPrim>item.item.prim;
 
                                     //      prims.push({primitive: point, worldPos});
                                 }
@@ -201,7 +201,7 @@ export class Picker {
         const kdTreeId = `${geometry.id}-${k}`;
         let primsKdTree3D = this.#pickPrimsCache[kdTreeId];
         if (!primsKdTree3D) {
-            const positions = decompressPositions(
+            const positions = decompressPositions3(
                 geometryBucket.positionsCompressed,
                 geometry.positionsDecompressMatrix,
                 new Float32Array(geometryBucket.positionsCompressed.length));

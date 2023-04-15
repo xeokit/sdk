@@ -4,6 +4,12 @@
  *
  * # xeokit Curves Math Library
  *
+ * ---
+ *
+ * ### *Spline curve math functions*
+ *
+ * ---
+ *
  * ## Installation
  *
  * ````bash
@@ -20,26 +26,26 @@
  */
 
 /**
- * Finds a tangent to a quadratic bezier curve.
+ * Finds a tangent to a quadratic Bézier curve.
  *
  * @param t
  * @param p0
  * @param p1
  * @param p2
  */
-export function tangentQuadraticBezier(t: number, p0: number, p1: number, p2: number): number {
+export function tangentQuadraticBézier(t: number, p0: number, p1: number, p2: number): number {
     return 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1);
 }
 
 /**
- * Finds a tangent to a quadratic bezier curve.
+ * Finds a tangent to a quadratic Bézier curve.
  *
  * @param t
  * @param p0
  * @param p1
  * @param p2
  */
-export function tangentQuadraticBezier3(t: number, p0: number, p1: number, p2: number, p3: number): number {
+export function tangentQuadraticBézier3(t: number, p0: number, p1: number, p2: number, p3: number): number {
     return -3 * p0 * (1 - t) * (1 - t) +
         3 * p1 * (1 - t) * (1 - t) - 6 * t * p1 * (1 - t) +
         6 * t * p2 * (1 - t) - 3 * t * t * p2 +
@@ -74,9 +80,9 @@ export function catmullRomInterpolate(p0: number, p1: number, p2: number, p3: nu
     return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
 }
 
-// Bezier Curve formulii from http://en.wikipedia.org/wiki/B%C3%A9zier_curve
+// Bézier Curve formulii from http://en.wikipedia.org/wiki/B%C3%A9zier_curve
 
-// Quad Bezier Functions
+// Quad Bézier Functions
 
 /**
  * Quad Bézier curve function b2p0
@@ -119,7 +125,7 @@ export function b2(this: any, t: number, p0: number, p1: number, p2: number): nu
     return this.b2p0(t, p0) + this.b2p1(t, p1) + this.b2p2(t, p2);
 }
 
-// Cubic Bezier Functions
+// Cubic Bézier Functions
 
 /**
  * Cubic Bézier curve function b3p0

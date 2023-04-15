@@ -1,6 +1,6 @@
 import {DEGTORAD, FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "@xeokit/math/matrix";
-import {decompressPosition} from "@xeokit/math/compression";
+import {decompressPoint3} from "@xeokit/math/compression";
 
 const uniquePositions: number[] = [];
 const indicesLookup: number[] = [];
@@ -72,9 +72,9 @@ function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayPar
             compc[1] = uniquePositions[ic + 1];
             compc[2] = uniquePositions[ic + 2];
             // Decode
-            decompressPosition(compa, positionsDecompressMatrix, a);
-            decompressPosition(compb, positionsDecompressMatrix, b);
-            decompressPosition(compc, positionsDecompressMatrix, c);
+            decompressPoint3(compa, positionsDecompressMatrix, a);
+            decompressPoint3(compb, positionsDecompressMatrix, b);
+            decompressPoint3(compc, positionsDecompressMatrix, c);
         } else {
             a[0] = uniquePositions[ia];
             a[1] = uniquePositions[ia + 1];

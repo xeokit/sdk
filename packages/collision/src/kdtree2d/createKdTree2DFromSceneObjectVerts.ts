@@ -3,9 +3,9 @@ import {
     INSIDE,
     INTERSECT,
     OUTSIDE,
-    setFrustum,
-    testFrustumIntersectsAABB3,
-    testFrustumIntersectsPoint
+    setFrustum3,
+    intersectFrustum3AABB3,
+    intersectFrustum3Point3
 } from "@xeokit/math/src/boundaries";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {createMat4, createVec4, transformPoint4} from "@xeokit/math/matrix";
@@ -31,7 +31,7 @@ export function createKdTree2DFromSceneObjectVerts(params: {
 
     const viewMatrix = createMat4(params.viewMatrix);
     const projMatrix = createMat4(params.projMatrix);
-    const frustum = setFrustum(viewMatrix, projMatrix);
+    const frustum = setFrustum3(viewMatrix, projMatrix);
     const canvasBoundary = params.canvasBoundary;
     const sceneObjects = params.sceneObjects;
 
@@ -43,7 +43,7 @@ export function createKdTree2DFromSceneObjectVerts(params: {
 
     function insertSceneObject(sceneObject: SceneObject, intersects: number = INTERSECT) {
         if (intersects !== INSIDE) {
-            intersects = testFrustumIntersectsAABB3(frustum, sceneObject.aabb);
+            intersects = intersectFrustum3AABB3(frustum, sceneObject.aabb);
         }
         if (intersects === OUTSIDE) {
             return;
@@ -57,7 +57,7 @@ export function createKdTree2DFromSceneObjectVerts(params: {
                     worldPos[1] = positionsWorld[i + 1];
                     worldPos[2] = positionsWorld[i + 2];
                     worldPos[3] = 1.0;
-                    if (intersects === INSIDE || testFrustumIntersectsPoint(frustum, worldPos)) {
+                    if (intersects === INSIDE || intersectFrustum3Point3(frustum, worldPos)) {
                         insertVertex(sceneObject, worldPos);
                     }
                 }

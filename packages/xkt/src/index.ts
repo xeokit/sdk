@@ -6,6 +6,12 @@
  *
  * # xeokit XKT Importer and Exporter
  *
+ * ---
+ *
+ * ### *Import and export models as xeokit's native binary XKT format*
+ *
+ * ---
+ *
  * The xeokit SDK allows us to import 3D models from [XKT](/docs/pages/GLOSSARY.html#xkt), which is xeokit's
  * native runtime asset delivery format for model representations and semantics.
  *

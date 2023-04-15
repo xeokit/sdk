@@ -4,7 +4,13 @@
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="media://images/xeokit_viewer_logo.png"/>
  *
- * # xeokit Web Model Viewer
+ * # xeokit Scene Viewer
+ *
+ * ---
+ *
+ * ### *The SDK's browser-based 3D/2D scene viewer*
+ *
+ * ---
  *
  * ## Features
  *

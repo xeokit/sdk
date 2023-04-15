@@ -6,6 +6,12 @@
  *
  * # xeokit [KTX2](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#ktx2) Texture Transcoder
  *
+ * ---
+ *
+ * ### *Enables the xeokit Viewer to load KTX2-compressed textures*
+ *
+ * ---
+ *
  * * Provides {@link KTX2TextureTranscoder}
  * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
  * * Then {@link @xeokit/scene!SceneModel.createTexture | ViewerModel.createTexture} can create textures from KTX2-encoded compressed textures
@@ -15,7 +21,7 @@
  * also be configured to load the Codec from local files.
  * * We also bundle the Basis Codec with the xeokit-viewer npm package, and in the [repository](https://github.com/xeokit/sdk/tree/master/dist/basis).
  *
- * #### What is KTX2?
+ * ### What is KTX2?
  *
  * A [KTX2](https://github.khronos.org/KTX-Specification/) file stores GPU texture data in the Khronos Texture 2.0 (KTX2) container format. It contains image data for
  * a texture asset compressed with Basis Universal (BasisU) supercompression that can be transcoded to different formats

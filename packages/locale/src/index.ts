@@ -6,6 +6,12 @@
  *
  * # xeokit Localization Service
  *
+ * ---
+ *
+ * ### Repository of locale-specific translations for words and phrases
+ *
+ * ---
+ *
  * A container of string translations ("messages") for various locales.
  *
  * <br>

@@ -16,7 +16,7 @@ import {
     TrianglesPrimitive
 } from "@xeokit/core/constants";
 import {isString} from "@xeokit/core/utils";
-import {createMat4, identityMat4, mulMat4, quaternionToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
+import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {GeometryParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/scene";
 import {DataModel} from "@xeokit/data";
@@ -383,7 +383,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
         }
     }
     if (node.rotation) {
-        localMatrix = quaternionToMat4(node.rotation);
+        localMatrix = quatToMat4(node.rotation);
         if (matrix) {
             matrix = mulMat4(matrix, localMatrix, createMat4());
         } else {

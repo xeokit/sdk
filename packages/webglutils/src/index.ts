@@ -6,6 +6,12 @@
  *
  * # xeokit WebGL2 Utilities Library
  *
+ * ---
+ *
+ * ### Convenience helpers and classes for working with WebGL2
+ *
+ * ---
+ *
  * * Used internally by {@link "@xeokit/webglrenderer"}
  * * Convenience wrappers for WebGL2 classes
  * * Mappings for xeokit constants

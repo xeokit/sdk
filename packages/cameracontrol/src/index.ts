@@ -4,7 +4,13 @@
  * 
  * <img style="padding:30px" src="media://images/xeokit_controls_icon.png"/>
  *
- * # xeokit Camera Navigation Controls
+ * # xeokit Camera Controls
+ *
+ * ---
+ *
+ * ### *Navigate a Viewer's camera with mouse and touch input*
+ *
+ * ---
  *
  * * Use {@link CameraControl} to control a {@link @xeokit/viewer!Camera}, which belongs to a {@link @xeokit/viewer!View | View}, which belongs to a {@link @xeokit/viewer!Viewer | Viewer}.
  * * Reads touch, mouse and keyboard input

@@ -4,7 +4,13 @@
  *
  * <img style="padding:30px; height:160px;" src="media://images/kdtree3d.png"/>
  *
- * # xeokit 3D Collision Detection
+ * # xeokit 3D Collision Utilities
+ *
+ * ---
+ *
+ * ### *Spatial searches and collision testing with 3D k-d trees, rays and boundaries*
+ *
+ * ---
  *
  * A {@link KdTree3D} organizes items with 3D axis-aligned boundaries into a fast spatial search index that
  * allows us efficiently search it for items whose boundaries intersect given boundaries and volumes.
@@ -23,7 +29,7 @@
  *
  * With these components, applications can implement (at least):
  *
- * * Frustum culling for SceneObjects
+ * * Frustum3 culling for SceneObjects
  * * Ray-picking SceneObjects
  * * Marquee selection of SceneObjects
  *
@@ -117,7 +123,7 @@
  *
  *             const sceneObjects2 = searchKdTree3DWithFrustum({
  *                 kdTree,
- *                 frustum: new Frustum( .. )
+ *                 frustum: new Frustum3( .. )
  *             });
  *
  *             const objectMap = {};
@@ -142,10 +148,11 @@ export * from "./createPrimsKdTree3D";
 export * from "./searchKdTree3DWithAABB";
 export * from "./searchKdTree3DWithFrustum";
 export * from "./searchKdTree3DWithRay";
-export * from "./KdSceneObjectPrim3D";
-export * from "./KdTriangle3D";
-export * from "./KdLine3D";
-export * from "./KdPoint3D";
+export * from "./KdSceneObjectPrim";
+export * from "./KdTrianglePrim";
+export * from "./KdLinePrim";
+export * from "./KdPointPrim";
 export {PrimsKdTree3D} from "./PrimsKdTree3D";
+export {SceneObjectsKdTree3D} from "./sceneObjectsKdTree3D";
 
 

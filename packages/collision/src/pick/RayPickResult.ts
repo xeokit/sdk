@@ -1,5 +1,5 @@
 import {Geometry, GeometryBucket, Mesh, SceneObject} from "@xeokit/scene";
-import {KdLine3D, KdPoint3D, KdTriangle3D} from "../kdtree3d";
+import {KdLinePrim, KdPointPrim, KdTrianglePrim} from "../kdtree3d";
 import {FloatArrayParam} from "@xeokit/math/math";
 
 /**
@@ -49,13 +49,13 @@ export interface MeshHit {
     /**
      * TODO
      */
-    geometryBucketHits: GeometryBucketPickHit[];
+    geometryBucketHits: GeometryBucketHit[];
 }
 
 /**
  * TODO
  */
-export interface GeometryBucketPickHit {
+export interface GeometryBucketHit {
 
     /**
      * TODO
@@ -75,7 +75,7 @@ export interface PrimHit {
     /**
      * TODO
      */
-    primitive: (KdTriangle3D | KdLine3D | KdPoint3D);
+    prim: (KdTrianglePrim | KdLinePrim | KdPointPrim);
 
     /**
      * TODO

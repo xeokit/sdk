@@ -6,6 +6,12 @@
  *
  * # xeokit Core Math Utilities
  *
+ * ---
+ *
+ * ### *Basic math types and constants*
+ *
+ * ---
+ *
  * ## Installation
  *
  * ````bash

@@ -6,6 +6,12 @@
  *
  * # xeokit Matrix and Vector Math Library
  *
+ * ---
+ *
+ * ### Math functions for 3D/2D matrices, quaternions and vectors
+ *
+ * ---
+ *
  * ````javascript
  * import * as matrix from "@xeokit/math/matrix";
  *
@@ -1485,7 +1491,7 @@ export function composeMat4(
     quaternion: FloatArrayParam,
     scale: FloatArrayParam,
     mat: FloatArrayParam = createMat4()): FloatArrayParam {
-    quaternionToRotationMat4(quaternion, mat);
+    quatToRotationMat4(quaternion, mat);
     scaleMat4v(scale, mat);
     translateMat4v(position, mat);
     return mat;
@@ -1532,7 +1538,7 @@ export const decomposeMat4 = (() => {
         matrix[8] *= invSZ;
         matrix[9] *= invSZ;
         matrix[10] *= invSZ;
-        mat4ToQuaternion(matrix, quaternion);
+        mat4ToQuat(matrix, quaternion);
         scale[0] = sx;
         scale[1] = sy;
         scale[2] = sz;
@@ -1777,7 +1783,7 @@ export function lerpMat4(t: number, t1: number, t2: number, m1: FloatArrayParam,
  * @param dest Optional quaternion to initialize
  * @returns New quaternion
  */
-export function identityQuaternion(
+export function identityQuat(
     dest: FloatArrayParam = createVec4()
 ): FloatArrayParam {
     dest[0] = 0.0;
@@ -1795,7 +1801,7 @@ export function identityQuaternion(
  * @param  [dest] Destination quaternion, created by default.
  * @returns  The quaternion.
  */
-export function eulerToQuaternion(
+export function eulerToQuat(
     euler: FloatArrayParam,
     order: string,
     dest: FloatArrayParam = createVec4()
@@ -1853,7 +1859,7 @@ export function eulerToQuaternion(
  * @param m The matrix
  * @param dest The quaternion
  */
-export function mat4ToQuaternion(
+export function mat4ToQuat(
     m: FloatArrayParam,
     dest: FloatArrayParam = createVec4()
 ): FloatArrayParam {
@@ -1913,7 +1919,7 @@ export function mat4ToQuaternion(
  * @param v
  * @param dest
  */
-export function vec3PairToQuaternion(
+export function vec3PairToQuat(
     u: FloatArrayParam,
     v: FloatArrayParam,
     dest: FloatArrayParam = createVec4()
@@ -1944,7 +1950,7 @@ export function vec3PairToQuaternion(
 
     dest[3] = real_part;
 
-    return normalizeQuaternion(dest);
+    return normalizeQuat(dest);
 }
 
 /**
@@ -1971,12 +1977,12 @@ export function angleAxisToQuaternion(
  * @param order
  * @param dest
  */
-export function quaternionToEuler(
+export function quatToEuler(
     q: FloatArrayParam,
     order: string,
     dest: FloatArrayParam = createVec3()
 ) {
-    quaternionToRotationMat4(q, tempMat4a);
+    quatToRotationMat4(q, tempMat4a);
     mat4ToEuler(tempMat4a, order, dest);
     return dest;
 }
@@ -1987,7 +1993,7 @@ export function quaternionToEuler(
  * @param q
  * @param dest
  */
-export function mulQuaternions(
+export function mulQuats(
     p: FloatArrayParam,
     q: FloatArrayParam,
     dest: FloatArrayParam = createVec4()
@@ -2013,7 +2019,7 @@ export function mulQuaternions(
  * @param vec
  * @param dest
  */
-export function vec3ApplyQuaternion(
+export function vec3ApplyQuat(
     q: FloatArrayParam,
     vec: FloatArrayParam,
     dest: FloatArrayParam = createVec3()
@@ -2048,7 +2054,7 @@ export function vec3ApplyQuaternion(
  * @param q
  * @param dest
  */
-export function quaternionToMat4(
+export function quatToMat4(
     q: FloatArrayParam,
     dest?: FloatArrayParam
 ): FloatArrayParam {
@@ -2096,7 +2102,7 @@ export function quaternionToMat4(
  * @param q
  * @param m
  */
-export function quaternionToRotationMat4(
+export function quatToRotationMat4(
     q: FloatArrayParam,
     m: FloatArrayParam
 ): FloatArrayParam {
@@ -2150,7 +2156,7 @@ export function quaternionToRotationMat4(
  * @param dest
  * @returns The normalized quaternion
  */
-export function normalizeQuaternion(
+export function normalizeQuat(
     q: FloatArrayParam,
     dest: FloatArrayParam = q
 ): FloatArrayParam {
@@ -2168,7 +2174,7 @@ export function normalizeQuaternion(
  * @param dest
  * @returns The conjugate of the quaternion
  */
-export function conjugateQuaternion(
+export function conjugateQuat(
     q: FloatArrayParam,
     dest: FloatArrayParam = q
 ) {
@@ -2185,8 +2191,8 @@ export function conjugateQuaternion(
  * @param dest
  * @returns The inverse quaternion
  */
-export function inverseQuaternion(q: FloatArrayParam, dest: FloatArrayParam) {
-    return normalizeQuaternion(conjugateQuaternion(q, dest));
+export function inverseQuat(q: FloatArrayParam, dest: FloatArrayParam) {
+    return normalizeQuat(conjugateQuat(q, dest));
 }
 
 /**
@@ -2195,11 +2201,11 @@ export function inverseQuaternion(q: FloatArrayParam, dest: FloatArrayParam) {
  * @param angleAxis
  * @returns The angle-axis rotation
  */
-export function quaternionToAngleAxis(
+export function quatToAngleAxis(
     q: FloatArrayParam,
     angleAxis: FloatArrayParam = createVec4()
 ) {
-    q = normalizeQuaternion(q, tempVec4a);
+    q = normalizeQuat(q, tempVec4a);
     const q3 = q[3];
     const angle = 2 * Math.acos(q3);
     const s = Math.sqrt(1 - q3 * q3);

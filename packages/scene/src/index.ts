@@ -4,7 +4,13 @@
  *
  * <img style="padding:20px" src="media://images/xeokit_docmodel_greyscale_icon.png"/>
  *
- * # xeokit Scene Graph
+ * # xeokit Scene Representation
+ *
+ * ---
+ *
+ * ### *The SDK's buildable, viewable, importable and exportable 3D scene representation*
+ *
+ * ---
  *
  * The xeokit SDK facilitates the management of model representations through a scene graph that incorporates the
  * model's objects, geometries, and materials. This scene graph functions seamlessly in both the browser and NodeJS
@@ -13,21 +19,26 @@
  *
  * To elaborate further:
  *
- * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn, comprise {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries}, and {@link Texture | Textures}.
+ * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
+ * comprise {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries}, {@link GeometryBucket | GeometryBuckets}, and {@link Texture | Textures}.
  * * Textures undergo compression via Basis Universal.
  * * Geometry undergoes compression through bucketing and quantization.
- * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser.
+ * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
  * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/xkt" | loadXKT}.
  * * Export SceneModels to the native XKT format through {@link "@xeokit/xkt" | saveXKT}.
- * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel}, {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}, {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
+ * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel},
+ * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
+ * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}. Add geometry
+ * primitives using mesh generator functions like {@link @xeokit/procgen/geometry!buildBoxGeometry | buildBoxGeometry}, {@link @xeokit/procgen/geometry!buildSphereGeometry | buildSphereGeometry}, {@link @xeokit/procgen/geometry!buildTorusGeometry | buildTorusGeometry}, {@link @xeokit/procgen/geometry!buildCylinderGeometry | buildCylinderGeometry}, {@link @xeokit/procgen/geometry!buildPlaneGeometry | buildPlaneGeometry} and {@link @xeokit/procgen/geometry!buildVectorTextGeometry | buildVectorTextGeometry}.
+ * * Use a {@link "@xeokit/collision/pick" | Picker} to select SceneObjects and primitives that intersect rays and selection boundaries.
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqNVcuO2jAU_RXkVTtiogEMJCy6aEeaTVGlAbVSlY3HuQNunTiynSkU8e91HgY7DzrZJDn3-J778LVPiIoE0ApRTpR6ZGQnSRpnCZNANRPZ6OtznI2qp2KMNhQyOFmswiUQDWvjhn_46Bk4EOlDaclSLiJefhmlC3TuUatcO5IsuX63lpcSoPbgAjsQKWjJPFDDQRcSNqB7UAeqk_tWqbipNEkbrS76VAseu5Zt7X_QYMJxbS8F44kLJKC0FI7jvnLVwXotcivWrlDLRZnSaBVYVHAhr79SFLt9Bsopl8mbcB8SOaFMHx0OMc04XP-b_jiMa3MGgmzK1R9nP9c4u5lWQ2ulwhl9tll2GIJSXigzJB0LpEwp9gYtQysyu0-G4solS5k2bhxIKFaOpXoEKtLcbFW1bpWzeLthtLX-XNDfMDh1Tx7LDe-i_6URgMRT7oOZOU0o_E_rO4M_npJNfnvM-wrwQ0h-U8SX2YF2hqNb-UtU9l2xRzGaxOju_t68g-AuRs6B5BErZIBdS77Hbw-zhrr8ckwt8ZJNh-U30vKrEXe4DtFSnKHxnGLDbW3qHm9bZ36vjRhogV36qV7bU4j3LXQ3kl2JxigFmRKWmBuu6nWM9B5SiNHKfCbwSgquYxRnZ0MlhRabY0bR6pVwBWNU5Ik5m5tL8YJCwrSQ6-baLF9jlJMMrU7ogFbTxUMwmSxxuJjOoxlezvAYHQ08C3C0XIQ4wpMwXEbh9DxGf4Uwbh-CcLrAeDGN8DLEczyPKn8_K6OWBZz_ATNYPes?type=png)](https://mermaid.live/edit#pako:eNqNVcuO2jAU_RXkVTtiogEMJCy6aEeaTVGlAbVSlY3HuQNunTiynSkU8e91HgY7DzrZJDn3-J778LVPiIoE0ApRTpR6ZGQnSRpnCZNANRPZ6OtznI2qp2KMNhQyOFmswiUQDWvjhn_46Bk4EOlDaclSLiJefhmlC3TuUatcO5IsuX63lpcSoPbgAjsQKWjJPFDDQRcSNqB7UAeqk_tWqbipNEkbrS76VAseu5Zt7X_QYMJxbS8F44kLJKC0FI7jvnLVwXotcivWrlDLRZnSaBVYVHAhr79SFLt9Bsopl8mbcB8SOaFMHx0OMc04XP-b_jiMa3MGgmzK1R9nP9c4u5lWQ2ulwhl9tll2GIJSXigzJB0LpEwp9gYtQysyu0-G4solS5k2bhxIKFaOpXoEKtLcbFW1bpWzeLthtLX-XNDfMDh1Tx7LDe-i_6URgMRT7oOZOU0o_E_rO4M_npJNfnvM-wrwQ0h-U8SX2YF2hqNb-UtU9l2xRzGaxOju_t68g-AuRs6B5BErZIBdS77Hbw-zhrr8ckwt8ZJNh-U30vKrEXe4DtFSnKHxnGLDbW3qHm9bZ36vjRhogV36qV7bU4j3LXQ3kl2JxigFmRKWmBuu6nWM9B5SiNHKfCbwSgquYxRnZ0MlhRabY0bR6pVwBWNU5Ik5m5tL8YJCwrSQ6-baLF9jlJMMrU7ogFbTxUMwmSxxuJjOoxlezvAYHQ08C3C0XIQ4wpMwXEbh9DxGf4Uwbh-CcLrAeDGN8DLEczyPKn8_K6OWBZz_ATNYPes)
+ * [![](https://mermaid.ink/img/pako:eNqNVU2PmzAQ_SvIp3aVjTaJk0AOPbQr7aVRpc2qlSoujplN3AJGttkmjfLfawwkNph0uQBvnufNh8c-IcoTQCtEUyLlIyM7QbI4T5gAqhjPg6_PcR6YxzCCDYUcTi1mcAFEwVq7ST98dAwpEOFCWcWSNsK3v7TSBTp71IxrS5Il1-_O8koC5B5sYAc8AyWYAyo4qFLABpQHtaA6uW9GxU6lSVpr9dGnWvDYt7zU_gcNOhzbti1ZmthAAlIJbjn2lasO1mmRXTFPhQJCttsBl1WKwUDxKU-5uP4KXu72OUjLta4DSV2IF4QydbQ4RDfncP1v-mUxrs0aCLIpnz9OP1c7u5lWQ-ukkjL63GbZY3BK01LqoelZIGNSsjfoGDqRtftmKK5CsIwp7caCuGTVmMpHoDwr9NaV6045y7cbxrbWn0v6Gwan8Mlh2eFd9L80ApA4yj6Y6dOFwv-0vjP44yi1yb8cC18BfnCR3hRxZXagrGHpV_4SVfs27CBGkxjd3d_r93h8FyPrgHKIBhlg15Lv8eth1lCfX41pS7xk02O5jWz5ZsQtrkVsKdbQOE6x5nY2tcfbizW_10YMtKBd-qle6ynE-xbaG6ldiUYoA5ERlugbz_Q6RmoPGcRopT8TeCVlqmIU52dNJaXim2NO0eqVpBJGqCwSfVY3l-QFhYQpLtbNNVq9RqggOVqd0AGtpouH8WSyxOFiOo9meDnDI3TU8GyMo-UixBGehOEyCqfnEfrLuXb7MA6nC4wX0wgvQzzH88j4-2mMSpRw_geACkF7?type=png)](https://mermaid.live/edit#pako:eNqNVU2PmzAQ_SvIp3aVjTaJk0AOPbQr7aVRpc2qlSoujplN3AJGttkmjfLfawwkNph0uQBvnufNh8c-IcoTQCtEUyLlIyM7QbI4T5gAqhjPg6_PcR6YxzCCDYUcTi1mcAFEwVq7ST98dAwpEOFCWcWSNsK3v7TSBTp71IxrS5Il1-_O8koC5B5sYAc8AyWYAyo4qFLABpQHtaA6uW9GxU6lSVpr9dGnWvDYt7zU_gcNOhzbti1ZmthAAlIJbjn2lasO1mmRXTFPhQJCttsBl1WKwUDxKU-5uP4KXu72OUjLta4DSV2IF4QydbQ4RDfncP1v-mUxrs0aCLIpnz9OP1c7u5lWQ-ukkjL63GbZY3BK01LqoelZIGNSsjfoGDqRtftmKK5CsIwp7caCuGTVmMpHoDwr9NaV6045y7cbxrbWn0v6Gwan8Mlh2eFd9L80ApA4yj6Y6dOFwv-0vjP44yi1yb8cC18BfnCR3hRxZXagrGHpV_4SVfs27CBGkxjd3d_r93h8FyPrgHKIBhlg15Lv8eth1lCfX41pS7xk02O5jWz5ZsQtrkVsKdbQOE6x5nY2tcfbizW_10YMtKBd-qle6ynE-xbaG6ldiUYoA5ERlugbz_Q6RmoPGcRopT8TeCVlqmIU52dNJaXim2NO0eqVpBJGqCwSfVY3l-QFhYQpLtbNNVq9RqggOVqd0AGtpouH8WSyxOFiOo9meDnDI3TU8GyMo-UixBGehOEyCqfnEfrLuXb7MA6nC4wX0wgvQzzH88j4-2mMSpRw_geACkF7)
  *
  * <br>
  *
- * #### Notes
+ * ### Notes
  *
  * * TextureSets are collections of textures that are shared among Meshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
  * * Geometries are arranged automatically into {@link @xeokit/scene!GeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.

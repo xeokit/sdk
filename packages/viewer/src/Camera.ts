@@ -31,7 +31,7 @@ import {
     OrthoProjectionType,
     PerspectiveProjectionType
 } from "@xeokit/core/constants";
-import {Frustum, setFrustum} from "@xeokit/math/boundaries";
+import {Frustum3, setFrustum3} from "@xeokit/math/boundaries";
 
 
 const tempVec3 = createVec3();
@@ -321,7 +321,7 @@ class Camera extends Component {
      *
      * @event
      */
-    readonly onFrustum: EventEmitter<Camera, Frustum>;
+    readonly onFrustum: EventEmitter<Camera, Frustum3>;
 
     readonly #state: {
         deviceMatrix: FloatArrayParam,
@@ -344,7 +344,7 @@ class Camera extends Component {
     /**
      * The viewing frustum.
      */
-    #frustum: Frustum;
+    #frustum: Frustum3;
     #activeProjection: PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection;
 
     /**
@@ -367,7 +367,7 @@ class Camera extends Component {
         this.onViewMatrix = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
         this.onProjMatrix = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
         this.onWorldAxis = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
-        this.onFrustum = new EventEmitter(new EventDispatcher<Camera, Frustum>());
+        this.onFrustum = new EventEmitter(new EventDispatcher<Camera, Frustum3>());
 
         this.view = view;
 
@@ -389,7 +389,7 @@ class Camera extends Component {
             inverseViewMatrix: createMat4()
         };
 
-        this.#frustum = new Frustum();
+        this.#frustum = new Frustum3();
 
         this.perspectiveProjection = new PerspectiveProjection(this);
         this.orthoProjection = new OrthoProjection(this);
@@ -717,7 +717,7 @@ class Camera extends Component {
     /**
      * Gets the Camera's 3D World-space viewing frustum.
      *
-     * @returns {Frustum} The frustum.
+     * @returns {Frustum3} The frustum.
      */
     get frustum() {
         if (this.dirty) {
@@ -799,7 +799,7 @@ class Camera extends Component {
         inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
         transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
         this.view.redraw();
-        setFrustum(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
+        setFrustum3(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
         this.onViewMatrix.dispatch(this, this.#state.viewMatrix);
         this.onFrustum.dispatch(this, this.#frustum);
     }

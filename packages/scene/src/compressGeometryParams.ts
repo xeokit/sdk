@@ -1,7 +1,7 @@
 import {createMat4, createVec3} from "@xeokit/math/matrix";
 import {collapseAABB3, expandAABB3Points3} from "@xeokit/math/boundaries";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {quantizePositions} from "@xeokit/math/compression";
+import {quantizePositions3} from "@xeokit/math/compression";
 
 import {buildEdgeIndices} from "./buildEdgeIndices";
 import {uniquifyPositions} from "./calculateUniquePositions";
@@ -22,7 +22,7 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
     const positionsDecompressMatrix = createMat4();
     const aabb = collapseAABB3();
     expandAABB3Points3(aabb, geometryParams.positions);
-    const positionsCompressed = quantizePositions(geometryParams.positions, aabb, positionsDecompressMatrix);
+    const positionsCompressed = quantizePositions3(geometryParams.positions, aabb, positionsDecompressMatrix);
     const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
         ? buildEdgeIndices(positionsCompressed, geometryParams.indices, positionsDecompressMatrix, 10)
         : null;

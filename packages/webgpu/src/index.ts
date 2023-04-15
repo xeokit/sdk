@@ -4,7 +4,13 @@
  * 
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:190px;" src="media://images/xeokit_webgpu_logo.svg"/>
  *
- * # xeokit WebGPU Rendering Strategy
+ * # xeokit WebGPU Renderer
+ *
+ * ---
+ *
+ * ### *Configures a xeokit Viewer to use WebGPU for rendering*
+ *
+ * ---
  *
  * * Plug a {@link WebGPURenderer} into a {@link @xeokit/viewer!Viewer} to use WebGPU for model storage and rendering.
  * * This is work-in-progress. We recommend using {@link @xeokit/webglrenderer} until this strategy is ready.

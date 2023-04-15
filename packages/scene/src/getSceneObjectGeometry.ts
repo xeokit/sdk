@@ -1,6 +1,6 @@
 import {SceneObject} from "./SceneObject";
 import {Mesh} from "./Mesh";
-import {decompressPositions} from "@xeokit/math/compression";
+import {decompressPositions3} from "@xeokit/math/compression";
 import {transformPositions3} from "@xeokit/math/matrix";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {Geometry} from "./Geometry";
@@ -111,7 +111,7 @@ class GeometryViewImpl implements GeometryView {
     get positionsDecompressed(): FloatArrayParam {
         if (!this.#positionsDecompressed) {
             this.#positionsDecompressed = new Float32Array(this.geometryBucket.positionsCompressed.length);
-            decompressPositions(this.geometryBucket.positionsCompressed, this.geometry.positionsDecompressMatrix, this.#positionsDecompressed);
+            decompressPositions3(this.geometryBucket.positionsCompressed, this.geometry.positionsDecompressMatrix, this.#positionsDecompressed);
         }
         return this.#positionsDecompressed;
     }

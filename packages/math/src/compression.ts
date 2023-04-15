@@ -4,7 +4,13 @@
  * 
  * <img style="padding:20px" src="media://images/geometry_icon.png"/>
  *
- * ## xeokit Geometry Compression / Decompression Utilities
+ * # xeokit Geometry Compression / Decompression Utilities
+ *
+ * ---
+ *
+ * ### *Math functions for geometry compression and decompression*
+ *
+ * ---
  *
  * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within SceneModel.createGeometry implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
 
@@ -131,28 +137,13 @@
  * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * ````javascript
- * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {Scene} from "@xeokit/scene";
  * import {TrianglesPrimitive} from "@xeokit/core/constants";
  * import {compressGeometryParams} from "@xeokit/math/compression";
  *
- * const myViewer = new Viewer({
- *     id: "myViewer",
- *     renderer: new WebGLRenderer({
- *         //...
- *     })
- * });
+ * const scene = new Scene();
  *
- * const view1 = myViewer.createView({
- *     id: "myView",
- *     canvasId: "myView1"
- * });
- *
- * view1.camera.eye = [-3.933, 2.855, 27.018];
- * view1.camera.look = [4.400, 3.724, 8.899];
- * view1.camera.up = [-0.018, 0.999, 0.039];
- *
- * const sceneModel = myViewer.scene.createModel({
+ * const sceneModel = scene.createModel({
  *     id: "myModel"
  * });
  *
@@ -165,23 +156,10 @@
  *
  * sceneModel.createGeometryCompressed(geometryCompressedParams);
  *
- * sceneModel.createMesh({
- *     id: "myMesh",
- *     geometryId: "myGeometry",
- *     //...
- * });
+ * sceneModel.createMesh({ id: "myMesh", geometryId: "myGeometry" });
  *
- * sceneModel.createObject({
- *     id: "myObject1",
- *     meshIds: ["myMesh"],
- *     //...
- * });
- *
- * sceneModel.createObject({
- *     id: "myObject2",
- *     meshIds: ["myMesh"],
- *     //...
- * });
+ * sceneModel.createObject({ id: "myObject1", meshIds: ["myMesh"] });
+ * sceneModel.createObject({ id: "myObject2", meshIds: ["myMesh"] });
  *
  * sceneModel.build();
  * ````
@@ -217,7 +195,7 @@ const scale = createMat4();
  * @param min
  * @param max
  */
-export function getPositionsBounds(array: FloatArrayParam, min?: FloatArrayParam, max?: FloatArrayParam) {
+export function getPositions3MinMax(array: FloatArrayParam, min?: FloatArrayParam, max?: FloatArrayParam) {
     let i, j;
     min = min || new Float64Array(3);
     max = max || new Float64Array(3);
@@ -240,7 +218,7 @@ export function getPositionsBounds(array: FloatArrayParam, min?: FloatArrayParam
 /**
  * Creates a de-quantization matrix from a boundary.
  */
-export function createPositionsDecompressMatrix(aabb: FloatArrayParam, positionsDecompressMatrix: FloatArrayParam): FloatArrayParam {
+export function createPositions3DecompressMat4(aabb: FloatArrayParam, positionsDecompressMatrix: FloatArrayParam): FloatArrayParam {
     positionsDecompressMatrix = positionsDecompressMatrix || createMat4();
     const xmin = aabb[0];
     const ymin = aabb[1];
@@ -260,7 +238,7 @@ export function createPositionsDecompressMatrix(aabb: FloatArrayParam, positions
 /**
  * Compresses a flat positions array
  */
-export function compressPositions(array: FloatArrayParam, min: FloatArrayParam, max: FloatArrayParam) {
+export function compressPositions3(array: FloatArrayParam, min: FloatArrayParam, max: FloatArrayParam) {
     const quantized = new Uint16Array(array.length);
     var multiplier = new Float32Array([
         max[0] !== min[0] ? 65535 / (max[0] - min[0]) : 0,
@@ -294,7 +272,7 @@ export function compressPositions(array: FloatArrayParam, min: FloatArrayParam, 
  * @param aabb
  * @param q
  */
-export function compressPosition(p: FloatArrayParam, aabb: FloatArrayParam, dest: FloatArrayParam = p) {
+export function compressPoint3(p: FloatArrayParam, aabb: FloatArrayParam, dest: FloatArrayParam = p) {
     const multiplier = new Float32Array([
         aabb[3] !== aabb[0] ? 65535 / (aabb[3] - aabb[0]) : 0,
         aabb[4] !== aabb[1] ? 65535 / (aabb[4] - aabb[1]) : 0,
@@ -312,7 +290,7 @@ export function compressPosition(p: FloatArrayParam, aabb: FloatArrayParam, dest
  * @param decompressMatrix
  * @param dest
  */
-export function decompressPosition(position: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: FloatArrayParam = position): FloatArrayParam {
+export function decompressPoint3(position: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: FloatArrayParam = position): FloatArrayParam {
     dest[0] = position[0] * decompressMatrix[0] + decompressMatrix[12];
     dest[1] = position[1] * decompressMatrix[5] + decompressMatrix[13];
     dest[2] = position[2] * decompressMatrix[10] + decompressMatrix[14];
@@ -325,7 +303,7 @@ export function decompressPosition(position: FloatArrayParam, decompressMatrix: 
  * @param decompressMatrix
  * @param dest
  */
-export function decompressAABB(aabb: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: FloatArrayParam = aabb): FloatArrayParam {
+export function decompressAABB3(aabb: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: FloatArrayParam = aabb): FloatArrayParam {
     dest[0] = aabb[0] * decompressMatrix[0] + decompressMatrix[12];
     dest[1] = aabb[1] * decompressMatrix[5] + decompressMatrix[13];
     dest[2] = aabb[2] * decompressMatrix[10] + decompressMatrix[14];
@@ -341,7 +319,7 @@ export function decompressAABB(aabb: FloatArrayParam, decompressMatrix: FloatArr
  * @param decompressMatrix
  * @param dest
  */
-export function decompressPositions(positions: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: Float32Array = new Float32Array(positions.length)): Float32Array {
+export function decompressPositions3(positions: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: Float32Array = new Float32Array(positions.length)): Float32Array {
     for (let i = 0, len = positions.length; i < len; i += 3) {
         dest[i + 0] = positions[i + 0] * decompressMatrix[0] + decompressMatrix[12];
         dest[i + 1] = positions[i + 1] * decompressMatrix[5] + decompressMatrix[13];
@@ -585,7 +563,7 @@ function octDecodeVec2s(octs: Int8Array, result: FloatArrayParam): FloatArrayPar
 /**
  * @private
  */
-export function quantizePositions(positions: FloatArrayParam, aabb: FloatArrayParam, positionsDecompressMatrix: FloatArrayParam) { // http://cg.postech.ac.kr/research/mesh_comp_mobile/mesh_comp_mobile_conference.pdf
+export function quantizePositions3(positions: FloatArrayParam, aabb: FloatArrayParam, positionsDecompressMatrix: FloatArrayParam) { // http://cg.postech.ac.kr/research/mesh_comp_mobile/mesh_comp_mobile_conference.pdf
     const lenPositions = positions.length;
     const positionsCompressed = new Uint16Array(lenPositions);
     const xmin = aabb[0];

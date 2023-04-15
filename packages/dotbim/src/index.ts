@@ -6,6 +6,12 @@
  *
  * # xeokit .BIM Importer
  *
+ * ---
+ *
+ * ### *Import building models from the open, free and simple .BIM file format*
+ *
+ * ---
+ *
  * The xeokit SDK allows us to import 3D models from [.BIM](/docs/pages/GLOSSARY.html#dotbim), a JSON-based
  * file format specifically designed for lightweight, user-friendly, and human-readable storage and sharing of 3D BIM models.
  *

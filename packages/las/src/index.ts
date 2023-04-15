@@ -8,8 +8,14 @@
  *
  * # xeokit LAS/LAZ Importer
  *
- * The xeokit SDK allows us to import 3D models from [LAS](/docs/pages/GLOSSARY.html#las) (GL Transmission Format), a
- * file format that is a runtime asset delivery format for 3D scenes and models.
+ * ---
+ *
+ * ### *Import 3D lidar point cloud datasets*
+ *
+ * ---
+ *
+ * The xeokit SDK allows us to import 3D models from [LAS](/docs/pages/GLOSSARY.html#las), a
+ * file format for the interchange of 3-dimensional point cloud data.
  *
  * The LAS file format is a standardized binary format used for storing and sharing 3D point cloud data from LiDAR
  * scanners. It includes header information and point data attributes, supports compressed and uncompressed data, and

@@ -11,8 +11,8 @@ import {
     createMat4,
     createVec3,
     createVec4,
-    eulerToQuaternion,
-    identityQuaternion,
+    eulerToQuat,
+    identityQuat,
     mulMat4
 } from "@xeokit/math/matrix";
 
@@ -47,7 +47,7 @@ const tempMat4 = createMat4();
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);
 const defaultRotation = createVec3([0, 0, 0]);
-const defaultQuaternion = identityQuaternion();
+const defaultQuaternion = identityQuat();
 
 const defaultColorTextureId = "defaultColorTexture";
 const defaultMetalRoughTextureId = "defaultMetalRoughTexture";
@@ -173,7 +173,7 @@ export class RendererModelImpl extends Component implements RendererModel {
         this.#rotation = createVec3(params.rotation || [0, 0, 0]);
         this.#quaternion = createVec4(params.quaternion || [0, 0, 0, 1]);
         if (params.rotation) {
-            eulerToQuaternion(this.#rotation, "XYZ", this.#quaternion);
+            eulerToQuat(this.#rotation, "XYZ", this.#quaternion);
         }
         this.#scale = createVec3(params.scale || [1, 1, 1]);
         this.#worldMatrix = createMat4();

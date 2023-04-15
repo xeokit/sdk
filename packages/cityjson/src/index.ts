@@ -6,12 +6,16 @@
  *
  * # xeokit CityJSON Importer
  *
- * The xeokit SDK allows us to import 3D urban models from [CityJSON](/docs/pages/GLOSSARY.html#cityjson), a JSON-based
- * file format specifically designed for lightweight, user-friendly, and human-readable storage and sharing of 3D models.
+ * ---
  *
- * CityJSON can represent both basic geometric shapes and intricate objects such as buildings and trees, offering a
- * simple alternative to other formats like CityGML. This format is built to be seamlessly incorporated into existing
- * workflows and tools.
+ * ### *Import 3D urban models and semantics from CityJSON format*
+ *
+ * ---
+ *
+ * The xeokit SDK allows us to import 3D urban models from [CityJSON](/docs/pages/GLOSSARY.html#cityjson), a JSON-based
+ * file format specifically designed for lightweight, user-friendly, and human-readable
+ * storage and sharing of 3D models. CityJSON can represent both basic geometric shapes and intricate objects such as
+ * buildings and trees, offering a simple alternative to other formats like CityGML.
  *
  * To import a CityJSON model into xeokit, simply use the {@link loadCityJSON} function, which will load the file into both
  * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.

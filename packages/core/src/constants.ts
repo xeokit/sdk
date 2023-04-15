@@ -462,7 +462,7 @@ export const PerspectiveProjectionType = 500000;
 export const OrthoProjectionType = 500001;
 
 /**
- * Frustum projection type.
+ * Frustum3 projection type.
  */
 export const FrustumProjectionType = 500002;
 

@@ -6,6 +6,12 @@
  *
  * # xeokit glTF Importer
  *
+ * ---
+ *
+ * ### *Import models from the industry standard glTF model file format*
+ *
+ * ---
+ *
  * The xeokit SDK allows us to import 3D models from [glTF](/docs/pages/GLOSSARY.html#gltf) (GL Transmission Format), a
  * file format that is a runtime asset delivery format for 3D scenes and models.
  *

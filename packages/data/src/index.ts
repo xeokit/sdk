@@ -4,13 +4,19 @@
  *
  * <img style="padding:50px" src="media://images/xeokit_datamodel_icon.png"/>
  *
- * # xeokit Data Graph
+ * # xeokit Semantic Data Model
  *
- * The xeokit SDK employs a generic entity-relationship data graph to manage model semantics. This graph includes entities,
+ * ---
+ *
+ * ### *Attach semantic data to scene representations*
+ *
+ * ---
+ *
+ * The xeokit SDK uses a generic entity-relationship data graph to manage model semantics. This graph includes entities,
  * properties, and relationships and is compatible with both the browser and NodeJS. It serves as a versatile tool for generating
  * models, converting between model formats, and navigating content within the model viewer.
  *
- * In more detail, the xeokit SDK utilizes a {@link @xeokit/data!Data | data} container class that holds
+ * In more detail, the xeokit SDK provides a {@link @xeokit/data!Data | Data} container class that holds
  * {@link @xeokit/data!DataModel | DataModels} consisting of {@link @xeokit/data!DataObject | DataObjects},
  * {@link @xeokit/data!PropertySet | PropertySets}, and
  * {@link @xeokit/data!Relationship | Relationships}, as shown in the diagram below.

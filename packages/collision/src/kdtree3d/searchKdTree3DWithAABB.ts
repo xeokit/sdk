@@ -1,5 +1,5 @@
 import {FloatArrayParam} from "@xeokit/math/math";
-import {INTERSECT, OUTSIDE, testAABB3IntersectsAABB3} from "@xeokit/math/boundaries";
+import {INTERSECT, OUTSIDE, intersectAABB3s} from "@xeokit/math/boundaries";
 import {KdItem3D, KdNode3D, KdTree3D} from "./KdTree3D";
 
 
@@ -22,7 +22,7 @@ export function searchKdTree3DWithAABB(params: {
         if (isect === OUTSIDE) {
             return;
         }
-        isect = testAABB3IntersectsAABB3(aabb, node.aabb);
+        isect = intersectAABB3s(aabb, node.aabb);
         if (isect === OUTSIDE) {
             return;
         }

@@ -15,12 +15,28 @@
 <li><a href="../modules.html">xeokit - v0.0.1</a></li>
 <li><a href="OVERVIEW.html">Overview</a></li></ul>
 <h1> Overview</h1></div>
-<div class="tsd-panel tsd-typography"><p>This page provides an overview of the modules that comprise the xeokit SDK. </p>
-<p>The xeokit SDK consists of multiple NPM packages, managed in one repository with
-<a href="https://lerna.js.org/">Lerna</a>. Each NPM package contains one or more TypeScript modules. </p>
+<div class="tsd-panel tsd-typography"><p>Code, particularly open-source toolkits, requires regular refactoring to keep up with modern coding standards. Version 3 of the xeokit SDK contains several enhancements that 
+significantly improve the quality of the codebase. </p>
+<p>Firstly, the internal functions, such as compression, rendering, and mathematical functions, have been factored out and integrated into fully documented public library 
+modules within the SDK. Each library is published as an NPM module and managed in a single monorepo on GitHub. </p>
+<p>This approach results in more explicitly defined contracts between the various components, thereby enabling their replacement or modification. The SDK is designed as a 
+<em>white box</em> style SDK, that gives you the manual on all the parts. </p>
+<p>Secondly, the code has been rewritten in TypeScript, which has resulted in better organization and solidity due to the increased strictness of the contracts between 
+the components. Coding with TypeScript has also been faster. </p>
+<p>The new semantic data model is an exciting addition to the SDK. It is an entity-relationship graph that enables proper viewing of federated IFC models and supports
+advanced queries, including interoperability with other BIM software.</p>
+<p>The new scene representation is also exciting. It&#39;s a scene graph representation, with objects, meshes, geometries, materials etc, that&#39;s capable of 
+operating seamlessly in both NodeJS and browser environments. This scene graph can be constructed in JavaScript using builder methods, while different importer and 
+exporter functions available in the SDK can be used to load and save the scene graph, along with the semantic data graph,  in several AECO file formats. </p>
+<p>When used in the browser environment, the scene graph can be attached to the SDK&#39;s Viewer, allowing for a dynamic and interactive 3D visualization 
+of the scene.</p>
 
-<a href="#model-viewer" id="model-viewer" style="color: inherit; text-decoration: none;">
-  <h2>Model Viewer</h2>
+<a href="#sdk-modules" id="sdk-modules" style="color: inherit; text-decoration: none;">
+  <h1>SDK Modules</h1>
+</a>
+
+<a href="#scene-viewer" id="scene-viewer" style="color: inherit; text-decoration: none;">
+  <h2>Scene Viewer</h2>
 </a>
 <p>The SDK contains a high-performance Web viewer for displaying our model representations. Through a pluggable renderer strategy,
 the viewer can be extended to utilize various browser graphics APIs, including WebGL and WebGPU. Multiple models can be viewed
@@ -41,7 +57,7 @@ and other elements, to display multiple views of our models.</p>
 </tr>
 <tr>
 <td><a href="https://www.npmjs.com/package/@xeokit/cameracontrol"><code>@xeokit/cameracontrol</code></a></td>
-<td><a href="https://xeokit.github.io/sdk/docs/modules/cameracontrol.html"><code>@xeokit/cameracontrol</code></a></td>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_cameracontrol.html"><code>@xeokit/cameracontrol</code></a></td>
 <td>Interactive camera control for a viewer</td>
 </tr>
 <tr>
@@ -287,6 +303,9 @@ These functions can be used to develop applications that facilitate collaboratio
 <ul>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="../modules/_xeokit_cameracontrol.keycodes.html">keycodes</a></li></ul></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_cityjson.html">@xeokit/cityjson</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_kdtree2d.html">@xeokit/collision/kdtree2d</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_kdtree3d.html">@xeokit/collision/kdtree3d</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_pick.html">@xeokit/collision/pick</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_utils.html">@xeokit/core/utils</a></li>
@@ -294,8 +313,8 @@ These functions can be used to develop applications that facilitate collaboratio
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_cityJSONTypes_1_1_3.html">@xeokit/datatypes/cityJSONTypes_<wbr/>1_<wbr/>1_<wbr/>3</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_dotbim.html">@xeokit/dotbim</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_gltf.html">@xeokit/gltf</a></li>
-<li class="tsd-kind-module"><a href="../modules/_xeokit_kdtree.html">@xeokit/kdtree</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_ktx2.html">@xeokit/ktx2</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_las.html">@xeokit/las</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_locale.html">@xeokit/locale</a></li>

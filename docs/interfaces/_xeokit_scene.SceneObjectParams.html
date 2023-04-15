@@ -24,7 +24,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">SceneObjectParams</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/scene/src/SceneObjectParams.ts#L4">packages/scene/src/SceneObjectParams.ts:4</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/scene/src/SceneObjectParams.ts#L4">packages/scene/src/SceneObjectParams.ts:4</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -33,8 +33,8 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
 <div class="tsd-index-list"><a href="_xeokit_scene.SceneObjectParams.html#id" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-1024-path"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)" id="icon-1024-text"></path></svg><span>id</span></a>
+<a href="_xeokit_scene.SceneObjectParams.html#layerId" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>layer<wbr/>Id?</span></a>
 <a href="_xeokit_scene.SceneObjectParams.html#meshIds" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>mesh<wbr/>Ids</span></a>
-<a href="_xeokit_scene.SceneObjectParams.html#viewLayerId" class="tsd-index-link tsd-kind-property tsd-parent-kind-interface"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>view<wbr/>Layer<wbr/>Id?</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
@@ -44,25 +44,25 @@
 <div class="tsd-comment tsd-typography"><p>Unique ID for the SceneObject.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/scene/src/SceneObjectParams.ts#L9">packages/scene/src/SceneObjectParams.ts:9</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/scene/src/SceneObjectParams.ts#L9">packages/scene/src/SceneObjectParams.ts:9</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="layerId" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>layer<wbr/>Id</span><a href="#layerId" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">layer<wbr/>Id<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Causes each <a href="../classes/_xeokit_viewer.View.html">View</a> to put the corresponding ViewObject into a ViewLayer with this ID.</p>
+<p>When you create an object in a model, each <a href="../classes/_xeokit_viewer.View.html">View</a> will automatically create a ViewObject to
+represent it. When the object has a <a href="_xeokit_scene.SceneObjectParams.html#layerId">layerId</a> property, then each View will first ensure that it
+has a ViewLayer with this ID, and will register the ViewObject in that ViewLayer.</p>
+<p>Overrides <a href="_xeokit_scene.SceneObjectParams.html#layerId">layerId</a>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/scene/src/SceneObjectParams.ts#L25">packages/scene/src/SceneObjectParams.ts:25</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="meshIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>mesh<wbr/>Ids</span><a href="#meshIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">mesh<wbr/>Ids<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 <div class="tsd-comment tsd-typography"><p>IDs of meshes previously created with <a href="../classes/_xeokit_scene.SceneModel.html#createMesh">SceneModel.createMesh</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/scene/src/SceneObjectParams.ts#L14">packages/scene/src/SceneObjectParams.ts:14</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="viewLayerId" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>view<wbr/>Layer<wbr/>Id</span><a href="#viewLayerId" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">view<wbr/>Layer<wbr/>Id<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>Causes each <a href="../classes/_xeokit_viewer.View.html">View</a> to put the corresponding ViewObject into a ViewLayer with this ID.</p>
-<p>When you create an object in a model, each <a href="../classes/_xeokit_viewer.View.html">View</a> will automatically create a ViewObject to
-represent it. When the object has a <a href="_xeokit_scene.SceneObjectParams.html#viewLayerId">viewLayerId</a> property, then each View will first ensure that it
-has a ViewLayer with this ID, and will register the ViewObject in that ViewLayer.</p>
-<p>Overrides ModelParams.viewLayerId.</p>
-</div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/scene/src/SceneObjectParams.ts#L25">packages/scene/src/SceneObjectParams.ts:25</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/scene/src/SceneObjectParams.ts#L14">packages/scene/src/SceneObjectParams.ts:14</a></li></ul></aside></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -94,6 +94,9 @@ has a ViewLayer with this ID, and will register the ViewObject in that ViewLayer
 <ul>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="../modules/_xeokit_cameracontrol.keycodes.html">keycodes</a></li></ul></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_cityjson.html">@xeokit/cityjson</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_kdtree2d.html">@xeokit/collision/kdtree2d</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_kdtree3d.html">@xeokit/collision/kdtree3d</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_pick.html">@xeokit/collision/pick</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_utils.html">@xeokit/core/utils</a></li>
@@ -101,8 +104,8 @@ has a ViewLayer with this ID, and will register the ViewObject in that ViewLayer
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_cityJSONTypes_1_1_3.html">@xeokit/datatypes/cityJSONTypes_<wbr/>1_<wbr/>1_<wbr/>3</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_dotbim.html">@xeokit/dotbim</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_gltf.html">@xeokit/gltf</a></li>
-<li class="tsd-kind-module"><a href="../modules/_xeokit_kdtree.html">@xeokit/kdtree</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_ktx2.html">@xeokit/ktx2</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_las.html">@xeokit/las</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_locale.html">@xeokit/locale</a></li>
@@ -126,8 +129,8 @@ has a ViewLayer with this ID, and will register the ViewObject in that ViewLayer
 <li class="current tsd-kind-interface tsd-parent-kind-module"><a href="_xeokit_scene.SceneObjectParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-interface)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-256-path"></rect><path d="M9.51 16V15.016H11.298V8.224H9.51V7.24H14.19V8.224H12.402V15.016H14.19V16H9.51Z" fill="var(--color-text)" id="icon-256-text"></path></svg><span>Scene<wbr/>Object<wbr/>Params</span></a>
 <ul>
 <li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_scene.SceneObjectParams.html#id" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>id</a></li>
-<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_scene.SceneObjectParams.html#meshIds" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>mesh<wbr/>Ids</a></li>
-<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_scene.SceneObjectParams.html#viewLayerId" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>view<wbr/>Layer<wbr/>Id?</a></li></ul></li></ul></nav></div></div>
+<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_scene.SceneObjectParams.html#layerId" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>layer<wbr/>Id?</a></li>
+<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_xeokit_scene.SceneObjectParams.html#meshIds" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>mesh<wbr/>Ids</a></li></ul></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
 <div class="overlay"></div><script src="../assets/main.js"></script></body></html>

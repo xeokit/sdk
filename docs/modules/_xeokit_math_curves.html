@@ -22,6 +22,12 @@
 <a href="#xeokit-curves-math-library" id="xeokit-curves-math-library" style="color: inherit; text-decoration: none;">
   <h1>xeokit Curves Math Library</h1>
 </a>
+<hr>
+
+<a href="#spline-curve-math-functions" id="spline-curve-math-functions" style="color: inherit; text-decoration: none;">
+  <h3><em>Spline curve math functions</em></h3>
+</a>
+<hr>
 
 <a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
   <h2>Installation</h2>
@@ -32,7 +38,7 @@
 </code></pre>
 </div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/math/src/curves.ts#L30">packages/math/src/curves.ts:30</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/math/src/curves.ts#L36">packages/math/src/curves.ts:36</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"></section></section>
 <section class="tsd-panel-group tsd-index-group">
@@ -50,8 +56,8 @@
 <a href="../functions/_xeokit_math_curves.b3p2.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>b3p2</span></a>
 <a href="../functions/_xeokit_math_curves.b3p3.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>b3p3</span></a>
 <a href="../functions/_xeokit_math_curves.catmullRomInterpolate.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>catmull<wbr/>Rom<wbr/>Interpolate</span></a>
-<a href="../functions/_xeokit_math_curves.tangentQuadraticBezier.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>tangent<wbr/>Quadratic<wbr/>Bezier</span></a>
-<a href="../functions/_xeokit_math_curves.tangentQuadraticBezier3.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>tangent<wbr/>Quadratic<wbr/>Bezier3</span></a>
+<a href="../functions/_xeokit_math_curves.tangentQuadraticB_zier.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>tangent<wbr/>Quadratic<wbr/>Bézier</span></a>
+<a href="../functions/_xeokit_math_curves.tangentQuadraticB_zier3.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>tangent<wbr/>Quadratic<wbr/>Bézier3</span></a>
 <a href="../functions/_xeokit_math_curves.tangentSpline.html" class="tsd-index-link tsd-kind-function tsd-parent-kind-module"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg><span>tangent<wbr/>Spline</span></a>
 </div></section></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -85,6 +91,9 @@
 <ul>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="_xeokit_cameracontrol.keycodes.html">keycodes</a></li></ul></li>
 <li class="tsd-kind-module"><a href="_xeokit_cityjson.html">@xeokit/cityjson</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_collision_kdtree2d.html">@xeokit/collision/kdtree2d</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_collision_kdtree3d.html">@xeokit/collision/kdtree3d</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_collision_pick.html">@xeokit/collision/pick</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_core_components.html">@xeokit/core/components</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_core_constants.html">@xeokit/core/constants</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_core_utils.html">@xeokit/core/utils</a></li>
@@ -92,8 +101,8 @@
 <li class="tsd-kind-module"><a href="_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_datatypes_cityJSONTypes_1_1_3.html">@xeokit/datatypes/cityJSONTypes_<wbr/>1_<wbr/>1_<wbr/>3</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_dotbim.html">@xeokit/dotbim</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_gltf.html">@xeokit/gltf</a></li>
-<li class="tsd-kind-module"><a href="_xeokit_kdtree.html">@xeokit/kdtree</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_ktx2.html">@xeokit/ktx2</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_las.html">@xeokit/las</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_locale.html">@xeokit/locale</a></li>
@@ -124,8 +133,8 @@
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/_xeokit_math_curves.b3p2.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>b3p2</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/_xeokit_math_curves.b3p3.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>b3p3</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/_xeokit_math_curves.catmullRomInterpolate.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>catmull<wbr/>Rom<wbr/>Interpolate</a></li>
-<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/_xeokit_math_curves.tangentQuadraticBezier.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>tangent<wbr/>Quadratic<wbr/>Bezier</a></li>
-<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/_xeokit_math_curves.tangentQuadraticBezier3.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>tangent<wbr/>Quadratic<wbr/>Bezier3</a></li>
+<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/_xeokit_math_curves.tangentQuadraticB_zier.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>tangent<wbr/>Quadratic<wbr/>Bézier</a></li>
+<li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/_xeokit_math_curves.tangentQuadraticB_zier3.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>tangent<wbr/>Quadratic<wbr/>Bézier3</a></li>
 <li class="tsd-kind-function tsd-parent-kind-module"><a href="../functions/_xeokit_math_curves.tangentSpline.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>tangent<wbr/>Spline</a></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>

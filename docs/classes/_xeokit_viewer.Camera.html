@@ -28,7 +28,7 @@
 <li>Controls camera viewing and projection transforms</li>
 <li>Provides methods to pan, zoom and orbit</li>
 <li>Dynamically configurable World-space axis</li>
-<li>Has <a href="_xeokit_viewer.Perspective.html">Perspective</a>, <a href="_xeokit_viewer.Ortho.html">Ortho</a> and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewer.CustomProjection.html">CustomProjection</a>, which you can dynamically switch between</li>
+<li>Has <a href="_xeokit_viewer.PerspectiveProjection.html">PerspectiveProjection</a>, <a href="_xeokit_viewer.OrthoProjection.html">OrthoProjection</a> and <a href="_xeokit_viewer.FrustumProjection.html">FrustumProjection</a> and <a href="_xeokit_viewer.CustomProjection.html">CustomProjection</a>, which you can dynamically switch between</li>
 <li>Switchable gimbal lock</li>
 <li>Can be flown to look at targets using the View&#39;s <a href="_xeokit_viewer.CameraFlightAnimation.html">CameraFlightAnimation</a></li>
 <li>Can be animated along a path using a CameraPathAnimation</li>
@@ -38,7 +38,7 @@
   <h2>Getting a View&#39;s Camera</h2>
 </a>
 <p>Let&#39;s create a <a href="_xeokit_viewer.Viewer.html">Viewer</a> with a single <a href="_xeokit_viewer.View.html">View</a>, from which we&#39;ll get a Camera:</p>
-<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;xeokit-viewer.es.js&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">viewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">();</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">view</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">View</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">, {</span><br/><span class="hl-0">     </span><span class="hl-3">canvasId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myCanvas1&quot;</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">camera</span><span class="hl-0"> = </span><span class="hl-3">view</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">;</span>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">viewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">();</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">view</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">View</span><span class="hl-0">(</span><span class="hl-3">viewer</span><span class="hl-0">, {</span><br/><span class="hl-0">     </span><span class="hl-3">canvasId:</span><span class="hl-0"> </span><span class="hl-1">&quot;myCanvas1&quot;</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">camera</span><span class="hl-0"> = </span><span class="hl-3">view</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">;</span>
 </code></pre>
 
 <a href="#setting-the-camera-position" id="setting-the-camera-position" style="color: inherit; text-decoration: none;">
@@ -52,12 +52,9 @@
   <h2>Camera View and Projection Matrices</h2>
 </a>
 <p>The Camera&#39;s <em>view matrix</em> transforms coordinates from World-space to View-space:</p>
-<pre><code class="language-javascript"><span class="hl-4">var</span><span class="hl-0"> </span><span class="hl-3">viewMatrix</span><span class="hl-0"> = </span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">viewMatrix</span><span class="hl-0">;</span><br/><span class="hl-4">var</span><span class="hl-0"> </span><span class="hl-3">viewNormalMatrix</span><span class="hl-0"> = </span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">normalMatrix</span><span class="hl-0">;</span>
+<pre><code class="language-javascript"><span class="hl-4">var</span><span class="hl-0"> </span><span class="hl-3">viewMatrix</span><span class="hl-0"> = </span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">viewMatrix</span><span class="hl-0">;</span>
 </code></pre>
-<p>The Camera&#39;s <em>view normal matrix</em> transforms normal vectors from World-space to View-space:</p>
-<pre><code class="language-javascript"><span class="hl-4">var</span><span class="hl-0"> </span><span class="hl-3">viewNormalMatrix</span><span class="hl-0"> = </span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">normalMatrix</span><span class="hl-0">;</span>
-</code></pre>
-<p><a href="_xeokit_viewer.Camera.html#onViewMatrix">onViewMatrix</a> fires whenever <a href="_xeokit_viewer.Camera.html#viewMatrix">viewMatrix</a> and <a href="_xeokit_viewer.Camera.html#viewNormalMatrix">viewNormalMatrix</a> update:</p>
+<p><a href="_xeokit_viewer.Camera.html#onViewMatrix">onViewMatrix</a> fires whenever <a href="_xeokit_viewer.Camera.html#viewMatrix">viewMatrix</a> updates:</p>
 <pre><code class="language-javascript"><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">onViewMatrix</span><span class="hl-0">.</span><span class="hl-6">subscribe</span><span class="hl-0">((</span><span class="hl-3">camera</span><span class="hl-0">, </span><span class="hl-3">matrix</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> { ... });</span>
 </code></pre>
 
@@ -91,11 +88,11 @@
 <a href="#projection" id="projection" style="color: inherit; text-decoration: none;">
   <h2>Projection</h2>
 </a>
-<p>The Camera has a Component to manage each projection type, which are: <a href="_xeokit_viewer.Perspective.html">Perspective</a>, <a href="_xeokit_viewer.Ortho.html">Ortho</a>
-and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewer.CustomProjection.html">CustomProjection</a>.</p>
+<p>The Camera has a Component to manage each projection type, which are: <a href="_xeokit_viewer.PerspectiveProjection.html">PerspectiveProjection</a>, <a href="_xeokit_viewer.OrthoProjection.html">OrthoProjection</a>
+and <a href="_xeokit_viewer.FrustumProjection.html">FrustumProjection</a> and <a href="_xeokit_viewer.CustomProjection.html">CustomProjection</a>.</p>
 <p>You can configure those components at any time, regardless of which is currently active:</p>
-<p>The Camera has a <a href="_xeokit_viewer.Perspective.html">Perspective</a> to manage perspective</p>
-<pre><code class="language-javascript"><br/><span class="hl-8">// Set some properties on Perspective</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">perspective</span><span class="hl-0">.</span><span class="hl-3">near</span><span class="hl-0"> = </span><span class="hl-7">0.4</span><span class="hl-0">;</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">perspective</span><span class="hl-0">.</span><span class="hl-3">fov</span><span class="hl-0"> = </span><span class="hl-7">45</span><span class="hl-0">;</span><br/><br/><span class="hl-8">// Set some properties on Ortho</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">ortho</span><span class="hl-0">.</span><span class="hl-3">near</span><span class="hl-0"> = </span><span class="hl-7">0.8</span><span class="hl-0">;</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">ortho</span><span class="hl-0">.</span><span class="hl-3">far</span><span class="hl-0"> = </span><span class="hl-7">1000</span><span class="hl-0">;</span><br/><br/><span class="hl-8">// Set some properties on Frustum</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">frustum</span><span class="hl-0">.</span><span class="hl-3">left</span><span class="hl-0"> = -</span><span class="hl-7">1.0</span><span class="hl-0">;</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">frustum</span><span class="hl-0">.</span><span class="hl-3">right</span><span class="hl-0"> = </span><span class="hl-7">1.0</span><span class="hl-0">;</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">frustum</span><span class="hl-0">.</span><span class="hl-3">far</span><span class="hl-0"> = </span><span class="hl-7">1000.0</span><span class="hl-0">;</span><br/><br/><span class="hl-8">// Set the matrix property on CustomProjection</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">customProjection</span><span class="hl-0">.</span><span class="hl-3">projMatrix</span><span class="hl-0"> = [</span><span class="hl-7">1</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">1</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">1</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">1</span><span class="hl-0">];</span><br/><br/><span class="hl-8">// Switch between the projection types</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">projection</span><span class="hl-0"> = </span><span class="hl-3">PerspectiveProjectionType</span><span class="hl-0">; </span><span class="hl-8">// Switch to perspective</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">projection</span><span class="hl-0"> = </span><span class="hl-1">&quot;frustum&quot;</span><span class="hl-0">; </span><span class="hl-8">// Switch to frustum</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">projection</span><span class="hl-0"> = </span><span class="hl-3">OrthoProjectionType</span><span class="hl-0">; </span><span class="hl-8">// Switch to ortho</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">projection</span><span class="hl-0"> = </span><span class="hl-1">&quot;customProjection&quot;</span><span class="hl-0">; </span><span class="hl-8">// Switch to custom</span>
+<p>The Camera has a <a href="_xeokit_viewer.PerspectiveProjection.html">PerspectiveProjection</a> to manage perspective</p>
+<pre><code class="language-javascript"><br/><span class="hl-8">// Set some properties on PerspectiveProjection</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">perspectiveProjection</span><span class="hl-0">.</span><span class="hl-3">near</span><span class="hl-0"> = </span><span class="hl-7">0.4</span><span class="hl-0">;</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">perspectiveProjection</span><span class="hl-0">.</span><span class="hl-3">fov</span><span class="hl-0"> = </span><span class="hl-7">45</span><span class="hl-0">;</span><br/><br/><span class="hl-8">// Set some properties on OrthoProjection</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">orthoProjection</span><span class="hl-0">.</span><span class="hl-3">near</span><span class="hl-0"> = </span><span class="hl-7">0.8</span><span class="hl-0">;</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">orthoProjection</span><span class="hl-0">.</span><span class="hl-3">far</span><span class="hl-0"> = </span><span class="hl-7">1000</span><span class="hl-0">;</span><br/><br/><span class="hl-8">// Set some properties on FrustumProjection</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">frustumProjection</span><span class="hl-0">.</span><span class="hl-3">left</span><span class="hl-0"> = -</span><span class="hl-7">1.0</span><span class="hl-0">;</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">frustumProjection</span><span class="hl-0">.</span><span class="hl-3">right</span><span class="hl-0"> = </span><span class="hl-7">1.0</span><span class="hl-0">;</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">frustumProjection</span><span class="hl-0">.</span><span class="hl-3">far</span><span class="hl-0"> = </span><span class="hl-7">1000.0</span><span class="hl-0">;</span><br/><br/><span class="hl-8">// Set the matrix property on CustomProjection</span><br/><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">customProjection</span><span class="hl-0">.</span><span class="hl-3">projMatrix</span><span class="hl-0"> = [</span><span class="hl-7">1</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">1</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">1</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">0</span><span class="hl-0">, </span><span class="hl-7">1</span><span class="hl-0">];</span><br/><br/><span class="hl-8">// Switch between the projection types</span><br/><span class="hl-3">Camera</span><span class="hl-0">.</span><span class="hl-3">projectionType</span><span class="hl-0"> = </span><span class="hl-3">PerspectiveProjectionType</span><span class="hl-0">; </span><span class="hl-8">// Switch to perspective</span><br/><span class="hl-3">Camera</span><span class="hl-0">.</span><span class="hl-3">projectionType</span><span class="hl-0"> = </span><span class="hl-3">FrustumProjectiontype</span><span class="hl-0">; </span><span class="hl-8">// Switch to frustum</span><br/><span class="hl-3">Camera</span><span class="hl-0">.</span><span class="hl-3">projectionType</span><span class="hl-0"> = </span><span class="hl-3">OrthoProjectionType</span><span class="hl-0">; </span><span class="hl-8">// Switch to ortho</span><br/><span class="hl-3">Camera</span><span class="hl-0">.</span><span class="hl-3">projectionType</span><span class="hl-0"> = </span><span class="hl-3">CustomProjectionType</span><span class="hl-0">; </span><span class="hl-8">// Switch to custom</span>
 </code></pre>
 <p>Camera provides the projection matrix for the currently active projection in <a href="_xeokit_viewer.Camera.html#projMatrix">projMatrix</a>.</p>
 <p>Get the projection matrix:</p>
@@ -134,7 +131,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <ul class="tsd-hierarchy">
 <li><span class="target">Camera</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L235">packages/viewer/src/Camera.ts:235</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L232">packages/viewer/src/Camera.ts:232</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -146,20 +143,21 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
-<div class="tsd-index-list"><a href="_xeokit_viewer.Camera.html#customProjection" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-1024-path"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)" id="icon-1024-text"></path></svg><span>custom<wbr/>Projection</span></a>
+<div class="tsd-index-list"><a href="_xeokit_viewer.Camera.html#_frustum" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-1024-path"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)" id="icon-1024-text"></path></svg><span>#frustum</span></a>
+<a href="_xeokit_viewer.Camera.html#customProjection" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>custom<wbr/>Projection</span></a>
 <a href="_xeokit_viewer.Camera.html#destroyed" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>destroyed</span></a>
-<a href="_xeokit_viewer.Camera.html#frustum" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>frustum</span></a>
+<a href="_xeokit_viewer.Camera.html#frustumProjection" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>frustum<wbr/>Projection</span></a>
 <a href="_xeokit_viewer.Camera.html#id" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>id</span></a>
-<a href="_xeokit_viewer.Camera.html#ortho" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>ortho</span></a>
-<a href="_xeokit_viewer.Camera.html#perspective" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>perspective</span></a>
-<a href="_xeokit_viewer.Camera.html#rtcViewMats" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>rtc<wbr/>View<wbr/>Mats</span></a>
+<a href="_xeokit_viewer.Camera.html#orthoProjection" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>ortho<wbr/>Projection</span></a>
+<a href="_xeokit_viewer.Camera.html#perspectiveProjection" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>perspective<wbr/>Projection</span></a>
 <a href="_xeokit_viewer.Camera.html#view" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>view</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Events</h3>
 <div class="tsd-index-list"><a href="_xeokit_viewer.Camera.html#onDestroyed" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Destroyed</span></a>
+<a href="_xeokit_viewer.Camera.html#onFrustum" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Frustum</span></a>
 <a href="_xeokit_viewer.Camera.html#onProjMatrix" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Proj<wbr/>Matrix</span></a>
-<a href="_xeokit_viewer.Camera.html#onProjType" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Proj<wbr/>Type</span></a>
+<a href="_xeokit_viewer.Camera.html#onProjectionType" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>Projection<wbr/>Type</span></a>
 <a href="_xeokit_viewer.Camera.html#onViewMatrix" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>View<wbr/>Matrix</span></a>
 <a href="_xeokit_viewer.Camera.html#onWorldAxis" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>on<wbr/>World<wbr/>Axis</span></a>
 </div></section>
@@ -169,15 +167,15 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <a href="_xeokit_viewer.Camera.html#deviceMatrix" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>device<wbr/>Matrix</span></a>
 <a href="_xeokit_viewer.Camera.html#eye" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>eye</span></a>
 <a href="_xeokit_viewer.Camera.html#eyeLookDist" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>eye<wbr/>Look<wbr/>Dist</span></a>
+<a href="_xeokit_viewer.Camera.html#frustum" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>frustum</span></a>
 <a href="_xeokit_viewer.Camera.html#gimbalLock" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>gimbal<wbr/>Lock</span></a>
 <a href="_xeokit_viewer.Camera.html#inverseViewMatrix" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>inverse<wbr/>View<wbr/>Matrix</span></a>
 <a href="_xeokit_viewer.Camera.html#look" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>look</span></a>
 <a href="_xeokit_viewer.Camera.html#projMatrix" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>proj<wbr/>Matrix</span></a>
 <a href="_xeokit_viewer.Camera.html#project" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>project</span></a>
-<a href="_xeokit_viewer.Camera.html#projection" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>projection</span></a>
+<a href="_xeokit_viewer.Camera.html#projectionType" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>projection<wbr/>Type</span></a>
 <a href="_xeokit_viewer.Camera.html#up" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>up</span></a>
 <a href="_xeokit_viewer.Camera.html#viewMatrix" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>view<wbr/>Matrix</span></a>
-<a href="_xeokit_viewer.Camera.html#viewNormalMatrix" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>view<wbr/>Normal<wbr/>Matrix</span></a>
 <a href="_xeokit_viewer.Camera.html#worldAxis" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>world<wbr/>Axis</span></a>
 <a href="_xeokit_viewer.Camera.html#worldForward" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>world<wbr/>Forward</span></a>
 <a href="_xeokit_viewer.Camera.html#worldRight" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>world<wbr/>Right</span></a>
@@ -191,13 +189,11 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <div class="tsd-index-list"><a href="_xeokit_viewer.Camera.html#cleanIfDirty" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>clean<wbr/>If<wbr/>Dirty</span></a>
 <a href="_xeokit_viewer.Camera.html#destroy" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>destroy</span></a>
 <a href="_xeokit_viewer.Camera.html#error" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>error</span></a>
-<a href="_xeokit_viewer.Camera.html#getRTCViewMat" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>getRTCView<wbr/>Mat</span></a>
 <a href="_xeokit_viewer.Camera.html#log" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>log</span></a>
 <a href="_xeokit_viewer.Camera.html#orbitPitch" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>orbit<wbr/>Pitch</span></a>
 <a href="_xeokit_viewer.Camera.html#orbitYaw" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>orbit<wbr/>Yaw</span></a>
 <a href="_xeokit_viewer.Camera.html#pan" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>pan</span></a>
 <a href="_xeokit_viewer.Camera.html#pitch" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>pitch</span></a>
-<a href="_xeokit_viewer.Camera.html#putRTCViewMat" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>putRTCView<wbr/>Mat</span></a>
 <a href="_xeokit_viewer.Camera.html#setDirty" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>set<wbr/>Dirty</span></a>
 <a href="_xeokit_viewer.Camera.html#warn" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>warn</span></a>
 <a href="_xeokit_viewer.Camera.html#yaw" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>yaw</span></a>
@@ -237,17 +233,24 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h4 class="tsd-returns-title">Returns <a href="_xeokit_viewer.Camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a></h4><aside class="tsd-sources">
 <p>Overrides <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#constructor">constructor</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L348">packages/viewer/src/Camera.ts:348</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L353">packages/viewer/src/Camera.ts:353</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_frustum" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>#frustum</span><a href="#_frustum" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">#frustum<span class="tsd-signature-symbol">:</span> <a href="_xeokit_math_boundaries.Frustum3.html" class="tsd-signature-type" data-tsd-kind="Class">Frustum3</a></div>
+<div class="tsd-comment tsd-typography"><p>The viewing frustum.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L347">packages/viewer/src/Camera.ts:347</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="customProjection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>custom<wbr/>Projection</span><a href="#customProjection" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">custom<wbr/>Projection<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.CustomProjection.html" class="tsd-signature-type" data-tsd-kind="Class">CustomProjection</a></div>
 <div class="tsd-comment tsd-typography"><p>The custom projection.</p>
-<p>The Camera uses this while <a href="_xeokit_viewer.Camera.html#projection">projection</a> equals CustomProjectionType.</p>
+<p>The Camera uses this while <a href="_xeokit_viewer.Camera.html#projectionType">projectionType</a> equals CustomProjectionType.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L290">packages/viewer/src/Camera.ts:290</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L269">packages/viewer/src/Camera.ts:269</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a id="destroyed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>destroyed</span><a href="#destroyed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">destroyed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -256,15 +259,15 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#destroyed">destroyed</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/core/src/Component.ts#L26">packages/core/src/Component.ts:26</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="frustum" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>frustum</span><a href="#frustum" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">frustum<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.Frustum.html" class="tsd-signature-type" data-tsd-kind="Class">Frustum</a></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/core/src/Component.ts#L26">packages/core/src/Component.ts:26</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="frustumProjection" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>frustum<wbr/>Projection</span><a href="#frustumProjection" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">frustum<wbr/>Projection<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.FrustumProjection.html" class="tsd-signature-type" data-tsd-kind="Class">FrustumProjection</a></div>
 <div class="tsd-comment tsd-typography"><p>The frustum projection.</p>
-<p>The Camera uses this while <a href="_xeokit_viewer.Camera.html#projection">projection</a> equals FrustumProjectionType.</p>
+<p>The Camera uses this while <a href="_xeokit_viewer.Camera.html#projectionType">projectionType</a> equals FrustumProjectionType.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L283">packages/viewer/src/Camera.ts:283</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L262">packages/viewer/src/Camera.ts:262</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a id="id" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -272,36 +275,23 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#id">id</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/core/src/Component.ts#L19">packages/core/src/Component.ts:19</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="ortho" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>ortho</span><a href="#ortho" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">ortho<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.Ortho.html" class="tsd-signature-type" data-tsd-kind="Class">Ortho</a></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/core/src/Component.ts#L19">packages/core/src/Component.ts:19</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="orthoProjection" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>ortho<wbr/>Projection</span><a href="#orthoProjection" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">ortho<wbr/>Projection<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.OrthoProjection.html" class="tsd-signature-type" data-tsd-kind="Class">OrthoProjection</a></div>
 <div class="tsd-comment tsd-typography"><p>The orthographic projection.</p>
-<p>The Camera uses this while <a href="_xeokit_viewer.Camera.html#projection">projection</a> equals OrthoProjectionType.</p>
+<p>The Camera uses this while <a href="_xeokit_viewer.Camera.html#projectionType">projectionType</a> equals OrthoProjectionType.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L276">packages/viewer/src/Camera.ts:276</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="perspective" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>perspective</span><a href="#perspective" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">perspective<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.Perspective.html" class="tsd-signature-type" data-tsd-kind="Class">Perspective</a></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L255">packages/viewer/src/Camera.ts:255</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="perspectiveProjection" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>perspective<wbr/>Projection</span><a href="#perspectiveProjection" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">perspective<wbr/>Projection<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.PerspectiveProjection.html" class="tsd-signature-type" data-tsd-kind="Class">PerspectiveProjection</a></div>
 <div class="tsd-comment tsd-typography"><p>The perspective projection.</p>
-<p>The Camera uses this while <a href="_xeokit_viewer.Camera.html#projection">projection</a> equals PerspectiveProjectionType.</p>
+<p>The Camera uses this while <a href="_xeokit_viewer.Camera.html#projectionType">projectionType</a> equals PerspectiveProjectionType.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L269">packages/viewer/src/Camera.ts:269</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="rtcViewMats" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>rtc<wbr/>View<wbr/>Mats</span><a href="#rtcViewMats" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">rtc<wbr/>View<wbr/>Mats<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.RTCViewMat.html" class="tsd-signature-type" data-tsd-kind="Class">RTCViewMat</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
-<div class="tsd-comment tsd-typography"><p>View matrices for relative-to-center (RTC) coordinate system origins.</p>
-<p>Created and destroyed with <a href="_xeokit_viewer.Camera.html#getRTCViewMat">getRTCViewMat</a> and <a href="_xeokit_viewer.Camera.html#putRTCViewMat">putRTCViewMat</a>.</p>
-</div>
-<div class="tsd-type-declaration">
-<h4>Type declaration</h4>
-<ul class="tsd-parameters">
-<li class="tsd-parameter-index-signature">
-<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.RTCViewMat.html" class="tsd-signature-type" data-tsd-kind="Class">RTCViewMat</a></h5></li></ul></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L299">packages/viewer/src/Camera.ts:299</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L248">packages/viewer/src/Camera.ts:248</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="view" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>view</span><a href="#view" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">view<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a></div>
@@ -310,7 +300,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h3>Property</h3>
 <h3>Final</h3></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L244">packages/viewer/src/Camera.ts:244</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L241">packages/viewer/src/Camera.ts:241</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Events</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a id="onDestroyed" class="tsd-anchor"></a>
@@ -320,7 +310,16 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#onDestroyed">onDestroyed</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/core/src/Component.ts#L39">packages/core/src/Component.ts:39</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/core/src/Component.ts#L39">packages/core/src/Component.ts:39</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onFrustum" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Frustum</span><a href="#onFrustum" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">on<wbr/>Frustum<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.Camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a><span class="tsd-signature-symbol">, </span><a href="_xeokit_math_boundaries.Frustum3.html" class="tsd-signature-type" data-tsd-kind="Class">Frustum3</a><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Emits an event each time <a href="_xeokit_viewer.Camera.html#frustum">frustum</a> updates.</p>
+<pre><code class="language-javascript"><span class="hl-3">myView</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">onFrustum</span><span class="hl-0">.</span><span class="hl-6">subscribe</span><span class="hl-0">((</span><span class="hl-3">camera</span><span class="hl-0">, </span><span class="hl-3">frustum</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> { ... });</span>
+</code></pre>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L324">packages/viewer/src/Camera.ts:324</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onProjMatrix" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Proj<wbr/>Matrix</span><a href="#onProjMatrix" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>Proj<wbr/>Matrix<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.Camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a><span class="tsd-signature-symbol">, </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">&gt;</span></div>
@@ -329,16 +328,16 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </code></pre>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L332">packages/viewer/src/Camera.ts:332</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onProjType" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Proj<wbr/>Type</span><a href="#onProjType" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">on<wbr/>Proj<wbr/>Type<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.Camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
-<div class="tsd-comment tsd-typography"><p>Emits an event each time <a href="_xeokit_viewer.Camera.html#projection">projection</a> updates.</p>
-<pre><code class="language-javascript"><span class="hl-3">myView</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">onProjType</span><span class="hl-0">.</span><span class="hl-6">subscribe</span><span class="hl-0">((</span><span class="hl-3">camera</span><span class="hl-0">, </span><span class="hl-3">projType</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> { ... });</span>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L302">packages/viewer/src/Camera.ts:302</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onProjectionType" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>Projection<wbr/>Type</span><a href="#onProjectionType" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">on<wbr/>Projection<wbr/>Type<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.Camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Emits an event each time <a href="_xeokit_viewer.Camera.html#projectionType">projectionType</a> updates.</p>
+<pre><code class="language-javascript"><span class="hl-3">myView</span><span class="hl-0">.</span><span class="hl-3">camera</span><span class="hl-0">.</span><span class="hl-3">onProjectionType</span><span class="hl-0">.</span><span class="hl-6">subscribe</span><span class="hl-0">((</span><span class="hl-3">camera</span><span class="hl-0">, </span><span class="hl-3">projType</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> { ... });</span>
 </code></pre>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L310">packages/viewer/src/Camera.ts:310</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L280">packages/viewer/src/Camera.ts:280</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onViewMatrix" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>View<wbr/>Matrix</span><a href="#onViewMatrix" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>View<wbr/>Matrix<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.Camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a><span class="tsd-signature-symbol">, </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">&gt;</span></div>
@@ -347,7 +346,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </code></pre>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L321">packages/viewer/src/Camera.ts:321</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L291">packages/viewer/src/Camera.ts:291</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="onWorldAxis" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>on<wbr/>World<wbr/>Axis</span><a href="#onWorldAxis" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">on<wbr/>World<wbr/>Axis<span class="tsd-signature-symbol">:</span> <a href="_xeokit_core_components.EventEmitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="_xeokit_viewer.Camera.html" class="tsd-signature-type" data-tsd-kind="Class">Camera</a><span class="tsd-signature-symbol">, </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">&gt;</span></div>
@@ -356,7 +355,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </code></pre>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L343">packages/viewer/src/Camera.ts:343</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L313">packages/viewer/src/Camera.ts:313</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Accessors</h2>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="constrainPitch" class="tsd-anchor"></a>
@@ -372,7 +371,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L549">packages/viewer/src/Camera.ts:549</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L553">packages/viewer/src/Camera.ts:553</a></li></ul></aside></li>
 <li class="tsd-signature" id="constrainPitch.constrainPitch-2"><span class="tsd-signature-symbol">set</span> constrainPitch<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets whether to prevent camera from being pitched upside down.</p>
@@ -388,7 +387,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L562">packages/viewer/src/Camera.ts:562</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L566">packages/viewer/src/Camera.ts:566</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="deviceMatrix" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>device<wbr/>Matrix</span><a href="#deviceMatrix" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -400,7 +399,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L627">packages/viewer/src/Camera.ts:627</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L631">packages/viewer/src/Camera.ts:631</a></li></ul></aside></li>
 <li class="tsd-signature" id="deviceMatrix.deviceMatrix-2"><span class="tsd-signature-symbol">set</span> deviceMatrix<span class="tsd-signature-symbol">(</span>matrix<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets an optional matrix to premultiply into <a href="_xeokit_viewer.Camera.html#projMatrix">projMatrix</a> matrix.</p>
@@ -415,7 +414,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L639">packages/viewer/src/Camera.ts:639</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L643">packages/viewer/src/Camera.ts:643</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="eye" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>eye</span><a href="#eye" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -426,7 +425,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L439">packages/viewer/src/Camera.ts:439</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L443">packages/viewer/src/Camera.ts:443</a></li></ul></aside></li>
 <li class="tsd-signature" id="eye.eye-2"><span class="tsd-signature-symbol">set</span> eye<span class="tsd-signature-symbol">(</span>eye<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the position of the Camera&#39;s eye.</p>
@@ -441,7 +440,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h5>eye: <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L451">packages/viewer/src/Camera.ts:451</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L455">packages/viewer/src/Camera.ts:455</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="eyeLookDist" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>eye<wbr/>Look<wbr/>Dist</span><a href="#eyeLookDist" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -453,7 +452,19 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L675">packages/viewer/src/Camera.ts:675</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L679">packages/viewer/src/Camera.ts:679</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="frustum" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>frustum</span><a href="#frustum" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+<li class="tsd-signature" id="frustum.frustum-1"><span class="tsd-signature-symbol">get</span> frustum<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_math_boundaries.Frustum3.html" class="tsd-signature-type" data-tsd-kind="Class">Frustum3</a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets the Camera&#39;s 3D World-space viewing frustum.</p>
+
+<h3>Returns</h3><p>The frustum.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <a href="_xeokit_math_boundaries.Frustum3.html" class="tsd-signature-type" data-tsd-kind="Class">Frustum3</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L722">packages/viewer/src/Camera.ts:722</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="gimbalLock" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>gimbal<wbr/>Lock</span><a href="#gimbalLock" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -465,7 +476,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L571">packages/viewer/src/Camera.ts:571</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L575">packages/viewer/src/Camera.ts:575</a></li></ul></aside></li>
 <li class="tsd-signature" id="gimbalLock.gimbalLock-2"><span class="tsd-signature-symbol">set</span> gimbalLock<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets whether to lock yaw rotation to pivot about the World-space &quot;up&quot; axis.</p>
@@ -479,20 +490,19 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h5>value: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L580">packages/viewer/src/Camera.ts:580</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L584">packages/viewer/src/Camera.ts:584</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="inverseViewMatrix" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>inverse<wbr/>View<wbr/>Matrix</span><a href="#inverseViewMatrix" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
 <li class="tsd-signature" id="inverseViewMatrix.inverseViewMatrix-1"><span class="tsd-signature-symbol">get</span> inverseViewMatrix<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets the inverse of the Camera&#39;s viewing transform matrix.</p>
-<p>This has the same value as <a href="_xeokit_viewer.Camera.html#viewNormalMatrix">viewNormalMatrix</a>.</p>
 
 <h3>Returns</h3><p>The inverse viewing transform matrix.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L710">packages/viewer/src/Camera.ts:710</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L700">packages/viewer/src/Camera.ts:700</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="look" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>look</span><a href="#look" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -505,7 +515,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L464">packages/viewer/src/Camera.ts:464</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L468">packages/viewer/src/Camera.ts:468</a></li></ul></aside></li>
 <li class="tsd-signature" id="look.look-2"><span class="tsd-signature-symbol">set</span> look<span class="tsd-signature-symbol">(</span>look<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the position of this Camera&#39;s point-of-interest.</p>
@@ -520,7 +530,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L475">packages/viewer/src/Camera.ts:475</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L479">packages/viewer/src/Camera.ts:479</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="projMatrix" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>proj<wbr/>Matrix</span><a href="#projMatrix" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -532,24 +542,24 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L722">packages/viewer/src/Camera.ts:722</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L712">packages/viewer/src/Camera.ts:712</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="project" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>project</span><a href="#project" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-<li class="tsd-signature" id="project.project-1"><span class="tsd-signature-symbol">get</span> project<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.Perspective.html" class="tsd-signature-type" data-tsd-kind="Class">Perspective</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.Ortho.html" class="tsd-signature-type" data-tsd-kind="Class">Ortho</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.Frustum.html" class="tsd-signature-type" data-tsd-kind="Class">Frustum</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.CustomProjection.html" class="tsd-signature-type" data-tsd-kind="Class">CustomProjection</a></li>
+<li class="tsd-signature" id="project.project-1"><span class="tsd-signature-symbol">get</span> project<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.PerspectiveProjection.html" class="tsd-signature-type" data-tsd-kind="Class">PerspectiveProjection</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.OrthoProjection.html" class="tsd-signature-type" data-tsd-kind="Class">OrthoProjection</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.FrustumProjection.html" class="tsd-signature-type" data-tsd-kind="Class">FrustumProjection</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.CustomProjection.html" class="tsd-signature-type" data-tsd-kind="Class">CustomProjection</a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets the currently active projection for this Camera.</p>
-<p>The currently active project is selected with <a href="_xeokit_viewer.Camera.html#projection">projection</a>.</p>
+<p>The currently active project is selected with <a href="_xeokit_viewer.Camera.html#projectionType">projectionType</a>.</p>
 
 <h3>Returns</h3><p>The currently active projection is active.</p>
 </div>
-<h4 class="tsd-returns-title">Returns <a href="_xeokit_viewer.Perspective.html" class="tsd-signature-type" data-tsd-kind="Class">Perspective</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.Ortho.html" class="tsd-signature-type" data-tsd-kind="Class">Ortho</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.Frustum.html" class="tsd-signature-type" data-tsd-kind="Class">Frustum</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.CustomProjection.html" class="tsd-signature-type" data-tsd-kind="Class">CustomProjection</a></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="_xeokit_viewer.PerspectiveProjection.html" class="tsd-signature-type" data-tsd-kind="Class">PerspectiveProjection</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.OrthoProjection.html" class="tsd-signature-type" data-tsd-kind="Class">OrthoProjection</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.FrustumProjection.html" class="tsd-signature-type" data-tsd-kind="Class">FrustumProjection</a><span class="tsd-signature-symbol"> | </span><a href="_xeokit_viewer.CustomProjection.html" class="tsd-signature-type" data-tsd-kind="Class">CustomProjection</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L428">packages/viewer/src/Camera.ts:428</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="projection" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>projection</span><a href="#projection" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L432">packages/viewer/src/Camera.ts:432</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="projectionType" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>projection<wbr/>Type</span><a href="#projectionType" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-<li class="tsd-signature" id="projection.projection-1"><span class="tsd-signature-symbol">get</span> projection<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+<li class="tsd-signature" id="projectionType.projectionType-1"><span class="tsd-signature-symbol">get</span> projectionType<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets the active projection type.</p>
 <p>Possible values are <code>PerspectiveProjectionType</code>, <code>OrthoProjectionType</code>, <code>&quot;frustum&quot;</code> and <code>&quot;customProjection&quot;</code>.</p>
@@ -559,8 +569,8 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L736">packages/viewer/src/Camera.ts:736</a></li></ul></aside></li>
-<li class="tsd-signature" id="projection.projection-2"><span class="tsd-signature-symbol">set</span> projection<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L738">packages/viewer/src/Camera.ts:738</a></li></ul></aside></li>
+<li class="tsd-signature" id="projectionType.projectionType-2"><span class="tsd-signature-symbol">set</span> projectionType<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the active projection type.</p>
 <p>Accepted values are <code>PerspectiveProjectionType</code>, <code>OrthoProjectionType</code>, <code>&quot;frustum&quot;</code> and <code>&quot;customProjection&quot;</code>.</p>
@@ -575,7 +585,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L749">packages/viewer/src/Camera.ts:749</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L751">packages/viewer/src/Camera.ts:751</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="up" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>up</span><a href="#up" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -587,7 +597,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L486">packages/viewer/src/Camera.ts:486</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L490">packages/viewer/src/Camera.ts:490</a></li></ul></aside></li>
 <li class="tsd-signature" id="up.up-2"><span class="tsd-signature-symbol">set</span> up<span class="tsd-signature-symbol">(</span>up<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the direction of this Camera&#39;s <a href="_xeokit_viewer.Camera.html#up">up</a> vector.</p>
@@ -601,7 +611,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L495">packages/viewer/src/Camera.ts:495</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L499">packages/viewer/src/Camera.ts:499</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="viewMatrix" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>view<wbr/>Matrix</span><a href="#viewMatrix" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -613,19 +623,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L684">packages/viewer/src/Camera.ts:684</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="viewNormalMatrix" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>view<wbr/>Normal<wbr/>Matrix</span><a href="#viewNormalMatrix" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
-<li class="tsd-signature" id="viewNormalMatrix.viewNormalMatrix-1"><span class="tsd-signature-symbol">get</span> viewNormalMatrix<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></li>
-<li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>The Camera&#39;s viewing normal transformation matrix.</p>
-
-<h3>Returns</h3><p>The viewing normal transform matrix.</p>
-</div>
-<h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L696">packages/viewer/src/Camera.ts:696</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L688">packages/viewer/src/Camera.ts:688</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="worldAxis" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>world<wbr/>Axis</span><a href="#worldAxis" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -639,7 +637,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L593">packages/viewer/src/Camera.ts:593</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L597">packages/viewer/src/Camera.ts:597</a></li></ul></aside></li>
 <li class="tsd-signature" id="worldAxis.worldAxis-2"><span class="tsd-signature-symbol">set</span> worldAxis<span class="tsd-signature-symbol">(</span>axis<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the up, right and forward axis of the World coordinate system.</p>
@@ -655,7 +653,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L606">packages/viewer/src/Camera.ts:606</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L610">packages/viewer/src/Camera.ts:610</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="worldForward" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>world<wbr/>Forward</span><a href="#worldForward" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -669,7 +667,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L536">packages/viewer/src/Camera.ts:536</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L540">packages/viewer/src/Camera.ts:540</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="worldRight" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>world<wbr/>Right</span><a href="#worldRight" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -683,7 +681,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L523">packages/viewer/src/Camera.ts:523</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L527">packages/viewer/src/Camera.ts:527</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="worldUp" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>world<wbr/>Up</span><a href="#worldUp" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -697,7 +695,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L510">packages/viewer/src/Camera.ts:510</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L514">packages/viewer/src/Camera.ts:514</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="xUp" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>x<wbr/>Up</span><a href="#xUp" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -708,7 +706,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h3>Returns</h3></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L650">packages/viewer/src/Camera.ts:650</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L654">packages/viewer/src/Camera.ts:654</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="yUp" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>y<wbr/>Up</span><a href="#yUp" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -719,7 +717,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h3>Returns</h3></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L658">packages/viewer/src/Camera.ts:658</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L662">packages/viewer/src/Camera.ts:662</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="zUp" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>z<wbr/>Up</span><a href="#zUp" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -730,7 +728,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h3>Returns</h3></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L666">packages/viewer/src/Camera.ts:666</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L670">packages/viewer/src/Camera.ts:670</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="cleanIfDirty" class="tsd-anchor"></a>
@@ -743,7 +741,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#cleanIfDirty">cleanIfDirty</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/core/src/Component.ts#L108">packages/core/src/Component.ts:108</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/core/src/Component.ts#L108">packages/core/src/Component.ts:108</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="destroy" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>destroy</span><a href="#destroy" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -752,7 +750,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Overrides <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#destroy">destroy</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L965">packages/viewer/src/Camera.ts:965</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L927">packages/viewer/src/Camera.ts:927</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="error" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>error</span><a href="#error" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -771,30 +769,7 @@ and <a href="_xeokit_viewer.Frustum.html">Frustum</a> and <a href="_xeokit_viewe
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#error">error</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/core/src/Component.ts#L90">packages/core/src/Component.ts:90</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getRTCViewMat" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>getRTCView<wbr/>Mat</span><a href="#getRTCViewMat" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="getRTCViewMat.getRTCViewMat-1">getRTCView<wbr/>Mat<span class="tsd-signature-symbol">(</span>origin<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.RTCViewMat.html" class="tsd-signature-type" data-tsd-kind="Class">RTCViewMat</a><a href="#getRTCViewMat.getRTCViewMat-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Gets an RTC view matrix for the given relative-to-center (RTC) coordinate system origin.</p>
-<p>The RTCViewMat returned by this method will provide a dynamically-synchronized
-version of <a href="_xeokit_viewer.Camera.html#viewMatrix">viewMatrix</a> for the given RTC origin. Whenever <a href="_xeokit_viewer.Camera.html#viewMatrix">viewMatrix</a>
-updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will update also.</p>
-<p>Make sure to release it with <a href="_xeokit_viewer.Camera.html#putRTCViewMat">putRTCViewMat</a> or <a href="_xeokit_viewer.RTCViewMat.html#release">release</a> when you no longer need it.</p>
-
-<h3>Returns</h3><p>An RTC view matrix for the given RTC coordinate origin.</p>
-</div>
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5>origin: <a href="../types/_xeokit_math_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5>
-<div class="tsd-comment tsd-typography"><p>The RTC coordinate origin.</p>
-</div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="_xeokit_viewer.RTCViewMat.html" class="tsd-signature-type" data-tsd-kind="Class">RTCViewMat</a></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L939">packages/viewer/src/Camera.ts:939</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/core/src/Component.ts#L90">packages/core/src/Component.ts:90</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="log" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>log</span><a href="#log" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -813,7 +788,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#log">log</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/core/src/Component.ts#L64">packages/core/src/Component.ts:64</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/core/src/Component.ts#L64">packages/core/src/Component.ts:64</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="orbitPitch" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>orbit<wbr/>Pitch</span><a href="#orbitPitch" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -830,7 +805,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L823">packages/viewer/src/Camera.ts:823</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L825">packages/viewer/src/Camera.ts:825</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="orbitYaw" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>orbit<wbr/>Yaw</span><a href="#orbitYaw" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -847,7 +822,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L810">packages/viewer/src/Camera.ts:810</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L812">packages/viewer/src/Camera.ts:812</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="pan" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pan</span><a href="#pan" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -864,7 +839,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L878">packages/viewer/src/Camera.ts:878</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L880">packages/viewer/src/Camera.ts:880</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="pitch" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pitch</span><a href="#pitch" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -881,24 +856,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L858">packages/viewer/src/Camera.ts:858</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="putRTCViewMat" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>putRTCView<wbr/>Mat</span><a href="#putRTCViewMat" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="putRTCViewMat.putRTCViewMat-1">putRTCView<wbr/>Mat<span class="tsd-signature-symbol">(</span>rtcViewMat<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.RTCViewMat.html" class="tsd-signature-type" data-tsd-kind="Class">RTCViewMat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#putRTCViewMat.putRTCViewMat-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Releases an RTC view matrix.</p>
-</div>
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5>rtcViewMat: <a href="_xeokit_viewer.RTCViewMat.html" class="tsd-signature-type" data-tsd-kind="Class">RTCViewMat</a></h5>
-<div class="tsd-comment tsd-typography"><p>The RTC view matrix.</p>
-</div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L955">packages/viewer/src/Camera.ts:955</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L860">packages/viewer/src/Camera.ts:860</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="setDirty" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>set<wbr/>Dirty</span><a href="#setDirty" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -909,7 +867,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#setDirty">setDirty</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/core/src/Component.ts#L98">packages/core/src/Component.ts:98</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/core/src/Component.ts#L98">packages/core/src/Component.ts:98</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="warn" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>warn</span><a href="#warn" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited">
@@ -928,7 +886,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="_xeokit_core_components.Component.html">Component</a>.<a href="_xeokit_core_components.Component.html#warn">warn</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/core/src/Component.ts#L77">packages/core/src/Component.ts:77</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/core/src/Component.ts#L77">packages/core/src/Component.ts:77</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="yaw" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>yaw</span><a href="#yaw" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -945,7 +903,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L843">packages/viewer/src/Camera.ts:843</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L845">packages/viewer/src/Camera.ts:845</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="zoom" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>zoom</span><a href="#zoom" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -962,7 +920,7 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/64ce8dd9/packages/viewer/src/Camera.ts#L910">packages/viewer/src/Camera.ts:910</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/bfff6617/packages/viewer/src/Camera.ts#L912">packages/viewer/src/Camera.ts:912</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -994,6 +952,9 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 <ul>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="../modules/_xeokit_cameracontrol.keycodes.html">keycodes</a></li></ul></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_cityjson.html">@xeokit/cityjson</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_kdtree2d.html">@xeokit/collision/kdtree2d</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_kdtree3d.html">@xeokit/collision/kdtree3d</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_collision_pick.html">@xeokit/collision/pick</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_components.html">@xeokit/core/components</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_constants.html">@xeokit/core/constants</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_core_utils.html">@xeokit/core/utils</a></li>
@@ -1001,8 +962,8 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_basicTypes.html">@xeokit/datatypes/basic<wbr/>Types</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_cityJSONTypes_1_1_3.html">@xeokit/datatypes/cityJSONTypes_<wbr/>1_<wbr/>1_<wbr/>3</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_datatypes_ifcTypes.html">@xeokit/datatypes/ifc<wbr/>Types</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_dotbim.html">@xeokit/dotbim</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_gltf.html">@xeokit/gltf</a></li>
-<li class="tsd-kind-module"><a href="../modules/_xeokit_kdtree.html">@xeokit/kdtree</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_ktx2.html">@xeokit/ktx2</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_las.html">@xeokit/las</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_locale.html">@xeokit/locale</a></li>
@@ -1026,32 +987,33 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 <li class="current tsd-kind-class tsd-parent-kind-module"><a href="_xeokit_viewer.Camera.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-128-path"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)" id="icon-128-text"></path></svg><span>Camera</span></a>
 <ul>
 <li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-private"><a href="_xeokit_viewer.Camera.html#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-512-path"></use><use href="#icon-512-text"></use></svg>constructor</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_xeokit_viewer.Camera.html#_frustum" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>#frustum</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#customProjection" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>custom<wbr/>Projection</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="_xeokit_viewer.Camera.html#destroyed" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>destroyed</a></li>
-<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#frustum" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>frustum</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#frustumProjection" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>frustum<wbr/>Projection</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="_xeokit_viewer.Camera.html#id" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>id</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="_xeokit_viewer.Camera.html#onDestroyed" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Destroyed</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#onFrustum" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Frustum</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#onProjMatrix" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Proj<wbr/>Matrix</a></li>
-<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#onProjType" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Proj<wbr/>Type</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#onProjectionType" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>Projection<wbr/>Type</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#onViewMatrix" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>View<wbr/>Matrix</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#onWorldAxis" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>on<wbr/>World<wbr/>Axis</a></li>
-<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#ortho" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>ortho</a></li>
-<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#perspective" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>perspective</a></li>
-<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#rtcViewMats" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>rtc<wbr/>View<wbr/>Mats</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#orthoProjection" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>ortho<wbr/>Projection</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#perspectiveProjection" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>perspective<wbr/>Projection</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#view" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>view</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#constrainPitch" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>constrain<wbr/>Pitch</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#deviceMatrix" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>device<wbr/>Matrix</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#eye" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>eye</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#eyeLookDist" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>eye<wbr/>Look<wbr/>Dist</a></li>
+<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#frustum" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>frustum</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#gimbalLock" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>gimbal<wbr/>Lock</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#inverseViewMatrix" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>inverse<wbr/>View<wbr/>Matrix</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#look" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>look</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#projMatrix" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>proj<wbr/>Matrix</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#project" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>project</a></li>
-<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#projection" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>projection</a></li>
+<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#projectionType" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>projection<wbr/>Type</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#up" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>up</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#viewMatrix" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>view<wbr/>Matrix</a></li>
-<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#viewNormalMatrix" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>view<wbr/>Normal<wbr/>Matrix</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#worldAxis" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>world<wbr/>Axis</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#worldForward" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>world<wbr/>Forward</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#worldRight" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>world<wbr/>Right</a></li>
@@ -1062,13 +1024,11 @@ updates, <a href="_xeokit_viewer.RTCViewMat.html#viewMatrix">viewMatrix</a> will
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a href="_xeokit_viewer.Camera.html#cleanIfDirty" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>clean<wbr/>If<wbr/>Dirty</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_xeokit_viewer.Camera.html#destroy" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>destroy</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a href="_xeokit_viewer.Camera.html#error" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>error</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#getRTCViewMat" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>getRTCView<wbr/>Mat</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a href="_xeokit_viewer.Camera.html#log" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>log</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#orbitPitch" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>orbit<wbr/>Pitch</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#orbitYaw" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>orbit<wbr/>Yaw</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#pan" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>pan</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#pitch" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>pitch</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#putRTCViewMat" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>putRTCView<wbr/>Mat</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a href="_xeokit_viewer.Camera.html#setDirty" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>set<wbr/>Dirty</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a href="_xeokit_viewer.Camera.html#warn" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>warn</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="_xeokit_viewer.Camera.html#yaw" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>yaw</a></li>

@@ -8,7 +8,7 @@
  *
  * ---
  *
- * ### *Math functions for 2D and 3D boundary analysis, boundary transformation, and collision detection*
+ * ### *Tools for 2D and 3D boundary analysis, boundary transformation, and collision detection*
  *
  * ---
  *
@@ -32,11 +32,6 @@
  *
  * //..TODO
  * ````
- *
- * ````mermaid
- *  graph TB
- *  mermaid.js --> TypeDoc;
- *  ````
  *
  * @module @xeokit/math/boundaries
  */

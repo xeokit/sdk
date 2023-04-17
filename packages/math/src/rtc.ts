@@ -8,7 +8,7 @@
  *
  * ---
  *
- * ### *Utility functions for working with RTC cartesian coordinates*
+ * ### *Math functions for working with RTC cartesian coordinates*
  *
  * ---
  *

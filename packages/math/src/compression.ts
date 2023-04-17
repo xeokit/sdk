@@ -8,7 +8,7 @@
  *
  * ---
  *
- * ### *Math functions for geometry compression and decompression*
+ * ### *Tools for geometry compression and decompression*
  *
  * ---
  *

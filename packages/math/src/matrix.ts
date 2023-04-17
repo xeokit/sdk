@@ -8,16 +8,22 @@
  *
  * ---
  *
- * ### Math functions for 3D/2D matrices, quaternions and vectors
+ * ### *Math functions for 3D/2D matrices, quaternions and vectors*
  *
  * ---
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/math/matrix
+ * ````
+ *
+ * ## Usage
  *
  * ````javascript
  * import * as matrix from "@xeokit/math/matrix";
  *
- * const viewMat = matrix.lookAtMat4v([0,0,0], [0,0,-20], [0,-1,0], matrix.createMat4());
- *
- * //...
+ * //..
  * ````
  *
  * @module @xeokit/math/matrix

@@ -9,8 +9,8 @@ import {
 } from "@xeokit/math/src/boundaries";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {createMat4, createVec4, transformPoint4} from "@xeokit/math/matrix";
-import {KdTree2D} from "./KdTree2D";
-import {KdVertex2D} from "./KdVertex2D";
+import {KdTree2} from "./KdTree2";
+import {KdVertex2} from "./KdVertex2";
 
 /**
  * A k-d tree to accelerate intersection and nearest-neighbour tests on the projected
@@ -18,14 +18,14 @@ import {KdVertex2D} from "./KdVertex2D";
  *
  * See {@link "@xeokit/kd-canvas-verts"} for usage.
  */
-export function createKdTree2DFromSceneObjectVerts(params: {
+export function createKdTree2FromSceneObjectVerts(params: {
     viewMatrix: FloatArrayParam,
     projMatrix: FloatArrayParam,
     canvasBoundary: FloatArrayParam,
     sceneObjects: SceneObject[]
-}): KdTree2D {
+}): KdTree2 {
 
-    const kdTree2D = new KdTree2D({
+    const kdTree2D = new KdTree2({
         aabb: params.canvasBoundary
     });
 
@@ -73,7 +73,7 @@ export function createKdTree2DFromSceneObjectVerts(params: {
         transformPoint4(projMatrix, viewPos, projPos);
         canvasPos[0] = Math.floor((1 + projPos[0] / projPos[3]) * canvasBoundary[2] / 2);
         canvasPos[1] = Math.floor((1 - projPos[1] / projPos[3]) * canvasBoundary[3] / 2);
-        kdTree2D.insertItem(<KdVertex2D>{sceneObject, worldPos, canvasPos}, [canvasPos[0], canvasPos[1], canvasPos[0], canvasPos[1]]);
+        kdTree2D.insertItem(<KdVertex2>{sceneObject, worldPos, canvasPos}, [canvasPos[0], canvasPos[1], canvasPos[0], canvasPos[1]]);
     }
 
     return kdTree2D;

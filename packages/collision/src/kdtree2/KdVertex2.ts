@@ -4,7 +4,7 @@ import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 /**
  * TODO
  */
-export class KdVertex2D {
+export class KdVertex2 {
     sceneObject: SceneObject;
     worldPos: FloatArrayParam;
     canvasPos: IntArrayParam;

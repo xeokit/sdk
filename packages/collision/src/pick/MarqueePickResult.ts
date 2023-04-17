@@ -1,7 +1,9 @@
 import {SceneObject} from "@xeokit/scene";
 
 /**
- * Results returned by {@link marqueePick}.
+ * Marquee picking results returned by {@link marqueePick}.
+ *
+ * See {@link "@xeokit/collision/pick"} for usage.
  */
 export interface MarqueePickResult {
 

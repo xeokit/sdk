@@ -2,13 +2,13 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fcompression.svg)](https://badge.fury.io/js/%40xeokit%2Fcompression)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/kdtree/badge)](https://www.jsdelivr.com/package/npm/@xeokit/kdtree)
  *
- * <img style="padding:30px; height:160px;" src="media://images/kdtree3d.png"/>
+ * <img style="padding:30px; height:160px;" src="media://images/kdtree3.png"/>
  *
  * # xeokit Picking System
  *
  * ---
  *
- * ### *Select objects and primitives with rays and intersection boundaries*
+ * ### *Select objects and primitives using rays and boundaries*
  *
  * ---
  *
@@ -16,15 +16,15 @@
  *
  * ### SceneObjects in a k-d Tree
  *
- * The {@link @xeokit/collision/kdtree3d!SceneObjectsKdTree3D | SceneObjectsKdTree3D} class, a k-d tree that arranges
+ * The {@link @xeokit/collision/kdtree3!SceneObjectsKdTree3 | SceneObjectsKdTree3} class, a k-d tree that arranges
  * {@link @xeokit/scene!SceneObject | SceneObjects} for
  * efficient collision testing with boundaries, rays, and frustums, is positioned in the center of the
- * first diagram. To construct a SceneObjectsKdTree3D, use
- * the {@link @xeokit/collision/kdtree3d!createSceneObjectsKdTree3D | createSceneObjectsKdTree3D} function.
+ * first diagram. To construct a SceneObjectsKdTree3, use
+ * the {@link @xeokit/collision/kdtree3!createSceneObjectsKdTree3 | createSceneObjectsKdTree3} function.
  *
  * ### Ray and Marquee Picking
  *
- * To find SceneObjects in the SceneObjectsKdTree3D that intersect a 3D world-space ray,
+ * To find SceneObjects in the SceneObjectsKdTree3 that intersect a 3D world-space ray,
  * use {@link Picker.rayPick | Picker.rayPick()}, which will generate a {@link RayPickResult}. To find SceneObjects
  * that intersect a 2D marquee boundary, use {@link Picker.marqueePick | Picker.marqueePick()},
  * which will generate a {@link MarqueePickResult}.
@@ -45,7 +45,7 @@
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqlVVtvmzAY_SvIj1USBXKh8LCHNVI3rdGiZNKkiRcHvqZewY5ssyWL8t9nDAZzSVdpvPh2zvF3xRcUswRQiOIUC7Ei-MBxFtGEcIglYdR52kY0oo7-NMbZxUDh6_6nAlzMSfFlIF5A2DsY7_dmfW2LrBXYsegHYBlIfm52Miw5OXXobZHHimQLHTnJiCS_wNpighS-iBXELDtyEGLdEm-u_5jHryDFDaMfW6jWreaKh-oCSJpDosIZQ0-0GoakPxE5FJzysO2rghrla5MpK0dOhNwI3Y3HapxM7iKkYx86D4xKTGhtVh3MHr5tW5-pc2mxLIoNbqwzTm_xeUPi1y2IPNUOi8bsxi_tVkn4kjwRCrOVCQ4OaZ7tgZerfb26NoRvnGB6SN9B0nYNSWwYoXKIb1m2a1luoJY_5UbRI6VnFnddbhpSgSln7aY4dEukrbIpi8GoFLVRzn4zniofDLoddJWzCLHx-IOedNyIaMet2-jQ2UGqRp3nt1mVuxE1fg-cW3LDqF6_3JRrSrGW7DfbDY6p-PczqyyU1W5S0sHYRRl-5_go3oCWBf9PWFWjoVMB7d9w96u7SJOHIxp-pgmc2r_zvo7pjP8Wsrr0HVpohDLgGSaJerh0vUdIvkAGEQrVNIFnrGo7QqriFRTnku3ONEbhM04FjFB-TLCE6q2rdyEhkvF19RoWwwgdMUXhBZ1Q6C6nEzdwPd_3vOXUm7mLETqjcDmbBPf-zJ_OF0Hg-cF8cR2hP4wp2enk3lvO50tvtnD9IJi6rtb7oQ8lz-H6FwSyVRY?type=png)](https://mermaid.live/edit#pako:eNqlVVtvmzAY_SvIj1USBXKh8LCHNVI3rdGiZNKkiRcHvqZewY5ssyWL8t9nDAZzSVdpvPh2zvF3xRcUswRQiOIUC7Ei-MBxFtGEcIglYdR52kY0oo7-NMbZxUDh6_6nAlzMSfFlIF5A2DsY7_dmfW2LrBXYsegHYBlIfm52Miw5OXXobZHHimQLHTnJiCS_wNpighS-iBXELDtyEGLdEm-u_5jHryDFDaMfW6jWreaKh-oCSJpDosIZQ0-0GoakPxE5FJzysO2rghrla5MpK0dOhNwI3Y3HapxM7iKkYx86D4xKTGhtVh3MHr5tW5-pc2mxLIoNbqwzTm_xeUPi1y2IPNUOi8bsxi_tVkn4kjwRCrOVCQ4OaZ7tgZerfb26NoRvnGB6SN9B0nYNSWwYoXKIb1m2a1luoJY_5UbRI6VnFnddbhpSgSln7aY4dEukrbIpi8GoFLVRzn4zniofDLoddJWzCLHx-IOedNyIaMet2-jQ2UGqRp3nt1mVuxE1fg-cW3LDqF6_3JRrSrGW7DfbDY6p-PczqyyU1W5S0sHYRRl-5_go3oCWBf9PWFWjoVMB7d9w96u7SJOHIxp-pgmc2r_zvo7pjP8Wsrr0HVpohDLgGSaJerh0vUdIvkAGEQrVNIFnrGo7QqriFRTnku3ONEbhM04FjFB-TLCE6q2rdyEhkvF19RoWwwgdMUXhBZ1Q6C6nEzdwPd_3vOXUm7mLETqjcDmbBPf-zJ_OF0Hg-cF8cR2hP4wp2enk3lvO50tvtnD9IJi6rtb7oQ8lz-H6FwSyVRY)
+ * [![](https://mermaid.ink/img/pako:eNqlVVtvmzAY_SvIj1USBXKh8LCHNlI3bdGiplKliRcHvqZewY5ssyWL8t9nDAZzSVdpvPh2zvF3xWcUswRQiOIUC7EieM9xFtGEcIglYdR5uotoRB39aYyzjYHC991PBTibk-LLQLyCsHcw3u3M-tIWWSuwY9H3wDKQ_NTsZFhycuzQ2yIPFckWOnCSEUl-gbXFBCl8ESuIWXbgIMS6Jd5cf5fHbyDFFaMfWqjWreaK--oCSJpDosIZQ0-0GoakPxM5FJzysO2rghrlS5MpK0dOhNwI3YzHapxMbiKkYx8694xKTGhtVh3MHr5tW5-pc2mxLIoNbqwzTj_i04bEb48g8lQ7LBqzG7-0WyXha_KNUJitTHBwSPNsB7xc7erVpSE8cYLpPv0ASds1JLFhhMohvmXZtmW5gVr-lBtFj5SeWdx1uWlIBaactZti3y2RtsqmLAajUtRGOfvNeKp8MOh20FXOIsTG40960nEjoh23rqNDZwupGnWe32dV7kbU-D1wbskNo3r9clWuKcVast9sVzim4j_OrLJQVrtJSQdjF2X4zPFBvAMtC_6fsKpGQ6cC2r_h7ld3kSYPRzT8QhM4tn_nfR3TGf8tZHXpB7TQCGXAM0wS9XDpeo-QfIUMIhSqaQIvWNV2hFTFKyjOJdueaIzCF5wKGKH8kGAJ1VtX70JCJOPr6jUshhE6YIrCMzqi0F1OJ27ger7vecupN3MXI3RC4XI2CW79mT-dL4LA84P54jJCfxhTstPJrbecz5febOH6QTB1Xa33Qx9KnsPlL8nbVQ4?type=png)](https://mermaid.live/edit#pako:eNqlVVtvmzAY_SvIj1USBXKh8LCHNlI3bdGiplKliRcHvqZewY5ssyWL8t9nDAZzSVdpvPh2zvF3xWcUswRQiOIUC7EieM9xFtGEcIglYdR5uotoRB39aYyzjYHC991PBTibk-LLQLyCsHcw3u3M-tIWWSuwY9H3wDKQ_NTsZFhycuzQ2yIPFckWOnCSEUl-gbXFBCl8ESuIWXbgIMS6Jd5cf5fHbyDFFaMfWqjWreaK--oCSJpDosIZQ0-0GoakPxM5FJzysO2rghrlS5MpK0dOhNwI3YzHapxMbiKkYx8694xKTGhtVh3MHr5tW5-pc2mxLIoNbqwzTj_i04bEb48g8lQ7LBqzG7-0WyXha_KNUJitTHBwSPNsB7xc7erVpSE8cYLpPv0ASds1JLFhhMohvmXZtmW5gVr-lBtFj5SeWdx1uWlIBaactZti3y2RtsqmLAajUtRGOfvNeKp8MOh20FXOIsTG40960nEjoh23rqNDZwupGnWe32dV7kbU-D1wbskNo3r9clWuKcVast9sVzim4j_OrLJQVrtJSQdjF2X4zPFBvAMtC_6fsKpGQ6cC2r_h7ld3kSYPRzT8QhM4tn_nfR3TGf8tZHXpB7TQCGXAM0wS9XDpeo-QfIUMIhSqaQIvWNV2hFTFKyjOJdueaIzCF5wKGKH8kGAJ1VtX70JCJOPr6jUshhE6YIrCMzqi0F1OJ27ger7vecupN3MXI3RC4XI2CW79mT-dL4LA84P54jJCfxhTstPJrbecz5febOH6QTB1Xa33Qx9KnsPlL8nbVQ4)
  *
  * <br>
  *
@@ -69,20 +69,13 @@
  * npm install @xeokit/collision
  * ````
  *
- * ## Dependencies
- *
- * * {@link "@xeokit/scene"}
- * * {@link "@xeokit/core/components"}
- * * {@link "@xeokit/math/math"}
- * * {@link "@xeokit/math/boundaries"}
- *
  * ## Usage
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
  * import {SDKError} from "@xeokit/core/components";
  * import {TrianglesPrimitive, LinesPrimitive, PointsPrimitive} from "@xeokit/core/dist/constants";
- * import {KdTree3D, searchKdTree3DWithAABB} from "@xeokit/collision/objects";
+ * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/collision/kdtree3";
  *
  * // Create a scene graph - notice there's not a Viewer in sight
  *
@@ -141,16 +134,16 @@
  *         .then(() => {
  *
  *             // When our model is finalized, insert all
- *             // its SceneObjects into a SceneObjectsKdTree3D
+ *             // its SceneObjects into a SceneObjectsKdTree3
  *
- *             const sceneObjectsKdTree3D = createSceneObjectsKdTree3D(Object.values(scene.objects));
+ *             const sceneObjectsKdTree3 = createSceneObjectsKdTree3(Object.values(scene.objects));
  *
  *             // Then we'll try to ray-pick the SceneObjects
  *
  *             const picker = new Picker();
  *
  *             const rayPickResult = picker.rayPick({
- *                 sceneObjectsKdTree3D,
+ *                 sceneObjectsKdTree3,
  *                 origin: [0,0,100],
  *                 dir: [0,0,-1];
  *             });
@@ -228,5 +221,9 @@
 export * from "./Picker";
 export * from "./MarqueePickResult";
 export * from "./RayPickResult";
+export {SceneObjectHit} from "./SceneObjectHit";
+export {MeshHit} from "./MeshHit";
+export {GeometryBucketHit} from "./GeometryBucketHit";
+export {PrimHit} from "./PrimHit";
 
 

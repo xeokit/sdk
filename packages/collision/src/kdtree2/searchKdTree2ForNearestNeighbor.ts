@@ -1,12 +1,12 @@
 import {FloatArrayParam} from "@xeokit/math/math";
 import {SceneObject} from "@xeokit/scene";
-import {KdTree2D} from "./KdTree2D";
+import {KdTree2} from "./KdTree2";
 
 /**
  *
  */
-export function searchKdTree2DForNearestNeighbor(params: {
-    kdTree: KdTree2D,
+export function searchKdTree2ForNearestNeighbor(params: {
+    kdTree: KdTree2,
     canvasPos: FloatArrayParam
 }): SceneObject[] {
     const kdTree = params.kdTree;

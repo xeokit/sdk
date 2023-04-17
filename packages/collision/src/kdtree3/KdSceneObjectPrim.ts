@@ -4,7 +4,8 @@ import {KdPointPrim} from "./KdPointPrim";
 import {KdLinePrim} from "./KdLinePrim";
 
 /**
- * TODO
+ *
+ * See {@link "@xeokit/collision/kdtree3"} for usage.
  */
 export interface KdSceneObjectPrim {
     sceneObject: SceneObject;

@@ -1,25 +1,27 @@
 import {GeometryBucket, GeometryView, getSceneObjectGeometry, SceneObject} from "@xeokit/scene";
-import {KdTree3D} from "./KdTree3D";
+import {KdTree3} from "./KdTree3";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {collapseAABB3, expandAABB3} from "@xeokit/math/boundaries";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
 import {KdSceneObjectPrim} from "./KdSceneObjectPrim";
 
 /**
- * k-d tree built by {@link createSceneObjectPrimsKdTree3D}.
+ * k-d tree built by {@link createSceneObjectPrimsKdTree3}.
  */
-export class SceneObjectsPrimsKdTree3D extends KdTree3D {}
+export class SceneObjectsPrimsKdTree3 extends KdTree3 {}
 
 /**
- * Creates a KdTree3D that indexes the primitives belonging to the given SceneObjects in 3D World-space.
+ * Creates a KdTree3 that indexes the primitives belonging to the given SceneObjects in 3D World-space.
+ *
+ * See {@link "@xeokit/collision/kdtree3"} for usage.
  *
  * @param sceneObjects
  */
-export function createSceneObjectPrimsKdTree3D(sceneObjects: SceneObject[]): SceneObjectsPrimsKdTree3D {
+export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): SceneObjectsPrimsKdTree3 {
 
     const tempAABBInt16 = new Int16Array(6);
 
-    function insertPoint(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, kdTree: KdTree3D) {
+    function insertPoint(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, kdTree: KdTree3) {
         const ax = positions[(a * 3)];
         const ay = positions[(a * 3) + 1];
         const az = positions[(a * 3) + 2];
@@ -30,7 +32,7 @@ export function createSceneObjectPrimsKdTree3D(sceneObjects: SceneObject[]): Sce
         kdTree.insertItem(<KdSceneObjectPrim>{sceneObject, geometryBucket, prim: {a}}, aabb);
     }
 
-    function insertLine(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3D) {
+    function insertLine(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3) {
         const ax = positions[(a * 3)];
         const ay = positions[(a * 3) + 1];
         const az = positions[(a * 3) + 2];
@@ -47,7 +49,7 @@ export function createSceneObjectPrimsKdTree3D(sceneObjects: SceneObject[]): Sce
         kdTree.insertItem(<KdSceneObjectPrim>{sceneObject, geometryBucket, prim: {a, b}}, aabb);
     }
 
-    function insertTriangle(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3D) {
+    function insertTriangle(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3) {
         const ax = positions[(a * 3)];
         const ay = positions[(a * 3) + 1];
         const az = positions[(a * 3) + 2];
@@ -72,7 +74,7 @@ export function createSceneObjectPrimsKdTree3D(sceneObjects: SceneObject[]): Sce
         const viewObject = sceneObjects[i];
         expandAABB3(aabb, viewObject.aabb);
     }
-    const kdTree = new SceneObjectsPrimsKdTree3D({
+    const kdTree = new SceneObjectsPrimsKdTree3({
         aabb
     });
     for (let i = 0, len = sceneObjects.length; i < len; i++) {

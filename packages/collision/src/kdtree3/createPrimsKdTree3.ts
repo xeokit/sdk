@@ -1,23 +1,25 @@
 import {createAABB3Int16, expandAABB3Points3} from "@xeokit/math/src/boundaries";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {KdTree3D} from "./KdTree3D";
+import {KdTree3} from "./KdTree3";
 import {KdTrianglePrim} from "./KdTrianglePrim";
 import {KdLinePrim} from "./KdLinePrim";
 import {KdPointPrim} from "./KdPointPrim";
-import {PrimsKdTree3D} from "./PrimsKdTree3D";
+import {PrimsKdTree3} from "./PrimsKdTree3";
 
 const tempAABBInt16 = new Int16Array(6);
 
 /**
- * Creates a KdTree3D that indexes the 3D primitives in the given arrays.
+ * Creates a KdTree3 that indexes the 3D primitives in the given arrays.
  *
  * This function does not care which coordinate space the primitives are in (ie. Local, World, View etc).
  *
  * This function also works for coordinates of any precision (ie. Float32Array, Float64Array, Int16Array, Int32Array etc).
+ *
+ * See {@link "@xeokit/collision/kdtree3"} for usage.
  */
-export function createPrimsKdTree3D(primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam): PrimsKdTree3D {
-    const kdTree = new PrimsKdTree3D({
+export function createPrimsKdTree3(primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam): PrimsKdTree3 {
+    const kdTree = new PrimsKdTree3({
         aabb: <IntArrayParam>expandAABB3Points3(createAABB3Int16(), positions)
     });
 
@@ -41,7 +43,7 @@ export function createPrimsKdTree3D(primitiveType: number, positions: FloatArray
     return kdTree;
 }
 
-function insertPoint(positions: FloatArrayParam, a: number, kdTree: KdTree3D) {
+function insertPoint(positions: FloatArrayParam, a: number, kdTree: KdTree3) {
     const ax = positions[(a * 3)];
     const ay = positions[(a * 3) + 1];
     const az = positions[(a * 3) + 2];
@@ -52,7 +54,7 @@ function insertPoint(positions: FloatArrayParam, a: number, kdTree: KdTree3D) {
     kdTree.insertItem(<KdPointPrim>{a}, aabb);
 }
 
-function insertLine(positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3D) {
+function insertLine(positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3) {
     const ax = positions[(a * 3)];
     const ay = positions[(a * 3) + 1];
     const az = positions[(a * 3) + 2];
@@ -69,7 +71,7 @@ function insertLine(positions: FloatArrayParam, a: number, b: number, kdTree: Kd
     kdTree.insertItem(<KdLinePrim>{a, b}, aabb);
 }
 
-function insertTriangle(positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3D) {
+function insertTriangle(positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3) {
     const ax = positions[(a * 3)];
     const ay = positions[(a * 3) + 1];
     const az = positions[(a * 3) + 2];

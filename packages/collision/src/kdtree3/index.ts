@@ -2,7 +2,7 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fcompression.svg)](https://badge.fury.io/js/%40xeokit%2Fcompression)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/kdtree/badge)](https://www.jsdelivr.com/package/npm/@xeokit/kdtree)
  *
- * <img style="padding:30px; height:160px;" src="media://images/kdtree3d.png"/>
+ * <img style="padding:30px; height:160px;" src="media://images/kdtree3.png"/>
  *
  * # xeokit 3D Collision Utilities
  *
@@ -12,20 +12,20 @@
  *
  * ---
  *
- * A {@link KdTree3D} organizes items with 3D axis-aligned boundaries into a fast spatial search index that
+ * A {@link KdTree3} organizes items with 3D axis-aligned boundaries into a fast spatial search index that
  * allows us efficiently search it for items whose boundaries intersect given boundaries and volumes.
  *
- * This module provides the following functions to build KdTree3Ds:
+ * This module provides the following functions to build KdTree3s:
  *
- * * {@link createPrimsKdTree3D}: Creates a KdTree3D containing primitives from the given set of geometry arrays, organized by their coordinate 3D boundaries.
- * * {@link createSceneObjectPrimsKdTree3D}: Creates a KdTree3D containing primitives belonging to the given SceneObjects, organized by their World-space 3D boundaries.
- * * {@link createSceneObjectsKdTree3D}: Create a kdTree3D containing the given SceneObjects, organized by their World-space 3D boundaries.
+ * * {@link createPrimsKdTree3}: Creates a KdTree3 containing primitives from the given set of geometry arrays, organized by their coordinate 3D boundaries.
+ * * {@link createSceneObjectPrimsKdTree3}: Creates a KdTree3 containing primitives belonging to the given SceneObjects, organized by their World-space 3D boundaries.
+ * * {@link createSceneObjectsKdTree3}: Create a KdTree3 containing the given SceneObjects, organized by their World-space 3D boundaries.
  *
- * This module provides the following functions to search KdTree3Ds:
+ * This module provides the following functions to search KdTree3s:
  *
- * * {@link searchKdTree3DWithAABB}: Finds the items that collide with a given 3D axis-aligned boundary (AABB).
- * * {@link searchKdTree3DWithFrustum}: Finds the items that collide with a given 3D frustum volume.
- * * {@link searchKdTree3DWithRay}: Finds the items that collide with a given 3D ray.
+ * * {@link searchKdTree3WithAABB}: Finds the items that collide with a given 3D axis-aligned boundary (AABB).
+ * * {@link searchKdTree3WithFrustum}: Finds the items that collide with a given 3D frustum volume.
+ * * {@link searchKdTree3WithRay}: Finds the items that collide with a given 3D ray.
  *
  * With these components, applications can implement (at least):
  *
@@ -60,7 +60,7 @@
  * import {Scene} from "@xeokit/scene";
  * import {SDKError} from "@xeokit/core/components";
  * import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
- * import {KdTree3D, searchKdTree3DWithAABB} from "@xeokit/collision/objects";
+ * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/collision/objects";
  *
  * const scene = new Scene();
  *
@@ -114,14 +114,14 @@
  *
  *         .then(() => {
  *
- *             const kdTree = createSceneObjectsKdTree3D(Object.values(scene.objects));
+ *             const kdTree = createSceneObjectsKdTree3(Object.values(scene.objects));
  *
- *             const sceneObjects = searchKdTree3DWithAABB({
+ *             const sceneObjects = searchKdTree3WithAABB({
  *                 kdTree,
  *                 aabb : [0, 0, 0, 10, 10, 10]
  *             });
  *
- *             const sceneObjects2 = searchKdTree3DWithFrustum({
+ *             const sceneObjects2 = searchKdTree3WithFrustum({
  *                 kdTree,
  *                 frustum: new Frustum3( .. )
  *             });
@@ -139,20 +139,23 @@
  * }
  * ````
  *
- * @module @xeokit/collision/kdtree3d
+ * @module @xeokit/collision/kdtree3
  */
-export * from "./KdTree3D";
-export * from "./createSceneObjectsKdTree3D";
-export * from "./createSceneObjectPrimsKdTree3D";
-export * from "./createPrimsKdTree3D";
-export * from "./searchKdTree3DWithAABB";
-export * from "./searchKdTree3DWithFrustum";
-export * from "./searchKdTree3DWithRay";
+export * from "./KdTree3";
+export * from "./createSceneObjectsKdTree3";
+export * from "./createSceneObjectPrimsKdTree3";
+export * from "./createPrimsKdTree3";
+export * from "./searchKdTree3WithAABB";
+export * from "./searchKdTree3WithFrustum";
+export * from "./searchKdTree3WithRay";
 export * from "./KdSceneObjectPrim";
 export * from "./KdTrianglePrim";
 export * from "./KdLinePrim";
 export * from "./KdPointPrim";
-export {PrimsKdTree3D} from "./PrimsKdTree3D";
-export {SceneObjectsKdTree3D} from "./sceneObjectsKdTree3D";
+export {PrimsKdTree3} from "./PrimsKdTree3";
+export {SceneObjectsKdTree3} from "./sceneObjectsKdTree3";
+export {KdNode3} from "./KdNode3";
+export {KdItem3D} from "./KdItem3";
+export {KdTree3Params} from "./KdTree3Params";
 
 

@@ -1,12 +1,12 @@
 import {
-    createPrimsKdTree3D,
+    createPrimsKdTree3,
     KdLinePrim,
     KdPointPrim,
     KdTrianglePrim,
-    SceneObjectsKdTree3D,
-    searchKdTree3DWithFrustum,
-    searchKdTree3DWithRay
-} from "@xeokit/collision/kdtree3d";
+    SceneObjectsKdTree3,
+    searchKdTree3WithFrustum,
+    searchKdTree3WithRay
+} from "../kdtree3";
 import {FloatArrayParam} from "@xeokit/math/math";
 import {RayPickResult} from "./RayPickResult";
 import {MarqueePickResult} from "./MarqueePickResult";
@@ -15,8 +15,8 @@ import {decompressPositions3} from "@xeokit/math/compression";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
 import {Geometry, GeometryBucket} from "@xeokit/scene";
 
-/** TODO
- *
+/**
+ * See {@link "@xeokit/collision/pick"} for usage.
  */
 export class Picker {
 
@@ -31,7 +31,7 @@ export class Picker {
      * @param params
      */
     rayPick(params: {
-        sceneObjectsKdTree3D: SceneObjectsKdTree3D,
+        sceneObjectsKdTree3: SceneObjectsKdTree3,
         origin: FloatArrayParam,
         dir: FloatArrayParam
     }): RayPickResult {
@@ -40,13 +40,13 @@ export class Picker {
         // Cache for different Scene's?
         //
 
-        const sceneObjectsKdTree3D = params.sceneObjectsKdTree3D;
+        const sceneObjectsKdTree3 = params.sceneObjectsKdTree3;
         const origin = params.origin;
         const dir = params.dir;
         const rayPickResult = <RayPickResult>{
             sceneObjectHits: []
         };
-        const kdItems = searchKdTree3DWithRay({kdTree: sceneObjectsKdTree3D, origin, dir});
+        const kdItems = searchKdTree3WithRay({kdTree: sceneObjectsKdTree3, origin, dir});
         for (let i = 0, len = kdItems.length; i < len; i++) {
             const item = kdItems[i];
             const sceneObject = item.sceneObject;
@@ -61,8 +61,8 @@ export class Picker {
                 for (let k = 0, lenk = geometry.geometryBuckets.length; k < lenk; k++) {
                     const primitiveHits = [];
                     const geometryBucket = geometry.geometryBuckets[k];
-                    let primsKdTree3D = this.#getPrimsKdTree3D(geometry, k, geometryBucket);
-                    const primitives = searchKdTree3DWithRay({kdTree: primsKdTree3D.primsKdTree3D, origin, dir});
+                    let primsKdTree3 = this.#getPrimsKdTree3(geometry, k, geometryBucket);
+                    const primitives = searchKdTree3WithRay({kdTree: primsKdTree3.primsKdTree3, origin, dir});
                     if (primitives.length) {
                         switch (geometry.primitive) {
                             case TrianglesPrimitive:
@@ -71,9 +71,9 @@ export class Picker {
                                     const a = triangle.a;
                                     const b = triangle.b;
                                     const c = triangle.c;
-                                    const cx = primsKdTree3D.positions[a * 3];
-                                    const cy = primsKdTree3D.positions[a * 3 + 1];
-                                    const cz = primsKdTree3D.positions[a * 3 + 2];
+                                    const cx = primsKdTree3.positions[a * 3];
+                                    const cy = primsKdTree3.positions[a * 3 + 1];
+                                    const cz = primsKdTree3.positions[a * 3 + 2];
 
                                     //////////////////////////
                                     // Get ray-triangle intersection in worldPos
@@ -112,23 +112,23 @@ export class Picker {
     }
 
     /**
-     * Picks a {@link SceneObjectsKdTree3D} using a 2D marquee to obtain a {@link MarqueePickResult}
+     * Picks a {@link SceneObjectsKdTree3} using a 2D marquee to obtain a {@link MarqueePickResult}
      * containing picked {@link SceneObject | SceneObjects}, {@link Mesh}, {@link Geometry},
      * {@link GeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
      * @param params
      */
     marqueePick(params: {
-        sceneObjectsKdTree3D: SceneObjectsKdTree3D,
+        sceneObjectsKdTree3: SceneObjectsKdTree3,
         marquee: FloatArrayParam
     }): MarqueePickResult {
-        const sceneObjectsKdTree3D = params.sceneObjectsKdTree3D;
+        const sceneObjectsKdTree3 = params.sceneObjectsKdTree3;
         const pickPrimsCache = this.#pickPrimsCache;
         const marqueePickResult = <MarqueePickResult>{
             sceneObjects: []
         };
         const frustum = null; // Create from marquee
-        const kdItems = searchKdTree3DWithFrustum({
-            kdTree: sceneObjectsKdTree3D,
+        const kdItems = searchKdTree3WithFrustum({
+            kdTree: sceneObjectsKdTree3,
             frustum
         });
         for (let i = 0, len = kdItems.length; i < len; i++) {
@@ -145,9 +145,9 @@ export class Picker {
                 for (let k = 0, lenk = geometry.geometryBuckets.length; k < lenk; k++) {
                     const prims = [];
                     const geometryBucket = geometry.geometryBuckets[k];
-                    let primsKdTree3D = this.#getPrimsKdTree3D(geometry, k, geometryBucket);
-                    const items = searchKdTree3DWithFrustum({
-                        kdTree: primsKdTree3D.primitivesKdTree,
+                    let primsKdTree3 = this.#getPrimsKdTree3(geometry, k, geometryBucket);
+                    const items = searchKdTree3WithFrustum({
+                        kdTree: primsKdTree3.primitivesKdTree,
                         frustum
                     });
                     if (items.length) {
@@ -159,9 +159,9 @@ export class Picker {
                                     const a = triangle.a;
                                     const b = triangle.b;
                                     const c = triangle.c;
-                                    const cx = primsKdTree3D.positions[a * 3];
-                                    const cy = primsKdTree3D.positions[a * 3 + 1];
-                                    const cz = primsKdTree3D.positions[a * 3 + 2];
+                                    const cx = primsKdTree3.positions[a * 3];
+                                    const cy = primsKdTree3.positions[a * 3 + 1];
+                                    const cz = primsKdTree3.positions[a * 3 + 2];
                                     //////////////////////////
                                     // Get FRUSTUM-TRIANGLE-CENTER intersection in worldPos
                                     /////////////////////////////
@@ -197,20 +197,20 @@ export class Picker {
         return marqueePickResult;
     }
 
-    #getPrimsKdTree3D(geometry: Geometry, k: number, geometryBucket: GeometryBucket) {
+    #getPrimsKdTree3(geometry: Geometry, k: number, geometryBucket: GeometryBucket) {
         const kdTreeId = `${geometry.id}-${k}`;
-        let primsKdTree3D = this.#pickPrimsCache[kdTreeId];
-        if (!primsKdTree3D) {
+        let primsKdTree3 = this.#pickPrimsCache[kdTreeId];
+        if (!primsKdTree3) {
             const positions = decompressPositions3(
                 geometryBucket.positionsCompressed,
                 geometry.positionsDecompressMatrix,
                 new Float32Array(geometryBucket.positionsCompressed.length));
-            primsKdTree3D = {
-                primsKdTree3D: createPrimsKdTree3D(geometry.primitive, positions, geometryBucket.indices),
+            primsKdTree3 = {
+                primsKdTree3: createPrimsKdTree3(geometry.primitive, positions, geometryBucket.indices),
                 positions
             }
-            this.#pickPrimsCache[kdTreeId] = primsKdTree3D;
+            this.#pickPrimsCache[kdTreeId] = primsKdTree3;
         }
-        return primsKdTree3D;
+        return primsKdTree3;
     }
 }

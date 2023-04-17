@@ -1,94 +1,32 @@
-import {containsAABB3, expandAABB3, containsAABB2Point2} from "@xeokit/math/src/boundaries";
-import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
+import {containsAABB3, expandAABB3} from "@xeokit/math/src/boundaries";
+import {FloatArrayParam} from "@xeokit/math/math";
+import {KdNode3} from "./KdNode3";
+import {KdItem3D} from "./KdItem3";
+import {KdTree3Params} from "./KdTree3Params";
 
 
 const MAX_KD_TREE_DEPTH = 10; // Increase if greater precision needed
 const kdTreeDimLength = new Float32Array(3);
 
 /**
- * Binds an item to a {@link KdNode3D}.
- */
-export interface KdItem3D {
-
-    /**
-     * A unique, sequential numeric ID for this KDItem within its KdTree3D.
-     */
-    index: number;
-
-    /**
-     * The item stored in this KDItem.
-     */
-    item: any;
-}
-
-/**
- * A node in a {@link KdTree3D}.
- */
-export interface KdNode3D {
-
-    /**
-     * A unique, sequential numeric ID for this KDNode within its KdTree3D.
-     *
-     * This is used by queries that cache intersection results for KDNodes.
-     */
-    index: number;
-
-    /**
-     * The axis-aligned World-space 3D boundary of this kd-tree node.
-     */
-    aabb: FloatArrayParam;
-
-    /**
-     * The left KDNode.
-     */
-    left?: KdNode3D;
-
-    /**
-     * The right KDNode.
-     */
-    right?: KdNode3D;
-
-    /**
-     * The {@link KdItem3D | KDItems} stored in this KDNode.
-     */
-    items?: KdItem3D[];
-}
-
-/**
- * Parameters for creating a {@link KdTree3D}.
- */
-export interface KdTree3DParams {
-
-    /**
-     * The boundary of all the {@link KdNode3D | KDNodes} we'll add to this KdTree3D.
-     */
-    aabb: FloatArrayParam;
-
-    /**
-     * Maximum depth of the kd-tree. This is `10` by default.
-     */
-    maxDepth?: number;
-}
-
-/**
  * A static k-d tree that organizes anything that has a boundary for
  * efficient 3D World-space boundary and frustm searches.
  *
- * See {@link "@xeokit/collision/kdtree3d"} for usage.
+ * See {@link "@xeokit/collision/kdtree3"} for usage.
  */
-export class KdTree3D {
+export class KdTree3 {
 
-    #root: KdNode3D;
+    #root: KdNode3;
     #maxDepth: any;
     #numNodes: number;
     #numObjects: number;
 
     /**
-     * Creates a new KdTree3D.
+     * Creates a new KdTree3.
      *
      * @param params
      */
-    constructor(params?: KdTree3DParams) {
+    constructor(params?: KdTree3Params) {
         this.#maxDepth = params?.maxDepth || MAX_KD_TREE_DEPTH;
         this.#root = {
             index: 0,
@@ -97,7 +35,7 @@ export class KdTree3D {
         this.#numNodes = 0;
     }
 
-    get root(): KdNode3D {
+    get root(): KdNode3 {
         return this.#root;
     }
 
@@ -105,7 +43,7 @@ export class KdTree3D {
         this.#insertItem(this.#root, <KdItem3D>{index: this.#numObjects++, item}, aabb, 1)
     }
 
-    #insertItem(node: KdNode3D, item: KdItem3D, aabb: FloatArrayParam, depth: number) {
+    #insertItem(node: KdNode3, item: KdItem3D, aabb: FloatArrayParam, depth: number) {
         if (depth >= this.#maxDepth) {
             node.items = node.items || [];
             node.items.push(item);

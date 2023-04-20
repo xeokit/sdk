@@ -1,11 +1,11 @@
-import {GeometryBucketData, getSceneObjectGeometry, Scene} from "@xeokit/scene";
+import {GeometryView, getSceneObjectGeometry, Scene} from "@xeokit/scene";
 import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/core/constants";
 import {createVec4} from "@xeokit/math/src/matrix";
 import {SDKError} from "@xeokit/core/components";
 
 describe('Create and Destroy a SceneModel', () => {
 
-    it('Create and Destroy a SceneModel', async () => {
+    it('Create and Destroy a SceneModel',  () => {
 
         const scene = new Scene();
 
@@ -259,13 +259,14 @@ describe('Create and Destroy a SceneModel', () => {
             expect(scene.models[theSceneModel.id]).toBeUndefined();
         });
 
-        await sceneModel
+         sceneModel
             .build()
             .then(() => {
 
 
-                getSceneObjectGeometry(yellowLegSceneObject, (geometryBucketData: GeometryBucketData): boolean | undefined => {
+                getSceneObjectGeometry(yellowLegSceneObject, (geometryView: GeometryView): boolean | undefined => {
 
+                    expect(geometryView).toBeUndefined();
 
                     return;
                 });

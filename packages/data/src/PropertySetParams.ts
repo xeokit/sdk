@@ -27,5 +27,5 @@ export interface PropertySetParams {
     /**
      * The {@link Property | Properties} within the PropertySet.
      */
-    properties?: PropertyParams[]
+    properties: PropertyParams[];
 }

@@ -42,7 +42,10 @@ export class Mesh {
      */
     rendererMesh?: RendererMesh;
 
-    object: SceneObject;
+    /**
+     * The {@link @xeokit/scene!SceneObject} that uses this Mesh.
+     */
+    object: SceneObject|null;
 
     #color: FloatArrayParam;
     #matrix: FloatArrayParam;
@@ -56,17 +59,15 @@ export class Mesh {
     constructor(meshParams: {
         id: string;
         geometry: Geometry;
-        textureSet: TextureSet;
-        matrix: FloatArrayParam;
-        color: FloatArrayParam;
-        opacity: number;
-        roughness: number;
-        metallic: number;
+        textureSet?: TextureSet;
+        matrix?: FloatArrayParam;
+        color?: FloatArrayParam;
+        opacity?: number;
+        roughness?: number;
+        metallic?: number;
     }) {
         this.id = meshParams.id;
-        this.object = null;
         this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
-        this.rendererMesh = null;
         this.geometry = meshParams.geometry;
         this.textureSet = meshParams.textureSet;
 

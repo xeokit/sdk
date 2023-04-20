@@ -104,7 +104,7 @@ export class BIMViewer {
 
         this.options = {};
 
-        this.project = null;
+
     }
 
 

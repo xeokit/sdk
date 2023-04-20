@@ -72,16 +72,16 @@ export interface GeometryView {
     readonly uvsDecompressed: FloatArrayParam;
 }
 
-class GeometryViewImpl implements GeometryView {
+class GeometryViewImpl {
 
-    object: SceneObject;
-    mesh: Mesh;
+    object: SceneObject | null;
+    mesh: Mesh | null;
     meshIndex: number;
-    geometry: Geometry;
-    geometryBucket: GeometryBucket;
+    geometry: Geometry | null;
+    geometryBucket: GeometryBucket | null;
     geometryBucketIndex: number;
-    #positionsDecompressed: Float32Array;
-    #positionsWorld: Float64Array;
+    #positionsDecompressed: Float32Array | null;
+    #positionsWorld: Float64Array | null;
 
     constructor() {
         this.object = null;
@@ -96,8 +96,10 @@ class GeometryViewImpl implements GeometryView {
 
     get totalGeometryBuckets() {
         let totalGeometryBuckets = 0;
-        for (let i = 0, len = this.object.meshes.length; i < len; i++) {
-            totalGeometryBuckets += this.object.meshes[i].geometry.geometryBuckets.length
+        if (this.object) {
+            for (let i = 0, len = this.object.meshes.length; i < len; i++) {
+                totalGeometryBuckets += this.object.meshes[i].geometry.geometryBuckets.length;
+            }
         }
         return totalGeometryBuckets;
     }
@@ -158,7 +160,7 @@ export function getSceneObjectGeometry(sceneObject: SceneObject, withEachGeometr
         for (let j = 0, lenj = geometry.geometryBuckets.length; j < lenj; j++) {
             geometryView.geometryBucket = geometry.geometryBuckets[j];
             geometryView.geometryBucketIndex = j;
-            if (withEachGeometry(geometryView)) {
+            if (withEachGeometry(<GeometryView>geometryView)) {
                 return true;
             }
         }

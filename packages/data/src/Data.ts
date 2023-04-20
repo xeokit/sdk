@@ -197,7 +197,7 @@ export class Data extends Component {
         const includeRelating = (searchParams.includeRelating && searchParams.includeRelating.length > 0) ? arrayToMap(searchParams.includeRelating) : null;
         const excludeRelating = (searchParams.excludeRelating && searchParams.excludeRelating.length > 0) ? arrayToMap(searchParams.excludeRelating) : null;
 
-        function visit(dataObject: DataObject, depth) {
+        function visit(dataObject: DataObject, depth: number) {
             if (!dataObject) {
                 return;
             }

@@ -80,7 +80,7 @@ export interface Renderer {
      *
      * @param id ID of the SceneModel to remove
      */
-    removeModel(id: string);
+    removeModel(id: string) : void;
 
     /**
      * Enable/disable rendering of transparent objects for the given View.

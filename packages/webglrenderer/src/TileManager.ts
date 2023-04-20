@@ -61,7 +61,7 @@ export class TileManager {
         }
     }
 
-    updateTileCenter(tile, newCenter): Tile {
+    updateTileCenter(tile: Tile, newCenter: FloatArrayParam): Tile {
         const newRTCCenter = worldToRTCCenter(newCenter, createVec3());
         const newId = `${newRTCCenter[0]}-${newRTCCenter[1]}-${newRTCCenter[2]}`;
         if (newId === tile.id) {
@@ -84,6 +84,9 @@ export class TileManager {
     }
 
     refreshMatrices() {
+        if (!this.#dataTexture.texture) {
+            return;
+        }
         const gl = this.#gl;
         const viewMatrix = this.#camera.viewMatrix;
         const tileIds = Object.keys(this.#tiles);

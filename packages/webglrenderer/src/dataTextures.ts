@@ -15,6 +15,50 @@ export function disableFilteringForBoundTexture(gl: WebGL2RenderingContext) {
 }
 
 /**
+ * Creates a GLDataTexture that holds per-geometry matrices for positions decode.
+ *
+ * The texture will have:
+ * - 4 RGBA columns per row (each column will contain 4 packed half-float (16 bits) components).
+ *   Thus, each row will contain 16 packed half-floats corresponding to a complete positions decode matrix)
+ * - N rows where N is the number of meshes
+ *
+ * @param gl
+ * @param positionDecodeMatrices Positions decode matrix for each mesh in the layer
+ */
+export function createEachGeometryMatricesDataTexture(gl: WebGL2RenderingContext, positionDecodeMatrices: FloatArrayParam): GLDataTexture {
+
+    // Texture has one row per mesh:
+    //
+    //    - col0: Positions decode matrix
+
+    const textureHeight = positionDecodeMatrices.length;
+    if (textureHeight == 0) {
+        throw "texture height == 0";
+    }
+    const textureWidth = 4 * 3;
+    // @ts-ignore
+    const textureData = new Float16Array(4 * textureWidth * textureHeight);
+    for (let i = 0; i < positionDecodeMatrices.length; i++) {
+        textureData.set(positionDecodeMatrices [i], i * 24);   // 4x4 values
+    }
+    const texture = gl.createTexture();
+    if (!texture) {
+        return emptyDataTexture;
+    }
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16F, textureWidth, textureHeight);
+    // @ts-ignore
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.HALF_FLOAT, new Uint16Array(textureData.buffer), 0);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return new GLDataTexture({gl, texture, textureWidth, textureHeight});
+}
+
+
+/**
  * Creates a GLDataTexture containing the given vertex positions.
  */
 export function createPositionsDataTexture(gl: WebGL2RenderingContext, positions: FloatArrayParam): GLDataTexture {

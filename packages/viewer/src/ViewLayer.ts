@@ -897,7 +897,7 @@ class ViewLayer extends Component {
             const sceneObject = sceneObjects[id];
             const rendererViewObject = this.viewer.renderer.rendererViewObjects[id];
             if (rendererViewObject.layerId == this.id) {
-                const viewObject = new ViewObject(this, sceneObject, rendererViewObject,{});
+                const viewObject = new ViewObject(this, sceneObject, rendererViewObject);
                 this.objects[viewObject.id] = viewObject;
                 this.#numObjects++;
                 this.#objectIds = null; // Lazy regenerate

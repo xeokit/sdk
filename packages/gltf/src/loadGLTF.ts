@@ -20,13 +20,14 @@ import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translation
 import {FloatArrayParam} from "@xeokit/math/math";
 import {GeometryParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/scene";
 import {DataModel} from "@xeokit/data";
+import {SDKError} from "@xeokit/core/components";
 
 interface ParsingContext {
     gltfData: any;
     nextId: number;
     log: any;
     error: (msg) => void;
-    dataModel?:DataModel;
+    dataModel?: DataModel;
     sceneModel?: SceneModel;
     objectCreated: { [key: string]: boolean }
 }
@@ -48,23 +49,23 @@ interface ParsingContext {
  */
 export function loadGLTF(params: {
     data: ArrayBuffer,
-    sceneModel?: SceneModel,
+    sceneModel: SceneModel,
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
-    const dataModel = params.dataModel;
-    const sceneModel = params.sceneModel;
-    if (sceneModel?.destroyed) {
+    if (params.sceneModel.destroyed) {
         throw new Error("SceneModel already destroyed");
     }
-    if (sceneModel?.built) {
-        throw new Error("SceneModel already built");
+    if (params.sceneModel.built) {
+        throw new SDKError("SceneModel already built");
     }
-    if (dataModel?.destroyed) {
-        throw new Error("DataModel already destroyed");
-    }
-    if (dataModel?.built) {
-        throw new Error("DataModel already built");
+    if (params.dataModel) {
+        if (params.dataModel.destroyed) {
+            throw new SDKError("DataModel already destroyed");
+        }
+        if (params.dataModel.built) {
+            throw new SDKError("DataModel already built");
+        }
     }
     return new Promise<void>(function (resolve, reject) {
         parse(params.data, GLTFLoader, {}).then((gltfData) => {
@@ -76,8 +77,8 @@ export function loadGLTF(params: {
                 error: function (msg) {
                     console.error(msg);
                 },
-                dataModel,
-                sceneModel,
+                dataModel: params.dataModel,
+                sceneModel: params.sceneModel,
                 objectCreated: {}
             };
             parseTextures(ctx);

@@ -8,7 +8,7 @@ import {GLAbstractTexture} from "./GLAbstractTexture";
 export class GLDataTexture implements GLAbstractTexture {
 
     gl?: WebGL2RenderingContext;
-    texture?: WebGLTexture|null;
+    texture?: WebGLTexture;
     textureWidth?: number;
     textureHeight?: number;
     textureData?: any;

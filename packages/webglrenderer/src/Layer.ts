@@ -1,5 +1,5 @@
-import {identityMat4, transformPoint4, createVec3, createVec4} from "@xeokit/math/matrix";
-import { View} from "@xeokit/viewer";
+import {createVec4, identityMat4, transformPoint4} from "@xeokit/math/matrix";
+import {View} from "@xeokit/viewer";
 import {FloatArrayParam} from "@xeokit/math/math";
 
 import type {RendererModelImpl} from "./RendererModelImpl";
@@ -9,15 +9,23 @@ import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import {RENDER_PASSES} from './RENDER_PASSES';
 import {LinesPrimitive, PointsPrimitive} from "@xeokit/core/constants";
 import {AABB3ToOBB3, collapseAABB3, expandAABB3Point3} from "@xeokit/math/boundaries";
-import {GeometryCompressedParams, GeometryBucketParams, MeshParams, RendererTextureSet} from "@xeokit/scene";
+import {GeometryBucketParams, GeometryCompressedParams, MeshParams} from "@xeokit/scene";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
 import {
     createEachEdgeOffsetDataTexture,
-    createEachMeshAttributesDataTexture, createEachMeshMatricesDataTexture, createEdgeIndices16BitDataTexture,
-    createEdgeIndices32BitDataTexture, createEdgeIndices8BitDataTexture, createIndices16BitDataTexture,
+    createEachMeshAttributesDataTexture,
+    createEachMeshMatricesDataTexture,
+    createEdgeIndices16BitDataTexture,
+    createEdgeIndices32BitDataTexture,
+    createEdgeIndices8BitDataTexture,
+    createIndices16BitDataTexture,
     createIndices32BitDataTexture,
-    createIndices8BitDataTexture, createPositionsDataTexture
+    createIndices8BitDataTexture,
+    createPositionsDataTexture
 } from "./dataTextures";
+import {LayerParams} from "./LayerParams";
+import {GeometryBucketHandle} from "./GeometryBucketHandle";
+import {DataTextureBuffer} from "./DataTextureBuffer";
 
 const MAX_MESH_PARTS = (1 << 12); // 12 bits 
 const MAX_DATATEXTURE_HEIGHT = (1 << 11); // 2048
@@ -30,29 +38,6 @@ const tempVec4c = createVec4([0, 0, 0, 1]);
 const tempUint8Array4 = new Uint8Array(4);
 const tempFloat32Array3 = new Float32Array(3);
 
-
-/**
- * @private
- */
-export interface LayerParams { // Params for Layer constructor
-    gl: WebGL2RenderingContext;
-    view: View;
-    rendererModel: RendererModelImpl;
-    primitive: number;
-    layerIndex: number;
-    textureSet?: RendererTextureSet;
-}
-
-interface GeometryBucketHandle { // Storage handle for a geometry bucket within a Layer
-    vertexBase: number;
-    numVertices: number;
-    numTriangles: number;
-    numLines: number;
-    numPoints: number;
-    numEdges: number;
-    indicesBase: number;
-    edgeIndicesBase: number
-}
 
 interface GeometryHandle { // Storage handle for a geometry within a Layer
     aabb: FloatArrayParam;
@@ -83,67 +68,6 @@ export interface LayerRenderState { // What a LayerRenderer needs to render this
     numEdgeIndices16Bits: number; // How many 16-bit encodable edge indices in layer
     numEdgeIndices32Bits: number; // How many 32-bit encodable edge indices in layer
     numVertices: number; // How many vertices in layer
-}
-
-class DataTextureBuffer { // Temp data buffer as we build a Layer; converted into data textures once Layer is built
-
-    positionsCompressed: number[];
-    indices_8Bits: number[];
-    indices_16Bits: number[];
-    indices_32Bits: number[];
-    edgeIndices_8Bits: number[];
-    edgeIndices_16Bits: number[];
-    edgeIndices_32Bits: number[];
-
-    eachPrimitiveMesh_8Bits: number[];
-    eachPrimitiveMesh_16Bits: number[];
-    eachPrimitiveMesh_32Bits: number[];
-
-    eachEdgeMesh_8Bits: number[];
-    eachEdgeMesh_16Bits: number[];
-    eachEdgeMesh_32Bits: number[];
-
-    eachMeshVertexPortionBase: number[];
-    eachMeshVertexPortionOffset: number[];
-    eachMeshEdgeIndicesOffset: number[];
-
-    eachMeshColor: any[];
-    eachMeshPickColor: any[];
-    eachMeshMatrices: any[];
-    eachMeshNormalMatrix: any[];
-    eachMeshPositionsDecompressMatrix: any[];
-    eachMeshFlags1: any[];
-    eachMeshFlags2: any[];
-    eachEdgeOffset: any[];
-    eachMeshParts: number[];
-
-    constructor() {
-        this.positionsCompressed = [];
-        this.indices_8Bits = [];
-        this.indices_16Bits = [];
-        this.indices_32Bits = [];
-        this.edgeIndices_8Bits = [];
-        this.edgeIndices_16Bits = [];
-        this.edgeIndices_32Bits = [];
-        this.eachMeshVertexPortionBase = [];
-        this.eachMeshVertexPortionOffset = [];
-        this.eachMeshEdgeIndicesOffset = [];
-        this.eachMeshColor = [];
-        this.eachMeshPickColor = [];
-        this.eachMeshMatrices = [];
-        this.eachMeshNormalMatrix = [];
-        this.eachMeshPositionsDecompressMatrix = [];
-        this.eachMeshFlags1 = [];
-        this.eachMeshFlags2 = [];
-        this.eachPrimitiveMesh_32Bits = [];
-        this.eachPrimitiveMesh_16Bits = [];
-        this.eachPrimitiveMesh_8Bits = [];
-        this.eachEdgeMesh_32Bits = [];
-        this.eachEdgeMesh_16Bits = [];
-        this.eachEdgeMesh_8Bits = [];
-        this.eachEdgeOffset = [];
-        this.eachMeshParts = [];
-    }
 }
 
 /**

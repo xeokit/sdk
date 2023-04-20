@@ -8,7 +8,7 @@
  *
  * ---
  *
- * ### *Import 3D urban models and semantics from CityJSON format*
+ * ### *Import 3D urban models from CityJSON format*
  *
  * ---
  *

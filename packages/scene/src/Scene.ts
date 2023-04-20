@@ -4,6 +4,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
 import {SceneModelParams} from "./SceneModelParams";
+import {createAABB3} from "@xeokit/math/boundaries";
 
 /**
  * A scene representation.
@@ -51,6 +52,9 @@ export class Scene extends Component {
     constructor() {
 
         super(null, {});
+
+        this.#aabb = createAABB3();
+        this.#aabbDirty = true;
 
         this.models = {};
         this.objects = {};

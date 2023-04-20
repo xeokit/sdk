@@ -1,3 +1,4 @@
+import { LinearEncoding } from "@xeokit/core/constants";
 import type {FloatArrayParam} from "@xeokit/math/math";
 
 /**

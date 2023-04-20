@@ -112,7 +112,7 @@ class LocaleService {
      *
      * @param locale The new current locale.
      */
-    set locale(locale: string) {
+    set locale(locale: string|undefined) {
         locale = locale || "de";
         if (this.#locale === locale) {
             return;

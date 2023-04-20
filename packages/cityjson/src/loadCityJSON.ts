@@ -14,6 +14,7 @@ import {earcut} from './earcut';
 import {TrianglesPrimitive} from "@xeokit/core/constants";
 import {BasicAggregation} from "@xeokit/datatypes/basicTypes";
 import {typeCodes} from "@xeokit/datatypes/src/cityJSONTypes_1_1_3";
+import {SDKError} from "@xeokit/core/components";
 
 const tempVec2a = createVec2();
 const tempVec3a = createVec3();
@@ -42,7 +43,7 @@ const tempVec3c = createVec3();
  */
 export function loadCityJSON(params: {
                                  data: any,
-                                 sceneModel?: SceneModel,
+                                 sceneModel: SceneModel,
                                  dataModel?: DataModel
                              },
                              options: {
@@ -50,19 +51,21 @@ export function loadCityJSON(params: {
                              } = {
                                  rotateX: false
                              }): Promise<any> {
-    const dataModel = params.dataModel;
-    const sceneModel = params.sceneModel;
-    if (sceneModel?.destroyed) {
-        throw new Error("SceneModel already destroyed");
+    if (params.sceneModel) {
+        if (params.sceneModel.destroyed) {
+            throw new Error("SceneModel already destroyed");
+        }
+        if (params.sceneModel.built) {
+            throw new SDKError("SceneModel already built");
+        }
     }
-    if (sceneModel?.built) {
-        throw new Error("SceneModel already built");
-    }
-    if (dataModel?.destroyed) {
-        throw new Error("DataModel already destroyed");
-    }
-    if (dataModel?.built) {
-        throw new Error("DataModel already built");
+    if (params.dataModel) {
+        if (params.dataModel.destroyed) {
+            throw new SDKError("DataModel already destroyed");
+        }
+        if (params.dataModel.built) {
+            throw new SDKError("DataModel already built");
+        }
     }
     return new Promise<void>(function (resolve, reject) {
         const data = params.data;

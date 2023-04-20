@@ -26,7 +26,9 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
     const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
         ? buildEdgeIndices(positionsCompressed, geometryParams.indices, positionsDecompressMatrix, 10)
         : null;
-    let uniquePositionsCompressed, uniqueIndices, uniqueEdgeIndices;
+    let uniquePositionsCompressed;
+    let uniqueIndices;
+    let uniqueEdgeIndices;
     [
         uniquePositionsCompressed,
         uniqueIndices,

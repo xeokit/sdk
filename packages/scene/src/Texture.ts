@@ -95,7 +95,7 @@ export class Texture  {
      *
      * Supported values are {@link LinearFilter} and {@link NearestFilter}.
      */
-    magFilter?: number;
+    magFilter: number;
 
     /**
      * How the texture is sampled when a texel covers less than one pixel. Supported values
@@ -105,7 +105,7 @@ export class Texture  {
      *
      * Ignored for compressed textures.
      */
-    minFilter?: number;
+    minFilter: number;
 
     /**
      * S wrapping mode.
@@ -114,7 +114,7 @@ export class Texture  {
      *
      * Ignored for compressed textures.
      */
-    wrapS?: number;
+    wrapS: number;
 
     /**
      * T wrapping mode.
@@ -123,7 +123,7 @@ export class Texture  {
      *
      * Ignored for compressed textures.
      */
-    wrapT?: number;
+    wrapT: number;
 
     /**
      * R wrapping mode.
@@ -132,29 +132,29 @@ export class Texture  {
      *
      * Ignored for compressed textures.
      */
-    wrapR?: number;
+    wrapR: number;
 
     /**
      * Flips this Texture's source data along its vertical axis when ````true````.
      */
-    flipY?: boolean;
+    flipY: boolean;
 
     /**
      * Texture encoding format.
      *
      * Supported values are {@link LinearEncoding} and {@link sRGBEncoding}.
      */
-    encoding?: number;
+    encoding: number;
 
     /**
      * RGBA color to preload the texture with.
      */
-    preloadColor?: FloatArrayParam;
+    preloadColor: FloatArrayParam;
 
     /**
      * @private
      */
-    channel?:number;
+    channel:number;
 
     /**
      * @private
@@ -169,7 +169,6 @@ export class Texture  {
         this.wrapS = params.wrapS || RepeatWrapping;
         this.wrapT = params.wrapT || RepeatWrapping;
         this.wrapR = params.wrapR || RepeatWrapping
-        this.rendererTexture = null;
         this.encoding = params.encoding || LinearEncoding;
         this.preloadColor = createVec4(params.preloadColor || [1, 1, 1, 1]);
         this.channel = 0;

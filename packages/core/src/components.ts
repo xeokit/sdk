@@ -7,7 +7,7 @@
  * ## xeokit SDK Core Components
  *
  * * {@link Component} base class
- * * Various kdtree3d nterfaces that are implemented throughout the SDK.
+ * * Various kdtree3 nterfaces that are implemented throughout the SDK.
  *
  * ## Installation
  *

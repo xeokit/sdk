@@ -1,7 +1,8 @@
 import {JPEGMediaType, LinesPrimitive, PNGMediaType, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {DataModel} from "@xeokit/data";
+import {DataModel, DataModelParams} from "@xeokit/data";
 import {GeometryBucketParams, GeometryCompressedParams, SceneModel} from "@xeokit/scene";
 import {XKTData} from "./XKTData";
+import {FloatArrayParam} from "@xeokit/math/math";
 
 const NUM_TEXTURE_ATTRIBUTES = 9;
 
@@ -20,7 +21,7 @@ export function xktToModel(params: {
 
     if (dataModel) {
         if (xktData.metadata) {
-            dataModel.fromJSON(xktData.metadata);
+            dataModel.fromJSON(<DataModelParams>xktData.metadata);
         }
     }
 
@@ -33,7 +34,9 @@ export function xktToModel(params: {
 
     let nextMeshId = 0;
 
-    const geometryCreated = {};
+    const geometryCreated: {
+        [key: string]: boolean
+    } = {};
 
     // Create textures
 
@@ -111,11 +114,11 @@ export function xktToModel(params: {
 
         sceneModel.createTextureSet({
             id: textureSetId,
-            colorTextureId: colorTextureIndex >= 0 ? `texture-${colorTextureIndex}` : null,
-            normalsTextureId: normalsTextureIndex >= 0 ? `texture-${normalsTextureIndex}` : null,
-            metallicRoughnessTextureId: metallicRoughnessTextureIndex >= 0 ? `texture-${metallicRoughnessTextureIndex}` : null,
-            emissiveTextureId: emissiveTextureIndex >= 0 ? `texture-${emissiveTextureIndex}` : null,
-            occlusionTextureId: occlusionTextureIndex >= 0 ? `texture-${occlusionTextureIndex}` : null
+            colorTextureId: colorTextureIndex >= 0 ? `texture-${colorTextureIndex}` : undefined,
+            normalsTextureId: normalsTextureIndex >= 0 ? `texture-${normalsTextureIndex}` : undefined,
+            metallicRoughnessTextureId: metallicRoughnessTextureIndex >= 0 ? `texture-${metallicRoughnessTextureIndex}` : undefined,
+            emissiveTextureId: emissiveTextureIndex >= 0 ? `texture-${emissiveTextureIndex}` : undefined,
+            occlusionTextureId: occlusionTextureIndex >= 0 ? `texture-${occlusionTextureIndex}` : undefined
         });
     }
 
@@ -153,7 +156,7 @@ export function xktToModel(params: {
 
             if (!geometryCreated[geometryId]) {
 
-                const geometryParams = <GeometryCompressedParams>{
+                const geometryParams = <any>{
                     geometryBuckets: []
                 };
 
@@ -212,15 +215,15 @@ export function xktToModel(params: {
                 }
 
                 if (geometryParams.geometryBuckets.length > 0) {
-                    sceneModel.createGeometryCompressed(geometryParams);
+                    sceneModel.createGeometryCompressed(<GeometryCompressedParams>geometryParams);
                     geometryCreated[geometryId] = true;
                 }
             }
 
             sceneModel.createMesh({
                 id: meshId,
-                geometryId: geometryId,
-                textureSetId: textureSetId,
+                geometryId,
+                textureSetId,
                 matrix: meshMatrix,
                 color: meshColor,
                 metallic: meshMetallic,
@@ -241,7 +244,7 @@ export function xktToModel(params: {
 
 const decompressColor = (function () {
     const floatColor = new Float32Array(3);
-    return function (intColor) {
+    return function (intColor: FloatArrayParam) {
         floatColor[0] = intColor[0] / 255.0;
         floatColor[1] = intColor[1] / 255.0;
         floatColor[2] = intColor[2] / 255.0;

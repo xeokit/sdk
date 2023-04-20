@@ -2,8 +2,6 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fcompression.svg)](https://badge.fury.io/js/%40xeokit%2Fcompression)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/kdtree/badge)](https://www.jsdelivr.com/package/npm/@xeokit/kdtree)
  *
- * <img style="padding:30px; height:160px;" src="media://images/kdtree3.png"/>
- *
  * # xeokit Picking System
  *
  * ---
@@ -14,15 +12,11 @@
  *
  * The following class diagrams depict xeokit's picking system architecture.
  *
- * ### SceneObjects in a k-d Tree
- *
  * The {@link @xeokit/collision/kdtree3!SceneObjectsKdTree3 | SceneObjectsKdTree3} class, a k-d tree that arranges
  * {@link @xeokit/scene!SceneObject | SceneObjects} for
  * efficient collision testing with boundaries, rays, and frustums, is positioned in the center of the
  * first diagram. To construct a SceneObjectsKdTree3, use
  * the {@link @xeokit/collision/kdtree3!createSceneObjectsKdTree3 | createSceneObjectsKdTree3} function.
- *
- * ### Ray and Marquee Picking
  *
  * To find SceneObjects in the SceneObjectsKdTree3 that intersect a 3D world-space ray,
  * use {@link Picker.rayPick | Picker.rayPick()}, which will generate a {@link RayPickResult}. To find SceneObjects
@@ -31,13 +25,13 @@
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNp9k99vgjAQx_-V5p6mQSLyQ-zDnky2ZTNbdE9LXzo4tZsUVyDRGf73tYBTGY6E9HL3_Xy5Hu0BojRGoBBteJZNBV8pnjAZC4VRLlJJnuZMMkmIec1T6cgiQonP7x9adDhWyibQSx0ZsI5q6EVEn6jIL0CI4nuTvHmMXxWiO7VIqsRKSKK_36PzujrHrNjk2YlKuPoqEFtkk-3R2al8gZbtfs42kR19dPFwVJWX8r--RpqdmbSwE3q5kxZ2L_6QzaQYOAz6g8GtDmy7z6CjB0rutJPiOWb1b2LyKt1q4wI9h9IKMkTniChZIFfR2mCdgortNKHkQca4M2THOP_jFripR9zaxHWG_EJgQYIq4SLWB706fgzyNSbIgOowxiXXXgyYLLWUF3m62MsIaK4KtKDYxnpEzdUAuuSbTGcxFnmqZs3lMYsFWy6BHmAH1BlP7CAYhmPH8x3Hm7ihBXugbhDa7mToO94omIzGXlha8J2m2nVo-4E_1jXXD4aBG3puZfdWFU0f5Q-6AC26?type=png)](https://mermaid.live/edit#pako:eNp9k99vgjAQx_-V5p6mQSLyQ-zDnky2ZTNbdE9LXzo4tZsUVyDRGf73tYBTGY6E9HL3_Xy5Hu0BojRGoBBteJZNBV8pnjAZC4VRLlJJnuZMMkmIec1T6cgiQonP7x9adDhWyibQSx0ZsI5q6EVEn6jIL0CI4nuTvHmMXxWiO7VIqsRKSKK_36PzujrHrNjk2YlKuPoqEFtkk-3R2al8gZbtfs42kR19dPFwVJWX8r--RpqdmbSwE3q5kxZ2L_6QzaQYOAz6g8GtDmy7z6CjB0rutJPiOWb1b2LyKt1q4wI9h9IKMkTniChZIFfR2mCdgortNKHkQca4M2THOP_jFripR9zaxHWG_EJgQYIq4SLWB706fgzyNSbIgOowxiXXXgyYLLWUF3m62MsIaK4KtKDYxnpEzdUAuuSbTGcxFnmqZs3lMYsFWy6BHmAH1BlP7CAYhmPH8x3Hm7ihBXugbhDa7mToO94omIzGXlha8J2m2nVo-4E_1jXXD4aBG3puZfdWFU0f5Q-6AC26)
+ * [![](https://mermaid.ink/img/pako:eNp9k99PgzAQx_-V5p6cQTLkdx98MlGji2bzyfSlwqnVUbRAskn4322BuYFMEtLLfe_z5Xq0NSR5ikAhWfOiuBT8VfGMyVQoTEqRS3K3ZJJJQsxrnraOrBKUeP_8rovqndL0gV66yIBd1EEPIvlARX4BQhTfmuTJbfqoEF2L5Eq8Ckn052d02YlLLKp1WeyhjKuvCnEI9skZXezVAdmMuznYQtHbaK3eFTXD6r-2prQ48Bhhe3S4jxF2Lf6Q_ZgYOAxOz84udGDbpwwmeqDkSjspXmLR_SMmj9KjNgboIZS3kCGmJkTJCrlK3gw1pbfkpAUlNzLFjQEnhvkft8J1N-DRFo4z5BcCCzJUGRepPuPtyWNQvmGGDKgOU3zh2osBk40u5VWZr7YyAVqqCi2oPlM9oP5WAH3h60JnMRVlrhb9vTGLBZ9cAq1hA9QJYzsI5lHoeL7jeLEbWbAF6gaR7cZz3_HOg_g89KLGgu88165z2w_8UGuuH8wDN_Lc1u6pFU0fzQ91PCxm?type=png)](https://mermaid.live/edit#pako:eNp9k99PgzAQx_-V5p6cQTLkdx98MlGji2bzyfSlwqnVUbRAskn4322BuYFMEtLLfe_z5Xq0NSR5ikAhWfOiuBT8VfGMyVQoTEqRS3K3ZJJJQsxrnraOrBKUeP_8rovqndL0gV66yIBd1EEPIvlARX4BQhTfmuTJbfqoEF2L5Eq8Ckn052d02YlLLKp1WeyhjKuvCnEI9skZXezVAdmMuznYQtHbaK3eFTXD6r-2prQ48Bhhe3S4jxF2Lf6Q_ZgYOAxOz84udGDbpwwmeqDkSjspXmLR_SMmj9KjNgboIZS3kCGmJkTJCrlK3gw1pbfkpAUlNzLFjQEnhvkft8J1N-DRFo4z5BcCCzJUGRepPuPtyWNQvmGGDKgOU3zh2osBk40u5VWZr7YyAVqqCi2oPlM9oP5WAH3h60JnMRVlrhb9vTGLBZ9cAq1hA9QJYzsI5lHoeL7jeLEbWbAF6gaR7cZz3_HOg_g89KLGgu88165z2w_8UGuuH8wDN_Lc1u6pFU0fzQ91PCxm)
  *
  * <br>
  *
  * ### Unpacking the Pick Results
  *
- * A {@link MarqueePickResult} provices a list of SceneObjects that intersect the marquee, so unpacking that is trivial.
+ * A {@link MarqueePickResult} provides a list of SceneObjects that intersect the marquee, so unpacking that is trivial.
  *
  * On the other hand, a {@link RayPickResult} includes comprehensive details regarding
  * each ray-SceneObject intersection. This information includes everything necessary to inspect the geometry of the intersecting
@@ -45,11 +39,11 @@
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqlVVtvmzAY_SvIj1USBXKh8LCHNlI3bdGiplKliRcHvqZewY5ssyWL8t9nDAZzSVdpvPh2zvF3xWcUswRQiOIUC7EieM9xFtGEcIglYdR5uotoRB39aYyzjYHC991PBTibk-LLQLyCsHcw3u3M-tIWWSuwY9H3wDKQ_NTsZFhycuzQ2yIPFckWOnCSEUl-gbXFBCl8ESuIWXbgIMS6Jd5cf5fHbyDFFaMfWqjWreaK--oCSJpDosIZQ0-0GoakPxM5FJzysO2rghrlS5MpK0dOhNwI3YzHapxMbiKkYx8694xKTGhtVh3MHr5tW5-pc2mxLIoNbqwzTj_i04bEb48g8lQ7LBqzG7-0WyXha_KNUJitTHBwSPNsB7xc7erVpSE8cYLpPv0ASds1JLFhhMohvmXZtmW5gVr-lBtFj5SeWdx1uWlIBaactZti3y2RtsqmLAajUtRGOfvNeKp8MOh20FXOIsTG40960nEjoh23rqNDZwupGnWe32dV7kbU-D1wbskNo3r9clWuKcVast9sVzim4j_OrLJQVrtJSQdjF2X4zPFBvAMtC_6fsKpGQ6cC2r_h7ld3kSYPRzT8QhM4tn_nfR3TGf8tZHXpB7TQCGXAM0wS9XDpeo-QfIUMIhSqaQIvWNV2hFTFKyjOJdueaIzCF5wKGKH8kGAJ1VtX70JCJOPr6jUshhE6YIrCMzqi0F1OJ27ger7vecupN3MXI3RC4XI2CW79mT-dL4LA84P54jJCfxhTstPJrbecz5febOH6QTB1Xa33Qx9KnsPlL8nbVQ4?type=png)](https://mermaid.live/edit#pako:eNqlVVtvmzAY_SvIj1USBXKh8LCHNlI3bdGiplKliRcHvqZewY5ssyWL8t9nDAZzSVdpvPh2zvF3xWcUswRQiOIUC7EieM9xFtGEcIglYdR5uotoRB39aYyzjYHC991PBTibk-LLQLyCsHcw3u3M-tIWWSuwY9H3wDKQ_NTsZFhycuzQ2yIPFckWOnCSEUl-gbXFBCl8ESuIWXbgIMS6Jd5cf5fHbyDFFaMfWqjWreaK--oCSJpDosIZQ0-0GoakPxM5FJzysO2rghrlS5MpK0dOhNwI3YzHapxMbiKkYx8694xKTGhtVh3MHr5tW5-pc2mxLIoNbqwzTj_i04bEb48g8lQ7LBqzG7-0WyXha_KNUJitTHBwSPNsB7xc7erVpSE8cYLpPv0ASds1JLFhhMohvmXZtmW5gVr-lBtFj5SeWdx1uWlIBaactZti3y2RtsqmLAajUtRGOfvNeKp8MOh20FXOIsTG40960nEjoh23rqNDZwupGnWe32dV7kbU-D1wbskNo3r9clWuKcVast9sVzim4j_OrLJQVrtJSQdjF2X4zPFBvAMtC_6fsKpGQ6cC2r_h7ld3kSYPRzT8QhM4tn_nfR3TGf8tZHXpB7TQCGXAM0wS9XDpeo-QfIUMIhSqaQIvWNV2hFTFKyjOJdueaIzCF5wKGKH8kGAJ1VtX70JCJOPr6jUshhE6YIrCMzqi0F1OJ27ger7vecupN3MXI3RC4XI2CW79mT-dL4LA84P54jJCfxhTstPJrbecz5febOH6QTB1Xa33Qx9KnsPlL8nbVQ4)
+ * [![](https://mermaid.ink/img/pako:eNqlVVtvmzAY_SvIj1USBXKh8LCHtlI3bdGiptKkiRcHvqZewY5ssyWr8t9nDA42kLbSePHtnOPvil9RyjJAMUpzLMQdwTuOi4RmhEMqCaPe401CE-rpT2O8TQoUvm9_KcCrOam-AsQzCHsH4-3WrE-uyEqBPYu-A1aA5Md2p8CSk0OH7orcNyRbaM9JQST5DdYWE6TyRdxByoo9ByFWjnh7_U2ZvoAUF4y-d1DOreaK2-YCyNpDosKZQk-0GYakPxM5FJz60PVVQY3yqc2UlSMvQX6CrsZjNU4mVwnSsY-9W0YlJvRs1jmYPbxrW5-pc2mxLIoNbq0zTj_g45qkLw8gylw7LFqzW7-0WzXha_aNUJiZ2OCYlsUWeL3anlenFv_ICaa7_H2OtmpIYc0IlQN0y6yNY7aBWs7UG1WD1G5Z3FW9aUgVpp65HbHr1oersq4rwahUhVHP_jCeKxcM2o24SliC2Hj8SU86biS049ZldOxtIFejTvLbrMbdhBq_B84tuWFUr1kuyrV1eJbsd9oFjin3jzObLNSlblLSwVglGf_geC_eQOpifxdVF2jsNTj7B9z9TP9o6nA04y80g4P7H-_LNE3x3zpte35ACo1QAbzAJFPvla70BMlnKCBBsZpm8IRVVSdI1bqC4lKyzZGmKH7CuYARKvcZltA8ceddyIhkfNU8gtUwQntMUfyKDij2l9OJH_lBGAbBchrM_MUIHVG8nE2i63AWTueLKArCaL44jdBfxpTsdHIdLOfzZTBb-GEUTf1A6_3Uh5KXcPoHqcxSqw?type=png)](https://mermaid.live/edit#pako:eNqlVVtvmzAY_SvIj1USBXKh8LCHtlI3bdGiptKkiRcHvqZewY5ssyWr8t9nDA42kLbSePHtnOPvil9RyjJAMUpzLMQdwTuOi4RmhEMqCaPe401CE-rpT2O8TQoUvm9_KcCrOam-AsQzCHsH4-3WrE-uyEqBPYu-A1aA5Md2p8CSk0OH7orcNyRbaM9JQST5DdYWE6TyRdxByoo9ByFWjnh7_U2ZvoAUF4y-d1DOreaK2-YCyNpDosKZQk-0GYakPxM5FJz60PVVQY3yqc2UlSMvQX6CrsZjNU4mVwnSsY-9W0YlJvRs1jmYPbxrW5-pc2mxLIoNbq0zTj_g45qkLw8gylw7LFqzW7-0WzXha_aNUJiZ2OCYlsUWeL3anlenFv_ICaa7_H2OtmpIYc0IlQN0y6yNY7aBWs7UG1WD1G5Z3FW9aUgVpp65HbHr1oersq4rwahUhVHP_jCeKxcM2o24SliC2Hj8SU86biS049ZldOxtIFejTvLbrMbdhBq_B84tuWFUr1kuyrV1eJbsd9oFjin3jzObLNSlblLSwVglGf_geC_eQOpifxdVF2jsNTj7B9z9TP9o6nA04y80g4P7H-_LNE3x3zpte35ACo1QAbzAJFPvla70BMlnKCBBsZpm8IRVVSdI1bqC4lKyzZGmKH7CuYARKvcZltA8ceddyIhkfNU8gtUwQntMUfyKDij2l9OJH_lBGAbBchrM_MUIHVG8nE2i63AWTueLKArCaL44jdBfxpTsdHIdLOfzZTBb-GEUTf1A6_3Uh5KXcPoHqcxSqw)
  *
  * <br>
  *
- * The hierarchical arrangement of Scene components selected by Picker.rayPick is represented by a RayPickResult. This
+ * RayPickResult represents the hierarchical arrangement of Scene components selected by Picker.rayPick(). This
  * structure enables the iteration of the chosen SceneObjects, and the iteration of the selected Meshes, Geometries, and
  * GeometryBuckets within each SceneObject. The structure goes all the way down to the chosen primitives, which can be
  * KdLine3D, KdPoint3D, or KdTriangle3D.

@@ -148,7 +148,7 @@ export const IfcArbitraryClosedProfileDef = 1023;
 export const IfcArbitraryOpenProfileDef = 1024;
 
 /**
- * The IfcArbitraryProfileDefWithVoids defines an arbitrary closed two-dimensional profile with holes. It is given by an outer boundary and inner boundaries. A kdtree3d usage of IfcArbitraryProfileDefWithVoids is as the cross section for the creation of swept surfaces or swept solids.
+ * The IfcArbitraryProfileDefWithVoids defines an arbitrary closed two-dimensional profile with holes. It is given by an outer boundary and inner boundaries. A kdtree3 usage of IfcArbitraryProfileDefWithVoids is as the cross section for the creation of swept surfaces or swept solids.
  */
 export const IfcArbitraryProfileDefWithVoids = 1025;
 
@@ -323,7 +323,7 @@ export const IfcBuildingElementPartType = 1058;
 export const IfcBuildingElementProxy = 1059;
 
 /**
- * IfcBuildingElementProxyType defines a list of commonly shared property set definitions of a building element proxy and an optional set of product representations. It is used to define an element specification (i.e. the specific product information, that is kdtree3d to all occurrences of that product type).
+ * IfcBuildingElementProxyType defines a list of commonly shared property set definitions of a building element proxy and an optional set of product representations. It is used to define an element specification (i.e. the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcBuildingElementProxyType = 1060;
 
@@ -333,7 +333,7 @@ export const IfcBuildingElementProxyType = 1060;
 export const IfcBuildingStorey = 1061;
 
 /**
- * A building system is a group by which building elements are grouped according to a kdtree3d function within the facility.
+ * A building system is a group by which building elements are grouped according to a kdtree3 function within the facility.
  */
 export const IfcBuildingSystem = 1062;
 
@@ -483,7 +483,7 @@ export const IfcCivilElement = 1090;
 export const IfcCivilElementType = 1091;
 
 /**
- * An IfcClassification is used for the arrangement of objects into a class or category according to a kdtree3d purpose or their possession of kdtree3d characteristics. A classification in the sense of IfcClassification is taxonomy, or taxonomic scheme, arranged in a hierarchical structure. A category of objects relates to other categories in a generalization-specialization relationship. Therefore the classification items in an classification are organized in a tree structure.
+ * An IfcClassification is used for the arrangement of objects into a class or category according to a kdtree3 purpose or their possession of kdtree3 characteristics. A classification in the sense of IfcClassification is taxonomy, or taxonomic scheme, arranged in a hierarchical structure. A category of objects relates to other categories in a generalization-specialization relationship. Therefore the classification items in an classification are organized in a tree structure.
  */
 export const IfcClassification = 1092;
 
@@ -498,7 +498,7 @@ export const IfcClassificationReference = 1093;
 export const IfcClosedShell = 1094;
 
 /**
- * A coil is a device used to provide heat transfer between non-mixing media. A kdtree3d example is a cooling coil, which utilizes a finned coil in which circulates chilled water, antifreeze, or refrigerant that is used to remove heat from air moving across the surface of the coil. A coil may be used either for heating or cooling purposes by placing a series of tubes (the coil) carrying a heating or cooling fluid into an airstream. The coil may be constructed from tubes bundled in a serpentine form or from finned tubes that give a extended heat transfer surface.
+ * A coil is a device used to provide heat transfer between non-mixing media. A kdtree3 example is a cooling coil, which utilizes a finned coil in which circulates chilled water, antifreeze, or refrigerant that is used to remove heat from air moving across the surface of the coil. A coil may be used either for heating or cooling purposes by placing a series of tubes (the coil) carrying a heating or cooling fluid into an airstream. The coil may be constructed from tubes bundled in a serpentine form or from finned tubes that give a extended heat transfer surface.
  */
 export const IfcCoil = 1095;
 
@@ -918,7 +918,7 @@ export const IfcDistributionCircuit = 1177;
 export const IfcDistributionControlElement = 1178;
 
 /**
- * The element type IfcDistributionControlElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (the specific product information that is kdtree3d to all occurrences of that product type).
+ * The element type IfcDistributionControlElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (the specific product information that is kdtree3 to all occurrences of that product type).
  */
 export const IfcDistributionControlElementType = 1179;
 
@@ -928,7 +928,7 @@ export const IfcDistributionControlElementType = 1179;
 export const IfcDistributionElement = 1180;
 
 /**
- * The IfcDistributionElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (i.e. the specific product information, that is kdtree3d to all occurrences of that product type).
+ * The IfcDistributionElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (i.e. the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcDistributionElementType = 1181;
 
@@ -938,7 +938,7 @@ export const IfcDistributionElementType = 1181;
 export const IfcDistributionFlowElement = 1182;
 
 /**
- * The element type IfcDistributionFlowElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (the specific product information that is kdtree3d to all occurrences of that product type).
+ * The element type IfcDistributionFlowElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (the specific product information that is kdtree3 to all occurrences of that product type).
  */
 export const IfcDistributionFlowElementType = 1183;
 
@@ -948,7 +948,7 @@ export const IfcDistributionFlowElementType = 1183;
 export const IfcDistributionPort = 1184;
 
 /**
- * A distribution system is a network designed to receive, store, maintain, distribute, or control the flow of a distribution media. A kdtree3d example is a heating hot water system that consists of a pump, a tank, and an interconnected piping system for distributing hot water to terminals.
+ * A distribution system is a network designed to receive, store, maintain, distribute, or control the flow of a distribution media. A kdtree3 example is a heating hot water system that consists of a pump, a tank, and an interconnected piping system for distributing hot water to terminals.
  */
 export const IfcDistributionSystem = 1185;
 
@@ -1118,7 +1118,7 @@ export const IfcElectricTimeControlType = 1217;
 export const IfcElement = 1218;
 
 /**
- * An IfcElementarySurface in the kdtree3d supertype of analytical surfaces.
+ * An IfcElementarySurface in the kdtree3 supertype of analytical surfaces.
  */
 export const IfcElementarySurface = 1219;
 
@@ -1128,7 +1128,7 @@ export const IfcElementarySurface = 1219;
 export const IfcElementAssembly = 1220;
 
 /**
- * The IfcElementAssemblyType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (i.e. the specific product information, that is kdtree3d to all occurrences of that product type).
+ * The IfcElementAssemblyType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (i.e. the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcElementAssemblyType = 1221;
 
@@ -1148,7 +1148,7 @@ export const IfcElementComponentType = 1223;
 export const IfcElementQuantity = 1224;
 
 /**
- * IfcElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (i.e. the specific product information, that is kdtree3d to all occurrences of that product type).
+ * IfcElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (i.e. the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcElementType = 1225;
 
@@ -1168,7 +1168,7 @@ export const IfcEllipseProfileDef = 1227;
 export const IfcEnergyConversionDevice = 1228;
 
 /**
- * The element type IfcEnergyConversionType defines a list of commonly shared property set definitions of an energy conversion device and an optional set of product representations. It is used to define an energy conversion device specification (the specific product information, that is kdtree3d to all occurrences of that product type).
+ * The element type IfcEnergyConversionType defines a list of commonly shared property set definitions of an energy conversion device and an optional set of product representations. It is used to define an energy conversion device specification (the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcEnergyConversionDeviceType = 1229;
 
@@ -1393,7 +1393,7 @@ export const IfcFixedReferenceSweptAreaSolid = 1272;
 export const IfcFlowController = 1273;
 
 /**
- * The element type IfcFlowControllerType defines a list of commonly shared property set definitions of a flow controller and an optional set of product representations. It is used to define a flow controller specification (i.e. the specific product information, that is kdtree3d to all occurrences of that product type).
+ * The element type IfcFlowControllerType defines a list of commonly shared property set definitions of a flow controller and an optional set of product representations. It is used to define a flow controller specification (i.e. the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcFlowControllerType = 1274;
 
@@ -1403,7 +1403,7 @@ export const IfcFlowControllerType = 1274;
 export const IfcFlowFitting = 1275;
 
 /**
- * The element type IfcFlowFittingType defines a list of commonly shared property set definitions of a flow fitting and an optional set of product representations. It is used to define a flow fitting specification (i.e. the specific product information, that is kdtree3d to all occurrences of that product type).
+ * The element type IfcFlowFittingType defines a list of commonly shared property set definitions of a flow fitting and an optional set of product representations. It is used to define a flow fitting specification (i.e. the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcFlowFittingType = 1276;
 
@@ -1433,7 +1433,7 @@ export const IfcFlowMeterType = 1280;
 export const IfcFlowMovingDevice = 1281;
 
 /**
- * The element type IfcFlowMovingDeviceType defines a list of commonly shared property set definitions of a flow moving device and an optional set of product representations. It is used to define a flow moving device specification (i.e. the specific product information, that is kdtree3d to all occurrences of that product type).
+ * The element type IfcFlowMovingDeviceType defines a list of commonly shared property set definitions of a flow moving device and an optional set of product representations. It is used to define a flow moving device specification (i.e. the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcFlowMovingDeviceType = 1282;
 
@@ -1443,7 +1443,7 @@ export const IfcFlowMovingDeviceType = 1282;
 export const IfcFlowSegment = 1283;
 
 /**
- * The element type IfcFlowSegmentType defines a list of commonly shared property set definitions of a flow segment and an optional set of product representations. It is used to define a flow segment specification (the specific product information, that is kdtree3d to all occurrences of that product type).
+ * The element type IfcFlowSegmentType defines a list of commonly shared property set definitions of a flow segment and an optional set of product representations. It is used to define a flow segment specification (the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcFlowSegmentType = 1284;
 
@@ -1453,7 +1453,7 @@ export const IfcFlowSegmentType = 1284;
 export const IfcFlowStorageDevice = 1285;
 
 /**
- * The element type IfcFlowStorageDeviceType defines a list of commonly shared property set definitions of a flow storage device and an optional set of product representations. It is used to define a flow storage device specification (the specific product information that is kdtree3d to all occurrences of that product type).
+ * The element type IfcFlowStorageDeviceType defines a list of commonly shared property set definitions of a flow storage device and an optional set of product representations. It is used to define a flow storage device specification (the specific product information that is kdtree3 to all occurrences of that product type).
  */
 export const IfcFlowStorageDeviceType = 1286;
 
@@ -1463,7 +1463,7 @@ export const IfcFlowStorageDeviceType = 1286;
 export const IfcFlowTerminal = 1287;
 
 /**
- * The element type IfcFlowTerminalType defines a list of commonly shared property set definitions of a flow terminal and an optional set of product representations. It is used to define a flow terminal specification (the specific product information that is kdtree3d to all occurrences of that product type).
+ * The element type IfcFlowTerminalType defines a list of commonly shared property set definitions of a flow terminal and an optional set of product representations. It is used to define a flow terminal specification (the specific product information that is kdtree3 to all occurrences of that product type).
  */
 export const IfcFlowTerminalType = 1288;
 
@@ -1473,7 +1473,7 @@ export const IfcFlowTerminalType = 1288;
 export const IfcFlowTreatmentDevice = 1289;
 
 /**
- * The element type IfcFlowTreatmentDeviceType defines a list of commonly shared property set definitions of a flow treatment device and an optional set of product representations. It is used to define a flow treatment device specification (the specific product information that is kdtree3d to all occurrences of that product type).
+ * The element type IfcFlowTreatmentDeviceType defines a list of commonly shared property set definitions of a flow treatment device and an optional set of product representations. It is used to define a flow treatment device specification (the specific product information that is kdtree3 to all occurrences of that product type).
  */
 export const IfcFlowTreatmentDeviceType = 1290;
 
@@ -1493,7 +1493,7 @@ export const IfcFootingType = 1292;
 export const IfcFurnishingElement = 1293;
 
 /**
- * IfcFurnishingElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (the specific product information, that is kdtree3d to all occurrences of that product type).
+ * IfcFurnishingElementType defines a list of commonly shared property set definitions of an element and an optional set of product representations. It is used to define an element specification (the specific product information, that is kdtree3 to all occurrences of that product type).
  */
 export const IfcFurnishingElementType = 1294;
 
@@ -1513,7 +1513,7 @@ export const IfcFurnitureType = 1296;
 export const IfcGeographicElement = 1297;
 
 /**
- * An IfcGeographicElementType is used to define an element specification of a geographic element (i.e. the specific product information, that is kdtree3d to all occurrences of that product type). Geographic element types include for different types of element that may be used to represent information within a geographical landscape external to a building. Within the world of geographic information they are referred to generally as ''features''. IfcGeographicElementType''s include:
+ * An IfcGeographicElementType is used to define an element specification of a geographic element (i.e. the specific product information, that is kdtree3 to all occurrences of that product type). Geographic element types include for different types of element that may be used to represent information within a geographical landscape external to a building. Within the world of geographic information they are referred to generally as ''features''. IfcGeographicElementType''s include:
  */
 export const IfcGeographicElementType = 1298;
 
@@ -1528,7 +1528,7 @@ export const IfcGeometricCurveSet = 1299;
 export const IfcGeometricRepresentationContext = 1300;
 
 /**
- * An IfcGeometricRepresentationItem is the kdtree3d supertype of all geometric items used within a representation. It is positioned within a geometric coordinate system, directly or indirectly through intervening items.
+ * An IfcGeometricRepresentationItem is the kdtree3 supertype of all geometric items used within a representation. It is positioned within a geometric coordinate system, directly or indirectly through intervening items.
  */
 export const IfcGeometricRepresentationItem = 1301;
 
@@ -1808,7 +1808,7 @@ export const IfcMaterialConstituent = 1355;
 export const IfcMaterialConstituentSet = 1356;
 
 /**
- * IfcMaterialDefinition is a general supertype for all material related information items in IFC that have kdtree3d material related properties that may include association of material with some shape parameters or assignments to identified parts of a component.
+ * IfcMaterialDefinition is a general supertype for all material related information items in IFC that have kdtree3 material related properties that may include association of material with some shape parameters or assignments to identified parts of a component.
  */
 export const IfcMaterialDefinition = 1357;
 
@@ -2248,7 +2248,7 @@ export const IfcPresentationItem = 1443;
 export const IfcPresentationLayerAssignment = 1444;
 
 /**
- * An IfcPresentationLayerAssignmentWithStyle extends the presentation layer assignment with capabilities to define visibility control, access control and kdtree3d style information.
+ * An IfcPresentationLayerAssignmentWithStyle extends the presentation layer assignment with capabilities to define visibility control, access control and kdtree3 style information.
  */
 export const IfcPresentationLayerWithStyle = 1445;
 
@@ -2913,7 +2913,7 @@ export const IfcRoof = 1576;
 export const IfcRoofType = 1577;
 
 /**
- * IfcRoot is the most abstract and root class for all entity definitions that roots in the kernel or in subsequent layers of the IFC specification. It is therefore the kdtree3d supertype of all IFC entities, beside those defined in an IFC resource schema. All entities that are subtypes of IfcRoot can be used independently, whereas resource schema entities, that are not subtypes of IfcRoot, are not supposed to be independent entities.
+ * IfcRoot is the most abstract and root class for all entity definitions that roots in the kernel or in subsequent layers of the IFC specification. It is therefore the kdtree3 supertype of all IFC entities, beside those defined in an IFC resource schema. All entities that are subtypes of IfcRoot can be used independently, whereas resource schema entities, that are not subtypes of IfcRoot, are not supposed to be independent entities.
  */
 export const IfcRoot = 1578;
 
@@ -3053,7 +3053,7 @@ export const IfcSolarDevice = 1604;
 export const IfcSolarDeviceType = 1605;
 
 /**
- * An IfcSolidModel represents the 3D shape by different types of solid model representations. It is the kdtree3d abstract supertype of Boundary representation, CSG representation, Sweeping representation and other suitable solid representation schemes.
+ * An IfcSolidModel represents the 3D shape by different types of solid model representations. It is the kdtree3 abstract supertype of Boundary representation, CSG representation, Sweeping representation and other suitable solid representation schemes.
  */
 export const IfcSolidModel = 1606;
 
@@ -3083,7 +3083,7 @@ export const IfcSpaceType = 1610;
 export const IfcSpatialElement = 1611;
 
 /**
- * IfcSpatialElementType defines a list of commonly shared property set definitions of a spatial structure element and an optional set of product representations. It is used to define a spatial element specification (the specific element information, that is kdtree3d to all occurrences of that element type).
+ * IfcSpatialElementType defines a list of commonly shared property set definitions of a spatial structure element and an optional set of product representations. It is used to define a spatial element specification (the specific element information, that is kdtree3 to all occurrences of that element type).
  */
 export const IfcSpatialElementType = 1612;
 
@@ -3093,7 +3093,7 @@ export const IfcSpatialElementType = 1612;
 export const IfcSpatialStructureElement = 1613;
 
 /**
- * The element type (IfcSpatialStructureElementType) defines a list of commonly shared property set definitions of a spatial structure element and an optional set of product representations. It is used to define an element specification (i.e. the specific element information, that is kdtree3d to all occurrences of that element type).
+ * The element type (IfcSpatialStructureElementType) defines a list of commonly shared property set definitions of a spatial structure element and an optional set of product representations. It is used to define an element specification (i.e. the specific element information, that is kdtree3 to all occurrences of that element type).
  */
 export const IfcSpatialStructureElementType = 1614;
 
@@ -3103,7 +3103,7 @@ export const IfcSpatialStructureElementType = 1614;
 export const IfcSpatialZone = 1615;
 
 /**
- * The IfcSpatialZoneType defines a list of commonly shared property set definitions of a space and an optional set of product representations. It is used to define a space specification (i.e. the specific space information, that is kdtree3d to all occurrences of that space type).
+ * The IfcSpatialZoneType defines a list of commonly shared property set definitions of a space and an optional set of product representations. It is used to define a space specification (i.e. the specific space information, that is kdtree3 to all occurrences of that space type).
  */
 export const IfcSpatialZoneType = 1616;
 
@@ -3463,7 +3463,7 @@ export const IfcSwitchingDevice = 1686;
 export const IfcSwitchingDeviceType = 1687;
 
 /**
- * A system is an organized combination of related parts within an AEC product, composed for a kdtree3d purpose or function or to provide a service. A system is essentially a functionally related aggregation of products. The grouping relationship to one or several instances of IfcProduct (the system members) is handled by IfcRelAssignsToGroup.
+ * A system is an organized combination of related parts within an AEC product, composed for a kdtree3 purpose or function or to provide a service. A system is essentially a functionally related aggregation of products. The grouping relationship to one or several instances of IfcProduct (the system members) is handled by IfcRelAssignsToGroup.
  */
 export const IfcSystem = 1688;
 
@@ -3693,22 +3693,22 @@ export const IfcTubeBundle = 1732;
 export const IfcTubeBundleType = 1733;
 
 /**
- * The object type defines the specific information about a type, being kdtree3d to all occurrences of this type. It refers to the specific level of the well recognized generic - specific - occurrance modeling paradigm. The IfcTypeObject gets assigned to the individual object instances (the occurrences) via the IfcRelDefinesByType relationship.
+ * The object type defines the specific information about a type, being kdtree3 to all occurrences of this type. It refers to the specific level of the well recognized generic - specific - occurrance modeling paradigm. The IfcTypeObject gets assigned to the individual object instances (the occurrences) via the IfcRelDefinesByType relationship.
  */
 export const IfcTypeObject = 1734;
 
 /**
- * IfcTypeProcess defines a specific (or type) definition of a process or activity without being assigned to a schedule or a time. It is used to define a process or activity specification, that is, the specific process or activity information that is kdtree3d to all occurrences that are defined for that process or activity type.
+ * IfcTypeProcess defines a specific (or type) definition of a process or activity without being assigned to a schedule or a time. It is used to define a process or activity specification, that is, the specific process or activity information that is kdtree3 to all occurrences that are defined for that process or activity type.
  */
 export const IfcTypeProcess = 1735;
 
 /**
- * IfcTypeProduct defines a type definition of a product without being already inserted into a project structure (without having a placement), and not being included in the geometric representation context of the project. It is used to define a product specification, that is, the specific product information that is kdtree3d to all occurrences of that product type.
+ * IfcTypeProduct defines a type definition of a product without being already inserted into a project structure (without having a placement), and not being included in the geometric representation context of the project. It is used to define a product specification, that is, the specific product information that is kdtree3 to all occurrences of that product type.
  */
 export const IfcTypeProduct = 1736;
 
 /**
- * IfcTypeResource defines a specific (or type) definition of a resource. It is used to define a resource specification (the specific resource, that is kdtree3d to all occurrences that are defined for that resource) and could act as a resource template.
+ * IfcTypeResource defines a specific (or type) definition of a resource. It is used to define a resource specification (the specific resource, that is kdtree3 to all occurrences that are defined for that resource) and could act as a resource template.
  */
 export const IfcTypeResource = 1737;
 
@@ -3863,7 +3863,7 @@ export const IfcWindowType = 1766;
 export const IfcWorkCalendar = 1767;
 
 /**
- * An IfcWorkControl is an abstract supertype which captures information that is kdtree3d to both IfcWorkPlan and IfcWorkSchedule.
+ * An IfcWorkControl is an abstract supertype which captures information that is kdtree3 to both IfcWorkPlan and IfcWorkSchedule.
  */
 export const IfcWorkControl = 1768;
 

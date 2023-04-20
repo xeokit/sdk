@@ -30,7 +30,7 @@ import {
     SceneObject, Texture
 } from "@xeokit/scene";
 import type {WebGLRenderer} from "./WebGLRenderer";
-import {Layer, LayerParams} from "./Layer";
+import {Layer} from "./Layer";
 import type {RenderContext} from "./RenderContext";
 import {RendererGeometryImpl} from "./RendererGeometryImpl";
 import {RendererViewObject} from "viewer/src/RendererViewObject";
@@ -38,6 +38,7 @@ import {RendererTextureImpl} from "./RendererTextureImpl";
 import {RendererObjectImpl} from "./RendererObjectImpl";
 import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
+import {LayerParams} from "./LayerParams";
 
 
 
@@ -84,7 +85,6 @@ export class RendererModelImpl extends Component implements RendererModel {
     #view: View;
     #webglRenderer: WebGLRenderer;
     #renderContext: RenderContext;
-    #origin: FloatArrayParam;
     #position: FloatArrayParam;
     #rotation: FloatArrayParam;
     #quaternion: FloatArrayParam;
@@ -123,7 +123,6 @@ export class RendererModelImpl extends Component implements RendererModel {
         quaternion?: FloatArrayParam;
         rotation?: FloatArrayParam;
         position?: FloatArrayParam;
-        origin?: FloatArrayParam;
         edgeThreshold?: number;
         textureTranscoder: TextureTranscoder;
         qualityRender?: boolean;
@@ -141,7 +140,7 @@ export class RendererModelImpl extends Component implements RendererModel {
         this.#renderContext = params.renderContext;
         this.#textureTranscoder = params.textureTranscoder;
 
-        this.#aabb = this.collapseAABB3();
+        this.#aabb = collapseAABB3();
         this.#aabbDirty = false;
         this.#layers = {};
         this.layerList = [];
@@ -168,7 +167,6 @@ export class RendererModelImpl extends Component implements RendererModel {
 
         // Build static matrix
 
-        this.#origin = createVec3(params.origin || [0, 0, 0]);
         this.#position = createVec3(params.position || [0, 0, 0]);
         this.#rotation = createVec3(params.rotation || [0, 0, 0]);
         this.#quaternion = createVec4(params.quaternion || [0, 0, 0, 1]);
@@ -362,24 +360,8 @@ export class RendererModelImpl extends Component implements RendererModel {
         if (!rendererTextureSet) {
             throw new Error("TextureSetRendererCommands not found");
         }
-        const origin = tempVec3a;
-        origin[0] = this.#origin[0];
-        origin[1] = this.#origin[1];
-        origin[2] = this.#origin[2];
 
-        // if (geometry.origin) {
-        //     origin[0] += geometry.origin[0];
-        //     origin[1] += geometry.origin[1];
-        //     origin[2] += geometry.origin[2];
-        // }
-
-        // if (mesh.origin) {
-        //     origin[0] += mesh.origin[0];
-        //     origin[1] += mesh.origin[1];
-        //     origin[2] += mesh.origin[2];
-        // }
-
-        const layer = this.#getLayer(origin, mesh.textureSet.id, mesh.geometry);
+        const layer = this.#getLayer(mesh.textureSet.id, mesh.geometry);
 
         if (!layer) {
             return;
@@ -470,11 +452,6 @@ export class RendererModelImpl extends Component implements RendererModel {
         this.rendererObjects[objectId] = objectRenderer;
         this.rendererViewObjects[objectId] = objectRenderer;
         this.#numViewerObjects++;
-    }
-
-
-    get origin(): FloatArrayParam {
-        return this.#origin;
     }
 
     get position(): FloatArrayParam {
@@ -977,10 +954,6 @@ export class RendererModelImpl extends Component implements RendererModel {
         this.sceneModel = null;
     }
 
-    private collapseAABB3() {
-        return undefined;
-    }
-
     #createDefaultTextureSetRenderer() {
         const defaultColorTexture = new RendererTextureImpl(
             null,
@@ -1028,8 +1001,8 @@ export class RendererModelImpl extends Component implements RendererModel {
         });
     }
 
-    #getLayer(origin: FloatArrayParam, textureSetId: string | undefined, geometryCompressedParams: GeometryCompressedParams): Layer | undefined {
-        const layerId = `${origin[0]}_${origin[1]}_${origin[2]}_${textureSetId}_${geometryCompressedParams.primitive}`;
+    #getLayer( textureSetId: string | undefined, geometryCompressedParams: GeometryCompressedParams): Layer | undefined {
+        const layerId = `${textureSetId}_${geometryCompressedParams.primitive}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {
             if (layer.canCreateMesh(geometryCompressedParams)) {
@@ -1052,7 +1025,6 @@ export class RendererModelImpl extends Component implements RendererModel {
             view: this.#view,
             rendererModel: this,
             primitive: geometryCompressedParams.primitive,
-            origin,
             textureSet,
             layerIndex: 0
         });

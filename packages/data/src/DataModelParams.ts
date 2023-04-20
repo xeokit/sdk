@@ -15,7 +15,7 @@ export interface DataModelParams {
      *
      * The DataModel is stored in {@link Data.models | Data.models} under this ID.
      */
-    id?: string;
+    id: string;
 
     /**
      * The project ID, if available.

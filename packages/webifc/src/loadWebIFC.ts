@@ -42,19 +42,17 @@ interface ParsingContext {
 export function loadWebIFC(params: {
     data: ArrayBuffer,
     ifcAPI: WebIFC.IfcAPI,
-    sceneModel?: SceneModel,
+    sceneModel: SceneModel,
     dataModel?: DataModel
 }): Promise<any> {
     if (!params.ifcAPI) {
         throw new Error("Argument missing: ifcAPI");
     }
-    if (params.sceneModel) {
-        if (params.sceneModel.destroyed) {
-            throw new Error("SceneModel already destroyed");
-        }
-        if (params.sceneModel.built) {
-            throw new Error("SceneModel already built");
-        }
+    if (params.sceneModel.destroyed) {
+        throw new Error("SceneModel already destroyed");
+    }
+    if (params.sceneModel.built) {
+        throw new Error("SceneModel already built");
     }
     if (params.dataModel) {
         if (params.dataModel.destroyed) {

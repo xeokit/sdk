@@ -8,7 +8,7 @@
  *
  * ---
  *
- * ### *Attach semantic data to scene representations*
+ * ### *The SDK's buildable, queryable, importable and exportable semantic data model*
  *
  * ---
  *

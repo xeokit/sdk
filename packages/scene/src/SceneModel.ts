@@ -39,7 +39,9 @@ const OCCLUSION_TEXTURE = 4;
 
 // KTX2 encoding options for each texture type
 
-const TEXTURE_ENCODING_OPTIONS = {}
+const TEXTURE_ENCODING_OPTIONS: {
+    [key: string]: any
+} = {}
 
 TEXTURE_ENCODING_OPTIONS[COLOR_TEXTURE] = {
     useSRGB: true,
@@ -208,7 +210,7 @@ export class SceneModel extends Component {
     /**
      * @private
      */
-    constructor(scene, sceneModelParams: SceneModelParams) {
+    constructor(scene:Scene, sceneModelParams: SceneModelParams) {
         super(scene, {
             id: sceneModelParams.id
         });
@@ -703,7 +705,7 @@ export class SceneModel extends Component {
         if (!geometry) {
             return new SDKError(`Failed to create Mesh in SceneModel - Geometry not found: ${meshParams.geometryId}`);
         }
-        const textureSet = meshParams.textureSetId ? this.textureSets[meshParams.textureSetId] : null;
+        const textureSet = meshParams.textureSetId ? this.textureSets[meshParams.textureSetId] : undefined;
         if (meshParams.textureSetId && !textureSet) {
             return new SDKError(`Failed to create Mesh in SceneModel - TextureSet not found: ${meshParams.textureSetId}`);
         }
@@ -863,9 +865,6 @@ export class SceneModel extends Component {
             }
             if (this.built) {
                 throw new SDKError("Failed to build SceneModel - SceneModel already built");
-            }
-            if (this.#numObjects < 1) {
-                throw new SDKError("Failed to build SceneModel - SceneModel must contain at least one SceneObject before you can build it");
             }
             this.#removeUnusedTextures();
             this.#compressTextures().then(() => {

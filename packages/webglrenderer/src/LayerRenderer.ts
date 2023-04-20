@@ -328,9 +328,6 @@ export abstract class LayerRenderer {
             // @ts-ignore
             renderState.dataTextureSet.eachMeshAttributes.bindTexture(program, samplers.eachMeshAttributes, renderContext.nextTextureUnit);
         }
-        // if (samplers.eachMeshOffsets) {
-        //     //    renderState.dataTextureSet.eachMeshOffset.bindTexture(program, samplers.eachMeshOffsets, renderContext.nextTextureUnit);
-        // }
         if (samplers.eachPrimitiveMesh) {
             if (renderState.numIndices8Bits > 0) {
                 // @ts-ignore

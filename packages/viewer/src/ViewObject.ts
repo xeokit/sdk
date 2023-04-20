@@ -48,40 +48,24 @@ export class ViewObject {
     #rendererViewObject: RendererViewObject;
 
     #state: {
-        visible: boolean | null;
-        culled: boolean | null;
-        pickable: boolean | null;
-        clippable: boolean | null;
-        collidable: boolean | null;
-        xrayed: boolean | null;
-        selected: boolean | null;
-        highlighted: boolean | null;
-        edges: boolean | null;
+        visible: boolean;
+        culled: boolean;
+        pickable: boolean;
+        clippable: boolean;
+        collidable: boolean;
+        xrayed: boolean;
+        selected: boolean;
+        highlighted: boolean;
+        edges: boolean;
         colorize: Float32Array;
-        colorized: boolean | null;
+        colorized: boolean;
         opacityUpdated: boolean;
     };
 
     /**
      * @private
      */
-    constructor(
-        layer: ViewLayer,
-        sceneObject: SceneObject,
-        rendererViewObject: RendererViewObject,
-        options: {
-            opacity?: number;
-            colorize?: number[];
-            selected?: boolean;
-            highlighted?: boolean;
-            xrayed?: boolean;
-            edges?: boolean;
-            collidable?: boolean;
-            clippable?: boolean;
-            pickable?: boolean;
-            culled?: boolean;
-            visible?: boolean;
-        } = {}) {
+    constructor(layer: ViewLayer, sceneObject: SceneObject, rendererViewObject: RendererViewObject) {
 
         this.id = sceneObject.id;
         this.layer = layer;
@@ -89,34 +73,22 @@ export class ViewObject {
         this.#rendererViewObject = rendererViewObject;
 
         this.#state = {
-            visible: null,
-            culled: null,
-            pickable: null,
-            clippable: null,
-            collidable: null,
-            xrayed: null,
-            selected: null,
-            highlighted: null,
-            edges: null,
+            visible: true,
+            culled: false,
+            pickable: true,
+            clippable: true,
+            collidable: true,
+            xrayed: false,
+            selected: false,
+            highlighted: false,
+            edges: false,
             colorize: new Float32Array(4),
             colorized: false,
             opacityUpdated: false,
         };
 
-        // Initialize properties like below so that we also
-        // update their counters on the ViewLayer
-
-        this.visible = options.visible !== false;
-        this.xrayed = !!options.xrayed;
-        this.edges = !!options.edges;
-        this.culled = !!options.culled;
-        this.pickable = options.pickable !== false;
-        this.clippable = options.clippable !== false;
-        this.collidable = options.collidable !== false;
-        this.highlighted = !!options.highlighted;
-        this.selected = !!options.selected;
-        this.colorize = options.colorize;
-        this.opacity = options.opacity;
+        this.#rendererViewObject.setVisible(this.layer.view.viewIndex, this.#state.visible);
+        this.layer.objectVisibilityUpdated(this, this.#state.visible, true);
     }
 
     /**

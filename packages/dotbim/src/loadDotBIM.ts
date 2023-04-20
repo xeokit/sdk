@@ -24,7 +24,7 @@ import {SDKError} from "@xeokit/core/components";
  */
 export function loadDotBIM(params: {
                                data: any,
-                               sceneModel?: SceneModel,
+                               sceneModel: SceneModel,
                                dataModel?: DataModel
                            },
                            options: {
@@ -32,21 +32,17 @@ export function loadDotBIM(params: {
                            } = {
                                rotateX: false
                            }): Promise<any> {
-    const dataModel = params.dataModel;
-    const sceneModel = params.sceneModel;
-    if (sceneModel) {
-        if (sceneModel.destroyed) {
-            throw new SDKError("SceneModel already destroyed");
-        }
-        if (sceneModel.built) {
-            throw new SDKError("SceneModel already built");
-        }
+    if (params.sceneModel.destroyed) {
+        throw new Error("SceneModel already destroyed");
     }
-    if (dataModel) {
-        if (dataModel.destroyed) {
+    if (params.sceneModel.built) {
+        throw new SDKError("SceneModel already built");
+    }
+    if (params.dataModel) {
+        if (params.dataModel.destroyed) {
             throw new SDKError("DataModel already destroyed");
         }
-        if (dataModel.built) {
+        if (params.dataModel.built) {
             throw new SDKError("DataModel already built");
         }
     }
@@ -64,5 +60,38 @@ export function loadDotBIM(params: {
 }
 
 function parseDotBIM(ctx) {
-// TODO
+    const data = ctx.data;
+    const meshes = data.meshes;
+    for (let i = 0, len = meshes.length; i < len; i++) {
+        const mesh = meshes[i];
+        ctx.sceneModel.createGeometry({
+            id: mesh.mesh_id,
+            positions: mesh.coordinates,
+            indices: mesh.indices
+        });
+    }
+    const elements = data.elements;
+    for (let i = 0, len = elements.length; i < len; i++) {
+        const element = elements[i];
+        const objectId = element.guid;
+        if (ctx.sceneModel) {
+            const geometryId = element.mesh_id;
+            const meshId = `${objectId}-mesh-${i}`;
+            ctx.sceneModel.createMesh({
+                id: meshId,
+                geometryId,
+                baseColor: element.color
+            });
+            ctx.sceneModel.createObject({
+                id: objectId,
+                meshIds: [meshId]
+            });
+        }
+        if (ctx.dataModel) {
+            ctx.dataModel.createObject({
+                id: element.guid,
+                type: element.type
+            });
+        }
+    }
 }

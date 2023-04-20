@@ -3,6 +3,7 @@ import {DataModel} from "@xeokit/data";
 import {inflateXKT} from "./inflateXKT";
 import {unpackXKT} from "./unpackXKT";
 import {xktToModel} from "./xktToModel";
+import {SDKError} from "@xeokit/core/components";
 
 /**
  * Imports XKT file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel}
@@ -20,7 +21,7 @@ import {xktToModel} from "./xktToModel";
  * @param params - Loading parameters.
  * @param params.data - XKT file data
  * @param params.sceneModel - SceneModel to load into.
- * @param params.dataModel - DataModel to load into.
+ * @param params.dataModel - Optional DataModel to load into.
  * @returns {Promise} Resolves when XKT has been loaded.
  * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been destroyed.
  * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been built.
@@ -29,29 +30,28 @@ import {xktToModel} from "./xktToModel";
  */
 export function loadXKT(params: {
     data: ArrayBuffer,
-    sceneModel?: SceneModel,
-    dataModel?: DataModel,
-    log?: Function
+    sceneModel: SceneModel,
+    dataModel?: DataModel
 }): Promise<any> {
-    const sceneModel = params.sceneModel
-    const dataModel = params.dataModel;
-    if (sceneModel?.destroyed) {
+    if (params.sceneModel.destroyed) {
         throw new Error("SceneModel already destroyed");
     }
-    if (sceneModel?.built) {
-        throw new Error("SceneModel already built");
+    if (params.sceneModel.built) {
+        throw new SDKError("SceneModel already built");
     }
-    if (dataModel?.destroyed) {
-        throw new Error("DataModel already destroyed");
-    }
-    if (dataModel?.built) {
-        throw new Error("DataModel already built");
+    if (params.dataModel) {
+        if (params.dataModel.destroyed) {
+            throw new SDKError("DataModel already destroyed");
+        }
+        if (params.dataModel.built) {
+            throw new SDKError("DataModel already built");
+        }
     }
     return new Promise<void>(function (resolve, reject) {
         xktToModel({
             xktData: inflateXKT(unpackXKT(params.data)),
-            sceneModel,
-            dataModel
+            sceneModel: params.sceneModel,
+            dataModel: params.dataModel
         });
         resolve();
     });

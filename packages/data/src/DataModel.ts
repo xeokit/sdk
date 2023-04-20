@@ -536,10 +536,10 @@ export class DataModel extends Component {
                     type: property.type,
                     valueType: property.valueType,
                     description: property.description
-                }
+                };
                 propertySetParams.properties.push(propertyParams);
             }
-            dataModelParams.propertySets.push(propertySetParams);
+            dataModelParams.propertySets?.push(propertySetParams);
         }
         for (let id in this.objects) {
             const object = this.objects[id];
@@ -549,11 +549,13 @@ export class DataModel extends Component {
                 name: object.name,
                 propertySetIds: []
             };
-            for (let id2 in object.propertySets) {
-                const propertySet = object.propertySets[id2];
-                objectParams.propertySetIds.push(propertySet.id);
+            if (object.propertySets) {
+                for (let i = 0, len = object.propertySets.length; i < len; i++) {
+                    const propertySet = object.propertySets[i];
+                    objectParams.propertySetIds?.push(propertySet.id);
+                }
             }
-            dataModelParams.objects.push(objectParams);
+            dataModelParams.objects?.push(objectParams);
         }
         for (let i = 0, len = this.relationships.length; i < len; i++) {
             const relationship = this.relationships[i];
@@ -562,7 +564,7 @@ export class DataModel extends Component {
                 relatingObjectId: relationship.relatingObject.id,
                 relatedObjectId: relationship.relatedObject.id
             };
-            dataModelParams.relationships.push(relationParams);
+            dataModelParams.relationships?.push(relationParams);
         }
         return dataModelParams;
     }

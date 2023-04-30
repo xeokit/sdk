@@ -1,9 +1,15 @@
 {
   "name": "@xeokit/ktx2",
   "version": "0.0.1",
-  "description": "Localization service for xeokit",
+  "description": "xeokit KTX2 Texture Transcoder",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
+  "source": "src/index.ts",
   "scripts": {
-    "publish": "npm publish --access public"
+    "clean": "rm -fr dist",
+    "publish": "npm publish --access public",
+    "dist": "rm -fr dist && microbundle --define PACKAGE_VERSION=$npm_package_version",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -14,36 +20,16 @@
   "bugs": {
     "url": "https://github.com/xeokit/sdk/issues"
   },
-  "homepage": "https://xeokit.io",
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json",
     "package-lock.json"
   ],
   "keywords": [
-    "webgl",
-    "webgpu",
-    "javascript",
-    "xeokit",
-    "xeolabs",
-    "creoox",
-    "ifc",
-    "bcf",
-    "bim",
-    "gis",
-    "cad",
-    "openbim",
-    "opensource",
-    "gltf",
-    "3dxml",
-    "obj",
-    "stl",
-    "las",
-    "pointcloud",
-    "3d-viewer"
   ],
-  "main": "src/index.ts",
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1"

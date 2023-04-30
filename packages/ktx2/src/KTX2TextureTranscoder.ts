@@ -13,9 +13,9 @@ import {
     RGBA_S3TC_DXT5_Format,
     RGBAFormat,
     sRGBEncoding
-} from "@xeokit/core/constants";
-import {FileLoader, WorkerPool} from "@xeokit/core/utils";
-import {Capabilities, TextureCompressedParams, TextureTranscoder} from "@xeokit/core/components";
+} from "@xeokit/constants";
+import {FileLoader, WorkerPool} from "@xeokit/utils";
+import type {Capabilities, TextureCompressedParams, TextureTranscoder} from "@xeokit/core";
 
 const KTX2TransferSRGB = 2;
 const KTX2_ALPHA_PREMULTIPLIED = 1;

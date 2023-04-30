@@ -2,13 +2,13 @@
   "name": "@xeokit/cityjson2xkt",
   "version": "0.0.1",
   "description": "NodeJS CLI tool to convert CityJSON to XKT.",
-  "main": "dist/cityjson2xkt.js",
-  "module": "dist/cityjson2xkt.js",
-  "source": "src/cityjson2xkt.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
+  "source": "src/index.ts",
   "scripts": {
     "clean": "rm -fr dist",
     "publish": "npm publish --access public",
-    "dist": "rm -fr dist && microbundle --format cjs --define PACKAGE_VERSION=$npm_package_version"
+    "dist": "rm -fr dist && microbundle --format cjs --target node --define PACKAGE_VERSION=$npm_package_version"
   },
   "repository": {
     "type": "git",
@@ -31,7 +31,11 @@
   ],
   "dependencies": {
     "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "^0.0.1"
+    "@xeokit/core": "^0.0.1",
+    "@xeokit/data": "^0.0.1",
+    "@xeokit/scene": "^0.0.1",
+    "@xeokit/cityjson": "^0.0.1",
+    "@xeokit/xkt": "^0.0.1"
   }
 }
 

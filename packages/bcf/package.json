@@ -2,9 +2,13 @@
   "name": "@xeokit/bcf",
   "version": "0.0.1",
   "description": "Loads and saves xeokit Viewer snapshots as JSON-encoded BIM Collaboration Format (BCF) Viewpoints",
-  "module": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
   "source": "src/index.ts",
   "scripts": {
+    "clean": "rm -fr dist",
+    "dist": "rm -fr dist && microbundle --define PACKAGE_VERSION=$npm_package_version",
+    "test": "jest --silent=false",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -19,29 +23,13 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json",
     "package-lock.json"
   ],
-  "keywords": [
-    "webgl",
-    "javascript",
-    "xeokit",
-    "xeolabs",
-    "creoox",
-    "ifc",
-    "bcf",
-    "bim",
-    "cad",
-    "openbim",
-    "opensource",
-    "3d-viewer"
-  ],
-  "main": "dist/xeokit-bcf.modern.js",
+  "keywords": [],
   "dependencies": {
-    "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "0.0.1",
-    "@xeokit/math": "0.0.1",
-    "@xeokit/viewer": "0.0.1"
+    "@xeokit/viewer": "v0.0.1"
   }
 }

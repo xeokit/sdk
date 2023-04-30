@@ -1,6 +1,5 @@
-import type {BCFViewpoint} from "./BCFViewpoint";
-import type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
-
+import type { BCFViewpoint } from "./BCFViewpoint";
+import type { SaveBCFViewpointParams } from "./SaveBCFViewpointParams";
 /**
  * Saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a {@link BCFViewpoint}.
  *
@@ -9,6 +8,4 @@ import type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
  * @param params BCF saving parameers.
  * @returns The BCF viewpoint.
  */
-export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
-    return {};
-}
+export declare function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint;

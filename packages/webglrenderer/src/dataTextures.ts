@@ -1,4 +1,4 @@
-import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 import {GLDataTexture} from "@xeokit/webglutils";
 import {Float16Array} from "./float16";
 

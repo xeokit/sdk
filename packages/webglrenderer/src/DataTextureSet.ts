@@ -1,7 +1,7 @@
 /**
  * @private
  */
-import {GLDataTexture} from "@xeokit/webglutils";
+import type {GLDataTexture} from "@xeokit/webglutils";
 
 
 export class DataTextureSet {

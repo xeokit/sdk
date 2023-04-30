@@ -1,9 +1,9 @@
 import {createMatricesDataTexture} from "./dataTextures";
-import {GLDataTexture} from "@xeokit/webglutils";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {createMat4, createVec3} from "@xeokit/math/matrix";
-import {createRTCViewMat, worldToRTCCenter} from "@xeokit/math/rtc";
-import {Camera} from "@xeokit/viewer";
+import type {GLDataTexture} from "@xeokit/webglutils";
+import type {FloatArrayParam} from "@xeokit/math";
+import {createMat4, createVec3} from "@xeokit/matrix";
+import {createRTCViewMat, worldToRTCCenter} from "@xeokit/rtc";
+import type {Camera} from "@xeokit/viewer";
 
 const NUM_TILES = 2000;
 

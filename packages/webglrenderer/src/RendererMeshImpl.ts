@@ -1,12 +1,12 @@
-import {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject} from "@xeokit/scene";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {createAABB3} from "@xeokit/math/boundaries";
+import type {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject} from "@xeokit/scene";
+import type {FloatArrayParam} from "@xeokit/math";
+import {createAABB3} from "@xeokit/boundaries";
 
 import type {RenderContext} from "./RenderContext";
 import type {Layer} from "./Layer";
-import {Pickable} from "./Pickable";
-import {createMat4, mulMat4, transformPoint3, translationMat4c} from "@xeokit/math/matrix";
-import {Tile, TileManager} from "./TileManager";
+import type {Pickable} from "./Pickable";
+import {createMat4, mulMat4, transformPoint3, translationMat4c} from "@xeokit/matrix";
+import type {Tile, TileManager} from "./TileManager";
 
 const tempMat4a = createMat4();
 const tempMat4b = createMat4();

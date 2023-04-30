@@ -1,3 +1,4 @@
-@xeokit/webglrenderer
+# @xeokit/webglrenderer
 
-WebGL2 rendering strategy for a xeokit Viewer
+* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html)
+

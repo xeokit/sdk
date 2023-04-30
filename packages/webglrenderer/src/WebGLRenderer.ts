@@ -1,27 +1,27 @@
-import {apply, Map} from "@xeokit/core/utils";
-import {createVec3} from "@xeokit/math/matrix";
-import {FloatArrayParam} from "@xeokit/math/math";
+import {apply, Map} from "@xeokit/utils";
+import {createVec3} from "@xeokit/matrix";
+import type {FloatArrayParam} from "@xeokit/math";
 import {
     LinesPrimitive,
     PointsPrimitive,
     SolidPrimitive,
     SurfacePrimitive,
     TrianglesPrimitive
-} from "@xeokit/core/constants";
+} from "@xeokit/constants";
 
-import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import type {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {RenderContext} from "./RenderContext";
 import {FastColorTrianglesRenderer} from "./FastColorTrianglesRenderer";
 import {getExtension, GLRenderBuffer, GLRenderBufferManager, WEBGL_INFO} from "@xeokit/webglutils";
 import {RENDER_PASSES} from "./RENDER_PASSES";
-import {Pickable} from "./Pickable";
+import type {Pickable} from "./Pickable";
 import {RendererModelImpl} from "./RendererModelImpl";
-import {Layer} from "./Layer";
-import {RendererViewObject} from "@xeokit/viewer/src/RendererViewObject";
-import {Capabilities, Component, TextureTranscoder} from "@xeokit/core/components";
-import {SceneModel} from "@xeokit/scene";
+import type {Layer} from "./Layer";
+import type {RendererViewObject} from "@xeokit/viewer/src/RendererViewObject";
+import type {Capabilities, Component, TextureTranscoder} from "@xeokit/core";
+import type {SceneModel} from "@xeokit/scene";
 import {TileManager} from "./TileManager";
 
 
@@ -38,7 +38,7 @@ const isSafari = (ua && ua[1].toLowerCase() === "safari");
 export class WebGLRenderer implements Renderer {
 
     rendererViewObjects: { [key: string]: RendererViewObject };
-    tileManager: TileManager;
+    tileManager: TileManager|null;
     #sceneModels: { [key: string]: SceneModel };
     #viewer: Viewer;
     #view: View;
@@ -325,7 +325,7 @@ export class WebGLRenderer implements Renderer {
             this.#imageDirty = true;
         }
         if (this.#viewMatrixDirty) {
-            this.tileManager.refreshMatrices();
+            (<TileManager>this.tileManager).refreshMatrices();
             this.#viewMatrixDirty = false;
         }
         this.#updateLayerList();

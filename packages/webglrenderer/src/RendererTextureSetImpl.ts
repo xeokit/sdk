@@ -1,5 +1,5 @@
-import { RendererTextureSet} from "@xeokit/scene";
-import {RendererTextureImpl} from "./RendererTextureImpl";
+import type { RendererTextureSet} from "@xeokit/scene";
+import type {RendererTextureImpl} from "./RendererTextureImpl";
 
 
 /**

@@ -1,5 +1,5 @@
-import {createVec4} from "@xeokit/math/matrix";
-import {OrthoProjectionType} from "@xeokit/core/constants";
+import {createVec4} from "@xeokit/matrix";
+import {OrthoProjectionType} from "@xeokit/constants";
 import {AmbientLight, DirLight, PerspectiveProjection, PointLight} from "@xeokit/viewer";
 
 import type {RenderContext} from "./RenderContext";

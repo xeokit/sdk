@@ -1,24 +1,18 @@
-import type {PickResult} from "@xeokit/viewer";
-import type {SceneObject} from "@xeokit/scene";
-
+import type { PickResult } from "@xeokit/viewer";
+import type { SceneObject } from "@xeokit/scene";
 /**
  * Meshes that can be picked by a WebGLRenderer.
  *
  * @private
  */
 export interface Pickable {
-
     /**
      * Called by xeokit to get if it's possible to pick a triangle on the surface of this Drawable.
      */
-    canPickTriangle(): boolean,
-
+    canPickTriangle(): boolean;
     /**
      * Picks a triangle on this Pickable.
      */
-
-    //drawPickTriangles(drawFlags: DrawFlags, renderContext: RenderContext): void;
-
     /**
      * Given a {@link PickResult} that contains a {@link PickResult#primIndex}, which indicates that a primitive was picked on the Pickable, then add more information to the PickResult about the picked position on the surface of the Pickable.
      *
@@ -31,14 +25,10 @@ export interface Pickable {
      * @param [pickResult.direction] World-space 3D ray direction, provided when ray picking.
      */
     pickTriangleSurface(pickResult: PickResult): void;
-
     /**
      * Called by xeokit to get if it's possible to pick a 3D point on the surface of this Pickable.
      * Returns false if canPickTriangle returns true, and vice-versa.
      */
     canPickWorldPos(): boolean;
-
-    // drawPickDepths(drawFlags: DrawFlags, renderContext: RenderContext): void;
-
     delegatePickedEntity(): SceneObject;
 }

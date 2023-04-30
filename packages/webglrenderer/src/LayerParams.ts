@@ -1,6 +1,6 @@
-import {View} from "@xeokit/viewer";
-import {RendererModelImpl} from "./RendererModelImpl";
-import {RendererTextureSet} from "@xeokit/scene";
+import type {View} from "@xeokit/viewer";
+import type {RendererModelImpl} from "./RendererModelImpl";
+import type {RendererTextureSet} from "@xeokit/scene";
 
 /**
  * @private

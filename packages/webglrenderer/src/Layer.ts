@@ -1,16 +1,16 @@
-import {createVec4, identityMat4, transformPoint4} from "@xeokit/math/matrix";
-import {View} from "@xeokit/viewer";
-import {FloatArrayParam} from "@xeokit/math/math";
+import {createVec4, identityMat4, transformPoint4} from "@xeokit/matrix";
+import type {View} from "@xeokit/viewer";
+import type {FloatArrayParam} from "@xeokit/math";
 
 import type {RendererModelImpl} from "./RendererModelImpl";
 import {DataTextureSet} from "./DataTextureSet";
 import {MeshCounts} from "./MeshCounts";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import {RENDER_PASSES} from './RENDER_PASSES';
-import {LinesPrimitive, PointsPrimitive} from "@xeokit/core/constants";
-import {AABB3ToOBB3, collapseAABB3, expandAABB3Point3} from "@xeokit/math/boundaries";
-import {GeometryBucketParams, GeometryCompressedParams, MeshParams} from "@xeokit/scene";
-import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
+import {LinesPrimitive, PointsPrimitive} from "@xeokit/constants";
+import {AABB3ToOBB3, collapseAABB3, expandAABB3Point3} from "@xeokit/boundaries";
+import type {GeometryBucketParams, GeometryCompressedParams, MeshParams} from "@xeokit/scene";
+import type {RendererTextureSetImpl} from "./RendererTextureSetImpl";
 import {
     createEachEdgeOffsetDataTexture,
     createEachMeshAttributesDataTexture,
@@ -23,8 +23,8 @@ import {
     createIndices8BitDataTexture,
     createPositionsDataTexture
 } from "./dataTextures";
-import {LayerParams} from "./LayerParams";
-import {GeometryBucketHandle} from "./GeometryBucketHandle";
+import type {LayerParams} from "./LayerParams";
+import type {GeometryBucketHandle} from "./GeometryBucketHandle";
 import {DataTextureBuffer} from "./DataTextureBuffer";
 
 const MAX_MESH_PARTS = (1 << 12); // 12 bits 

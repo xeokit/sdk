@@ -1,0 +1,34 @@
+{
+  "name": "@xeokit/curves",
+  "version": "0.0.1",
+  "description": "xeokit Curves Math Library",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
+  "source": "src/index.ts",
+  "scripts": {
+    "clean": "rm -fr dist",
+    "dist": "rm -fr dist && microbundle --define PACKAGE_VERSION=$npm_package_version",
+     "publish": "npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xeokit/sdk.git"
+  },
+  "author": "Lindsay Kay",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/xeokit/sdk/issues"
+  },
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_curves.html",
+  "files": [
+    "src/",
+    "dest/",
+    "README.md",
+    "package.json",
+    "package-lock.json"
+  ],
+  "keywords": [
+  ],
+  "dependencies": {
+  }
+}

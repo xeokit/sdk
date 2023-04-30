@@ -1,6 +1,6 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fmath.svg)](https://badge.fury.io/js/%40xeokit%2Fmath)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/math/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math)
  *
  * # xeokit Curves Math Library
  *
@@ -13,16 +13,16 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/math/curves
+ * npm install @xeokit/curves
  * ````
  *
  * ````javascript
- * import * as curves from "@xeokit/math/curves";
+ * import * as curves from "@xeokit/curves";
  *
  * //..
  * ````
  *
- * @module @xeokit/math/curves
+ * @module @xeokit/curves
  */
 
 /**

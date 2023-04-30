@@ -1,4 +1,4 @@
-import {Map} from "@xeokit/core/utils";
+import {Map} from "@xeokit/utils";
 
 import {GLShader} from "./GLShader";
 import {GLSampler} from "./GLSampler";

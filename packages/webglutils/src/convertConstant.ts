@@ -57,7 +57,7 @@ import {
     UnsignedShort4444Type,
     UnsignedShort5551Type,
     UnsignedShortType
-} from "@xeokit/core/constants";
+} from "@xeokit/constants";
 
 import {getExtension} from "./getExtension";
 

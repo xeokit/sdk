@@ -1,18 +1,18 @@
-import type * as math from '@xeokit/math/math';
+import type * as math from '@xeokit/math';
 import {
     NearestFilter,
     NearestMipmapLinearFilter, NearestMipmapNearestFilter,
     RepeatWrapping,
     RGBAFormat, sRGBEncoding,
     UnsignedByteType
-} from "@xeokit/core/constants";
+} from "@xeokit/constants";
 
-import {isArray} from "@xeokit/core/utils";
+import {isArray} from "@xeokit/utils";
 
 import {convertConstant} from "./convertConstant";
 import {getExtension} from "./getExtension";
 import type {GLAbstractTexture} from "./GLAbstractTexture";
-import {TextureCompressedParams} from "@xeokit/core/components";
+import type {TextureCompressedParams} from "@xeokit/core";
 
 const color = new Uint8Array([0, 0, 0, 1]);
 

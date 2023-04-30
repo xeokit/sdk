@@ -1,6 +1,6 @@
 import type {GLProgram} from "./GLProgram";
 import type {GLSampler} from "./GLSampler";
-import {GLAbstractTexture} from "./GLAbstractTexture";
+import type {GLAbstractTexture} from "./GLAbstractTexture";
 
 /**
  * Represents a WebGL2 data texture.
@@ -8,7 +8,7 @@ import {GLAbstractTexture} from "./GLAbstractTexture";
 export class GLDataTexture implements GLAbstractTexture {
 
     gl?: WebGL2RenderingContext;
-    texture?: WebGLTexture;
+    texture?: WebGLTexture | null;
     textureWidth?: number;
     textureHeight?: number;
     textureData?: any;
@@ -51,9 +51,9 @@ export class GLDataTexture implements GLAbstractTexture {
      * Unbinds this GLDataTexture from whichever {@link GLSampler} it's currently bound to, if any.
      * @param unit
      */
-    bind(unit: number) {
+    bind(unit: number) : boolean{
         if (!this.gl || !this.texture) {
-            return;
+            return false;
         }
         // @ts-ignore
         this.gl.activeTexture(this.gl["TEXTURE" + unit]);

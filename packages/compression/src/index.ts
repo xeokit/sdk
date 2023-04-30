@@ -168,7 +168,8 @@
  */
 
 import {
-    createMat3, createMat4,
+    createMat3,
+    createMat4,
     createVec3,
     identityMat3,
     identityMat4,

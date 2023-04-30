@@ -15,10 +15,10 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/datatypes
+ * npm install @xeokit/basictypes
  * ````
  *
- * @module @xeokit/datatypes/basicTypes
+ * @module @xeokit/basictypes
  */
 
 /**

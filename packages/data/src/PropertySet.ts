@@ -1,6 +1,5 @@
 import {Property} from "./Property";
 import type {DataModel} from "./DataModel";
-import type {PropertyParams} from "./PropertyParams";
 import type {PropertySetParams} from "./PropertySetParams";
 
 /**

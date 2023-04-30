@@ -1,7 +1,6 @@
-import {Data} from "./Data";
-import {SearchParams} from "./SearchParams";
-import {SDKError} from "@xeokit/core/components";
-import {DataObject} from "./DataObject";
+import type {Data} from "./Data";
+import {SDKError} from "@xeokit/core";
+import type {DataObject} from "./DataObject";
 
 export class DataTraversalQuery {
     private data: Data;
@@ -22,7 +21,7 @@ export class DataTraversalQuery {
      * TODO
      */
     query(): void | SDKError {
-        if (this.data) {
+        if (!this.data) {
             return new SDKError("Data already destroyed");
         }
         // const includeObjects = (this.includeObjects && this.includeObjects.length > 0) ? arrayToMap(this.includeObjects) : null;
@@ -30,7 +29,7 @@ export class DataTraversalQuery {
         // const includeRelating = (this.includeRelating && this.includeRelating.length > 0) ? arrayToMap(this.includeRelating) : null;
         // const excludeRelating = (this.excludeRelating && this.excludeRelating.length > 0) ? arrayToMap(this.excludeRelating) : null;
 
-         const visit = (dataObject: DataObject, depth) =>{
+         const visit = (dataObject: DataObject, depth: number) =>{
             if (!dataObject) {
                 return;
             }

@@ -4,7 +4,7 @@
   "description": "Core xeokit SDK constants",
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_constants.html",
   "main": "dist/index.js",
-  "module": "dist/index.js",
+  "module": "dist/index.es",
   "source": "src/index.ts",
   "scripts": {
     "clean": "rm -fr dist",

@@ -308,7 +308,7 @@
  * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
  * ````javascript
- * import {compressGeometryParams} from "@xeokit/math/compression";
+ * import {compressGeometryParams} from "@xeokit/compression";
  * import {TrianglesPrimitive} from "@xeokit/core/constants";
  *
  * const geometryCompressedParams = compressGeometryParams({

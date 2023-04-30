@@ -1,5 +1,5 @@
 
-import type {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 
 /**
  * Non-compressed geometry parameters for {@link SceneModel.createGeometry | SceneModel.createGeometry}.

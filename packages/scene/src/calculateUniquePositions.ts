@@ -10,6 +10,7 @@
  * step, but is much more GC-friendly and actually faster than the classic O(N)
  * approach based in keeping a hash-based LUT to identify unique positions.
  */
+
 let comparePositions: any = null;
 
 
@@ -43,7 +44,7 @@ let comparePositions: any = null;
  * @private
  * @returns An array with 3 elements: 0 => the uniquified positions; 1 and 2 => the remapped edges and edgeIndices arrays
  */
-export function uniquifyPositions(mesh: any) {
+export function uniquifyPositions(mesh: any): [Uint16Array, Uint32Array, Uint32Array | undefined] {
 
     let positionsCompressed = mesh.positionsCompressed;
     let indices = mesh.indices;

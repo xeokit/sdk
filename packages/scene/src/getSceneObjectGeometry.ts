@@ -1,11 +1,11 @@
-import {SceneObject} from "./SceneObject";
-import {Mesh} from "./Mesh";
-import {decompressPositions3} from "@xeokit/math/compression";
-import {transformPositions3} from "@xeokit/math/matrix";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {Geometry} from "./Geometry";
-import {GeometryBucket} from "./GeometryBucket";
-import {LinesPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
+import type {SceneObject} from "./SceneObject";
+import type {Mesh} from "./Mesh";
+import {decompressPositions3} from "@xeokit/compression";
+import {transformPositions3} from "@xeokit/matrix";
+import type {FloatArrayParam} from "@xeokit/math";
+import type {Geometry} from "./Geometry";
+import type {GeometryBucket} from "./GeometryBucket";
+import {LinesPrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
 /**
  * The {@link getSceneObjectGeometry} passes an instance of GeometryView to its callback
@@ -105,15 +105,15 @@ class GeometryViewImpl {
     }
 
     get numPrimitives() {
-        const primitiveType = this.geometry.primitive;
+        const primitiveType = (<Geometry>this.geometry).primitive;
         const elementsPerPrimitiveType = (primitiveType === TrianglesPrimitive ? 3 : (primitiveType === LinesPrimitive ? 2 : 1));
-        return this.geometryBucket.indices.length / elementsPerPrimitiveType;
+        return (<FloatArrayParam>(<GeometryBucket>this.geometryBucket).indices).length / elementsPerPrimitiveType;
     }
 
     get positionsDecompressed(): FloatArrayParam {
         if (!this.#positionsDecompressed) {
-            this.#positionsDecompressed = new Float32Array(this.geometryBucket.positionsCompressed.length);
-            decompressPositions3(this.geometryBucket.positionsCompressed, this.geometry.positionsDecompressMatrix, this.#positionsDecompressed);
+            this.#positionsDecompressed = new Float32Array((<GeometryBucket>this.geometryBucket).positionsCompressed.length);
+            decompressPositions3((<GeometryBucket>this.geometryBucket).positionsCompressed, (<Geometry>this.geometry).positionsDecompressMatrix, this.#positionsDecompressed);
         }
         return this.#positionsDecompressed;
     }
@@ -122,13 +122,13 @@ class GeometryViewImpl {
         if (!this.#positionsWorld) {
             const positionsDecompressed = this.positionsDecompressed;
             this.#positionsWorld = new Float64Array(positionsDecompressed.length);
-            transformPositions3(positionsDecompressed, this.mesh.matrix, this.#positionsWorld);
+            transformPositions3(positionsDecompressed, (<Mesh>this.mesh).matrix, this.#positionsWorld);
         }
         return this.#positionsWorld;
     }
 
-    get uvsDecompressed(): FloatArrayParam {
-        return;
+    get uvsDecompressed(): FloatArrayParam | null{
+        return null;
     }
 
     reset() {

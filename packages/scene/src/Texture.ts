@@ -1,7 +1,8 @@
 import {
     ClampToEdgeWrapping,
     GIFMediaType,
-    JPEGMediaType, LinearEncoding,
+    JPEGMediaType,
+    LinearEncoding,
     LinearFilter,
     LinearMipmapLinearFilter,
     LinearMipMapLinearFilter,
@@ -13,11 +14,11 @@ import {
     PNGMediaType,
     RepeatWrapping,
     sRGBEncoding
-} from "@xeokit/core/constants";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {RendererTexture} from "./RendererTexture";
-import {TextureParams} from "./TextureParams";
-import {createVec4} from "@xeokit/math/matrix";
+} from "@xeokit/constants";
+import type {FloatArrayParam} from "@xeokit/math";
+import type {RendererTexture} from "./RendererTexture";
+import type {TextureParams} from "./TextureParams";
+import {createVec4} from "@xeokit/matrix";
 
 /**
  * A texture in a {@link SceneModel}.
@@ -30,7 +31,7 @@ import {createVec4} from "@xeokit/math/matrix";
  *
  * See {@link "@xeokit/scene"} for usage.
  */
-export class Texture  {
+export class Texture {
 
     /**
      *  Internal interface through which this {@link Texture} can load property updates into a renderer.
@@ -39,7 +40,7 @@ export class Texture  {
      *
      * @internal
      */
-    rendererTexture?: RendererTexture;
+    rendererTexture: RendererTexture | null;
 
     /**
      * ID for the texture.
@@ -154,7 +155,7 @@ export class Texture  {
     /**
      * @private
      */
-    channel:number;
+    channel: number;
 
     /**
      * @private
@@ -172,6 +173,7 @@ export class Texture  {
         this.encoding = params.encoding || LinearEncoding;
         this.preloadColor = createVec4(params.preloadColor || [1, 1, 1, 1]);
         this.channel = 0;
+        this.rendererTexture = null;
     }
 }
 

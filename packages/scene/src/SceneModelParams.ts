@@ -1,12 +1,12 @@
-import type {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
-import {GeometryCompressedParams} from "./GeometryCompressedParams";
-import {TextureParams} from "./TextureParams";
-import {TextureSetParams} from "./TextureSetParams";
-import {SceneObject} from "./SceneObject";
-import {MeshParams} from "./MeshParams";
-import {GeometryParams} from "./GeometryParams";
-import {SceneObjectParams} from "./SceneObjectParams";
+import type {GeometryCompressedParams} from "./GeometryCompressedParams";
+import type {TextureParams} from "./TextureParams";
+import type {TextureSetParams} from "./TextureSetParams";
+import type {SceneObject} from "./SceneObject";
+import type {MeshParams} from "./MeshParams";
+import type {GeometryParams} from "./GeometryParams";
+import type {SceneObjectParams} from "./SceneObjectParams";
 
 
 /**

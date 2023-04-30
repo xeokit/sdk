@@ -1,6 +1,6 @@
-import {Texture} from "./Texture";
-import {TextureSetParams} from "./TextureSetParams";
-import {RendererTextureSet} from "./RendererTextureSet";
+import type {Texture} from "./Texture";
+import type {TextureSetParams} from "./TextureSetParams";
+import type {RendererTextureSet} from "./RendererTextureSet";
 
 /**
  * A set of {@link Texture | Textures} in a {@link SceneModel}.
@@ -45,7 +45,7 @@ export class TextureSet {
      *
      * @internal
      */
-    rendererTextureSet?: RendererTextureSet;
+    rendererTextureSet: RendererTextureSet | null;
 
     /**
      * @private
@@ -63,5 +63,6 @@ export class TextureSet {
         this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
         this.occlusionTexture = textures.occlusionTexture;
         this.emissiveTexture = textures.emissiveTexture;
+        this.rendererTextureSet = null;
     }
 }

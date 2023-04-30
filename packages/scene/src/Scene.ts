@@ -1,10 +1,10 @@
-import {Component, EventEmitter, SDKError} from "@xeokit/core/components";
-import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math/math";
+import {Component, EventEmitter, SDKError} from "@xeokit/core";
+import {FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "@xeokit/math";
 import {EventDispatcher} from "strongly-typed-events";
 import {SceneModel} from "./SceneModel";
-import {SceneObject} from "./SceneObject";
-import {SceneModelParams} from "./SceneModelParams";
-import {createAABB3} from "@xeokit/math/boundaries";
+import type {SceneObject} from "./SceneObject";
+import type {SceneModelParams} from "./SceneModelParams";
+import {createAABB3} from "@xeokit/boundaries";
 
 /**
  * A scene representation.
@@ -153,7 +153,7 @@ export class Scene extends Component {
      * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
      * @returns *{@link SceneModel}*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * This Scene has already been destroyed.
      * * A SceneModel with the given ID already exists in this Scene.
      */
@@ -198,7 +198,7 @@ export class Scene extends Component {
      * See {@link "@xeokit/scene"} for usage.
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * This Scene has already been destroyed.
      */
     clear(): void | SDKError {
@@ -221,7 +221,7 @@ export class Scene extends Component {
      *
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * This Scene has already been destroyed.
      */
     destroy(): void | SDKError {

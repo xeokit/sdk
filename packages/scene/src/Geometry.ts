@@ -1,7 +1,7 @@
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 import {GeometryBucket} from "./GeometryBucket";
-import {GeometryCompressedParams} from "./GeometryCompressedParams";
-import {RendererGeometry} from "./RendererGeometry";
+import type {GeometryCompressedParams} from "./GeometryCompressedParams";
+import type {RendererGeometry} from "./RendererGeometry";
 
 /**
  * A geometry in a {@link SceneModel}.
@@ -62,7 +62,7 @@ export class Geometry {
      *
      * @internal
      */
-    rendererGeometry?: RendererGeometry;
+    rendererGeometry: RendererGeometry | null;
 
     constructor(params: GeometryCompressedParams) {
         this.geometryBuckets = [];

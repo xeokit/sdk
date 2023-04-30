@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 import type {GeometryBucketParams} from "./GeometryBucketParams";
 
@@ -8,7 +8,7 @@ import type {GeometryBucketParams} from "./GeometryBucketParams";
  *
  * ## Summary
  *
- * * Created from {@link @xeokit/scene!GeometryParams|GeometryParams} using {@link @xeokit/math/compression!compressGeometryParams}
+ * * Created from {@link @xeokit/scene!GeometryParams|GeometryParams} using {@link @xeokit/compression!compressGeometryParams}
  * * Used with {@link SceneModel.createGeometryCompressed | Model.createGeometryCompressed} and {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes

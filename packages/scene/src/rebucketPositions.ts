@@ -2,7 +2,7 @@
  * @author https://github.com/tmarti, with support from https://tribia.com/
  * @license MIT
  **/
-import {IntArrayParam} from "@xeokit/math/math";
+import type {IntArrayParam} from "@xeokit/math";
 
 
 const MAX_RE_BUCKET_FAN_OUT = 8;
@@ -13,13 +13,13 @@ export function rebucketPositions(
     mesh: {
         positionsCompressed: IntArrayParam,
         indices: IntArrayParam,
-        edgeIndices: IntArrayParam,
+        edgeIndices?: IntArrayParam,
     },
     bitsPerBucket: any,
     checkResult = false): {
     positionsCompressed: IntArrayParam,
     indices: IntArrayParam,
-    edgeIndices: IntArrayParam
+    edgeIndices?: IntArrayParam
 }[] {
 
     const positionsCompressed = (mesh.positionsCompressed || []);

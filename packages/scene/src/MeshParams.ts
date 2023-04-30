@@ -1,5 +1,5 @@
-import type {FloatArrayParam} from "@xeokit/math/math";
-import { Mesh } from "./Mesh";
+import type {FloatArrayParam} from "@xeokit/math";
+import type { Mesh } from "./Mesh";
 
 /**
  * {@link Mesh} creation parameters for {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.

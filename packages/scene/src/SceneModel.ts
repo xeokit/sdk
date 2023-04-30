@@ -1,33 +1,33 @@
 import {KTX2BasisWriter} from "@loaders.gl/textures";
 import {ImageLoader} from '@loaders.gl/images';
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter, SDKError} from "@xeokit/core/components";
+import {Component, EventEmitter, SDKError} from "@xeokit/core";
 import {
     LinesPrimitive,
     PointsPrimitive,
     SolidPrimitive,
     SurfacePrimitive,
     TrianglesPrimitive
-} from "@xeokit/core/constants";
-import {createAABB3} from "@xeokit/math/boundaries";
+} from "@xeokit/constants";
+import {createAABB3} from "@xeokit/boundaries";
 
 import {Geometry} from "./Geometry";
 import {SceneObject} from "./SceneObject";
 import {TextureSet} from "./TextureSet";
 import {Texture} from "./Texture";
 import {Mesh} from "./Mesh";
-import {RendererModel} from "./RendererModel";
-import {TransformParams} from "./TransformParams";
-import {TextureSetParams} from "./TextureSetParams";
-import {GeometryParams} from "./GeometryParams";
-import {GeometryCompressedParams} from "./GeometryCompressedParams";
-import {MeshParams} from "./MeshParams";
-import {SceneObjectParams} from "./SceneObjectParams";
-import {TextureParams} from "./TextureParams";
+import type {RendererModel} from "./RendererModel";
+import type {TransformParams} from "./TransformParams";
+import type {TextureSetParams} from "./TextureSetParams";
+import type {GeometryParams} from "./GeometryParams";
+import type {GeometryCompressedParams} from "./GeometryCompressedParams";
+import type {MeshParams} from "./MeshParams";
+import type {SceneObjectParams} from "./SceneObjectParams";
+import type {TextureParams} from "./TextureParams";
 import {compressGeometryParams} from "./compressGeometryParams";
 import {encode, load} from "@loaders.gl/core";
-import {SceneModelParams} from "./SceneModelParams";
-import {Scene} from "./Scene";
+import type {SceneModelParams} from "./SceneModelParams";
+import type {Scene} from "./Scene";
 
 // XKT texture types
 
@@ -104,7 +104,7 @@ export class SceneModel extends Component {
      *
      * SceneModel are stored against this ID in {@link Scene.models}.
      */
-    public readonly id: string;
+    declare public readonly id: string;
 
     /**
      * If we want to view this SceneModel with a {@link @xeokit/viewer}, an
@@ -193,14 +193,14 @@ export class SceneModel extends Component {
      *
      * @event
      */
-    public readonly onDestroyed: EventEmitter<SceneModel, null>;
+    declare public readonly onDestroyed: EventEmitter<SceneModel, null>;
 
     /**
      *  Internal interface through which a SceneModel can load property updates into a renderer.
      *
      * @internal
      */
-    public rendererModel?: RendererModel;
+    public rendererModel: RendererModel | null;
 
 
     #texturesList: Texture[];
@@ -210,7 +210,7 @@ export class SceneModel extends Component {
     /**
      * @private
      */
-    constructor(scene:Scene, sceneModelParams: SceneModelParams) {
+    constructor(scene: Scene, sceneModelParams: SceneModelParams) {
         super(scene, {
             id: sceneModelParams.id
         });
@@ -234,6 +234,7 @@ export class SceneModel extends Component {
         this.objects = {};
         this.aabb = createAABB3();
         this.built = false;
+        this.rendererModel = null;
 
         this.fromJSON(sceneModelParams);
     }
@@ -246,7 +247,7 @@ export class SceneModel extends Component {
      * @param sceneModelParams
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been built.
      * * If this SceneModel has already been destroyed.
      * * A duplicate component ({@link SceneObject}, {@link Mesh}, {@link Geometry}, {@link Texture} etc.) was already created within this SceneModel.
@@ -306,7 +307,7 @@ export class SceneModel extends Component {
      * @param transformParams Transform creation parameters.
      * @returns *{Transform}*
      * * On success
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
      */
     createTransform(transformParams: TransformParams): void | SDKError {
@@ -351,7 +352,7 @@ export class SceneModel extends Component {
      * @param textureParams - Texture creation parameters.
      * @returns *{@link Texture}*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * Invalid TextureParams were given.
      * * Texture with given ID already exists in this Scene.
@@ -404,7 +405,7 @@ export class SceneModel extends Component {
      *
      * @returns *{@link TextureSet}*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * Invalid TextureSetParams were given.
      * * TextureSet with given ID already exists in this SceneModel.
@@ -507,7 +508,7 @@ export class SceneModel extends Component {
      * @param geometryParams Non-compressed geometry parameters.
      * @returns *{Geometry}*
      *  * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid GeometryParams were given.
@@ -575,7 +576,7 @@ export class SceneModel extends Component {
      * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from pre-compressed geometry parameters.
      *
      * * Stores the new {@link Geometry} in {@link SceneModel.geometries | SceneModel.geometries}.
-     * * Use {@link @xeokit/math/compression!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
+     * * Use {@link @xeokit/compression!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
      *
      * ### Usage
      *
@@ -617,7 +618,7 @@ export class SceneModel extends Component {
      * @param geometryCompressedParams Pre-compressed geometry parameters.
      * @returns *{Geometry}*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid GeometryParams were given.
@@ -683,7 +684,7 @@ export class SceneModel extends Component {
      * @param meshParams Pre-compressed mesh parameters.
      * @returns *{Mesh}*
      *  * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid MeshParams were given.
@@ -769,7 +770,7 @@ export class SceneModel extends Component {
      * @param objectParams SceneObject parameters.
      * @returns *{SceneObject}*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid ObjectParams were given.
@@ -854,7 +855,7 @@ export class SceneModel extends Component {
      *
      * See {@link "@xeokit/scene"} for more usage info.
      *
-     * @throws *{@link @xeokit/core/components!SDKError}*
+     * @throws *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * If no SceneObjects were created in this SceneModel.
      */

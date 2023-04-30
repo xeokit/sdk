@@ -1,6 +1,6 @@
-import {DEGTORAD, FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
-import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "@xeokit/math/matrix";
-import {decompressPoint3} from "@xeokit/math/compression";
+import {DEGTORAD, FloatArrayParam, IntArrayParam} from "@xeokit/math";
+import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "@xeokit/matrix";
+import {decompressPoint3} from "@xeokit/compression";
 
 const uniquePositions: number[] = [];
 const indicesLookup: number[] = [];

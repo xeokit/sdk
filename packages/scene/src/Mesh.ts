@@ -1,9 +1,9 @@
-import {FloatArrayParam} from "@xeokit/math/math";
-import {createMat4, createVec3, identityMat4} from "@xeokit/math/matrix";
-import {RendererMesh} from "./RendererMesh";
-import {Geometry} from "./Geometry";
-import {TextureSet} from "./TextureSet";
-import {SceneObject} from "./SceneObject";
+import type {FloatArrayParam} from "@xeokit/math";
+import {createMat4, createVec3, identityMat4} from "@xeokit/matrix";
+import type {RendererMesh} from "./RendererMesh";
+import type {Geometry} from "./Geometry";
+import type {TextureSet} from "./TextureSet";
+import type {SceneObject} from "./SceneObject";
 
 /**
  * A mesh in a {@link SceneModel}.
@@ -40,12 +40,12 @@ export class Mesh {
      *
      * @internal
      */
-    rendererMesh?: RendererMesh;
+    rendererMesh: RendererMesh | null;
 
     /**
      * The {@link @xeokit/scene!SceneObject} that uses this Mesh.
      */
-    object: SceneObject|null;
+    object: SceneObject | null;
 
     #color: FloatArrayParam;
     #matrix: FloatArrayParam;
@@ -70,6 +70,7 @@ export class Mesh {
         this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
         this.geometry = meshParams.geometry;
         this.textureSet = meshParams.textureSet;
+        this.rendererMesh = null;
 
         this.color = meshParams.color || createVec3([1, 1, 1]);
         this.metallic = (meshParams.metallic !== null && meshParams.metallic !== undefined) ? meshParams.metallic : 0;

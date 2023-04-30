@@ -1,8 +1,13 @@
 {
   "name": "@xeokit/scene",
   "version": "0.0.1",
-  "description": "A buldable, loadable, savable, viewer-agnostic JavaScript data structure to represent a xeokit geometric model in NodeJS or Browser memory. Use this to generate xeokit models, or as an intermediate in-memory representation within a conversion process. ",
+  "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
+  "source": "src/index.ts",
   "scripts": {
+    "clean": "rm -fr dist",
+    "dist": "rm -fr dist && microbundle --define PACKAGE_VERSION=$npm_package_version",
     "publish": "npm publish --access public",
     "test": "jest --silent=false"
   },
@@ -15,42 +20,21 @@
   "bugs": {
     "url": "https://github.com/xeokit/sdk/issues"
   },
-  "homepage": "https://xeokit.io",
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json",
     "package-lock.json"
   ],
   "keywords": [
-    "webgl",
-    "webgpu",
-    "javascript",
-    "xeokit",
-    "xeolabs",
-    "creoox",
-    "ifc",
-    "bcf",
-    "bim",
-    "gis",
-    "cad",
-    "openbim",
-    "opensource",
-    "gltf",
-    "3dxml",
-    "obj",
-    "stl",
-    "las",
-    "pointcloud",
-    "3d-viewer"
   ],
-  "main": "src/index.ts",
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1",
     "@xeokit/math": "^0.0.1",
-    "@loaders.gl/core": "^3.2.6",
-    "@loaders.gl/polyfills": "^3.2.6",
-    "@loaders.gl/textures": "^3.2.6"
+    "@xeokit/matrix": "^0.0.1",
+    "@xeokit/compression": "^0.0.1"
   }
 }

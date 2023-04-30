@@ -1,4 +1,4 @@
-import type {IntArrayParam} from "@xeokit/math/math";
+import type {IntArrayParam} from "@xeokit/math";
 
 /**
  * A geometry bucket within {@link @xeokit/scene!GeometryCompressedParams.geometryBuckets}.

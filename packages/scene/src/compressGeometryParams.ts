@@ -1,14 +1,14 @@
-import {createMat4, createVec3} from "@xeokit/math/matrix";
-import {collapseAABB3, expandAABB3Points3} from "@xeokit/math/boundaries";
-import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {quantizePositions3} from "@xeokit/math/compression";
+import {createMat4} from "@xeokit/matrix";
+import {collapseAABB3, expandAABB3Points3} from "@xeokit/boundaries";
+import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
+import {quantizePositions3} from "@xeokit/compression";
 
 import {buildEdgeIndices} from "./buildEdgeIndices";
 import {uniquifyPositions} from "./calculateUniquePositions";
 import {rebucketPositions} from "./rebucketPositions";
-import {GeometryParams} from "./GeometryParams";
-import {GeometryCompressedParams} from "./GeometryCompressedParams";
-import {IntArrayParam} from "@xeokit/math/math";
+import type {GeometryParams} from "./GeometryParams";
+import type {GeometryCompressedParams} from "./GeometryCompressedParams";
+import type {IntArrayParam} from "@xeokit/math";
 
 /**
  * Compresses a {@link @xeokit/scene!GeometryParams | GeometryParams} into a {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
@@ -26,9 +26,9 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
     const edgeIndices = (geometryParams.primitive === SolidPrimitive || geometryParams.primitive === SurfacePrimitive || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
         ? buildEdgeIndices(positionsCompressed, geometryParams.indices, positionsDecompressMatrix, 10)
         : null;
-    let uniquePositionsCompressed;
-    let uniqueIndices;
-    let uniqueEdgeIndices;
+    let uniquePositionsCompressed: IntArrayParam;
+    let uniqueIndices: Uint32Array;
+    let uniqueEdgeIndices: Uint32Array | undefined;
     [
         uniquePositionsCompressed,
         uniqueIndices,

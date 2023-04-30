@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 /**
  * {@link Transform} creation parameters for {@link @xeokit/scene!SceneModel.createTransform | SceneModel.createTransform}.

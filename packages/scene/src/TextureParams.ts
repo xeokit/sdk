@@ -1,5 +1,5 @@
-import { LinearEncoding } from "@xeokit/core/constants";
-import type {FloatArrayParam} from "@xeokit/math/math";
+import type { LinearEncoding } from "@xeokit/constants";
+import type {FloatArrayParam} from "@xeokit/math";
 
 /**
  * {@link Texture} creation parameters for {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.

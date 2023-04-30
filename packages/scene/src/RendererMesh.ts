@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 /**
  *  Internal interface through which a {@link Mesh} can load property updates into a renderer.

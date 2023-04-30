@@ -1,7 +1,7 @@
 import {GeometryView, getSceneObjectGeometry, Scene} from "@xeokit/scene";
 import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/core/constants";
-import {createVec4} from "@xeokit/math/src/matrix";
-import {SDKError} from "@xeokit/core/components";
+import {createVec4} from "@xeokit/src/matrix";
+import {SDKError} from "@xeokit/core";
 
 describe('Create and Destroy a SceneModel', () => {
 

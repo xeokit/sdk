@@ -2,9 +2,14 @@
   "name": "@xeokit/cityjson",
   "version": "0.0.1",
   "description": "CityJSON loader for xeokit",
+  "main": "dist/cityjson.js",
+  "module": "dist/cityjson.js",
+  "source": "src/index.ts",
   "scripts": {
-    "publish": "npm publish --access public",
-    "test": "jest --silent=false"
+    "clean": "rm -fr dist",
+    "dist": "rm -fr dist && microbundle  --format modern,cjs --define PACKAGE_VERSION=$npm_package_version",
+    "test": "jest --silent=false",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -15,38 +20,21 @@
   "bugs": {
     "url": "https://github.com/xeokit/sdk/issues"
   },
-  "homepage": "https://xeokit.io",
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json",
     "package-lock.json"
   ],
   "keywords": [
-    "webgl",
-    "webgpu",
-    "javascript",
-    "xeokit",
-    "xeolabs",
-    "creoox",
-    "ifc",
-    "bcf",
-    "bim",
-    "gis",
-    "cad",
-    "openbim",
-    "opensource",
-    "cityJSON",
-    "3dxml",
-    "obj",
-    "stl",
-    "las",
-    "pointcloud",
-    "3d-viewer"
   ],
   "dependencies": {
     "@xeokit/core": "^0.0.1",
-    "@xeokit/math": "^0.0.1"
+    "@xeokit/math": "^0.0.1",
+    "@xeokit/scene": "^0.0.1",
+    "@xeokit/data": "^0.0.1"
   }
 }
 

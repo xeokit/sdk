@@ -1,4 +1,4 @@
-import {SDKError} from "@xeokit/core/components";
+import {SDKError} from "@xeokit/core";
 import {Scene} from "@xeokit/scene";
 import {Data} from "@xeokit/data";
 import {loadCityJSON} from "../src";

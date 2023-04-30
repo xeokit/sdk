@@ -7,14 +7,15 @@ import {
     mulVec3Scalar,
     normalizeVec3,
     subVec3
-} from "@xeokit/math/matrix";
-import {SceneModel} from "@xeokit/scene";
-import {DataModel} from "@xeokit/data";
+} from "@xeokit/matrix";
+import type {SceneModel} from "@xeokit/scene";
+import type {DataModel} from "@xeokit/data";
+// @ts-ignore
 import {earcut} from './earcut';
-import {TrianglesPrimitive} from "@xeokit/core/constants";
-import {BasicAggregation} from "@xeokit/datatypes/basicTypes";
-import {typeCodes} from "@xeokit/datatypes/src/cityJSONTypes_1_1_3";
-import {SDKError} from "@xeokit/core/components";
+import {TrianglesPrimitive} from "@xeokit/constants";
+import {BasicAggregation} from "@xeokit/basictypes";
+import {typeCodes} from "@xeokit/cityjsontypes_1_1_3";
+import {SDKError} from "@xeokit/core";
 
 const tempVec2a = createVec2();
 const tempVec3a = createVec3();
@@ -30,19 +31,19 @@ const tempVec3c = createVec3();
  * See {@link "@xeokit/cityjson"} for usage.
  *
  * @param params - Loading parameters.
- * @param params.data - CityJSON file data.
+ * @param params.fileData - CityJSON file data.
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
  * @param options - CityJSON loading options
  * @param options.rotateX - True to rotate the model about the X-axis. Default is false.
- * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been built.
- * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been built.
+ * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been built.
+ * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError} If the DataModel has already been built.
  * @returns {Promise} Resolves when CityJSON has been loaded into the SceneModel and/or DataModel.
  */
 export function loadCityJSON(params: {
-                                 data: any,
+                                 fileData: any,
                                  sceneModel: SceneModel,
                                  dataModel?: DataModel
                              },
@@ -53,7 +54,7 @@ export function loadCityJSON(params: {
                              }): Promise<any> {
     if (params.sceneModel) {
         if (params.sceneModel.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            throw new SDKError("SceneModel already destroyed");
         }
         if (params.sceneModel.built) {
             throw new SDKError("SceneModel already built");
@@ -68,12 +69,12 @@ export function loadCityJSON(params: {
         }
     }
     return new Promise<void>(function (resolve, reject) {
-        const data = params.data;
+        const fileData = params.fileData;
         const ctx = {
-            data,
-            vertices: (data.transform && params.sceneModel)
-                ? transformVertices(data.vertices, data.transform, options.rotateX)
-                : data.vertices,
+            fileData,
+            vertices: (fileData.transform && params.sceneModel)
+                ? transformVertices(fileData.vertices, fileData.transform, options.rotateX)
+                : fileData.vertices,
             sceneModel: params.sceneModel,
             dataModel: params.dataModel,
             nextId: 0
@@ -83,7 +84,7 @@ export function loadCityJSON(params: {
     });
 }
 
-function transformVertices(vertices, transform, rotateX) {
+function transformVertices(vertices: any, transform: any, rotateX: boolean) {
     const transformedVertices = [];
     const scale = transform.scale || createVec3([1, 1, 1]);
     const translate = transform.translate || createVec3([0, 0, 0]);
@@ -100,9 +101,9 @@ function transformVertices(vertices, transform, rotateX) {
     return transformedVertices;
 }
 
-function parseCityJSON(ctx) {
-    const data = ctx.data;
-    const cityObjects = data.CityObjects;
+function parseCityJSON(ctx: any) {
+    const fileData = ctx.fileData;
+    const cityObjects = fileData.CityObjects;
     for (const objectId in cityObjects) {
         parseCityObject(ctx, cityObjects[objectId], objectId);
     }
@@ -113,7 +114,7 @@ function parseCityJSON(ctx) {
     }
 }
 
-function parseCityObject(ctx, cityObject, objectId) {
+function parseCityObject(ctx: any, cityObject: any, objectId: any) {
     if (ctx.dataModel) {
         ctx.dataModel.createObject({
             id: objectId,
@@ -126,12 +127,12 @@ function parseCityObject(ctx, cityObject, objectId) {
         if (!(cityObject.geometry && cityObject.geometry.length > 0)) {
             return;
         }
-        const meshIds = [];
+        const meshIds: string | any[] = [];
         for (let i = 0, len = cityObject.geometry.length; i < len; i++) {
             const geometry = cityObject.geometry[i];
             let objectMaterial;
             let surfaceMaterials;
-            const appearance = ctx.data.appearance;
+            const appearance = ctx.fileData.appearance;
             if (appearance) {
                 const materials = appearance.materials;
                 if (materials) {
@@ -173,7 +174,7 @@ function parseCityObject(ctx, cityObject, objectId) {
     }
 }
 
-function parseRelationship(ctx, cityObject, objectId) {
+function parseRelationship(ctx: any, cityObject: any, objectId: any) {
     if (cityObject.parents) {
         ctx.dataModel.createRelationship({
             relatingObjectId: cityObject.parents[0],
@@ -183,7 +184,7 @@ function parseRelationship(ctx, cityObject, objectId) {
     }
 }
 
-function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, meshIds) {
+function parseGeometrySurfacesWithOwnMaterials(ctx: any, geometry: any, surfaceMaterials: any, meshIds: any) {
     const geomType = geometry.type;
     switch (geomType) {
         case "MultiPoint":
@@ -217,7 +218,7 @@ function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, 
     }
 }
 
-function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds) {
+function parseSurfacesWithOwnMaterials(ctx: any, surfaceMaterials: any, surfaces: any, meshIds: any) {
     const vertices = ctx.vertices;
     const sceneModel = ctx.sceneModel;
     for (let i = 0; i < surfaces.length; i++) {
@@ -225,8 +226,8 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
         const surfaceMaterial = surfaceMaterials[i] || {diffuseColor: [0.8, 0.8, 0.8], transparency: 1.0};
         const face = [];
         const holes = [];
-        const sharedIndices = [];
-        const geometryCfg = {
+        const sharedIndices:any[] = [];
+        const geometryCfg:any = {
             positions: [],
             indices: []
         };
@@ -286,10 +287,10 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
     }
 }
 
-function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, meshIds) {
+function parseGeometrySurfacesWithSharedMaterial(ctx: any, geometry: any, objectMaterial: any, meshIds: any) {
     const sceneModel = ctx.sceneModel;
-    const sharedIndices = [];
-    const geometryCfg = {
+    const sharedIndices :any= [];
+    const geometryCfg :any= {
         positions: [],
         indices: []
     };
@@ -343,7 +344,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
     }
 }
 
-function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitiveCfg) {
+function parseSurfacesWithSharedMaterial(ctx: any, surfaces: any, sharedIndices: any, primitiveCfg: any) {
     const vertices = ctx.vertices;
     for (let i = 0; i < surfaces.length; i++) {
         let boundary = [];
@@ -385,7 +386,7 @@ function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitive
     }
 }
 
-function extractLocalIndices(ctx, boundary, sharedIndices, geometryCfg) {
+function extractLocalIndices(ctx: any, boundary: any, sharedIndices: any, geometryCfg: any) {
     const vertices = ctx.vertices;
     const newBoundary = []
     for (let i = 0, len = boundary.length; i < len; i++) {
@@ -404,7 +405,7 @@ function extractLocalIndices(ctx, boundary, sharedIndices, geometryCfg) {
     return newBoundary
 }
 
-function getNormalOfPositions(positions, normal) {
+function getNormalOfPositions(positions: any, normal: any) {
     for (let i = 0; i < positions.length; i++) {
         let nexti = i + 1;
         if (nexti === positions.length) {
@@ -417,7 +418,7 @@ function getNormalOfPositions(positions, normal) {
     return normalizeVec3(normal);
 }
 
-function to2D(_p, _n, re) {
+function to2D(_p: any, _n: any, re: any) {
     const p = tempVec3a;
     const n = tempVec3b;
     const x3 = tempVec3c;

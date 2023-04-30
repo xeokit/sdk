@@ -1,10 +1,10 @@
-import {createMat4, createVec3, transformPositions3} from "@xeokit/math/matrix";
-import {SceneModel} from "@xeokit/scene";
-import {DataModel} from "@xeokit/data";
+import {createMat4, createVec3, transformPositions3} from "@xeokit/matrix";
+import type {SceneModel} from "@xeokit/scene";
+import type {DataModel} from "@xeokit/data";
 import * as WebIFC from "web-ifc/web-ifc-api-node";
-import {IfcRelAggregates} from "@xeokit/datatypes/ifcTypes";
-import {worldToRTCPositions} from "@xeokit/math/rtc";
-import {TrianglesPrimitive} from "@xeokit/core/constants";
+import {IfcRelAggregates} from "@xeokit/ifctypes";
+import {worldToRTCPositions} from "@xeokit/rtc";
+import {TrianglesPrimitive} from "@xeokit/constants";
 
 /**
  * @private
@@ -13,7 +13,7 @@ interface ParsingContext {
     data: ArrayBuffer;
     ifcAPI: WebIFC.IfcAPI;
     sceneModel: SceneModel;
-    dataModel: DataModel;
+    dataModel?: DataModel;
     nextId: number;
     modelId: number;
     lines: WebIFC.Vector<number>;
@@ -33,10 +33,10 @@ interface ParsingContext {
  * @param params.ifcAPI - WebIFC API.
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
- * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been built.
- * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been built.
+ * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been built.
+ * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError} If the DataModel has already been built.
  * @returns {Promise} Resolves when IFC has been loaded into the SceneModel and/or DataModel.
  */
 export function loadWebIFC(params: {
@@ -99,7 +99,7 @@ function parseDataModel(ctx: ParsingContext) {
     parseDataObjectAggregation(ctx, ifcProject);
 }
 
-function parsePropertySets(ctx) {
+function parsePropertySets(ctx: any) {
     const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, WebIFC.IFCRELDEFINESBYPROPERTIES);
     for (let i = 0; i < lines.size(); i++) {
         let relID = lines.get(i);
@@ -155,7 +155,7 @@ function parsePropertySets(ctx) {
     }
 }
 
-function parseDataObjectAggregation(ctx: ParsingContext, ifcElement, parentDataObjectId?: string) {
+function parseDataObjectAggregation(ctx: ParsingContext, ifcElement: any, parentDataObjectId?: string) {
     const type = ifcElement.__proto__.constructor.name;
     createDataObject(ctx, ifcElement, parentDataObjectId);
     const dataObjectId = ifcElement.GlobalId.value;
@@ -163,16 +163,18 @@ function parseDataObjectAggregation(ctx: ParsingContext, ifcElement, parentDataO
     parseRelatedItemsOfType(ctx, ifcElement.expressID, 'RelatingStructure', 'RelatedElements', WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE, dataObjectId);
 }
 
-function createDataObject(ctx: ParsingContext, ifcElement, parentDataObjectId) {
+function createDataObject(ctx: ParsingContext, ifcElement: any, parentDataObjectId?: string) {
     const id = ifcElement.GlobalId.value;
     const type = ifcElement.__proto__.constructor.name;
     const name = (ifcElement.Name && ifcElement.Name.value !== "") ? ifcElement.Name.value : type;
+    // @ts-ignore
     ctx.dataModel.createObject({
         id,
         name,
         type
     });
     if (parentDataObjectId) {
+        // @ts-ignore
         ctx.dataModel.createRelationship({
             type: IfcRelAggregates,
             relatingObjectId: parentDataObjectId,
@@ -181,7 +183,7 @@ function createDataObject(ctx: ParsingContext, ifcElement, parentDataObjectId) {
     }
 }
 
-function parseRelatedItemsOfType(ctx: ParsingContext, id: any, relation: string, related: string, type: number, parentDataObjectId) {
+function parseRelatedItemsOfType(ctx: ParsingContext, id: any, relation: string, related: string, type: number, parentDataObjectId: string) {
     const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, type);
     for (let i = 0; i < lines.size(); i++) {
         const relID = lines.get(i);

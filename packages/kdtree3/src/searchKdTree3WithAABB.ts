@@ -1,36 +1,30 @@
-import {FloatArrayParam} from "@xeokit/math/math";
-import {INTERSECT, OUTSIDE} from "@xeokit/math/boundaries";
-import {KdTree3} from "./KdTree3";
-import {KdNode3} from "./KdNode3";
-import {KdItem3D} from "./KdItem3";
+import type {FloatArrayParam} from "@xeokit/math";
+import {INTERSECT, intersectAABB3s, OUTSIDE} from "@xeokit/boundaries";
+import type {KdTree3} from "./KdTree3";
+import type {KdNode3} from "./KdNode3";
+import type {KdItem3D} from "./KdItem3";
 
 
 /**
  * Queries a {@link KdTree3} for {@link KdItem3D | KDItems} that intersect
- * a 3D ray.
+ * a 3D axis-aligned bounding box (AABB).
  *
  * See {@link "@xeokit/collison/kdtree3"} for usage.
  */
-export function searchKdTree3WithRay(params: {
+export function searchKdTree3WithAABB(params: {
     kdTree: KdTree3,
-    origin: FloatArrayParam,
-    dir: FloatArrayParam
-}): any[] {
+    aabb: FloatArrayParam
+}): KdItem3D[] {
 
     const kdTree = params.kdTree;
-    const origin = params.origin;
-    const dir = params.dir;
-    const foundItems = [];
-
-    function testRayIntersectsAABB3(origin: FloatArrayParam, dir: FloatArrayParam, aabb: FloatArrayParam) {
-        return 0;
-    }
+    const aabb = params.aabb;
+    const foundItems: KdItem3D[] = [];
 
     function visit(node: KdNode3, isect: number) {
         if (isect === OUTSIDE) {
             return;
         }
-        isect = testRayIntersectsAABB3(origin, dir, node.aabb);
+        isect = intersectAABB3s(aabb, node.aabb);
         if (isect === OUTSIDE) {
             return;
         }

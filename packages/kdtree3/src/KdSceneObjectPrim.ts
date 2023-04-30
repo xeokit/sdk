@@ -1,7 +1,7 @@
-import {GeometryBucket, SceneObject} from "@xeokit/scene";
-import {KdTrianglePrim} from "./KdTrianglePrim";
-import {KdPointPrim} from "./KdPointPrim";
-import {KdLinePrim} from "./KdLinePrim";
+import type {GeometryBucket, SceneObject} from "@xeokit/scene";
+import type {KdTrianglePrim} from "./KdTrianglePrim";
+import type {KdPointPrim} from "./KdPointPrim";
+import type {KdLinePrim} from "./KdLinePrim";
 
 /**
  *

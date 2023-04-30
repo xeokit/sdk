@@ -1,8 +1,8 @@
-import {containsAABB3, expandAABB3} from "@xeokit/math/src/boundaries";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {KdNode3} from "./KdNode3";
-import {KdItem3D} from "./KdItem3";
-import {KdTree3Params} from "./KdTree3Params";
+import {containsAABB3, expandAABB3} from "@xeokit/boundaries";
+import type {FloatArrayParam} from "@xeokit/math";
+import type {KdNode3} from "./KdNode3";
+import type {KdItem3D} from "./KdItem3";
+import type {KdTree3Params} from "./KdTree3Params";
 
 
 const MAX_KD_TREE_DEPTH = 10; // Increase if greater precision needed
@@ -26,7 +26,7 @@ export class KdTree3 {
      *
      * @param params
      */
-    constructor(params?: KdTree3Params) {
+    constructor(params: KdTree3Params) {
         this.#maxDepth = params?.maxDepth || MAX_KD_TREE_DEPTH;
         this.#root = {
             index: 0,

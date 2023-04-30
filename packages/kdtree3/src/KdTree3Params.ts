@@ -1,4 +1,4 @@
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 /**
  * Parameters for creating a {@link KdTree3}.

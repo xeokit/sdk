@@ -1,8 +1,7 @@
 /**
  * See {@link "@xeokit/collision/kdtree3"} for usage.
  */
-export interface KdTrianglePrim {
+export interface KdLinePrim {
     a: number;
     b: number;
-    c: number;
 }

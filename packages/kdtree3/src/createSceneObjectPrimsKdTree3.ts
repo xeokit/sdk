@@ -1,9 +1,9 @@
 import {GeometryBucket, GeometryView, getSceneObjectGeometry, SceneObject} from "@xeokit/scene";
 import {KdTree3} from "./KdTree3";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {collapseAABB3, expandAABB3} from "@xeokit/math/boundaries";
-import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {KdSceneObjectPrim} from "./KdSceneObjectPrim";
+import type {FloatArrayParam} from "@xeokit/math";
+import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
+import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
+import type {KdSceneObjectPrim} from "./KdSceneObjectPrim";
 
 /**
  * k-d tree built by {@link createSceneObjectPrimsKdTree3}.
@@ -91,13 +91,17 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
                     }
                     break;
                 case TrianglesPrimitive:
-                    for (let j = 0, lenj = indices.length; j < lenj; j += 3) {
-                        insertTriangle(sceneObject, geometryBucket, positionsWorld, indices[j], indices[j + 1], indices[j + 2], kdTree);
+                    if (indices) {
+                        for (let j = 0, lenj = indices.length; j < lenj; j += 3) {
+                            insertTriangle(sceneObject, geometryBucket, positionsWorld, indices[j], indices[j + 1], indices[j + 2], kdTree);
+                        }
                     }
                     break;
                 case LinesPrimitive:
-                    for (let j = 0, lenj = indices.length; j < lenj; j += 2) {
-                        insertLine(sceneObject, geometryBucket, positionsWorld, indices[j], indices[j + 1], kdTree);
+                    if (indices) {
+                        for (let j = 0, lenj = indices.length; j < lenj; j += 2) {
+                            insertLine(sceneObject, geometryBucket, positionsWorld, indices[j], indices[j + 1], kdTree);
+                        }
                     }
                     break;
             }

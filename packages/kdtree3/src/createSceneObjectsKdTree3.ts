@@ -1,5 +1,5 @@
-import {SceneObject} from "@xeokit/scene";
-import {collapseAABB3, expandAABB3} from "@xeokit/math/boundaries";
+import type {SceneObject} from "@xeokit/scene";
+import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
 import {SceneObjectsKdTree3} from "./sceneObjectsKdTree3";
 
 /**

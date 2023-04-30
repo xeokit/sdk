@@ -36,15 +36,15 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/collision
+ * npm install @xeokit/kdtree3
  * ````
  *
  * ## Dependencies
  *
  * * {@link "@xeokit/scene"}
- * * {@link "@xeokit/core/components"}
- * * {@link "@xeokit/math/math"}
- * * {@link "@xeokit/math/boundaries"}
+ * * {@link "@xeokit/core"}
+ * * {@link "@xeokit/math"}
+ * * {@link "@xeokit/boundaries"}
  *
  * ## Usage
  *
@@ -52,7 +52,7 @@
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
- * import {SDKError} from "@xeokit/core/components";
+ * import {SDKError} from "@xeokit/core";
  * import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
  * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/collision/objects";
  *
@@ -133,7 +133,7 @@
  * }
  * ````
  *
- * @module @xeokit/collision/kdtree3
+ * @module @xeokit/kdtree3
  */
 export * from "./KdTree3";
 export * from "./createSceneObjectsKdTree3";

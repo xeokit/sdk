@@ -1,10 +1,10 @@
-import {createAABB3Int16, expandAABB3Points3} from "@xeokit/math/src/boundaries";
-import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
-import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {KdTree3} from "./KdTree3";
-import {KdTrianglePrim} from "./KdTrianglePrim";
-import {KdLinePrim} from "./KdLinePrim";
-import {KdPointPrim} from "./KdPointPrim";
+import {createAABB3Int16, expandAABB3Points3} from "@xeokit/boundaries";
+import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
+import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
+import type {KdTree3} from "./KdTree3";
+import type {KdTrianglePrim} from "./KdTrianglePrim";
+import type {KdLinePrim} from "./KdLinePrim";
+import type {KdPointPrim} from "./KdPointPrim";
 import {PrimsKdTree3} from "./PrimsKdTree3";
 
 const tempAABBInt16 = new Int16Array(6);
@@ -30,13 +30,17 @@ export function createPrimsKdTree3(primitiveType: number, positions: FloatArrayP
             }
             break;
         case TrianglesPrimitive:
-            for (let i = 0, len = indices.length; i < len; i += 3) {
-                insertTriangle(positions, indices[i], indices[i + 1], indices[i + 2], kdTree);
+            if (indices) {
+                for (let i = 0, len = indices.length; i < len; i += 3) {
+                    insertTriangle(positions, indices[i], indices[i + 1], indices[i + 2], kdTree);
+                }
             }
             break;
         case LinesPrimitive:
-            for (let i = 0, len = indices.length; i < len; i += 2) {
-                insertLine(positions, indices[i], indices[i + 1], kdTree);
+            if (indices) {
+                for (let i = 0, len = indices.length; i < len; i += 2) {
+                    insertLine(positions, indices[i], indices[i + 1], kdTree);
+                }
             }
             break;
     }

@@ -1,6 +1,6 @@
-import {SceneModel} from "@xeokit/scene";
-import {DataModel} from "@xeokit/data";
-import {SDKError} from "@xeokit/core/components";
+import type {SceneModel} from "@xeokit/scene";
+import type {DataModel} from "@xeokit/data";
+import {SDKError} from "@xeokit/core";
 
 
 /**
@@ -16,10 +16,10 @@ import {SDKError} from "@xeokit/core/components";
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
  * @param options - .BIM loading options
- * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been built.
- * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been built.
+ * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been built.
+ * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError} If the DataModel has already been built.
  * @returns {Promise} Resolves when .BIM has been loaded into the SceneModel and/or DataModel.
  */
 export function loadDotBIM(params: {
@@ -59,7 +59,7 @@ export function loadDotBIM(params: {
     });
 }
 
-function parseDotBIM(ctx) {
+function parseDotBIM(ctx: any) {
     const data = ctx.data;
     const meshes = data.meshes;
     for (let i = 0, len = meshes.length; i < len; i++) {

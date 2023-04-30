@@ -16,22 +16,22 @@ import {
     subVec3,
     transformPoint3,
     transposeMat4
-} from "@xeokit/math/matrix";
+} from "@xeokit/matrix";
 
 import {PerspectiveProjection} from './PerspectiveProjection';
 import {OrthoProjection} from './OrthoProjection';
-import {FrustumProjection} from './FrustumProjection';
+import type {FrustumProjection} from './FrustumProjection';
 import {CustomProjection} from './CustomProjection';
 import type {View} from "./View";
-import {Component, EventEmitter} from "@xeokit/core/components";
-import {DEGTORAD, FloatArrayParam} from "@xeokit/math/math";
+import {Component, EventEmitter} from "@xeokit/core";
+import {DEGTORAD, FloatArrayParam} from "@xeokit/math";
 import {
     CustomProjectionType,
     FrustumProjectionType,
     OrthoProjectionType,
     PerspectiveProjectionType
-} from "@xeokit/core/constants";
-import {Frustum3, setFrustum3} from "@xeokit/math/boundaries";
+} from "@xeokit/constants";
+import {Frustum3, setFrustum3} from "@xeokit/boundaries";
 
 
 const tempVec3 = createVec3();

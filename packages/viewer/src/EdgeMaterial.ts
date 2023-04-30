@@ -1,10 +1,10 @@
-import {Component} from "@xeokit/core/components";
+import {Component} from "@xeokit/core";
 
 
 
 import type {View} from "./View";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {QualityRender} from "@xeokit/core/constants";
+import type {FloatArrayParam} from "@xeokit/math";
+import {QualityRender} from "@xeokit/constants";
 
 
 /**

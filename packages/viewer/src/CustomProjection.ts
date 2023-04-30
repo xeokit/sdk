@@ -2,10 +2,10 @@
 import {EventDispatcher} from "strongly-typed-events";
 
 import type {Camera} from "./Camera";
-import {Component, EventEmitter} from "@xeokit/core/components";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {CustomProjectionType} from "@xeokit/core/constants";
-import {identityMat4, inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/math/matrix";
+import {Component, EventEmitter} from "@xeokit/core";
+import type {FloatArrayParam} from "@xeokit/math";
+import {CustomProjectionType} from "@xeokit/constants";
+import {identityMat4, inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/matrix";
 
 /**
  * Configures a custom projection for a {@link @xeokit/viewer!Camera} .

@@ -7,8 +7,8 @@ const jsdom = require("jsdom");
 
 import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 import {RendererViewObject} from "../src/RendererViewObject";
-import {FloatArrayParam} from "@xeokit/math/src/math";
-import {Capabilities, SDKError} from "@xeokit/core/components";
+import {FloatArrayParam} from "@xeokit/src/math";
+import {Capabilities, SDKError} from "@xeokit/core";
 import {Scene} from "@xeokit/scene";
 import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/core/dist/constants";
 

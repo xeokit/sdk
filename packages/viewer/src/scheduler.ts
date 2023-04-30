@@ -1,4 +1,4 @@
-import {Queue, Map, inQuotes} from "@xeokit/core/utils";
+import {Queue, Map, inQuotes} from "@xeokit/utils";
 
 import {stats} from './stats';
 import type {Viewer} from "./Viewer";

@@ -4,11 +4,11 @@ import {EventDispatcher} from "strongly-typed-events";
 import {scheduler} from './scheduler';
 import type {View} from "./View";
 import type {Camera} from "./Camera";
-import {addVec3, lenVec3, lerpMat4, lerpVec3, mulVec3Scalar, normalizeVec3, subVec3, createVec3} from "@xeokit/math/matrix";
-import {Component, EventEmitter} from "@xeokit/core/components";
-import {DEGTORAD, FloatArrayParam} from "@xeokit/math/math";
-import {getAABB3Center, getAABB3Diag, getAABB3DiagPoint} from "@xeokit/math/boundaries";
-import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/core/constants";
+import {addVec3, lenVec3, lerpMat4, lerpVec3, mulVec3Scalar, normalizeVec3, subVec3, createVec3} from "@xeokit/matrix";
+import {Component, EventEmitter} from "@xeokit/core";
+import {DEGTORAD, FloatArrayParam} from "@xeokit/math";
+import {getAABB3Center, getAABB3Diag, getAABB3DiagPoint} from "@xeokit/boundaries";
+import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/constants";
 
 const tempVec3 = createVec3();
 const newLook = createVec3();
@@ -132,7 +132,7 @@ class CameraFlightAnimation extends Component {
      *  * When the target is a boundary, the {@link @xeokit/viewer!Camera}  will fly towards the target and stop when the target fills most of the canvas.
      *  * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link @xeokit/viewer!Camera}  to that target and stop there.
      *
-     * @param {Object|Component} [params=Scene] Either a parameters object or a {@link @xeokit/core/components!Component} subtype that has
+     * @param {Object|Component} [params=Scene] Either a parameters object or a {@link @xeokit/core!Component} subtype that has
      * an AABB. Defaults to the {@link Scene}, which causes the {@link @xeokit/viewer!Camera}  to fit the Scene in view.
      * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link Camera.eye} position
      * will swing away from its {@link Camera.look} position as it flies to the target.
@@ -322,7 +322,7 @@ class CameraFlightAnimation extends Component {
      * * When the target is a boundary, this CameraFlightAnimation will position the {@link @xeokit/viewer!Camera}  at where the target fills most of the canvas.
      * * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link @xeokit/viewer!Camera}  to that target.
      *
-     * @param {*|Component} params  Either a parameters object or a {@link @xeokit/core/components!Component} subtype that has a World-space AABB.
+     * @param {*|Component} params  Either a parameters object or a {@link @xeokit/core!Component} subtype that has a World-space AABB.
      * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link Camera.eye} will swing away from its {@link Camera.look} as it flies to the target.
      * @param {Number|String|Component} [params.component] ID or instance of a component to fly to.
      * @param [params.aabb]  World-space axis-aligned bounding box (AABB) target to fly to.

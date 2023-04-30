@@ -1,4 +1,4 @@
-import {Component} from "@xeokit/core/components";
+import {Component} from "@xeokit/core";
 import type {View} from "./View";
 
 /**

@@ -1,7 +1,7 @@
-import {apply, createUUID, inQuotes} from "@xeokit/core/utils";
-import {Capabilities, Component, EventEmitter, SDKError} from "@xeokit/core/components";
+import {apply, createUUID, inQuotes} from "@xeokit/utils";
+import {Capabilities, Component, EventEmitter, SDKError} from "@xeokit/core";
 import {EventDispatcher} from "strongly-typed-events";
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 import {Scene} from "@xeokit/scene";
 
 import {View} from "./View";
@@ -23,14 +23,14 @@ export class Viewer extends Component {
     /**
      ID of this Viewer.
      */
-    readonly id: string;
+    declare readonly id: string;
 
     /**
      True once this Viewer has been destroyed.
 
      Don't use this Viewer if this is ````true````.
      */
-    readonly destroyed: boolean;
+    declare readonly destroyed: boolean;
 
     /**
      * Indicates the capabilities of this Viewer.
@@ -175,7 +175,7 @@ export class Viewer extends Component {
      * @param params View configuration.
      * @returns *{@link View}*
      * * On success.
-     * @returns *{@link @xeokit/core/components!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError}*
      * * If View already exists with the given ID.
      * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
      */

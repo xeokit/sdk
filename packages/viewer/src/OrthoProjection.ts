@@ -1,10 +1,10 @@
 
 import {EventDispatcher} from "strongly-typed-events";
 import type {Camera} from "./Camera";
-import {Component, EventEmitter} from "@xeokit/core/components";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {OrthoProjectionType} from "@xeokit/core/constants";
-import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "@xeokit/math/matrix";
+import {Component, EventEmitter} from "@xeokit/core";
+import type {FloatArrayParam} from "@xeokit/math";
+import {OrthoProjectionType} from "@xeokit/constants";
+import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "@xeokit/matrix";
 
 /**
  * Orthographic projection configuration for a {@link @xeokit/viewer!Camera} .

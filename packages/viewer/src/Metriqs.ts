@@ -1,9 +1,9 @@
 import type {View} from "./View";
-import {CentimetersUnit, FeetUnit, InchesUnit, MetersUnit, MillimetersUnit, YardsUnit} from "@xeokit/core/constants";
-import {Component, EventEmitter} from "@xeokit/core/components";
-import {FloatArrayParam} from "@xeokit/math/math";
+import {CentimetersUnit, FeetUnit, InchesUnit, MetersUnit, MillimetersUnit, YardsUnit} from "@xeokit/constants";
+import {Component, EventEmitter} from "@xeokit/core";
+import type {FloatArrayParam} from "@xeokit/math";
 import {EventDispatcher} from "strongly-typed-events";
-import {createVec3} from "@xeokit/math/matrix";
+import {createVec3} from "@xeokit/matrix";
 
 
 const unitsInfo = {

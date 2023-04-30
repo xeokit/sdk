@@ -1,3 +1,4 @@
-@xeokit/viewer
+# @xeokit/viewer
 
-An extensible browser-based 3D/2D model viewer for AECO applications
+* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html)
+

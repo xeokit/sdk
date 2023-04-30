@@ -1,8 +1,8 @@
-import {Component} from "@xeokit/core/components";
+import {Component} from "@xeokit/core";
 
 
 import type {View} from "./View";
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 
 /**

@@ -1,10 +1,10 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter} from "@xeokit/core";
 
 import {ViewObject} from "./ViewObject";
 import type {Viewer} from "./Viewer";
 import type {View} from "./View";
-import {Scene, SceneModel} from "@xeokit/scene";
+import type {Scene, SceneModel} from "@xeokit/scene";
 
 
 

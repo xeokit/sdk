@@ -1,8 +1,8 @@
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 import type {ViewLayer} from "./ViewLayer";
-import {SceneObject} from "@xeokit/scene";
-import {RendererViewObject} from "./RendererViewObject";
+import type {SceneObject} from "@xeokit/scene";
+import type {RendererViewObject} from "./RendererViewObject";
 
 /**
  * Represents and controls the visual state of a {@link @xeokit/scene!SceneModel | SceneObject} in

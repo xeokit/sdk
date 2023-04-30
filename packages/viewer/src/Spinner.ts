@@ -1,4 +1,4 @@
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter} from "@xeokit/core";
 import {EventDispatcher} from "strongly-typed-events";
 
 

@@ -1,11 +1,11 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter} from "@xeokit/core";
 
-import * as matrix from '@xeokit/math/matrix';
+import * as matrix from '@xeokit/matrix';
 
 
 import type {View} from "./View";
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 
 /**

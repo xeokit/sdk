@@ -1,6 +1,6 @@
 
 import type {ViewObject} from "./ViewObject";
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 
 /**

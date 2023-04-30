@@ -1,10 +1,10 @@
 import type {View} from "./View";
 import type {Viewer} from "./Viewer";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {Capabilities} from "@xeokit/core/components";
-import {ViewObject} from "./ViewObject";
-import {RendererViewObject} from "./RendererViewObject";
-import {CreateModelParams} from "./CreateModelParams";
+import type {FloatArrayParam} from "@xeokit/math";
+import type {Capabilities} from "@xeokit/core";
+import type {ViewObject} from "./ViewObject";
+import type {RendererViewObject} from "./RendererViewObject";
+import type {CreateModelParams} from "./CreateModelParams";
 
 /**
  * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.

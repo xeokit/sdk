@@ -1,4 +1,4 @@
-import {FloatArrayParam} from "@xeokit/math/math";
+import type {FloatArrayParam} from "@xeokit/math";
 
 /**
  * {@link @xeokit/viewer!View} creation parameters for {@link Viewer.createView}.

@@ -2,10 +2,10 @@ import {EventDispatcher} from "strongly-typed-events";
 
 
 import type {Camera} from "./Camera";
-import {Component, EventEmitter} from "@xeokit/core/components";
-import {PerspectiveProjectionType} from "@xeokit/core/constants";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "@xeokit/math/matrix";
+import {Component, EventEmitter} from "@xeokit/core";
+import {PerspectiveProjectionType} from "@xeokit/constants";
+import type {FloatArrayParam} from "@xeokit/math";
+import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "@xeokit/matrix";
 
 /**
  * PerspectiveProjection projection configuration for a {@link @xeokit/viewer!Camera} .

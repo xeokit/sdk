@@ -32,9 +32,13 @@
   ],
   "dependencies": {
     "@xeokit/core": "^0.0.1",
+    "@xeokit/viewer": "^0.0.1",
     "@xeokit/math": "^0.0.1",
     "@xeokit/matrix": "^0.0.1",
     "@xeokit/webglutils": "^0.0.1",
+    "@xeokit/boundaries": "^0.0.1",
+    "@xeokit/constants": "^0.0.1",
+    "@xeokit/scene": "^0.0.1",
     "strongly-typed-events": "3.0.7"
   }
 }

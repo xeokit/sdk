@@ -15,10 +15,10 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/basicTypes
+ * npm install @xeokit/basictypes
  * ````
  *
- * @module @xeokit/basicTypes
+ * @module @xeokit/basictypes
  */
 /**
  * A generic entity.

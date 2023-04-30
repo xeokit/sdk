@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+</body>
+
+<script type="module">
+
+    import {IFCViewer} from "./dist";
+
+    const ifcViewer = new IFCViewer({
+        canvasElement: document.getElementById("myCanvas")
+    });
+
+    ifcViewer.loadModel({
+        id: "myModel",
+        src: "./data/Duplex.xkt"
+    });
+
+</script>
+
+</html>

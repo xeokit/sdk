@@ -1,5 +1,5 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {EventEmitter} from "@xeokit/core/components";
+import {EventEmitter} from "@xeokit/core";
 
 /**
  * The localization service for a {@link @xeokit/viewer!Viewer}.

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src/**/*",
+    "../global.d.ts"
+  ],
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "noImplicitAny": false
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}

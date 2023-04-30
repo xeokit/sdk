@@ -1,5 +1,5 @@
-import {XKTDataDeflated} from "./XKTDataDeflated";
-import {XKTData} from "./XKTData";
+import type {XKTDataDeflated} from "./XKTDataDeflated";
+import type {XKTData} from "./XKTData";
 import * as pako from "pako";
 
 /**
@@ -7,8 +7,8 @@ import * as pako from "pako";
  */
 export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
 
-    function inflate(array, options?) {
-        return (array.length === 0) ? [] : pako.inflate(array, options).buffer;
+    function inflate(array:any, options?: any):any {
+        return (array.length === 0) ? [] : (<Uint8Array><unknown>pako.inflate(array, options)).buffer;
     }
 
     return <XKTData>{

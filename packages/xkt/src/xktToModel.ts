@@ -1,8 +1,8 @@
-import {JPEGMediaType, LinesPrimitive, PNGMediaType, PointsPrimitive, TrianglesPrimitive} from "@xeokit/core/constants";
-import {DataModel, DataModelParams} from "@xeokit/data";
-import {GeometryBucketParams, GeometryCompressedParams, SceneModel} from "@xeokit/scene";
-import {XKTData} from "./XKTData";
-import {FloatArrayParam} from "@xeokit/math/math";
+import {JPEGMediaType, LinesPrimitive, PNGMediaType, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
+import type {DataModel, DataModelParams} from "@xeokit/data";
+import type {GeometryBucketParams, GeometryCompressedParams, SceneModel} from "@xeokit/scene";
+import type {XKTData} from "./XKTData";
+import type {FloatArrayParam} from "@xeokit/math";
 
 const NUM_TEXTURE_ATTRIBUTES = 9;
 
@@ -141,7 +141,7 @@ export function xktToModel(params: {
             const geometryIndex = xktData.eachMeshGeometriesPortion[meshIndex];
             const atLastGeometry = (geometryIndex === (numGeometries - 1));
             const textureSetIndex = xktData.eachMeshTextureSet[meshIndex];
-            const textureSetId = (textureSetIndex >= 0) ? `textureSet-${textureSetIndex}` : null;
+            const textureSetId = (textureSetIndex >= 0) ? `textureSet-${textureSetIndex}` : undefined;
 
             const meshColor = decompressColor(xktData.eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
             const meshOpacity = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;

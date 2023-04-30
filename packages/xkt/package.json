@@ -1,9 +1,14 @@
 {
   "name": "@xeokit/xkt",
   "version": "0.0.1",
-  "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
+  "description": "Import and export models as xeokit's native binary XKT format",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
+  "source": "src/index.ts",
   "scripts": {
+    "clean": "rm -fr dist",
     "publish": "npm publish --access public",
+    "dist": "rm -fr dist && microbundle --define PACKAGE_VERSION=$npm_package_version",
     "test": "jest"
   },
   "repository": {
@@ -15,36 +20,15 @@
   "bugs": {
     "url": "https://github.com/xeokit/sdk/issues"
   },
-  "homepage": "https://xeokit.io",
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html",
   "files": [
+    "dist/",
     "src/",
     "README.md",
     "package.json",
     "package-lock.json"
   ],
-  "keywords": [
-    "webgl",
-    "webgpu",
-    "javascript",
-    "xeokit",
-    "xeolabs",
-    "creoox",
-    "ifc",
-    "bcf",
-    "bim",
-    "gis",
-    "cad",
-    "openbim",
-    "opensource",
-    "gltf",
-    "3dxml",
-    "obj",
-    "stl",
-    "las",
-    "pointcloud",
-    "3d-viewer"
-  ],
-  "main": "src/index.ts",
+  "keywords": [],
   "dependencies": {
     "@xeokit/core": "^0.0.1",
     "@xeokit/scene": "^0.0.1",

@@ -3,7 +3,7 @@ import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} f
 import * as testUtils from "./testUtils";
 import {Data} from "@xeokit/data";
 import {loadXKT, saveXKT} from "../src";
-import {SDKError} from "@xeokit/core/components";
+import {SDKError} from "@xeokit/core";
 
 describe('Test SceneModel Creation', () => {
 

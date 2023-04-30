@@ -1,10 +1,5 @@
-import type {SceneModel} from "@xeokit/scene";
-import type {DataModel} from "@xeokit/data";
-import {inflateXKT} from "./inflateXKT";
-import {unpackXKT} from "./unpackXKT";
-import {xktToModel} from "./xktToModel";
-import {SDKError} from "@xeokit/core";
-
+import type { SceneModel } from "@xeokit/scene";
+import type { DataModel } from "@xeokit/data";
 /**
  * Imports XKT file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel}
  * and/or a {@link @xeokit/data!DataModel | DataModel}.
@@ -28,31 +23,8 @@ import {SDKError} from "@xeokit/core";
  * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
  * @returns {@link @xeokit/core!SDKError} If the DataModel has already been built.
  */
-export function loadXKT(params: {
-    data: ArrayBuffer,
-    sceneModel: SceneModel,
-    dataModel?: DataModel
-}): Promise<any> {
-    if (params.sceneModel.destroyed) {
-        throw new Error("SceneModel already destroyed");
-    }
-    if (params.sceneModel.built) {
-        throw new SDKError("SceneModel already built");
-    }
-    if (params.dataModel) {
-        if (params.dataModel.destroyed) {
-            throw new SDKError("DataModel already destroyed");
-        }
-        if (params.dataModel.built) {
-            throw new SDKError("DataModel already built");
-        }
-    }
-    return new Promise<void>(function (resolve, reject) {
-        xktToModel({
-            xktData: inflateXKT(unpackXKT(params.data)),
-            sceneModel: params.sceneModel,
-            dataModel: params.dataModel
-        });
-        resolve();
-    });
-}
+export declare function loadXKT(params: {
+    data: ArrayBuffer;
+    sceneModel: SceneModel;
+    dataModel?: DataModel;
+}): Promise<any>;

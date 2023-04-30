@@ -1,9 +1,9 @@
-import {DataModel} from "@xeokit/data";
-import {SceneModel} from "@xeokit/scene";
+import type {DataModel} from "@xeokit/data";
+import type {SceneModel} from "@xeokit/scene";
 import {deflateXKT} from "./deflateXKT";
 import {modelToXKT} from "./modelToXKT";
 import {packXKT} from "./packXKT";
-import {SDKError} from "@xeokit/core/components";
+import {SDKError} from "@xeokit/core";
 
 
 /**
@@ -18,10 +18,10 @@ import {SDKError} from "@xeokit/core/components";
  * @param params.sceneModel - The SceneModel to export to XKT.
  * @param params.dataModel - Optional DataModel to export to XKT.
  * @returns The XKT file data in an ArrayBuffer.
- * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core/components!SDKError} If the SceneModel has not yet been built.
- * @returns {@link @xeokit/core/components!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core/components!SDKError} If the DataModel has not yet been built.
+ * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError} If the SceneModel has not yet been built.
+ * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError} If the DataModel has not yet been built.
  */
 export function saveXKT(params: {
     sceneModel: SceneModel,

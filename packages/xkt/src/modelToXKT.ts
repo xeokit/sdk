@@ -1,7 +1,8 @@
 import {XKT_INFO} from "./XKT_INFO";
-import {XKTData} from "./XKTData";
-import {SceneModel} from "@xeokit/scene";
-import {DataModel} from "@xeokit/data";
+import type {XKTData} from "./XKTData";
+import type {SceneModel} from "@xeokit/scene";
+import type {DataModel} from "@xeokit/data";
+import {ClampToEdgeWrapping, LinearMipmapLinearFilter} from "@xeokit/constants";
 
 const XKT_VERSION = XKT_INFO.xktVersion;
 const NUM_TEXTURE_ATTRIBUTES = 9;
@@ -12,7 +13,7 @@ const NUM_MATERIAL_ATTRIBUTES = 6;
  */
 export function modelToXKT(params: {
     sceneModel: SceneModel,
-    dataModel?:DataModel
+    dataModel?: DataModel
 }): XKTData {
 
     const sceneModel = params.sceneModel;
@@ -227,7 +228,7 @@ export function modelToXKT(params: {
 
     // Textures
 
-    for (let textureIndex = 0, numTextures =texturesList.length, portionIdx = 0; textureIndex < numTextures; textureIndex++) {
+    for (let textureIndex = 0, numTextures = texturesList.length, portionIdx = 0; textureIndex < numTextures; textureIndex++) {
 
         const texture = texturesList[textureIndex];
         const imageData = texture.imageData;
@@ -239,14 +240,14 @@ export function modelToXKT(params: {
 
         let textureAttrIdx = textureIndex * NUM_TEXTURE_ATTRIBUTES;
         xktData.eachTextureAttributes[textureAttrIdx++] = texture.compressed ? 1 : 0;
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.mediaType; // GIFMediaType | PNGMediaType | JPEGMediaType
+        xktData.eachTextureAttributes[textureAttrIdx++] = texture.mediaType || 0; // GIFMediaType | PNGMediaType | JPEGMediaType
         xktData.eachTextureAttributes[textureAttrIdx++] = texture.width;
         xktData.eachTextureAttributes[textureAttrIdx++] = texture.height;
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.minFilter; // LinearMipmapLinearFilter | LinearMipMapNearestFilter | NearestMipMapNearestFilter | NearestMipMapLinearFilter | LinearMipMapLinearFilter
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.magFilter; // LinearFilter | NearestFilter
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapS; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapT; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapR; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        xktData.eachTextureAttributes[textureAttrIdx++] = texture.minFilter || LinearMipmapLinearFilter; // LinearMipmapLinearFilter | LinearMipMapNearestFilter | NearestMipMapNearestFilter | NearestMipMapLinearFilter | LinearMipMapLinearFilter
+        xktData.eachTextureAttributes[textureAttrIdx++] = texture.magFilter || LinearMipmapLinearFilter; // LinearFilter | NearestFilter
+        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapS || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapT || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapR || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
 
         textureIndices[texture.id] = textureIndex;
     }

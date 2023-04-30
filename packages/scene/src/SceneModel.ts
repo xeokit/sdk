@@ -336,7 +336,7 @@ export class SceneModel extends Component {
      *      buffers: // ArrayBuffer[] containing KTX2 MIP levels
      *      preloadColor: [1,0,0,1],
      *      flipY: false,
-     *      encoding: LinearEncoding, // @xeokit/core/constants
+     *      encoding: LinearEncoding, // @xeokit/constants
      *      magFilter: LinearFilter,
      *      minFilter: LinearFilter,
      *      wrapR: ClampToEdgeWrapping,
@@ -481,7 +481,7 @@ export class SceneModel extends Component {
      * ````javascript
      * const boxGeometry = sceneModel.createGeometry({
      *      id: "boxGeometry",
-     *      primitive: TrianglesPrimitive, // @xeokit/core/constants
+     *      primitive: TrianglesPrimitive, // @xeokit/constants
      *      positions: [
      *          1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
      *          1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, // v0-v3-v4-v1 right
@@ -583,7 +583,7 @@ export class SceneModel extends Component {
      * ````javascript
      * const boxGeometry = sceneModel.createGeometryCompressed({
      *      id: "boxGeometry",
-     *      primitive: TrianglesPrimitive, // @xeokit/core/constants
+     *      primitive: TrianglesPrimitive, // @xeokit/constants
      *      positionsDecompressMatrix: [
      *          0.00003052270125906143, 0, 0, 0,
      *          0, 0.00003052270125906143, 0, 0,

@@ -1,5 +1,5 @@
 import {GeometryView, getSceneObjectGeometry, Scene} from "@xeokit/scene";
-import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/core/constants";
+import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/constants";
 import {createVec4} from "@xeokit/src/matrix";
 import {SDKError} from "@xeokit/core";
 

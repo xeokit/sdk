@@ -1,6 +1,4 @@
-
-import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
-
+import type { FloatArrayParam, IntArrayParam } from "@xeokit/math";
 /**
  * Non-compressed geometry parameters for {@link SceneModel.createGeometry | SceneModel.createGeometry}.
  *
@@ -18,12 +16,10 @@ import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
  * @typeparam
  */
 export interface GeometryParams {
-
     /**
      * ID for the geometry.
      */
     id: string;
-
     /**
      * Primitive type.
      *
@@ -32,22 +28,15 @@ export interface GeometryParams {
      * and {@link @xeokit/constants!TrianglesPrimitive}.
      */
     primitive: number;
-
     /**
      * Flat array of uncompressed floating point 3D vertex positions.
      */
     positions: FloatArrayParam;
-
-    /*
-    * Flat array of uncompressed floating-point vertex UV coordinates.
-    */
     uvs?: FloatArrayParam;
-
     /**
      * Flat array of uncompressed floating-point vertex colors.
      */
     colors?: FloatArrayParam;
-
     /**
      * Flat array of primitive connectivity indices.
      *

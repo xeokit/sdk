@@ -15,7 +15,7 @@
  * npm install @xeokit/core
  * ````
  *
- * @module @xeokit/core/components
+ * @module @xeokit/core
  */
 
 export * from "./Component";

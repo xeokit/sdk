@@ -1,8 +1,4 @@
-@xeokit/core
+# @xeokit/core
 
-Core components of the xeokit SDK. 
+* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_core.html)
 
-* Component class
-* EventEmitter class
-* Constant definitions
-* Common utility functions

@@ -2,9 +2,9 @@
   "name": "@xeokit/ifctypes",
   "version": "0.0.1",
   "description": "IFC type constants",
-  "main": "dist/ifcTypes.js",
-  "module": "dist/ifcTypes.es",
-  "source": "src/ifcTypes.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
+  "source": "src/index.ts",
   "scripts": {
     "clean": "rm -fr dist",
     "publish": "npm publish --access public",

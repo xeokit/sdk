@@ -33,8 +33,10 @@
   ],
   "dependencies": {
     "@xeokit/core": "^0.0.1",
+    "@xeokit/constants": "^0.0.1",
     "@xeokit/scene": "^0.0.1",
     "@xeokit/math": "^0.0.1",
+    "@xeokit/utils": "^0.0.1",
     "strongly-typed-events": "3.0.7"
   }
 }

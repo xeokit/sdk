@@ -17,16 +17,16 @@ import {
 } from "@xeokit/constants";
 import {isString} from "@xeokit/utils";
 import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "@xeokit/matrix";
-import {FloatArrayParam} from "@xeokit/math";
-import {GeometryParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/scene";
-import {DataModel} from "@xeokit/data";
+import type {FloatArrayParam} from "@xeokit/math";
+import type {GeometryParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/scene";
+import type {DataModel} from "@xeokit/data";
 import {SDKError} from "@xeokit/core";
 
 interface ParsingContext {
     gltfData: any;
     nextId: number;
     log: any;
-    error: (msg) => void;
+    error: (msg: any) => void;
     dataModel?: DataModel;
     sceneModel?: SceneModel;
     objectCreated: { [key: string]: boolean }
@@ -91,7 +91,7 @@ export function loadGLTF(params: {
     });
 }
 
-function parseTextures(ctx) {
+function parseTextures(ctx:any) {
     if (!ctx.sceneModel) {
         return;
     }
@@ -104,7 +104,7 @@ function parseTextures(ctx) {
     }
 }
 
-function parseTexture(ctx, texture) {
+function parseTexture(ctx:any, texture:any) {
     if (!texture.source || !texture.source.image) {
         return;
     }
@@ -209,12 +209,15 @@ function parseMaterials(ctx: ParsingContext): void {
 }
 
 function parseTextureSet(ctx: ParsingContext, material: any): null | string {
+    // @ts-ignore
+
     const textureSetCfg: TextureSetParams = {
+        // @ts-ignore
         id: null,
-        occlusionTextureId: null,
-        emissiveTextureId: null,
-        colorTextureId: null,
-        metallicRoughnessTextureId: null
+        occlusionTextureId: undefined,
+        emissiveTextureId: undefined,
+        colorTextureId: undefined,
+        metallicRoughnessTextureId: undefined
     };
     if (material.occlusionTexture) {
         textureSetCfg.occlusionTextureId = material.occlusionTexture.texture._textureId;
@@ -273,6 +276,7 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | string {
         textureSetCfg.colorTextureId !== undefined ||
         textureSetCfg.metallicRoughnessTextureId !== undefined) {
         textureSetCfg.id = `textureSet-${ctx.nextId++};`
+        // @ts-ignore
         ctx.sceneModel.createTextureSet(textureSetCfg);
         return textureSetCfg.id;
     }
@@ -360,7 +364,7 @@ function parseScene(ctx: ParsingContext, scene: any) {
     }
 }
 
-const deferredMeshIds = [];
+const deferredMeshIds:string[] = [];
 
 function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null | FloatArrayParam) {
 
@@ -410,9 +414,12 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                 const primitive = mesh.primitives[i];
                 if (!primitive._geometryId) {
                     const geometryId = "geometry-" + ctx.nextId++;
+
+
                     const geometryParams: GeometryParams = {
                         id: geometryId,
                         primitive: 0,
+                        // @ts-ignore
                         positions: undefined
                     };
                     switch (primitive.mode) {
@@ -454,6 +461,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                     if (primitive.indices) {
                         geometryParams.indices = primitive.indices.value;
                     }
+                    // @ts-ignore
                     ctx.sceneModel.createGeometry(geometryParams);
                     primitive._geometryId = geometryId;
                 }
@@ -476,6 +484,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                     meshParams.color = [1.0, 1.0, 1.0];
                     meshParams.opacity = 1.0;
                 }
+                // @ts-ignore
                 ctx.sceneModel.createMesh(meshParams);
                 deferredMeshIds.push(meshId);
             }
@@ -506,6 +515,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
         while (!objectId || ctx.objectCreated[objectId]) {
             objectId = "object-" + ctx.nextId++;
         }
+        // @ts-ignore
         ctx.sceneModel.createObject({
             id: objectId,
             meshIds: deferredMeshIds

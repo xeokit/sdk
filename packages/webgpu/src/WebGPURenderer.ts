@@ -1,7 +1,7 @@
 import {FloatArrayParam} from "@xeokit/math";
 
 import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
-import {RendererViewObject} from "viewer/src/RendererViewObject";
+import {RendererViewObject} from "@xeokit/viewer";
 import type {Pickable} from "./Pickable";
 import {Capabilities, TextureTranscoder} from "@xeokit/core";
 

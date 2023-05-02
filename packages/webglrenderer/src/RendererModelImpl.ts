@@ -26,13 +26,14 @@ import type {WebGLRenderer} from "./WebGLRenderer";
 import {Layer} from "./Layer";
 import type {RenderContext} from "./RenderContext";
 import {RendererGeometryImpl} from "./RendererGeometryImpl";
-import type {RendererViewObject} from "viewer/src/RendererViewObject";
+
 import {RendererTextureImpl} from "./RendererTextureImpl";
 import {RendererObjectImpl} from "./RendererObjectImpl";
 import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
 import type {LayerParams} from "./LayerParams";
 import type {TileManager} from "./TileManager";
+import type {RendererViewObject} from "@xeokit/viewer";
 
 
 const tempVec3a = createVec3();

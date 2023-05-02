@@ -19,7 +19,7 @@ import {RENDER_PASSES} from "./RENDER_PASSES";
 import type {Pickable} from "./Pickable";
 import {RendererModelImpl} from "./RendererModelImpl";
 import type {Layer} from "./Layer";
-import type {RendererViewObject} from "@xeokit/viewer/src/RendererViewObject";
+import type {RendererViewObject} from "@xeokit/viewer";
 import type {Capabilities, Component, TextureTranscoder} from "@xeokit/core";
 import type {SceneModel} from "@xeokit/scene";
 import {TileManager} from "./TileManager";

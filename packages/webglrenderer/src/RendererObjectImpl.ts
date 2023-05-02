@@ -4,7 +4,7 @@ import {createVec3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import type {RendererMeshImpl} from "./RendererMeshImpl";
-import type {RendererViewObject} from "viewer/src/RendererViewObject";
+import type {RendererViewObject} from "@xeokit/viewer";
 import type {RendererModel, RendererObject, SceneModel, SceneObject} from "@xeokit/scene";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);

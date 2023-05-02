@@ -1,5 +1,5 @@
-import {createVec2} from "@xeokit/math/matrix";
-import {View} from "@xeokit/viewer";
+import {createVec2} from "@xeokit/matrix";
+import type {View} from "@xeokit/viewer";
 import type {CameraControl} from "./CameraControl";
 
 /**

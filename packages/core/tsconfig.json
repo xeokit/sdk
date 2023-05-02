@@ -4,7 +4,9 @@
     "outDir": "dist",
     "strict": true,
     "importsNotUsedAsValues": "error",
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "target": "ESNext",
+    "module": "ESNext"
   },
   "include": [
     "src/**/*",
@@ -15,3 +17,5 @@
     "node_modules"
   ]
 }
+
+

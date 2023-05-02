@@ -1,4 +1,4 @@
-import { View } from "@xeokit/viewer";
+import type { View } from "@xeokit/viewer";
 
 
 /**

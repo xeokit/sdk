@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/constants",
+  "type": "module",
   "version": "0.0.1",
   "description": "Core xeokit SDK constants",
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_constants.html",

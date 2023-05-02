@@ -14,13 +14,13 @@ import {
     PointsPrimitive,
     RepeatWrapping,
     TrianglesPrimitive
-} from "@xeokit/core/constants";
-import {isString} from "@xeokit/core/utils";
-import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "@xeokit/math/matrix";
-import {FloatArrayParam} from "@xeokit/math/math";
+} from "@xeokit/constants";
+import {isString} from "@xeokit/utils";
+import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "@xeokit/matrix";
+import {FloatArrayParam} from "@xeokit/math";
 import {GeometryParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/scene";
 import {DataModel} from "@xeokit/data";
-import {SDKError} from "@xeokit/core/components";
+import {SDKError} from "@xeokit/core";
 
 interface ParsingContext {
     gltfData: any;

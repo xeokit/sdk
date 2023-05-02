@@ -1,9 +1,10 @@
 {
   "name": "@xeokit/core",
+  "type": "module",
   "version": "0.0.1",
   "description": "Core xeokit SDK classes and types",
   "main": "dist/index.js",
-  "module": "dist/index.js",
+  "module": "dist/index.es",
   "source": "src/index.ts",
   "scripts": {
     "clean": "rm -fr dist",

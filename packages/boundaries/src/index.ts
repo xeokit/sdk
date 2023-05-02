@@ -914,7 +914,7 @@ export function intersectAABB3s(aabb1: FloatArrayParam, aabb2: FloatArrayParam):
 
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/core/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
+ * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -941,7 +941,7 @@ export function intersectFrustum3Triangle3(frustum: Frustum3, a: FloatArrayParam
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/core/constants!LinesPrimitive | LinesPrimitive} geometry.
+ * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -954,7 +954,7 @@ export function intersectFrustum3Lines3(frustum: Frustum3, positions: FloatArray
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/core/constants!PointsPrimitive | PointsPrimitive} geometry.
+ * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -978,7 +978,7 @@ export function intersectFrustum3Point3(frustum: Frustum3, position: FloatArrayP
 }
 
 /**
- * Tests if the given AABB intersects the given {@link @xeokit/core/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
+ * Tests if the given AABB intersects the given {@link @xeokit/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -997,7 +997,7 @@ export function intersectAABB3Triangles3(aabb: FloatArrayParam, positions: Float
 
 
 /**
- * Tests if the given AABB intersects the given {@link @xeokit/core/constants!LinesPrimitive | LinesPrimitive} geometry.
+ * Tests if the given AABB intersects the given {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -1010,7 +1010,7 @@ export function intersectAABB3Lines3(aabb: FloatArrayParam, positions: FloatArra
 }
 
 /**
- * Tests if the given AABB intersects the given {@link @xeokit/core/constants!PointsPrimitive | PointsPrimitive} vertex positions.
+ * Tests if the given AABB intersects the given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} vertex positions.
  *
  * Returns ```` true```` if intersection else ````false````.
  *

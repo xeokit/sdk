@@ -1,9 +1,9 @@
 
 
-import {distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3, createVec2} from "@xeokit/math/matrix";
-import {PerspectiveProjectionType} from "@xeokit/core/constants";
-import {View} from "@xeokit/viewer";
-import {getAABB3Center} from "@xeokit/math/boundaries";
+import {distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3, createVec2} from "@xeokit/matrix";
+import {PerspectiveProjectionType} from "@xeokit/constants";
+import type {View} from "@xeokit/viewer";
+import {getAABB3Center} from "@xeokit/boundaries";
 
 
 const getCanvasPosFromEvent = function (event:any, canvasPos:any) {

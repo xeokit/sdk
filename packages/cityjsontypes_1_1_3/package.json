@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/cityjsontypes_1_1_3",
+  "type": "module",
   "version": "0.0.1",
   "description": "CityJSON 1.1.3 data types",
   "main": "dist/index.js",

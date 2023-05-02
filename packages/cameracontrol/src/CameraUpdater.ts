@@ -1,7 +1,7 @@
 
 
-import {lenVec3, subVec3, createVec3} from "@xeokit/math/matrix";
-import {View} from "@xeokit/viewer";
+import {lenVec3, subVec3, createVec3} from "@xeokit/matrix";
+import type {View} from "@xeokit/viewer";
 
 const SCALE_DOLLY_EACH_FRAME = 1; // Recalculate dolly speed for eye->target distance on each Nth frame
 const EPSILON = 0.001;

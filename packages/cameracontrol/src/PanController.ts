@@ -7,10 +7,10 @@ import {
     mulVec3Scalar,
     normalizeVec3,
     subVec3
-} from "@xeokit/math/matrix";
-import {OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/core/constants";
-import {FloatArrayParam} from "@xeokit/math/math";
-import {View} from "@xeokit/viewer";
+} from "@xeokit/matrix";
+import {OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/constants";
+import type {FloatArrayParam} from "@xeokit/math";
+import type {View} from "@xeokit/viewer";
 import type {CameraControl} from "./CameraControl";
 
 const screenPos = createVec4();

@@ -1,8 +1,8 @@
 
 
-import {subVec3} from "@xeokit/math/matrix";
-import {getAABB3Center} from "@xeokit/math/boundaries";
-import {PickResult, View} from "@xeokit/viewer";
+import {subVec3} from "@xeokit/matrix";
+import {getAABB3Center} from "@xeokit/boundaries";
+import type {PickResult, View} from "@xeokit/viewer";
 
 /**
  * @private

@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/data",
+  "type": "module",
   "version": "0.0.1",
   "description": "An entity-relationship data graph composed of multiple federated data models.",
   "main": "dist/index.js",
@@ -8,6 +9,7 @@
   "scripts": {
     "clean": "rm -fr dist",
     "publish": "npm publish --access public",
+    "test": "jest --silent=false",
     "dist": "rm -fr dist && microbundle --define PACKAGE_VERSION=$npm_package_version"
   },
   "repository": {

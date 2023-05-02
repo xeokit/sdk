@@ -1,7 +1,7 @@
 
 
-import {distVec2, subVec3} from "@xeokit/math/matrix";
-import {PickResult} from "@xeokit/viewer";
+import {distVec2, subVec3} from "@xeokit/matrix";
+import type {PickResult} from "@xeokit/viewer";
 
 const TAP_INTERVAL = 150;
 const DBL_TAP_INTERVAL = 325;

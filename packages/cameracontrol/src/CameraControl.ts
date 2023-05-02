@@ -1,8 +1,8 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter} from "@xeokit/core/components";
-import {createVec2} from "@xeokit/math/matrix";
-import {isString} from "@xeokit/core/utils";
-import {FloatArrayParam} from "@xeokit/math/math"
+import {Component, EventEmitter} from "@xeokit/core";
+import {createVec2} from "@xeokit/matrix";
+import {isString} from "@xeokit/utils";
+import type {FloatArrayParam} from "@xeokit/math"
 import {Camera, CameraFlightAnimation, PickResult, View} from "@xeokit/viewer";
 
 import {PanController} from "./PanController";
@@ -47,7 +47,7 @@ interface CameraControlParams {
 }
 
 /**
- * Controls a {@link @xeokit/viewer!Camera}  with user input.
+ * Controls a {@link @xeokit/viewer!Camera | Camera}  with user input.
  *
  * See {@link @xeokit/cameracontrol} for usage.
  */

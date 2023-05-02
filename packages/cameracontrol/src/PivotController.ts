@@ -9,13 +9,13 @@ import {
     createVec2,
     createVec3,
     createVec4
-} from "@xeokit/math/matrix";
-import {clamp, FloatArrayParam} from "@xeokit/math/math";
+} from "@xeokit/matrix";
+import {clamp, FloatArrayParam} from "@xeokit/math";
 
 
 import type {CameraControl} from "./CameraControl";
-import {View} from "@xeokit/viewer";
-import {getAABB3Center} from "@xeokit/math/boundaries";
+import type {View} from "@xeokit/viewer";
+import {getAABB3Center} from "@xeokit/boundaries";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();

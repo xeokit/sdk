@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/bcf",
+  "type": "module",
   "version": "0.0.1",
   "description": "Loads and saves xeokit Viewer snapshots as JSON-encoded BIM Collaboration Format (BCF) Viewpoints",
   "main": "dist/index.js",

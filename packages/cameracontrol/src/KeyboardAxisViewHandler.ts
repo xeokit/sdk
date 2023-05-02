@@ -1,6 +1,6 @@
-import {addVec3, mulVec3Scalar, normalizeVec3, createVec3} from "@xeokit/math/matrix";
-import {getAABB3Center, getAABB3Diag} from "@xeokit/math/boundaries";
-import {DEGTORAD} from "@xeokit/math/math";
+import {addVec3, mulVec3Scalar, normalizeVec3, createVec3} from "@xeokit/matrix";
+import {getAABB3Center, getAABB3Diag} from "@xeokit/boundaries";
+import {DEGTORAD} from "@xeokit/math";
 
 
 const center = createVec3();

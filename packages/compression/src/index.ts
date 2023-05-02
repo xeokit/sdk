@@ -59,7 +59,7 @@
  *
  * ````javascript
  * import {compressGeometryParams} from "@xeokit/compression";
- * import {TrianglesPrimitive} from "@xeokit/core/constants";
+ * import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * const geometryCompressedParams = compressGeometryParams({
  *      id: "myBoxGeometry",
@@ -138,7 +138,7 @@
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
- * import {TrianglesPrimitive} from "@xeokit/core/constants";
+ * import {TrianglesPrimitive} from "@xeokit/constants";
  * import {compressGeometryParams} from "@xeokit/compression";
  *
  * const scene = new Scene();

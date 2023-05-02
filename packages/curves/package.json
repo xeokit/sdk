@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/curves",
+  "type": "module",
   "version": "0.0.1",
   "description": "xeokit Curves Math Library",
   "main": "dist/index.js",

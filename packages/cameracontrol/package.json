@@ -1,10 +1,15 @@
 {
   "name": "@xeokit/cameracontrol",
+  "type": "module",
   "version": "0.0.1",
   "description": "Camera navigation controls for a xeokit Viewer",
-  "module": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
   "source": "src/index.ts",
   "scripts": {
+    "clean": "rm -fr dist",
+    "dist": "rm -fr dist && microbundle --define PACKAGE_VERSION=$npm_package_version",
+    "watch": "microbundle watch --define PACKAGE_VERSION=$npm_package_version",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -16,36 +21,15 @@
   "bugs": {
     "url": "https://github.com/xeokit/sdk/issues"
   },
-  "homepage": "https://xeokit.io",
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_cameracontrol.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json",
     "package-lock.json"
   ],
-  "keywords": [
-    "webgl",
-    "webgpu",
-    "javascript",
-    "xeokit",
-    "xeolabs",
-    "creoox",
-    "ifc",
-    "controls",
-    "bim",
-    "gis",
-    "cad",
-    "openbim",
-    "opensource",
-    "controls",
-    "3dxml",
-    "obj",
-    "stl",
-    "las",
-    "pointcloud",
-    "3d-viewer"
-  ],
-  "main": "src/index.ts",
+  "keywords": [],
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1",

@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/basictypes",
+  "type": "module",
   "version": "0.0.1",
   "description": "Basic data type constants",
   "main": "dist/index.js",

@@ -6,8 +6,10 @@
   ],
   "compilerOptions": {
     "outDir": "./dist/",
-    "noImplicitAny": true,
-    "importsNotUsedAsValues": "error"
+    "noImplicitAny": false,
+    "importsNotUsedAsValues": "error",
+    "target": "ESNext",
+    "module": "ESNext"
   },
   "exclude": [
     "dist",

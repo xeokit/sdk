@@ -1,2 +1,2 @@
-@xeokit/webglrenderer
+@xeokit/webgpu
 

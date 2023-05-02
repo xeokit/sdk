@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/webifc",
+  "type": "module",
   "version": "0.0.1",
   "description": "WebIFC loader for xeokit",
   "main": "dist/index.js",

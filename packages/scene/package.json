@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/scene",
+  "type": "module",
   "version": "0.0.1",
   "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
   "main": "dist/index.js",
@@ -34,7 +35,9 @@
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1",
     "@xeokit/math": "^0.0.1",
+    "@xeokit/constants": "^0.0.1",
     "@xeokit/matrix": "^0.0.1",
-    "@xeokit/compression": "^0.0.1"
+    "@xeokit/compression": "^0.0.1",
+    "@xeokit/boundaries": "0.0.1"
   }
 }

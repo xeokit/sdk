@@ -1,7 +1,7 @@
 /**
  * GeometryBucketHandle data arrays.
  */
-import {FloatArrayParam, IntArrayParam} from "@xeokit/math/math";
+import {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 
 /**
  * TODO

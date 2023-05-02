@@ -8,8 +8,8 @@ module.exports = {
 
         "@xeokit/data/(.*)$": path.join(__dirname, "../data/src/$1"),
         "@xeokit/core(.*)$": path.join(__dirname, "../core/src/components$1"),
-        "@xeokit/core/utils(.*)$": path.join(__dirname, "../core/src/utils$1"),
-        "@xeokit/core/constants(.*)$": path.join(__dirname, "../core/src/constants$1"),
+        "@xeokit/utils(.*)$": path.join(__dirname, "../core/src/utils$1"),
+        "@xeokit/constants(.*)$": path.join(__dirname, "../core/src/constants$1"),
         "@xeokit/math(.*)$": path.join(__dirname, "../math/src/math$1"),
         "@xeokit/boundaries(.*)$": path.join(__dirname, "../math/src/boundaries$1"),
         "@xeokit/curves(.*)$": path.join(__dirname, "../math/src/curves$1"),

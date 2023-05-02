@@ -51,4 +51,4 @@
  *
  * @module @xeokit/webglrenderer
  */
-export * from "./WebGLRenderer";
+export {WebGLRenderer} from "./WebGLRenderer";

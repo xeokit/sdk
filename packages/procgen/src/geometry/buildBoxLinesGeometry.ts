@@ -1,5 +1,5 @@
-import * as utils from "@xeokit/core/utils";
-import * as constants from "@xeokit/core/constants";
+import * as utils from "@xeokit/utils";
+import * as constants from "@xeokit/constants";
 import type {GeometryArrays} from "./GeometryArrays";
 
 

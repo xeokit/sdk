@@ -7,16 +7,16 @@ import {
     searchKdTree3WithFrustum,
     searchKdTree3WithRay
 } from "@xeokit/kdtree3";
-import {FloatArrayParam} from "@xeokit/math";
-import {RayPickResult} from "./RayPickResult";
-import {MarqueePickResult} from "./MarqueePickResult";
+import type {FloatArrayParam} from "@xeokit/math";
+import type {RayPickResult} from "./RayPickResult";
+import type {MarqueePickResult} from "./MarqueePickResult";
 import {PickPrimsCache} from "./PickPrimsCache";
 import {decompressPositions3} from "@xeokit/compression";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
-import {Geometry, GeometryBucket, SceneObject} from "@xeokit/scene";
+import type {Geometry, GeometryBucket, SceneObject} from "@xeokit/scene";
 import {MeshHit} from "./MeshHit";
 import {GeometryBucketHit} from "./GeometryBucketHit";
-import {Frustum3} from "@xeokit/boundaries";
+import type {Frustum3} from "@xeokit/boundaries";
 
 /**
  * See {@link "@xeokit/collision/pick"} for usage.
@@ -129,6 +129,7 @@ export class Picker {
         const marqueePickResult = <MarqueePickResult>{
             sceneObjects: []
         };
+        // @ts-ignore
         const frustum: Frustum3 = null; // Create from marquee
         const kdItems = searchKdTree3WithFrustum({
             kdTree: sceneObjectsKdTree3,
@@ -202,6 +203,7 @@ export class Picker {
 
     #getPrimsKdTree3(geometry: Geometry, k: number, geometryBucket: GeometryBucket): any {
         const kdTreeId = `${geometry.id}-${k}`;
+        // @ts-ignore
         let primsKdTree3 = this.#pickPrimsCache[kdTreeId];
         if (!primsKdTree3) {
             const positions = decompressPositions3(
@@ -212,6 +214,7 @@ export class Picker {
                 primsKdTree3: createPrimsKdTree3(geometry.primitive, positions, geometryBucket.indices),
                 positions
             }
+            // @ts-ignore
             this.#pickPrimsCache[kdTreeId] = primsKdTree3;
         }
         return primsKdTree3;

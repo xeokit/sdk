@@ -1,4 +1,4 @@
-import * as utils from "@xeokit/core/utils";
+import * as utils from "@xeokit/utils";
 import type {GeometryArrays} from "./GeometryArrays";
 
 /**

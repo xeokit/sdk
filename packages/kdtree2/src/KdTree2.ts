@@ -1,4 +1,4 @@
-import {FloatArrayParam, IntArrayParam} from "@xeokit/math";
+import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 import {containsAABB2} from "@xeokit/boundaries";
 
 const MAX_KD_TREE_DEPTH = 10; // Increase if greater precision needed
@@ -87,7 +87,9 @@ export class KdTree2 {
      */
     constructor(params?: KdTree2DParams) {
         this.maxDepth = params?.maxDepth || MAX_KD_TREE_DEPTH;
+
         this.root = {
+            // @ts-ignore
             aabb: params.aabb.slice()
         };
     }

@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/kdtree2",
+  "type": "module",
   "version": "0.0.1",
   "description": "xeokit 2D Collision Utilities",
   "main": "dist/index.js",
@@ -30,6 +31,10 @@
   "keywords": [
   ],
   "dependencies": {
-    "@xeokit/core": "^0.0.1"
+    "@xeokit/core": "^0.0.1",
+    "@xeokit/scene": "^0.0.1",
+    "@xeokit/math": "^0.0.1",
+    "@xeokit/matrix": "^0.0.1",
+    "@xeokit/boundaries": "^0.0.1"
   }
 }

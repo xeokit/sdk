@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/rtc",
+  "type": "module",
   "version": "0.0.1",
   "description": "xeokit RTC Coordinate Utilities",
   "main": "dist/index.js",
@@ -30,8 +31,10 @@
   "keywords": [
   ],
   "dependencies": {
+    "@xeokit/core": "0.0.1",
     "@xeokit/math": "0.0.1",
     "@xeokit/matrix": "0.0.1",
-    "@xeokit/boundaries": "0.0.1"
+    "@xeokit/boundaries": "0.0.1",
+    "@xeokit/compression": "0.0.1"
   }
 }

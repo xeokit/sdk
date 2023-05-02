@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/viewer",
+  "type": "module",
   "version": "0.0.1",
   "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
   "main": "dist/index.js",

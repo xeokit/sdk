@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/webglutils",
+  "type": "module",
   "version": "0.0.1",
   "description": "xeokit SDK WebGL2 utilities library",
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html",

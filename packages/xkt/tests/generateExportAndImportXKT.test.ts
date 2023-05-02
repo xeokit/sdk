@@ -1,5 +1,5 @@
 import {Scene} from "@xeokit/scene";
-import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/core/constants";
+import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/constants";
 import * as testUtils from "./testUtils";
 import {Data} from "@xeokit/data";
 import {loadXKT, saveXKT} from "../src";
@@ -38,7 +38,7 @@ describe('Test SceneModel Creation', () => {
             src: "assets/bim_icon.png",
             preloadColor: [1, 0, 0, 1],
             flipY: false,
-            encoding: LinearEncoding, // @xeokit/core/constants
+            encoding: LinearEncoding, // @xeokit/constants
             magFilter: LinearFilter,
             minFilter: LinearFilter,
             wrapR: ClampToEdgeWrapping,

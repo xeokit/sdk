@@ -1,7 +1,7 @@
 import type {GeometryArrays} from "./GeometryArrays";
-import {apply} from "@xeokit/core/utils";
-import {normalizeVec3, subVec3} from "@xeokit/math/matrix";
-import {TrianglesPrimitive} from "@xeokit/core/constants";
+import {apply} from "@xeokit/utils";
+import {normalizeVec3, subVec3} from "@xeokit/matrix";
+import {TrianglesPrimitive} from "@xeokit/constants";
 
 
 /**

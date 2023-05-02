@@ -1,6 +1,6 @@
-import * as utils from "@xeokit/core/utils";
+import * as utils from "@xeokit/utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {LinesPrimitive} from "@xeokit/core/constants";
+import {LinesPrimitive} from "@xeokit/constants";
 
 
 const letters = {

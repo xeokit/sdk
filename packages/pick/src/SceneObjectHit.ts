@@ -1,5 +1,5 @@
-import {SceneObject} from "@xeokit/scene";
-import {MeshHit} from "./MeshHit";
+import type {SceneObject} from "@xeokit/scene";
+import type {MeshHit} from "./MeshHit";
 
 /**
  * Represents a picked {@link @xeokit/scene!SceneObject | SceneObject} within a {@link RayPickResult}.

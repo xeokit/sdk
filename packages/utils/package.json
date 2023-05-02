@@ -1,9 +1,10 @@
 {
   "name": "@xeokit/utils",
+  "type": "module",
   "version": "0.0.1",
   "description": "Core xeokit SDK utilities",
-  "main": "dist/utils.js",
-  "module": "dist/utils.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es",
   "source": "src/index.ts",
   "scripts": {
     "clean": "rm -fr dist",
@@ -22,7 +23,7 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_utils.html",
   "files": [
     "src/",
-    "dest/",
+    "dist/",
     "README.md",
     "package.json",
     "package-lock.json"
@@ -30,7 +31,6 @@
   "keywords": [
   ],
   "dependencies": {
-    "strongly-typed-events": "3.0.7"
   }
 }
 

@@ -1,5 +1,5 @@
-import {KdTree3, PrimsKdTree3} from "@xeokit/kdtree3";
-import {FloatArrayParam} from "@xeokit/math";
+import type {KdTree3, PrimsKdTree3} from "@xeokit/kdtree3";
+import type {FloatArrayParam} from "@xeokit/math";
 
 /**
  * Caches reusable resources for {@link rayPick} and {@link marqueePick}.

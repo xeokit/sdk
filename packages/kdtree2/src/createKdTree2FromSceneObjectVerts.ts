@@ -7,10 +7,10 @@ import {
     intersectFrustum3AABB3,
     intersectFrustum3Point3
 } from "@xeokit/boundaries";
-import {FloatArrayParam} from "@xeokit/math";
+import type {FloatArrayParam} from "@xeokit/math";
 import {createMat4, createVec4, transformPoint4} from "@xeokit/matrix";
 import {KdTree2} from "./KdTree2";
-import {KdVertex2} from "./KdVertex2";
+import type {KdVertex2} from "./KdVertex2";
 
 /**
  * A k-d tree to accelerate intersection and nearest-neighbour tests on the projected
@@ -48,8 +48,8 @@ export function createKdTree2FromSceneObjectVerts(params: {
         if (intersects === OUTSIDE) {
             return;
         }
-        getSceneObjectGeometry(sceneObject,
-            (geometryView: GeometryView): boolean | undefined => {
+        // @ts-ignore
+        getSceneObjectGeometry(sceneObject, (geometryView: GeometryView): boolean | undefined => {
                 const positionsWorld = geometryView.positionsWorld;
                 for (let i = 0, len = positionsWorld.length; i < len; i += 3) {
                     const worldPos = createVec4();

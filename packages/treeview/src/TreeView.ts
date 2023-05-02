@@ -1,5 +1,5 @@
 import {View, Viewer, ViewObject} from "@xeokit/viewer";
-import {Component, EventEmitter} from "@xeokit/core/components";
+import {Component, EventEmitter} from "@xeokit/core";
 import {Data, DataObject} from "@xeokit/data";
 import {EventDispatcher} from "strongly-typed-events";
 
@@ -180,7 +180,7 @@ export class TreeView extends Component {
      *
      * @event
      */
-    readonly onDestroyed: EventEmitter<TreeView, null>;
+    declare readonly onDestroyed: EventEmitter<TreeView, null>;
 
     #linkType: number;
     #groupTypes: number[];
@@ -199,10 +199,10 @@ export class TreeView extends Component {
     #objectNodes: {};
     #rootName: any;
     #showListItemElementId: string;
-    #spatialSortFunc: (node1, node2) => (number);
-    #switchExpandHandler: (event) => void;
-    #switchCollapseHandler: (event) => void;
-    #checkboxChangeHandler: (event) => void;
+    #spatialSortFunc: (node1: TreeViewNode, node2: TreeViewNode) => (number);
+    #switchExpandHandler: (event:MouseEvent) => void;
+    #switchCollapseHandler: (event:MouseEvent) => void;
+    #checkboxChangeHandler: (event:MouseEvent) => void;
     #destroyed: boolean;
     #onViewObjectVisibility: () => void;
     #onViewObjectXRayed: () => void;
@@ -335,21 +335,21 @@ export class TreeView extends Component {
             this.#muteTreeEvents = false;
         });
 
-        this.#switchExpandHandler = (event) => {
+        this.#switchExpandHandler = (event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
-            const switchElement = event.target;
+            const switchElement = (<HTMLElement>event.target);
             this.#expandSwitchElement(switchElement);
         };
 
         this.#switchCollapseHandler = (event) => {
             event.preventDefault();
             event.stopPropagation();
-            const switchElement = event.target;
+            const switchElement =(<HTMLElement>event.target);
             this.#collapseSwitchElement(switchElement);
         };
 
-        this.#checkboxChangeHandler = (event) => {
+        this.#checkboxChangeHandler = (event:any) => {
             if (this.#muteTreeEvents) {
                 return;
             }
@@ -519,7 +519,7 @@ export class TreeView extends Component {
      *
      * Within the DOM, the node is represented by an ````<li>```` element. This method will add a ````.highlighted-node```` class to
      * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
-     * in the TreeView examples for an example of that class.
+     * in the TreeView ifcviewer for an example of that class.
      *
      * @param {String} objectId ID of the {@link viewObject}.
      */
@@ -1251,6 +1251,7 @@ export class TreeView extends Component {
         checkbox.type = "checkbox";
         checkbox.checked = node.checked;
         checkbox.style["pointer-events"] = "all";
+        // @ts-ignore
         checkbox.addEventListener("change", this.#checkboxChangeHandler);
         nodeElement.appendChild(checkbox);
         const span = document.createElement('span');

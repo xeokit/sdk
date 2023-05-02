@@ -59,7 +59,7 @@
  * npm install @xeokit/viewer
  * npm install @xeokit/ktx2
  * npm install @xeokit/webglrenderer
- * npm install @xeokit/core/constants
+ * npm install @xeokit/constants
  * npm install @xeokit/cameracontrol
  * ````
  *
@@ -70,7 +70,7 @@
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/ktx2";
- * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
+ * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/constants";
  * import {CameraControl} from "@xeokit/cameracontrol";
  * ````
  *

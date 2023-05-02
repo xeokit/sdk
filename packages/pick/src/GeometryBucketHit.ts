@@ -1,5 +1,5 @@
-import {GeometryBucket} from "@xeokit/scene";
-import {PrimHit} from "./PrimHit";
+import type {GeometryBucket} from "@xeokit/scene";
+import type {PrimHit} from "./PrimHit";
 
 /**
  * Represents an intersecting {@link @xeokit/scene!GeometryBucket | GeometryBucket} within a {@link RayPickResult}.

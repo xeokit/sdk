@@ -1,9 +1,9 @@
-import {FloatArrayParam} from "@xeokit/math/math";
+import {FloatArrayParam} from "@xeokit/math";
 
 import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 import {RendererViewObject} from "viewer/src/RendererViewObject";
 import type {Pickable} from "./Pickable";
-import {Capabilities, TextureTranscoder} from "@xeokit/core/components";
+import {Capabilities, TextureTranscoder} from "@xeokit/core";
 
 /**
  * WebGPU-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.

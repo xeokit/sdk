@@ -1,13 +1,17 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "strict": true,
+    "importsNotUsedAsValues": "error",
+    "noImplicitAny": true,
+    "target": "ESNext",
+    "module": "ESNext"
+  },
   "include": [
     "src/**/*",
     "../global.d.ts"
   ],
-  "compilerOptions": {
-    "outDir": "./dist/",
-    "noImplicitAny": false
-  },
   "exclude": [
     "dist",
     "node_modules"

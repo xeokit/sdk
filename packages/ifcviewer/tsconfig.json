@@ -2,10 +2,13 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
     "strict": true,
     "importsNotUsedAsValues": "error",
-    "noImplicitAny": true
+    "noImplicitAny": true,
+
+    "declaration": true,
+    "outDir": "./dist",
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*",

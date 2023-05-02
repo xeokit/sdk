@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/pick",
+  "type": "module",
   "version": "0.0.1",
   "description": "xeokit 3D picking utilities",
   "main": "dist/index.js",

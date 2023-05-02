@@ -39,7 +39,7 @@
  * ## Usage
  *
  * In the example below, we'll import an LAS file into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core/components!SDKError} class
+ * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError} class
  * is used to handle errors that may occur during the process:
  *
  * ````javascript

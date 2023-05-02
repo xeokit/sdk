@@ -1,5 +1,5 @@
 import {View, Viewer, ViewLayer} from "@xeokit/viewer";
-import {WebGLRenderer} from "@xeokit/webglrenderer";
+
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {loadXKT, saveXKT} from "@xeokit/xkt";
 import {CameraControl} from "@xeokit/cameracontrol";
@@ -9,6 +9,7 @@ import {Data} from "@xeokit/data";
 import {Scene} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {createSceneObjectsKdTree3, SceneObjectsKdTree3} from "@xeokit/kdtree3";
+import {WebGLRenderer} from "@xeokit/webglrenderer";
 //import {Picker} from "@xeokit/collision/pick";
 
 /**

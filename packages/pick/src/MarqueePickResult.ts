@@ -1,4 +1,4 @@
-import {SceneObject} from "@xeokit/scene";
+import type {SceneObject} from "@xeokit/scene";
 
 /**
  * Marquee picking results returned by {@link marqueePick}.

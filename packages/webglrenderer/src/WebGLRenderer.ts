@@ -14,7 +14,7 @@ import type {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeoki
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {RenderContext} from "./RenderContext";
 import {FastColorTrianglesRenderer} from "./FastColorTrianglesRenderer";
-import {getExtension, GLRenderBuffer, GLRenderBufferManager, WEBGL_INFO} from "@xeokit/webglutils";
+import {getExtension, GLRenderBuffer, WEBGL_INFO} from "@xeokit/webglutils";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import type {Pickable} from "./Pickable";
 import {RendererModelImpl} from "./RendererModelImpl";
@@ -32,8 +32,6 @@ const isSafari = (ua && ua[1].toLowerCase() === "safari");
  * WebGL-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * See {@link @xeokit/webglrenderer} for usage.
- *
- * @internal
  */
 export class WebGLRenderer implements Renderer {
 
@@ -56,7 +54,7 @@ export class WebGLRenderer implements Renderer {
     #stateSortDirty: boolean;
     #pickIDs = new Map({});
     #saoDepthRenderBuffer: GLRenderBuffer;
-    #renderBufferManager: GLRenderBufferManager;
+    // #renderBufferManager: GLRenderBufferManager;
     #extensionHandles: any;
     #logarithmicDepthBufferEnabled: boolean;
     #alphaDepthMask: boolean;
@@ -509,11 +507,11 @@ export class WebGLRenderer implements Renderer {
         const saoPossible = view.sao.possible;
 
         if (this.#saoEnabled && saoPossible) {
-            const occlusionRenderBuffer1 = this.#renderBufferManager.getRenderBuffer("saoOcclusion", {
-                depthTexture: false,
-                size: [gl.drawingBufferWidth, gl.drawingBufferHeight]
-            });
-            renderContext.occlusionTexture = occlusionRenderBuffer1 ? occlusionRenderBuffer1.getTexture() : null;
+            // const occlusionRenderBuffer1 = this.#renderBufferManager.getRenderBuffer("saoOcclusion", {
+            //     depthTexture: false,
+            //     size: [gl.drawingBufferWidth, gl.drawingBufferHeight]
+            // });
+            // renderContext.occlusionTexture = occlusionRenderBuffer1 ? occlusionRenderBuffer1.getTexture() : null;
         } else {
             renderContext.occlusionTexture = null;
 

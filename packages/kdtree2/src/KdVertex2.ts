@@ -1,5 +1,5 @@
-import {SceneObject} from "@xeokit/scene";
-import {FloatArrayParam, IntArrayParam} from "@xeokit/math";
+import type {SceneObject} from "@xeokit/scene";
+import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 
 /**
  * TODO

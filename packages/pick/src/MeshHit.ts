@@ -1,5 +1,5 @@
-import {Geometry, Mesh} from "@xeokit/scene";
-import {GeometryBucketHit} from "./GeometryBucketHit";
+import type {Geometry, Mesh} from "@xeokit/scene";
+import type {GeometryBucketHit} from "./GeometryBucketHit";
 
 /**
  * Represents an intersecting {@link @xeokit/scene!Mesh | Mesh} within a {@link RayPickResult}.

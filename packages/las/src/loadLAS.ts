@@ -1,6 +1,6 @@
-import {SceneModel} from "@xeokit/scene";
-import {DataModel} from "@xeokit/data";
-import {SDKError} from "@xeokit/core/components";
+import type {SceneModel} from "@xeokit/scene";
+import type {DataModel} from "@xeokit/data";
+import {SDKError} from "@xeokit/core";
 
 /**
  * Loads LAS/LAZ file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel}.

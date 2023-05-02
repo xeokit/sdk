@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/las",
+  "type": "module",
   "version": "0.0.1",
   "description": "LAS tools for xeokit",
   "scripts": {
@@ -23,26 +24,7 @@
     "package-lock.json"
   ],
   "keywords": [
-    "webgl",
-    "webgpu",
-    "javascript",
-    "xeokit",
-    "xeolabs",
-    "creoox",
-    "ifc",
-    "bcf",
-    "bim",
-    "gis",
-    "cad",
-    "openbim",
-    "opensource",
-    "gltf",
-    "3dxml",
-    "obj",
-    "stl",
-    "las",
-    "pointcloud",
-    "3d-viewer"
+
   ],
   "main": "src/index.ts",
   "dependencies": {

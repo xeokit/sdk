@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/xkt",
+  "type": "module",
   "version": "0.0.1",
   "description": "Import and export models as xeokit's native binary XKT format",
   "main": "dist/index.js",

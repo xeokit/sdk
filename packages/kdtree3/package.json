@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/kdtree3",
+  "type": "module",
   "version": "0.0.1",
   "description": "xeokit 3D Collision Utilities",
   "main": "dist/index.js",

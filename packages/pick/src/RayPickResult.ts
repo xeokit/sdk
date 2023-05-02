@@ -1,4 +1,4 @@
-import {SceneObjectHit} from "./SceneObjectHit";
+import type {SceneObjectHit} from "./SceneObjectHit";
 
 /**
  * Ray picking results returned by {@link rayPick}.

@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/treeview",
+  "type": "module",
   "version": "0.0.1",
   "description": "LAS tools for xeokit",
   "scripts": {

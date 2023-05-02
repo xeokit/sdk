@@ -1,7 +1,7 @@
 // import {inverseMat4, createMat4, createVec2} from "@xeokit/matrix";
 // import {CustomProjection, View} from "@xeokit/viewer";
 //
-// import {PerspectiveProjectionType} from "@xeokit/core/constants";
+// import {PerspectiveProjectionType} from "@xeokit/constants";
 // import {GLArrayBuf, GLAttribute, GLProgram, GLRenderBuffer, WEBGL_INFO} from "@xeokit/webglutils";
 //
 //

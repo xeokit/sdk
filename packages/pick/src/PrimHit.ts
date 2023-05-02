@@ -1,5 +1,5 @@
-import {KdLinePrim, KdPointPrim, KdTrianglePrim} from "@xeokit/kdtree3";
-import {FloatArrayParam} from "@xeokit/math";
+import type {KdLinePrim, KdPointPrim, KdTrianglePrim} from "@xeokit/kdtree3";
+import type {FloatArrayParam} from "@xeokit/math";
 
 /**
  * Represents an intersecting primitive within a {@link RayPickResult}.

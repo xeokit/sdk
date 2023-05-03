@@ -1,11 +1,20 @@
+- [Introduction](#introduction)
+- [SDK Modules](#sdk-modules)
+    * [Scene Viewer](#scene-viewer)
+    * [Scene Graph](#scene-graph)
+    * [Data Graph](#data-graph)
+    * [Model Importers and Exporters](#model-importers-and-exporters)
+    * [Interoperating with BIM Software](#interoperating-with-bim-software)
+    * [Collision Detection](#collision-detection)
+    * [Utility Libraries](#utility-libraries)
+
+# Introduction
+
 Code, particularly open-source toolkits, requires regular refactoring to keep up with modern coding standards. Version 3 of the xeokit SDK contains several enhancements that 
 significantly improve the quality of the codebase. 
 
 Firstly, the internal functions, such as compression, rendering, and mathematical functions, have been factored out and integrated into fully documented public library 
 modules within the SDK. Each library is published as an NPM module and managed in a single monorepo on GitHub. 
-
-Following *separation-of-concerns*, the modules are 
-
 
 This approach results in more explicitly defined contracts between the various components, thereby enabling their replacement or modification. The SDK is designed as a 
 *white box* style SDK, that gives you the manual on all the parts. 
@@ -24,7 +33,6 @@ exporter functions available in the SDK can be used to load and save the scene g
 When used in the browser environment, the scene graph can be attached to the SDK's Viewer, allowing for a dynamic and interactive 3D visualization 
 of the scene.
 
-Overall, the SDK has been reworked into a more modular and extensible shape,  
 # SDK Modules
 
 ## Scene Viewer
@@ -95,15 +103,33 @@ These functions can be used to develop applications that facilitate collaboratio
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
 | [`@xeokit/bcf`](https://www.npmjs.com/package/@xeokit/bcf)               | [`@xeokit/bcf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html)                           | Load and save BCF                    |
 
-### Utility Libraries
+
+## Collision Detection 
+
+The SDK provides a collision detection library that can be used to build various acceleration and selection mechanisms. 
+Intended applications for our collision library include:
+
+ * 3D frustum culling
+ * Ray-picking
+ * Cursor snap-to-vertex 
+ * 2D marquee selection
+ * ..and more.
+
+| Package                                                               | Modules                                                                                                 | Description                                                    |
+|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| [`@xeokit/collison`](https://www.npmjs.com/package/@xeokit/collision) | [`@xeokit/kdtree2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_collision_kdtree2.html) | Searches and collision tests with 2D k-d trees and boundaries  |
+|                                                                       | [`@xeokit/kdtree3`](https://xeokit.github.io/sdk/docs/modules/_xeokit_collision_kdtree3.html) | Ssearches and collision tests with 3D k-d trees and boundaries |
+|                                                                       | [`@xeokit/pick`](https://xeokit.github.io/sdk/docs/modules/_xeokit_collision_pick.html)       | Select objects and primitives using rays and boundaries        |
+
+## Utility Libraries
 
 The SDK's internal and lower-level functionalities are mostly available as utility libraries with complete documentation.
 
 | Package                                                                  | Modules                                                               | Description                                          |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
-| [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)             | [`@xeokit/core/components`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_components.html)   | Basic component types used throughout the xeokit SDK |
-|                                                                          | [`@xeokit/core/constants`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_constants.html)     | Constants used throughout the xeokit SDK             |
-|                                                                          | [`@xeokit/core/utils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_utils.html)             | Core utilities used throughout the xeokit SDK        |
+| [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)             | [`@xeokit/components`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_components.html)   | Basic component types used throughout the xeokit SDK |
+|                                                                          | [`@xeokit/constants`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_constants.html)     | Constants used throughout the xeokit SDK             |
+|                                                                          | [`@xeokit/utils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_utils.html)             | Core utilities used throughout the xeokit SDK        |
 | [`@xeokit/datatypes`](https://www.npmjs.com/package/@xeokit/datatypes)   | [`@xeokit/datatypes/basicTypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_basicTypes.html)  | Basic semantic data type constants  |
 |                                                                          | [`@xeokit/datatypes/ifcTypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_ifcTypes.html)      | IFC data type constants  |
 | [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)             | [`@xeokit/math/math`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_math.html)               | General math definitions and constants               |

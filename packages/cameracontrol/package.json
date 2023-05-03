@@ -8,8 +8,8 @@
   "source": "src/index.ts",
   "scripts": {
     "clean": "rm -fr dist",
-    "dist": "rm -fr dist && microbundle --define PACKAGE_VERSION=$npm_package_version",
-    "watch": "microbundle watch --define PACKAGE_VERSION=$npm_package_version",
+    "dist": "rm -fr dist && microbundle --no-sourcemap  --no-compress --define PACKAGE_VERSION=$npm_package_version",
+    "watch": "microbundle --no-sourcemap watch --define PACKAGE_VERSION=$npm_package_version",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -34,6 +34,10 @@
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1",
     "@xeokit/math": "0.0.1",
+    "@xeokit/matrix": "0.0.1",
     "@xeokit/viewer": "0.0.1"
+  },
+  "devDependencies": {
+  "typescript": "^4.9.4"
   }
 }

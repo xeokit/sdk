@@ -6,7 +6,8 @@
     "importsNotUsedAsValues": "error",
     "noImplicitAny": true,
     "target": "ESNext",
-    "module": "ESNext"
+    "module": "ESNext",
+    "inlineSourceMap": true
   },
   "include": [
     "src/**/*",

@@ -24,7 +24,7 @@ Both are dependencies of `THREE.KTX2TextureTranscoder` and `THREE.BasisTextureLo
 
 ```js
 var KTX2TextureTranscoder = new THREE.KTX2TextureTranscoder();
-KTX2TextureTranscoder.setTranscoderPath( 'examples/js/libs/basis/' );
+KTX2TextureTranscoder.setTranscoderPath( 'ifcviewer/js/libs/basis/' );
 KTX2TextureTranscoder.detectSupport( renderer );
 KTX2TextureTranscoder.load( 'diffuse.ktx2', function ( texture ) {
 

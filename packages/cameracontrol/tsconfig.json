@@ -7,7 +7,9 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "noImplicitAny": true,
-    "importsNotUsedAsValues": "error"
+    "importsNotUsedAsValues": "error",
+    "inlineSourceMap": true,
+    "compress": false
   },
   "exclude": [
     "dist",

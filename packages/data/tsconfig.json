@@ -4,7 +4,9 @@
     "outDir": "dist",
     "strict": true,
     "importsNotUsedAsValues": "error",
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "compress": false,
+    "inlineSourceMap": true
   },
   "include": [
     "src/**/*",

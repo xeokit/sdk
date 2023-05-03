@@ -39,10 +39,6 @@ export type FloatArrayParam = (Uint8Array | Int8Array | Uint16Array | Uint32Arra
  */
 export type IntArrayParam = (Uint32Array | Uint8Array | Int8Array | Uint16Array | Int16Array | number[]);
 
-const doublePrecision = true;
-
-export const FloatArrayClass = doublePrecision ? Float64Array : Float32Array;
-
 /**
  * Minimum safe double-precision value.
  */
@@ -79,6 +75,6 @@ export function clamp(value: number, min: number, max: number): number {
  */
 export function newFloatArray(values?: number | FloatArrayParam): FloatArrayParam {
     // @ts-ignore
-    return new FloatArrayClass(values);
+    return new Float64Array(values);
 }
 

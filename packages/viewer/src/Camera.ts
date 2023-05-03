@@ -20,7 +20,7 @@ import {
 
 import {PerspectiveProjection} from './PerspectiveProjection';
 import {OrthoProjection} from './OrthoProjection';
-import type {FrustumProjection} from './FrustumProjection';
+import {FrustumProjection} from './FrustumProjection';
 import {CustomProjection} from './CustomProjection';
 import type {View} from "./View";
 import {Component, EventEmitter} from "@xeokit/core";
@@ -393,6 +393,7 @@ class Camera extends Component {
 
         this.perspectiveProjection = new PerspectiveProjection(this);
         this.orthoProjection = new OrthoProjection(this);
+        this.frustumProjection = new FrustumProjection(this);
         this.customProjection = new CustomProjection(this);
 
         this.#activeProjection = this.perspectiveProjection;

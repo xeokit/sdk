@@ -51,7 +51,7 @@ export function dotVec3(u: FloatArrayParam, v: FloatArrayParam): number {
  */
 export function createVec2(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
-    return new FloatArrayClass(values || 2);
+    return new Float64Array(values || 2);
 }
 
 /**
@@ -67,7 +67,7 @@ export function createVec3(values?: FloatArrayParam): Float64Array {
  */
 export function createVec4(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
-    return new FloatArrayClass(values || 4);
+    return new Float64Array(values || 4);
 }
 
 /**

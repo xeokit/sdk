@@ -29,7 +29,7 @@ Now let's write some JavaScript to create the spinning, textured box.
 
 ````javascript
 import {Scene} from "@xeokit/scene";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
+import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/constants";
 import {Viewer} from "@xeokit/viewer";
 import {WebGLRenderer} from "@xeokit/webglrenderer";
 
@@ -127,7 +127,7 @@ First import the npm modules we need from the SDK:
 npm install @xeokit/scene
 npm install @xeokit/viewer
 npm install @xeokit/webglrenderer
-npm install @xeokit/core/constants
+npm install @xeokit/constants
 npm install @xeokit/gltf
 ````
 
@@ -135,7 +135,7 @@ Here's the JavaScript for our glTF viewer app:
 
 ````javascript
 import {Scene} from "@xeokit/scene";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
+import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/constants";
 import {Viewer} from "@xeokit/viewer";
 import {WebGLRenderer} from "@xeokit/webglrenderer";
 import {loadGLTF} from "@xeokit/gltf";
@@ -212,7 +212,7 @@ Here's the JavaScript for our converter script.
 ````javascript
 import {Scene} from "@xeokit/scene";
 import {Data} from "@xeokit/data";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
+import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/constants";
 import {loadGLTF} from "@xeokit/gltf";
 import {saveXKT} from "@xeokit/xkt";
 
@@ -249,7 +249,7 @@ function toArrayBuffer(buf) {
 ````
 The script does the following steps:
 
-1. Import packages and modules relevant to Xeokit, as well as Node's file system module, which is used to read and write files.
+1. Import packages and modules relevant to xeokit, as well as Node's file system module, which is used to read and write files.
 2. Create a new Scene instance.
 3. Create a new Data instance and Model with ID "myModel".
 4. Use Node's fs module to read file called "HousePlan.glb" asynchronously.

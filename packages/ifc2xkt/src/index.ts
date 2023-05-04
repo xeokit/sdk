@@ -6,9 +6,9 @@
  *
  * <br>
  *
- * ## cityjson2xkt
+ * ## ifc2xkt
  *
- * Node CLI tool to convert CityJSON files into XKT files.
+ * Node CLI tool to convert IFC files into XKT files.
  *
  * ## Features
  *
@@ -17,7 +17,7 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/cityjson2xkt
+ * npm install @xeokit/ifc2xkt
  * ````
  *
  * ## Usage
@@ -25,9 +25,9 @@
  * TODO
  *
  * ````bash
- * cityjson2xkt -i model.json -o model.xkt
+ * ifc2xkt -i duplex.ifc -o duplex.xkt
  * ````
  *
- * @module @xeokit/cityjson2xkt
+ * @module @xeokit/ifc2xkt
  */
-export * from "./cityjson2xkt"
+export * from "./ifc2xkt"

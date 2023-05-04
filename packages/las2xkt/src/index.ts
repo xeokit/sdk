@@ -6,9 +6,9 @@
  *
  * <br>
  *
- * ## cityjson2xkt
+ * ## las2xkt
  *
- * Node CLI tool to convert CityJSON files into XKT files.
+ * Node CLI tool to convert LAS files into XKT files.
  *
  * ## Features
  *
@@ -17,7 +17,7 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/cityjson2xkt
+ * npm install @xeokit/las2xkt
  * ````
  *
  * ## Usage
@@ -25,9 +25,9 @@
  * TODO
  *
  * ````bash
- * cityjson2xkt -i model.json -o model.xkt
+ * las2xkt -i model.json -o model.xkt
  * ````
  *
- * @module @xeokit/cityjson2xkt
+ * @module @xeokit/las2xkt
  */
-export * from "./cityjson2xkt"
+export * from "./las2xkt"

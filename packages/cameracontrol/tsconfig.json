@@ -8,8 +8,7 @@
     "outDir": "./dist/",
     "noImplicitAny": true,
     "importsNotUsedAsValues": "error",
-    "inlineSourceMap": true,
-    "compress": false
+    "inlineSourceMap": true
   },
   "exclude": [
     "dist",

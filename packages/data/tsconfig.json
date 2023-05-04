@@ -5,7 +5,6 @@
     "strict": true,
     "importsNotUsedAsValues": "error",
     "noImplicitAny": true,
-    "compress": false,
     "inlineSourceMap": true
   },
   "include": [

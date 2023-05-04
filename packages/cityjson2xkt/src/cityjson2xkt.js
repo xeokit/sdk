@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {Data} from "@xeokit/data";
 import {Scene} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
@@ -36,7 +37,7 @@ if (options.output === undefined) {
     process.exit(1);
 }
 
-function log(msg: string) {
+function log(msg) {
     if (options.log) {
         console.log(msg);
     }
@@ -97,7 +98,7 @@ async function main() {
     }
 }
 
-function getBasePath(src: string) {
+function getBasePath(src) {
     const i = src.lastIndexOf("/");
     return (i !== 0) ? src.substring(0, i + 1) : "";
 }

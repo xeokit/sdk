@@ -8,7 +8,7 @@
  *
  * ## gltf2xkt
  *
- * Converts glTF files into XKT files.
+ * Node CLI tool to convert glTF files into XKT files.
  *
  * ## Features
  *

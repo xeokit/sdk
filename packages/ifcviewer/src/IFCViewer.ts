@@ -1,8 +1,8 @@
-import {View, Viewer, ViewLayer} from "@xeokit/viewer";
+import type {View, Viewer, ViewLayer} from "@xeokit/viewer";
 
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {loadXKT, saveXKT} from "@xeokit/xkt";
-import {CameraControl} from "@xeokit/cameracontrol";
+import type {CameraControl} from "@xeokit/cameracontrol";
 import {BCFViewpoint, loadBCFViewpoint, saveBCFViewpoint} from "@xeokit/bcf";
 import {LocaleService} from "@xeokit/locale";
 import {Data} from "@xeokit/data";
@@ -90,35 +90,35 @@ export class IFCViewer {
 
         this.data = new Data();
 
-        this.viewer = new Viewer({
-            id: "myViewer",
-            renderer: new WebGLRenderer({
-                textureTranscoder: new KTX2TextureTranscoder({
-                    //  transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
-                })
-            }),
-            scene: this.scene
-        });
-
-        const view = this.viewer.createView({
-            canvasElement: cfg.canvasElement
-        });
-
-        if (view instanceof SDKError) {
-            throw view;
-        } else {
-            this.view = view;
-        }
-
-        this.modelsLayer = this.view.createLayer({
-            id: "models"
-        });
-
-        this.backgroundLayer = this.view.createLayer({
-            id: "background"
-        });
-
-        this.cameraControl = new CameraControl(this.view, {});
+        // this.viewer = new Viewer({
+        //     id: "myViewer",
+        //     renderer: new WebGLRenderer({
+        //         textureTranscoder: new KTX2TextureTranscoder({
+        //             //  transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
+        //         })
+        //     }),
+        //     scene: this.scene
+        // });
+        //
+        // const view = this.viewer.createView({
+        //     canvasElement: cfg.canvasElement
+        // });
+        //
+        // if (view instanceof SDKError) {
+        //     throw view;
+        // } else {
+        //     this.view = view;
+        // }
+        //
+        // this.modelsLayer = this.view.createLayer({
+        //     id: "models"
+        // });
+        //
+        // this.backgroundLayer = this.view.createLayer({
+        //     id: "background"
+        // });
+        //
+        // this.cameraControl = new CameraControl(this.view, {});
 
         // this.treeView = new TreeView({
         //     view: this.view,

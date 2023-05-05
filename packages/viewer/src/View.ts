@@ -379,7 +379,7 @@ class View extends Component {
     if (!(canvas instanceof HTMLCanvasElement)) {
       throw "Mandatory View config expected: valid canvasId or canvasElement";
     }
-
+    this.canvasElement = canvas;
     this.viewIndex = 0;
     this.objects = {};
     this.visibleObjects = {};
@@ -438,8 +438,6 @@ class View extends Component {
     ]);
     this.#backgroundColorFromAmbientLight =
       !!options.backgroundColorFromAmbientLight;
-
-    this.canvasElement = options.canvasElement;
     this.transparent = !!options.transparent;
     this.canvasElement.width = this.canvasElement.clientWidth;
     this.canvasElement.height = this.canvasElement.clientHeight;

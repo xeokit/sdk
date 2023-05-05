@@ -438,8 +438,6 @@ class View extends Component {
     ]);
     this.#backgroundColorFromAmbientLight =
       !!options.backgroundColorFromAmbientLight;
-
-    this.canvasElement = options.canvasElement;
     this.transparent = !!options.transparent;
     this.canvasElement.width = this.canvasElement.clientWidth;
     this.canvasElement.height = this.canvasElement.clientHeight;

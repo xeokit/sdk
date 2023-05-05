@@ -379,7 +379,7 @@ class View extends Component {
     if (!(canvas instanceof HTMLCanvasElement)) {
       throw "Mandatory View config expected: valid canvasId or canvasElement";
     }
-
+    this.canvasElement = canvas;
     this.viewIndex = 0;
     this.objects = {};
     this.visibleObjects = {};

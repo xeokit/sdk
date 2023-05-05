@@ -7,11 +7,11 @@ module.exports = {
     moduleNameMapper: {
 
         "@xeokit/data/(.*)$": path.join(__dirname, "../data/src/$1"),
-        "@xeokit/core(.*)$": path.join(__dirname, "../core/src/components$1"),
-        "@xeokit/utils(.*)$": path.join(__dirname, "../core/src/utils$1"),
-        "@xeokit/constants(.*)$": path.join(__dirname, "../core/src/constants$1"),
-        "@xeokit/math(.*)$": path.join(__dirname, "../math/src/math$1"),
-        "@xeokit/boundaries(.*)$": path.join(__dirname, "../math/src/boundaries$1"),
+        "@xeokit/core(.*)$": path.join(__dirname, "../core/src/$1"),
+        "@xeokit/utils(.*)$": path.join(__dirname, "../utils/src/$1"),
+        "@xeokit/constants(.*)$": path.join(__dirname, "../constants/src$1"),
+        "@xeokit/math(.*)$": path.join(__dirname, "../math/src$1"),
+        "@xeokit/boundaries(.*)$": path.join(__dirname, "../boundaries/src$1"),
         "@xeokit/curves(.*)$": path.join(__dirname, "../math/src/curves$1"),
         "@xeokit/frustum(.*)$": path.join(__dirname, "../math/src/frustum$1"),
         "@xeokit/compression(.*)$": path.join(__dirname, "../math/src/compression$1"),
@@ -25,8 +25,8 @@ module.exports = {
         // "@xeokit/webglutils": ["webglutils/src"],
         // "@xeokit/webglrenderer": ["webglrenderer/src"],
 
-        "@xeokit/datatypes/basicTypes": path.join(__dirname, "../datatypes/src/basicTypes"),
-        "@xeokit/datatypes/ifcTypes(.*)$": path.join(__dirname, "../datatypes/src/ifcTypes"),
+        "@xeokit/basictypes": path.join(__dirname, "../basictypes/src"),
+        "@xeokit/ifctypes(.*)$": path.join(__dirname, "../ifctypes/src"),
         //
         // "@xeokit/xkt": ["xkt/src"],
         // "@xeokit/las": ["las/src"],

@@ -1,5 +1,5 @@
 import {Data} from "@xeokit/data";
-import {BasicAggregation, BasicEntity} from "@xeokit/datatypes/basicTypes";
+import {BasicAggregation, BasicEntity} from "@xeokit/basictypes";
 import {SDKError} from "@xeokit/core";
 
 describe('build', function () {

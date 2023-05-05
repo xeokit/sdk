@@ -10,9 +10,9 @@
   "module": "dist/index.es",
   "source": "src/index.ts",
   "scripts": {
-    "clean": "rm -fr dist",
+    "clean": "rimraf dist && mkdirp dist",
     "publish": "npm publish --access public",
-    "dist": "rm -fr dist && microbundle --format cjs --no-sourcemap  --no-compress --define PACKAGE_VERSION=$npm_package_version",
+    "dist": "rimraf dist && mkdirp dist && microbundle --format cjs --no-sourcemap  --no-compress --define PACKAGE_VERSION=$npm_package_version",
     "watch": "microbundle --format cjs --no-sourcemap watch --define PACKAGE_VERSION=$npm_package_version"
   },
   "repository": {

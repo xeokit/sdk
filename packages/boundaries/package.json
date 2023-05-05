@@ -8,8 +8,8 @@
   "module": "dist/index.es",
   "source": "src/index.ts",
   "scripts": {
-    "clean": "rm -fr dist",
-    "dist": "rm -fr dist && microbundle --no-sourcemap  --no-compress --define PACKAGE_VERSION=$npm_package_version",
+    "clean": "rimraf dist && mkdirp dist",
+    "dist": "rimraf dist && mkdirp dist && microbundle --no-sourcemap  --no-compress --define PACKAGE_VERSION=$npm_package_version",
     "watch": "microbundle --no-sourcemap   --no-compress watch --define PACKAGE_VERSION=$npm_package_version",
     "test": "jest --silent=false",
     "publish": "npm publish --access public"

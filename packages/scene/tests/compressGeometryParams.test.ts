@@ -1,4 +1,4 @@
-import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
+import {TrianglesPrimitive} from "@xeokit/constants";
 import {compressGeometryParams, GeometryParams} from "../src";
 
 describe('Test Geometry Compression', () => {

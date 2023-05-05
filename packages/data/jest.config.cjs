@@ -25,8 +25,8 @@ module.exports = {
         // "@xeokit/webglutils": ["webglutils/src"],
         // "@xeokit/webglrenderer": ["webglrenderer/src"],
 
-        "@xeokit/datatypes/basicTypes": path.join(__dirname, "../datatypes/src/basicTypes"),
-        "@xeokit/datatypes/ifcTypes(.*)$": path.join(__dirname, "../datatypes/src/ifcTypes"),
+        "@xeokit/basictypes": path.join(__dirname, "../basictypes/src"),
+        "@xeokit/ifctypes(.*)$": path.join(__dirname, "../ifctypes/src"),
         //
         // "@xeokit/xkt": ["xkt/src"],
         // "@xeokit/las": ["las/src"],

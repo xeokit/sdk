@@ -1,6 +1,4 @@
 import type {View, Viewer, ViewLayer} from "@xeokit/viewer";
-
-import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {loadXKT, saveXKT} from "@xeokit/xkt";
 import type {CameraControl} from "@xeokit/cameracontrol";
 import {BCFViewpoint, loadBCFViewpoint, saveBCFViewpoint} from "@xeokit/bcf";
@@ -9,7 +7,10 @@ import {Data} from "@xeokit/data";
 import {Scene} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {createSceneObjectsKdTree3, SceneObjectsKdTree3} from "@xeokit/kdtree3";
-import {WebGLRenderer} from "@xeokit/webglrenderer";
+import {loadCityJSON} from "@xeokit/cityjson";
+import {loadWebIFC} from "@xeokit/webifc";
+import {loadLAS} from "@xeokit/las";
+
 //import {Picker} from "@xeokit/collision/pick";
 
 /**
@@ -64,14 +65,14 @@ export class IFCViewer {
     /**
      * HTML tree view to navigate scene objects.
      */
-   // readonly treeView: TreeView;
+    // readonly treeView: TreeView;
 
     /**
      * Select objects and primitives using rays and boundaries.
      *
      * Use this with {@link IFCViewer.objectsKdTree3}.
      */
-    //readonly picker: Picker;
+        //readonly picker: Picker;
 
     #objectsKdTree3: SceneObjectsKdTree3 | null;
 
@@ -139,7 +140,7 @@ export class IFCViewer {
             this.#objectsKdTree3 = null;
         });
 
-      //  this.picker = new Picker();
+        //  this.picker = new Picker();
     }
 
     /**
@@ -170,7 +171,7 @@ export class IFCViewer {
                 .then(response => {
                     if (response.ok) {
                         response.arrayBuffer()
-                            .then(async data => {
+                            .then(async fileData => {
                                 const dataModel = this.data.createModel({id});
                                 if (dataModel instanceof SDKError) {
                                     reject(dataModel.message);
@@ -185,7 +186,26 @@ export class IFCViewer {
                                     reject(sceneModel.message);
                                     return;
                                 }
-                                await loadXKT({data, sceneModel, dataModel});
+                                let ext: any = null;
+                                switch (ext) {
+                                    case "xkt":
+                                        loadXKT({fileData, sceneModel, dataModel}).then(()=>{}).catch(());
+                                        break;
+                                    case "json":
+                                        await loadCityJSON({fileData, sceneModel, dataModel});
+                                        break;
+                                    // case "ifc":
+                                    //     await loadWebIFC({ifcAPI, fileData, sceneModel, dataModel});
+                                    //     break;
+                                    case "las":
+                                        await loadLAS({fileData, sceneModel, dataModel});
+                                        break;
+                                    default:
+                                        reject(`Unsupported model file extension: "${ext}"`);
+                                        sceneModel.destroy();
+                                        dataModel.destroy();
+                                        return;
+                                }
                                 await sceneModel.build();
                                 dataModel.build();
                                 resolve();

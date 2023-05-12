@@ -63,16 +63,28 @@
  *      console.error(dataModel.message);
  *
  * } else {
- *      fetch("myModel.glb").then(response => {
- *          response.arrayBuffer().then(data => {
  *
- *              loadGLTF({ data, dataModel, sceneModel });
+ *      fetch("myModel.glb").then(response => {
+ *
+ *          response.arrayBuffer().then(fileData => {
+ *
+ *              loadGLTF({ fileData, dataModel, sceneModel })
+ *              .then(()=>{
  *
  *                  dataModel.build();
  *                  sceneModel.build();
+ *
+ *              })
+ *              .catch(error=>{
+ *
+ *                  dataModel.destroy();
+ *                  sceneModel.destroy();
+ *
+ *                  console.log(error.message);
  *              });
  *         });
- *     }
+ *     });
+ * }
  * ````
  *
  * @module @xeokit/gltf

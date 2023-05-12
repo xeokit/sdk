@@ -46,6 +46,12 @@ interface ParsingContext {
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into. For glTF, this will create a basic aggregation hierarchy (see {@link "@xeokit/datatypes/basicTypes"}).
  * @returns {Promise} Resolves when glTF has been loaded.
+ * @returns {Promise} Resolves when glTF has been loaded into the SceneModel and/or DataModel.
+ * @throws *{@link @xeokit/core!SDKError}*
+ * * If the SceneModel has already been destroyed.
+ * * If the SceneModel has already been built.
+ * * If the DataModel has already been destroyed.
+ * * If the DataModel has already been built.
  */
 export function loadGLTF(params: {
     data: ArrayBuffer,
@@ -53,21 +59,21 @@ export function loadGLTF(params: {
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
-    if (params.sceneModel.destroyed) {
-        throw new Error("SceneModel already destroyed");
-    }
-    if (params.sceneModel.built) {
-        throw new SDKError("SceneModel already built");
-    }
-    if (params.dataModel) {
-        if (params.dataModel.destroyed) {
-            throw new SDKError("DataModel already destroyed");
-        }
-        if (params.dataModel.built) {
-            throw new SDKError("DataModel already built");
-        }
-    }
     return new Promise<void>(function (resolve, reject) {
+        if (params.sceneModel.destroyed) {
+            throw new SDKError("SceneModel already destroyed");
+        }
+        if (params.sceneModel.built) {
+            throw new SDKError("SceneModel already built");
+        }
+        if (params.dataModel) {
+            if (params.dataModel.destroyed) {
+                throw new SDKError("DataModel already destroyed");
+            }
+            if (params.dataModel.built) {
+                throw new SDKError("DataModel already built");
+            }
+        }
         parse(params.data, GLTFLoader, {}).then((gltfData) => {
             const ctx: ParsingContext = {
                 gltfData,
@@ -86,7 +92,7 @@ export function loadGLTF(params: {
             parseDefaultScene(ctx);
             resolve();
         }, (errMsg) => {
-            reject(`Error parsing glTF: ${errMsg}`);
+            reject(new SDKError(`Error parsing glTF: ${errMsg}`));
         });
     });
 }

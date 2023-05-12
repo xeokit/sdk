@@ -36,11 +36,12 @@ const tempVec3c = createVec3();
  * @param params.dataModel - DataModel to load into.
  * @param options - CityJSON loading options
  * @param options.rotateX - True to rotate the model about the X-axis. Default is false.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been built.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has already been built.
  * @returns {Promise} Resolves when CityJSON has been loaded into the SceneModel and/or DataModel.
+ * @throws *{@link @xeokit/core!SDKError}*
+ * * If the SceneModel has already been destroyed.
+ * * If the SceneModel has already been built.
+ * * If the DataModel has already been destroyed.
+ * * If the DataModel has already been built.
  */
 export function loadCityJSON(params: {
                                  fileData: any,
@@ -54,34 +55,32 @@ export function loadCityJSON(params: {
                              }): Promise<any> {
     if (params.sceneModel) {
         if (params.sceneModel.destroyed) {
-            throw new SDKError("SceneModel already destroyed");
+            return Promise.reject(new SDKError("SceneModel already destroyed"));
         }
         if (params.sceneModel.built) {
-            throw new SDKError("SceneModel already built");
+            return Promise.reject(new SDKError("SceneModel already built"));
         }
     }
     if (params.dataModel) {
         if (params.dataModel.destroyed) {
-            throw new SDKError("DataModel already destroyed");
+            return Promise.reject(new SDKError("DataModel already destroyed"));
         }
         if (params.dataModel.built) {
-            throw new SDKError("DataModel already built");
+            return Promise.reject(new SDKError("DataModel already built"));
         }
     }
-    return new Promise<void>(function (resolve, reject) {
-        const fileData = params.fileData;
-        const ctx = {
-            fileData,
-            vertices: (fileData.transform && params.sceneModel)
-                ? transformVertices(fileData.vertices, fileData.transform, options.rotateX)
-                : fileData.vertices,
-            sceneModel: params.sceneModel,
-            dataModel: params.dataModel,
-            nextId: 0
-        };
-        parseCityJSON(ctx);
-        resolve();
-    });
+    const fileData = params.fileData;
+    const ctx = {
+        fileData,
+        vertices: (fileData.transform && params.sceneModel)
+            ? transformVertices(fileData.vertices, fileData.transform, options.rotateX)
+            : fileData.vertices,
+        sceneModel: params.sceneModel,
+        dataModel: params.dataModel,
+        nextId: 0
+    };
+    parseCityJSON(ctx);
+    return Promise.resolve();
 }
 
 function transformVertices(vertices: any, transform: any, rotateX: boolean) {
@@ -226,8 +225,8 @@ function parseSurfacesWithOwnMaterials(ctx: any, surfaceMaterials: any, surfaces
         const surfaceMaterial = surfaceMaterials[i] || {diffuseColor: [0.8, 0.8, 0.8], transparency: 1.0};
         const face = [];
         const holes = [];
-        const sharedIndices:any[] = [];
-        const geometryCfg:any = {
+        const sharedIndices: any[] = [];
+        const geometryCfg: any = {
             positions: [],
             indices: []
         };
@@ -289,8 +288,8 @@ function parseSurfacesWithOwnMaterials(ctx: any, surfaceMaterials: any, surfaces
 
 function parseGeometrySurfacesWithSharedMaterial(ctx: any, geometry: any, objectMaterial: any, meshIds: any) {
     const sceneModel = ctx.sceneModel;
-    const sharedIndices :any= [];
-    const geometryCfg :any= {
+    const sharedIndices: any = [];
+    const geometryCfg: any = {
         positions: [],
         indices: []
     };

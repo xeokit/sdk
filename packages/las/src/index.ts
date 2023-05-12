@@ -60,13 +60,13 @@
  *
  * fetch("myModel.las").then(response => {
  *
- *     response.arrayBuffer().then(data => {
+ *      response.arrayBuffer().then(fileData => {
  *
- *          loadLAS({ data, dataModel, sceneModel });
- *
- *          dataModel.build();
- *          sceneModel.build();
- *     })
+ *          loadLAS({ fileData, dataModel, sceneModel }).then(()=>{
+ *              dataModel.build();
+ *              sceneModel.build();
+ *          });
+ *      });
  * });
  * ````
  *

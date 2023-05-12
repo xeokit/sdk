@@ -5,12 +5,13 @@ import * as WebIFC from "web-ifc/web-ifc-api-node";
 import {IfcRelAggregates} from "@xeokit/ifctypes";
 import {worldToRTCPositions} from "@xeokit/rtc";
 import {TrianglesPrimitive} from "@xeokit/constants";
+import {SDKError} from "@xeokit/core";
 
 /**
  * @private
  */
 interface ParsingContext {
-    data: ArrayBuffer;
+    fileData: ArrayBuffer;
     ifcAPI: WebIFC.IfcAPI;
     sceneModel: SceneModel;
     dataModel?: DataModel;
@@ -29,46 +30,44 @@ interface ParsingContext {
  * See {@link @xeokit/webifc} for usage.
  *
  * @param params - Loading parameters.
- * @param params.data - IFC file contents.
+ * @param params.fileData - IFC file contents.
  * @param params.ifcAPI - WebIFC API.
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been built.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has already been built.
  * @returns {Promise} Resolves when IFC has been loaded into the SceneModel and/or DataModel.
+ * @throws *{@link @xeokit/core!SDKError}*
+ * * If the SceneModel has already been destroyed.
+ * * If the SceneModel has already been built.
+ * * If the DataModel has already been destroyed.
+ * * If the DataModel has already been built.
  */
 export function loadWebIFC(params: {
-    data: ArrayBuffer,
+    fileData: ArrayBuffer,
     ifcAPI: WebIFC.IfcAPI,
     sceneModel: SceneModel,
     dataModel?: DataModel
 }): Promise<any> {
-    if (!params.ifcAPI) {
-        throw new Error("Argument missing: ifcAPI");
-    }
-    if (params.sceneModel.destroyed) {
-        throw new Error("SceneModel already destroyed");
-    }
-    if (params.sceneModel.built) {
-        throw new Error("SceneModel already built");
-    }
-    if (params.dataModel) {
-        if (params.dataModel.destroyed) {
-            throw new Error("DataModel already destroyed");
-        }
-        if (params.dataModel.built) {
-            throw new Error("DataModel already built");
-        }
-    }
     return new Promise<void>(function (resolve, reject) {
-        const dataArray = new Uint8Array(params.data);
+        if (params.sceneModel.destroyed) {
+            throw new SDKError("SceneModel already destroyed");
+        }
+        if (params.sceneModel.built) {
+            throw new SDKError("SceneModel already built");
+        }
+        if (params.dataModel) {
+            if (params.dataModel.destroyed) {
+                throw new SDKError("DataModel already destroyed");
+            }
+            if (params.dataModel.built) {
+                throw new SDKError("DataModel already built");
+            }
+        }
+        const dataArray = new Uint8Array(params.fileData);
         const modelId = params.ifcAPI.OpenModel(dataArray);
         const lines = params.ifcAPI.GetLineIDsWithType(modelId, WebIFC.IFCPROJECT);
         const ifcProjectId = lines.get(0);
         const ctx: ParsingContext = {
-            data: params.data,
+            fileData: params.fileData,
             modelId,
             lines,
             ifcProjectId,

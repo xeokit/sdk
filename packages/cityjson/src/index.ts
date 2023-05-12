@@ -59,18 +59,17 @@
  *
  *              const fileData = JSON.parse(jsonStr);
  *
- *              return loadCityJSON({
+ *              loadCityJSON({
  *                  fileData,
  *                  sceneModel,
- *                  dataModel
- *              }, {
+ *                  dataModel,
  *                  rotateX: true
+ *              }).then(() => {
+ *                  sceneModel.build();
+ *                  dataModel.build();
+ *              }).catch((sdkError)=>{
+ *                  console.error(sdkError.message);
  *              });
- *
- *          }).then(() => {
- *              sceneModel.build();
- *              dataModel.build();
- *          });
  * }
  * ````
  *

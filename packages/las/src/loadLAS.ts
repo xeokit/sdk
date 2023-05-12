@@ -11,13 +11,18 @@ import {SDKError} from "@xeokit/core";
  * See {@link "@xeokit/las"} for usage.
  *
  * @param params - Loading parameters.
- * @param params.data - LAS/LAZ file data
+ * @param params.fileData - LAS/LAZ file data
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
  * @returns {Promise} Resolves when LAS has been loaded.
+ * @throws *{@link @xeokit/core!SDKError}*
+ * * If the SceneModel has already been destroyed.
+ * * If the SceneModel has already been built.
+ * * If the DataModel has already been destroyed.
+ * * If the DataModel has already been built.
  */
 export function loadLAS(params: {
-    data: ArrayBuffer,
+    fileData: ArrayBuffer,
     sceneModel: SceneModel,
     dataModel?: DataModel,
     log?: Function
@@ -26,16 +31,16 @@ export function loadLAS(params: {
         const dataModel = params.dataModel;
         const sceneModel = params.sceneModel;
         if (sceneModel?.destroyed) {
-            throw new Error("SceneModel already destroyed");
+            throw new SDKError("SceneModel already destroyed");
         }
         if (sceneModel?.built) {
-            throw new Error("SceneModel already built");
+            throw new SDKError("SceneModel already built");
         }
         if (dataModel?.destroyed) {
-            throw new Error("DataModel already destroyed");
+            throw new SDKError("DataModel already destroyed");
         }
         if (dataModel?.built) {
-            throw new Error("DataModel already built");
+            throw new SDKError("DataModel already built");
         }
         // TODO
 

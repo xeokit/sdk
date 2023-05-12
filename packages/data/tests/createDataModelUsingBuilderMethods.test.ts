@@ -1,4 +1,4 @@
-import {Data} from "@xeokit/data";
+import {Data} from "../src";
 import {BasicAggregation, BasicEntity} from "@xeokit/basictypes";
 import {SDKError} from "@xeokit/core";
 

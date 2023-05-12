@@ -305,7 +305,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param transformParams Transform creation parameters.
-     * @returns *{Transform}*
+     * @returns *{@link Transform}*
      * * On success
      * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
@@ -616,7 +616,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
-     * @returns *{Geometry}*
+     * @returns *{@link Geometry}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
@@ -682,7 +682,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param meshParams Pre-compressed mesh parameters.
-     * @returns *{Mesh}*
+     * @returns *{@link Mesh}*
      *  * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
@@ -768,7 +768,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param objectParams SceneObject parameters.
-     * @returns *{SceneObject}*
+     * @returns *{@link SceneObject}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.

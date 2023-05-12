@@ -52,7 +52,7 @@ if (dataModel instanceof SDKError) {
     if (sceneModel instanceof SDKError) {
         //..
     } else {
-        loadLAS({data: sourceData, dataModel, sceneModel}).then(() => {
+        loadLAS({fileData: sourceData, dataModel, sceneModel}).then(() => {
             sceneModel.build().then(() => {
                 dataModel.build();
                 const xktArrayBuffer = saveXKT({dataModel, sceneModel});
@@ -70,7 +70,7 @@ if (dataModel instanceof SDKError) {
     }
 }
 
-function getBasePath(src) {
+function getBasePath(src: string) {
     const i = src.lastIndexOf("/");
     return (i !== 0) ? src.substring(0, i + 1) : "";
 }

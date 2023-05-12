@@ -6,8 +6,8 @@ module.exports = {
     },
     moduleNameMapper: {
 
-        "@xeokit/data/(.*)$": path.join(__dirname, "../data/src/$1"),
-        "@xeokit/core(.*)$": path.join(__dirname, "../core/src/components$1"),
+        "@xeokit/data/(.*)$": path.join(__dirname, "../data/src$1"),
+        "@xeokit/core(.*)$": path.join(__dirname, "../core/src$1"),
         "@xeokit/utils(.*)$": path.join(__dirname, "../core/src/utils$1"),
         "@xeokit/constants(.*)$": path.join(__dirname, "../core/src/constants$1"),
         "@xeokit/math(.*)$": path.join(__dirname, "../math/src/math$1"),

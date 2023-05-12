@@ -1,4 +1,4 @@
-import {Data} from "@xeokit/data";
+import {Data} from "../src";
 import * as testUtils from "./testUtils";
 
 describe('build', function () {

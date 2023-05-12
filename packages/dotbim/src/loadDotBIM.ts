@@ -12,18 +12,19 @@ import {SDKError} from "@xeokit/core";
  * See {@link "@xeokit/dotbim"} for usage.
  *
  * @param params - Loading parameters.
- * @param params.data - .BIM file data.
+ * @param params.fileData - .BIM file data.
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
  * @param options - .BIM loading options
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been built.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has already been built.
  * @returns {Promise} Resolves when .BIM has been loaded into the SceneModel and/or DataModel.
+ * @throws *{@link @xeokit/core!SDKError}*
+ * * If the SceneModel has already been destroyed.
+ * * If the SceneModel has already been built.
+ * * If the DataModel has already been destroyed.
+ * * If the DataModel has already been built.
  */
 export function loadDotBIM(params: {
-                               data: any,
+                               fileData: any,
                                sceneModel: SceneModel,
                                dataModel?: DataModel
                            },
@@ -32,24 +33,24 @@ export function loadDotBIM(params: {
                            } = {
                                rotateX: false
                            }): Promise<any> {
-    if (params.sceneModel.destroyed) {
-        throw new Error("SceneModel already destroyed");
-    }
-    if (params.sceneModel.built) {
-        throw new SDKError("SceneModel already built");
-    }
-    if (params.dataModel) {
-        if (params.dataModel.destroyed) {
-            throw new SDKError("DataModel already destroyed");
-        }
-        if (params.dataModel.built) {
-            throw new SDKError("DataModel already built");
-        }
-    }
     return new Promise<void>(function (resolve, reject) {
-        const data = params.data;
+        if (params.sceneModel.destroyed) {
+            throw new SDKError("SceneModel already destroyed");
+        }
+        if (params.sceneModel.built) {
+            throw new SDKError("SceneModel already built");
+        }
+        if (params.dataModel) {
+            if (params.dataModel.destroyed) {
+                throw new SDKError("DataModel already destroyed");
+            }
+            if (params.dataModel.built) {
+                throw new SDKError("DataModel already built");
+            }
+        }
+        const fileData = params.fileData;
         const ctx = {
-            data,
+            fileData,
             sceneModel: params.sceneModel,
             dataModel: params.dataModel,
             nextId: 0
@@ -60,8 +61,8 @@ export function loadDotBIM(params: {
 }
 
 function parseDotBIM(ctx: any) {
-    const data = ctx.data;
-    const meshes = data.meshes;
+    const fileData = ctx.fileData;
+    const meshes = fileData.meshes;
     for (let i = 0, len = meshes.length; i < len; i++) {
         const mesh = meshes[i];
         ctx.sceneModel.createGeometry({
@@ -70,7 +71,7 @@ function parseDotBIM(ctx: any) {
             indices: mesh.indices
         });
     }
-    const elements = data.elements;
+    const elements = fileData.elements;
     for (let i = 0, len = elements.length; i < len; i++) {
         const element = elements[i];
         const objectId = element.guid;

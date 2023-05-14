@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
   },
-  "homepage": "https://xeokit.github.io/sdk/packages/examples",
+  "homepage": "https://xeokit.github.io/sdk/packages/examples/",
   "description": "xeokit SDK examples",
   "main": "dist/index.cjs",
   "module": "dist/index.js",

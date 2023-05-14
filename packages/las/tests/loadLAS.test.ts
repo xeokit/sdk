@@ -21,7 +21,7 @@ describe('loadLAS Test', () => {
         });
 
         loadLAS({
-            data: toArrayBuffer(fs.readFileSync("./tests/assets/indoorScan.laz")),
+            fileData: toArrayBuffer(fs.readFileSync("./tests/assets/indoorScan.laz")),
             sceneModel,
             dataModel
         }).then(() => {

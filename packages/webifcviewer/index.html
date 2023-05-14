@@ -12,16 +12,25 @@
 
 <script type="module">
 
-    import {IFCViewer} from "./dist/index.js";
+    import {WebIFCViewer} from "./dist/index.js";
 
-    const ifcViewer = new IFCViewer({
+    const webIFCViewer = new WebIFCViewer({
         canvasElement: document.getElementById("myCanvas")
     });
 
-    ifcViewer.loadModel({
+    webIFCViewer.loadModel({
         id: "myModel",
-        src: "./data/Duplex.xkt"
+        src: "./data/ifc/IfcOpenHouse4.ifc"
+    }).then(()=>{
+
+        webIFCViewer.view.camera.eye = [0,0,100];
+        webIFCViewer.view.camera.look = [0,0,0];
+
+    }).catch((sdkError)=>{
+        console.error(sdkError.message);
     });
+
+
 
 </script>
 

@@ -36,17 +36,17 @@ export function loadXKT(params: {
 }): Promise<void> {
     const {fileData, sceneModel, dataModel} = params;
     if (sceneModel.destroyed) {
-        throw new SDKError("SceneModel already destroyed");
+        return Promise.reject(new SDKError("SceneModel already destroyed"));
     }
     if (sceneModel.built) {
-        throw new SDKError("SceneModel already built");
+        return Promise.reject(new SDKError("SceneModel already built"));
     }
     if (dataModel) {
         if (dataModel.destroyed) {
-            throw new SDKError("DataModel already destroyed");
+            return Promise.reject(new SDKError("DataModel already destroyed"));
         }
         if (dataModel.built) {
-            throw new SDKError("DataModel already built");
+            return Promise.reject(new SDKError("DataModel already built"));
         }
     }
     xktToModel({

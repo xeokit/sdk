@@ -12,6 +12,12 @@ Benefit from built-in support for multiple canvases, utility libraries with comp
 documentation, and the ability to import/export models as industry-standard AECO file formats. Collaborate with other BIM software 
 via BCF Viewpoints and bring your AECO models to life with xeokit.
 
+# Examples
+
+Work in progress;
+
+* https://xeokit.github.io/sdk/packages/examples/
+
 # Modules
 
 ## Scene Graph

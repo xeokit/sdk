@@ -8,7 +8,7 @@
   "source": "src/index.ts",
   "scripts": {
     "clean": "rimraf dist && mkdirp dist",
-    "dist": "rimraf dist && mkdirp dist && microbundle --no-sourcemap  --no-compress --define PACKAGE_VERSION=$npm_package_version",
+    "dist": "rimraf dist && mkdirp dist && microbundle --no-compress --define PACKAGE_VERSION=$npm_package_version",
     "watch": "microbundle --no-sourcemap watch --define PACKAGE_VERSION=$npm_package_version",
     "test": "jest --silent=false",
     "publish": "npm publish --access public"

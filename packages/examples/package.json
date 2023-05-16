@@ -9,8 +9,7 @@
   "description": "xeokit SDK examples",
   "main": "dist/xeokit-bundle.js",
   "module": "dist/xeokit-bundle.js",
-  "exports": "./dist/xeokit-bundle.mjs",
-
+  "exports": "./dist/xeokit-bundle.js",
   "source": "src/xeokit-bundle.ts",
   "scripts": {
     "clean": "rimraf dist && mkdirp dist",
@@ -34,7 +33,6 @@
   "keywords": [
   ],
   "dependencies": {
-
   },
   "devDependencies": {
     "@xeokit/basictypes": "^0.0.1",

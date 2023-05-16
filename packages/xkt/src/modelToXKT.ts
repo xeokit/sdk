@@ -41,7 +41,7 @@ export function modelToXKT(params: {
     let lenEdgeIndices8Bit = 0;
     let lenEdgeIndices16Bit = 0;
     let lenEdgeIndices32Bit = 0;
-    let lenMatrices = 0;
+    let lenMatrices = numMeshes * 16;
     let lenTextures = 0;
     let lenDecodeMatrices = 0;
 
@@ -117,7 +117,7 @@ export function modelToXKT(params: {
         eachGeometryPrimitiveType: new Uint8Array(numGeometries), // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
         eachGeometryBucketPortion: new Uint32Array(numGeometries), // TODO
         eachGeometryDecodeMatricesPortion: new Uint32Array(numGeometries), // Positions dequantization matrices
-        matrices: new Float32Array(lenMatrices), // Modeling matrices
+        matrices: new Float32Array(numMeshes * 16), // Modeling matrices
         eachMeshGeometriesPortion: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
         eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in xktData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
         eachMeshTextureSet: new Uint32Array(numMeshes), // For each mesh, the index of its texture set in xktData.eachTextureSetTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set

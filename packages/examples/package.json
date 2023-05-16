@@ -14,7 +14,7 @@
   "scripts": {
     "clean": "rimraf dist && mkdirp dist",
     "publish": "npm publish --access public",
-    "convertmodels": "node convertmodels.js",
+    "convertmodels": "node gltf2xkt",
     "dist": "rimraf dist && mkdirp dist && microbundle",
     "watch": "microbundle watch"
   },
@@ -33,14 +33,11 @@
   "keywords": [
   ],
   "dependencies": {
-  },
-  "devDependencies": {
     "@xeokit/basictypes": "^0.0.1",
     "@xeokit/bcf": "^0.0.1",
     "@xeokit/boundaries": "^0.0.1",
     "@xeokit/cameracontrol": "^0.0.1",
     "@xeokit/cityjson": "^0.0.1",
-    "@xeokit/cityjson2xkt": "^0.0.1",
     "@xeokit/cityjsontypes_1_1_3": "^0.0.1",
     "@xeokit/compression": "^0.0.1",
     "@xeokit/constants": "^0.0.1",
@@ -49,7 +46,6 @@
     "@xeokit/data": "^0.0.1",
     "@xeokit/dotbim": "^0.0.1",
     "@xeokit/gltf": "^0.0.1",
-    "@xeokit/gltf2xkt": "^0.0.1",
     "@xeokit/ifc2xkt": "^0.0.1",
     "@xeokit/ifctypes": "^0.0.1",
     "@xeokit/kdtree2": "^0.0.1",
@@ -73,5 +69,9 @@
     "@xeokit/webifc": "^0.0.1",
     "@xeokit/xkt": "^0.0.1",
     "web-ifc": "^0.0.35"
+  },
+  "devDependencies": {
+    "@xeokit/cityjson2xkt": "^0.0.1",
+    "@xeokit/gltf2xkt": "^0.0.1"
   }
 }

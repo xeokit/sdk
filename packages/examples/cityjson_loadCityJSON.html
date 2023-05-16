@@ -17,43 +17,50 @@
     import * as xeokit from "./dist/xeokit-bundle.js";
 
     function log(msg) {
-        document.getElementById("log").innerText += (msg + "\n");
+        document.getElementById("log").innerText += "[LOG]: " + (msg + "\n");
     }
+
+    function error(msg) {
+        document.getElementById("log").innerText += "[ERROR]: " + (msg + "\n");
+    }
+
+    log("// Loading CityJSON into a scene model and a data model")
+
+    log("scene = new Scene()");
+    log("data  = new Data()");
 
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    log("Create SceneModel");
+    log("sceneModel = scene.createModel(..)");
+    const sceneModel = scene.createModel({id: "myModel"});
 
-    const sceneModel = scene.createModel({
-        id: "myModel"
-    });
+    log("dataModel = data.createModel(..)");
+    const dataModel = data.createModel({id: "myTableModel"});
 
-    log("Create DataModel");
+    log("fileData = fetch(\"LoD3_Railway.json\")");
 
-    const dataModel = data.createModel({
-        id: "myTableModel"
-    });
+    fetch("./data/cityjson/LoD3_Railway.json")
+        .then(response => response.json())
+        .then(fileData => {
 
-    log("Load CityJSON");
+            log("loadCityJSON(fileData, dataModel, sceneModel)");
+            xeokit.cityjson.loadCityJSON({fileData, dataModel, sceneModel}).then(() => {
 
-    xeokit.cityjson.loadCityJSON({
-        src: "./data/cityjson/Railway.json",
-        dataModel,
-        sceneModel
-    }).then(() => {
+                log("sceneModel.build()");
+                sceneModel.build().then(() => {
 
-        log("Build SceneModel");
+                    log("dataModel.build()");
+                    dataModel.build().then(() => {
 
-        sceneModel.build();
+                         console.log(dataModel)
+                         console.log(sceneModel);
 
-        log("Build DataModel");
-
-        dataModel.build();
-
-    }).catch((sdkError) => {
-        log(sdkError.message);
-    });
+                        log("Done.");
+                    }).catch(sdkError => error(sdkError.message));
+                }).catch(sdkError => error(sdkError.message));
+            }).catch(sdkError => error(sdkError.message));
+        });
 
 </script>
 

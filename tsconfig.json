@@ -13,7 +13,8 @@
     "strictBindCallApply": true,
     "strictPropertyInitialization": false,
     "noImplicitThis": true,
-    "declaration": true
+    "declaration": true,
+    "sourceMap": true
   },
   "include": [
     "packages/*/src/**/*.ts",

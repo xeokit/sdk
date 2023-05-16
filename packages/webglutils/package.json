@@ -4,13 +4,8 @@
   "version": "0.0.1",
   "description": "xeokit SDK WebGL2 utilities library",
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html",
-  "main": "dist/index.js",
-  "module": "dist/index.es",
-  "source": "src/index.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "clean": "rimraf dist && mkdirp dist",
-    "dist": "rimraf dist && mkdirp dist && microbundle --no-compress --define PACKAGE_VERSION=$npm_package_version",
-    "watch": "microbundle --no-compress watch --define PACKAGE_VERSION=$npm_package_version",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -24,7 +19,6 @@
   },
   "files": [
     "src/",
-    "dest/",
     "README.md",
     "package.json",
     "package-lock.json"

@@ -7,16 +7,9 @@
   },
   "homepage": "https://xeokit.github.io/sdk/packages/bundle/",
   "description": "xeokit SDK bundle",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "exports": "./dist/index.modern.mjs",
-  "source": "src/index.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "clean": "rimraf dist && mkdirp dist",
-    "publish": "npm publish --access public",
-    "convertmodels": "node convertmodels.js",
-    "dist": "rimraf dist && mkdirp dist && microbundle",
-    "watch": "microbundle watch"
+       "publish": "npm publish --access public"
   },
   "author": "Lindsay Kay",
   "license": "SEE LICENSE IN LICENSE.md",

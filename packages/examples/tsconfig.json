@@ -1,11 +1,10 @@
-
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "strict": true,
     "importsNotUsedAsValues": "error",
     "noImplicitAny": true,
-
+    "sourceMap": true,
     "declaration": true,
     "outDir": "./dist",
     "esModuleInterop": true

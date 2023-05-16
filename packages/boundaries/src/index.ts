@@ -36,10 +36,9 @@
  * @module @xeokit/boundaries
  */
 import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
-import {createMat4, createVec2, createVec3, lenVec3, mulMat4, subVec3} from "@xeokit/matrix";
 import {MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "@xeokit/math";
+import {createMat4, createVec2, createVec3, lenVec3, mulMat4, subVec3} from "@xeokit/matrix";
 import {decompressPoint3} from "@xeokit/compression";
-
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -97,7 +96,7 @@ export function createSphere3(
 }
 
 /**
- * Transforms an createOBB3 by a 4x4 
+ * Transforms an createOBB3 by a 4x4
  */
 export function transformOBB3(
     m: FloatArrayParam,

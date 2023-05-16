@@ -83,7 +83,7 @@ export function loadCityJSON(params: {
     return Promise.resolve();
 }
 
-function transformVertices(vertices: any, transform: any, rotateX: boolean) {
+function transformVertices(vertices: any, transform: any, rotateX?: boolean) {
     const transformedVertices = [];
     const scale = transform.scale || createVec3([1, 1, 1]);
     const translate = transform.translate || createVec3([0, 0, 0]);

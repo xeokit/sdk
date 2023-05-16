@@ -3,13 +3,8 @@
   "type": "module",
   "version": "0.0.1",
   "description": "xeokit Geometry Compression / Decompression Utilities",
-  "main": "dist/index.js",
-  "module": "dist/index.es",
-  "source": "src/index.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "clean": "rimraf dist && mkdirp dist",
-    "dist": "rimraf dist && mkdirp dist && microbundle --no-compress --define PACKAGE_VERSION=$npm_package_version",
-    "watch": "microbundle --no-compress watch --define PACKAGE_VERSION=$npm_package_version",
     "publish": "npm publish --access public"
   },
   "repository": {
@@ -24,7 +19,6 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_compression.html",
   "files": [
     "src/",
-    "dist/",
     "README.md",
     "package.json",
     "package-lock.json"

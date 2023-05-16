@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="./css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+<div id="log"></div>
+</body>
+
+<script type="module">
+
+    import * as xeokit from "./dist/xeokit-bundle.js";
+
+    function log(msg) {
+        document.getElementById("log").innerText += (msg + "\n");
+    }
+
+    const scene = new xeokit.scene.Scene();
+    const data = new xeokit.data.Data();
+
+    log("Create SceneModel");
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    log("Create DataModel");
+
+    const dataModel = data.createModel({
+        id: "myTableModel"
+    });
+
+    log("Load CityJSON");
+
+    xeokit.cityjson.loadCityJSON({
+        src: "./data/cityjson/Railway.json",
+        dataModel,
+        sceneModel
+    }).then(() => {
+
+        log("Build SceneModel");
+
+        sceneModel.build();
+
+        log("Build DataModel");
+
+        dataModel.build();
+
+    }).catch((sdkError) => {
+        log(sdkError.message);
+    });
+
+</script>
+
+</html>

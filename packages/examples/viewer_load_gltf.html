@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+</body>
+
+<script type="module">
+
+    import * as xeokit from "./dist/xeokit-bundle.js";
+
+    const scene = new xeokit.scene.Scene();
+    const data = new xeokit.data.Data();
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer: new xeokit.webglRenderer.WebGLRenderer({})
+    });
+
+    const view = viewer.createView({
+        canvasId: "myCanvas"
+    });
+
+    view.camera.eye = [0, -100, 0];
+    view.camera.look = [0, 0, 0];
+    view.camera.up = [0, 1, 0];
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    const dataModel = data.createModel({
+        id: "myTableModel"
+    });
+
+    xeokit.gltf.loadGLTF({
+        src: "./data/gltf/Duplex.gltf",
+        dataModel,
+        sceneModel
+    }).then(() => {
+
+        sceneModel.build();
+        dataModel.build();
+
+    }).catch((sdkError) => {
+        console.error(sdkError.message);
+    });
+
+</script>
+
+</html>

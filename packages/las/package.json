@@ -3,14 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "description": "LAS tools for xeokit",
-  "main": "dist/index.js",
-  "module": "dist/index.es",
-  "source": "src/index.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "clean": "rimraf dist && mkdirp dist",
-    "publish": "npm publish --access public",
-    "dist": "rimraf dist && mkdirp dist && microbundle --no-compress",
-    "watch": "microbundle --no-compress watch"
+     "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -40,9 +35,6 @@
     "@jest/globals": "^29.5.0",
     "@loaders.gl/core": "^3.2.6",
     "@loaders.gl/las": "^3.2.6",
-    "@loaders.gl/polyfills": "^3.2.6",
-    "core-js": "^3.22.5",
-    "fs": "0.0.1-security",
-    "path": "^0.12.7"
+    "@loaders.gl/polyfills": "^3.2.6"
   }
 }

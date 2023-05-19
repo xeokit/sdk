@@ -24,7 +24,8 @@
         document.getElementById("log").innerText += "[ERROR]: " + (msg + "\n");
     }
 
-    log("// Loading glTF into a scene model and a data model")
+    log("Running..");
+
     log("scene = new Scene()");
     log("data  = new Data()");
 
@@ -33,56 +34,45 @@
 
     log("sceneModel = scene.createModel(..)");
 
-    const sceneModel = scene.createModel({
-        id: "myModel"
-    });
+    const sceneModel = scene.createModel({id: "myModel"});
 
     log("dataModel = data.createModel(..)");
 
-    const dataModel = data.createModel({
-        id: "myTableModel"
-    });
+    const dataModel = data.createModel({id: "myTableModel"});
 
-    log("loadGLTF(src, dataModel, sceneModel)");
+    log("fileData = fetch(\"HousePlan.glb\")");
 
     fetch("./data/gltf/HousePlan.glb")
-        .then(fileData => {
+        .then(response => {
+            if (!response.ok) {
+                error(`HTTP error, status = ${response.status}`);
 
-            xeokit.gltf.loadGLTF({
-                fileData,
-                dataModel,
-                sceneModel
-            }).then(() => {
+            } else {
 
-                log("sceneModel.build()");
+                response.arrayBuffer().then((fileData) => {
 
-                sceneModel.build()
-                    .then(() => {
+                    log("loadGLTF(src, dataModel, sceneModel)");
 
-                        log("dataModel.build()");
+                    xeokit.gltf.loadGLTF({fileData, dataModel, sceneModel}).then(() => {
 
-                        const result2 = dataModel.build();
+                        log("sceneModel.build()");
 
-                        if (result2) {
-                            error(result2.message);
-                        }
+                        sceneModel.build().then(() => {
 
-                        // console.log(dataModel)
-                        // console.log(sceneModel);
+                            log("dataModel.build()");
 
-                        log("Done.");
+                            log(`sceneModel.stats = ${JSON.stringify(sceneModel.stats, null, "\t")}`);
 
-                    }).catch((sdkError) => {
-                    error(sdkError.message);
+                            dataModel.build().then(() => {
+
+                                log("Object.keys(dataModel.objects).length = " + Object.keys(dataModel.objects).length);
+                                log("Done.");
+                            })
+                        }).catch(sdkError => log("Error: " + sdkError.message));
+                    }).catch(sdkError => log("Error: " + sdkError.message));
                 });
-
-
-
-            }).catch((sdkError) => {
-                log("Error: " + sdkError.message);
-            });
+            }
         });
-
 </script>
 
 </html>

@@ -489,28 +489,29 @@ export class DataModel extends Component {
      *
      * See {@link "@xeokit/data"} for usage.
      *
-     * @returns *void*
-     * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
-     * * If this DataModel has already been built or destroyed.
+     * @throws *{@link @xeokit/core!SDKError}*
+     * * If DataModel has already been built or destroyed.
      */
-    build(): void | SDKError {
-        if (this.destroyed) {
-            return new SDKError("Failed to build DataModel - DataModel already destroyed");
-        }
-        if (this.built) {
-            return new SDKError("Failed to build DataModel - DataModel already built");
-        }
-        this.built = true;
-        this.onBuilt.dispatch(this, null);
+    build(): Promise<DataModel> {
+        return new Promise<DataModel>((resolve) => {
+            if (this.destroyed) {
+                throw new SDKError("Failed to build DataModel - DataModel already destroyed");
+            }
+            if (this.built) {
+                throw new SDKError("Failed to build DataModel - DataModel already built");
+            }
+            this.built = true;
+            this.onBuilt.dispatch(this, null);
+            resolve(this);
+        });
     }
 
+    /**
+     * Gets this DataModel as JSON.
+     */
     getJSON(): DataModelParams | SDKError {
         if (this.destroyed) {
             return new SDKError("DataModel already destroyed");
-        }
-        if (this.built) {
-            return new SDKError("DataModel already built");
         }
         const dataModelParams = <DataModelParams>{
             id: this.id,
@@ -518,7 +519,6 @@ export class DataModel extends Component {
             objects: [],
             relationships: []
         };
-
         for (let id in this.propertySets) {
             const propertySet = this.propertySets[id];
             const propertySetParams = <PropertySetParams>{

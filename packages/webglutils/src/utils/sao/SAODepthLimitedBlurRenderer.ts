@@ -39,10 +39,10 @@
 //     constructor(view: View, gl: WebGL2RenderingContext) {
 //         this.#view = view;
 //         this.#gl = gl;
-//         this.#init();
+//         this.#registerViewer();
 //     }
 //
-//     #init() {
+//     #registerViewer() {
 //         const gl = this.#gl;
 //         this.#program = new GLProgram(gl, {
 //             vertex: [

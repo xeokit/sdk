@@ -38,7 +38,7 @@ export class WebGPURenderer implements Renderer {
         throw new Error("Method not implemented.");
     }
 
-    init(viewer: Viewer): void {
+    registerViewer(viewer: Viewer): void {
         // TODO
     }
 

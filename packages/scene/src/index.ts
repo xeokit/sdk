@@ -237,17 +237,13 @@
  *
  *      sceneModel.onDestroyed.subscribe((theSceneModel)=>{ });
  *
- *      // Now build the SceneModel.
- *      // This makes the SceneModel ready for use.
- *      // Among other things, this will compress the texture.
+ *      // Now build the SceneModel
  *
  *      sceneModel.build().then(()=> {
- *
  *           // SceneModel is ready for use
  *
- *      }).catch((e) => {
- *          console.log(e);
- *          throw e;
+ *      }).catch((sdkError) => {
+ *          console.log(sdkError.message);
  *       });
  * }
  * ````
@@ -389,6 +385,7 @@
 
 export * from "./Scene";
 export * from "./SceneModel";
+export * from "./SceneModelStats";
 export * from "./SceneObject";
 export * from "./Texture";
 export * from "./TextureSet";

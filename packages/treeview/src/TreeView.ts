@@ -189,7 +189,7 @@ export class TreeView extends Component {
     #dataModels: {};
     #autoAddModels: boolean;
     #autoExpandDepth: any;
-    #sortNodes: boolean;
+    #sortNodes: boolean | undefined;
     #pruneEmptyNodes: boolean;
     #viewer: Viewer;
     #rootElement: HTMLElement;
@@ -250,7 +250,9 @@ export class TreeView extends Component {
         this.#objectNodes = {}; // Object ID -> TreeViewNode
         this.#rootName = params.rootName;
         this.#sortNodes = params.sortNodes;
+        // @ts-ignore
         this.#pruneEmptyNodes = params.pruneEmptyNodes;
+        // @ts-ignore
         this.#showListItemElementId = null;
         this.#destroyed = false;
 
@@ -267,6 +269,7 @@ export class TreeView extends Component {
                 return;
             }
             const objectId = viewObject.id;
+            // @ts-ignore
             const node = this.#objectNodes[objectId];
             if (!node) {
                 return; // Not in this tree

@@ -1,10 +1,9 @@
+import {SDKError} from "@xeokit/core";
 import type {DataModel} from "@xeokit/data";
 import type {SceneModel} from "@xeokit/scene";
 import {deflateXKT} from "./deflateXKT";
 import {modelToXKT} from "./modelToXKT";
 import {packXKT} from "./packXKT";
-import {SDKError} from "@xeokit/core";
-
 
 /**
  * Exports a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel} to an ArrayBuffer

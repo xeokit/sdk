@@ -32,6 +32,8 @@
     "@xeokit/constants": "^0.0.1",
     "@xeokit/matrix": "^0.0.1",
     "@xeokit/compression": "^0.0.1",
-    "@xeokit/boundaries": "0.0.1"
+    "@xeokit/boundaries": "0.0.1",
+    "@loaders.gl/images": "^3.4.1",
+    "@loaders.gl/textures": "^3.4.1"
   }
 }

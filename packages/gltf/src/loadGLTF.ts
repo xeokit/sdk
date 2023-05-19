@@ -54,7 +54,7 @@ interface ParsingContext {
  * * If the DataModel has already been built.
  */
 export function loadGLTF(params: {
-    data: ArrayBuffer,
+    fileData: ArrayBuffer,
     sceneModel: SceneModel,
     dataModel?: DataModel,
     log?: Function
@@ -74,7 +74,7 @@ export function loadGLTF(params: {
                 throw new SDKError("DataModel already built");
             }
         }
-        parse(params.data, GLTFLoader, {}).then((gltfData) => {
+        parse(params.fileData, GLTFLoader, {}).then((gltfData) => {
             const ctx: ParsingContext = {
                 gltfData,
                 nextId: 0,
@@ -182,7 +182,7 @@ function parseTexture(ctx:any, texture:any) {
             break;
     }
     ctx.sceneModel.createTexture({
-        textureId: textureId,
+        id: textureId,
         imageData: texture.source.image,
         mediaType: texture.source.mediaType,
         compressed: true,

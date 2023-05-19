@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="./css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+<div id="log"></div>
+</body>
+
+<script type="module">
+
+    import * as xeokit from "./dist/xeokit-bundle.js";
+
+    function log(msg) {
+        document.getElementById("log").innerText += "[LOG]: " + (msg + "\n");
+    }
+
+    function error(msg) {
+        document.getElementById("log").innerText += "[ERROR]: " + (msg + "\n");
+    }
+
+    log("Running..");
+
+    log("scene = new Scene()");
+    log("data  = new Data()");
+
+    const scene = new xeokit.scene.Scene();
+    const data = new xeokit.data.Data();
+
+    log("sceneModel = scene.createModel(..)");
+
+    const sceneModel = scene.createModel({id: "myModel"});
+
+    log("dataModel = data.createModel(..)");
+
+    const dataModel = data.createModel({id: "SmallHouse"});
+
+    log("fileData = fetch(\"SmallHouse.bim\")");
+
+    fetch("./data/dotbim/SmallHouse.bim")
+        .then(response => response.json())
+        .then(fileData => {
+
+            log("loadDotBIM(src, dataModel, sceneModel)");
+
+            xeokit.dotbim.loadDotBIM({
+                    fileData,
+                    dataModel,
+                    sceneModel
+                },
+                { // Options
+                    error
+                }).then(() => {
+
+                log("sceneModel.build()");
+
+                sceneModel.build().then(() => {
+
+                    log(`sceneModel.stats = ${JSON.stringify(sceneModel.stats, null, "\t")}`);
+
+                    log("dataModel.build()");
+
+                    dataModel.build().then(() => {
+                        log("Object.keys(dataModel.objects).length = " + Object.keys(dataModel.objects).length);
+                        log("Done.");
+                    }).catch(sdkError => error(sdkError.message));
+                }).catch(sdkError => error(sdkError.message));
+            }).catch(sdkError => error(sdkError.message));
+        });
+</script>
+
+</html>

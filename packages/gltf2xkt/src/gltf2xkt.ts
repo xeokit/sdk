@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {Data} from "@xeokit/data";
 import {Scene} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
@@ -70,7 +72,7 @@ if (dataModel instanceof SDKError) {
     }
 }
 
-function getBasePath(src) {
+function getBasePath(src: string) {
     const i = src.lastIndexOf("/");
     return (i !== 0) ? src.substring(0, i + 1) : "";
 }

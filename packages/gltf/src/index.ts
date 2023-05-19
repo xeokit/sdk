@@ -68,14 +68,12 @@
  *
  *          response.arrayBuffer().then(fileData => {
  *
- *              loadGLTF({ fileData, dataModel, sceneModel })
- *              .then(()=>{
+ *              loadGLTF({ fileData, dataModel, sceneModel }).then(()=>{
  *
  *                  dataModel.build();
  *                  sceneModel.build();
  *
- *              })
- *              .catch(error=>{
+ *              }).catch(error=>{
  *
  *                  dataModel.destroy();
  *                  sceneModel.destroy();

@@ -2,7 +2,7 @@ import {apply, createUUID, inQuotes} from "@xeokit/utils";
 import {Capabilities, Component, EventEmitter, SDKError} from "@xeokit/core";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "@xeokit/math";
-import {Scene} from "@xeokit/scene";
+import {Scene, SceneModel} from "@xeokit/scene";
 
 import {View} from "./View";
 import {scheduler} from "./scheduler";
@@ -139,8 +139,10 @@ export class Viewer extends Component {
         this.scene = params.scene || new Scene();
 
         this.renderer = params.renderer;
+
         this.renderer.getCapabilities(this.capabilities);
-        this.renderer.init(this);
+
+        this.renderer.attachViewer(this);
 
         scheduler.registerViewer(this);
     }
@@ -194,17 +196,31 @@ export class Viewer extends Component {
         }
         const view = new View(apply({viewId, viewer: this}, params));
         this.#registerView(view);
-        view.viewIndex = this.renderer.registerView(view);
+        // Renderer.attachView sets up internal Renderer resources
+        // that are expected by Renderer.attachSceneModel
+        view.viewIndex = this.renderer.attachView(view);
         view.onDestroyed.one(() => {
             this.#deregisterView(view);
-            this.renderer.deregisterView(view.viewIndex);
+            this.renderer.detachView(view.viewIndex);
             this.onViewDestroyed.dispatch(this, view);
         });
+        // Renderer.attachSceneModel creates RendererViewObjects in Renderer.rendererViewObjects,
+        // which are then expected by View.initViewObjects
+        // TODO: assumes one View
+        this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
+            this.renderer.attachSceneModel(sceneModel);
+        });
+        this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
+            this.renderer.detachSceneModel(sceneModel);
+        });
+        for (let id in this.scene.models) {
+            this.renderer.attachSceneModel(this.scene.models[id]);
+        }
+        view.initViewObjects();
         this.onViewCreated.dispatch(this, view);
         this.log(`View created: ${view.viewId}`);
         return view;
     }
-
 
     /**
      Trigger redraw of all {@link View | Views} belonging to this Viewer.

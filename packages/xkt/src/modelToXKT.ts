@@ -1,8 +1,8 @@
-import {XKT_INFO} from "./XKT_INFO";
-import type {XKTData} from "./XKTData";
 import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 import {ClampToEdgeWrapping, LinearMipmapLinearFilter} from "@xeokit/constants";
+import {XKT_INFO} from "./XKT_INFO";
+import type {XKTData} from "./XKTData";
 
 const XKT_VERSION = XKT_INFO.xktVersion;
 const NUM_TEXTURE_ATTRIBUTES = 9;

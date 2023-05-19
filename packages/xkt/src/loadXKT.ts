@@ -1,9 +1,9 @@
+import {SDKError} from "@xeokit/core";
 import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 import {inflateXKT} from "./inflateXKT";
 import {unpackXKT} from "./unpackXKT";
 import {xktToModel} from "./xktToModel";
-import {SDKError} from "@xeokit/core";
 
 /**
  * Imports XKT file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel}

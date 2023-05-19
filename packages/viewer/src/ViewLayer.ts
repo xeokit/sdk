@@ -399,7 +399,7 @@ class ViewLayer extends Component {
 
         this.onObjectVisibility = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
 
-        this.#initObjects();
+        this.#initViewObjects();
     }
 
     /**
@@ -877,21 +877,21 @@ class ViewLayer extends Component {
         return changed;
     }
 
-    #initObjects() {
+    #initViewObjects() {
         const models = this.viewer.scene.models;
         for (const id in models) {
             const model = models[id];
-            this.#createObjects(model);
+            this.#createViewObjects(model);
         }
         this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: SceneModel) => {
-            this.#createObjects(model);
+            this.#createViewObjects(model);
         });
         this.viewer.scene.onModelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
-            this.#destroyObjects(model);
+            this.#destroyViewObjects(model);
         });
     }
 
-    #createObjects(model: SceneModel) {
+    #createViewObjects(model: SceneModel) {
         const sceneObjects = model.objects;
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
@@ -905,7 +905,7 @@ class ViewLayer extends Component {
         }
     }
 
-    #destroyObjects(model: SceneModel) {
+    #destroyViewObjects(model: SceneModel) {
         const viewerObjects = model.objects;
         for (let id in viewerObjects) {
             const viewerObject = viewerObjects[id];

@@ -4,7 +4,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 import type {Capabilities} from "@xeokit/core";
 import type {ViewObject} from "./ViewObject";
 import type {RendererViewObject} from "./RendererViewObject";
-import type {CreateModelParams} from "./CreateModelParams";
+import type {SceneModel} from "@xeokit/scene";
 
 /**
  * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
@@ -26,7 +26,8 @@ import type {CreateModelParams} from "./CreateModelParams";
 export interface Renderer {
 
     /**
-     * A RenderObject for each object in the renderer.
+     * For each {@link @xeokit/viewer!ViewObject | ViewObject} an interface through which it can issue commands at a {@link @xeokit/viewer!Renderer | Renderer} to
+     * show/hide/highlight/select/xray/colorize its representation within each {@link @xeokit/viewer!View | View}.
      */
     rendererViewObjects: { [key: string]: RendererViewObject }
 
@@ -35,7 +36,7 @@ export interface Renderer {
      *
      * @param viewer
      */
-    init(viewer: Viewer): void;
+    attachViewer(viewer: Viewer): void;
 
     /**
      * Gets the capabilities of this Renderer.
@@ -48,39 +49,43 @@ export interface Renderer {
     getSAOSupported(): boolean;
 
     /**
-     * Registers a {@link @xeokit/viewer!View} with this Renderer.
+     * Attaches a {@link @xeokit/viewer!View} to this Renderer.
      *
      * The Renderer will then begin rendering each {@link @xeokit/scene!SceneModel | SceneModel} created with {@link SceneModel.createModel} for the new View.
      *
-     * You can only register as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
+     * You can only attach as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
+     *
+     * You must attach a View before you can attach a SceneModel.
      *
      * @param view The View.
      * @returns A handle for the View within this Renderer.
      */
-    registerView(view: View): number;
+    attachView(view: View): number;
 
     /**
-     * Deregisters the {@link @xeokit/viewer!View} with the given handle.
+     * Deattachs the {@link @xeokit/viewer!View} with the given handle.
      *
      * The Renderer will then cease rendering for that View.
      *
      * @param viewIndex
      */
-    deregisterView(viewIndex: number): void;
+    detachView(viewIndex: number): void;
 
     /**
-     * Adds a {@link @xeokit/scene!SceneModel | SceneModel} to this Renderer.
+     * Attaches a {@link @xeokit/scene!SceneModel | SceneModel} to this Renderer.
      *
-     * @param params SceneModel addition params
+     * You must attach a View before you can attach a SceneModel.
+     *
+     * @param sceneModel
      */
-    addModel(params: CreateModelParams): void;
+    attachSceneModel(sceneModel: SceneModel): void;
 
     /**
-     * Removes a {@link @xeokit/scene!SceneModel | SceneModel} from this Renderer.
+     * Detaches a {@link @xeokit/scene!SceneModel | SceneModel} from this Renderer.
      *
-     * @param id ID of the SceneModel to remove
+     * @param sceneModel
      */
-    removeModel(id: string) : void;
+    detachSceneModel(sceneModel: SceneModel) : void;
 
     /**
      * Enable/disable rendering of transparent objects for the given View.
@@ -128,7 +133,7 @@ export interface Renderer {
     setImageDirty(viewIndex?: number): void;
 
     /**
-     * Clears this renderer,
+     * Clears this renderer for the given view.
      * @param viewIndex
      */
     clear(viewIndex: number): any;

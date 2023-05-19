@@ -1,6 +1,7 @@
 import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 import {SDKError} from "@xeokit/core";
+import {TrianglesPrimitive} from "@xeokit/constants";
 
 
 /**
@@ -16,6 +17,7 @@ import {SDKError} from "@xeokit/core";
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
  * @param options - .BIM loading options
+ * @param options.error - Callback to log any non-fatal errors that occur while loading.
  * @returns {Promise} Resolves when .BIM has been loaded into the SceneModel and/or DataModel.
  * @throws *{@link @xeokit/core!SDKError}*
  * * If the SceneModel has already been destroyed.
@@ -29,10 +31,8 @@ export function loadDotBIM(params: {
                                dataModel?: DataModel
                            },
                            options: {
-                               rotateX?: boolean;
-                           } = {
-                               rotateX: false
-                           }): Promise<any> {
+                               error?: (errMsg: string) => void;
+                           } = {}): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         if (params.sceneModel.destroyed) {
             throw new SDKError("SceneModel already destroyed");
@@ -53,7 +53,9 @@ export function loadDotBIM(params: {
             fileData,
             sceneModel: params.sceneModel,
             dataModel: params.dataModel,
-            nextId: 0
+            nextId: 0,
+            error: options.error || function (errMsg: string) {
+            }
         };
         parseDotBIM(ctx);
         resolve();
@@ -65,34 +67,51 @@ function parseDotBIM(ctx: any) {
     const meshes = fileData.meshes;
     for (let i = 0, len = meshes.length; i < len; i++) {
         const mesh = meshes[i];
-        ctx.sceneModel.createGeometry({
+        const geometry = ctx.sceneModel.createGeometry({
             id: mesh.mesh_id,
+            primitive: TrianglesPrimitive,
             positions: mesh.coordinates,
             indices: mesh.indices
         });
+        if (geometry instanceof SDKError) {
+            ctx.error(`[SceneModel.createGeometry]: ${geometry.message}`);
+        }
     }
     const elements = fileData.elements;
     for (let i = 0, len = elements.length; i < len; i++) {
         const element = elements[i];
-        const objectId = element.guid;
+        const objectId = "" + element.guid;
         if (ctx.sceneModel) {
             const geometryId = element.mesh_id;
             const meshId = `${objectId}-mesh-${i}`;
-            ctx.sceneModel.createMesh({
+            const mesh = ctx.sceneModel.createMesh({
                 id: meshId,
                 geometryId,
                 baseColor: element.color
             });
-            ctx.sceneModel.createObject({
+            if (mesh instanceof SDKError) {
+                ctx.error(`[SceneModel.createMesh]: ${mesh.message}`);
+                continue;
+            }
+            const sceneObject = ctx.sceneModel.createObject({
                 id: objectId,
                 meshIds: [meshId]
             });
+            if (sceneObject instanceof SDKError) {
+                ctx.error(`[SceneModel.createObject]: ${sceneObject.message}`);
+                continue;
+            }
         }
         if (ctx.dataModel) {
-            ctx.dataModel.createObject({
-                id: element.guid,
-                type: element.type
-            });
+            if (!ctx.dataModel.objects[element.guid]) {
+                const dataObject = ctx.dataModel.createObject({
+                    id: objectId,
+                    type: element.type
+                });
+                if (dataObject instanceof SDKError) {
+                    ctx.error(`[SceneModel.createObject]: ${dataObject.message}`);
+                }
+            }
         }
     }
 }

@@ -1,12 +1,11 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter, TextureTranscoder} from "@xeokit/core";
+import {Component, EventEmitter, SDKError, TextureTranscoder} from "@xeokit/core";
 import {createUUID, loadArraybuffer} from "@xeokit/utils";
 import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
 import {composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4} from "@xeokit/matrix";
 
 import type {FloatArrayParam} from "@xeokit/math";
-import type {Camera, View} from "@xeokit/viewer";
-import type {Viewer} from "@xeokit/viewer";
+import type {Camera, RendererViewObject, View, Viewer} from "@xeokit/viewer";
 import {GLTexture} from "@xeokit/webglutils";
 import type {
     Geometry,
@@ -33,7 +32,6 @@ import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
 import type {LayerParams} from "./LayerParams";
 import type {TileManager} from "./TileManager";
-import type {RendererViewObject} from "@xeokit/viewer";
 
 
 const tempVec3a = createVec3();
@@ -93,7 +91,7 @@ export class RendererModelImpl extends Component implements RendererModel {
     #numTriangles: number;
     #numLines: number;
     #numPoints: number;
-    #numViewerObjects: number;
+    #numRendererObjects: number;
     #textureTranscoder: TextureTranscoder;
     #aabbDirty: boolean;
     #edgeThreshold: number;
@@ -148,7 +146,7 @@ export class RendererModelImpl extends Component implements RendererModel {
         this.rendererViewObjects = {};
 
         this.#numGeometries = 0;
-        this.#numViewerObjects = 0;
+        this.#numRendererObjects = 0;
 
         this.#numTriangles = 0;
         this.#numLines = 0;
@@ -187,7 +185,7 @@ export class RendererModelImpl extends Component implements RendererModel {
 
         this.onBuilt = new EventEmitter(new EventDispatcher<RendererModel, null>());
 
-        this.#addModel(params.sceneModel);
+        this.#attachSceneModel(params.sceneModel);
 
         // this.layerList.sort((a, b) => {
         //     if (a.sortId < b.sortId) {
@@ -207,6 +205,257 @@ export class RendererModelImpl extends Component implements RendererModel {
         this.#webglRenderer.setImageDirty();
         //     this.#view.viewer.scene.setAABBDirty();
         this.onBuilt.dispatch(this, null);
+    }
+
+    #attachSceneModel(sceneModel: SceneModel): void {
+        const textures = sceneModel.textures;
+        const geometries = sceneModel.geometries;
+        const meshes = sceneModel.meshes;
+        const objects = sceneModel.objects;
+        if (textures) {
+            for (let textureId in textures) {
+                this.#attachTexture(textures[textureId]);
+            }
+        }
+        if (geometries) {
+            for (let geometryId in geometries) {
+                this.#attachGeometry(geometries[geometryId]);
+            }
+        }
+        if (meshes) {
+            for (let meshId in meshes) {
+                this.#attachMesh(meshes[meshId]);
+            }
+        }
+        if (objects) {
+            for (let objectId in objects) {
+                this.#attachSceneObject(objects[objectId]);
+            }
+        }
+        for (let layerId in this.#currentLayers) {
+            this.#currentLayers[layerId].build();
+        }
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].build();
+        }
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].finalize2();
+        }
+    }
+
+    #attachTexture(texture: Texture): void {
+        const textureId = texture.id;
+        if (this.rendererTextures[textureId]) {
+            throw new SDKError("RendererTexture already created: " + textureId);
+        }
+        const glTexture = new GLTexture({gl: this.#renderContext.gl});
+        if (texture.preloadColor) {
+            glTexture.setPreloadColor(texture.preloadColor);
+        }
+        if (texture.image) { // Ignore transcoder for Images
+            const image = texture.image;
+            image.crossOrigin = "Anonymous";
+            glTexture.setImage(image, {
+                minFilter: texture.minFilter,
+                magFilter: texture.magFilter,
+                wrapS: texture.wrapS,
+                wrapT: texture.wrapT,
+                wrapR: texture.wrapR,
+                flipY: texture.flipY,
+                encoding: texture.encoding
+            });
+        } else if (texture.src) {
+            const ext = texture.src.split('.').pop();
+            switch (ext) { // Don't transcode recognized image file types
+                case "jpeg":
+                case "jpg":
+                case "png":
+                case "gif":
+                    const image = new Image();
+                    image.onload = () => {
+                        glTexture.setImage(image, {
+                            minFilter: texture.minFilter,
+                            magFilter: texture.magFilter,
+                            wrapS: texture.wrapS,
+                            wrapT: texture.wrapT,
+                            wrapR: texture.wrapR,
+                            flipY: texture.flipY,
+                            encoding: texture.encoding
+                        });
+                    };
+                    image.src = texture.src; // URL or Base64 string
+                    break;
+                default: // Assume other file types need transcoding
+                    if (!this.#textureTranscoder) {
+                        this.error(`Can't create texture from 'src' - rendererModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);
+                    } else {
+                        loadArraybuffer(texture.src, (arrayBuffer: ArrayBuffer) => {
+                                if (!arrayBuffer.byteLength) {
+                                    this.error(`Can't create texture from 'src': file data is zero length`);
+                                    return;
+                                }
+                                this.#textureTranscoder.transcode([arrayBuffer]).then((compressedTextureData) => {
+                                    glTexture.setCompressedData(compressedTextureData);
+                                    this.#webglRenderer.setImageDirty();
+                                });
+                            },
+                            (errMsg: string) => {
+                                this.error(`Can't create texture from 'src': ${errMsg}`);
+                            });
+                    }
+                    break;
+            }
+        } else if (texture.buffers) { // Buffers implicitly require transcoding
+            if (!this.#textureTranscoder) {
+                this.error(`Can't create texture from 'buffers' - rendererModel needs to be configured with a TextureTranscoder for this option`);
+            } else {
+                this.#textureTranscoder.transcode(texture.buffers).then((compressedTextureData) => {
+                    glTexture.setCompressedData(compressedTextureData);
+                    this.#webglRenderer.setImageDirty();
+                });
+            }
+        }
+        const rendererTexture = new RendererTextureImpl(texture, glTexture);
+        texture.rendererTexture = rendererTexture;
+        this.rendererTextures[textureId] = rendererTexture;
+    }
+
+    #attachGeometry(geometry: Geometry): void {
+        const geometryId = geometry.id;
+        if (this.rendererGeometries[geometryId]) {
+            throw new SDKError(`RendererGeometry already created: ${geometryId}`);
+        }
+        const rendererGeometry = new RendererGeometryImpl();
+        this.rendererGeometries[geometryId] = rendererGeometry;
+        geometry.rendererGeometry = rendererGeometry;
+        this.#numGeometries++;
+    }
+
+    #attachMesh(mesh: Mesh): void {
+        const rendererGeometry = this.rendererGeometries[mesh.geometry.id];
+        if (!rendererGeometry) {
+            throw new SDKError("RendererGeometry not found");
+        }
+        const rendererTextureSet = this.rendererTextureSets[(<TextureSet>mesh.textureSet).id];
+        if (!rendererTextureSet) {
+            throw new SDKError("rendererTextureSet not found");
+        }
+        const layer = this.#getLayer(mesh.textureSet ? (<TextureSet>mesh.textureSet).id : undefined, mesh.geometry);
+        if (!layer) {
+            return;
+        }
+        if (!layer.hasGeometry(mesh.geometry.id)) {
+            layer.createGeometryCompressed(mesh.geometry)
+        }
+        let meshMatrix;
+        let worldMatrix = this.#worldMatrixNonIdentity ? this.#worldMatrix : null;
+        meshMatrix = mesh.matrix;
+        const color = (mesh.color) ? new Uint8Array([Math.floor(mesh.color[0] * 255), Math.floor(mesh.color[1] * 255), Math.floor(mesh.color[2] * 255)]) : [255, 255, 255];
+        const opacity = (mesh.opacity !== undefined && mesh.opacity !== null) ? Math.floor(mesh.opacity * 255) : 255;
+        const metallic = (mesh.metallic !== undefined && mesh.metallic !== null) ? Math.floor(mesh.metallic * 255) : 0;
+        const roughness = (mesh.roughness !== undefined && mesh.roughness !== null) ? Math.floor(mesh.roughness * 255) : 255;
+        const meshRenderer = new RendererMeshImpl({
+            tileManager: <TileManager>this.#webglRenderer.tileManager,
+            id: mesh.id,
+            layer,
+            color,
+            opacity,
+            matrix: meshMatrix,
+            metallic,
+            roughness,
+            rendererTextureSet,
+            rendererGeometry,
+            meshIndex: 0
+        });
+        meshRenderer.pickId = this.#webglRenderer.attachPickable(meshRenderer);
+        const a = meshRenderer.pickId >> 24 & 0xFF;
+        const b = meshRenderer.pickId >> 16 & 0xFF;
+        const g = meshRenderer.pickId >> 8 & 0xFF;
+        const r = meshRenderer.pickId & 0xFF;
+        const pickColor = new Uint8Array([r, g, b, a]); // Quantized pick color
+        collapseAABB3(meshRenderer.aabb);
+        const meshIndex = layer.createMesh({
+            id: mesh.id,
+            geometryId: mesh.geometry.id,
+            color,
+            opacity,
+            metallic,
+            roughness,
+            matrix: meshMatrix,
+            //     worldMatrix: worldMatrix,
+            //    aabb: mesh.aabb,
+            pickColor
+        });
+        this.#numGeometries++;
+        expandAABB3(this.#aabb, meshRenderer.aabb);
+        meshRenderer.layer = layer;
+        meshRenderer.meshIndex = meshIndex;
+        this.rendererMeshes[mesh.id] = meshRenderer;
+    }
+
+    #getLayer(textureSetId: string | undefined, geometryCompressedParams: GeometryCompressedParams): Layer | undefined {
+        textureSetId = textureSetId || defaultTextureSetId;
+        const layerId = `${textureSetId}_${geometryCompressedParams.primitive}`;
+        let layer = this.#currentLayers[layerId];
+        if (layer) {
+            if (layer.canCreateMesh(geometryCompressedParams)) {
+                return layer;
+            } else {
+                layer.build();
+                delete this.#currentLayers[layerId];
+            }
+        }
+        let textureSet;
+        if (textureSetId) {
+            textureSet = this.rendererTextureSets[textureSetId];
+            if (!textureSet) {
+                this.error(`TextureSet not found: ${textureSetId} - ensure that you create it first with createTextureSet()`);
+                return;
+            }
+        }
+        layer = new Layer(<LayerParams>{
+            gl: this.#renderContext.gl,
+            view: this.#view,
+            rendererModel: this,
+            primitive: geometryCompressedParams.primitive,
+            textureSet,
+            layerIndex: 0
+        });
+        this.#layers[layerId] = layer;
+        this.layerList.push(layer);
+        this.#currentLayers[layerId] = layer;
+        return layer;
+    }
+
+    #attachSceneObject(sceneObject: SceneObject): void {
+        let objectId = sceneObject.id;
+        if (objectId === undefined) {
+            objectId = createUUID();
+        } else if (this.rendererObjects[objectId]) {
+            this.error("[createObject] rendererModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
+            objectId = createUUID();
+        }
+        const meshes = sceneObject.meshes;
+        if (meshes === undefined) {
+            throw new SDKError("[createObject] Param expected: meshes");
+        }
+        const rendererMeshes: RendererMeshImpl[] = [];
+        for (let i = 0, len = meshes.length; i < len; i++) {
+            const mesh = meshes[i];
+            const rendererMesh = <RendererMeshImpl>this.rendererMeshes[mesh.id];
+            rendererMeshes.push(rendererMesh);
+        }
+        const rendererObject = new RendererObjectImpl({
+            id: objectId,
+            rendererModel: this,
+            rendererMeshes,
+            aabb: sceneObject.aabb,
+            layerId: this.#layerId
+        });
+        this.rendererObjectsList.push(rendererObject);
+        this.rendererObjects[objectId] = rendererObject; // <RendererObject>
+        this.rendererViewObjects[objectId] = rendererObject; // <RendererViewObject>
+        this.#numRendererObjects++;
     }
 
     get position(): FloatArrayParam {
@@ -548,404 +797,6 @@ export class RendererModelImpl extends Component implements RendererModel {
         }
     }
 */
-    destroy() {
-        if (this.destroyed) {
-            return;
-        }
-        this.#removeModel();
-        this.#view.camera.onViewMatrix.unsubscribe(this.#onCameraViewMatrix);
-        for (let layerId in this.#currentLayers) {
-            if (this.#currentLayers.hasOwnProperty(layerId)) {
-                this.#currentLayers[layerId].destroy();
-            }
-        }
-        for (let i = 0, len = this.layerList.length; i < len; i++) {
-            this.layerList[i].destroy();
-        }
-        for (let objectId in this.rendererObjects) {
-            this.rendererObjects[objectId].destroy();
-        }
-        for (let meshId in this.rendererMeshes) {
-            //    this.#webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
-        }
-        this.#currentLayers = {};
-        this.#layers = {};
-        this.layerList = [];
-        this.rendererGeometries = {};
-        this.rendererTextures = {};
-        this.rendererTextureSets = {};
-        this.rendererMeshes = {};
-        this.rendererViewObjects = {};
-        // this.#view.viewer.setAABBDirty();
-        this.onBuilt.clear();
-        super.destroy();
-    }
-
-    #addModel(sceneModel: SceneModel): void {
-
-        const textures = sceneModel.textures;
-        const geometries = sceneModel.geometries;
-        const meshes = sceneModel.meshes;
-        const objects = sceneModel.objects;
-
-        if (textures) {
-            for (let textureId in textures) {
-                const texture = textures[textureId];
-                this.#addTexture(texture);
-            }
-        }
-        if (geometries) {
-            for (let geometryId in geometries) {
-                const geometry = geometries[geometryId];
-                this.#addGeometry(geometry);
-            }
-        }
-        if (meshes) {
-            for (let meshId in meshes) {
-                const mesh = meshes[meshId];
-                this.#addMesh(mesh);
-            }
-        }
-        if (objects) {
-            for (let geometryId in objects) {
-                const object = objects[geometryId];
-                this.#addObject(object);
-            }
-        }
-        for (let layerId in this.#currentLayers) {
-            if (this.#currentLayers.hasOwnProperty(layerId)) {
-                this.#currentLayers[layerId].build();
-            }
-        }
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            const objectRenderer = this.rendererObjectsList[i];
-            objectRenderer.build();
-        }
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            const objectRenderer = this.rendererObjectsList[i];
-            objectRenderer.finalize2();
-        }
-    }
-
-    #addTexture(texture: Texture): void {
-        const textureId = texture.id;
-        if (this.rendererTextures[textureId]) {
-            throw new Error("RendererTexture already created: " + textureId);
-        }
-        const glTexture = new GLTexture({gl: this.#renderContext.gl});
-        if (texture.preloadColor) {
-            glTexture.setPreloadColor(texture.preloadColor);
-        }
-        if (texture.image) { // Ignore transcoder for Images
-            const image = texture.image;
-            image.crossOrigin = "Anonymous";
-            glTexture.setImage(image, {
-                minFilter: texture.minFilter,
-                magFilter: texture.magFilter,
-                wrapS: texture.wrapS,
-                wrapT: texture.wrapT,
-                wrapR: texture.wrapR,
-                flipY: texture.flipY,
-                encoding: texture.encoding
-            });
-        } else if (texture.src) {
-            const ext = texture.src.split('.').pop();
-            switch (ext) { // Don't transcode recognized image file types
-                case "jpeg":
-                case "jpg":
-                case "png":
-                case "gif":
-                    const image = new Image();
-                    image.onload = () => {
-                        glTexture.setImage(image, {
-                            minFilter: texture.minFilter,
-                            magFilter: texture.magFilter,
-                            wrapS: texture.wrapS,
-                            wrapT: texture.wrapT,
-                            wrapR: texture.wrapR,
-                            flipY: texture.flipY,
-                            encoding: texture.encoding
-                        });
-                    };
-                    image.src = texture.src; // URL or Base64 string
-                    break;
-                default: // Assume other file types need transcoding
-                    if (!this.#textureTranscoder) {
-                        this.error(`Can't create texture from 'src' - rendererModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);
-                    } else {
-                        loadArraybuffer(texture.src, (arrayBuffer: ArrayBuffer) => {
-                                if (!arrayBuffer.byteLength) {
-                                    this.error(`Can't create texture from 'src': file data is zero length`);
-                                    return;
-                                }
-                                this.#textureTranscoder.transcode([arrayBuffer]).then((compressedTextureData) => {
-                                    glTexture.setCompressedData(compressedTextureData);
-                                    this.#webglRenderer.setImageDirty();
-                                });
-                            },
-                            (errMsg: string) => {
-                                this.error(`Can't create texture from 'src': ${errMsg}`);
-                            });
-                    }
-                    break;
-            }
-        } else if (texture.buffers) { // Buffers implicitly require transcoding
-            if (!this.#textureTranscoder) {
-                this.error(`Can't create texture from 'buffers' - rendererModel needs to be configured with a TextureTranscoder for this option`);
-            } else {
-                this.#textureTranscoder.transcode(texture.buffers).then((compressedTextureData) => {
-                    glTexture.setCompressedData(compressedTextureData);
-                    this.#webglRenderer.setImageDirty();
-                });
-            }
-        }
-        const rendererTexture = new RendererTextureImpl(texture, glTexture);
-        texture.rendererTexture = rendererTexture;
-        this.rendererTextures[textureId] = rendererTexture;
-    }
-
-    #addGeometry(geometry: Geometry): void {
-        const geometryId = geometry.id;
-        if (this.rendererGeometries[geometryId]) {
-            throw new Error(`GeometryRenderer already created: ${geometryId}`);
-        }
-        const rendererGeometry = new RendererGeometryImpl();
-        this.rendererGeometries[geometryId] = rendererGeometry;
-        geometry.rendererGeometry = rendererGeometry;
-        this.#numGeometries++;
-    }
-
-    #addMesh(mesh: Mesh): void {
-        const rendererGeometry = this.rendererGeometries[mesh.geometry.id];
-        if (!rendererGeometry) {
-            throw new Error("RendererGeometry not found");
-        }
-        const rendererTextureSet = this.rendererTextureSets[(<TextureSet>mesh.textureSet).id];
-        if (!rendererTextureSet) {
-            throw new Error("rendererTextureSet not found");
-        }
-
-        const layer = this.#getLayer((<TextureSet>mesh.textureSet).id, mesh.geometry);
-
-        if (!layer) {
-            return;
-        }
-
-        if (!layer.hasGeometry(mesh.geometry.id)) {
-            layer.createGeometryCompressed(mesh.geometry)
-        }
-
-        let meshMatrix;
-        let worldMatrix = this.#worldMatrixNonIdentity ? this.#worldMatrix : null;
-
-        meshMatrix = mesh.matrix;
-
-
-        const color = (mesh.color) ? new Uint8Array([Math.floor(mesh.color[0] * 255), Math.floor(mesh.color[1] * 255), Math.floor(mesh.color[2] * 255)]) : [255, 255, 255];
-        const opacity = (mesh.opacity !== undefined && mesh.opacity !== null) ? Math.floor(mesh.opacity * 255) : 255;
-        const metallic = (mesh.metallic !== undefined && mesh.metallic !== null) ? Math.floor(mesh.metallic * 255) : 0;
-        const roughness = (mesh.roughness !== undefined && mesh.roughness !== null) ? Math.floor(mesh.roughness * 255) : 255;
-
-        const meshRenderer = new RendererMeshImpl({
-            tileManager: <TileManager>this.#webglRenderer.tileManager,
-            id: mesh.id,
-            layer,
-            color,
-            opacity,
-            matrix: meshMatrix,
-            metallic,
-            roughness,
-            rendererTextureSet,
-            rendererGeometry,
-            meshIndex: 0
-        });
-
-        meshRenderer.pickId = this.#webglRenderer.registerPickable(meshRenderer);
-
-        const a = meshRenderer.pickId >> 24 & 0xFF;
-        const b = meshRenderer.pickId >> 16 & 0xFF;
-        const g = meshRenderer.pickId >> 8 & 0xFF;
-        const r = meshRenderer.pickId & 0xFF;
-
-        const pickColor = new Uint8Array([r, g, b, a]); // Quantized pick color
-        collapseAABB3(meshRenderer.aabb);
-
-        const meshIndex = layer.createMesh({
-            id: mesh.id,
-            geometryId: mesh.geometry.id,
-            color,
-            opacity,
-            metallic,
-            roughness,
-            matrix: meshMatrix,
-            //     worldMatrix: worldMatrix,
-            //    aabb: mesh.aabb,
-            pickColor
-        });
-        this.#numGeometries++;
-        expandAABB3(this.#aabb, meshRenderer.aabb);
-        meshRenderer.layer = layer;
-        meshRenderer.meshIndex = meshIndex;
-        this.rendererMeshes[mesh.id] = meshRenderer;
-    }
-
-
-    // build() {
-    //     if (this.destroyed) {
-    //         this.log("rendererModel already destroyed");
-    //         return;
-    //     }
-    //     if (this.built) {
-    //         this.log("rendererModel already built");
-    //         return;
-    //     }
-    //     for (let layerId in this.#currentLayers) {
-    //         if (this.#currentLayers.hasOwnProperty(layerId)) {
-    //             this.#currentLayers[layerId].build();
-    //         }
-    //     }
-    //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-    //         const objectRenderer = this.objectList[i];
-    //         objectRenderer.build();
-    //     }
-    //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-    //         const objectRenderer = this.objectList[i];
-    //         objectRenderer.finalize2();
-    //     }
-    //     // this.layerList.sort((a, b) => {
-    //     //     if (a.sortId < b.sortId) {
-    //     //         return -1;
-    //     //     }
-    //     //     if (a.sortId > b.sortId) {
-    //     //         return 1;
-    //     //     }
-    //     //     return 0;
-    //     // });
-    //     for (let i = 0, len = this.layerList.length; i < len; i++) {
-    //         const layer = this.layerList[i];
-    //         layer.layerIndex = i;
-    //     }
-    //     this.#currentLayers = {};
-    //     this.built = true;
-    //     this.#webglRenderer.setImageDirty();
-    //     //     this.#view.viewer.scene.setAABBDirty();
-    //     this.onBuilt.dispatch(this, null);
-    // }
-    //
-    // addModel(params: {
-    //     id: string,
-    //     sceneModel: SceneModel
-    // }) {
-    //
-    //     const sceneModel = params.sceneModel;
-    //     const textures = sceneModel.textures;
-    //     const geometries = sceneModel.geometries;
-    //     const meshes = sceneModel.meshes;
-    //     const objects = sceneModel.objects;
-    //
-    //     if (textures) {
-    //         for (let textureId in textures) {
-    //             const texture = textures[textureId];
-    //             this.#addTexture(texture);
-    //         }
-    //     }
-    //
-    //     if (geometries) {
-    //         for (let geometryId in geometries) {
-    //             const geometry = geometries[geometryId];
-    //             this.#addGeometry(geometry);
-    //         }
-    //     }
-    //
-    //     if (meshes) {
-    //         for (let meshId in meshes) {
-    //             const mesh = meshes[meshId];
-    //             this.#addMesh(mesh);
-    //         }
-    //     }
-    //
-    //     if (objects) {
-    //         for (let geometryId in objects) {
-    //             const object = objects[geometryId];
-    //             this.#addObject(object);
-    //         }
-    //     }
-    // }
-
-    #addObject(sceneObject: SceneObject): void {
-        let objectId = sceneObject.id;
-        if (objectId === undefined) {
-            objectId = createUUID();
-        } else if (this.rendererObjects[objectId]) {
-            this.error("[createObject] rendererModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
-            objectId = createUUID();
-        }
-        const meshes = sceneObject.meshes;
-        if (meshes === undefined) {
-            throw new Error("[createObject] Param expected: meshes");
-        }
-        const rendererMeshes: RendererMeshImpl[] = [];
-        for (let i = 0, len = meshes.length; i < len; i++) {
-            const mesh = meshes[i];
-            const rendererMesh = <RendererMeshImpl>this.rendererMeshes[mesh.id];
-            rendererMeshes.push(rendererMesh);
-        }
-        const objectRenderer = new RendererObjectImpl({
-            id: objectId,
-            rendererModel: this,
-            rendererMeshes,
-            aabb: sceneObject.aabb,
-            layerId: this.#layerId
-        });
-        this.rendererObjectsList.push(objectRenderer);
-        this.rendererObjects[objectId] = objectRenderer;
-        this.rendererViewObjects[objectId] = objectRenderer;
-        this.#numViewerObjects++;
-    }
-
-    #removeModel(): void {
-        const sceneModel = this.sceneModel;
-        if (!sceneModel) {
-            return;
-        }
-        const textures = sceneModel.textures;
-        const geometries = sceneModel.geometries;
-        const meshes = sceneModel.meshes;
-        const objects = sceneModel.objects;
-        if (textures) {
-            for (let textureId in textures) {
-                const texture = textures[textureId];
-                if (texture.rendererTexture) {
-                    texture.rendererTexture = null;
-                }
-            }
-        }
-        if (geometries) {
-            for (let geometryId in geometries) {
-                const geometry = geometries[geometryId];
-                if (geometry.rendererGeometry) {
-                    geometry.rendererGeometry = null;
-                }
-            }
-        }
-        if (meshes) {
-            for (let meshId in meshes) {
-                const mesh = meshes[meshId];
-                if (mesh.rendererMesh) {
-                    mesh.rendererMesh = null;
-                }
-            }
-        }
-        if (objects) {
-            for (let objectId in objects) {
-                const object = objects[objectId];
-                if (object.rendererObject) {
-                    object.rendererObject = null;
-                }
-            }
-        }
-        this.sceneModel = null;
-    }
 
     #createDefaultTextureSetRenderer() {
         const defaultColorTexture = new RendererTextureImpl(
@@ -994,44 +845,11 @@ export class RendererModelImpl extends Component implements RendererModel {
         });
     }
 
-    #getLayer(textureSetId: string | undefined, geometryCompressedParams: GeometryCompressedParams): Layer | undefined {
-        const layerId = `${textureSetId}_${geometryCompressedParams.primitive}`;
-        let layer = this.#currentLayers[layerId];
-        if (layer) {
-            if (layer.canCreateMesh(geometryCompressedParams)) {
-                return layer;
-            } else {
-                layer.build();
-                delete this.#currentLayers[layerId];
-            }
-        }
-        let textureSet;
-        if (textureSetId) {
-            textureSet = this.rendererTextureSets[textureSetId];
-            if (!textureSet) {
-                this.error(`TextureSet not found: ${textureSetId} - ensure that you create it first with createTextureSet()`);
-                return;
-            }
-        }
-        layer = new Layer(<LayerParams>{
-            gl: this.#renderContext.gl,
-            view: this.#view,
-            rendererModel: this,
-            primitive: geometryCompressedParams.primitive,
-            textureSet,
-            layerIndex: 0
-        });
-        this.#layers[layerId] = layer;
-        this.layerList.push(layer);
-        this.#currentLayers[layerId] = layer;
-        return layer;
-    }
-
     #rebuildAABB() {
         collapseAABB3(this.#aabb);
         for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            const objectRenderer = this.rendererObjectsList[i];
-            expandAABB3(this.#aabb, objectRenderer.aabb);
+            const rendererObject = this.rendererObjectsList[i];
+            expandAABB3(this.#aabb, rendererObject.aabb);
         }
         this.#aabbDirty = false;
     }
@@ -1145,6 +963,166 @@ export class RendererModelImpl extends Component implements RendererModel {
         }
 
      */
+
+
+    // build() {
+    //     if (this.destroyed) {
+    //         this.log("rendererModel already destroyed");
+    //         return;
+    //     }
+    //     if (this.built) {
+    //         this.log("rendererModel already built");
+    //         return;
+    //     }
+    //     for (let layerId in this.#currentLayers) {
+    //         if (this.#currentLayers.hasOwnProperty(layerId)) {
+    //             this.#currentLayers[layerId].build();
+    //         }
+    //     }
+    //     for (let i = 0, len = this.objectList.length; i < len; i++) {
+    //         const rendererObject = this.objectList[i];
+    //         rendererObject.build();
+    //     }
+    //     for (let i = 0, len = this.objectList.length; i < len; i++) {
+    //         const rendererObject = this.objectList[i];
+    //         rendererObject.finalize2();
+    //     }
+    //     // this.layerList.sort((a, b) => {
+    //     //     if (a.sortId < b.sortId) {
+    //     //         return -1;
+    //     //     }
+    //     //     if (a.sortId > b.sortId) {
+    //     //         return 1;
+    //     //     }
+    //     //     return 0;
+    //     // });
+    //     for (let i = 0, len = this.layerList.length; i < len; i++) {
+    //         const layer = this.layerList[i];
+    //         layer.layerIndex = i;
+    //     }
+    //     this.#currentLayers = {};
+    //     this.built = true;
+    //     this.#webglRenderer.setImageDirty();
+    //     //     this.#view.viewer.scene.setAABBDirty();
+    //     this.onBuilt.dispatch(this, null);
+    // }
+    //
+    // addModel(params: {
+    //     id: string,
+    //     sceneModel: SceneModel
+    // }) {
+    //
+    //     const sceneModel = params.sceneModel;
+    //     const textures = sceneModel.textures;
+    //     const geometries = sceneModel.geometries;
+    //     const meshes = sceneModel.meshes;
+    //     const objects = sceneModel.objects;
+    //
+    //     if (textures) {
+    //         for (let textureId in textures) {
+    //             const texture = textures[textureId];
+    //             this.#attachTexture(texture);
+    //         }
+    //     }
+    //
+    //     if (geometries) {
+    //         for (let geometryId in geometries) {
+    //             const geometry = geometries[geometryId];
+    //             this.#attachGeometry(geometry);
+    //         }
+    //     }
+    //
+    //     if (meshes) {
+    //         for (let meshId in meshes) {
+    //             const mesh = meshes[meshId];
+    //             this.#attachMesh(mesh);
+    //         }
+    //     }
+    //
+    //     if (objects) {
+    //         for (let geometryId in objects) {
+    //             const object = objects[geometryId];
+    //             this.#attachSceneObject(object);
+    //         }
+    //     }
+    // }
+
+    destroy() {
+        if (this.destroyed) {
+            return;
+        }
+        this.#detachSceneModel();
+        this.#view.camera.onViewMatrix.unsubscribe(this.#onCameraViewMatrix);
+        for (let layerId in this.#currentLayers) {
+            if (this.#currentLayers.hasOwnProperty(layerId)) {
+                this.#currentLayers[layerId].destroy();
+            }
+        }
+        for (let i = 0, len = this.layerList.length; i < len; i++) {
+            this.layerList[i].destroy();
+        }
+        for (let objectId in this.rendererObjects) {
+            this.rendererObjects[objectId].destroy();
+        }
+        for (let meshId in this.rendererMeshes) {
+            //    this.#webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
+        }
+        this.#currentLayers = {};
+        this.#layers = {};
+        this.layerList = [];
+        this.rendererGeometries = {};
+        this.rendererTextures = {};
+        this.rendererTextureSets = {};
+        this.rendererMeshes = {};
+        this.rendererViewObjects = {};
+        // this.#view.viewer.setAABBDirty();
+        this.onBuilt.clear();
+        super.destroy();
+    }
+
+    #detachSceneModel(): void {
+        const sceneModel = this.sceneModel;
+        if (!sceneModel) {
+            return;
+        }
+        const textures = sceneModel.textures;
+        const geometries = sceneModel.geometries;
+        const meshes = sceneModel.meshes;
+        const objects = sceneModel.objects;
+        if (textures) {
+            for (let textureId in textures) {
+                const texture = textures[textureId];
+                if (texture.rendererTexture) {
+                    texture.rendererTexture = null;
+                }
+            }
+        }
+        if (geometries) {
+            for (let geometryId in geometries) {
+                const geometry = geometries[geometryId];
+                if (geometry.rendererGeometry) {
+                    geometry.rendererGeometry = null;
+                }
+            }
+        }
+        if (meshes) {
+            for (let meshId in meshes) {
+                const mesh = meshes[meshId];
+                if (mesh.rendererMesh) {
+                    mesh.rendererMesh = null;
+                }
+            }
+        }
+        if (objects) {
+            for (let objectId in objects) {
+                const object = objects[objectId];
+                if (object.rendererObject) {
+                    object.rendererObject = null;
+                }
+            }
+        }
+        this.sceneModel = null;
+    }
 }
 
 

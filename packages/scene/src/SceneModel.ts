@@ -1,14 +1,8 @@
-import {KTX2BasisWriter} from "@loaders.gl/textures";
-import {ImageLoader} from '@loaders.gl/images';
+// import {KTX2BasisWriter} from "@loaders.gl/textures";
+// import {ImageLoader} from '@loaders.gl/images';
 import {EventDispatcher} from "strongly-typed-events";
 import {Component, EventEmitter, SDKError} from "@xeokit/core";
-import {
-    LinesPrimitive,
-    PointsPrimitive,
-    SolidPrimitive,
-    SurfacePrimitive,
-    TrianglesPrimitive
-} from "@xeokit/constants";
+import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 import {createAABB3} from "@xeokit/boundaries";
 
 import {Geometry} from "./Geometry";
@@ -25,9 +19,10 @@ import type {MeshParams} from "./MeshParams";
 import type {SceneObjectParams} from "./SceneObjectParams";
 import type {TextureParams} from "./TextureParams";
 import {compressGeometryParams} from "./compressGeometryParams";
-import {encode, load} from "@loaders.gl/core";
+//import {encode, load} from "@loaders.gl/core";
 import type {SceneModelParams} from "./SceneModelParams";
 import type {Scene} from "./Scene";
+import type {SceneModelStats} from "./SceneModelStats";
 
 // XKT texture types
 
@@ -202,6 +197,10 @@ export class SceneModel extends Component {
      */
     public rendererModel: RendererModel | null;
 
+    /**
+     * Statistics on this SceneModel.
+     */
+    public readonly stats: SceneModelStats;
 
     #texturesList: Texture[];
     #numObjects: number;
@@ -235,6 +234,19 @@ export class SceneModel extends Component {
         this.aabb = createAABB3();
         this.built = false;
         this.rendererModel = null;
+
+        this.stats = {
+            numGeometries: 0,
+            numLines: 0,
+            numMeshes: 0,
+            numObjects: 0,
+            numPoints: 0,
+            numTextureSets: 0,
+            numTextures: 0,
+            numTriangles: 0,
+            numVertices: 0,
+            textureBytes: 0
+        };
 
         this.fromJSON(sceneModelParams);
     }
@@ -377,9 +389,13 @@ export class SceneModel extends Component {
             //     return;
             // }
         }
+        if (textureParams.imageData) {
+            this.stats.textureBytes += (textureParams.imageData.width * textureParams.imageData.height * 4); // Guessing
+        }
         const texture = new Texture(textureParams);
         this.textures[textureParams.id] = texture;
         this.#texturesList.push(texture);
+        this.stats.numTextures++;
         return texture;
     }
 
@@ -468,6 +484,7 @@ export class SceneModel extends Component {
             colorTexture
         });
         this.textureSets[textureSetParams.id] = textureSet;
+        this.stats.numTextureSets++;
         return textureSet;
     }
 
@@ -569,6 +586,17 @@ export class SceneModel extends Component {
         }
         const geometry = new Geometry(<GeometryCompressedParams>compressGeometryParams(geometryParams));
         this.geometries[geometryId] = geometry;
+        this.stats.numGeometries++;
+        if (geometryParams.indices) {
+            if (geometry.primitive === TrianglesPrimitive) {
+                this.stats.numTriangles += geometryParams.indices.length / 3;
+            } else if (geometry.primitive === LinesPrimitive) {
+                this.stats.numLines += geometryParams.indices.length / 2;
+            }
+        } else if (geometry.primitive === PointsPrimitive) {
+            this.stats.numPoints += geometryParams.positions.length / 3;
+        }
+        this.stats.numVertices += geometryParams.positions.length / 3;
         return geometry;
     }
 
@@ -650,6 +678,7 @@ export class SceneModel extends Component {
         }
         const geometry = new Geometry(geometryCompressedParams);
         this.geometries[geometryId] = geometry;
+        this.stats.numGeometries++;
         return geometry;
     }
 
@@ -738,6 +767,7 @@ export class SceneModel extends Component {
             metallic: meshParams.metallic
         });
         this.meshes[meshParams.id] = mesh;
+        this.stats.numMeshes++;
         return mesh;
     }
 
@@ -818,6 +848,7 @@ export class SceneModel extends Component {
         }
         this.#numObjects++;
         this.objects[objectParams.id] = sceneObject;
+        this.stats.numObjects++;
         return sceneObject;
     }
 
@@ -859,7 +890,7 @@ export class SceneModel extends Component {
      * * If SceneModel has already been built or destroyed.
      * * If no SceneObjects were created in this SceneModel.
      */
-    async build(): Promise<SceneModel> {
+    build(): Promise<SceneModel> {
         return new Promise<SceneModel>((resolve) => {
             if (this.destroyed) {
                 throw new SDKError("Failed to build SceneModel - SceneModel already destroyed");
@@ -868,13 +899,13 @@ export class SceneModel extends Component {
                 throw new SDKError("Failed to build SceneModel - SceneModel already built");
             }
             this.#removeUnusedTextures();
-            this.#compressTextures().then(() => {
+           // this.#compressTextures().then(() => {
                 this.built = true;
                 this.onBuilt.dispatch(this, null);
                 resolve(this);
-            }).catch((e) => {
-                throw e;
-            });
+            // }).catch((e) => {
+            //     throw e;
+            // });
         });
     }
 
@@ -893,75 +924,77 @@ export class SceneModel extends Component {
         // this.textures = textures;
     }
 
-    #compressTextures(): Promise<any> {
-        let countTextures = this.#texturesList.length;
-        return new Promise<void>((resolve) => {
-            if (countTextures === 0) {
-                resolve();
-                return;
-            }
-            for (let i = 0, leni = this.#texturesList.length; i < leni; i++) {
-                const texture = this.#texturesList[i];
-                const encodingOptions = TEXTURE_ENCODING_OPTIONS[texture.channel] || {};
-                if (texture.src) {  // Texture created with SceneModel#createTexture({ src: ... })
-                    const src = texture.src;
-                    const fileExt = src.split('.').pop();
-                    switch (fileExt) {
-                        case "jpeg":
-                        case "jpg":
-                        case "png":
-
-                            load(src, ImageLoader, {
-                                image: {
-                                    type: "data"
-                                }
-                            }).then((imageData) => {
-                                if (texture.compressed) {
-                                    encode(imageData, KTX2BasisWriter, encodingOptions).then((encodedData) => {
-                                        const encodedImageData = new Uint8Array(encodedData);
-                                        texture.imageData = encodedImageData;
-                                        if (--countTextures <= 0) {
-                                            resolve();
-                                        }
-                                    }).catch((err) => {
-                                        return new SDKError(`Failed to compress texture: ${err}`);
-                                    });
-                                } else {
-                                    texture.imageData = new Uint8Array(1);
-                                    if (--countTextures <= 0) {
-                                        resolve();
-                                    }
-                                }
-                            }).catch((err) => {
-                                return new SDKError(`Failed to load texture image: ${err}`);
-                            });
-                            break;
-                        default:
-                            if (--countTextures <= 0) {
-                                resolve();
-                            }
-                            break;
-                    }
-                }
-                if (texture.imageData) {// Texture created with SceneModel#createTexture({ imageData: ... })
-                    if (texture.compressed) {
-                        encode(texture.imageData, KTX2BasisWriter, encodingOptions)
-                            .then((encodedImageData) => {
-                                texture.imageData = new Uint8Array(encodedImageData);
-                                if (--countTextures <= 0) {
-                                    resolve();
-                                }
-                            }).catch((err) => {
-                            return new SDKError(`Failed to compress texture: ${err}`);
-                        });
-                    } else {
-                        texture.imageData = new Uint8Array(1);
-                        if (--countTextures <= 0) {
-                            resolve();
-                        }
-                    }
-                }
-            }
-        });
-    }
+    // #compressTextures(): Promise<any> {
+    //     let countTextures = this.#texturesList.length;
+    //     return new Promise<void>((resolve) => {
+    //         if (countTextures === 0) {
+    //             resolve();
+    //             return;
+    //         }
+    //         for (let i = 0, leni = this.#texturesList.length; i < leni; i++) {
+    //             const texture = this.#texturesList[i];
+    //             const encodingOptions = TEXTURE_ENCODING_OPTIONS[texture.channel] || {};
+    //             if (texture.src) {  // Texture created with SceneModel#createTexture({ src: ... })
+    //                 const src = texture.src;
+    //                 const fileExt = src.split('.').pop();
+    //                 switch (fileExt) {
+    //                     case "jpeg":
+    //                     case "jpg":
+    //                     case "png":
+    //
+    //                         load(src, ImageLoader, {
+    //                             image: {
+    //                                 type: "data"
+    //                             }
+    //                         }).then((imageData) => {
+    //                             if (texture.compressed) {
+    //                                 encode(imageData, KTX2BasisWriter, encodingOptions).then((encodedData) => {
+    //                                     const encodedImageData = new Uint8Array(encodedData);
+    //                                     this.stats.textureBytes += encodedImageData.byteLength;
+    //                                     texture.imageData = encodedImageData;
+    //                                     if (--countTextures <= 0) {
+    //                                         resolve();
+    //                                     }
+    //                                 }).catch((err) => {
+    //                                     return new SDKError(`Failed to compress texture: ${err}`);
+    //                                 });
+    //                             } else {
+    //                                 texture.imageData = new Uint8Array(1);
+    //                                 if (--countTextures <= 0) {
+    //                                     resolve();
+    //                                 }
+    //                             }
+    //                         }).catch((err) => {
+    //                             return new SDKError(`Failed to load texture image: ${err}`);
+    //                         });
+    //                         break;
+    //                     default:
+    //                         if (--countTextures <= 0) {
+    //                             resolve();
+    //                         }
+    //                         break;
+    //                 }
+    //             }
+    //             if (texture.imageData) {// Texture created with SceneModel#createTexture({ imageData: ... })
+    //                 if (texture.compressed) {
+    //                     encode(texture.imageData, KTX2BasisWriter, encodingOptions)
+    //                         .then((encodedImageData) => {
+    //                             texture.imageData = new Uint8Array(encodedImageData);
+    //                             this.stats.textureBytes += texture.imageData.byteLength;
+    //                             if (--countTextures <= 0) {
+    //                                 resolve();
+    //                             }
+    //                         }).catch((err) => {
+    //                         return new SDKError(`Failed to compress texture: ${err}`);
+    //                     });
+    //                 } else {
+    //                     texture.imageData = new Uint8Array(1);
+    //                     if (--countTextures <= 0) {
+    //                         resolve();
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     });
+    // }
 }

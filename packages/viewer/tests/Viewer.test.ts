@@ -31,7 +31,7 @@ class MockRenderer implements Renderer {
         this.imageDirty = false;
     }
 
-    init(viewer: Viewer): void {
+    registerViewer(viewer: Viewer): void {
     }
 
     getCapabilities(capabilities: Capabilities): void {

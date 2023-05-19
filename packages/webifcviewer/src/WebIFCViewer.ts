@@ -9,7 +9,7 @@ import {createSceneObjectsKdTree3, SceneObjectsKdTree3} from "@xeokit/kdtree3";
 import {loadWebIFC} from "@xeokit/webifc";
 import {WebGLRenderer} from "@xeokit/webglrenderer";
 import type * as WebIFC from "web-ifc/web-ifc-api";
-import {TreeView} from "@xeokit/treeview";
+//import {TreeView} from "@xeokit/treeview";
 import {IfcBuilding, IfcBuildingStorey, IfcRelAggregates} from "@xeokit/ifctypes";
 
 //import {Picker} from "@xeokit/collision/pick";
@@ -46,7 +46,7 @@ export class WebIFCViewer {
     /**
      * HTML tree view explorer.
      */
-    readonly treeView: TreeView;
+   // readonly treeView: TreeView;
 
     /**
      * The xeokit viewer.
@@ -136,15 +136,15 @@ export class WebIFCViewer {
 
         this.cameraControl = new CameraControl(this.view, {});
 
-        this.treeView = new TreeView({
-            view: this.view,
-            data: this.data,
-            // @ts-ignore
-            containerElement: treeViewContainerElement,
-            hierarchy: TreeView.GroupsHierarchy,
-            linkType: IfcRelAggregates,
-            groupTypes: [IfcBuilding, IfcBuildingStorey]
-        });
+        // this.treeView = new TreeView({
+        //     view: this.view,
+        //     data: this.data,
+        //     // @ts-ignore
+        //     containerElement: treeViewContainerElement,
+        //     hierarchy: TreeView.GroupsHierarchy,
+        //     linkType: IfcRelAggregates,
+        //     groupTypes: [IfcBuilding, IfcBuildingStorey]
+        // });
 
         this.#objectsKdTree3 = null;
 

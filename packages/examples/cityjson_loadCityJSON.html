@@ -24,7 +24,7 @@
         document.getElementById("log").innerText += "[ERROR]: " + (msg + "\n");
     }
 
-    log("// Loading CityJSON into a scene model and a data model")
+    log("Running..");
 
     log("scene = new Scene()");
     log("data  = new Data()");
@@ -33,10 +33,10 @@
     const data = new xeokit.data.Data();
 
     log("sceneModel = scene.createModel(..)");
-    const sceneModel = scene.createModel({id: "myModel"});
-
     log("dataModel = data.createModel(..)");
-    const dataModel = data.createModel({id: "myTableModel"});
+
+    const sceneModel = scene.createModel({id: "myModel"});
+    const dataModel = data.createModel({id: "myModel"});
 
     log("fileData = fetch(\"LoD3_Railway.json\")");
 
@@ -45,17 +45,19 @@
         .then(fileData => {
 
             log("loadCityJSON(fileData, dataModel, sceneModel)");
+
             xeokit.cityjson.loadCityJSON({fileData, dataModel, sceneModel}).then(() => {
 
                 log("sceneModel.build()");
+
                 sceneModel.build().then(() => {
 
                     log("dataModel.build()");
+
+                    log(`sceneModel.stats = ${JSON.stringify(sceneModel.stats, null, "\t")}`);
+
                     dataModel.build().then(() => {
-
-                         console.log(dataModel)
-                         console.log(sceneModel);
-
+                        log("Object.keys(dataModel.objects).length = " + Object.keys(dataModel.objects).length);
                         log("Done.");
                     }).catch(sdkError => error(sdkError.message));
                 }).catch(sdkError => error(sdkError.message));

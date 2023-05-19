@@ -15,7 +15,7 @@
     "clean": "rimraf dist && mkdirp dist",
     "publish": "npm publish --access public",
     "convertmodels": "node convertmodels.js",
-    "dist": "rimraf dist && mkdirp dist && microbundle",
+    "XXdist": "rimraf dist && mkdirp dist && microbundle",
     "watch": "microbundle watch"
   },
   "author": "Lindsay Kay",

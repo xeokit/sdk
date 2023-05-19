@@ -14,7 +14,6 @@
   "scripts": {
     "clean": "rimraf dist && mkdirp dist",
     "publish": "npm publish --access public",
-    "convertmodels": "node gltf2xkt",
     "dist": "rimraf dist && mkdirp dist && microbundle",
     "watch": "microbundle watch"
   },
@@ -32,7 +31,7 @@
   ],
   "keywords": [
   ],
-  "dependencies": {
+  "devDependencies": {
     "@xeokit/basictypes": "^0.0.1",
     "@xeokit/bcf": "^0.0.1",
     "@xeokit/boundaries": "^0.0.1",
@@ -52,7 +51,6 @@
     "@xeokit/kdtree3": "^0.0.1",
     "@xeokit/ktx2": "^0.0.1",
     "@xeokit/las": "^0.0.1",
-    "@xeokit/las2xkt": "^0.0.1",
     "@xeokit/locale": "^0.0.1",
     "@xeokit/math": "^0.0.1",
     "@xeokit/matrix": "^0.0.1",
@@ -69,9 +67,5 @@
     "@xeokit/webifc": "^0.0.1",
     "@xeokit/xkt": "^0.0.1",
     "web-ifc": "^0.0.35"
-  },
-  "devDependencies": {
-    "@xeokit/cityjson2xkt": "^0.0.1",
-    "@xeokit/gltf2xkt": "^0.0.1"
   }
 }

@@ -3,8 +3,8 @@
   "type": "module",
   "version": "0.0.1",
   "description": "CLI tool to convert CityJSON files into XKT format.",
-  "module": "src/index.ts",
-  "source": "src/index.ts",
+
+  "main": "src/index.ts",
   "scripts": {
     "publish": "npm publish --access public"
   },
@@ -27,7 +27,7 @@
   "keywords": [
 
   ],
-  "main": "src/index.ts",
+
   "dependencies": {
     "strongly-typed-events": "3.0.7",
     "@xeokit/core": "0.0.1"

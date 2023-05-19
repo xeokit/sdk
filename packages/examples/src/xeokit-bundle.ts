@@ -15,9 +15,9 @@
 
 export * as core from "@xeokit/core";
 export * as constants from "@xeokit/constants";
-
-// Utility libraries
-
+//
+// // Utility libraries
+//
 export * as math from "@xeokit/math";
 export * as matrix from "@xeokit/matrix";
 export * as utils from "@xeokit/utils";
@@ -25,42 +25,54 @@ export * as rtc from "@xeokit/rtc";
 export * as curves from "@xeokit/curves";
 export * as boundaries from "@xeokit/boundaries";
 export * as compression from "@xeokit/compression";
-//
-// // Localization
-//
+
+// Localization
+
 export * as locale from "@xeokit/locale";
-//
-// // Model definition
-//
+
+// Model definition
+
+//----------------------------------------------------------------------------------
+// loaders.gl dependencies commented out of "scene" because they introduced
+// nodejs "import" statements into bundle.js
+//-------------------------------------------------------------------------------
+
 export * as data from "@xeokit/data";
-export * as scene from "@xeokit/scene";
-//
-// // Collisions, picking
-//
-// export * as kdtree2 from "@xeokit/kdtree2";
-// export * as kdtree3 from "@xeokit/kdtree3";
+ export * as scene from "@xeokit/scene";
+
+// Collisions, picking
+
+export * as kdtree2 from "@xeokit/kdtree2";
+export * as kdtree3 from "@xeokit/kdtree3";
 // export * as pick from "@xeokit/pick";
-//
-// // Semantic types
-//
+
+ // Semantic types
+
 export * as basictypes from "@xeokit/basictypes";
 export * as cityjsontypes from "@xeokit/cityjsontypes_1_1_3";
 export * as ifctypes from "@xeokit/ifctypes";
 
-// Loaders
+ // Loaders
 
-//export * as las from "@xeokit/las";
-export * as cityjson from "@xeokit/cityjson";
-export * as dotbim from "@xeokit/dotbim";
-export * as gltf from "@xeokit/gltf";
+// export * as las from "@xeokit/las";
+ export * as cityjson from "@xeokit/cityjson";
+ export * as dotbim from "@xeokit/dotbim";
+
+
+ //----------------------------------------------------------------------------------
+ // Next "gltf" export commented out because it introduces error:
+// 'requireFromFile' is not exported by 'node-resolve:empty.js' etc
+ //-------------------------------------------------------------------------------
+
+ //export * as gltf from "@xeokit/gltf";
 // export * as webifc from "@xeokit/webifc";
-export * as xkt from "@xeokit/xkt";
+ export * as xkt from "@xeokit/xkt";
 
-// Viewer
+ // Viewer
 
-// export * as viewer from "@xeokit/viewer";
-// export * as webglRenderer from "@xeokit/webglrenderer";
-// export * as ktx2 from "@xeokit/ktx2";
-// export * as cameraControl from "@xeokit/cameracontrol";
-// export * as bcf from "@xeokit/bcf";
-//export * from "@xeokit/treeview";
+ export * as viewer from "@xeokit/viewer";
+ export * as webglrenderer from "@xeokit/webglrenderer";
+ export * as ktx2 from "@xeokit/ktx2";
+ export * as cameracontrol from "@xeokit/cameracontrol";
+ export * as bcf from "@xeokit/bcf";
+// //export * from "@xeokit/treeview";

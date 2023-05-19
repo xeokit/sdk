@@ -219,18 +219,18 @@
  * import {Data} from "@xeokit/data";
  * import * as basicTypes from "@xeokit/datatypes/basicTypes";
  *
- * const myData = new Data();
+ * const data = new Data();
  *
- * const myDataModel = myData.createModel({ // DataModel | SDKError
+ * const dataModel = data.createModel({ // DataModel | SDKError
  *     id: "myTableModel"
  * });
  *
- * if (myDataModel instanceof SDKError) {
- *      console.log(myDataModel.message);
+ * if (dataModel instanceof SDKError) {
+ *      console.log(dataModel.message);
  *
  * } else {
  *
- *      const tablePropertySet = myDataModel.createPropertySet({ // PropertySet | SDKError
+ *      const tablePropertySet = dataModel.createPropertySet({ // PropertySet | SDKError
  *          id: "tablePropertySet",
  *          name: "Table properties",
  *          type: "",
@@ -256,7 +256,7 @@
  *          console.log(tablePropertySet.message);
  *      }
  *
- *      const legPropertySet = myDataModel.createPropertySet({
+ *      const legPropertySet = dataModel.createPropertySet({
  *          id: "legPropertySet",
  *          name: "Table leg properties",
  *          type: "",
@@ -278,7 +278,7 @@
  *          ]
  *      });
  *
- *      const myTableObject = myDataModel.createObject({ // DataObject | SDKError
+ *      const myTableObject = dataModel.createObject({ // DataObject | SDKError
  *          id: "table",
  *          type:  basicTypes.BasicEntity,
  *          name: "Table",
@@ -289,42 +289,42 @@
  *          console.log(myTableObject.message);
  *      }
  *
- *      myDataModel.createObject({
+ *      dataModel.createObject({
  *          id: "redLeg",
  *          name: "Red table Leg",
  *          type:  basicTypes.BasicEntity,
  *          propertySetIds: ["tableLegPropertySet"]
  *      });
  *
- *      myDataModel.createObject({
+ *      dataModel.createObject({
  *          id: "greenLeg",
  *          name: "Green table leg",
  *          type:  basicTypes.BasicEntity,
  *          propertySetIds: ["tableLegPropertySet"]
  *      });
  *
- *      myDataModel.createObject({
+ *      dataModel.createObject({
  *          id: "blueLeg",
  *          name: "Blue table leg",
  *          type:  basicTypes.BasicEntity,
  *          propertySetIds: ["tableLegPropertySet"]
  *      });
  *
- *      myDataModel.createObject({
+ *      dataModel.createObject({
  *          id: "yellowLeg",
  *          name: "Yellow table leg",
  *          type: "leg",
  *          propertySetIds: ["tableLegPropertySet"]
  *      });
  *
- *      myDataModel.createObject({
+ *      dataModel.createObject({
  *          id: "tableTop",
  *          name: "Purple table top",
  *          type:  basicTypes.BasicEntity,
  *          propertySetIds: ["tableTopPropertySet"]
  *      });
  *
- *      const myRelationship = myDataModel.createRelationship({
+ *      const myRelationship = dataModel.createRelationship({
  *          type: basicTypes.BasicAggregation,
  *          relatingObjectId: "table",
  *          relatedObjectId: "tableTop"
@@ -334,37 +334,37 @@
  *              console.log(myRelationship.message);
  *      }
  *
- *      myDataModel.createRelationship({
+ *      dataModel.createRelationship({
  *          type: basicTypes.BasicAggregation,
  *          relatingObjectId: "tableTop",
  *          relatedObjectId: "redLeg"
  *      });
  *
- *      myDataModel.createRelationship({
+ *      dataModel.createRelationship({
  *          type: basicTypes.BasicAggregation,
  *          relatingObjectId: "tableTop",
  *          relatedObjectId: "greenLeg"
  *      });
  *
- *      myDataModel.createRelationship({
+ *      dataModel.createRelationship({
  *          type: basicTypes.BasicAggregation,
  *          relatingObjectId: "tableTop",
  *          relatedObjectId: "blueLeg"
  *      });
  *
- *      myDataModel.createRelationship({
+ *      dataModel.createRelationship({
  *          type: basicTypes.BasicAggregation,
  *          relatingObjectId: "tableTop",
  *          relatedObjectId: "yellowLeg"
  *      });
  *
- *      const buildResult = myDataModel.build(); // void | SDKError
- *
- *      if (buildResult instanceof SDKError) {
- *          console.log(buildResult.message);
- *      } else {
- *          // Ready for action
- *      }
+ *      dataModel.build()
+ *          .then(()=>{
+ *              // Ready for action
+ *          })
+ *          .catch((sdkError) => {
+ *              console.error(sdkError.message);
+ *          });
  * }
  * ````
  *
@@ -379,7 +379,7 @@
  * ````javascript
  * const resultObjectIds = [];
  *
- * myData.searchObjects({
+ * data.searchObjects({
  *     startObjectId: "table",
  *     includeObjects: [basicTypes.BasicEntity],
  *     includeRelated: [basicTypes.BasicAggregation],
@@ -396,7 +396,7 @@
  * we encounter along the outgoing Relationships.
  *
  * ````javascript
- * const table = myData.objects["table"];
+ * const table = data.objects["table"];
  *
  * const relations = table.related[basicTypes.BasicAggregation];
  *

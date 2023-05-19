@@ -44,10 +44,10 @@
 //     constructor(view: View, gl: WebGL2RenderingContext) {
 //         this.#view = view;
 //         this.#gl = gl;
-//         this.#init();
+//         this.#registerViewer();
 //     }
 //
-//     #init() {
+//     #registerViewer() {
 //         let dirty = false;
 //         const sao = this.#view.sao;
 //         if (sao.numSamples !== this.#numSamples) {
@@ -269,7 +269,7 @@
 //     }
 //
 //     render(depthRenderBuffer: GLRenderBuffer) {
-//         this.#init();
+//         this.#registerViewer();
 //         if (this.#programError) {
 //             return;
 //         }

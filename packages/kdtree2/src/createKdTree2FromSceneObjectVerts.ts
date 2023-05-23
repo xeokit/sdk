@@ -1,4 +1,4 @@
-import {GeometryView, getSceneObjectGeometry, SceneObject} from "@xeokit/scene";
+import {type GeometryView, getSceneObjectGeometry, SceneObject} from "@xeokit/scene";
 import {
     INSIDE,
     INTERSECT,

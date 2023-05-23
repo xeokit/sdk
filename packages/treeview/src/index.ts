@@ -94,4 +94,4 @@
  *
  * @module @xeokit/treeview
  */
-//export * from "./TreeView";
+export * from "./TreeView";

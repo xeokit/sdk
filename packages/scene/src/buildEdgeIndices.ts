@@ -1,4 +1,4 @@
-import {DEGTORAD, FloatArrayParam, IntArrayParam} from "@xeokit/math";
+import {DEGTORAD, type FloatArrayParam, type IntArrayParam} from "@xeokit/math";
 import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "@xeokit/matrix";
 import {decompressPoint3} from "@xeokit/compression";
 

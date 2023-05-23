@@ -24,7 +24,7 @@ import {FrustumProjection} from './FrustumProjection';
 import {CustomProjection} from './CustomProjection';
 import type {View} from "./View";
 import {Component, EventEmitter} from "@xeokit/core";
-import {DEGTORAD, FloatArrayParam} from "@xeokit/math";
+import {DEGTORAD, type FloatArrayParam} from "@xeokit/math";
 import {
     CustomProjectionType,
     FrustumProjectionType,

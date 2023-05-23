@@ -1,4 +1,4 @@
-import {PickResult, ViewObject} from "@xeokit/viewer";
+import type {PickResult, ViewObject} from "@xeokit/viewer";
 
 /**
  * Meshes that can be picked by a WebGLRenderer.

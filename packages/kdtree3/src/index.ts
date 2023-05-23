@@ -146,10 +146,10 @@ export * from "./KdSceneObjectPrim";
 export * from "./KdTrianglePrim";
 export * from "./KdLinePrim";
 export * from "./KdPointPrim";
-export {PrimsKdTree3} from "./PrimsKdTree3";
-export {SceneObjectsKdTree3} from "./sceneObjectsKdTree3";
-export {KdNode3} from "./KdNode3";
-export {KdItem3D} from "./KdItem3";
-export {KdTree3Params} from "./KdTree3Params";
+export * from "./PrimsKdTree3";
+export * from "./sceneObjectsKdTree3";
+export * from "./KdNode3";
+export * from "./KdItem3";
+export * from "./KdTree3Params";
 
 

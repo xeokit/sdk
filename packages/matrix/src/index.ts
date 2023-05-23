@@ -28,7 +28,7 @@
  *
  * @module @xeokit/matrix
  */
-import {clamp, DEGTORAD, FloatArrayParam, newFloatArray} from "@xeokit/math";
+import {clamp, DEGTORAD, type FloatArrayParam, newFloatArray} from "@xeokit/math";
 
 
 const tempVec4a: FloatArrayParam = createVec4();

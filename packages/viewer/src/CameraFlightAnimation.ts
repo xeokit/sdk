@@ -6,7 +6,7 @@ import type {View} from "./View";
 import type {Camera} from "./Camera";
 import {addVec3, lenVec3, lerpMat4, lerpVec3, mulVec3Scalar, normalizeVec3, subVec3, createVec3} from "@xeokit/matrix";
 import {Component, EventEmitter} from "@xeokit/core";
-import {DEGTORAD, FloatArrayParam} from "@xeokit/math";
+import {DEGTORAD, type FloatArrayParam} from "@xeokit/math";
 import {getAABB3Center, getAABB3Diag, getAABB3DiagPoint} from "@xeokit/boundaries";
 import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/constants";
 

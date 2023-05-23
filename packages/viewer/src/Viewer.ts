@@ -1,5 +1,5 @@
 import {apply, createUUID, inQuotes} from "@xeokit/utils";
-import {Capabilities, Component, EventEmitter, SDKError} from "@xeokit/core";
+import {type Capabilities, Component, EventEmitter, SDKError} from "@xeokit/core";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "@xeokit/math";
 import {Scene, SceneModel} from "@xeokit/scene";

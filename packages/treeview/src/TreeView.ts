@@ -1,6 +1,6 @@
 import type {View, Viewer, ViewObject} from "@xeokit/viewer";
 import {Component, EventEmitter} from "@xeokit/core";
-import type {Data, DataObject} from "@xeokit/data";
+import type {Data, DataModel, DataObject} from "@xeokit/data";
 import {EventDispatcher} from "strongly-typed-events";
 
 /**
@@ -77,7 +77,7 @@ export interface TreeViewNode {
     objectId: string;
     title: string;
     type: number;
-    parentNode: TreeViewNode;
+    parentNode: TreeViewNode | null;
     numViewObjects: number;
     numVisibleViewObjects: number;
     checked: boolean;
@@ -186,23 +186,27 @@ export class TreeView extends Component {
     #groupTypes: number[];
     #containerElement: HTMLElement;
     #hierarchy: number;
-    #dataModels: {};
+    #dataModels: {
+        [key: string]: DataModel
+    };
     #autoAddModels: boolean;
     #autoExpandDepth: any;
     #sortNodes: boolean | undefined;
     #pruneEmptyNodes: boolean;
     #viewer: Viewer;
-    #rootElement: HTMLElement;
+    #rootElement: HTMLUListElement | null;
     #muteSceneEvents: boolean;
     #muteTreeEvents: boolean;
     #rootNodes: any[];
-    #objectNodes: {};
+    #objectNodes: {
+        [key: string]: TreeViewNode
+    };
     #rootName: any;
-    #showListItemElementId: string;
+    #showListItemElementId: string | null;
     #spatialSortFunc: (node1: TreeViewNode, node2: TreeViewNode) => (number);
-    #switchExpandHandler: (event:MouseEvent) => void;
-    #switchCollapseHandler: (event:MouseEvent) => void;
-    #checkboxChangeHandler: (event:MouseEvent) => void;
+    #switchExpandHandler: (event: MouseEvent) => void;
+    #switchCollapseHandler: (event: MouseEvent) => void;
+    #checkboxChangeHandler: (event: MouseEvent) => void;
     #destroyed: boolean;
     #onViewObjectVisibility: () => void;
     #onViewObjectXRayed: () => void;
@@ -305,7 +309,7 @@ export class TreeView extends Component {
                         parentCheckbox.checked = newChecked;
                     }
                 }
-                parentNode = parentNode.parent;
+                parentNode = parentNode.parentNode;
             }
             this.#muteTreeEvents = false;
         });
@@ -348,11 +352,11 @@ export class TreeView extends Component {
         this.#switchCollapseHandler = (event) => {
             event.preventDefault();
             event.stopPropagation();
-            const switchElement =(<HTMLElement>event.target);
+            const switchElement = (<HTMLElement>event.target);
             this.#collapseSwitchElement(switchElement);
         };
 
-        this.#checkboxChangeHandler = (event:any) => {
+        this.#checkboxChangeHandler = (event: any) => {
             if (this.#muteTreeEvents) {
                 return;
             }
@@ -364,7 +368,7 @@ export class TreeView extends Component {
             const checkedNode = this.#objectNodes[checkedObjectId];
             const objects = this.view.objects;
             let numUpdated = 0;
-            this.#withNodeTree(checkedNode, (node) => {
+            this.#withNodeTree(checkedNode, (node: TreeViewNode) => {
                 const objectId = node.objectId;
                 const checkBoxId = node.nodeId;
                 const viewObject = objects[objectId];
@@ -408,7 +412,7 @@ export class TreeView extends Component {
             this.#addModel(modelId);
         }
 
-        this.#viewer.scene.onModelCreated.subscribe((scene,sceneModel) => {
+        this.#viewer.scene.onModelCreated.subscribe((scene, sceneModel) => {
             if (this.data.models[sceneModel.id]) {
                 this.#addModel(sceneModel.id);
             }
@@ -560,7 +564,9 @@ export class TreeView extends Component {
         }
         const listItemElementId = 'node-' + nodeId;
         const listItemElement = document.getElementById(listItemElementId);
+        // @ts-ignore
         listItemElement.scrollIntoView({block: "center"});
+        // @ts-ignore
         listItemElement.classList.add("highlighted-node");
         this.#showListItemElementId = listItemElementId;
     }
@@ -594,7 +600,7 @@ export class TreeView extends Component {
      */
     expandToDepth(depth: number): void {
         this.collapse();
-        const expand = (node, countDepth) => {
+        const expand = (node: TreeViewNode, countDepth: number) => {
             if (countDepth === depth) {
                 return;
             }
@@ -636,6 +642,7 @@ export class TreeView extends Component {
         }
         this.#dataModels = {};
         if (this.#rootElement && !this.#destroyed) {
+            // @ts-ignore
             this.#rootElement.parentNode.removeChild(this.#rootElement);
             this.view.onObjectVisibility.unsubscribe(this.#onViewObjectVisibility);
             this.view.onObjectXRayed.unsubscribe(this.#onViewObjectXRayed);
@@ -699,6 +706,7 @@ export class TreeView extends Component {
 
     #rebuildNodes(): void {
         if (this.#rootElement) {
+            // @ts-ignore
             this.#rootElement.parentNode.removeChild(this.#rootElement);
             this.#rootElement = null;
         }
@@ -730,7 +738,7 @@ export class TreeView extends Component {
         return valid;
     }
 
-    #validateMetaModelForStoreysHierarchy(level = 0, ctx, buildingNode) {
+    #validateMetaModelForStoreysHierarchy(level = 0, ctx: any, buildingNode: any) {
         // ctx = ctx || {
         //     foundIFCBuildingStoreys: false
         // };
@@ -851,9 +859,9 @@ export class TreeView extends Component {
     #buildGroupsNodes2(
         dataObject: DataObject,
         pathNodes: TreeViewNode[],
-        buildingNode: TreeViewNode,
-        storeyNode: TreeViewNode,
-        typeNodes: { [key: number]: TreeViewNode }) {
+        buildingNode: TreeViewNode | null,
+        storeyNode: TreeViewNode | null,
+        typeNodes: { [key: number]: TreeViewNode } | null) {
 
         if (this.#pruneEmptyNodes && (!this.#dataObjectSceneObjectCounts[dataObject.id])) {
             return;
@@ -968,7 +976,7 @@ export class TreeView extends Component {
         }
     }
 
-    #buildTypesNodes2(dataObject: DataObject, rootNode: TreeViewNode, typeNodes: { [key: string | number]: TreeViewNode }) {
+    #buildTypesNodes2(dataObject: DataObject, rootNode: TreeViewNode | null, typeNodes: { [key: string | number]: TreeViewNode } | null) {
 
         if (this.#pruneEmptyNodes && (!this.#dataObjectSceneObjectCounts[dataObject.id])) {
             return;
@@ -1056,7 +1064,7 @@ export class TreeView extends Component {
         }
     }
 
-    #buildAggregationNodes2(dataObject, parentNode) {
+    #buildAggregationNodes2(dataObject: DataObject, parentNode: TreeViewNode | null) {
 
         if (this.#pruneEmptyNodes && (!this.#dataObjectSceneObjectCounts[dataObject.id])) {
             return;
@@ -1093,7 +1101,7 @@ export class TreeView extends Component {
         if (aggregations) {
             for (let i = 0, len = aggregations.length; i < len; i++) {
                 const aggregation = aggregations[i];
-                const aggregatedDataObject = aggregation.related;
+                const aggregatedDataObject = aggregation.relatedObject;
                 this.#buildAggregationNodes2(aggregatedDataObject, node);
             }
         }
@@ -1106,7 +1114,7 @@ export class TreeView extends Component {
         }
     }
 
-    #sortChildNodes(node) {
+    #sortChildNodes(node: TreeViewNode) {
         // const childNodes = node.childNodes;
         // if (!childNodes || childNodes.length === 0) {
         //     return;
@@ -1205,7 +1213,7 @@ export class TreeView extends Component {
         }
     }
 
-    #withNodeTree(node, callback) {
+    #withNodeTree(node: TreeViewNode, callback: (arg0: TreeViewNode) => void) {
         callback(node);
         const childNodes = node.childNodes;
         if (!childNodes) {
@@ -1253,6 +1261,7 @@ export class TreeView extends Component {
         checkbox.id = nodeId;
         checkbox.type = "checkbox";
         checkbox.checked = node.checked;
+        // @ts-ignore
         checkbox.style["pointer-events"] = "all";
         // @ts-ignore
         checkbox.addEventListener("change", this.#checkboxChangeHandler);
@@ -1281,6 +1290,9 @@ export class TreeView extends Component {
 
     #expandSwitchElement(switchElement: HTMLElement): void {
         const parentElement = switchElement.parentElement;
+        if (!parentElement) {
+            return;
+        }
         const expanded = parentElement.getElementsByTagName('li')[0];
         if (expanded) {
             return;
@@ -1308,6 +1320,9 @@ export class TreeView extends Component {
         const nodeId = objectId;
         const switchElementId = `switch-${nodeId}`;
         const switchElement = document.getElementById(switchElementId);
+        if (!switchElement) {
+            return;
+        }
         this.#collapseSwitchElement(switchElement);
     }
 

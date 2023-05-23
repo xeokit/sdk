@@ -1,5 +1,5 @@
 import type {View, Viewer} from "@xeokit/viewer";
-import {GLAbstractTexture, GLDataTexture, WEBGL_INFO} from "@xeokit/webglutils";
+import {type GLAbstractTexture, GLDataTexture, WEBGL_INFO} from "@xeokit/webglutils";
 
 
 

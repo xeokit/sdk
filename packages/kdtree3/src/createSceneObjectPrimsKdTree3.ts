@@ -1,4 +1,4 @@
-import {GeometryBucket, GeometryView, getSceneObjectGeometry, SceneObject} from "@xeokit/scene";
+import {GeometryBucket, type GeometryView, getSceneObjectGeometry, SceneObject} from "@xeokit/scene";
 import {KdTree3} from "./KdTree3";
 import type {FloatArrayParam} from "@xeokit/math";
 import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";

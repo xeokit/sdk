@@ -1,16 +1,23 @@
 import {
-    addVec3, cross3Vec3,
-    distVec3, dotVec4,
-    inverseMat4, lenVec3,
-    lookAtMat4v, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3,
-    transformPoint3,
-    transformPoint4,
-    transformVec3,
+    addVec3,
     createVec2,
     createVec3,
-    createVec4
+    createVec4,
+    cross3Vec3,
+    distVec3,
+    dotVec4,
+    inverseMat4,
+    lenVec3,
+    lookAtMat4v,
+    mulVec3Scalar,
+    normalizeVec3,
+    sqLenVec3,
+    subVec3,
+    transformPoint3,
+    transformPoint4,
+    transformVec3
 } from "@xeokit/matrix";
-import {clamp, FloatArrayParam} from "@xeokit/math";
+import {clamp, type  FloatArrayParam} from "@xeokit/math";
 
 
 import type {CameraControl} from "./CameraControl";

@@ -1,5 +1,5 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter, SDKError, TextureTranscoder} from "@xeokit/core";
+import {Component, EventEmitter, SDKError, type TextureTranscoder} from "@xeokit/core";
 import {createUUID, loadArraybuffer} from "@xeokit/utils";
 import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
 import {composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4} from "@xeokit/matrix";

@@ -617,7 +617,7 @@ export class Layer {
         const pickable = !!(flags & SCENE_OBJECT_FLAGS.PICKABLE);
         const culled = !!(flags & SCENE_OBJECT_FLAGS.CULLED);
         let f0; // Color
-        if (!visible || culled || xrayed) { // Highlight & select are layered on top of color - not mutually exclusive
+        if ((!visible) || culled || xrayed) { // Highlight & select are layered on top of color - not mutually exclusive
             f0 = RENDER_PASSES.NOT_RENDERED;
         } else {
             if (transparent) {
@@ -627,7 +627,7 @@ export class Layer {
             }
         }
         let f1; // Silhouette
-        if (!visible || culled) {
+        if ((!visible) || culled) {
             f1 = RENDER_PASSES.NOT_RENDERED;
         } else if (selected) {
             f1 = RENDER_PASSES.SILHOUETTE_SELECTED;
@@ -639,7 +639,7 @@ export class Layer {
             f1 = RENDER_PASSES.NOT_RENDERED;
         }
         let f2 = 0; // Edges
-        if (!visible || culled) {
+        if ((!visible) || culled) {
             f2 = RENDER_PASSES.NOT_RENDERED;
         } else if (selected) {
             f2 = RENDER_PASSES.EDGES_SELECTED;

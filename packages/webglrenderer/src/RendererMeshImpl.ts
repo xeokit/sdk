@@ -73,7 +73,7 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
         throw new Error("Method not implemented.");
     }
 
-    setSceneObject(sceneObjectRenderer: RendererObject) {
+    setRendererObject(sceneObjectRenderer: RendererObject) {
         this.sceneObjectRenderer = sceneObjectRenderer;
     }
 
@@ -82,11 +82,8 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
         this.layer.initFlags(this.meshIndex, flags, this.transparent);
     }
 
-    finalize2() {
-        // @ts-ignore
-        if (this.layer.flushInitFlags) {
-            this.layer.flushInitFlags();
-        }
+    build2() {
+        this.layer.flushInitFlags();
     }
 
     setVisible(flags: any) {

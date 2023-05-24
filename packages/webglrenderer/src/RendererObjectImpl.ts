@@ -5,7 +5,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import type {RendererMeshImpl} from "./RendererMeshImpl";
 import type {RendererViewObject} from "@xeokit/viewer";
-import type {RendererModel, RendererObject, SceneModel, SceneObject} from "@xeokit/scene";
+import type {RendererModel, RendererObject, SceneObject} from "@xeokit/scene";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
@@ -15,7 +15,7 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
 export class RendererObjectImpl implements RendererObject, RendererViewObject {
 
     readonly id: string;
-    readonly model: SceneModel;
+    readonly rendererModel: RendererModel;
     readonly sceneObject: SceneObject;
     readonly layerId: string | null;
 
@@ -30,13 +30,15 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
 
     constructor(params: {
         id: string,
+        sceneObject: SceneObject,
         rendererModel: RendererModel,
         rendererMeshes: RendererMeshImpl[],
         aabb: any,
         layerId?: string
     }) {
         this.id = params.id;
-        //this.model = params.rendererModel;
+        this.sceneObject = params.sceneObject;
+        this.rendererModel = params.rendererModel;
         this.rendererMeshes = params.rendererMeshes || [];
         this.#flags = 0;
         this.#aabb = params.aabb;
@@ -46,9 +48,8 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         this.#opacityUpdated = false;
 
         this.layerId = params.layerId || null;
-
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {  // TODO: tidier way? Refactor?
-            this.rendererMeshes[i].setSceneObject(this);
+            this.rendererMeshes[i].setRendererObject(this);
         }
     }
 
@@ -220,9 +221,9 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
-    finalize2(): void {
+    build2(): void {
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].finalize2();
+            this.rendererMeshes[i].build2();
         }
     }
 

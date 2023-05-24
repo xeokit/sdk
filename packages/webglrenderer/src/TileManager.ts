@@ -23,6 +23,7 @@ export class TileManager {
     #dataTexture: GLDataTexture;
     #camera: Camera;
     #lastFreeIndex: number;
+    #numTiles: number;
 
     constructor(params: {
         camera: Camera,
@@ -34,6 +35,7 @@ export class TileManager {
         this.#lastFreeIndex = 0;
         this.#tiles = {};
         this.#dataTexture = createMatricesDataTexture(this.#gl, NUM_TILES);
+        this.#numTiles = 0;
     }
 
     getTile(center: FloatArrayParam): Tile {
@@ -49,15 +51,17 @@ export class TileManager {
                 rtcViewMatrix: createMat4()
             };
             this.#tiles[tile.id] = tile;
+            this.#numTiles++;
         }
         tile.useCount++;
         return tile;
     }
 
     putTile(tile: Tile) {
-        if (--tile.useCount <= 0) {
+        if (--tile.useCount === 0) {
             delete this.#tiles[tile.id];
             this.#putFreeTile(tile.index);
+            this.#numTiles--;
         }
     }
 
@@ -87,25 +91,30 @@ export class TileManager {
         if (!this.#dataTexture.texture) {
             return;
         }
-        const gl = this.#gl;
-        const viewMatrix = this.#camera.viewMatrix;
         const tileIds = Object.keys(this.#tiles);
         const numTiles = tileIds.length;
-        const data = new Float32Array(16 * numTiles);
-        for (let i = 0, len = tileIds.length; i < len; i++) {
-            const tileId = tileIds[i];
-            const tile = this.#tiles[tileId];
-            createRTCViewMat(viewMatrix, tile.center, tile.rtcViewMatrix);
-            data.set(tile.rtcViewMatrix, tile.index * 16);
+        if (numTiles > 0) {
+            const gl = this.#gl;
+            const viewMatrix = this.#camera.viewMatrix;
+            const data = new Float32Array(16 * numTiles);
+            for (let i = 0; i < numTiles; i++) {
+                const tileId = tileIds[i];
+                const tile = this.#tiles[tileId];
+                createRTCViewMat(viewMatrix, tile.center, tile.rtcViewMatrix);
+                data.set(tile.rtcViewMatrix, tile.index * 16);
+            }
+            gl.bindTexture(gl.TEXTURE_2D, this.#dataTexture.texture);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.FLOAT, data);
+            gl.bindTexture(gl.TEXTURE_2D, null);
         }
-        gl.bindTexture(gl.TEXTURE_2D, this.#dataTexture.texture);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.FLOAT, data);
-        gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
     #putFreeTile(index: number) {
-        delete this.#indexesUsed[index];
-        this.#lastFreeIndex = index;
+        if (this.#indexesUsed[index]) {
+            delete this.#indexesUsed[index];
+            this.#lastFreeIndex = index;
+            this.#numTiles--;
+        }
     }
 
     #findFreeTile(): number {

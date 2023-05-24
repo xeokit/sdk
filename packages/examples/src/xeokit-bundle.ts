@@ -75,4 +75,4 @@ export * as webglrenderer from "@xeokit/webglrenderer";
 export * as ktx2 from "@xeokit/ktx2";
 export * as cameracontrol from "@xeokit/cameracontrol";
 export * as bcf from "@xeokit/bcf";
-export * from "@xeokit/treeview";
+export * as treeview from "@xeokit/treeview";

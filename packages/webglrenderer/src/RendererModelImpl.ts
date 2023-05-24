@@ -181,7 +181,7 @@ export class RendererModelImpl extends Component implements RendererModel {
             this.#viewMatrixDirty = true;
         });
 
-        this.#createDefaultTextureSetRenderer();
+        this.#createDefaultTextureSet();
 
         this.onBuilt = new EventEmitter(new EventDispatcher<RendererModel, null>());
 
@@ -239,7 +239,7 @@ export class RendererModelImpl extends Component implements RendererModel {
             this.rendererObjectsList[i].build();
         }
         for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].finalize2();
+            this.rendererObjectsList[i].build2();
         }
     }
 
@@ -336,11 +336,12 @@ export class RendererModelImpl extends Component implements RendererModel {
         if (!rendererGeometry) {
             throw new SDKError("RendererGeometry not found");
         }
-        const rendererTextureSet = this.rendererTextureSets[(<TextureSet>mesh.textureSet).id];
+        const textureSetId = mesh.textureSet ? (<TextureSet>mesh.textureSet).id : defaultTextureSetId;
+        const rendererTextureSet = this.rendererTextureSets[textureSetId];
         if (!rendererTextureSet) {
-            throw new SDKError("rendererTextureSet not found");
+            throw new SDKError("TextureSet not found");
         }
-        const layer = this.#getLayer(mesh.textureSet ? (<TextureSet>mesh.textureSet).id : undefined, mesh.geometry);
+        const layer = this.#getLayer(textureSetId, mesh.geometry);
         if (!layer) {
             return;
         }
@@ -393,8 +394,7 @@ export class RendererModelImpl extends Component implements RendererModel {
         this.rendererMeshes[mesh.id] = meshRenderer;
     }
 
-    #getLayer(textureSetId: string | undefined, geometryCompressedParams: GeometryCompressedParams): Layer | undefined {
-        textureSetId = textureSetId || defaultTextureSetId;
+    #getLayer(textureSetId: string, geometryCompressedParams: GeometryCompressedParams): Layer | undefined {
         const layerId = `${textureSetId}_${geometryCompressedParams.primitive}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {
@@ -447,6 +447,7 @@ export class RendererModelImpl extends Component implements RendererModel {
         }
         const rendererObject = new RendererObjectImpl({
             id: objectId,
+            sceneObject,
             rendererModel: this,
             rendererMeshes,
             aabb: sceneObject.aabb,
@@ -798,7 +799,7 @@ export class RendererModelImpl extends Component implements RendererModel {
     }
 */
 
-    #createDefaultTextureSetRenderer() {
+    #createDefaultTextureSet() {
         const defaultColorTexture = new RendererTextureImpl(
             null,
             new GLTexture({
@@ -985,7 +986,7 @@ export class RendererModelImpl extends Component implements RendererModel {
     //     }
     //     for (let i = 0, len = this.objectList.length; i < len; i++) {
     //         const rendererObject = this.objectList[i];
-    //         rendererObject.finalize2();
+    //         rendererObject.build2();
     //     }
     //     // this.layerList.sort((a, b) => {
     //     //     if (a.sortId < b.sortId) {

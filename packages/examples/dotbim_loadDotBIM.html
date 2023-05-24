@@ -66,8 +66,10 @@
                     log("dataModel.build()");
 
                     dataModel.build().then(() => {
+
                         log("Object.keys(dataModel.objects).length = " + Object.keys(dataModel.objects).length);
                         log("Done.");
+
                     }).catch(sdkError => error(sdkError.message));
                 }).catch(sdkError => error(sdkError.message));
             }).catch(sdkError => error(sdkError.message));

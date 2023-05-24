@@ -450,7 +450,7 @@ export function createPointerTableDataTexture(gl: WebGL2RenderingContext, meshId
  */
 export function createMatricesDataTexture(gl: WebGL2RenderingContext, numMatrices: number): GLDataTexture {
     const textureHeight = numMatrices;
-    if (textureHeight == 0) {
+    if (textureHeight === 0) {
         throw "texture height == 0";
     }
     const textureWidth = 4 * 3;

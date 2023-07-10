@@ -590,7 +590,7 @@ hardware than previous APIs such as WebGL. It is being developed by a group of i
 including Apple, Google, and Mozilla, and is expected to be an important part of the web 
 development ecosystem going forwards.
 
-> *See: [@xeokit/webgpurenderer](https://xeokit.github.io/sdk/docs/modules/_xeokit_webgpurenderer.html)*
+> *See: [@xeokit/webgpurendererrenderer](https://xeokit.github.io/sdk/docs/modules/_xeokit_webgpurenderer.html)*
 
 <br>
 

@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/cityjson2xkt",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "description": "NodeJS CLI tool to convert CityJSON to XKT.",
@@ -8,7 +9,6 @@
   },
   "main": "src/index.cjs",
   "scripts": {
-     "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -23,8 +23,7 @@
   "files": [
     "src/",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "keywords": [
   ],

@@ -1,11 +1,11 @@
 {
   "name": "@xeokit/cameracontrol",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "description": "Camera navigation controls for a xeokit Viewer",
   "main": "src/index.ts",
   "scripts": {
-    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",

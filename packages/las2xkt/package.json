@@ -1,12 +1,12 @@
 {
   "name": "@xeokit/las2xkt",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "description": "CLI tool to convert CityJSON files into XKT format.",
 
   "main": "src/index.ts",
   "scripts": {
-    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",

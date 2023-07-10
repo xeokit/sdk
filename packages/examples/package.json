@@ -1,5 +1,7 @@
 {
   "name": "@xeokit/examples",
+  "private": true,
+  "type": "module",
   "version": "0.0.1",
   "repository": {
     "type": "git",
@@ -13,7 +15,6 @@
   "source": "src/xeokit-bundle.ts",
   "scripts": {
     "clean": "rimraf dist && mkdirp dist",
-    "publish": "npm publish --access public",
     "dist": "rimraf dist && mkdirp dist && microbundle",
     "watch": "microbundle watch"
   },
@@ -26,8 +27,7 @@
     "dist/",
     "src/",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "keywords": [
   ],
@@ -58,12 +58,13 @@
     "@xeokit/procgen": "^0.0.1",
     "@xeokit/rtc": "^0.0.1",
     "@xeokit/scene": "^0.0.1",
+    "@xeokit/threedxml": "^0.0.1",
     "@xeokit/treeview": "^0.0.1",
     "@xeokit/utils": "^0.0.1",
     "@xeokit/viewer": "^0.0.1",
     "@xeokit/webglrenderer": "^0.0.1",
     "@xeokit/webglutils": "^0.0.1",
-    "@xeokit/webgpu": "^0.0.1",
+    "@xeokit/webgpurenderer": "^0.0.1",
     "@xeokit/webifc": "^0.0.1",
     "@xeokit/xkt": "^0.0.1",
     "web-ifc": "^0.0.35"

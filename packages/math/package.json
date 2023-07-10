@@ -1,11 +1,11 @@
 {
   "name": "@xeokit/math",
+  "private": false,
   "type": "module",
   "version": "0.0.1",
   "description": "Common xeokit math types and utilities",
   "main": "src/index.ts",
   "scripts": {
-     "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -20,8 +20,7 @@
   "files": [
     "src/",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "keywords": [
   ],

@@ -1,11 +1,11 @@
 {
   "name": "@xeokit/procgen",
+  "private": false,
   "type": "module",
   "version": "0.0.1",
   "description": "xeokit Geometry Builder Functions",
   "main": "src/index.ts",
   "scripts": {
-    "publish": "npm publish --access public",
     "test": "jest"
   },
   "repository": {
@@ -21,8 +21,7 @@
   "files": [
     "src/",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "keywords": [
 

@@ -1,11 +1,11 @@
 {
   "name": "@xeokit/viewer",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
   "main": "src/index.ts",
   "scripts": {
-    "publish": "npm publish --access public",
     "test": "jest"
   },
   "repository": {
@@ -21,8 +21,7 @@
   "files": [
     "src/",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "keywords": [
   ],

@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/webifcviewer",
+  "private": true,
   "version": "0.0.1",
   "repository": {
     "type": "git",
@@ -12,11 +13,7 @@
   "exports": "./dist/index.modern.mjs",
   "source": "src/index.ts",
   "scripts": {
-    "clean": "rimraf dist && mkdirp dist",
-    "publish": "npm publish --access public",
-    "convertmodels": "node convertmodels.js",
-    "XXdist": "rimraf dist && mkdirp dist && microbundle",
-    "watch": "microbundle watch"
+    "clean": "rimraf dist && mkdirp dist"
   },
   "author": "Lindsay Kay",
   "license": "SEE LICENSE IN LICENSE.md",
@@ -27,8 +24,7 @@
     "dist/",
     "src/",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "keywords": [
   ],
@@ -70,7 +66,7 @@
     "@xeokit/viewer": "^0.0.1",
     "@xeokit/webglrenderer": "^0.0.1",
     "@xeokit/webglutils": "^0.0.1",
-    "@xeokit/webgpu": "^0.0.1",
+    "@xeokit/webgpurenderer": "^0.0.1",
     "@xeokit/webifc": "^0.0.1",
     "@xeokit/xkt": "^0.0.1",
     "web-ifc": "^0.0.35"

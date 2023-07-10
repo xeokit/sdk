@@ -1,12 +1,12 @@
 {
-  "name": "@xeokit/webgpu",
+  "name": "@xeokit/webgpurenderer",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
   "module": "dist/xeokit-webgpu.modern.js",
   "source": "src/index.ts",
   "scripts": {
-    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",

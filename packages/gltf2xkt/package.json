@@ -1,5 +1,6 @@
 {
   "name": "@xeokit/gltf2xkt",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "description": "Node CLI script to convert glTF files to XKT.",
@@ -9,8 +10,6 @@
     "gltf2xkt": "dist/gltf2xkt.js"
   },
   "scripts": {
-    "XXdist": "rimraf dist && mkdirp dist && microbundle",
-    "publish": "npm publish --access public",
     "test": "jest"
   },
   "repository": {
@@ -26,8 +25,7 @@
   "files": [
     "src/",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "keywords": [
   ],

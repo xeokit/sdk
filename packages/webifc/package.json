@@ -1,12 +1,12 @@
 {
   "name": "@xeokit/webifc",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "description": "WebIFC loader for xeokit",
   "main": "src/index.ts",
   "scripts": {
-     "publish": "npm publish --access public",
-      "test": "jest"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -21,8 +21,7 @@
   "files": [
     "src/",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "keywords": [
   ],

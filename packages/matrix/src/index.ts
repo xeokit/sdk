@@ -627,6 +627,32 @@ export function createMat3(values?: FloatArrayParam): FloatArrayParam {
 }
 
 /**
+ * Converts a 3x3 matrix to 4x4.
+ */
+export function mat3ToMat4(mat3: FloatArrayParam, mat4?: FloatArrayParam) : FloatArrayParam{
+    if (!mat4) {
+        mat4 = createMat4();
+    }
+    mat4[0] = mat3[0];
+    mat4[1] = mat3[1];
+    mat4[2] = mat3[2];
+    mat4[3] = 0;
+    mat4[4] = mat3[3];
+    mat4[5] = mat3[4];
+    mat4[6] = mat3[5];
+    mat4[7] = 0;
+    mat4[8] = mat3[6];
+    mat4[9] = mat3[7];
+    mat4[10] = mat3[8];
+    mat4[11] = 0;
+    mat4[12] = 0;
+    mat4[13] = 0;
+    mat4[14] = 0;
+    mat4[15] = 1;
+    return mat4;
+}
+
+/**
  * Returns a new, uninitialized 4x4 matrix.
  */
 export function createMat4(values?: FloatArrayParam): FloatArrayParam {

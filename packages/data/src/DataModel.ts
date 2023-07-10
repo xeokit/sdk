@@ -30,34 +30,39 @@ export class DataModel extends Component {
     declare public readonly id: string;
 
     /**
+     * The model name, if available.
+     */
+    public name?: string;
+
+    /**
      * The project ID, if available.
      */
-    public readonly projectId?: string | number;
+    public projectId?: string | number;
 
     /**
      * The revision ID, if available.
      */
-    public readonly revisionId?: string | number;
+    public revisionId?: string | number;
 
     /**
      * The model author, if available.
      */
-    public readonly author?: string;
+    public author?: string;
 
     /**
      * The date the model was created, if available.
      */
-    public readonly createdAt?: string;
+    public createdAt?: string;
 
     /**
      * The application that created the model, if available.
      */
-    public readonly creatingApplication?: string;
+    public creatingApplication?: string;
 
     /**
      * The model schema version, if available.
      */
-    public readonly schema?: string;
+    public schema?: string;
 
     /**
      * The {@link PropertySet | PropertySets} in this DataModel, mapped to {@link PropertySet.id | PropertySet.id}.

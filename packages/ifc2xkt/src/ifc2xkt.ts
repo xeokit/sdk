@@ -24,10 +24,10 @@ program.parse(process.argv);
 
 const options = program.opts();
 
-let sourceData;
+let fileData;
 
 try {
-    sourceData = fs.readFileSync(options.source);
+    fileData = fs.readFileSync(options.source);
 } catch (err) {
     // reject(err);
     // return;
@@ -54,7 +54,7 @@ if (dataModel instanceof SDKError) {
     } else {
 
         loadWebIFC({
-            data: sourceData,
+            fileData,
             ifcAPI: null,
             dataModel,
             sceneModel

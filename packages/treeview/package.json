@@ -2,11 +2,10 @@
   "name": "@xeokit/treeview",
   "private": false,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "An HTML tree view to navigate xeokit data models.",
   "main": "src/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -24,10 +23,9 @@
   ],
   "keywords": [],
   "dependencies": {
-    "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/data": "^0.0.1",
-    "@xeokit/viewer": "^0.0.1"
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
+    "@xeokit/viewer": "^0.0.1",
+    "strongly-typed-events": "3.0.7"
   }
 }
-

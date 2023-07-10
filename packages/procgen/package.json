@@ -2,7 +2,7 @@
   "name": "@xeokit/procgen",
   "private": false,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "xeokit Geometry Builder Functions",
   "main": "src/index.ts",
   "scripts": {
@@ -23,11 +23,9 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-
-  ],
+  "keywords": [],
   "dependencies": {
-    "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "0.0.1"
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "strongly-typed-events": "3.0.7"
   }
 }

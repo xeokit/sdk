@@ -2,11 +2,10 @@
   "name": "@xeokit/scene",
   "private": false,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
   "main": "src/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -22,17 +21,16 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-  ],
+  "keywords": [],
   "dependencies": {
-    "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "0.0.1",
-    "@xeokit/math": "^0.0.1",
-    "@xeokit/constants": "^0.0.1",
-    "@xeokit/matrix": "^0.0.1",
-    "@xeokit/compression": "^0.0.1",
-    "@xeokit/boundaries": "0.0.1",
     "@loaders.gl/images": "^3.4.1",
-    "@loaders.gl/textures": "^3.4.1"
+    "@loaders.gl/textures": "^3.4.1",
+    "@xeokit/boundaries": "^1.0.1-alpha.0",
+    "@xeokit/compression": "^1.0.1-alpha.0",
+    "@xeokit/constants": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "strongly-typed-events": "3.0.7"
   }
 }

@@ -3,11 +3,10 @@
   "private": false,
   "type": "module",
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_boundaries.html",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "xeokit Boundaries Math Library",
   "main": "src/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -22,13 +21,12 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-  ],
+  "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/utils": "^0.0.1",
-    "@xeokit/math": "^0.0.1",
-    "@xeokit/matrix": "^0.0.1",
-    "@xeokit/compression": "^0.0.1"
+    "@xeokit/compression": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "@xeokit/utils": "^1.0.1-alpha.0"
   }
 }

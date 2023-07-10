@@ -2,11 +2,10 @@
   "name": "@xeokit/dotbim",
   "private": false,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": ".BIM loader for xeokit.",
   "main": "src/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -22,15 +21,13 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-  ],
+  "keywords": [],
   "dependencies": {
-    "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/scene": "^0.0.1",
-    "@xeokit/data": "^0.0.1",
-    "@xeokit/compression": "^0.0.1",
-    "@xeokit/matrix": "^0.0.1"
+    "@xeokit/compression": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0",
+    "strongly-typed-events": "3.0.7"
   }
 }
-

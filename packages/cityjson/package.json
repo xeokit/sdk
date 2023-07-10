@@ -2,11 +2,10 @@
   "name": "@xeokit/cityjson",
   "private": false,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "CityJSON loader for xeokit",
   "main": "src/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -22,13 +21,11 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-  ],
+  "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/math": "^0.0.1",
-    "@xeokit/scene": "^0.0.1",
-    "@xeokit/data": "^0.0.1"
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0"
   }
 }
-

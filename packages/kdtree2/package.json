@@ -2,11 +2,10 @@
   "name": "@xeokit/kdtree2",
   "private": false,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "xeokit 2D Collision Utilities",
   "main": "src/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -22,13 +21,12 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-  ],
+  "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/scene": "^0.0.1",
-    "@xeokit/math": "^0.0.1",
-    "@xeokit/matrix": "^0.0.1",
-    "@xeokit/boundaries": "^0.0.1"
+    "@xeokit/boundaries": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0"
   }
 }

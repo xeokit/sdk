@@ -2,7 +2,7 @@
   "name": "@xeokit/webglrenderer",
   "private": true,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "WebGL2 rendering strategy for a xeokit Viewer",
   "main": "src/index.ts",
   "scripts": {
@@ -25,15 +25,15 @@
   "keywords": [
   ],
   "dependencies": {
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/ktx2": "^0.0.1",
-    "@xeokit/viewer": "^0.0.1",
-    "@xeokit/math": "^0.0.1",
-    "@xeokit/matrix": "^0.0.1",
-    "@xeokit/webglutils": "^0.0.1",
-    "@xeokit/boundaries": "^0.0.1",
-    "@xeokit/constants": "^0.0.1",
-    "@xeokit/scene": "^0.0.1",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/ktx2": "^1.0.1-alpha.0",
+    "@xeokit/viewer": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "@xeokit/webglutils": "^1.0.1-alpha.0",
+    "@xeokit/boundaries": "^1.0.1-alpha.0",
+    "@xeokit/constants": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0",
     "strongly-typed-events": "3.0.7"
   }
 }

@@ -2,7 +2,7 @@
   "name": "@xeokit/pick",
   "private": true,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "xeokit 3D picking utilities",
   "main": "src/index.ts",
   "scripts": {
@@ -25,9 +25,9 @@
   "keywords": [
   ],
   "dependencies": {
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/scene": "^0.0.1",
-    "@xeokit/kdtree3": "^0.0.1",
-    "@xeokit/math": "^0.0.1"
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0",
+    "@xeokit/kdtree3": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0"
   }
 }

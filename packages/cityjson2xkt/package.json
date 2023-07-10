@@ -2,7 +2,7 @@
   "name": "@xeokit/cityjson2xkt",
   "private": true,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "NodeJS CLI tool to convert CityJSON to XKT.",
   "bin": {
     "cityjson2xkt": "dist/index.cjs"
@@ -29,11 +29,11 @@
   ],
   "dependencies": {
     "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/data": "^0.0.1",
-    "@xeokit/scene": "^0.0.1",
-    "@xeokit/cityjson": "^0.0.1",
-    "@xeokit/xkt": "^0.0.1"
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0",
+    "@xeokit/cityjson": "^1.0.1-alpha.0",
+    "@xeokit/xkt": "^1.0.1-alpha.0"
   }
 }
 

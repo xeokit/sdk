@@ -2,7 +2,7 @@
   "name": "@xeokit/webifc",
   "private": true,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "WebIFC loader for xeokit",
   "main": "src/index.ts",
   "scripts": {
@@ -26,14 +26,14 @@
   "keywords": [
   ],
   "dependencies": {
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/constants": "^0.0.1",
-    "@xeokit/math": "^0.0.1",
-    "@xeokit/matrix": "^0.0.1",
-    "@xeokit/scene": "^0.0.1",
-    "@xeokit/rtc": "^0.0.1",
-    "@xeokit/ifctypes": "^0.0.1",
-    "@xeokit/data": "^0.0.1",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/constants": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0",
+    "@xeokit/rtc": "^1.0.1-alpha.0",
+    "@xeokit/ifctypes": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
     "web-ifc": "^0.0.35"
   }
 }

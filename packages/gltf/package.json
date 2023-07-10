@@ -2,7 +2,7 @@
   "name": "@xeokit/gltf",
   "private": true,
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1-alpha.0",
   "description": "glTF loader for xeokit",
   "main": "src/index.ts",
   "scripts": {
@@ -26,12 +26,12 @@
 
   ],
   "dependencies": {
-    "@xeokit/constants": "^0.0.1",
-    "@xeokit/core": "^0.0.1",
-    "@xeokit/matrix": "^0.0.1",
-    "@xeokit/scene": "^0.0.1",
-    "@xeokit/math": "^0.0.1",
-    "@xeokit/data": "^0.0.1",
+    "@xeokit/constants": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
     "@jest/globals": "^29.5.0",
     "@loaders.gl/core": "^3.2.6",
     "@loaders.gl/gltf": "^3.2.6",

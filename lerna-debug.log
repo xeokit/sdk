@@ -1,0 +1,31 @@
+134 error Error: Command failed with exit code 1: npm install --package-lock-only --ignore-scripts
+134 error npm ERR! code ERESOLVE
+134 error npm ERR! ERESOLVE unable to resolve dependency tree
+134 error npm ERR!
+134 error npm ERR! While resolving: xeokit@1.0.1-alpha.0
+134 error npm ERR! Found: typescript@4.9.4
+134 error npm ERR! node_modules/typescript
+134 error npm ERR!   dev typescript@"4.9.4" from the root project
+134 error npm ERR!   dev typescript@"^4.9.4" from @xeokit/xkt@1.0.1
+134 error npm ERR!   packages/xkt
+134 error npm ERR!     @xeokit/xkt@0.0.1
+134 error npm ERR!     node_modules/@xeokit/xkt
+134 error npm ERR!       workspace packages/xkt from the root project
+134 error npm ERR!
+134 error npm ERR! Could not resolve dependency:
+134 error npm ERR! peer typescript@"^2.7 || ^3" from awesome-typescript-loader@5.2.1
+134 error npm ERR! node_modules/awesome-typescript-loader
+134 error npm ERR!   dev awesome-typescript-loader@"^5.2.1" from the root project
+134 error npm ERR!
+134 error npm ERR! Fix the upstream dependency conflict, or retry
+134 error npm ERR! this command with --force, or --legacy-peer-deps
+134 error npm ERR! to accept an incorrect (and potentially broken) dependency resolution.
+134 error npm ERR!
+134 error npm ERR! See /home/lindsay/.npm/eresolve-report.txt for a full report.
+134 error
+134 error npm ERR! A complete log of this run can be found in:
+134 error npm ERR!     /home/lindsay/.npm/_logs/2023-07-10T20_18_45_715Z-debug-0.log
+134 error     at makeError (/home/lindsay/xeolabs/xeokit/xeokit-webgpu-sdk/node_modules/execa/lib/error.js:60:11)
+134 error     at handlePromise (/home/lindsay/xeolabs/xeokit/xeokit-webgpu-sdk/node_modules/execa/index.js:118:26)
+134 error     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+134 error     at async Promise.all (index 0)

@@ -2,7 +2,7 @@
   "name": "@xeokit/viewer",
   "private": true,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.1-1.0.1-alpha.0.0",
   "description": "An extensible browser-based 3D/2D model viewer for AECO applications",
   "main": "src/index.ts",
   "scripts": {
@@ -23,16 +23,15 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-  ],
+  "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/constants": "^1.0.1-alpha.0",
-    "@xeokit/scene": "^1.0.1-alpha.0",
-    "@xeokit/math": "^1.0.1-alpha.0",
-    "@xeokit/boundaries": "^1.0.1-alpha.0",
-    "@xeokit/matrix": "^1.0.1-alpha.0",
-    "@xeokit/utils": "^1.0.1-alpha.0",
+    "@xeokit/boundaries": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/constants": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/math": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/matrix": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/scene": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/utils": "^1.0.1-1.0.1-alpha.0.0",
     "strongly-typed-events": "3.0.7"
   }
 }

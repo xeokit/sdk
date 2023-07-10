@@ -2,11 +2,10 @@
   "name": "@xeokit/cameracontrol",
   "private": true,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.1-1.0.1-alpha.0.0",
   "description": "Camera navigation controls for a xeokit Viewer",
   "main": "src/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -25,10 +24,10 @@
   ],
   "keywords": [],
   "dependencies": {
-    "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/math": "^1.0.1-alpha.0",
-    "@xeokit/matrix": "^1.0.1-alpha.0",
-    "@xeokit/viewer": "^1.0.1-alpha.0"
+    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/math": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/matrix": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/viewer": "^1.0.1-1.0.1-alpha.0.0",
+    "strongly-typed-events": "3.0.7"
   }
 }

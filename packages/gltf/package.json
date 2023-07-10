@@ -2,11 +2,10 @@
   "name": "@xeokit/gltf",
   "private": true,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.1-1.0.1-alpha.0.0",
   "description": "glTF loader for xeokit",
   "main": "src/index.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -22,20 +21,18 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-
-  ],
+  "keywords": [],
   "dependencies": {
-    "@xeokit/constants": "^1.0.1-alpha.0",
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/matrix": "^1.0.1-alpha.0",
-    "@xeokit/scene": "^1.0.1-alpha.0",
-    "@xeokit/math": "^1.0.1-alpha.0",
-    "@xeokit/data": "^1.0.1-alpha.0",
     "@jest/globals": "^29.5.0",
     "@loaders.gl/core": "^3.2.6",
     "@loaders.gl/gltf": "^3.2.6",
     "@loaders.gl/polyfills": "^3.2.6",
-    "@loaders.gl/textures": "^3.2.6"
+    "@loaders.gl/textures": "^3.2.6",
+    "@xeokit/constants": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/data": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/math": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/matrix": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/scene": "^1.0.1-1.0.1-alpha.0.0"
   }
 }

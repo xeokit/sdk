@@ -2,7 +2,7 @@
   "name": "@xeokit/ifc2xkt",
   "private": true,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.1-1.0.1-alpha.0.0",
   "description": "An entity-relationship data graph composed of multiple federated data models.",
   "module": "src/index.ts",
   "source": "src/index.ts",
@@ -24,13 +24,11 @@
     "README.md",
     "package.json"
   ],
-  "keywords": [
-
-  ],
+  "keywords": [],
   "main": "src/index.ts",
   "dependencies": {
-    "strongly-typed-events": "3.0.7",
-    "@xeokit/core": "^1.0.1-alpha.0"
+    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
+    "strongly-typed-events": "3.0.7"
   },
   "devDependencies": {
     "@swc/core": "^1.3.26",
@@ -40,4 +38,3 @@
     "typescript": "^4.9.4"
   }
 }
-

@@ -2,7 +2,7 @@
   "name": "@xeokit/rtc",
   "private": false,
   "type": "module",
-  "version": "1.0.1-1.0.1-alpha.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "xeokit RTC Coordinate Utilities",
   "main": "src/index.ts",
   "scripts": {},
@@ -23,10 +23,10 @@
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/boundaries": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/compression": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/math": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/matrix": "^1.0.1-1.0.1-alpha.0.0"
+    "@xeokit/boundaries": "^1.0.1-alpha.0",
+    "@xeokit/compression": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0"
   }
 }

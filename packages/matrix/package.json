@@ -2,7 +2,7 @@
   "name": "@xeokit/matrix",
   "private": false,
   "type": "module",
-  "version": "1.0.1-1.0.1-alpha.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "xeokit Matrix and Vector Math Library",
   "main": "src/index.ts",
   "scripts": {},
@@ -23,6 +23,6 @@
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/math": "^1.0.1-1.0.1-alpha.0.0"
+    "@xeokit/math": "^1.0.1-alpha.0"
   }
 }

@@ -2,7 +2,7 @@
   "name": "@xeokit/las",
   "private": true,
   "type": "module",
-  "version": "1.0.1-1.0.1-alpha.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "LAS tools for xeokit",
   "main": "src/index.ts",
   "scripts": {},
@@ -27,11 +27,11 @@
     "@loaders.gl/core": "^3.2.6",
     "@loaders.gl/las": "^3.2.6",
     "@loaders.gl/polyfills": "^3.2.6",
-    "@xeokit/constants": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/data": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/math": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/matrix": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/scene": "^1.0.1-1.0.1-alpha.0.0"
+    "@xeokit/constants": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0"
   }
 }

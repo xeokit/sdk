@@ -2,7 +2,7 @@
   "name": "@xeokit/locale",
   "private": false,
   "type": "module",
-  "version": "1.0.1-1.0.1-alpha.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "Localization service for xeokit",
   "main": "src/index.ts",
   "scripts": {},
@@ -23,7 +23,7 @@
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
     "strongly-typed-events": "3.0.7"
   }
 }

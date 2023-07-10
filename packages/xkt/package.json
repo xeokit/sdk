@@ -2,7 +2,7 @@
   "name": "@xeokit/xkt",
   "private": false,
   "type": "module",
-  "version": "1.0.1-1.0.1-alpha.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "Import and export models as xeokit's native binary XKT format",
   "main": "src/index.ts",
   "scripts": {
@@ -25,10 +25,10 @@
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/data": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/math": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/scene": "^1.0.1-1.0.1-alpha.0.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0",
     "pako": "^2.0.4"
   },
   "devDependencies": {

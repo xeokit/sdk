@@ -2,7 +2,7 @@
   "name": "@xeokit/webglutils",
   "private": true,
   "type": "module",
-  "version": "1.0.1-1.0.1-alpha.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "xeokit SDK WebGL2 utilities library",
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html",
   "main": "src/index.ts",
@@ -23,9 +23,9 @@
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/constants": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/core": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/math": "^1.0.1-1.0.1-alpha.0.0",
-    "@xeokit/utils": "^1.0.1-1.0.1-alpha.0.0"
+    "@xeokit/constants": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/utils": "^1.0.1-alpha.0"
   }
 }

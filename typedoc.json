@@ -30,6 +30,7 @@
     "packages/procgen/src/index.ts",
     "packages/rtc/src/index.ts",
     "packages/scene/src/index.ts",
+    "packages/threedxml/src/index.ts",
     "packages/treeview/src/index.ts",
     "packages/utils/src/index.ts",
     "packages/viewer/src/index.ts",

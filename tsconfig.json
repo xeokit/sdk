@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
     "lib": ["es6", "dom"],
     "skipLibCheck": true, // https://stackoverflow.com/questions/66956030/apache-arrow-does-not-compile-with-typescript
-    "target": "es2020",
+    "target": "ESNext",
     "module": "ESNext",
     "stripInternal": false,
     "typeRoots": ["node_modules/@types"],
@@ -14,8 +14,7 @@
     "strictPropertyInitialization": false,
     "noImplicitThis": true,
     "declaration": true,
-    "sourceMap": true,
-    "verbatimModuleSyntax": true
+    "sourceMap": true
   },
   "include": [
     "packages/*/src/**/*.ts",
@@ -54,12 +53,13 @@
     "@xeokit/procgen":["./packages/procgen/"],
     "@xeokit/rtc":["./packages/rtc/"],
     "@xeokit/scene":["./packages/scene/"],
+    "@xeokit/threedxml":["./packages/threedxml/"],
     "@xeokit/treeview":["./packages/treeview/"],
     "@xeokit/utils":["./packages/utils/"],
     "@xeokit/viewer":["./packages/viewer/"],
     "@xeokit/webglrenderer":["./packages/webglrenderer/"],
     "@xeokit/webglutils":["./packages/webglutils/"],
-    "@xeokit/webgpu":["./packages/webgpu/"],
+    "@xeokit/webgpurenderer":["./packages/webgpu/"],
     "@xeokit/webifc":["./packages/webifc/"],
     "@xeokit/xkt":["./packages/xkt/"]
   }

@@ -57,6 +57,7 @@ export * as ifctypes from "@xeokit/ifctypes";
 // export * as las from "@xeokit/las";
 export * as cityjson from "@xeokit/cityjson";
 export * as dotbim from "@xeokit/dotbim";
+// export * as threedxml from "@xeokit/threedxml";
 
 
 //----------------------------------------------------------------------------------

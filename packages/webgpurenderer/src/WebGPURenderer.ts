@@ -1,14 +1,15 @@
 import {FloatArrayParam} from "@xeokit/math";
 
-import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import { Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 import {RendererViewObject} from "@xeokit/viewer";
 import type {Pickable} from "./Pickable";
 import {Capabilities, TextureTranscoder} from "@xeokit/core";
+import { SceneModel } from "@xeokit/scene";
 
 /**
  * WebGPU-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
  *
- * See {@link @xeokit/webgpu} for usage.
+ * See {@link @xeokit/webgpurenderer} for usage.
  */
 export class WebGPURenderer implements Renderer {
 
@@ -28,19 +29,23 @@ export class WebGPURenderer implements Renderer {
         // TODO
     }
 
+    attachViewer(viewer: Viewer): void {
+        throw new Error("Method not implemented.");
+    }
+    attachView(view: View): number {
+        throw new Error("Method not implemented.");
+    }
+    detachView(viewIndex: number): void {
+        throw new Error("Method not implemented.");
+    }
+    attachSceneModel(sceneModel: SceneModel): void {
+        throw new Error("Method not implemented.");
+    }
+    detachSceneModel(sceneModel: SceneModel): void {
+        throw new Error("Method not implemented.");
+    }
+
     rendererViewObjects: { [key: string]: RendererViewObject; };
-
-    addModel(params: CreateModelParams): void {
-        throw new Error("Method not implemented.");
-    }
-
-    removeModel(id: string) {
-        throw new Error("Method not implemented.");
-    }
-
-    registerViewer(viewer: Viewer): void {
-        // TODO
-    }
 
     getCapabilities(capabilities: Capabilities): void {
         // TODO

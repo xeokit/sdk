@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Renderer | xeokit - v0.0.1</title><meta name="description" content="Documentation for xeokit - v0.0.1"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><link rel="stylesheet" href="../assets/pages.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Renderer | xeokit - v1.0.1-alpha.0</title><meta name="description" content="Documentation for xeokit - v1.0.1-alpha.0"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><link rel="stylesheet" href="../assets/pages.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
 <div class="tsd-toolbar-contents container">
 <div class="table-cell" id="tsd-search" data-base="..">
 <div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
@@ -6,16 +6,16 @@
 <div id="tsd-toolbar-links"></div></div>
 <ul class="results">
 <li class="state loading">Preparing search index...</li>
-<li class="state failure">The search index is not available</li></ul><a href="https://xeokit.io" class="title">xeokit - v0.0.1</a></div>
+<li class="state failure">The search index is not available</li></ul><a href="https://xeokit.io" class="title">xeokit - v1.0.1-alpha.0</a></div>
 <div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
 <div class="container container-main">
 <div class="col-8 col-content">
 <div class="tsd-page-title">
 <ul class="tsd-breadcrumb">
-<li><a href="../modules.html">xeokit - v0.0.1</a></li>
+<li><a href="../modules.html">xeokit - v1.0.1-alpha.0</a></li>
 <li><a href="../modules/_xeokit_viewer.html">@xeokit/viewer</a></li>
 <li><a href="_xeokit_viewer.Renderer.html">Renderer</a></li></ul>
-<h1>Interface Renderer</h1></div>
+<h1>Interface Renderer<code class="tsd-tag ts-flagInternal">Internal</code> </h1></div>
 <section class="tsd-panel tsd-comment">
 <div class="tsd-comment tsd-typography"><p>Defines the contract for the rendering strategy used internally within a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a>.</p>
 <p>A Viewer uses an implementation of this to allocate and render geometry and materials using an
@@ -24,7 +24,7 @@ available browser 3D graphics API, such as WebGL or WebGPU.</p>
 <a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
   <h2>Usage</h2>
 </a>
-<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">MyRenderer</span><span class="hl-0">({ })</span><br/><span class="hl-0">});</span>
+<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">WebGLRenderer</span><span class="hl-0">({ }) </span><span class="hl-8">// Or WebGPURenderer, MockRenderer etc.</span><br/><span class="hl-0">});</span>
 </code></pre>
 </div></section>
 <section class="tsd-panel tsd-hierarchy">
@@ -34,9 +34,10 @@ available browser 3D graphics API, such as WebGL or WebGPU.</p>
 <section class="tsd-panel">
 <h4>Implemented by</h4>
 <ul class="tsd-hierarchy">
+<li><a href="../classes/_xeokit_mockrenderer.MockRenderer.html" class="tsd-signature-type" data-tsd-kind="Class">MockRenderer</a></li>
 <li><a href="../classes/_xeokit_webglrenderer.WebGLRenderer.html" class="tsd-signature-type" data-tsd-kind="Class">WebGLRenderer</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L26">packages/viewer/src/Renderer.ts:26</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L28">packages/viewer/src/Renderer.ts:28</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -72,8 +73,9 @@ available browser 3D graphics API, such as WebGL or WebGPU.</p>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="rendererViewObjects" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>renderer<wbr/>View<wbr/>Objects</span><a href="#rendererViewObjects" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></h3>
 <div class="tsd-signature">renderer<wbr/>View<wbr/>Objects<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[key: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="_xeokit_viewer.RendererViewObject.html" class="tsd-signature-type" data-tsd-kind="Interface">RendererViewObject</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
-<div class="tsd-comment tsd-typography"><p>For each <a href="../classes/_xeokit_viewer.ViewObject.html">ViewObject</a> an interface through which it can issue commands at a <a href="_xeokit_viewer.Renderer.html">Renderer</a> to
-show/hide/highlight/select/xray/colorize its representation within each <a href="../classes/_xeokit_viewer.View.html">View</a>.</p>
+<div class="tsd-comment tsd-typography"><p>For each <a href="../classes/_xeokit_viewer.ViewObject.html">ViewObject</a> an interface through which it can issue commands
+at a <a href="_xeokit_viewer.Renderer.html">Renderer</a> to show/hide/highlight/select/xray/colorize its representation
+within each <a href="../classes/_xeokit_viewer.View.html">View</a>.</p>
 </div>
 <div class="tsd-type-declaration">
 <h4>Type declaration</h4>
@@ -81,16 +83,26 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="_xeokit_viewer.RendererViewObject.html" class="tsd-signature-type" data-tsd-kind="Interface">RendererViewObject</a></h5></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L32">packages/viewer/src/Renderer.ts:32</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L35">packages/viewer/src/Renderer.ts:35</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="attachSceneModel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>attach<wbr/>Scene<wbr/>Model</span><a href="#attachSceneModel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="attachSceneModel.attachSceneModel-1">attach<wbr/>Scene<wbr/>Model<span class="tsd-signature-symbol">(</span>sceneModel<span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_scene.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Class">SceneModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#attachSceneModel.attachSceneModel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Attaches a <a href="../classes/_xeokit_scene.SceneModel.html">SceneModel</a> to this Renderer.</p>
-<p>You must attach a View before you can attach a SceneModel.</p>
+<p>This method attaches various &quot;hook objects&quot; to the elements within the SceneModel, through which they can
+convey their state updates to the Renderer.</p>
+<ul>
+<li>Attaches a <a href="_xeokit_scene.RendererModel.html">RendererModel</a> to the <a href="../classes/_xeokit_scene.SceneModel.html">SceneModel</a></li>
+<li>Attaches a <a href="_xeokit_scene.RendererObject.html">RendererObject</a> to each of the SceneModel&#39;s <a href="../classes/_xeokit_scene.SceneObject.html">SceneObjects</a></li>
+<li>Attaches a <a href="_xeokit_scene.RendererMesh.html">RendererMesh</a> to each of the SceneModel&#39;s <a href="../classes/_xeokit_scene.Mesh.html">Meshes</a></li>
+<li>Attaches a <a href="_xeokit_scene.RendererTextureSet.html">RendererTextureSet</a> to each of the SceneModel&#39;s <a href="../classes/_xeokit_scene.TextureSet.html">TextureSets</a></li>
+<li>Attaches a <a href="_xeokit_scene.RendererTexture.html">RendererTexture</a> to each of the SceneModel&#39;s <a href="../classes/_xeokit_scene.Texture.html">Textures</a></li>
+</ul>
+<p>Then, when we make any state updates to the elements, the hooks will transfer those updates though to the Renderer.</p>
+<p>You must first attach a View with <a href="_xeokit_viewer.Renderer.html#attachView">attachView</a> before you can attach a SceneModel.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -99,15 +111,17 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5>sceneModel: <a href="../classes/_xeokit_scene.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Class">SceneModel</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L81">packages/viewer/src/Renderer.ts:81</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L103">packages/viewer/src/Renderer.ts:103</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="attachView" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>attach<wbr/>View</span><a href="#attachView" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="attachView.attachView-1">attach<wbr/>View<span class="tsd-signature-symbol">(</span>view<span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_viewer.View.html" class="tsd-signature-type" data-tsd-kind="Class">View</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#attachView.attachView-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Attaches a <a href="../classes/_xeokit_viewer.View.html">View</a> to this Renderer.</p>
-<p>The Renderer will then begin rendering each <a href="../classes/_xeokit_scene.SceneModel.html">SceneModel</a> created with SceneModel.createModel for the new View.</p>
-<p>You can only attach as many Views as indicated in Capabilities.maxViews, as returned by <a href="_xeokit_viewer.Renderer.html#getCapabilities">getCapabilities</a>.</p>
+<p>The Renderer will then begin rendering each <a href="../classes/_xeokit_scene.SceneModel.html">SceneModel</a> created with
+SceneModel.createModel for the new View.</p>
+<p>You can only attach as many Views as indicated in Capabilities.maxViews, as returned by
+<a href="_xeokit_viewer.Renderer.html#getCapabilities">getCapabilities</a>.</p>
 <p>You must attach a View before you can attach a SceneModel.</p>
 
 <h3>Returns</h3><p>A handle for the View within this Renderer.</p>
@@ -121,13 +135,13 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L63">packages/viewer/src/Renderer.ts:63</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L72">packages/viewer/src/Renderer.ts:72</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="attachViewer" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>attach<wbr/>Viewer</span><a href="#attachViewer" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="attachViewer.attachViewer-1">attach<wbr/>Viewer<span class="tsd-signature-symbol">(</span>viewer<span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_viewer.Viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#attachViewer.attachViewer-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Initializes this Renderer.</p>
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
+<div class="tsd-comment tsd-typography"><p>Initializes this Renderer by attaching a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a>.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -136,12 +150,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5>viewer: <a href="../classes/_xeokit_viewer.Viewer.html" class="tsd-signature-type" data-tsd-kind="Class">Viewer</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L39">packages/viewer/src/Renderer.ts:39</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L43">packages/viewer/src/Renderer.ts:43</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="clear" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>clear</span><a href="#clear" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="clear.clear-1">clear<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#clear.clear-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Clears this renderer for the given view.</p>
 </div>
 <div class="tsd-parameters">
@@ -151,13 +165,16 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5>viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L139">packages/viewer/src/Renderer.ts:139</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L173">packages/viewer/src/Renderer.ts:173</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="detachSceneModel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>detach<wbr/>Scene<wbr/>Model</span><a href="#detachSceneModel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="detachSceneModel.detachSceneModel-1">detach<wbr/>Scene<wbr/>Model<span class="tsd-signature-symbol">(</span>sceneModel<span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_scene.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Class">SceneModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#detachSceneModel.detachSceneModel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Detaches a <a href="../classes/_xeokit_scene.SceneModel.html">SceneModel</a> from this Renderer.</p>
+<p>Detaches and destroys the <a href="_xeokit_scene.RendererModel.html">RendererModel</a>, <a href="_xeokit_scene.RendererObject.html">RendererObject</a> and
+<a href="_xeokit_scene.RendererMesh.html">RendererMesh</a>,
+<a href="_xeokit_scene.RendererTexture.html">RendererTexture</a> instances that were attached in <a href="_xeokit_viewer.Renderer.html#attachSceneModel">attachSceneModel</a>.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -166,12 +183,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5>sceneModel: <a href="../classes/_xeokit_scene.SceneModel.html" class="tsd-signature-type" data-tsd-kind="Class">SceneModel</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L88">packages/viewer/src/Renderer.ts:88</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L115">packages/viewer/src/Renderer.ts:115</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="detachView" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>detach<wbr/>View</span><a href="#detachView" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="detachView.detachView-1">detach<wbr/>View<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#detachView.detachView-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Deattachs the <a href="../classes/_xeokit_viewer.View.html">View</a> with the given handle.</p>
 <p>The Renderer will then cease rendering for that View.</p>
 </div>
@@ -182,12 +199,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5>viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L72">packages/viewer/src/Renderer.ts:72</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L82">packages/viewer/src/Renderer.ts:82</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="getCapabilities" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Capabilities</span><a href="#getCapabilities" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="getCapabilities.getCapabilities-1">get<wbr/>Capabilities<span class="tsd-signature-symbol">(</span>capabilities<span class="tsd-signature-symbol">: </span><a href="_xeokit_core.Capabilities.html" class="tsd-signature-type" data-tsd-kind="Interface">Capabilities</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#getCapabilities.getCapabilities-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Gets the capabilities of this Renderer.</p>
 </div>
 <div class="tsd-parameters">
@@ -197,22 +214,22 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5>capabilities: <a href="_xeokit_core.Capabilities.html" class="tsd-signature-type" data-tsd-kind="Interface">Capabilities</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L44">packages/viewer/src/Renderer.ts:44</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L49">packages/viewer/src/Renderer.ts:49</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="getSAOSupported" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>getSAOSupported</span><a href="#getSAOSupported" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="getSAOSupported.getSAOSupported-1">getSAOSupported<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#getSAOSupported.getSAOSupported-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Gets whether this Renderer supports SAO.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L49">packages/viewer/src/Renderer.ts:49</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L55">packages/viewer/src/Renderer.ts:55</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="needsRebuild" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>needs<wbr/>Rebuild</span><a href="#needsRebuild" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="needsRebuild.needsRebuild-1">needs<wbr/>Rebuild<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#needsRebuild.needsRebuild-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Sets TODO.</p>
 </div>
 <div class="tsd-parameters">
@@ -222,12 +239,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5>viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L144">packages/viewer/src/Renderer.ts:144</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L179">packages/viewer/src/Renderer.ts:179</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="needsRender" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>needs<wbr/>Render</span><a href="#needsRender" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="needsRender.needsRender-1">needs<wbr/>Render<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#needsRender.needsRender-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Gets if a new frame needs to be rendered for the given View.</p>
 </div>
 <div class="tsd-parameters">
@@ -237,12 +254,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5>viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L149">packages/viewer/src/Renderer.ts:149</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L185">packages/viewer/src/Renderer.ts:185</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="pickSceneObject" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pick<wbr/>Scene<wbr/>Object</span><a href="#pickSceneObject" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="pickSceneObject.pickSceneObject-1">pick<wbr/>Scene<wbr/>Object<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a><a href="#pickSceneObject.pickSceneObject-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Picks a ViewerObject within a View.</p>
 </div>
 <div class="tsd-parameters">
@@ -259,12 +276,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <ul class="tsd-parameters"></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../classes/_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L166">packages/viewer/src/Renderer.ts:166</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L204">packages/viewer/src/Renderer.ts:204</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="render" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>render</span><a href="#render" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="render.render-1">render<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>force<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#render.render-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Renders a frame for a View.</p>
 </div>
 <div class="tsd-parameters">
@@ -285,12 +302,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 </div></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L158">packages/viewer/src/Renderer.ts:158</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L195">packages/viewer/src/Renderer.ts:195</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setBackgroundColor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Background<wbr/>Color</span><a href="#setBackgroundColor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="setBackgroundColor.setBackgroundColor-1">set<wbr/>Background<wbr/>Color<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, color<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#setBackgroundColor.setBackgroundColor-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Set background color for the given View.</p>
 </div>
 <div class="tsd-parameters">
@@ -306,12 +323,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L128">packages/viewer/src/Renderer.ts:128</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L160">packages/viewer/src/Renderer.ts:160</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setEdgesEnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Edges<wbr/>Enabled</span><a href="#setEdgesEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="setEdgesEnabled.setEdgesEnabled-1">set<wbr/>Edges<wbr/>Enabled<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, enabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#setEdgesEnabled.setEdgesEnabled-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Enable/disable edge enhancement for the given View.</p>
 </div>
 <div class="tsd-parameters">
@@ -327,12 +344,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L104">packages/viewer/src/Renderer.ts:104</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L133">packages/viewer/src/Renderer.ts:133</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setImageDirty" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Image<wbr/>Dirty</span><a href="#setImageDirty" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="setImageDirty.setImageDirty-1">set<wbr/>Image<wbr/>Dirty<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#setImageDirty.setImageDirty-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Indicates that the renderer needs to render a new frame for the given View.</p>
 </div>
 <div class="tsd-parameters">
@@ -342,12 +359,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> viewIndex: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L133">packages/viewer/src/Renderer.ts:133</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L166">packages/viewer/src/Renderer.ts:166</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setPBREnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>setPBREnabled</span><a href="#setPBREnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="setPBREnabled.setPBREnabled-1">setPBREnabled<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, enabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#setPBREnabled.setPBREnabled-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Enable/disable PBR for the given View.</p>
 </div>
 <div class="tsd-parameters">
@@ -363,12 +380,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L120">packages/viewer/src/Renderer.ts:120</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L151">packages/viewer/src/Renderer.ts:151</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setSAOEnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>setSAOEnabled</span><a href="#setSAOEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="setSAOEnabled.setSAOEnabled-1">setSAOEnabled<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, enabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#setSAOEnabled.setSAOEnabled-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Enable/disable SAO for the given View.</p>
 </div>
 <div class="tsd-parameters">
@@ -384,12 +401,12 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L112">packages/viewer/src/Renderer.ts:112</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L142">packages/viewer/src/Renderer.ts:142</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="setTransparentEnabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Transparent<wbr/>Enabled</span><a href="#setTransparentEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="setTransparentEnabled.setTransparentEnabled-1">set<wbr/>Transparent<wbr/>Enabled<span class="tsd-signature-symbol">(</span>viewIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, enabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#setTransparentEnabled.setTransparentEnabled-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<li class="tsd-description"><code class="tsd-tag ts-flagInternal">Internal</code> 
 <div class="tsd-comment tsd-typography"><p>Enable/disable rendering of transparent objects for the given View.</p>
 </div>
 <div class="tsd-parameters">
@@ -405,7 +422,7 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/a650afb3/packages/viewer/src/Renderer.ts#L96">packages/viewer/src/Renderer.ts:96</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/Renderer.ts#L124">packages/viewer/src/Renderer.ts:124</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -425,7 +442,7 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
 <div class="tsd-accordion-details">
 <ul>
-<li class="current"><a href="../modules.html">xeokit -<wbr/> v0.0.1</a>
+<li class="current"><a href="../modules.html">xeokit -<wbr/> v1.0.1-<wbr/>alpha.0</a>
 <ul>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/INTRODUCTION.html">Introduction</a></li>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/OVERVIEW.html">Overview</a></li>
@@ -458,6 +475,7 @@ show/hide/highlight/select/xray/colorize its representation within each <a href=
 <li class="tsd-kind-module"><a href="../modules/_xeokit_locale.html">@xeokit/locale</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_math.html">@xeokit/math</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_matrix.html">@xeokit/matrix</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_mockrenderer.html">@xeokit/mockrenderer</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_pick.html">@xeokit/pick</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_rtc.html">@xeokit/rtc</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_scene.html">@xeokit/scene</a></li>

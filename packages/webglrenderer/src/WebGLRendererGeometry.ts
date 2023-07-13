@@ -1,9 +1,10 @@
 import type {Geometry, RendererGeometry} from "@xeokit/scene";
 
 /**
- * @private
+ * TODO
+ * @internal
  */
-export class RendererGeometryImpl implements RendererGeometry {
+export class WebGLRendererGeometry implements RendererGeometry {
 
     constructor() {
     }

@@ -1,15 +1,15 @@
 import type { FloatArrayParam } from "@xeokit/math";
-import type { RendererModelImpl } from "./RendererModelImpl";
+import type { WebGLRendererModel } from "./WebGLRendererModel";
 import { DataTextureSet } from "./DataTextureSet";
 import { MeshCounts } from "./MeshCounts";
 import type { GeometryCompressedParams, MeshParams } from "@xeokit/scene";
-import type { RendererTextureSetImpl } from "./RendererTextureSetImpl";
+import type { WebGLRendererTextureSet } from "./WebGLRendererTextureSet";
 import type { LayerParams } from "./LayerParams";
 /**
  * @private
  */
 export interface LayerRenderState {
-    materialTextureSet: RendererTextureSetImpl;
+    materialTextureSet: WebGLRendererTextureSet;
     dataTextureSet: DataTextureSet;
     primitive: number;
     numIndices8Bits: number;
@@ -25,7 +25,7 @@ export interface LayerRenderState {
  */
 export declare class Layer {
     #private;
-    rendererModel: RendererModelImpl;
+    rendererModel: WebGLRendererModel;
     layerIndex: number;
     meshCounts: MeshCounts;
     renderState: LayerRenderState;

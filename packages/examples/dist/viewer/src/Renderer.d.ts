@@ -21,6 +21,8 @@ import type { SceneModel } from "@xeokit/scene";
  *     renderer: new MyRenderer({ })
  * });
  * ````
+ *
+ * @internal
  */
 export interface Renderer {
     /**
@@ -31,7 +33,7 @@ export interface Renderer {
         [key: string]: RendererViewObject;
     };
     /**
-     * Initializes this Renderer.
+     * Initializes this Renderer by attaching a {@link @xeokit/viewer!Viewer}.
      *
      * @param viewer
      */
@@ -47,9 +49,11 @@ export interface Renderer {
     /**
      * Attaches a {@link @xeokit/viewer!View} to this Renderer.
      *
-     * The Renderer will then begin rendering each {@link @xeokit/scene!SceneModel | SceneModel} created with {@link SceneModel.createModel} for the new View.
+     * The Renderer will then begin rendering each {@link @xeokit/scene!SceneModel | SceneModel} created with
+     * {@link SceneModel.createModel} for the new View.
      *
-     * You can only attach as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
+     * You can only attach as many Views as indicated in {@link Capabilities.maxViews}, as returned by
+     * {@link Renderer.getCapabilities}.
      *
      * You must attach a View before you can attach a SceneModel.
      *
@@ -68,13 +72,28 @@ export interface Renderer {
     /**
      * Attaches a {@link @xeokit/scene!SceneModel | SceneModel} to this Renderer.
      *
-     * You must attach a View before you can attach a SceneModel.
+     * This method attaches various "hook objects" to the elements within the SceneModel, through which they can
+     * convey their state updates to the Renderer.
+     *
+     * * Attaches a {@link @xeokit/scene!RendererModel} to the {@link @xeokit/scene!SceneModel}
+     * * Attaches a {@link @xeokit/scene!RendererObject} to each of the SceneModel's {@link @xeokit/scene!SceneObject | SceneObjects}
+     * * Attaches a {@link @xeokit/scene!RendererMesh} to each of the SceneModel's {@link @xeokit/scene!Mesh | Meshes}
+     * * Attaches a {@link @xeokit/scene!RendererTextureSet} to each of the SceneModel's {@link @xeokit/scene!TextureSet | TextureSets}
+     * * Attaches a {@link @xeokit/scene!RendererTexture} to each of the SceneModel's {@link @xeokit/scene!Texture | Textures}
+     *
+     * Then, when we make any state updates to the elements, the hooks will transfer those updates though to the Renderer.
+     *
+     * You must first attach a View with {@link @xeokit/viewer!Renderer.attachView} before you can attach a SceneModel.
      *
      * @param sceneModel
      */
     attachSceneModel(sceneModel: SceneModel): void;
     /**
      * Detaches a {@link @xeokit/scene!SceneModel | SceneModel} from this Renderer.
+     *
+     * Detaches and destroys the {@link @xeokit/scene!RendererModel}, {@link @xeokit/scene!RendererObject} and
+     * {@link @xeokit/scene!RendererMesh},
+     * {@link @xeokit/scene!RendererTexture} instances that were attached in {@link @xeokit/viewer!Renderer.attachSceneModel}.
      *
      * @param sceneModel
      */

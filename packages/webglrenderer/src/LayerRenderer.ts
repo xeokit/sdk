@@ -352,16 +352,16 @@ export abstract class LayerRenderer {
             }
         }
         if (samplers.baseColorMap) {
-            samplers.baseColorMap.bindTexture(renderState.materialTextureSet.colorTexture.texture2D, renderContext.nextTextureUnit);
+            samplers.baseColorMap.bindTexture(renderState.materialTextureSet.colorRendererTexture.texture2D, renderContext.nextTextureUnit);
         }
         if (samplers.metallicRoughMap) {
-            samplers.metallicRoughMap.bindTexture(renderState.materialTextureSet.metallicRoughnessTexture.texture2D, renderContext.nextTextureUnit);
+            samplers.metallicRoughMap.bindTexture(renderState.materialTextureSet.metallicRoughnessRendererTexture.texture2D, renderContext.nextTextureUnit);
         }
         if (samplers.emissiveMap) {
-            samplers.emissiveMap.bindTexture(renderState.materialTextureSet.emissiveTexture.texture2D, renderContext.nextTextureUnit);
+            samplers.emissiveMap.bindTexture(renderState.materialTextureSet.emissiveRendererTexture.texture2D, renderContext.nextTextureUnit);
         }
         if (samplers.occlusionMap) {
-            samplers.occlusionMap.bindTexture(renderState.materialTextureSet.occlusionTexture.texture2D, renderContext.nextTextureUnit);
+            samplers.occlusionMap.bindTexture(renderState.materialTextureSet.occlusionRendererTexture.texture2D, renderContext.nextTextureUnit);
         }
     }
 

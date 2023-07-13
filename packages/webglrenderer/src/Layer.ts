@@ -2,7 +2,7 @@ import {createVec4, identityMat4, transformPoint4} from "@xeokit/matrix";
 import type {View} from "@xeokit/viewer";
 import type {FloatArrayParam} from "@xeokit/math";
 
-import type {RendererModelImpl} from "./RendererModelImpl";
+import type {WebGLRendererModel} from "./WebGLRendererModel";
 import {DataTextureSet} from "./DataTextureSet";
 import {MeshCounts} from "./MeshCounts";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
@@ -10,7 +10,7 @@ import {RENDER_PASSES} from './RENDER_PASSES';
 import {LinesPrimitive, PointsPrimitive} from "@xeokit/constants";
 import {AABB3ToOBB3, collapseAABB3, expandAABB3Point3} from "@xeokit/boundaries";
 import type {GeometryBucketParams, GeometryCompressedParams, MeshParams} from "@xeokit/scene";
-import type {RendererTextureSetImpl} from "./RendererTextureSetImpl";
+import type {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
 import {
     createEachEdgeOffsetDataTexture,
     createEachMeshAttributesDataTexture,
@@ -58,7 +58,7 @@ interface MeshPartHandle {
  * @private
  */
 export interface LayerRenderState { // What a LayerRenderer needs to render this Layer
-    materialTextureSet: RendererTextureSetImpl; // Color, opacity, metal/roughness, ambient occlusion maps
+    materialTextureSet: WebGLRendererTextureSet; // Color, opacity, metal/roughness, ambient occlusion maps
     dataTextureSet: DataTextureSet;  // Data textures containing geometry, transforms, flags and material attributes
     primitive: number; // Layer primitive type
     numIndices8Bits: number; // How many 8-bit encodable indices in layer
@@ -75,7 +75,7 @@ export interface LayerRenderState { // What a LayerRenderer needs to render this
  */
 export class Layer {
 
-    rendererModel: RendererModelImpl;
+    rendererModel: WebGLRendererModel;
     layerIndex: number;
     meshCounts: MeshCounts;
     renderState: LayerRenderState;

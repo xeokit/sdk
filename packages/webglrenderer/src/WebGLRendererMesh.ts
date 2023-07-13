@@ -6,7 +6,7 @@ import type {RenderContext} from "./RenderContext";
 import type {Layer} from "./Layer";
 import type {Pickable} from "./Pickable";
 import {createMat4, mulMat4, transformPoint3, translationMat4c} from "@xeokit/matrix";
-import type {Tile, TileManager} from "./TileManager";
+import type {Tile, WebGLTileManager} from "./WebGLTileManager";
 
 const tempMat4a = createMat4();
 const tempMat4b = createMat4();
@@ -15,7 +15,7 @@ const tempMat4b = createMat4();
 /**
  * @private
  */
-export class RendererMeshImpl implements RendererMesh, Pickable {
+export class WebGLRendererMesh implements RendererMesh, Pickable {
 
     id: string;
     color: FloatArrayParam;
@@ -26,7 +26,7 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
     roughness: number;
     opacity: number;
     pickId: number;
-    tileManager: TileManager;
+    tileManager: WebGLTileManager;
     tile: Tile;
     sceneObjectRenderer: RendererObject | null;
     aabb: FloatArrayParam;
@@ -38,7 +38,7 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
 
 
     constructor(params: {
-        tileManager: TileManager,
+        tileManager: WebGLTileManager,
         layer: Layer,
         id: string,
         matrix: FloatArrayParam;
@@ -90,6 +90,13 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
         this.layer.setMeshVisible(this.meshIndex, flags, this.transparent);
     }
 
+    /**
+     * Loads a modeling matrix into the {@link WebGLRenderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.matrix}.
+     *
+     * @internal
+     */
     setMatrix(matrix: FloatArrayParam): void {
         const center = transformPoint3(matrix, [0, 0, 0]);
         const oldTile = this.tile;
@@ -105,12 +112,33 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
         }
     }
 
+    /**
+     * Loads a metalness value into the {@link WebGLRenderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.metalness}.
+     *
+     * @internal
+     */
     setMetallic(metallic: number): void {
     }
 
+    /**
+     * Loads a roughness value into the {@link WebGLRenderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.roughness}.
+     *
+     * @internal
+     */
     setRoughness(roughness: number): void {
     }
 
+    /**
+     * Loads a color value into the {@link WebGLRenderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.color}.
+     *
+     * @internal
+     */
     setColor(color: FloatArrayParam) {
         this.color[0] = color[0];
         this.color[1] = color[1];
@@ -120,6 +148,13 @@ export class RendererMeshImpl implements RendererMesh, Pickable {
         }
     }
 
+    /**
+     * Loads a roughness value into the {@link WebGLRenderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!SceneObject | SceneObject.colorize}.
+     *
+     * @internal
+     */
     setColorize(colorize: FloatArrayParam | null) {
         const setOpacity = false;
         if (colorize) {

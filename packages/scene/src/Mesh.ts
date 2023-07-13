@@ -36,7 +36,8 @@ export class Mesh {
     /**
      *  Internal interface through which a {@link Mesh} can load property updates into a renderer.
      *
-     *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to
+     *  a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */

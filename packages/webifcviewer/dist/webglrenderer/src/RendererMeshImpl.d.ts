@@ -4,6 +4,7 @@ import type { RenderContext } from "./RenderContext";
 import type { Layer } from "./Layer";
 import type { Pickable } from "./Pickable";
 import type { Tile, TileManager } from "./TileManager";
+
 /**
  * @private
  */

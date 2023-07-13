@@ -1,7 +1,7 @@
 import type {FloatArrayParam} from "@xeokit/math";
 
 /**
- *  Internal interface through which a {@link Mesh} can load property updates into a renderer.
+ *  Internal interface through which a {@link Mesh} can load state updates into a renderer.
  *
  *  This exists at each {@link Mesh.rendererMesh} when the owner {@link SceneModel} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.
@@ -11,22 +11,38 @@ import type {FloatArrayParam} from "@xeokit/math";
 export interface RendererMesh {
 
     /**
-     * Sends an updated modeling matrix to the renderer.
+     * Loads a modeling matrix into the {@link WebGLRenderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.matrix}.
+     *
+     * @internal
      */
     setMatrix(matrix: FloatArrayParam): void;
 
     /**
-     * Sends an RGB base color update to the renderer.
+     * Loads a material color value into the {@link WebGLRenderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.color}.
+     *
+     * @internal
      */
     setColor(color: FloatArrayParam): void;
 
     /**
-     * Sends a PBR metallic factor update to the renderer.
+     * Loads a material metalness value into the {@link Renderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.metalness}.
+     *
+     * @internal
      */
     setMetallic(metallic: number): void;
 
     /**
-     * Sends a PBR rougness factor update to the renderer.
+     * Loads a meterial roughness value into the {@link WebGLRenderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.roughness}.
+     *
+     * @internal
      */
     setRoughness(roughness: number): void;
 

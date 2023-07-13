@@ -3,23 +3,24 @@ import {createAABB3} from "@xeokit/boundaries";
 import {createVec3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
-import type {RendererMeshImpl} from "./RendererMeshImpl";
+import type {WebGLRendererMesh} from "./WebGLRendererMesh";
 import type {RendererViewObject} from "@xeokit/viewer";
 import type {RendererModel, RendererObject, SceneObject} from "@xeokit/scene";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
 /**
- * @private
+ * TODO
+ * @internal
  */
-export class RendererObjectImpl implements RendererObject, RendererViewObject {
+export class WebGLRendererObject implements RendererObject, RendererViewObject {
 
     readonly id: string;
     readonly rendererModel: RendererModel;
     readonly sceneObject: SceneObject;
     readonly layerId: string | null;
 
-    readonly rendererMeshes: RendererMeshImpl[];
+    readonly rendererMeshes: WebGLRendererMesh[];
 
     #flags: number;
     #aabb: FloatArrayParam;
@@ -28,11 +29,15 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
     #colorizeUpdated: boolean;
     #opacityUpdated: boolean;
 
+    /**
+     * @private
+     * @param params
+     */
     constructor(params: {
         id: string,
         sceneObject: SceneObject,
         rendererModel: RendererModel,
-        rendererMeshes: RendererMeshImpl[],
+        rendererMeshes: WebGLRendererMesh[],
         aabb: any,
         layerId?: string
     }) {
@@ -53,10 +58,18 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     get aabb(): FloatArrayParam {
         return this.#offsetAABB;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setVisible(viewIndex: number, visible: boolean): void {
         if (!!(this.#flags & SCENE_OBJECT_FLAGS.VISIBLE) === visible) {
             return;
@@ -67,6 +80,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setHighlighted(viewIndex: number, highlighted: boolean): void {
         if (!!(this.#flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) === highlighted) {
             return;
@@ -77,6 +94,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setXRayed(viewIndex: number, xrayed: boolean): void {
         if (!!(this.#flags & SCENE_OBJECT_FLAGS.XRAYED) === xrayed) {
             return;
@@ -87,6 +108,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setSelected(viewIndex: number, selected: boolean): void {
         if (!!(this.#flags & SCENE_OBJECT_FLAGS.SELECTED) === selected) {
             return;
@@ -97,6 +122,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setEdges(viewIndex: number, edges: boolean): void {
         if (!!(this.#flags & SCENE_OBJECT_FLAGS.EDGES) === edges) {
             return;
@@ -107,6 +136,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setCulled(viewIndex: number, culled: boolean): void {
         if (!!(this.#flags & SCENE_OBJECT_FLAGS.CULLED) === culled) {
             return;
@@ -117,6 +150,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setClippable(viewIndex: number, clippable: boolean): void {
         if ((!!(this.#flags & SCENE_OBJECT_FLAGS.CLIPPABLE)) === clippable) {
             return;
@@ -127,6 +164,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setCollidable(viewIndex: number, collidable: boolean): void {
         if (!!(this.#flags & SCENE_OBJECT_FLAGS.COLLIDABLE) === collidable) {
             return;
@@ -137,6 +178,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setPickable(viewIndex: number, pickable: boolean): void {
         if (!!(this.#flags & SCENE_OBJECT_FLAGS.PICKABLE) === pickable) {
             return;
@@ -147,6 +192,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setColorize(viewIndex: number, color?: FloatArrayParam): void { // [0..1, 0..1, 0..1]
         if (color) {
             tempIntRGB[0] = Math.floor(color[0] * 255.0); // Quantize
@@ -162,6 +211,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setOpacity(viewIndex: number, opacity?: number): void {
         if (this.rendererMeshes.length === 0) {
             return;
@@ -190,6 +243,10 @@ export class RendererObjectImpl implements RendererObject, RendererViewObject {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setOffset(viewIndex: number, offset: FloatArrayParam): void {
         // if (offset) {
         //     this.#offset[0] = offset[0];

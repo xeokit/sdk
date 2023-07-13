@@ -42,8 +42,8 @@ export * as scene from "@xeokit/scene";
 
 // Collisions, picking
 
-export * as kdtree2 from "@xeokit/kdtree2";
-export * as kdtree3 from "@xeokit/kdtree3";
+// export * as kdtree2 from "@xeokit/kdtree2";
+// export * as kdtree3 from "@xeokit/kdtree3";
 // export * as pick from "@xeokit/pick";
 
 // Semantic types
@@ -72,6 +72,7 @@ export * as dotbim from "@xeokit/dotbim";
 // Viewer
 
 export * as viewer from "@xeokit/viewer";
+export * as mockrenderer from "@xeokit/mockrenderer";
 export * as webglrenderer from "@xeokit/webglrenderer";
 export * as ktx2 from "@xeokit/ktx2";
 export * as cameracontrol from "@xeokit/cameracontrol";

@@ -127,7 +127,8 @@ export class Viewer extends Component {
         this.destroyed = false;
 
         this.capabilities = {
-            maxViews: 0,
+            maxViews: 1,
+            headless: false,
             astcSupported: false,
             etc1Supported: false,
             etc2Supported: false,
@@ -223,9 +224,9 @@ export class Viewer extends Component {
     }
 
     /**
-     Trigger redraw of all {@link View | Views} belonging to this Viewer.
-
-     @private
+     * Trigger redraw of all {@link View | Views} belonging to this Viewer.
+     *
+     * @private
      */
     redraw(): void {
         for (let viewId in this.views) {
@@ -234,12 +235,12 @@ export class Viewer extends Component {
     }
 
     /**
-     Logs a console debugging message for this Viewer.
-
-     The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
-
-     @private
-     @param message - The message to log
+     * Logs a console debugging message for this Viewer.
+     *
+     * The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
+     *
+     * @private
+     * @param message - The message to log
      */
     log(message: string): void {
         message = `[LOG] ${this.#prefixMessageWithID(message)}`;
@@ -247,12 +248,12 @@ export class Viewer extends Component {
     }
 
     /**
-     Logs a warning for this Viewer to the JavaScript console.
-
-     The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
-
-     @private
-     @param message - The warning message to log
+     * Logs a warning for this Viewer to the JavaScript console.
+     *
+     * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
+     *
+     * @private
+     * @param message - The warning message to log
      */
     warn(message: string): void {
         message = `[WARN] ${this.#prefixMessageWithID(message)}`;
@@ -260,12 +261,12 @@ export class Viewer extends Component {
     }
 
     /**
-     Logs an error for this Viewer to the JavaScript console.
-
-     The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-
-     @private
-     @param message The error message to log
+     * Logs an error for this Viewer to the JavaScript console.
+     *
+     * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
+     *
+     * @private
+     * @param message The error message to log
      */
     error(message: string): void {
         message = `[ERROR] ${this.#prefixMessageWithID(message)}`;
@@ -286,7 +287,6 @@ export class Viewer extends Component {
         this.onTick.clear();
         this.onViewCreated.clear();
         this.onViewDestroyed.clear();
-
     }
 
     /**

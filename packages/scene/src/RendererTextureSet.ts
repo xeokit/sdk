@@ -9,8 +9,23 @@ import type {RendererTexture} from "./RendererTexture";
  * @internal
  */
 export interface RendererTextureSet {
-    readonly colorTexture: RendererTexture;
-    readonly metallicRoughnessTexture: RendererTexture;
-    readonly emissiveTexture: RendererTexture;
-    readonly occlusionTexture: RendererTexture;
+    /**
+     * TODO
+     */
+    readonly colorRendererTexture: RendererTexture;
+
+    /**
+     * TODO
+     */
+    readonly metallicRoughnessRendererTexture: RendererTexture;
+
+    /**
+     * TODO
+     */
+    readonly emissiveRendererTexture: RendererTexture;
+
+    /**
+     * TODO
+     */
+    readonly occlusionRendererTexture: RendererTexture;
 }

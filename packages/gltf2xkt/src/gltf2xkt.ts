@@ -54,7 +54,7 @@ if (dataModel instanceof SDKError) {
     if (sceneModel instanceof SDKError) {
         //..
     } else {
-        loadGLTF({data: sourceData, dataModel, sceneModel}).then(() => {
+        loadGLTF({fileData: sourceData, dataModel, sceneModel}).then(() => {
             sceneModel.build().then(() => {
                 dataModel.build();
                 const xktArrayBuffer = saveXKT({dataModel, sceneModel});

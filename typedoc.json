@@ -26,6 +26,7 @@
     "packages/locale/src/index.ts",
     "packages/math/src/index.ts",
     "packages/matrix/src/index.ts",
+    "packages/mockrenderer/src/index.ts",
     "packages/pick/src/index.ts",
     "packages/procgen/src/index.ts",
     "packages/rtc/src/index.ts",

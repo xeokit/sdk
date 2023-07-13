@@ -3,7 +3,7 @@ import type { Renderer, RendererViewObject, View, Viewer, ViewObject } from "@xe
 import type { Pickable } from "./Pickable";
 import type { Capabilities, TextureTranscoder } from "@xeokit/core";
 import type { SceneModel } from "@xeokit/scene";
-import { TileManager } from "./TileManager";
+import { WebGLTileManager } from "./WebGLTileManager";
 /**
  * WebGL-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
  *
@@ -18,7 +18,7 @@ export declare class WebGLRenderer implements Renderer {
     rendererViewObjects: {
         [key: string]: RendererViewObject;
     };
-    tileManager: TileManager | null;
+    tileManager: WebGLTileManager | null;
     /**
      Creates a WebGLRenderer.
 

@@ -7,6 +7,12 @@ export interface Capabilities {
      */
     maxViews: number;
     /**
+     * Does the renderer run headless?
+     *
+     * This is `true` when the renderer is a "mock renderer", that works without rendering anything.
+     */
+    headless: boolean;
+    /**
      * Support for ASTC texture compression?
      */
     astcSupported: boolean;

@@ -1,5 +1,5 @@
 import type {View} from "@xeokit/viewer";
-import type {RendererModelImpl} from "./RendererModelImpl";
+import type {WebGLRendererModel} from "./WebGLRendererModel";
 import type {RendererTextureSet} from "@xeokit/scene";
 
 /**
@@ -8,7 +8,7 @@ import type {RendererTextureSet} from "@xeokit/scene";
 export interface LayerParams { // Params for Layer constructor
     gl: WebGL2RenderingContext;
     view: View;
-    rendererModel: RendererModelImpl;
+    rendererModel: WebGLRendererModel;
     primitive: number;
     layerIndex: number;
     textureSet?: RendererTextureSet;

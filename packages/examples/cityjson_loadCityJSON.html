@@ -24,6 +24,10 @@
         document.getElementById("log").innerText += "[ERROR]: " + (msg + "\n");
     }
 
+    log("In this example, we're loading a CityJSON file\n " +
+        "into a SceneModel and a DataModel, without using a Viewer.\n" +
+    "Nothing is rendered in this example - empty canvas is expected.\n");
+
     log("Running..");
 
     log("scene = new Scene()");
@@ -46,7 +50,11 @@
 
             log("loadCityJSON(fileData, dataModel, sceneModel)");
 
-            xeokit.cityjson.loadCityJSON({fileData, dataModel, sceneModel}).then(() => {
+            xeokit.cityjson.loadCityJSON({
+                fileData,
+                dataModel,
+                sceneModel
+            }).then(() => {
 
                 log("sceneModel.build()");
 

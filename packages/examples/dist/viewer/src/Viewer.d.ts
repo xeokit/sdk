@@ -132,36 +132,36 @@ export declare class Viewer extends Component {
      */
     createView(params: ViewParams): View | SDKError;
     /**
-     Trigger redraw of all {@link View | Views} belonging to this Viewer.
-
-     @private
+     * Trigger redraw of all {@link View | Views} belonging to this Viewer.
+     *
+     * @private
      */
     redraw(): void;
     /**
-     Logs a console debugging message for this Viewer.
-
-     The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
-
-     @private
-     @param message - The message to log
+     * Logs a console debugging message for this Viewer.
+     *
+     * The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
+     *
+     * @private
+     * @param message - The message to log
      */
     log(message: string): void;
     /**
-     Logs a warning for this Viewer to the JavaScript console.
-
-     The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
-
-     @private
-     @param message - The warning message to log
+     * Logs a warning for this Viewer to the JavaScript console.
+     *
+     * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
+     *
+     * @private
+     * @param message - The warning message to log
      */
     warn(message: string): void;
     /**
-     Logs an error for this Viewer to the JavaScript console.
-
-     The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-
-     @private
-     @param message The error message to log
+     * Logs an error for this Viewer to the JavaScript console.
+     *
+     * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
+     *
+     * @private
+     * @param message The error message to log
      */
     error(message: string): void;
     /**

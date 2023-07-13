@@ -3,6 +3,8 @@ import type { RendererModel } from "@xeokit/scene";
 /**
  * Interface through which a {@link @xeokit/viewer!Viewer | Viewer} can issue commands at a {@link @xeokit/viewer!Renderer | Renderer} to
  * show/hide/highlight/select/xray/colorize a particular object within the specified {@link @xeokit/viewer!View | View}.
+ *
+ * @internal
  */
 export interface RendererViewObject {
     /**

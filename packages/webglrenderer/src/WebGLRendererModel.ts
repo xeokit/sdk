@@ -24,14 +24,14 @@ import type {
 import type {WebGLRenderer} from "./WebGLRenderer";
 import {Layer} from "./Layer";
 import type {RenderContext} from "./RenderContext";
-import {RendererGeometryImpl} from "./RendererGeometryImpl";
+import {WebGLRendererGeometry} from "./WebGLRendererGeometry";
 
-import {RendererTextureImpl} from "./RendererTextureImpl";
-import {RendererObjectImpl} from "./RendererObjectImpl";
-import {RendererMeshImpl} from "./RendererMeshImpl";
-import {RendererTextureSetImpl} from "./RendererTextureSetImpl";
+import {WebGLRendererTexture} from "./WebGLRendererTexture";
+import {WebGLRendererObject} from "./WebGLRendererObject";
+import {WebGLRendererMesh} from "./WebGLRendererMesh";
+import {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
 import type {LayerParams} from "./LayerParams";
-import type {TileManager} from "./TileManager";
+import type {WebGLTileManager} from "./WebGLTileManager";
 
 
 const tempVec3a = createVec3();
@@ -50,9 +50,10 @@ const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
 
 /**
- * @private
+ * TODO
+ * @internal
  */
-export class RendererModelImpl extends Component implements RendererModel {
+export class WebGLRendererModel extends Component implements RendererModel {
 
     readonly qualityRender: boolean;
     declare readonly id: string;
@@ -65,8 +66,8 @@ export class RendererModelImpl extends Component implements RendererModel {
     rendererTextures: { [key: string]: RendererTexture };
     rendererTextureSets: { [key: string]: RendererTextureSet; };
     rendererMeshes: { [key: string]: RendererMesh };
-    rendererObjects: { [key: string]: RendererObjectImpl };
-    rendererObjectsList: RendererObjectImpl[];
+    rendererObjects: { [key: string]: WebGLRendererObject };
+    rendererObjectsList: WebGLRendererObject[];
 
     rendererViewObjects: { [key: string]: RendererViewObject };
 
@@ -315,7 +316,7 @@ export class RendererModelImpl extends Component implements RendererModel {
                 });
             }
         }
-        const rendererTexture = new RendererTextureImpl(texture, glTexture);
+        const rendererTexture = new WebGLRendererTexture(texture, glTexture);
         texture.rendererTexture = rendererTexture;
         this.rendererTextures[textureId] = rendererTexture;
     }
@@ -325,7 +326,7 @@ export class RendererModelImpl extends Component implements RendererModel {
         if (this.rendererGeometries[geometryId]) {
             throw new SDKError(`RendererGeometry already created: ${geometryId}`);
         }
-        const rendererGeometry = new RendererGeometryImpl();
+        const rendererGeometry = new WebGLRendererGeometry();
         this.rendererGeometries[geometryId] = rendererGeometry;
         geometry.rendererGeometry = rendererGeometry;
         this.#numGeometries++;
@@ -355,8 +356,8 @@ export class RendererModelImpl extends Component implements RendererModel {
         const opacity = (mesh.opacity !== undefined && mesh.opacity !== null) ? Math.floor(mesh.opacity * 255) : 255;
         const metallic = (mesh.metallic !== undefined && mesh.metallic !== null) ? Math.floor(mesh.metallic * 255) : 0;
         const roughness = (mesh.roughness !== undefined && mesh.roughness !== null) ? Math.floor(mesh.roughness * 255) : 255;
-        const meshRenderer = new RendererMeshImpl({
-            tileManager: <TileManager>this.#webglRenderer.tileManager,
+        const meshRenderer = new WebGLRendererMesh({
+            tileManager: <WebGLTileManager>this.#webglRenderer.tileManager,
             id: mesh.id,
             layer,
             color,
@@ -439,13 +440,13 @@ export class RendererModelImpl extends Component implements RendererModel {
         if (meshes === undefined) {
             throw new SDKError("[createObject] Param expected: meshes");
         }
-        const rendererMeshes: RendererMeshImpl[] = [];
+        const rendererMeshes: WebGLRendererMesh[] = [];
         for (let i = 0, len = meshes.length; i < len; i++) {
             const mesh = meshes[i];
-            const rendererMesh = <RendererMeshImpl>this.rendererMeshes[mesh.id];
+            const rendererMesh = <WebGLRendererMesh>this.rendererMeshes[mesh.id];
             rendererMeshes.push(rendererMesh);
         }
-        const rendererObject = new RendererObjectImpl({
+        const rendererObject = new WebGLRendererObject({
             id: objectId,
             sceneObject,
             rendererModel: this,
@@ -800,49 +801,49 @@ export class RendererModelImpl extends Component implements RendererModel {
 */
 
     #createDefaultTextureSet() {
-        const defaultColorTexture = new RendererTextureImpl(
+        const defaultColorRendererTexture = new WebGLRendererTexture(
             null,
             new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [1, 1, 1, 1] // [r, g, b, a]})
             }));
 
-        const defaultMetalRoughTexture = new RendererTextureImpl(
+        const defaultMetalRoughRendererTexture = new WebGLRendererTexture(
             null,
             new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 1, 1, 1] // [unused, roughness, metalness, unused]
             }));
-        const defaultNormalsTexture = new RendererTextureImpl(
+        const defaultNormalsRendererTexture = new WebGLRendererTexture(
             null,
             new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 0, 0, 0] // [x, y, z, unused] - these must be zeros
             }));
 
-        const defaultEmissiveTexture = new RendererTextureImpl(
+        const defaultEmissiveRendererTexture = new WebGLRendererTexture(
             null,
             new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 0, 0, 1] // [x, y, z, unused]
             }));
-        const defaultOcclusionTexture = new RendererTextureImpl(
+        const defaultOcclusionRendererTexture = new WebGLRendererTexture(
             null,
             new GLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [1, 1, 1, 1] // [x, y, z, unused]
             }));
-        this.rendererTextures[defaultColorTextureId] = defaultColorTexture;
-        this.rendererTextures[defaultMetalRoughTextureId] = defaultMetalRoughTexture;
-        this.rendererTextures[defaultNormalsTextureId] = defaultNormalsTexture;
-        this.rendererTextures[defaultEmissiveTextureId] = defaultEmissiveTexture;
-        this.rendererTextures[defaultOcclusionTextureId] = defaultOcclusionTexture;
-        this.rendererTextureSets[defaultTextureSetId] = new RendererTextureSetImpl({
+        this.rendererTextures[defaultColorTextureId] = defaultColorRendererTexture;
+        this.rendererTextures[defaultMetalRoughTextureId] = defaultMetalRoughRendererTexture;
+        this.rendererTextures[defaultNormalsTextureId] = defaultNormalsRendererTexture;
+        this.rendererTextures[defaultEmissiveTextureId] = defaultEmissiveRendererTexture;
+        this.rendererTextures[defaultOcclusionTextureId] = defaultOcclusionRendererTexture;
+        this.rendererTextureSets[defaultTextureSetId] = new WebGLRendererTextureSet({
             id: defaultTextureSetId,
-            colorTexture: defaultColorTexture,
-            metallicRoughnessTexture: defaultMetalRoughTexture,
-            emissiveTexture: defaultEmissiveTexture,
-            occlusionTexture: defaultOcclusionTexture
+            colorRendererTexture: defaultColorRendererTexture,
+            metallicRoughnessRendererTexture: defaultMetalRoughRendererTexture,
+            emissiveRendererTexture: defaultEmissiveRendererTexture,
+            occlusionRendererTexture: defaultOcclusionRendererTexture
         });
     }
 

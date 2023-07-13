@@ -11,12 +11,12 @@ import {FastColorTrianglesRenderer} from "./FastColorTrianglesRenderer";
 import {getExtension, GLRenderBuffer, WEBGL_INFO} from "@xeokit/webglutils";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import type {Pickable} from "./Pickable";
-import {RendererModelImpl} from "./RendererModelImpl";
+import {WebGLRendererModel} from "./WebGLRendererModel";
 import type {Layer} from "./Layer";
 import type {Capabilities, Component, TextureTranscoder} from "@xeokit/core";
 import {SDKError} from "@xeokit/core";
 import type {Scene, SceneModel} from "@xeokit/scene";
-import {TileManager} from "./TileManager";
+import {WebGLTileManager} from "./WebGLTileManager";
 
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
@@ -35,7 +35,7 @@ export class WebGLRenderer implements Renderer {
      */
     rendererViewObjects: { [key: string]: RendererViewObject };
 
-    tileManager: TileManager | null;
+    tileManager: WebGLTileManager | null;
 
     #sceneModels: { [key: string]: SceneModel };
     #viewer: Viewer;
@@ -48,7 +48,7 @@ export class WebGLRenderer implements Renderer {
     #saoEnabled: boolean;
     #pbrEnabled: boolean;
     #backgroundColor: FloatArrayParam;
-    #rendererModels: { [key: string]: RendererModelImpl };
+    #rendererModels: { [key: string]: WebGLRendererModel };
     #layerList: Layer[];
     #layerListDirty: boolean;
     #stateSortDirty: boolean;
@@ -115,6 +115,10 @@ export class WebGLRenderer implements Renderer {
         this.#viewMatrixDirty = true;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     getCapabilities(capabilities: Capabilities): void {
         capabilities.maxViews = 1;
         const canvasElement = document.createElement('canvas');
@@ -134,11 +138,19 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     attachViewer(viewer: Viewer): void {
         this.#viewer = viewer;
         this.#textureTranscoder.init(this.#viewer.capabilities);
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     attachView(view: View): number {
         if (this.#renderContext) {
             throw "Only one View allowed with WebGLRenderer (see WebViewerCapabilities.maxViews)";
@@ -163,7 +175,7 @@ export class WebGLRenderer implements Renderer {
             gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
         }
         this.#renderContext = new RenderContext(this.#viewer, this.#view, gl);
-        this.tileManager = new TileManager({
+        this.tileManager = new WebGLTileManager({
             camera: view.camera,
             gl
         });
@@ -182,14 +194,22 @@ export class WebGLRenderer implements Renderer {
         return 0;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     detachView(viewIndex: number): void { // Nop
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     attachSceneModel(sceneModel: SceneModel): void {
         if (!this.#renderContext) {
             throw new SDKError("Must attach a View before you attach a SceneModel");
         }
-        const rendererModel = new RendererModelImpl({
+        const rendererModel = new WebGLRendererModel({
             id: sceneModel.id,
             sceneModel,
             view: this.#view,
@@ -209,8 +229,12 @@ export class WebGLRenderer implements Renderer {
         sceneModel.rendererModel = rendererModel;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     detachSceneModel(sceneModel:SceneModel): void {
-        if (this.#sceneModels[sceneModel.id]) {
+        if (this.#rendererModels[sceneModel.id]) {
             const rendererModel = this.#rendererModels[sceneModel.id];
             delete this.#rendererModels[sceneModel.id];
             this.#detachRendererViewObjects(rendererModel);
@@ -219,14 +243,14 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
-    #attachRendererViewObjects(rendererModel: RendererModelImpl) {
+    #attachRendererViewObjects(rendererModel: WebGLRendererModel) {
         const rendererViewObjects = rendererModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             this.rendererViewObjects[id] = rendererViewObjects[id];
         }
     }
 
-    #detachRendererViewObjects(rendererModel: RendererModelImpl) {
+    #detachRendererViewObjects(rendererModel: WebGLRendererModel) {
         const rendererViewObjects = rendererModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             delete this.rendererViewObjects[id];
@@ -247,39 +271,71 @@ export class WebGLRenderer implements Renderer {
         this.#pickIDs.removeItem(pickId);
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setImageDirty(viewIndex?: number) {
         this.#imageDirty = true;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setBackgroundColor(viewIndex: number, color: FloatArrayParam): void { // @ts-ignore
         this.#backgroundColor.set(color);
         this.#imageDirty = true;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setEdgesEnabled(viewIndex: number, enabled: boolean): void {
         this.#edgesEnabled = enabled;
         this.#imageDirty = true;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setPBREnabled(viewIndex: number, enabled: boolean): void {
         this.#pbrEnabled = enabled;
         this.#imageDirty = true;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     getSAOSupported(): boolean {
         return isSafari && WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_standard_derivatives"];
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setSAOEnabled(viewIndex: number, enabled: boolean): void {
         this.#saoEnabled = enabled;
         this.#imageDirty = true;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     setTransparentEnabled(viewIndex: number, enabled: boolean): void {
         this.#transparentEnabled = enabled;
         this.#imageDirty = true;
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     clear(viewIndex: number) {
         const gl = this.#renderContext.gl;
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -291,6 +347,10 @@ export class WebGLRenderer implements Renderer {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     };
 
+    /**
+     * TODO
+     * @internal
+     */
     needsRebuild(viewIndex?: number): void {
         for (let rendererId in this.#layerRenderers) {
             // @ts-ignore
@@ -298,10 +358,18 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     needsRender(viewIndex?: number): boolean {
         return (this.#imageDirty || this.#layerListDirty || this.#stateSortDirty);
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     render(viewIndex: number, params: {
         force?: boolean;
     }) {
@@ -310,7 +378,7 @@ export class WebGLRenderer implements Renderer {
             this.#imageDirty = true;
         }
         if (this.#viewMatrixDirty) {
-            (<TileManager>this.tileManager).refreshMatrices();
+            (<WebGLTileManager>this.tileManager).refreshMatrices();
             this.#viewMatrixDirty = false;
         }
         this.#updateLayerList();
@@ -320,6 +388,10 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
     pickSceneObject(viewIndex: number, params: {}): ViewObject | null {
         return null;
     };

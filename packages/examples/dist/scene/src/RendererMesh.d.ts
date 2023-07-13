@@ -1,6 +1,6 @@
 import type { FloatArrayParam } from "@xeokit/math";
 /**
- *  Internal interface through which a {@link Mesh} can load property updates into a renderer.
+ *  Internal interface through which a {@link Mesh} can load state updates into a renderer.
  *
  *  This exists at each {@link Mesh.rendererMesh} when the owner {@link SceneModel} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.

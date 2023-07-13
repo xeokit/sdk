@@ -15,7 +15,7 @@
   "source": "src/xeokit-bundle.ts",
   "scripts": {
     "clean": "rimraf dist && mkdirp dist",
-    "dist": "rimraf dist && mkdirp dist && microbundle",
+    "dist": "rimraf dist && mkdirp dist && microbundle -f esm --compress false",
     "watch": "microbundle watch"
   },
   "author": "Lindsay Kay",
@@ -61,6 +61,7 @@
     "@xeokit/treeview": "^1.0.1-alpha.0",
     "@xeokit/utils": "^1.0.1-alpha.0",
     "@xeokit/viewer": "^1.0.1-alpha.0",
+    "@xeokit/mockrenderer": "^1.0.1-alpha.0",
     "@xeokit/webglrenderer": "^1.0.1-alpha.0",
     "@xeokit/webglutils": "^1.0.1-alpha.0",
     "@xeokit/webgpurenderer": "^1.0.1-alpha.0",

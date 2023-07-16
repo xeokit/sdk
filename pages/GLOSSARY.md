@@ -76,7 +76,7 @@ attributes for each feature, such as height, materials, and function.
 
 > *See:*
 > * [@xeokit/cityjson](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)
-> * [@xeokit/datatypes/cityJSONTypes_1_1_3](https://xeokit.github.io/sdk/docs/modules/_cityJSONTypes_1_1_3)
+> * [@xeokit/basictypes/cityJSONTypes_1_1_3](https://xeokit.github.io/sdk/docs/modules/_cityJSONTypes_1_1_3)
  
 
 <br>
@@ -193,7 +193,7 @@ TODO
 
 TODO
 
-> *See: [@xeokit/math/compression](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)*
+> *See: [@xeokit/scene](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)*
 
 
 <br>
@@ -212,7 +212,19 @@ We use quantization as part of the way we compress geometry in the xeokit SDK. S
 32-bit and 64-bit floating point coordinate values as 16-bit integers, which we then decompress dynamically on the
 GPU using a de-quantization transform matrix.
 
-> *See: [@xeokit/math/compression](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)*
+> *See: [@xeokit/compression](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)*
+
+<br>
+
+## glTF
+
+**glTF** stands for "Graphics Library Transmission Format." It is an open standard file format designed for efficient transmission and loading of 3D models and scenes. Developed by the Khronos Group, glTF is specifically designed to be lightweight, compact, and fast, making it ideal for use in web and real-time applications.
+
+The format supports various 3D asset types, including geometry, materials, textures, animations, and skeletal structures. It uses JSON (JavaScript Object Notation) for storing metadata and binary data for storing the actual 3D model information. This combination allows glTF files to be easily parsed and loaded by web browsers, game engines, and other graphics applications without the need for extensive processing or conversion.
+
+The widespread adoption of glTF has made it a popular choice for sharing 3D content across different platforms, devices, and software, enabling more accessible and interactive experiences for users.
+
+> *See: [@xeokit/gltf](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)*
 
 <br>
 

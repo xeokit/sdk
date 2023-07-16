@@ -2,21 +2,21 @@ import type { FloatArrayParam } from "@xeokit/math";
 import type { RendererTexture } from "./RendererTexture";
 import type { TextureParams } from "./TextureParams";
 /**
- * A texture in a {@link SceneModel}.
+ * A texture in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
  * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
- * * Referenced by {@link TextureSet.colorTexture | TextureSet.colorTexture},
- * {@link TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
- * {@link TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link TextureSet.emissiveTexture | TextureSet.emissiveTexture}
+ * * Referenced by {@link @xeokit/scene!TextureSet.colorTexture | TextureSet.colorTexture},
+ * {@link @xeokit/scene!TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
+ * {@link @xeokit/scene!TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link @xeokit/scene!TextureSet.emissiveTexture | TextureSet.emissiveTexture}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
 export declare class Texture {
     /**
-     *  Internal interface through which this {@link Texture} can load property updates into a renderer.
+     *  Internal interface through which this {@link @xeokit/scene!Texture} can load property updates into a renderer.
      *
-     *  This is defined when the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */
@@ -56,7 +56,7 @@ export declare class Texture {
     /**
      * Media type of this Texture.
      *
-     * Supported values are {@link GIFMediaType}, {@link PNGMediaType} and {@link JPEGMediaType}.
+     * Supported values are {@link @xeokit/constants!GIFMediaType}, {@link @xeokit/constants!PNGMediaType} and {@link @xeokit/constants!JPEGMediaType}.
      *
      * Ignored for compressed textures.
      */
@@ -64,14 +64,14 @@ export declare class Texture {
     /**
      * How the texture is sampled when a texel covers more than one pixel.
      *
-     * Supported values are {@link LinearFilter} and {@link NearestFilter}.
+     * Supported values are {@link @xeokit/constants!LinearFilter} and {@link @xeokit/constants!NearestFilter}.
      */
     magFilter: number;
     /**
      * How the texture is sampled when a texel covers less than one pixel. Supported values
-     * are {@link LinearMipmapLinearFilter}, {@link LinearMipMapNearestFilter},
-     * {@link NearestMipMapNearestFilter}, {@link NearestMipMapLinearFilter}
-     * and {@link LinearMipMapLinearFilter}.
+     * are {@link @xeokit/constants!LinearMipmapLinearFilter}, {@link @xeokit/constants!LinearMipMapNearestFilter},
+     * {@link @xeokit/constants!NearestMipMapNearestFilter}, {@link @xeokit/constants!NearestMipMapLinearFilter}
+     * and {@link @xeokit/constants!LinearMipMapLinearFilter}.
      *
      * Ignored for compressed textures.
      */
@@ -79,7 +79,7 @@ export declare class Texture {
     /**
      * S wrapping mode.
      *
-     * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     * Supported values are {@link @xeokit/constants!ClampToEdgeWrapping}, {@link @xeokit/constants!MirroredRepeatWrapping} and {@link @xeokit/constants!RepeatWrapping}.
      *
      * Ignored for compressed textures.
      */
@@ -87,7 +87,7 @@ export declare class Texture {
     /**
      * T wrapping mode.
      *
-     * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     * Supported values are {@link @xeokit/constants!ClampToEdgeWrapping}, {@link @xeokit/constants!MirroredRepeatWrapping} and {@link @xeokit/constants!RepeatWrapping}.
      *
      * Ignored for compressed textures.
      */
@@ -95,7 +95,7 @@ export declare class Texture {
     /**
      * R wrapping mode.
      *
-     * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+     * Supported values are {@link @xeokit/constants!ClampToEdgeWrapping}, {@link @xeokit/constants!MirroredRepeatWrapping} and {@link @xeokit/constants!RepeatWrapping}.
      *
      * Ignored for compressed textures.
      */
@@ -107,7 +107,7 @@ export declare class Texture {
     /**
      * Texture encoding format.
      *
-     * Supported values are {@link LinearEncoding} and {@link sRGBEncoding}.
+     * Supported values are {@link @xeokit/constants!LinearEncoding} and {@link @xeokit/constants!sRGBEncoding}.
      */
     encoding: number;
     /**

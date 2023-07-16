@@ -8,7 +8,7 @@
  *
  * ## las2xkt
  *
- * Node CLI tool to convert LAS files into XKT files.
+ * Node CLI tool to convert LAS files into [XKT](/docs/pages/GLOSSARY.html#xkt) files.
  *
  * ## Features
  *

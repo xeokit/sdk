@@ -1,6 +1,6 @@
 import type {Mesh} from "./Mesh";
 import type {FloatArrayParam} from "@xeokit/math";
-import type {RendererObject} from "./RendererObject";
+import type {RendererSceneObject} from "./RendererSceneObject";
 import type {Scene} from "./Scene";
 import type {SceneModel} from "./SceneModel";
 import {collapseAABB3, createAABB3, expandAABB3Points3} from "@xeokit/boundaries";
@@ -17,19 +17,20 @@ import {getSceneObjectGeometry} from "./getSceneObjectGeometry";
 export class SceneObject {
 
     /**
-     * The {@link SceneModel} that contains this SceneObject.
+     * The {@link @xeokit/scene!SceneModel} that contains this SceneObject.
      */
     public readonly model: SceneModel;
 
     /**
      * Unique ID of this SceneObject.
      *
-     * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects} and {@link SceneModel.objects | SceneModel.objects}.
+     * SceneObjects are stored by ID in {@link @xeokit/scene!Scene.objects | Scene.objects}
+     * and {@link @xeokit/scene!SceneModel.objects | SceneModel.objects}.
      */
     public readonly id: string;
 
     /**
-     * The {@link Mesh | Meshes} belonging to this SceneObject.
+     * The {@link @xeokit/scene!Mesh | Meshes} belonging to this SceneObject.
      */
     public readonly meshes: Mesh[];
 
@@ -39,13 +40,13 @@ export class SceneObject {
     public readonly layerId?: string;
 
     /**
-     *  Internal interface through which a {@link SceneObject} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!SceneObject} can load property updates into a renderer.
      *
-     *  This is defined while the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined while the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */
-    rendererObject: RendererObject | null;
+    rendererSceneObject: RendererSceneObject | null;
 
     #aabb: FloatArrayParam;
     #aabbDirty: boolean;
@@ -64,7 +65,7 @@ export class SceneObject {
         this.meshes = cfg.meshes;
         this.#aabb = createAABB3();
         this.#aabbDirty = true;
-        this.rendererObject = null;
+        this.rendererSceneObject = null;
     }
 
     /**

@@ -8,7 +8,7 @@
  *
  * ## cityjson2xkt
  *
- * Node CLI tool to convert CityJSON files into XKT files.
+ * Node CLI tool to convert CityJSON files into [XKT](/docs/pages/GLOSSARY.html#xkt) files.
  *
  * ## Features
  *

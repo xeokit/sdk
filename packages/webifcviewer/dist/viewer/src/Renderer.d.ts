@@ -46,7 +46,7 @@ export interface Renderer {
     /**
      * Registers a {@link @xeokit/viewer!View} with this Renderer.
      *
-     * The Renderer will then begin rendering each {@link @xeokit/scene!SceneModel | SceneModel} created with {@link SceneModel.createModel} for the new View.
+     * The Renderer will then begin rendering each {@link @xeokit/scene!SceneModel | SceneModel} created with {@link @xeokit/scene!SceneModel.createModel} for the new View.
      *
      * You can only register as many Views as indicated in {@link Capabilities.maxViews}, as returned by {@link Renderer.getCapabilities}.
      *

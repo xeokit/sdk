@@ -13,17 +13,17 @@ import type { SceneModel } from "./SceneModel";
 export declare class SceneObject {
     #private;
     /**
-     * The {@link SceneModel} that contains this SceneObject.
+     * The {@link @xeokit/viewer!Renderer} that contains this SceneObject.
      */
     readonly model: SceneModel;
     /**
      * Unique ID of this SceneObject.
      *
-     * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects} and {@link SceneModel.objects | SceneModel.objects}.
+     * SceneObjects are stored by ID in {@link @xeokit/scene!Scene.objects | Scene.objects} and {@link @xeokit/scene!SceneModel.objects | SceneModel.objects}.
      */
     readonly id: string;
     /**
-     * The {@link Mesh | Meshes} belonging to this SceneObject.
+     * The {@link @xeokit/scene!Mesh | Meshes} belonging to this SceneObject.
      */
     readonly meshes: Mesh[];
     /**
@@ -31,13 +31,13 @@ export declare class SceneObject {
      */
     readonly layerId?: string;
     /**
-     *  Internal interface through which a {@link SceneObject} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!SceneObject} can load property updates into a renderer.
      *
-     *  This is defined while the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined while the owner {@link @xeokit/viewer!Renderer} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */
-    rendererObject: RendererObject | null;
+    rendererSceneObject: RendererObject | null;
     /**
      * @private
      */

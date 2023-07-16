@@ -1,4 +1,4 @@
-import type { RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject } from "@xeokit/scene";
+import type { RendererGeometry, RendererMesh, RendererSceneObject, RendererTextureSet, SceneObject } from "@xeokit/scene";
 import type { FloatArrayParam } from "@xeokit/math";
 import type { RenderContext } from "./RenderContext";
 import type { Layer } from "./Layer";
@@ -20,7 +20,7 @@ export declare class RendererMeshImpl implements RendererMesh, Pickable {
     pickId: number;
     tileManager: TileManager;
     tile: Tile;
-    sceneObjectRenderer: RendererObject | null;
+    sceneObjectRenderer: RendererSceneObject | null;
     aabb: FloatArrayParam;
     layer: Layer;
     meshIndex: number;
@@ -41,7 +41,7 @@ export declare class RendererMeshImpl implements RendererMesh, Pickable {
         meshIndex: number;
     });
     delegatePickedEntity(): SceneObject;
-    setSceneObject(sceneObjectRenderer: RendererObject): void;
+    setSceneObject(sceneObjectRenderer: RendererSceneObject): void;
     build(flags: number): void;
     finalize2(): void;
     setVisible(flags: any): void;

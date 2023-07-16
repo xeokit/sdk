@@ -47,7 +47,7 @@
  *
  * ## Usage
  *
- * In the example below, we'll use {@link compressGeometryParams} to compress
+ * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
  *
@@ -131,7 +131,7 @@
  * }
  * ````
  *
- * In the next example, we'll again use {@link compressGeometryParams} to compress
+ * In the next example, we'll again use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
  * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.

@@ -6,27 +6,27 @@ import type {Data} from "./Data";
 /**
  * An object in a {@link @xeokit/data!DataModel}.
  *
- * * Created with {@link DataModel.createObject | DataModel.createObject}
- * * Stored in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | Data.objects}, {@link DataModel.rootObjects | Data.rootObjects}
+ * * Created with {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
+ * * Stored in {@link @xeokit/data!Data.objects | Data.objects}, {@link @xeokit/data!Data.rootObjects | Data.rootObjects}, {@link @xeokit/data!Data.objectsByType | Data.objectsByType}, {@link @xeokit/data!DataModel.objects | Data.objects}, {@link @xeokit/data!DataModel.rootObjects | Data.rootObjects}
  *
  * See {@link "@xeokit/data"} for usage.
  */
 export class DataObject {
 
     /**
-     *  {@link Data} that contains this DataObject.
+     *  {@link @xeokit/data!Data} that contains this DataObject.
      */
     public data: Data;
 
     /**
-     * {@link DataModel | DataModels} that share this DataObject.
+     * {@link @xeokit/data!DataModel | DataModels} that share this DataObject.
      */
     public models: DataModel[];
 
     /**
      * Globally-unique ID.
      *
-     * DataObjects are stored by ID in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType} and {@link DataModel.rootObjects | Data.rootObjects}.
+     * DataObjects are stored by ID in {@link @xeokit/data!Data.objects | Data.objects}, {@link @xeokit/data!Data.rootObjects | Data.rootObjects}, {@link @xeokit/data!Data.objectsByType | Data.objectsByType} and {@link @xeokit/data!DataModel.rootObjects | Data.rootObjects}.
      */
     public readonly id: string;
 
@@ -41,23 +41,23 @@ export class DataObject {
     public readonly type: number;
 
     /**
-     * {@link PropertySet | PropertySets} referenced by this DataObject.
+     *{@link @xeokit/data!PropertySet | PropertySets} referenced by this DataObject.
      */
     public readonly propertySets?: PropertySet[];
 
     /**
-     * The {@link Relationship | Relations} in which this DataObject is the {@link Relationship.relating} participant.
+     * The {@link @xeokit/data!Relationship | Relations} in which this DataObject is the {@link @xeokit/data!Relationship.relatingObject | Relationship.relatingObject} participant.
      *
-     * Each DataObject is mapped here by {@link Relationship.type | Relationship.type} and sub-mapped by {@link Relationship.relating | Relationship.relating}.
+     * Each DataObject is mapped here by {@link @xeokit/data!Relationship.type | Relationship.type} and sub-mapped by {@link @xeokit/data!Relationship.relatingObject | Relationship.relatingObject}.
      */
     public readonly relating: {
         [key: number]: Relationship[]
     };
 
     /**
-     * The {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.related} participant.
+     * The {@link @xeokit/data!Relationship | Relationships} in which this DataObject is the {@link @xeokit/data!Relationship.relatedObject | Relationship.relatedObject} participant.
      *
-     * Each DataObject is mapped here by {@link Relationship.type | Relationship.type} and sub-mapped by {@link Relationship.related | Relationship.related}.
+     * Each DataObject is mapped here by {@link @xeokit/data!Relationship.type | Relationship.type} and sub-mapped by {@link @xeokit/data!Relationship.relatedObject | Relationship.relatedObject}.
      */
     public readonly related: {
         [key: number]: Relationship[]

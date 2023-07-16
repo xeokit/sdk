@@ -1,5 +1,5 @@
 import {buildCylinderGeometry} from "../src/geometry";
-import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
+import {TrianglesPrimitive} from "@xeokit/constants";
 import {truncate} from "./testUtils";
 
 describe('Test Generators', function () {

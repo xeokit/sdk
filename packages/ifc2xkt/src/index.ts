@@ -8,7 +8,7 @@
  *
  * ## ifc2xkt
  *
- * Node CLI tool to convert IFC files into XKT files.
+ * Node CLI tool to convert IFC files into [XKT](/docs/pages/GLOSSARY.html#xkt) files.
  *
  * ## Features
  *

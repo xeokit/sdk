@@ -5,7 +5,7 @@ import type { KdTree3Params } from "./KdTree3Params";
  * A static k-d tree that organizes anything that has a boundary for
  * efficient 3D World-space boundary and frustm searches.
  *
- * See {@link "@xeokit/collision/kdtree3"} for usage.
+ * See {@link "@xeokit/kdtree3"} for usage.
  */
 export declare class KdTree3 {
     #private;

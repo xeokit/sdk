@@ -1,27 +1,30 @@
 import type {FloatArrayParam} from "@xeokit/math";
 import type {MockRendererMesh} from "./MockRendererMesh";
 import type {RendererViewObject} from "@xeokit/viewer";
-import type {RendererModel, RendererObject, SceneObject} from "@xeokit/scene";
+import type {RendererSceneModel, RendererSceneObject, SceneObject} from "@xeokit/scene";
+import {SDKError} from "@xeokit/core";
 
 /**
- * TODO
+ * Mock rendering strategy for a {@link @xeokit/scene!SceneObject | SceneObject}.
  *
- * @internal
+ * See {@link @xeokit/mockrenderer} for usage.
  */
-export class MockRendererObject implements RendererObject, RendererViewObject {
+export class MockRendererObject implements RendererSceneObject, RendererViewObject {
 
     readonly id: string;
-    readonly rendererModel: RendererModel;
+    readonly rendererSceneModel: RendererSceneModel;
     readonly sceneObject: SceneObject;
     readonly layerId: string | null;
 
     readonly rendererMeshes: MockRendererMesh[];
 
-
+    /**
+     * @private
+     */
     constructor(params: {
         id: string,
         sceneObject: SceneObject,
-        rendererModel: RendererModel,
+        rendererSceneModel: RendererSceneModel,
         rendererMeshes: MockRendererMesh[],
         aabb: any,
         layerId?: string
@@ -29,55 +32,94 @@ export class MockRendererObject implements RendererObject, RendererViewObject {
         this.sceneObject = params.sceneObject;
     }
 
+    /**
+     * @inheritdoc
+     */
     get aabb(): FloatArrayParam {
         return this.sceneObject.aabb;
     }
 
-    setVisible(viewIndex: number, visible: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setVisible(viewIndex: number, visible: boolean): void | SDKError {
 
     }
 
-    setHighlighted(viewIndex: number, highlighted: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setHighlighted(viewIndex: number, highlighted: boolean): void | SDKError {
 
     }
 
-    setXRayed(viewIndex: number, xrayed: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setXRayed(viewIndex: number, xrayed: boolean): void | SDKError {
 
     }
 
-    setSelected(viewIndex: number, selected: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setSelected(viewIndex: number, selected: boolean): void | SDKError {
 
     }
 
-    setEdges(viewIndex: number, edges: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setEdges(viewIndex: number, edges: boolean): void | SDKError {
 
     }
 
-    setCulled(viewIndex: number, culled: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setCulled(viewIndex: number, culled: boolean): void | SDKError {
 
     }
 
-    setClippable(viewIndex: number, clippable: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setClippable(viewIndex: number, clippable: boolean): void | SDKError {
 
     }
 
-    setCollidable(viewIndex: number, collidable: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setCollidable(viewIndex: number, collidable: boolean): void | SDKError {
 
     }
 
-    setPickable(viewIndex: number, pickable: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setPickable(viewIndex: number, pickable: boolean): void | SDKError {
 
     }
 
-    setColorize(viewIndex: number, color?: FloatArrayParam): void {
+    /**
+     * @inheritdoc
+     */
+    setColorize(viewIndex: number, color?: FloatArrayParam): void | SDKError {
 
     }
 
-    setOpacity(viewIndex: number, opacity?: number): void {
+    /**
+     * @inheritdoc
+     */
+    setOpacity(viewIndex: number, opacity?: number): void | SDKError {
 
     }
 
-    setOffset(viewIndex: number, offset: FloatArrayParam): void {
+    /**
+     * @inheritdoc
+     */
+    setOffset(viewIndex: number, offset: FloatArrayParam): void | SDKError {
 
     }
 

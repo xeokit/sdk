@@ -6,7 +6,7 @@ import type { SceneModelParams } from "./SceneModelParams";
 /**
  * A scene representation.
  *
- * A Scene is a container of {@link SceneModel | SceneModels} and {@link SceneObject | SceneObjects}.
+ * A Scene is a container of {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/scene!SceneObject | SceneObjects}.
  */
 export declare class Scene extends Component {
     #private;
@@ -18,19 +18,19 @@ export declare class Scene extends Component {
         [key: string]: SceneModel;
     };
     /**
-     * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
+     * The {@link @xeokit/scene!SceneObject | SceneObjects} in this Scene, mapped to {@link @xeokit/scene!SceneObject.id | SceneObject.id}.
      */
     readonly objects: {
         [key: string]: SceneObject;
     };
     /**
-     * Emits an event each time a {@link SceneModel} is created in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneModel} is created in this Scene.
      *
      * @event
      */
     readonly onModelCreated: EventEmitter<Scene, SceneModel>;
     /**
-     * Emits an event each time a {@link SceneModel} is destroyed in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneModel} is destroyed in this Scene.
      *
      * @event
      */
@@ -42,11 +42,11 @@ export declare class Scene extends Component {
      */
     constructor();
     /**
-     * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
+     * Gets the collective World-space 3D center of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
      */
     get center(): Float64Array;
     /**
-     * Gets the collective World-space 3D [axis-aligned boundary](/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
+     * Gets the collective World-space 3D [axis-aligned boundary](/docs/pages/GLOSSARY.html#aabb) of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
      *
      * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
      */
@@ -54,14 +54,14 @@ export declare class Scene extends Component {
     /**
      * Creates a new {@link @xeokit/scene!SceneModel} in this Scene.
      *
-     * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or loading the SceneModel. That will
-     * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
+     * Remember to call {@link @xeokit/scene!SceneModel.build | SceneModel.build} when you've finished building or loading the SceneModel. That will
+     * fire events via {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated} and {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt}, to
      * indicate to any subscribers that the SceneModel is built and ready for use.
      *
      * See {@link "@xeokit/scene"} for more details on usage.
      *
      * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
-     * @returns *{@link SceneModel}*
+     * @returns *{@link @xeokit/scene!SceneModel}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * This Scene has already been destroyed.
@@ -73,9 +73,9 @@ export declare class Scene extends Component {
      */
     setAABBDirty(): void;
     /**
-     * Destroys all contained {@link SceneModel | SceneModels}.
+     * Destroys all contained {@link @xeokit/scene!SceneModel | SceneModels}.
      *
-     * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+     * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
      * for each existing SceneModel in this Scene.
      *
      * See {@link "@xeokit/scene"} for usage.
@@ -86,11 +86,11 @@ export declare class Scene extends Component {
      */
     clear(): void | SDKError;
     /**
-     * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
+     * Destroys this Scene and all contained {@link @xeokit/scene!SceneModel | SceneModels}.
      *
-     * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+     * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
      * for each existing SceneModels in this Data.
-     * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+     * * Unsubscribes all subscribers to {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}, {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
      *
      * See {@link "@xeokit/scene"} for usage.
      *

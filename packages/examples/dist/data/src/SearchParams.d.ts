@@ -1,6 +1,6 @@
 import type { DataObject } from "./DataObject";
 /**
- * Parameters for finding {@link DataObject | DataObjects} with {@link Data.searchObjects | Data.searchObjects}.
+ * Parameters for finding {@link @xeokit/data!DataObject | DataObjects} with {@link Data.searchObjects | Data.searchObjects}.
  *
  * These parameters configure the way that {@link Data.searchObjects | Data.searchObjects} performs its depth-first
  * search to find our {@link DataObject | DataObjects}.
@@ -35,19 +35,19 @@ export interface SearchParams {
      */
     excludeObjects?: number[];
     /**
-     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.relating | DataObject.relating}.
+     * Which {@link @xeokit/data!Relationship} types to exclusively follow in each {@link DataObject.relating | DataObject.relating}.
      */
     includeRelating?: number[];
     /**
-     * Which {@link Relationship} types to never follow in each {@link DataObject.related | DataObject.related}.
+     * Which {@link @xeokit/data!Relationship} types to never follow in each {@link DataObject.related | DataObject.related}.
      */
     excludeRelating?: number[];
     /**
-     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.related | DataObject.related}.
+     * Which {@link @xeokit/data!Relationship} types to exclusively follow in each {@link DataObject.related | DataObject.related}.
      */
     includeRelated?: number[];
     /**
-     * Which {@link Relationship} types to never follow in each {@link DataObject.relating | DataObject.relating}.
+     * Which {@link @xeokit/data!Relationship} types to never follow in each {@link DataObject.relating | DataObject.relating}.
      */
     excludeRelated?: number[];
     /**

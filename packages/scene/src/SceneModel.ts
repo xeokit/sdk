@@ -10,7 +10,7 @@ import {SceneObject} from "./SceneObject";
 import {TextureSet} from "./TextureSet";
 import {Texture} from "./Texture";
 import {Mesh} from "./Mesh";
-import type {RendererModel} from "./RendererModel";
+import type {RendererSceneModel} from "./RendererSceneModel";
 import type {TransformParams} from "./TransformParams";
 import type {TextureSetParams} from "./TextureSetParams";
 import type {GeometryParams} from "./GeometryParams";
@@ -76,13 +76,13 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 /**
  * xeokit Geometry and Materials Model.
  *
- * * A representation of a model's geometry and materials within a {@link Scene}.
- * * Contains {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries} and {@link Texture | Textures}.
+ * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene}.
+ * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries} and {@link @xeokit/scene!Texture | Textures}.
  * * Compresses textures using [Basis](/docs/pages/GLOSSARY.html#basis)
  * * Compresses geometry using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
  * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/xkt!loadXKT} (etc)
- * * Exportable to XKT format using {@link @xeokit/xkt!saveXKT}
+ * * Exportable to [XKT](/docs/pages/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}
  * * Programmatically buildable using builder methods
  *
  * See {@link "@xeokit/scene"} for usage.
@@ -90,19 +90,19 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 export class SceneModel extends Component {
 
     /**
-     * The {@link Scene} that contains this SceneModel.
+     * The {@link @xeokit/scene!Scene} that contains this SceneModel.
      */
     public readonly scene: Scene;
 
     /**
      * Unique ID of this SceneModel.
      *
-     * SceneModel are stored against this ID in {@link Scene.models}.
+     * SceneModel are stored against this ID in {@link @xeokit/scene!Scene.models | Scene.models}.
      */
     declare public readonly id: string;
 
     /**
-     * If we want to view this SceneModel with a {@link @xeokit/viewer}, an
+     * If we want to view this SceneModel with a {@link @xeokit/viewer!Viewer}, an
      * optional ID of a {@link @xeokit/viewer!ViewLayer | ViewLayer} to view it in.
      */
     public readonly layerId?: string;
@@ -110,8 +110,9 @@ export class SceneModel extends Component {
     /**
      * Indicates if this SceneModel has already been built.
      *
-     * * Set ````true```` by {@link SceneModel.build | SceneModel.build}.
-     * * Subscribe to updates using {@link SceneModel.onBuilt | SceneModel.onBuilt} and {@link Scene.onModelCreated | Scene.onModelCreated}.
+     * * Set ````true```` by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
+     * * Subscribe to updates using {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt}
+     * and {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}.
      * * Don't create anything more in this SceneModel once it's built.
      */
     public built: boolean;
@@ -119,7 +120,7 @@ export class SceneModel extends Component {
     /**
      * Indicates if this SceneModel has been destroyed.
      *
-     * * Set ````true```` by {@link SceneModel.destroy | SceneModel.destroy}.
+     * * Set ````true```` by {@link @xeokit/scene!SceneModel.destroy | SceneModel.destroy}.
      * * Don't create anything more in this SceneModel once it's destroyed.
      */
     declare readonly destroyed: boolean;
@@ -132,50 +133,50 @@ export class SceneModel extends Component {
     /**
      * {@link @xeokit/scene!Geometry | Geometries} within this SceneModel, each mapped to {@link @xeokit/scene!Geometry.id | Geometry.id}.
      *
-     * * Created by {@link SceneModel.createGeometry | SceneModel.createGeometry}.
+     * * Created by {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}.
      */
     public readonly geometries: { [key: string]: Geometry };
 
     /**
-     * {@link Texture | Textures} within this SceneModel, each mapped to {@link Texture.id | Texture.id}.
+     * {@link @xeokit/scene!Texture | Textures} within this SceneModel, each mapped to {@link @xeokit/scene!Texture.id | Texture.id}.
      *
-     * * Created by {@link SceneModel.createTexture | SceneModel.createTexture}.
-     * * Compressed asynchronously in {@link SceneModel.build | SceneModel.build}.
+     * * Created by {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
+     * * Compressed asynchronously in {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      */
     public readonly textures: { [key: string]: Texture };
 
     /**
-     * {@link TextureSet | TextureSets} within this SceneModel, each mapped to {@link TextureSet.id | TextureSet.id}.
+     * {@link @xeokit/scene!TextureSet | TextureSets} within this SceneModel, each mapped to {@link @xeokit/scene!TextureSet.id | TextureSet.id}.
      *
-     * * Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
+     * * Created by {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
      */
     public readonly textureSets: { [key: string]: TextureSet };
 
     /**
-     * {@link Mesh | Meshes} within this SceneModel, each mapped to {@link Mesh.id | Mesh.id}.
+     * {@link @xeokit/scene!Mesh | Meshes} within this SceneModel, each mapped to {@link @xeokit/scene!Mesh.id | Mesh.id}.
      *
-     * * Created by {@link SceneModel.createMesh | SceneModel.createMesh}.
+     * * Created by {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
      */
     public readonly meshes: { [key: string]: Mesh };
 
     /**
-     * {@link SceneObject | SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id | SceneObject.id}.
+     * {@link @xeokit/scene!SceneObject | SceneObjects} within this SceneModel, each mapped to {@link @xeokit/scene!SceneObject.id | SceneObject.id}.
      *
-     * * Created by {@link SceneModel.createObject | SceneModel.createObject}.
+     * * Created by {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}.
      */
     readonly objects: { [key: string]: SceneObject };
 
     /**
      * The axis-aligned 3D World-space boundary of this SceneModel.
      *
-     * * Created by {@link SceneModel.build | SceneModel.build}.
+     * * Created by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      */
     public readonly aabb: Float64Array;
 
     /**
      * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has been built.
      *
-     * * Triggered by {@link SceneModel.build | SceneModel.build}.
+     * * Triggered by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      *
      * @event onBuilt
      */
@@ -184,18 +185,18 @@ export class SceneModel extends Component {
     /**
      * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has been destroyed.
      *
-     * * Triggered by {@link SceneModel.destroy | SceneModel.destroy}.
+     * * Triggered by {@link @xeokit/scene!SceneModel.destroy | SceneModel.destroy}.
      *
-     * @event
+     * @event onDestroyed
      */
     declare public readonly onDestroyed: EventEmitter<SceneModel, null>;
 
     /**
-     *  Internal interface through which a SceneModel can load property updates into a renderer.
+     *  Internal interface through which a SceneModel can load updated content into a renderer.
      *
      * @internal
      */
-    public rendererModel: RendererModel | null;
+    public rendererSceneModel: RendererSceneModel | null;
 
     /**
      * Statistics on this SceneModel.
@@ -233,7 +234,7 @@ export class SceneModel extends Component {
         this.objects = {};
         this.aabb = createAABB3();
         this.built = false;
-        this.rendererModel = null;
+        this.rendererSceneModel = null;
 
         this.stats = {
             numGeometries: 0,
@@ -262,7 +263,8 @@ export class SceneModel extends Component {
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been built.
      * * If this SceneModel has already been destroyed.
-     * * A duplicate component ({@link SceneObject}, {@link Mesh}, {@link Geometry}, {@link Texture} etc.) was already created within this SceneModel.
+     * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!Mesh},
+     * {@link @xeokit/scene!Geometry}, {@link @xeokit/scene!Texture} etc.) was already created within this SceneModel.
      */
     fromJSON(sceneModelParams: SceneModelParams): void | SDKError {
         if (this.destroyed) {
@@ -301,7 +303,7 @@ export class SceneModel extends Component {
     /**
      * Creates a new {@link Transform} within this SceneModel.
      *
-     * * Stores the new {@link Transform} in {@link SceneModel.transforms | SceneModel.transforms}.
+     * * Stores the new {@link Transform} in {@link @xeokit/scene!SceneModel.transforms | SceneModel.transforms}.
      *
      * ### Usage
      *
@@ -333,10 +335,10 @@ export class SceneModel extends Component {
     }
 
     /**
-     * Creates a new {@link Texture} within this SceneModel.
+     * Creates a new {@link @xeokit/scene!Texture} within this SceneModel.
      *
-     * * Stores the new {@link Texture} in {@link SceneModel.textures | SceneModel.textures}.
-     * * Textures are compressed asynchronously by {@link SceneModel.build | SceneModel.build}.
+     * * Stores the new {@link @xeokit/scene!Texture} in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}.
+     * * Textures are compressed asynchronously by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      *
      * ### Usage
      *
@@ -362,7 +364,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param textureParams - Texture creation parameters.
-     * @returns *{@link Texture}*
+     * @returns *{@link @xeokit/scene!Texture}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
@@ -400,9 +402,9 @@ export class SceneModel extends Component {
     }
 
     /**
-     * Creates a new {@link TextureSet} within this SceneModel.
+     * Creates a new {@link @xeokit/scene!TextureSet} within this SceneModel.
      *
-     * * Stores the new {@link TextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
+     * * Stores the new {@link @xeokit/scene!TextureSet} in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}.
      *
      * ### Usage
      *
@@ -419,7 +421,7 @@ export class SceneModel extends Component {
      *
      * @param textureSetParams TextureSet creation parameters.
      *
-     * @returns *{@link TextureSet}*
+     * @returns *{@link @xeokit/scene!TextureSet}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
@@ -491,7 +493,7 @@ export class SceneModel extends Component {
     /**
      * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from non-compressed geometry parameters.
      *
-     * * Stores the new {@link Geometry} in {@link SceneModel.geometries | SceneModel.geometries}.
+     * * Stores the new {@link @xeokit/scene!Geometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
      *
      * ### Usage
      *
@@ -532,7 +534,7 @@ export class SceneModel extends Component {
      * * Geometry of given ID already exists in this SceneModel.
      * * Unsupported primitive type given.
      * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
-     * * Mandatory indices were not given for primitive type that is not {@link PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+     * * Mandatory indices were not given for primitive type that is not {@link @xeokit/constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
      * * Indices out of range of vertex positions.
      * * Indices out of range of vertex UVs.
      * * Mismatch between given quantities of vertex positions and UVs.
@@ -603,8 +605,9 @@ export class SceneModel extends Component {
     /**
      * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from pre-compressed geometry parameters.
      *
-     * * Stores the new {@link Geometry} in {@link SceneModel.geometries | SceneModel.geometries}.
-     * * Use {@link @xeokit/compression!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
+     * * Stores the new {@link @xeokit/scene!Geometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
+     * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams | GeometryParams}
+     * into {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
      *
      * ### Usage
      *
@@ -644,7 +647,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
-     * @returns *{@link Geometry}*
+     * @returns *{@link @xeokit/scene!Geometry}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
@@ -653,7 +656,7 @@ export class SceneModel extends Component {
      * * Geometry of given ID already exists in this SceneModel.
      * * Unsupported primitive type given.
      * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
-     * * Mandatory indices were not given for primitive type that is not {@link PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+     * * Mandatory indices were not given for primitive type that is not {@link @xeokit/constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
      * * Indices out of range of vertex positions.
      * * Indices out of range of vertex UVs.
      * * Mismatch between given quantities of vertex positions and UVs.
@@ -683,10 +686,10 @@ export class SceneModel extends Component {
     }
 
     /**
-     * Creates a new {@link Mesh} within this SceneModel.
+     * Creates a new {@link @xeokit/scene!Mesh} within this SceneModel.
      *
-     * * Stores the new {@link Mesh} in {@link SceneModel.meshes | SceneModel.meshes}.
-     * * A {@link Mesh} can be owned by one {@link SceneObject}, which can own multiple {@link Mesh}es.
+     * * Stores the new {@link @xeokit/scene!Mesh} in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}.
+     * * A {@link @xeokit/scene!Mesh} can be owned by one {@link @xeokit/scene!SceneObject}, which can own multiple {@link @xeokit/scene!Mesh}es.
      *
      * ### Usage
      *
@@ -711,7 +714,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param meshParams Pre-compressed mesh parameters.
-     * @returns *{@link Mesh}*
+     * @returns *{@link @xeokit/scene!Mesh}*
      *  * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
@@ -772,12 +775,12 @@ export class SceneModel extends Component {
     }
 
     /**
-     * Creates a new {@link SceneObject}.
+     * Creates a new {@link @xeokit/scene!SceneObject}.
      *
-     * * Stores the new {@link SceneObject} in {@link SceneModel.objects | SceneModel.objects} and {@link Scene.objects | Scene.objects}.
-     * * Fires an event via {@link Scene.onObjectCreated | Scene.onObjectCreated}.
-     * * Each {@link Mesh} is allowed to belong to one SceneObject.
-     * * SceneObject IDs must be unique within the SceneModel's {@link Scene}.
+     * * Stores the new {@link @xeokit/scene!SceneObject} in {@link @xeokit/scene!SceneModel.objects | SceneModel.objects} and {@link @xeokit/scene!Scene.objects | Scene.objects}.
+     * * Fires an event via {@link @xeokit/scene!Scene.onObjectCreated | Scene.onObjectCreated}.
+     * * Each {@link @xeokit/scene!Mesh} is allowed to belong to one SceneObject.
+     * * SceneObject IDs must be unique within the SceneModel's {@link @xeokit/scene!Scene}.
      *
      * ### Usage
      *
@@ -798,7 +801,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param objectParams SceneObject parameters.
-     * @returns *{@link SceneObject}*
+     * @returns *{@link @xeokit/scene!SceneObject}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.
@@ -855,11 +858,11 @@ export class SceneModel extends Component {
     /**
      * Finalizes this SceneModel, readying it for use.
      *
-     * * Fires an event via {@link SceneModel.onBuilt | SceneModel.onBuilt} and {@link Scene.onModelCreated | SceneModel.onCreated}, to indicate to subscribers that
+     * * Fires an event via {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and {@link @xeokit/scene!Scene.onModelCreated | SceneModel.onCreated}, to indicate to subscribers that
      * the SceneModel is complete and ready to use.
-     * * Sets {@link SceneModel.built | SceneModel.built} ````true````.
+     * * Sets {@link @xeokit/scene!SceneModel.built | SceneModel.built} ````true````.
      * * You can only call this method once on a SceneModel.
-     * * The SceneModel must have at least one {@link SceneObject}.
+     * * The SceneModel must have at least one {@link @xeokit/scene!SceneObject}.
      * * Once built, no more components can be created in a SceneModel.
      *
      * ### Usage

@@ -1,4 +1,4 @@
-import {BasicAggregation, BasicEntity} from "@xeokit/datatypes/basicTypes";
+import {BasicAggregation, BasicEntity} from "@xeokit/basictypes/basicTypes";
 
 /**
  * Mock JSON-encoded DataModel definition.

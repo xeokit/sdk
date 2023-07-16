@@ -7,7 +7,7 @@ const kdTreeDimLength = new Float32Array(2);
 /**
  * An item stored in a 2D k-d tree.
  *
- * See {@link "@xeokit/collision/kdtree2"} for usage.
+ * See {@link "@xeokit/kdtree2"} for usage.
  */
 export interface KdItem2D {
 
@@ -20,7 +20,7 @@ export interface KdItem2D {
 /**
  * A 2D k-d tree node.
  *
- * See {@link "@xeokit/collision/kdtree2"} for usage.
+ * See {@link "@xeokit/kdtree2"} for usage.
  */
 export interface KdNode2D {
 
@@ -48,7 +48,7 @@ export interface KdNode2D {
 /**
  * Parameters for creating a 2D k-d tree.
  *
- * See {@link "@xeokit/collision/kdtree2"} for usage.
+ * See {@link "@xeokit/kdtree2"} for usage.
  */
 export interface KdTree2DParams {
 
@@ -66,7 +66,7 @@ export interface KdTree2DParams {
 /**
  * A static 2D k-d tree.
  *
- * See {@link "@xeokit/collision/kdtree2"} for usage.
+ * See {@link "@xeokit/kdtree2"} for usage.
  */
 export class KdTree2 {
 

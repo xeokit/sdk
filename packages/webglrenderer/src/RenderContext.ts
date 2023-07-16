@@ -83,7 +83,7 @@ export class RenderContext {
     /**
      * The 4x4 viewing transform matrix the renderer is currently using when rendering a ray-pick.
      *
-     * This sets the viewpoint to look along the ray given to {@link Scene/pick:method"}}Scene#pick(){{/crossLink}}
+     * This sets the viewpoint to look along the ray given to {@link @xeokit/scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
      * when picking with a ray.
      */
     public pickViewMatrix: any;

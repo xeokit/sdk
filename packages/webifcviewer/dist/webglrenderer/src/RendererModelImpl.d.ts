@@ -2,7 +2,7 @@ import { Component, EventEmitter, TextureTranscoder } from "@xeokit/core";
 import type { FloatArrayParam } from "@xeokit/math";
 import type { View } from "@xeokit/viewer";
 import type { Viewer } from "@xeokit/viewer";
-import type { RendererGeometry, RendererMesh, RendererModel, RendererTexture, RendererTextureSet, SceneModel } from "@xeokit/scene";
+import type { RendererGeometry, RendererMesh, RendererSceneModel, RendererTexture, RendererTextureSet, SceneModel } from "@xeokit/scene";
 import type { WebGLRenderer } from "./WebGLRenderer";
 import { Layer } from "./Layer";
 import type { RenderContext } from "./RenderContext";
@@ -11,7 +11,7 @@ import type { RendererViewObject } from "@xeokit/viewer";
 /**
  * @private
  */
-export declare class RendererModelImpl extends Component implements RendererModel {
+export declare class RendererModelImpl extends Component implements RendererSceneModel {
     #private;
     readonly qualityRender: boolean;
     readonly id: string;
@@ -30,16 +30,16 @@ export declare class RendererModelImpl extends Component implements RendererMode
     rendererMeshes: {
         [key: string]: RendererMesh;
     };
-    rendererObjects: {
+    rendererSceneObjects: {
         [key: string]: RendererObjectImpl;
     };
-    rendererObjectsList: RendererObjectImpl[];
+    rendererSceneObjectsList: RendererObjectImpl[];
     rendererViewObjects: {
         [key: string]: RendererViewObject;
     };
     readonly viewer: Viewer;
     layerList: Layer[];
-    readonly onBuilt: EventEmitter<RendererModel, null>;
+    readonly onBuilt: EventEmitter<RendererSceneModel, null>;
     readonly onDestroyed: EventEmitter<Component, null>;
     constructor(params: {
         id: string;

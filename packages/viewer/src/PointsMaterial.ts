@@ -2,7 +2,7 @@ import {Component} from "@xeokit/core";
 import type {View} from "./View";
 
 /**
- * Configures the size and shape of {@link ViewObject | ViewObjects} that represent clouds of points.
+ * Configures the size and shape of {@link @xeokit/viewer!ViewObject | ViewObjects} that represent clouds of points.
  *
  * ## Summary
  *

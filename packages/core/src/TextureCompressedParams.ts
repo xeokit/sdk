@@ -1,7 +1,7 @@
 /**
  * Compressed texture data.
  *
- * * Created by {@link TextureTranscoder.transcode} from transcoded texture data.
+ * * Created by a {@link @xeokit/core!TextureTranscoder.transcode | TextureTranscoder.transcode} from transcoded texture data.
  */
 export interface TextureCompressedParams {
     mipmaps: {

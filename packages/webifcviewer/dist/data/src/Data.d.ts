@@ -18,29 +18,29 @@ export declare class Data extends Component {
         [key: string]: DataModel;
     };
     /**
-     * The {@link PropertySet | PropertySets} belonging to this Data, mapped to {@link PropertySet.id | PropertySet.id}.
+     * The{@link @xeokit/data!PropertySet | PropertySets} belonging to this Data, mapped to{@link @xeokit/data!PropertySet.id | PropertySet.id}.
      */
     readonly propertySets: {
         [key: string]: PropertySet;
     };
     /**
-     * The {@link DataObject | DataObjects} in this Data, mapped to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} in this Data, mapped to {@link @xeokit/data!DataObject.id | DataObject.id}.
      */
     readonly objects: {
         [key: string]: DataObject;
     };
     /**
-     * The root {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id | DataObject.id}.
+     * The root {@link @xeokit/data!DataObject | DataObjects} belonging to this Data, each keyed to its {@link @xeokit/data!DataObject.id | DataObject.id}.
      *
      * * This is the set of DataObjects in the DataModels within this Data that are not the *related* participant in
-     * any {@link Relationship | Relationships}, where they have no incoming Relationships and
-     * their {@link DataObject.relating} property is empty.
+     * any {@link @xeokit/data!Relationship | Relationships}, where they have no incoming Relationships and
+     * their {@link @xeokit/data!DataObject.relating} property is empty.
      */
     readonly rootObjects: {
         [key: string]: DataObject;
     };
     /**
-     * The {@link DataObject | DataObjects} belonging to this Data, each map keyed to {@link DataObject.type | DataObject.type},
+     * The {@link @xeokit/data!DataObject | DataObjects} belonging to this Data, each map keyed to {@link @xeokit/data!DataObject.type | DataObject.type},
      * containing {@link DataObject | DataObjects} keyed to {@link DataObject.id | DataObject.id}.
      */
     readonly objectsByType: {

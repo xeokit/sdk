@@ -6,7 +6,7 @@ import type { MeshParams } from "./MeshParams";
 import type { GeometryParams } from "./GeometryParams";
 import type { SceneObjectParams } from "./SceneObjectParams";
 /**
- * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link Scene.createModel | Scene.createModel}.
+ * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link @xeokit/scene!Scene.createModel | Scene.createModel}.
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -14,7 +14,7 @@ export interface SceneModelParams {
     /**
      * Unique ID for the SceneModel.
      *
-     * The SceneModel is stored with this ID in {@link Scene.models | Scene.models}
+     * The SceneModel is stored with this ID in {@link @xeokit/scene!Scene.models | Scene.models}
      */
     id: string;
     /**
@@ -40,27 +40,27 @@ export interface SceneModelParams {
      */
     position?: FloatArrayParam;
     /**
-     * {@link GeometryParams} in the SceneModel.
+     * {@link @xeokit/scene!GeometryParams} in the SceneModel.
      */
     geometries?: GeometryParams[];
     /**
-     * {@link GeometryCompressedParams} in the SceneModel.
+     * {@link @xeokit/scene!GeometryCompressedParams} in the SceneModel.
      */
     geometriesCompressed?: GeometryCompressedParams[];
     /**
-     * {@link Texture | Textures} in the SceneModel.
+     * {@link @xeokit/scene!Texture | Textures} in the SceneModel.
      */
     textures?: TextureParams[];
     /**
-     * {@link TextureSet | TextureSets} in the SceneModel.
+     * {@link @xeokit/scene!TextureSet | TextureSets} in the SceneModel.
      */
     textureSets?: TextureSetParams[];
     /**
-     * {@link Mesh | Meshes} in the SceneModel.
+     * {@link @xeokit/scene!Mesh | Meshes} in the SceneModel.
      */
     meshes?: MeshParams[];
     /**
-     * {@link SceneObject | SceneObjects} in the SceneModel.
+     * {@link @xeokit/scene!SceneObject | SceneObjects} in the SceneModel.
      */
     objects?: SceneObjectParams[];
     /**

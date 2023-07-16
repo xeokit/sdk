@@ -29,7 +29,7 @@
  *
  * With these components, applications can implement (at least):
  *
- * * Frustum3 culling for SceneObjects
+ * * Frustum3 culling for {@link @xeokit/scene!SceneObject | SceneObjects}
  * * Ray-picking SceneObjects
  * * Marquee selection of SceneObjects
  *
@@ -48,13 +48,13 @@
  *
  * ## Usage
  *
- * Querying for SceneObjects that intersect a 3D World-space boundary:
+ * Querying for {@link @xeokit/scene!SceneObject | SceneObjects} that intersect a 3D World-space boundary:
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";
  * import {SDKError} from "@xeokit/core";
- * import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
- * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/collision/objects";
+ * import {TrianglesPrimitive} from "@xeokit/constants";
+ * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/kdtree3";
  *
  * const scene = new Scene();
  *

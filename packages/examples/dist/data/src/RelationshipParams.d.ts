@@ -1,5 +1,5 @@
 /**
- * Parameters for creating a {@link Relationship} with {@link DataModel.createRelationship | DataModel.createRelationship}.
+ * Parameters for creating a {@link @xeokit/data!Relationship} with {@link @xeokit/data!DataModel.createRelationship | DataModel.createRelationship}.
  *
  * See {@link "@xeokit/data"} for usage.
  */

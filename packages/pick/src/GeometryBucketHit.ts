@@ -4,7 +4,7 @@ import type {PrimHit} from "./PrimHit";
 /**
  * Represents an intersecting {@link @xeokit/scene!GeometryBucket | GeometryBucket} within a {@link RayPickResult}.
  *
- * See {@link "@xeokit/collision/pick"} for usage.
+ * See {@link "@xeokit/collision!pick"} for usage.
  */
 export interface GeometryBucketHit {
 

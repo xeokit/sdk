@@ -1,5 +1,5 @@
 import type { FloatArrayParam } from "@xeokit/math";
-import type { RendererModel } from "@xeokit/scene";
+import type { RendererSceneModel } from "@xeokit/scene";
 /**
  * Interface through which a {@link @xeokit/viewer!Viewer | Viewer} can issue commands at a {@link @xeokit/viewer!Renderer | Renderer} to
  * show/hide/highlight/select/xray/colorize a particular object within the specified {@link @xeokit/viewer!View | View}.
@@ -12,9 +12,9 @@ export interface RendererViewObject {
      */
     readonly id: string;
     /**
-     * The {@link @xeokit/scene!RendererModel | RendererModel} that contains this RendererViewObject.
+     * The {@link @xeokit/scene!RendererSceneModel | RendererSceneModel} that contains this RendererViewObject.
      */
-    readonly rendererModel: RendererModel;
+    readonly rendererSceneModel: RendererSceneModel;
     /**
      * The axis-aligned World-space 3D boundary of this RendererViewObject.
      */

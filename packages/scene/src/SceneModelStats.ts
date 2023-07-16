@@ -1,57 +1,57 @@
 
 /**
- * Statistics for a {@link SceneModel}.
+ * Statistics for a {@link @xeokit/scene!SceneModel}.
  *
  */
 export interface SceneModelStats {
 
     /**
-     * The number of {@link SceneObject | SceneObjects} in the {@link SceneModel}.
+     * The number of {@link @xeokit/scene!SceneObject | SceneObjects} in the {@link @xeokit/scene!SceneModel}.
      */
     numObjects: number;
 
     /**
-     * The number of {@link Mesh | Meshes} in the {@link SceneModel}.
+     * The number of {@link @xeokit/scene!Mesh | Meshes} in the {@link @xeokit/scene!SceneModel}.
      */
     numMeshes: number;
 
     /**
-     * The number of {@link Geometry | Geometries} in the {@link SceneModel}.
+     * The number of {@link @xeokit/scene!Geometry | Geometries} in the {@link @xeokit/scene!SceneModel}.
      */
     numGeometries: number;
 
     /**
-     * The number of {@link Texture | Textures} in the {@link SceneModel}.
+     * The number of {@link @xeokit/scene!Texture | Textures} in the {@link @xeokit/scene!SceneModel}.
      */
     numTextures: number;
 
     /**
-     * The number of {@link TextureSet | TextureSets} in the {@link SceneModel}.
+     * The number of {@link @xeokit/scene!TextureSet | TextureSets} in the {@link @xeokit/scene!SceneModel}.
      */
     numTextureSets: number;
 
     /**
-     * The number of triangles in the {@link SceneModel}.
+     * The number of triangles in the {@link @xeokit/scene!SceneModel}.
      */
     numTriangles: number;
 
     /**
-     * The number of lines in the {@link SceneModel}.
+     * The number of lines in the {@link @xeokit/scene!SceneModel}.
      */
     numLines: number;
 
     /**
-     * The number of points primitives in the {@link SceneModel}.
+     * The number of points primitives in the {@link @xeokit/scene!SceneModel}.
      */
     numPoints: number;
 
     /**
-     * The number of vertices in the {@link SceneModel}.
+     * The number of vertices in the {@link @xeokit/scene!SceneModel}.
      */
     numVertices: number;
 
     /**
-     * The number of bytes used for texture storage in the {@link SceneModel}.
+     * The number of bytes used for texture storage in the {@link @xeokit/scene!SceneModel}.
      */
     textureBytes: number;
 }

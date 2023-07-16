@@ -1,5 +1,5 @@
 /**
- * Parameters to create a {@link DataObject} with {@link DataModel.createObject | DataModel.createObject}.
+ * Parameters to create a {@link @xeokit/data!DataObject} with {@link @xeokit/data!DataModel.createObject | DataModel.createObject}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -21,7 +21,7 @@ export interface DataObjectParams {
      */
     name: string;
     /**
-     * IDs of associated {@link PropertySet | PropertySets}, if any.
+     * IDs of associated{@link @xeokit/data!PropertySet | PropertySets}, if any.
      */
     propertySetIds?: string[];
 }

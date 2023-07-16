@@ -2,12 +2,12 @@ import { Component } from "@xeokit/core";
 import type { View } from "./View";
 import type { FloatArrayParam } from "@xeokit/math";
 /**
- * Configures the appearance of {@link ViewObject | ViewObjects} when their edges are emphasised.
+ * Configures the appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} when their edges are emphasised.
  *
  * ## Summary
  *
  * * Located at {@link View.edgeMaterial}.
- * * Emphasise edges of a {@link ViewObject} by setting {@link ViewObject.edges} ````true````.
+ * * Emphasise edges of a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.edges} ````true````.
  */
 declare class EdgeMaterial extends Component {
     #private;

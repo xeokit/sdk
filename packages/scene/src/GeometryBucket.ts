@@ -14,7 +14,7 @@ export class GeometryBucket {
     /**
      * GeometryBucket's 3D vertex positions, quantized as 16-bit integers.
      *
-     * Internally, the Viewer dequantizes these with {@link @xeokit/scene!Geometry.positionsDecompressMatrix}.
+     * Internally, the Viewer dequantizes these with {@link @xeokit/scene!Geometry.positionsDecompressMatrix | Geometry.positionsDecompressMatrix}.
      *
      * Vertex positions are required for all primitive types.
      */
@@ -23,7 +23,7 @@ export class GeometryBucket {
     /**
      * GeometryBucket's UV coordinates, quantized as 16-bit integers.
      *
-     * Internally, the Viewer de-quantizes these with {@link @xeokit/scene!Geometry.uvsDecompressMatrix}.
+     * Internally, the Viewer de-quantizes these with {@link @xeokit/scene!Geometry.uvsDecompressMatrix | Geometry.uvsDecompressMatrix}.
      */
     uvsCompressed?: IntArrayParam;
 

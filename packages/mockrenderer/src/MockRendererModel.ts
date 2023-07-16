@@ -1,11 +1,10 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {Component, EventEmitter, SDKError} from "@xeokit/core";
-import type {FloatArrayParam} from "@xeokit/math";
 import type {RendererViewObject, View, Viewer} from "@xeokit/viewer";
 import type {
     RendererGeometry,
     RendererMesh,
-    RendererModel,
+    RendererSceneModel,
     RendererTexture,
     RendererTextureSet,
     SceneModel
@@ -18,7 +17,6 @@ import {MockRendererGeometry} from "./MockRendererGeometry";
 import {MockRendererMesh} from "./MockRendererMesh";
 
 import {createUUID} from "@xeokit/utils";
-import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
 import {MockRendererTextureSet} from "./MockRendererTextureSet";
 
 const defaultColorTextureId = "defaultColorTexture";
@@ -29,11 +27,11 @@ const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
 
 /**
- * TODO
+ * Mock rendering strategy for a {@link @xeokit/scene!Mesh | Mesh}.
  *
- * @internal
+ * See {@link @xeokit/mockrenderer} for usage.
  */
-export class MockRendererModel extends Component implements RendererModel {
+export class MockRendererModel extends Component implements RendererSceneModel {
 
     readonly qualityRender: boolean;
     declare readonly id: string;
@@ -42,18 +40,20 @@ export class MockRendererModel extends Component implements RendererModel {
 
     readonly viewer: Viewer;
     sceneModel: SceneModel | null;
-
     rendererGeometries: { [key: string]: RendererGeometry };
     rendererTextures: { [key: string]: RendererTexture };
     rendererTextureSets: { [key: string]: RendererTextureSet; };
     rendererMeshes: { [key: string]: RendererMesh };
-    rendererObjects: { [key: string]: MockRendererObject };
-    rendererObjectsList: MockRendererObject[];
+    rendererSceneObjects: { [key: string]: MockRendererObject };
+    rendererSceneObjectsList: MockRendererObject[];
     rendererViewObjects: { [key: string]: RendererViewObject };
 
-    readonly onBuilt: EventEmitter<RendererModel, null>;
+    readonly onBuilt: EventEmitter<RendererSceneModel, null>;
     declare readonly onDestroyed: EventEmitter<Component, null>;
 
+    /**
+     * @private
+     */
     constructor(params: {
         qualityRender: boolean;
         id: string;
@@ -71,12 +71,12 @@ export class MockRendererModel extends Component implements RendererModel {
         this.rendererTextures = {};
         this.rendererTextureSets = {};
         this.rendererMeshes = {};
-        this.rendererObjects = {};
-        this.rendererObjectsList = [];
+        this.rendererSceneObjects = {};
+        this.rendererSceneObjectsList = [];
         this.rendererViewObjects = {};
         this.built = false;
         this.qualityRender = (params.qualityRender !== false);
-        this.onBuilt = new EventEmitter(new EventDispatcher<RendererModel, null>());
+        this.onBuilt = new EventEmitter(new EventDispatcher<RendererSceneModel, null>());
         this.built = true;
         this.#createDefaultTextureSet();
         this.#attachSceneModel(this.sceneModel);
@@ -173,8 +173,8 @@ export class MockRendererModel extends Component implements RendererModel {
         let objectId = sceneObject.id;
         if (objectId === undefined) {
             objectId = createUUID();
-        } else if (this.rendererObjects[objectId]) {
-            this.error("[createObject] rendererModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
+        } else if (this.rendererSceneObjects[objectId]) {
+            this.error("[createObject] rendererSceneModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
             objectId = createUUID();
         }
         const meshes = sceneObject.meshes;
@@ -187,17 +187,17 @@ export class MockRendererModel extends Component implements RendererModel {
             const rendererMesh = <MockRendererMesh>this.rendererMeshes[mesh.id];
             rendererMeshes.push(rendererMesh);
         }
-        const rendererObject = new MockRendererObject({
+        const rendererSceneObject = new MockRendererObject({
             id: objectId,
             sceneObject,
-            rendererModel: this,
+            rendererSceneModel: this,
             rendererMeshes,
             aabb: sceneObject.aabb,
             layerId: "0"
         });
-        this.rendererObjectsList.push(rendererObject);
-        this.rendererObjects[objectId] = rendererObject; // <RendererObject>
-        this.rendererViewObjects[objectId] = rendererObject; // <RendererViewObject>
+        this.rendererSceneObjectsList.push(rendererSceneObject);
+        this.rendererSceneObjects[objectId] = rendererSceneObject; // <RendererSceneObject>
+        this.rendererViewObjects[objectId] = rendererSceneObject; // <RendererViewObject>
     }
 
     destroy() {

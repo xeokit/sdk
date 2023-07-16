@@ -25,7 +25,7 @@ export interface LayerRenderState {
  */
 export declare class Layer {
     #private;
-    rendererModel: WebGLRendererModel;
+    rendererSceneModel: WebGLRendererModel;
     layerIndex: number;
     meshCounts: MeshCounts;
     renderState: LayerRenderState;

@@ -1,19 +1,19 @@
 /**
  *  XKT file data.
  *
- *  The elements of an XKT file, unpacked into a set of arrays for parsing.
+ *  The elements of an [XKT](/docs/pages/GLOSSARY.html#xkt) file, unpacked into a set of arrays for parsing.
  *
- *  This interface represents the structure of an XKT file.
+ *  This interface represents the structure of an [XKT](/docs/pages/GLOSSARY.html#xkt) file.
  */
 export interface XKTData {
 
     /**
-     * Arbitrary metadata JSON for the XKT file.
+     * Arbitrary metadata JSON for the [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     metadata: {};
 
     /**
-     * Combined data for all textures in the XKT file.
+     * Combined data for all textures in the [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     textureData: Uint8Array;
 
@@ -28,59 +28,59 @@ export interface XKTData {
      * The attributes for each texture are:
      *
      * * Texture compressed? - 0 (no) or 1 (yes)
-     * * {@link Texture.mediaType}
-     * * {@link Texture.width}
-     * * {@link Texture.height}
-     * * {@link Texture.minFilter}
-     * * {@link Texture.magFilter}
-     * * {@link Texture.wrapS}
-     * * {@link Texture.wrapT}
-     * * {@link Texture.wrapR}
+     * * {@link @xeokit/scene!Texture.mediaType}
+     * * {@link @xeokit/scene!Texture.width}
+     * * {@link @xeokit/scene!Texture.height}
+     * * {@link @xeokit/scene!Texture.minFilter}
+     * * {@link @xeokit/scene!Texture.magFilter}
+     * * {@link @xeokit/scene!Texture.wrapS}
+     * * {@link @xeokit/scene!Texture.wrapT}
+     * * {@link @xeokit/scene!Texture.wrapR}
      */
     eachTextureAttributes: Uint16Array;
 
     /**
-     * Combined vertex positions array for entire XKT file.
+     * Combined vertex positions array for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     positions: Uint16Array;
 
     /**
-     * Combined vertex colors array for entire XKT file.
+     * Combined vertex colors array for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     colors: Uint8Array;
 
     /**
-     * Combined vertex UV coordinates for entire XKT file.
+     * Combined vertex UV coordinates for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     uvs: Float32Array;
 
     /**
-     * Combined 8-bit indices for entire XKT file.
+     * Combined 8-bit indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     indices8Bit: Uint8Array;
 
     /**
-     * Combined 16-bit indices for entire XKT file.
+     * Combined 16-bit indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     indices16Bit: Uint16Array;
 
     /**
-     * Combined 32-bit indices for entire XKT file.
+     * Combined 32-bit indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     indices32Bit: Uint32Array;
 
     /**
-     * Combined 8-bit edge indices for entire XKT file.
+     * Combined 8-bit edge indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     edgeIndices8Bit: Uint8Array;
 
     /**
-     * Combined 16-bit edge indices for entire XKT file.
+     * Combined 16-bit edge indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     edgeIndices16Bit: Uint16Array;
 
     /**
-     * Combines 32-bit edge indices for entire XKT file.
+     * Combines 32-bit edge indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     edgeIndices32Bit: Uint32Array;
 
@@ -140,7 +140,7 @@ export interface XKTData {
     eachGeometryDecodeMatricesPortion: Uint32Array;
 
     /**
-     * Combined list of all modeling transform matrices in this XKT file.
+     * Combined list of all modeling transform matrices in this [XKT](/docs/pages/GLOSSARY.html#xkt) file.
      */
     matrices: Float32Array;
 

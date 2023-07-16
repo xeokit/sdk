@@ -1,9 +1,11 @@
 import type {FloatArrayParam} from "@xeokit/math";
 
 /**
- *  Internal interface through which a {@link Mesh} can load state updates into a renderer.
+ * Interface through which a {@link @xeokit/scene!Mesh | Mesh} loads attribute updates 
+ * into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/viewer!Renderer | Renderer}.
  *
- *  This exists at each {@link Mesh.rendererMesh} when the owner {@link SceneModel} has been added
+ *  This exists at each {@link @xeokit/scene!Mesh.rendererMesh | Mesh.rendererMesh} when the
+ *  containing {@link @xeokit/scene!SceneModel} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * @internal
@@ -11,7 +13,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 export interface RendererMesh {
 
     /**
-     * Loads a modeling matrix into the {@link WebGLRenderer}.
+     * Loads the {@link @xeokit/scene!Mesh | Mesh's} modeling matrix into the {@link @xeokit/viewer!Renderer}.
      *
      * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.matrix}.
      *
@@ -20,7 +22,7 @@ export interface RendererMesh {
     setMatrix(matrix: FloatArrayParam): void;
 
     /**
-     * Loads a material color value into the {@link WebGLRenderer}.
+     * Loads a material color value into the {@link @xeokit/viewer!Renderer}.
      *
      * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.color}.
      *
@@ -29,7 +31,7 @@ export interface RendererMesh {
     setColor(color: FloatArrayParam): void;
 
     /**
-     * Loads a material metalness value into the {@link Renderer}.
+     * Loads a material metalness value into the {@link @xeokit/viewer!Renderer}.
      *
      * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.metalness}.
      *
@@ -38,7 +40,7 @@ export interface RendererMesh {
     setMetallic(metallic: number): void;
 
     /**
-     * Loads a meterial roughness value into the {@link WebGLRenderer}.
+     * Loads a meterial roughness value into the {@link @xeokit/viewer!Renderer}.
      *
      * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.roughness}.
      *

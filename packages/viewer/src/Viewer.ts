@@ -199,7 +199,14 @@ export class Viewer extends Component {
         this.#registerView(view);
         // Renderer.attachView sets up internal Renderer resources
         // that are expected by Renderer.attachSceneModel
-        view.viewIndex = this.renderer.attachView(view);
+        {
+            const result: any = this.renderer.attachView(view);
+            if (result instanceof SDKError) {
+                return result;
+            } else {
+                view.viewIndex = result;
+            }
+        }
         view.onDestroyed.one(() => {
             this.#deregisterView(view);
             this.renderer.detachView(view.viewIndex);

@@ -1,5 +1,5 @@
 /**
- * See {@link "@xeokit/collision/kdtree3"} for usage.
+ * See {@link "@xeokit/kdtree3"} for usage.
  */
 export interface KdPointPrim {
     a: number;

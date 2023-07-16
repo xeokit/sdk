@@ -1,10 +1,10 @@
 import type {DataObject} from "./DataObject";
 
 /**
- * Parameters for finding {@link DataObject | DataObjects} with {@link Data.searchObjects | Data.searchObjects}.
+ * Parameters for finding {@link @xeokit/data!DataObject | DataObjects} with {@link @xeokit/data!Data.searchObjects | Data.searchObjects}.
  *
- * These parameters configure the way that {@link Data.searchObjects | Data.searchObjects} performs its depth-first
- * search to find our {@link DataObject | DataObjects}.
+ * These parameters configure the way that {@link @xeokit/data!Data.searchObjects | Data.searchObjects} performs its depth-first
+ * search to find our {@link @xeokit/data!DataObject | DataObjects}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -18,7 +18,7 @@ export interface SearchParams {
     startObjectId?: string;
 
     /**
-     * The {@link DataObject} to start traversal at.
+     * The {@link @xeokit/data!DataObject} to start traversal at.
      *
      * Overrides {@link SearchParams.startObjectId}.
      */
@@ -32,51 +32,51 @@ export interface SearchParams {
     includeStart?:boolean;
 
     /**
-     * Which {@link DataObject} types to exclusively include in search results.
+     * Which {@link @xeokit/data!DataObject} types to exclusively include in search results.
      */
     includeObjects?: number[];
 
     /**
-     * Which {@link DataObject} types to never include in search results.
+     * Which {@link @xeokit/data!DataObject} types to never include in search results.
      */
     excludeObjects?: number[];
 
     /**
-     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.relating | DataObject.relating}.
+     * Which {@link @xeokit/data!Relationship} types to exclusively follow in each {@link @xeokit/data!DataObject.relating | DataObject.relating}.
      */
     includeRelating?: number[];
 
     /**
-     * Which {@link Relationship} types to never follow in each {@link DataObject.related | DataObject.related}.
+     * Which {@link @xeokit/data!Relationship} types to never follow in each {@link @xeokit/data!DataObject.related | DataObject.related}.
      */
     excludeRelating?: number[];
 
     /**
-     * Which {@link Relationship} types to exclusively follow in each {@link DataObject.related | DataObject.related}.
+     * Which {@link @xeokit/data!Relationship} types to exclusively follow in each {@link @xeokit/data!DataObject.related | DataObject.related}.
      */
     includeRelated?: number[];
 
     /**
-     * Which {@link Relationship} types to never follow in each {@link DataObject.relating | DataObject.relating}.
+     * Which {@link @xeokit/data!Relationship} types to never follow in each {@link @xeokit/data!DataObject.relating | DataObject.relating}.
      */
     excludeRelated?: number[];
 
     /**
-     * Collects the search results in a list of {@link DataObject} IDs.
+     * Collects the search results in a list of {@link @xeokit/data!DataObject} IDs.
      *
      * This is mutually exclusive with {@link SearchParams.resultObjects} and {@link SearchParams.resultCallback}.
      */
     resultObjectIds?: string[];
 
     /**
-     * Collects the search results in a list of {@link DataObject | DataObjects}.
+     * Collects the search results in a list of {@link @xeokit/data!DataObject | DataObjects}.
      *
      * This is mutually exclusive with {@link SearchParams.resultObjectIds} and {@link SearchParams.resultCallback}.
      */
     resultObjects?: DataObject[];
 
     /**
-     * Collects the search results via a callback that's executed on each matching {@link DataObject}.
+     * Collects the search results via a callback that's executed on each matching {@link @xeokit/data!DataObject}.
      *
      * This is mutually exclusive with {@link SearchParams.resultObjects} and {@link SearchParams.resultObjectIds}.
      */

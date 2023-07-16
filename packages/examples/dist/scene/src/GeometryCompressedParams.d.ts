@@ -5,8 +5,8 @@ import type { GeometryBucketParams } from "./GeometryBucketParams";
  *
  * ## Summary
  *
- * * Created from {@link @xeokit/scene!GeometryParams|GeometryParams} using {@link @xeokit/compression!compressGeometryParams}
- * * Used with {@link SceneModel.createGeometryCompressed | Model.createGeometryCompressed} and {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
+ * * Created from {@link @xeokit/scene!GeometryParams|GeometryParams} using {@link @xeokit/scene!compressGeometryParams}
+ * * Used with {@link @xeokit/scene!SceneModel.createGeometryCompressed | Model.createGeometryCompressed} and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)
@@ -22,8 +22,8 @@ export interface GeometryCompressedParams {
     /**
      * Primitive type.
      *
-     * Possible values are {@link SolidPrimitive}, {@link SurfacePrimitive}, {@link LinesPrimitive}, {@link PointsPrimitive}
-     * and {@link TrianglesPrimitive}.
+     * Possible values are {@link @xeokit/constants!SolidPrimitive}, {@link @xeokit/constants!SurfacePrimitive}, {@link @xeokit/constants!LinesPrimitive}, {@link @xeokit/constants!PointsPrimitive}
+     * and {@link @xeokit/constants!TrianglesPrimitive}.
      */
     primitive: number;
     /**

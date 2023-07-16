@@ -4,8 +4,8 @@ import type { PropertySetParams } from "./PropertySetParams";
 /**
  * A set of {@link Property | Properties} in a {@link @xeokit/data!DataModel | DataModel}.
  *
- * * Created with {@link DataModel.createPropertySet | DataModel.createPropertySet}
- * * Stored in {@link Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | Data.propertySets}
+ * * Created with {@link @xeokit/data!DataModel.createPropertySet | DataModel.createPropertySet}
+ * * Stored in {@link @xeokit/data!Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | Data.propertySets}
  *
  * See {@link "@xeokit/data"} for usage.
  */

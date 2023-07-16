@@ -4,7 +4,7 @@ import type {KdItem3D} from "./KdItem3";
 /**
  * A node in a {@link KdTree3}.
  *
- * See {@link "@xeokit/collision/kdtree3"} for usage.
+ * See {@link "@xeokit/kdtree3"} for usage.
  */
 export interface KdNode3 {
 

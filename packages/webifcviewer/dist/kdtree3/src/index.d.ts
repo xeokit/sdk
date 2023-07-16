@@ -53,8 +53,8 @@
  * ````javascript
  * import {Scene} from "@xeokit/scene";
  * import {SDKError} from "@xeokit/core";
- * import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
- * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/collision/objects";
+ * import {TrianglesPrimitive} from "@xeokit/constants";
+ * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/collision!objects";
  *
  * const scene = new Scene();
  *

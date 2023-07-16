@@ -6,10 +6,10 @@ import type { FloatArrayParam } from "@xeokit/math";
  *
  * ## Summary
  *
- * * Located at {@link Camera.perspectiveProjection}.
- * * Implicitly sets the left, right, top, bottom frustum planes using {@link PerspectiveProjection.fov}.
- * * {@link PerspectiveProjection.near} and {@link PerspectiveProjection.far} specify the distances to the clipping planes.
- * * {@link PerspectiveProjection.onProjMatrix} will fire an event whenever {@link PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
+ * * Located at {@link @xeokit/viewer!Camera.perspectiveProjection | Camera.perspectiveProjection}.
+ * * Implicitly sets the left, right, top, bottom frustum planes using {@link @xeokit/viewer!PerspectiveProjection.fov | PerspectiveProjection.fov}.
+ * * {@link @xeokit/viewer!PerspectiveProjection.near | PerspectiveProjection.near} and {@link @xeokit/viewer!PerspectiveProjection.far| PerspectiveProjection.far} specify the distances to the clipping planes.
+ * * {@link @xeokit/viewer!PerspectiveProjection.onProjMatrix | PerspectiveProjection.onProjMatrix} will fire an event whenever {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
 export declare class PerspectiveProjection extends Component {
     #private;
@@ -18,7 +18,7 @@ export declare class PerspectiveProjection extends Component {
      */
     readonly camera: Camera;
     /**
-     * Emits an event each time {@link PerspectiveProjection.projMatrix} updates.
+     * Emits an event each time {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates.
      *
      * @event
      */
@@ -109,15 +109,15 @@ export declare class PerspectiveProjection extends Component {
      */
     get projMatrix(): FloatArrayParam;
     /**
-     * Gets the inverse of {@link PerspectiveProjection.projMatrix}.
+     * Gets the inverse of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      *
-     * @returns  The inverse of {@link PerspectiveProjection.projMatrix}.
+     * @returns  The inverse of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      */
     get inverseProjMatrix(): FloatArrayParam;
     /**
-     * Gets the transpose of {@link PerspectiveProjection.projMatrix}.
+     * Gets the transpose of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      *
-     * @returns  The transpose of {@link PerspectiveProjection.projMatrix}.
+     * @returns  The transpose of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      */
     get transposedProjMatrix(): FloatArrayParam;
     /**

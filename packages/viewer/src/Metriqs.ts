@@ -34,7 +34,7 @@ const unitsInfo = {
  * ## Summary
  *
  * * Located at {@link View.metrics}.
- * * {@link Metrics.units} configures the Real-space unit type, which is {@link MetersUnit} by default.
+ * * {@link Metrics.units} configures the Real-space unit type, which is {@link @xeokit/constants!MetersUnit} by default.
  * * {@link Metrics.scale} configures the number of Real-space units represented by each unit within the World-space 3D coordinate system. This is ````1.0```` by default.
  * * {@link Metrics.origin} configures the 3D Real-space origin, in current Real-space units, at which this {@link @xeokit/viewer!View}'s World-space coordinate origin sits, This is ````[0,0,0]```` by default.
  *
@@ -157,7 +157,7 @@ class Metrics extends Component {
     /**
      * Sets the {@link @xeokit/viewer!View}'s Real-space unit type.
      *
-     * Accepted values are {@link MetersUnit}, {@link CentimetersUnit}, {@link MillimetersUnit}, {@link YardsUnit}, {@link FeetUnit} and {@link InchesUnit}.
+     * Accepted values are {@link @xeokit/constants!MetersUnit}, {@link @xeokit/constants!CentimetersUnit}, {@link @xeokit/constants!MillimetersUnit}, {@link @xeokit/constants!YardsUnit}, {@link @xeokit/constants!FeetUnit} and {@link @xeokit/constants!InchesUnit}.
      */
     set units(value: number | undefined) {
         if (!value) {
@@ -183,7 +183,7 @@ class Metrics extends Component {
     /**
      * Sets the number of Real-space units represented by each unit of the {@link @xeokit/viewer!View}'s World-space coordinate system.
      *
-     * For example, if {@link Metrics.units} is {@link MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
+     * For example, if {@link Metrics.units} is {@link @xeokit/constants!MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
      */
     set scale(value: number | undefined) {
         value = value || 1;

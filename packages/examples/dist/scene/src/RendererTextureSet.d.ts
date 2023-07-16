@@ -1,8 +1,8 @@
 import type { RendererTexture } from "./RendererTexture";
 /**
- *  Internal interface through which a {@link TextureSet} can load property updates into a renderer.
+ *  Internal interface through which a {@link @xeokit/scene!TextureSet} can load property updates into a renderer.
  *
- *  This exists at {@link TextureSet.rendererTextureSet} when the {@link SceneModel} has been added
+ *  This exists at {@link @xeokit/scene!TextureSet.rendererTextureSet} when the {@link @xeokit/scene!SceneModel} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * @internal

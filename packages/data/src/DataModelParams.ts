@@ -4,7 +4,7 @@ import type {DataObjectParams} from "./DataObjectParams";
 import type {RelationshipParams} from "./RelationshipParams";
 
 /**
- * Parameters for creating a {@link DataModel} with {@link Data.createModel | Data.createModel}.
+ * Parameters for creating a {@link @xeokit/data!DataModel} with {@link @xeokit/data!Data.createModel | Data.createModel}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -13,7 +13,7 @@ export interface DataModelParams {
     /**
      * Unique ID of the DataModel.
      *
-     * The DataModel is stored in {@link Data.models | Data.models} under this ID.
+     * The DataModel is stored in {@link @xeokit/data!Data.models | Data.models} under this ID.
      */
     id: string;
 
@@ -48,17 +48,17 @@ export interface DataModelParams {
     schema?: string;
 
     /**
-     * The {@link PropertySet | PropertySets} in the DataModel.
+     * The{@link @xeokit/data!PropertySet | PropertySets} in the DataModel.
      */
     propertySets?: PropertySetParams[];
 
     /**
-     * The {@link DataObject | DataObjects} in the DataModel.
+     * The {@link @xeokit/data!DataObject | DataObjects} in the DataModel.
      */
     objects?: DataObjectParams[];
 
     /**
-     * The {@link Relationship | Relationshipships} in the DataModel.
+     * The {@link @xeokit/data!Relationship | Relationshipships} in the DataModel.
      */
     relationships?: RelationshipParams[];
 }

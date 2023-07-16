@@ -33,7 +33,7 @@ module.exports = {
         // "@xeokit/gltf": ["gltf/src"],
         // "@xeokit/locale": ["locale/src"],
         // "@xeokit/compression": ["compression/src"],
-        // "@xeokit/procgen/geometry": ["procgen/src/geometry"],
+        // "@xeokit/procgen": ["procgen/src/geometry"],
         // "@xeokit/ktx2": ["ktx2/src"],
         // "@xeokit/bcf": ["bcf/src"],
         // "@xeokit/controls": ["controls/src"],

@@ -48,7 +48,7 @@ export class WebGLRenderer implements Renderer {
     #saoEnabled: boolean;
     #pbrEnabled: boolean;
     #backgroundColor: FloatArrayParam;
-    #rendererModels: { [key: string]: WebGLRendererModel };
+    #rendererSceneModels: { [key: string]: WebGLRendererModel };
     #layerList: Layer[];
     #layerListDirty: boolean;
     #stateSortDirty: boolean;
@@ -79,9 +79,9 @@ export class WebGLRenderer implements Renderer {
      Creates a WebGLRenderer.
 
      @param params Configs
-     @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
+     @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererSceneModel.createTexture}
      to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-     to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
+     to {@link rendererSceneModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererSceneModel````
      will then be in a format supported by this transcoder.
      */
     constructor(params: {
@@ -111,7 +111,7 @@ export class WebGLRenderer implements Renderer {
         // this.#saoDepthRenderBuffer = null;
         // this.#renderBufferManager = null;
         this.#logarithmicDepthBufferEnabled = false;
-        this.#rendererModels = {};
+        this.#rendererSceneModels = {};
         this.#viewMatrixDirty = true;
     }
 
@@ -198,7 +198,7 @@ export class WebGLRenderer implements Renderer {
      * TODO
      * @internal
      */
-    detachView(viewIndex: number): void { // Nop
+    detachView(viewIndex: number): SDKError | void{ // Nop
     }
 
     /**
@@ -209,7 +209,7 @@ export class WebGLRenderer implements Renderer {
         if (!this.#renderContext) {
             throw new SDKError("Must attach a View before you attach a SceneModel");
         }
-        const rendererModel = new WebGLRendererModel({
+        const rendererSceneModel = new WebGLRendererModel({
             id: sceneModel.id,
             sceneModel,
             view: this.#view,
@@ -217,16 +217,16 @@ export class WebGLRenderer implements Renderer {
             webglRenderer: this,
             renderContext: this.#renderContext
         });
-        this.#rendererModels[rendererModel.id] = rendererModel;
-        this.#attachRendererViewObjects(rendererModel);
+        this.#rendererSceneModels[rendererSceneModel.id] = rendererSceneModel;
+        this.#attachRendererViewObjects(rendererSceneModel);
         this.#layerListDirty = true;
-        rendererModel.onDestroyed.one((component: Component) => {
-            const rendererModel = this.#rendererModels[component.id];
-            delete this.#rendererModels[component.id];
-            this.#detachRendererViewObjects(rendererModel);
+        rendererSceneModel.onDestroyed.one((component: Component) => {
+            const rendererSceneModel = this.#rendererSceneModels[component.id];
+            delete this.#rendererSceneModels[component.id];
+            this.#detachRendererViewObjects(rendererSceneModel);
             this.#layerListDirty = true;
         });
-        sceneModel.rendererModel = rendererModel;
+        sceneModel.rendererSceneModel = rendererSceneModel;
     }
 
     /**
@@ -234,24 +234,24 @@ export class WebGLRenderer implements Renderer {
      * @internal
      */
     detachSceneModel(sceneModel:SceneModel): void {
-        if (this.#rendererModels[sceneModel.id]) {
-            const rendererModel = this.#rendererModels[sceneModel.id];
-            delete this.#rendererModels[sceneModel.id];
-            this.#detachRendererViewObjects(rendererModel);
+        if (this.#rendererSceneModels[sceneModel.id]) {
+            const rendererSceneModel = this.#rendererSceneModels[sceneModel.id];
+            delete this.#rendererSceneModels[sceneModel.id];
+            this.#detachRendererViewObjects(rendererSceneModel);
             this.#layerListDirty = true;
-            sceneModel.rendererModel = null;
+            sceneModel.rendererSceneModel = null;
         }
     }
 
-    #attachRendererViewObjects(rendererModel: WebGLRendererModel) {
-        const rendererViewObjects = rendererModel.rendererViewObjects;
+    #attachRendererViewObjects(rendererSceneModel: WebGLRendererModel) {
+        const rendererViewObjects = rendererSceneModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             this.rendererViewObjects[id] = rendererViewObjects[id];
         }
     }
 
-    #detachRendererViewObjects(rendererModel: WebGLRendererModel) {
-        const rendererViewObjects = rendererModel.rendererViewObjects;
+    #detachRendererViewObjects(rendererSceneModel: WebGLRendererModel) {
+        const rendererViewObjects = rendererSceneModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             delete this.rendererViewObjects[id];
         }
@@ -392,7 +392,7 @@ export class WebGLRenderer implements Renderer {
      * TODO
      * @internal
      */
-    pickSceneObject(viewIndex: number, params: {}): ViewObject | null {
+    pickViewObject(viewIndex: number, params: {}): ViewObject | null {
         return null;
     };
 
@@ -411,8 +411,8 @@ export class WebGLRenderer implements Renderer {
 
     #buildLayerList() {
         let lenDrawableList = 0;
-        for (let id in this.#rendererModels) {
-            const webGLSceneModelRenderer = this.#rendererModels[id];
+        for (let id in this.#rendererSceneModels) {
+            const webGLSceneModelRenderer = this.#rendererSceneModels[id];
             for (let i = 0, len = webGLSceneModelRenderer.layerList.length; i < len; i++) {
                 this.#layerList[lenDrawableList++] = webGLSceneModelRenderer.layerList[i];
             }
@@ -595,10 +595,10 @@ export class WebGLRenderer implements Renderer {
             }
 
             if (meshCounts.numTransparent < meshCounts.numMeshes) {
-                if (this.#saoEnabled && saoPossible && layer.rendererModel.qualityRender) {
+                if (this.#saoEnabled && saoPossible && layer.rendererSceneModel.qualityRender) {
                     normalDrawSAOBin[normalDrawSAOBinLen++] = layer;
                 } else {
-                    this.#drawLayer(layer, RENDER_PASSES.COLOR_OPAQUE, layer.rendererModel.qualityRender);
+                    this.#drawLayer(layer, RENDER_PASSES.COLOR_OPAQUE, layer.rendererSceneModel.qualityRender);
                 }
             }
 
@@ -670,7 +670,7 @@ export class WebGLRenderer implements Renderer {
         if (normalDrawSAOBinLen > 0) {
             renderContext.withSAO = true;
             for (let i = 0; i < normalDrawSAOBinLen; i++) {
-                //    this.#drawLayer(normalDrawSAOBin[i], RENDER_PASSES.COLOR_OPAQUE, layer.rendererModel.qualityRender);
+                //    this.#drawLayer(normalDrawSAOBin[i], RENDER_PASSES.COLOR_OPAQUE, layer.rendererSceneModel.qualityRender);
                 //    normalDrawSAOBin[i].drawColorOpaque(renderContext);
             }
         }

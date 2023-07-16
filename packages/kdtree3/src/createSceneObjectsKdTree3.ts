@@ -5,7 +5,7 @@ import {SceneObjectsKdTree3} from "./sceneObjectsKdTree3";
 /**
  * Indexes the given SceneObjects in a k-d tree for efficient collision detection.
  *
- * See {@link "@xeokit/collision/kdtree3"} for usage.
+ * See {@link "@xeokit/kdtree3"} for usage.
  */
 export function createSceneObjectsKdTree3(sceneObjects: SceneObject[]): SceneObjectsKdTree3 {
     const aabb = collapseAABB3();

@@ -6,7 +6,7 @@ import type {TextureSet} from "./TextureSet";
 import type {SceneObject} from "./SceneObject";
 
 /**
- * A mesh in a {@link SceneModel}.
+ * A mesh in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
  * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
@@ -34,7 +34,7 @@ export class Mesh {
     textureSet?: TextureSet;
 
     /**
-     *  Internal interface through which a {@link Mesh} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!Mesh} can load property updates into a renderer.
      *
      *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to
      *  a {@link @xeokit/viewer!Viewer | Viewer}.

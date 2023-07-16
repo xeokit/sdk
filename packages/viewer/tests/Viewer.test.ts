@@ -10,7 +10,7 @@ import {RendererViewObject} from "../src/RendererViewObject";
 import {FloatArrayParam} from "@xeokit/src/math";
 import {Capabilities, SDKError} from "@xeokit/core";
 import {Scene} from "@xeokit/scene";
-import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/core/dist/constants";
+import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/constants";
 
 
 const {JSDOM} = jsdom;
@@ -98,7 +98,7 @@ class MockRenderer implements Renderer {
 
     }
 
-    pickSceneObject(viewIndex: number, params: {}): ViewObject | null {
+    pickViewObject(viewIndex: number, params: {}): ViewObject | null {
         return null;
     };
 }

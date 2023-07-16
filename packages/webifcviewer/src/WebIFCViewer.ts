@@ -12,7 +12,7 @@ import type * as WebIFC from "web-ifc/web-ifc-api";
 //import {TreeView} from "@xeokit/treeview";
 import {IfcBuilding, IfcBuildingStorey, IfcRelAggregates} from "@xeokit/ifctypes";
 
-//import {Picker} from "@xeokit/collision/pick";
+//import {Picker} from "@xeokit/collision!pick";
 
 /**
  * Minimal proof-of-concept IFC model viewer built from various xeokit SDK components.

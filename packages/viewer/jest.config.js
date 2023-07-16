@@ -25,15 +25,15 @@ module.exports = {
         // "@xeokit/webglutils": ["webglutils/src"],
         // "@xeokit/webglrenderer": ["webglrenderer/src"],
 
-        "@xeokit/datatypes/basicTypes": path.join(__dirname, "../datatypes/src/basicTypes"),
-        "@xeokit/datatypes/ifcTypes(.*)$": path.join(__dirname, "../datatypes/src/ifcTypes"),
+        "@xeokit/basictypes/basicTypes": path.join(__dirname, "../datatypes/src/basicTypes"),
+        "@xeokit/ifctypes(.*)$": path.join(__dirname, "../datatypes/src/ifcTypes"),
         //
         // "@xeokit/xkt": ["xkt/src"],
         // "@xeokit/las": ["las/src"],
         // "@xeokit/gltf": ["gltf/src"],
         // "@xeokit/locale": ["locale/src"],
         // "@xeokit/compression": ["compression/src"],
-        // "@xeokit/procgen/geometry": ["procgen/src/geometry"],
+        // "@xeokit/procgen": ["procgen/src/geometry"],
         // "@xeokit/ktx2": ["ktx2/src"],
         // "@xeokit/bcf": ["bcf/src"],
         // "@xeokit/controls": ["controls/src"],

@@ -1,5 +1,5 @@
 import {buildVectorTextGeometry} from "../src/geometry";
-import {LinesPrimitive} from "@xeokit/core/dist/constants";
+import {LinesPrimitive} from "@xeokit/constants";
 import {truncate} from "./testUtils";
 
 describe('Test buildVectorTextGeometry', function () {

@@ -8,12 +8,12 @@ import {QualityRender} from "@xeokit/constants";
 
 
 /**
- * Configures the appearance of {@link ViewObject | ViewObjects} when their edges are emphasised.
+ * Configures the appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} when their edges are emphasised.
  *
  * ## Summary
  *
  * * Located at {@link View.edgeMaterial}.
- * * Emphasise edges of a {@link ViewObject} by setting {@link ViewObject.edges} ````true````.
+ * * Emphasise edges of a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.edges} ````true````.
  */
 class EdgeMaterial extends Component {
 

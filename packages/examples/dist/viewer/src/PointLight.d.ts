@@ -28,7 +28,7 @@ declare class PointLight extends Component {
     /**
      * @param view View that owns this PointLight. When destroyed, the View will destroy this PointLight as well.
      * @param cfg The PointLight configuration
-     * @param [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+     * @param [cfg.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
      * @param [cfg.pos=[ 1.0, 1.0, 1.0 ]] Position, in either World or View space, depending on the value of the **space** parameter.
      * @param [cfg.color=[0.7, 0.7, 0.8 ]] Color of this PointLight.
      * @param [cfg.intensity=1.0] Intensity of this PointLight, as a factor in range ````[0..1]````.
@@ -39,7 +39,7 @@ declare class PointLight extends Component {
      * @param [cfg.castsShadow=false] Flag which indicates if this PointLight casts a castsShadow.
      */
     constructor(view: View, cfg?: {
-        /** Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.*/
+        /** Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.*/
         id?: string;
         /** Intensity of this PointLight, as a factor in range ````[0..1]````. */
         intensity?: number;

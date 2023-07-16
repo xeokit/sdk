@@ -8,129 +8,279 @@ import {MockRendererModel} from "./MockRendererModel";
 /**
  * Mock rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
  *
+ * Plug a MockRenderer into a Viewer to effectively make it think it has a renderer, but not
+ * actually render anything. This is useful for testing, and to demonstrate the API contract
+ * to help you implement your own rendering strategies.
+ *
  * See {@link @xeokit/mockrenderer} for usage.
  */
 export class MockRenderer implements Renderer {
 
+    /**
+     * @inheritdoc
+     */
     rendererViewObjects: { [key: string]: RendererViewObject };
+
     #view: View;
     #viewMatrixDirty: boolean;
-    #rendererModels: any;
+    #rendererSceneModels: any;
     #viewer: Viewer;
+    #onViewMat: () => void;
 
     /**
-     Creates a MockRenderer.
-
-     @param params Configs
+     * Creates a MockRenderer.
+     *
+     * @param params Configs
      */
     constructor(params: {}) {
         this.rendererViewObjects = {};
     }
 
+    /**
+     * @inheritdoc
+     */
     getCapabilities(capabilities: Capabilities): void {
         capabilities.maxViews = 1;
         capabilities.headless = true;
     }
 
-    attachViewer(viewer: Viewer): void {
+    /**
+     * @inheritdoc
+     */
+    attachViewer(viewer: Viewer): void | SDKError {
         if (this.#viewer) {
-            throw new SDKError("Only one Viewer allowed with MockRenderer");
+            return new SDKError("Only one Viewer allowed with MockRenderer");
         }
         this.#viewer = viewer;
     }
 
-    attachView(view: View): number {
+    /**
+     * @inheritdoc
+     */
+    attachView(view: View): number | SDKError {
         if (this.#view) {
-            throw new SDKError("Only one View allowed with MockRenderer (see WebViewerCapabilities.maxViews)");
+            return new SDKError("Only one View allowed with MockRenderer (see WebViewerCapabilities.maxViews)");
         }
         this.#view = view;
-        view.camera.onViewMatrix.sub(() => {
+        view.camera.onViewMatrix.sub(this.#onViewMat = () => {
             this.#viewMatrixDirty = true;
         });
         return 0;
     }
 
-    detachView(viewIndex: number): void { // Nop
+    /**
+     * @inheritdoc
+     */
+    detachView(viewIndex: number): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        this.#view.camera.onViewMatrix.unsub(this.#onViewMat);
+        this.#onViewMat = null;
+        this.#view = null;
     }
 
-    attachSceneModel(sceneModel: SceneModel): void {
-        const rendererModel = new MockRendererModel({
+    /**
+     * @inheritdoc
+     */
+    attachSceneModel(sceneModel: SceneModel): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (!sceneModel.rendererSceneModel) {
+            return new SDKError("SceneModel not attached to any Renderer");
+        }
+        if (!this.#rendererSceneModels[sceneModel.id]) {
+            return new SDKError("SceneModel not attached to this Renderer");
+        }
+        const rendererSceneModel = new MockRendererModel({
             qualityRender: false,
             id: sceneModel.id,
             sceneModel,
             view: this.#view,
             mockRenderer: this
         });
-        this.#rendererModels[rendererModel.id] = rendererModel;
-        this.#attachRendererViewObjects(rendererModel);
-        rendererModel.onDestroyed.one((component: Component) => {
-            const rendererModel = this.#rendererModels[component.id];
-            delete this.#rendererModels[component.id];
-            this.#detachRendererViewObjects(rendererModel);
+        this.#rendererSceneModels[rendererSceneModel.id] = rendererSceneModel;
+        this.#attachRendererViewObjects(rendererSceneModel);
+        rendererSceneModel.onDestroyed.one((component: Component) => {
+            const rendererSceneModel = this.#rendererSceneModels[component.id];
+            delete this.#rendererSceneModels[component.id];
+            this.#detachRendererViewObjects(rendererSceneModel);
         });
-        sceneModel.rendererModel = rendererModel;
+        sceneModel.rendererSceneModel = rendererSceneModel;
     }
 
-    detachSceneModel(sceneModel: SceneModel): void {
-        if (this.#rendererModels[sceneModel.id]) {
-            const rendererModel = this.#rendererModels[sceneModel.id];
-            delete this.#rendererModels[sceneModel.id];
-            this.#detachRendererViewObjects(rendererModel);
-            sceneModel.rendererModel = null;
+    /**
+     * @inheritdoc
+     */
+    detachSceneModel(sceneModel: SceneModel): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (!sceneModel.rendererSceneModel) {
+            return new SDKError("SceneModel not attached to any Renderer");
+        }
+        if (!this.#rendererSceneModels[sceneModel.id]) {
+            return new SDKError("SceneModel not attached to this Renderer");
+        }
+        const rendererSceneModel = this.#rendererSceneModels[sceneModel.id];
+        delete this.#rendererSceneModels[sceneModel.id];
+        this.#detachRendererViewObjects(rendererSceneModel);
+        sceneModel.rendererSceneModel = null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    setImageDirty(viewIndex?: number): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
         }
     }
 
-    setImageDirty(viewIndex?: number) {
+    /**
+     * @inheritdoc
+     */
+    setBackgroundColor(viewIndex: number, color: FloatArrayParam): SDKError | void { // @ts-ignore
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
     }
 
-    setBackgroundColor(viewIndex: number, color: FloatArrayParam): void { // @ts-ignore
+    /**
+     * @inheritdoc
+     */
+    setEdgesEnabled(viewIndex: number, enabled: boolean): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
     }
 
-    setEdgesEnabled(viewIndex: number, enabled: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setPBREnabled(viewIndex: number, enabled: boolean): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
     }
 
-    setPBREnabled(viewIndex: number, enabled: boolean): void {
-    }
-
+    /**
+     * @inheritdoc
+     */
     getSAOSupported(): boolean {
         return false;
     }
 
-    setSAOEnabled(viewIndex: number, enabled: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setSAOEnabled(viewIndex: number, enabled: boolean): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
     }
 
-    setTransparentEnabled(viewIndex: number, enabled: boolean): void {
+    /**
+     * @inheritdoc
+     */
+    setTransparentEnabled(viewIndex: number, enabled: boolean): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
     }
 
-    clear(viewIndex: number) {
+    /**
+     * @inheritdoc
+     */
+    clear(viewIndex: number): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
     };
 
-    needsRebuild(viewIndex?: number): void {
+    /**
+     * @inheritdoc
+     */
+    needsRebuild(viewIndex?: number): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
     }
 
-    needsRender(viewIndex?: number): boolean {
+    /**
+     * @inheritdoc
+     */
+    needsRender(viewIndex?: number): SDKError | boolean {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     render(viewIndex: number, params: {
         force?: boolean;
-    }) {
-        // NOP
+    }): SDKError | void {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
     }
 
-    pickSceneObject(viewIndex: number, params: {}): ViewObject | null {
+    /**
+     * @inheritdoc
+     */
+    pickViewObject(viewIndex: number, params: {}): ViewObject | null | SDKError {
+        if (!this.#view) {
+            return new SDKError("No View is currently attached to this Renderer");
+        }
+        if (viewIndex !== 0) {
+            return new SDKError(`No View with the given handle (${viewIndex}) is currently attached to this Renderer`);
+        }
         return null;
     };
 
-    #detachRendererViewObjects(rendererModel: any) {
-        const rendererViewObjects = rendererModel.rendererViewObjects;
+    #detachRendererViewObjects(rendererSceneModel: any) {
+        const rendererViewObjects = rendererSceneModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             delete this.rendererViewObjects[id];
         }
     }
 
-    #attachRendererViewObjects(rendererModel: MockRendererModel) {
-        const rendererViewObjects = rendererModel.rendererViewObjects;
+    #attachRendererViewObjects(rendererSceneModel: MockRendererModel) {
+        const rendererViewObjects = rendererSceneModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             this.rendererViewObjects[id] = rendererViewObjects[id];
         }

@@ -1,4 +1,4 @@
-import type {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject} from "@xeokit/scene";
+import type {RendererGeometry, RendererMesh, RendererSceneObject, RendererTextureSet, SceneObject} from "@xeokit/scene";
 import type {FloatArrayParam} from "@xeokit/math";
 import {createAABB3} from "@xeokit/boundaries";
 
@@ -28,7 +28,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     pickId: number;
     tileManager: WebGLTileManager;
     tile: Tile;
-    sceneObjectRenderer: RendererObject | null;
+    sceneObjectRenderer: RendererSceneObject | null;
     aabb: FloatArrayParam;
     layer: Layer;
     meshIndex: number;
@@ -73,7 +73,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         throw new Error("Method not implemented.");
     }
 
-    setRendererObject(sceneObjectRenderer: RendererObject) {
+    setRendererObject(sceneObjectRenderer: RendererSceneObject) {
         this.sceneObjectRenderer = sceneObjectRenderer;
     }
 
@@ -235,7 +235,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     }
 
     drawPickNormals(renderContext: RenderContext) {
-        //this.sceneObjectRenderer.rendererModel.drawPickNormals(renderContext);
+        //this.sceneObjectRenderer.rendererSceneModel.drawPickNormals(renderContext);
     }
 
     // delegatePickedEntity(): SceneObjectRendererCommands {

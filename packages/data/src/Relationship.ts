@@ -1,7 +1,7 @@
 import type {DataObject} from "./DataObject";
 
 /**
- * A one-to-one relationship between two {@link DataObject | DataObjects}.
+ * A one-to-one relationship between two {@link @xeokit/data!DataObject | DataObjects}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -15,18 +15,18 @@ export class Relationship {
     readonly type: number;
 
     /**
-     * The relating {@link DataObject} in this Relationship.
+     * The relating {@link @xeokit/data!DataObject} in this Relationship.
      *
-     * This Relationship will be stored by {@link DataObject.type | DataObject.type}
-     * in the DataObject's {@link DataObject.relatedObject | DataObject.relatedObject} attribute.
+     * This Relationship will be stored by {@link @xeokit/data!DataObject.type | DataObject.type}
+     * in the DataObject's {@link @xeokit/data!DataObject.related | DataObject.related} attribute.
      */
     readonly relatingObject: DataObject;
 
     /**
-     * The related {@link DataObject} in this Relationship.
+     * The related {@link @xeokit/data!DataObject} in this Relationship.
      *
-     * This Relationship will be stored by {@link DataObject.type | DataObject.type} in
-     * the DataObject's {@link DataObject.relatingObject | DataObject.relatingObject} attribute.
+     * This Relationship will be stored by {@link @xeokit/data!DataObject.type | DataObject.type} in
+     * the DataObject's {@link @xeokit/data!DataObject.relating | DataObject.relating} attribute.
      */
     readonly relatedObject: DataObject;
 

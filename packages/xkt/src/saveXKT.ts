@@ -7,16 +7,16 @@ import {packXKT} from "./packXKT";
 
 /**
  * Exports a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel} to an ArrayBuffer
- * containing XKT file data.
+ * containing [XKT](/docs/pages/GLOSSARY.html#xkt) file data.
  *
- * See {@link @xeokit/xkt} for usage.
+ * See {@link "@xeokit/xkt"} for usage.
  *
- * See {@link XKTData} for insights into the structure of an XKT file.
+ * See {@link @xeokit/xkt!XKTData} for insights into the structure of an [XKT](/docs/pages/GLOSSARY.html#xkt) file.
  *
  * @param params
  * @param params.sceneModel - The SceneModel to export to XKT.
  * @param params.dataModel - Optional DataModel to export to XKT.
- * @returns The XKT file data in an ArrayBuffer.
+ * @returns The [XKT](/docs/pages/GLOSSARY.html#xkt) file data in an ArrayBuffer.
  * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
  * @returns {@link @xeokit/core!SDKError} If the SceneModel has not yet been built.
  * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.

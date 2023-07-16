@@ -1,21 +1,21 @@
 import type { RendererObject } from "./RendererObject";
 /**
- *  Internal interface through which a {@link SceneModel} can load property updates into a renderer.
+ *  Internal interface through which a {@link @xeokit/viewer!Renderer} can load property updates into a renderer.
  *
- *  This exists at {@link SceneModel.rendererModel} when the {@link SceneModel} has been added
+ *  This exists at {@link @xeokit/scene!SceneModel.rendererSceneModel} when the {@link @xeokit/viewer!Renderer} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * @internal
  */
 export interface RendererModel {
     /**
-     *  Internal interface through which {@link SceneObject | SceneObjects} can load property updates into a renderer.
+     *  Internal interface through which {@link @xeokit/scene!SceneObject | SceneObjects} can load property updates into a renderer.
      *
-     *  This is defined when the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined when the owner {@link @xeokit/viewer!Renderer} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */
-    rendererObjects: {
+    rendererSceneObjects: {
         [key: string]: RendererObject;
     };
 }

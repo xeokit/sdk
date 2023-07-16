@@ -28,7 +28,7 @@
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {Data} from "@xeokit/data";
- * import * as ifcTypes from "@xeokit/datatypes/ifcTypes";
+ * import * as ifcTypes from "@xeokit/ifctypes";
  * import {TreeView} from "@xeokit/treeview!TreeView";
  * import {loadXKT} from "@xeokit/xkt";
  * ````

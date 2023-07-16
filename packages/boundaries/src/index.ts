@@ -913,7 +913,7 @@ export function intersectAABB3s(aabb1: FloatArrayParam, aabb2: FloatArrayParam):
 
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -926,7 +926,7 @@ export function intersectFrustum3Triangles3(frustum: Frustum3, positions: FloatA
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given triangle primitive.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given triangle primitive.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -940,7 +940,8 @@ export function intersectFrustum3Triangle3(frustum: Frustum3, a: FloatArrayParam
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given
+ * {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -953,7 +954,8 @@ export function intersectFrustum3Lines3(frustum: Frustum3, positions: FloatArray
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the
+ * given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -965,7 +967,7 @@ export function intersectFrustum3Positions3(frustum: Frustum3, positions: FloatA
 }
 
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given position.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given position.
  *
  * Returns ```` true```` if intersection else ````false````.
  *

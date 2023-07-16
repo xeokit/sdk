@@ -1,6 +1,6 @@
 import type { PropertyParams } from "./PropertyParams";
 /**
- * Parameters for creating a {@link PropertySet} with {@link DataModel.createPropertySet | DataModel.createPropertySet}.
+ * Parameters for creating a {@link @xeokit/data!PropertySet} with {@link @xeokit/data!DataModel.createPropertySet | DataModel.createPropertySet}.
  *
  * See {@link "@xeokit/data"} for usage.
  */

@@ -12,7 +12,7 @@
  *
  * ---
  *
- * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within SceneModel.createGeometry implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
+ * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
 
  The compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC) coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
 
@@ -47,7 +47,7 @@
  *
  * ## Usage
  *
- * In the example below, we'll use {@link compressGeometryParams} to compress
+ * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
  *
@@ -131,7 +131,7 @@
  * }
  * ````
  *
- * In the next example, we'll again use {@link compressGeometryParams} to compress
+ * In the next example, we'll again use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
  * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.

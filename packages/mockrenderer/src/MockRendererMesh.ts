@@ -5,45 +5,75 @@ import type {PickResult} from "@xeokit/viewer";
 
 
 /**
- * TODO
+ * Mock rendering strategy for a {@link @xeokit/scene!Mesh | Mesh}.
  *
- * @internal
+ * See {@link @xeokit/mockrenderer} for usage.
  */
 export class MockRendererMesh implements RendererMesh, Pickable {
 
+    /**
+     * @private
+     */
     constructor(params: {
 
     }) {
 
     }
 
+    /**
+     * @inheritdoc
+     */
     delegatePickedEntity(): SceneObject {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * @inheritdoc
+     */
     setMatrix(matrix: FloatArrayParam): void {
     }
 
+    /**
+     * @inheritdoc
+     */
     setMetallic(metallic: number): void {
     }
 
+    /**
+     * @inheritdoc
+     */
     setRoughness(roughness: number): void {
     }
 
+    /**
+     * @inheritdoc
+     */
     setColor(color: FloatArrayParam) {
     }
 
+    /**
+     * @inheritdoc
+     */
     canPickTriangle(): boolean {
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     canPickWorldPos(): boolean {
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     pickTriangleSurface(pickResult: PickResult): void {
     }
 
+    /**
+     * @inheritdoc
+     */
     destroy() {
 
     }

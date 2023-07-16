@@ -12,11 +12,11 @@
  *
  * The following class diagrams depict xeokit's picking system architecture.
  *
- * The {@link @xeokit/collision/kdtree3!SceneObjectsKdTree3 | SceneObjectsKdTree3} class, a k-d tree that arranges
+ * The {@link @xeokit/collision!SceneObjectsKdTree3 | SceneObjectsKdTree3} class, a k-d tree that arranges
  * {@link @xeokit/scene!SceneObject | SceneObjects} for
  * efficient collision testing with boundaries, rays, and frustums, is positioned in the center of the
  * first diagram. To construct a SceneObjectsKdTree3, use
- * the {@link @xeokit/collision/kdtree3!createSceneObjectsKdTree3 | createSceneObjectsKdTree3} function.
+ * the {@link @xeokit/collision!createSceneObjectsKdTree3 | createSceneObjectsKdTree3} function.
  *
  * To find SceneObjects in the SceneObjectsKdTree3 that intersect a 3D world-space ray,
  * use {@link Picker.rayPick | Picker.rayPick()}, which will generate a {@link RayPickResult}. To find SceneObjects
@@ -68,8 +68,8 @@
  * ````javascript
  * import {Scene} from "@xeokit/scene";
  * import {SDKError} from "@xeokit/core";
- * import {TrianglesPrimitive, LinesPrimitive, PointsPrimitive} from "@xeokit/core/dist/constants";
- * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/collision/kdtree3";
+ * import {TrianglesPrimitive, LinesPrimitive, PointsPrimitive} from "@xeokit/constants";
+ * import {KdTree3, searchKdTree3WithAABB} from "@xeokit/kdtree3";
  *
  * // Create a scene graph - notice there's not a Viewer in sight
  *

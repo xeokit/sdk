@@ -1,6 +1,6 @@
 import {Scene} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
-import {TrianglesPrimitive} from "@xeokit/core/dist/constants";
+import {TrianglesPrimitive} from "@xeokit/constants";
 import {createSceneObjectsKdTree3, searchKdTree3WithAABB} from "../src/kdtree3";
 import {truncate} from "./testUtils";
 

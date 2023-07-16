@@ -21,7 +21,7 @@ export declare class DataModel extends Component {
     /**
      * Unique ID of this DataModel.
      *
-     * DataModels are stored against this ID in {@link Data.models}.
+     * DataModels are stored against this ID in {@link @xeokit/data!Data.models}.
      */
     readonly id: string;
     /**
@@ -53,15 +53,15 @@ export declare class DataModel extends Component {
      */
     schema?: string;
     /**
-     * The {@link PropertySet | PropertySets} in this DataModel, mapped to {@link PropertySet.id | PropertySet.id}.
+     * The{@link @xeokit/data!PropertySet | PropertySets} in this DataModel, mapped to{@link @xeokit/data!PropertySet.id | PropertySet.id}.
      *
-     * PropertySets have globally-unique IDs and will also be stored in {@link Data.propertySets | Data.propertySets}.
+     * PropertySets have globally-unique IDs and will also be stored in {@link @xeokit/data!Data.propertySets | Data.propertySets}.
      */
     readonly propertySets: {
         [key: string]: PropertySet;
     };
     /**
-     * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
      *
      * DataObjects have globally-unique IDs and will also be stored in {@link Data.objects | Data.objects}.
      */
@@ -72,7 +72,7 @@ export declare class DataModel extends Component {
      * The root {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
      *
      * * This is the set of DataObjects in this DataModel that are not the *related* participant in
-     * any {@link Relationship | Relationships}, where they have no incoming Relationships and
+     * any {@link @xeokit/data!Relationship | Relationships}, where they have no incoming Relationships and
      * their {@link DataObject.relating} property is empty.
      */
     rootObjects: {
@@ -88,7 +88,7 @@ export declare class DataModel extends Component {
         };
     };
     /**
-     * The {@link Relationship | Relationships} in this DataModel.
+     * The {@link @xeokit/data!Relationship | Relationships} in this DataModel.
      *
      * * The Relationships can be between DataObjects in different DataModels, but always within the same Data.
      */
@@ -141,7 +141,7 @@ export declare class DataModel extends Component {
      */
     fromJSON(dataModelParams: DataModelParams): void | SDKError;
     /**
-     * Creates a new {@link PropertySet}.
+     * Creates a new {@link @xeokit/data!PropertySet}.
      *
      * * Stores the new PropertySet in {@link DataModel.propertySets | DataModel.propertySets}
      * and {@link Data.propertySets | Data.propertySets}.
@@ -204,7 +204,7 @@ export declare class DataModel extends Component {
      * ````javascript
      * const myDataObject = dataModel.createObject({
      *     id: "myDataObject",
-     *     type: BasicEntity,     // @xeokit/datatypes!basicTypes
+     *     type: BasicEntity,     // @xeokit/basictypes!basicTypes
      *     name: "My Object",
      *     propertySetIds: ["myPropertySet"]
      * });
@@ -243,7 +243,7 @@ export declare class DataModel extends Component {
      */
     createObject(dataObjectParams: DataObjectParams): DataObject | SDKError;
     /**
-     * Creates a new {@link Relationship} between two existing {@link DataObject | DataObjects}.
+     * Creates a new {@link @xeokit/data!Relationship} between two existing {@link DataObject | DataObjects}.
      *
      * * A Relationship involves a *relating* DataObject and a *related* DataObject.
      * * The *relating* and *related* DataObjects can exist within different DataModels,
@@ -258,7 +258,7 @@ export declare class DataModel extends Component {
      *
      * ````javascript
      * const myRelationship = dataModel.createRelationship({
-     *     type: BasicAggregation,            // @xeokit/datatypes!basicTypes
+     *     type: BasicAggregation,            // @xeokit/basictypes!basicTypes
      *     relatingObjectId: "myDataObject",
      *     relatedObjectId: "myDataObject2"
      * });
@@ -278,7 +278,7 @@ export declare class DataModel extends Component {
      * See {@link "@xeokit/data"} for more usage info.
      *
      * @param relationshipParams - Relationship creation parameters.
-     * @returns *{@link Relationship}*
+     * @returns *{@link @xeokit/data!Relationship}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this DataModel has already been built or destroyed.

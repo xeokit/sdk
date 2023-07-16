@@ -12,7 +12,7 @@ const kdTreeDimLength = new Float32Array(3);
  * A static k-d tree that organizes anything that has a boundary for
  * efficient 3D World-space boundary and frustm searches.
  *
- * See {@link "@xeokit/collision/kdtree3"} for usage.
+ * See {@link "@xeokit/kdtree3"} for usage.
  */
 export class KdTree3 {
 

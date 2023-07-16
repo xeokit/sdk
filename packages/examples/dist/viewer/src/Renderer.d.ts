@@ -50,7 +50,7 @@ export interface Renderer {
      * Attaches a {@link @xeokit/viewer!View} to this Renderer.
      *
      * The Renderer will then begin rendering each {@link @xeokit/scene!SceneModel | SceneModel} created with
-     * {@link SceneModel.createModel} for the new View.
+     * {@link @xeokit/scene!SceneModel.createModel} for the new View.
      *
      * You can only attach as many Views as indicated in {@link Capabilities.maxViews}, as returned by
      * {@link Renderer.getCapabilities}.
@@ -75,8 +75,8 @@ export interface Renderer {
      * This method attaches various "hook objects" to the elements within the SceneModel, through which they can
      * convey their state updates to the Renderer.
      *
-     * * Attaches a {@link @xeokit/scene!RendererModel} to the {@link @xeokit/scene!SceneModel}
-     * * Attaches a {@link @xeokit/scene!RendererObject} to each of the SceneModel's {@link @xeokit/scene!SceneObject | SceneObjects}
+     * * Attaches a {@link @xeokit/scene!RendererSceneModel} to the {@link @xeokit/scene!SceneModel}
+     * * Attaches a {@link @xeokit/scene!RendererSceneObject} to each of the SceneModel's {@link @xeokit/scene!SceneObject | SceneObjects}
      * * Attaches a {@link @xeokit/scene!RendererMesh} to each of the SceneModel's {@link @xeokit/scene!Mesh | Meshes}
      * * Attaches a {@link @xeokit/scene!RendererTextureSet} to each of the SceneModel's {@link @xeokit/scene!TextureSet | TextureSets}
      * * Attaches a {@link @xeokit/scene!RendererTexture} to each of the SceneModel's {@link @xeokit/scene!Texture | Textures}
@@ -91,7 +91,7 @@ export interface Renderer {
     /**
      * Detaches a {@link @xeokit/scene!SceneModel | SceneModel} from this Renderer.
      *
-     * Detaches and destroys the {@link @xeokit/scene!RendererModel}, {@link @xeokit/scene!RendererObject} and
+     * Detaches and destroys the {@link @xeokit/scene!RendererSceneModel}, {@link @xeokit/scene!RendererSceneObject} and
      * {@link @xeokit/scene!RendererMesh},
      * {@link @xeokit/scene!RendererTexture} instances that were attached in {@link @xeokit/viewer!Renderer.attachSceneModel}.
      *

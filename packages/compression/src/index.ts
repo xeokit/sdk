@@ -1,7 +1,7 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fcompression.svg)](https://badge.fury.io/js/%40xeokit%2Fcompression)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/compression/badge)](https://www.jsdelivr.com/package/npm/@xeokit/compression)
- * 
+ *
  * <img style="padding:20px" src="media://images/geometry_icon.png"/>
  *
  * # xeokit Geometry Compression / Decompression Utilities
@@ -12,14 +12,18 @@
  *
  * ---
  *
- * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within SceneModel.createGeometry implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
-
- The compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC) coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
-
- To use the library, install it using npm install @xeokit/compression. An example usage includes compressing a GeometryParams into a GeometryCompressedParams using the compressGeometryParams function. In this example, the geometry is simple, and only one bucket is needed. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the bucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
-
- The resulting GeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are generated for the TrianglesPrimitive, and a positionsDecompressMatrix is included to de-quantize the positions within the Viewer.
-
+ * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
+ *
+ * The compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC) coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
+ *
+ *  To use the library, install it using
+ *
+ * `npm install @xeokit/compression`
+ *
+ * An example usage includes compressing a GeometryParams into a GeometryCompressedParams using the compressGeometryParams function. In this example, the geometry is simple, and only one bucket is needed. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the bucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
+ *
+ * The resulting GeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are generated for the TrianglesPrimitive, and a positionsDecompressMatrix is included to de-quantize the positions within the Viewer.
+ *
  * This library provides a set of functions that are used internally within
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to
  * compress geometry. The functions are provided here in case users instead want to pre-compress their geometry "offline",
@@ -47,7 +51,7 @@
  *
  * ## Usage
  *
- * In the example below, we'll use {@link compressGeometryParams} to compress
+ * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
  *
@@ -131,7 +135,7 @@
  * }
  * ````
  *
- * In the next example, we'll again use {@link compressGeometryParams} to compress
+ * In the next example, we'll again use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
  * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.

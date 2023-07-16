@@ -27,7 +27,7 @@
  * ````
  * ## Usage
  *
- *  In the example below, we'll create a LocaleService instance, configured with some English, Māori and French
+ *  In the example below, we'll create a {@link @xeokit/locale!LocaleService | LocaleService} instance, configured with some English, Māori and French
  *  translations for a NavCube widget.
  *
  *  Our LocaleServe will provide translations for the following terms:
@@ -41,7 +41,7 @@
  *
  *  These terms are effectively paths that map to translations for the currently active locale.
  *
- *  For example, if  the LocaleService's locale is set to "fr", then the path "NavCube.back" will drill down
+ *  For example, if  the {@link @xeokit/locale!LocaleService | LocaleService}'s locale is set to "fr", then the path "NavCube.back" will drill down
  *  into ````messages->fr->NavCube->front```` and fetch "Arrière".
  *
  *  ````javascript
@@ -114,7 +114,7 @@
  *  localeService.clearMessages();
  *  ````
  *
- *  We can also get an event from the LocaleService whenever we switch locales or load messages, which is useful
+ *  We can also get an event from the {@link @xeokit/locale!LocaleService | LocaleService} whenever we switch locales or load messages, which is useful
  *  for triggering UI elements to refresh themselves with updated translations:
  *
  *  ````javascript

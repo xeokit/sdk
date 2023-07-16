@@ -61,14 +61,14 @@ import { Frustum3 } from "@xeokit/boundaries";
  *
  * ## Rotating the Camera
  *
- * Orbiting the {@link Camera.look} position:
+ * Orbiting the {@link @xeokit/viewer!Camera.look | Camera.look} position:
  *
  * ````javascript
  * camera.orbitYaw(20.0);
  * camera.orbitPitch(10.0);
  * ````
  *
- * Perform a *first-person* rotation, in which we rotate {@link Camera.look} and {@link Camera.up} about {@link Camera.eye}:
+ * Perform a *first-person* rotation, in which we rotate {@link @xeokit/viewer!Camera.look | Camera.look} and {@link @xeokit/viewer!Camera.up | Camera.up} about {@link @xeokit/viewer!Camera.eye | Camera.eye}:
  *
  * ````javascript
  * camera.yaw(5.0);
@@ -85,13 +85,13 @@ import { Frustum3 } from "@xeokit/boundaries";
  *
  * ## Zooming the Camera
  *
- * Zoom to vary distance between {@link Camera.eye} and {@link Camera.look}:
+ * Zoom to vary distance between {@link @xeokit/viewer!Camera.eye | Camera.eye} and {@link @xeokit/viewer!Camera.look | Camera.look}:
  *
  * ````javascript
  * camera.zoom(-5); // Move five units closer
  * ````
  *
- * Get the current distance between {@link Camera.eye} and {@link Camera.look}:
+ * Get the current distance between {@link @xeokit/viewer!Camera.eye | Camera.eye} and {@link @xeokit/viewer!Camera.look | Camera.look}:
  *
  * ````javascript
  * var distance = camera.eyeLookDist;
@@ -206,19 +206,19 @@ declare class Camera extends Component {
     /**
      * The orthographic projection.
      *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link OrthoProjectionType}.
+     * The Camera uses this while {@link Camera.projectionType} equals {@link @xeokit/constants!OrthoProjectionType}.
      */
     readonly orthoProjection: OrthoProjection;
     /**
      * The frustum projection.
      *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link FrustumProjectionType}.
+     * The Camera uses this while {@link Camera.projectionType} equals {@link @xeokit/constants!FrustumProjectionType}.
      */
     readonly frustumProjection: FrustumProjection;
     /**
      * The custom projection.
      *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link CustomProjectionType}.
+     * The Camera uses this while {@link Camera.projectionType} equals {@link @xeokit/constants!CustomProjectionType}.
      */
     readonly customProjection: CustomProjection;
     /**
@@ -326,13 +326,13 @@ declare class Camera extends Component {
      */
     set look(look: FloatArrayParam);
     /**
-     * Gets the direction of this Camera's {@link Camera.up} vector.
+     * Gets the direction of this Camera's {@link @xeokit/viewer!Camera.up | Camera.up} vector.
      *
      * @returns {Number[]} Direction of "up".
      */
     get up(): FloatArrayParam;
     /**
-     * Sets the direction of this Camera's {@link Camera.up} vector.
+     * Sets the direction of this Camera's {@link @xeokit/viewer!Camera.up | Camera.up} vector.
      *
      * @param up Direction of "up".
      */
@@ -370,7 +370,7 @@ declare class Camera extends Component {
     /**
      * Gets whether to prevent camera from being pitched upside down.
      *
-     * The camera is upside down when the angle between {@link Camera.up} and {@link Camera.worldUp} is less than one degree.
+     * The camera is upside down when the angle between {@link @xeokit/viewer!Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
      *
      * Default value is ````false````.
      *
@@ -380,7 +380,7 @@ declare class Camera extends Component {
     /**
      * Sets whether to prevent camera from being pitched upside down.
      *
-     * The camera is upside down when the angle between {@link Camera.up} and {@link Camera.worldUp} is less than one degree.
+     * The camera is upside down when the angle between {@link @xeokit/viewer!Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
      *
      * Default value is ````false````.
      *
@@ -449,7 +449,7 @@ declare class Camera extends Component {
      */
     get zUp(): boolean;
     /**
-     * Gets distance from {@link Camera.look} to {@link Camera.eye}.
+     * Gets distance from {@link @xeokit/viewer!Camera.look | Camera.look} to {@link @xeokit/viewer!Camera.eye | Camera.eye}.
      *
      * @returns {Number} The distance.
      */
@@ -500,25 +500,25 @@ declare class Camera extends Component {
     set projectionType(value: number | undefined);
     clean(): void;
     /**
-     * Rotates {@link Camera.eye} about {@link Camera.look}, around the {@link Camera.up} vector
+     * Rotates {@link @xeokit/viewer!Camera.eye | Camera.eye} about {@link @xeokit/viewer!Camera.look | Camera.look}, around the {@link @xeokit/viewer!Camera.up | Camera.up} vector
      *
      * @param angleInc Angle of rotation in degrees
      */
     orbitYaw(angleInc: number): void;
     /**
-     * Rotates {@link Camera.eye} about {@link Camera.look} around the right axis (orthogonal to {@link Camera.up} and "look").
+     * Rotates {@link @xeokit/viewer!Camera.eye | Camera.eye} about {@link @xeokit/viewer!Camera.look | Camera.look} around the right axis (orthogonal to {@link @xeokit/viewer!Camera.up | Camera.up} and "look").
      *
      * @param angleInc Angle of rotation in degrees
      */
     orbitPitch(angleInc: number): void;
     /**
-     * Rotates {@link Camera.look} about {@link Camera.eye}, around the {@link Camera.up} vector.
+     * Rotates {@link @xeokit/viewer!Camera.look | Camera.look} about {@link @xeokit/viewer!Camera.eye | Camera.eye}, around the {@link @xeokit/viewer!Camera.up | Camera.up} vector.
      *
      * @param angleInc Angle of rotation in degrees
      */
     yaw(angleInc: number): void;
     /**
-     * Rotates {@link Camera.look} about {@link Camera.eye}, around the right axis (orthogonal to {@link Camera.up} and "look").
+     * Rotates {@link @xeokit/viewer!Camera.look | Camera.look} about {@link @xeokit/viewer!Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link @xeokit/viewer!Camera.up | Camera.up} and "look").
 
      * @param angleInc Angle of rotation in degrees
      */
@@ -530,7 +530,7 @@ declare class Camera extends Component {
      */
     pan(pan: FloatArrayParam): void;
     /**
-     * Increments/decrements the Camera's zoom factor, which is the distance between {@link Camera.eye} and {@link Camera.look}.
+     * Increments/decrements the Camera's zoom factor, which is the distance between {@link @xeokit/viewer!Camera.eye | Camera.eye} and {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * @param delta Zoom factor increment.
      */

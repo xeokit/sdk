@@ -54,7 +54,7 @@ class PickResult {
     }
 
     /**
-     * The picked {@link ViewObject}.
+     * The picked {@link @xeokit/viewer!ViewObject}.
      */
     get viewObject(): ViewObject | null | undefined {
         return this.#viewObject;

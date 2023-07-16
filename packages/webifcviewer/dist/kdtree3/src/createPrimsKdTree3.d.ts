@@ -7,6 +7,6 @@ import { PrimsKdTree3 } from "./PrimsKdTree3";
  *
  * This function also works for coordinates of any precision (ie. Float32Array, Float64Array, Int16Array, Int32Array etc).
  *
- * See {@link "@xeokit/collision/kdtree3"} for usage.
+ * See {@link "@xeokit/kdtree3"} for usage.
  */
 export declare function createPrimsKdTree3(primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam): PrimsKdTree3;

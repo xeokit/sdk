@@ -249,14 +249,14 @@ export class CameraControl extends Component {
     readonly onRightClick: EventEmitter<CameraControl, any>;
 
     /**
-     * Event fired when the pointer moves while over a {@link ViewObject}.
+     * Event fired when the pointer moves while over a {@link @xeokit/viewer!ViewObject}.
      *
      * @event
      */
     readonly onHover: EventEmitter<CameraControl, HoverEvent>;
 
     /**
-     * Event fired when the pointer moves while over a {@link ViewObject}.
+     * Event fired when the pointer moves while over a {@link @xeokit/viewer!ViewObject}.
      *
      * @event
      */
@@ -270,21 +270,21 @@ export class CameraControl extends Component {
     readonly onHoverOff: EventEmitter<CameraControl, HoverEvent>;
 
     /**
-     * Event fired when the pointer moves onto a {@link ViewObject}.
+     * Event fired when the pointer moves onto a {@link @xeokit/viewer!ViewObject}.
      *
      * @event
      */
     readonly onHoverEnter: EventEmitter<CameraControl, HoverEvent>;
 
     /**
-     * Event fired when the pointer moves off a {@link ViewObject}.
+     * Event fired when the pointer moves off a {@link @xeokit/viewer!ViewObject}.
      *
      * @event
      */
     readonly onHoverOut: EventEmitter<CameraControl, HoverEvent>;
 
     /**
-     * Event fired when a {@link ViewObject} is picked.
+     * Event fired when a {@link @xeokit/viewer!ViewObject} is picked.
      *
      * @event
      */
@@ -530,7 +530,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets the HTMl element to represent the pivot point when {@link CameraControl.followPointer} is true.
+     * Sets the HTMl element to represent the pivot point when {@link @xeokit/cameracontrol!CameraControl.followPointer | CameraControl.followPointer} is true.
      *
      * See class comments for an example.
      *
@@ -609,7 +609,7 @@ export class CameraControl extends Component {
      * Default is ````true````.
      *
      * Disabling mouse and touch input on ````CameraControl```` is desirable when we want to temporarily use mouse or
-     * touch input to interact with some other 3D control, without interfering with the {@link @xeokit/viewer!Camera} .
+     * touch input to interact with some other 3D control, without interfering with the {@link @xeokit/viewer!Camera}.
      *
      * @returns {Boolean} Returns ````true```` if mouse and touch input is enabled.
      */
@@ -623,7 +623,7 @@ export class CameraControl extends Component {
      * Default is ````true````.
      *
      * Disabling mouse and touch input on ````CameraControl```` is useful when we want to temporarily use mouse or
-     * touch input to interact with some other 3D control, without disturbing the {@link @xeokit/viewer!Camera} .
+     * touch input to interact with some other 3D control, without disturbing the {@link @xeokit/viewer!Camera}.
      *
      * @param value Set ````true```` to enable mouse and touch input.
      */
@@ -673,7 +673,7 @@ export class CameraControl extends Component {
     /**
      * Gets the current World-space 3D pivot position.
      *
-     * Only applies when {@link CameraControl.followPointer} is ````true````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.followPointer | CameraControl.followPointer} is ````true````.
      *
      * @return {Number[]} worldPos The current World-space 3D pivot position.
      */
@@ -684,7 +684,7 @@ export class CameraControl extends Component {
     /**
      * Sets the current World-space 3D target position.
      *
-     * Only applies when {@link CameraControl.followPointer} is ````true````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.followPointer | CameraControl.followPointer} is ````true````.
      *
      * @param worldPos The new World-space 3D target position.
      */
@@ -734,7 +734,7 @@ export class CameraControl extends Component {
      *
      * Default is ````false````.
      *
-     * Deprecated - use {@link CameraControl.navMode} instead.
+     * Deprecated - use {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} instead.
      *
      * @returns {Boolean} Returns ````true```` if plan-view mode is enabled.
      * @deprecated
@@ -751,7 +751,7 @@ export class CameraControl extends Component {
      *
      * Default is ````false````.
      *
-     * Deprecated - use {@link CameraControl.navMode} instead.
+     * Deprecated - use {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} instead.
      *
      * @param value Set ````true```` to enable plan-view mode.
      * @deprecated
@@ -769,11 +769,11 @@ export class CameraControl extends Component {
     /**
      * Gets whether this ````CameraControl```` is in first-person mode.
      *
-     * In "first person" mode (disabled by default) the look position rotates about the eye position. Otherwise,  {@link Camera.eye} rotates about {@link Camera.look}.
+     * In "first person" mode (disabled by default) the look position rotates about the eye position. Otherwise,  {@link @xeokit/viewer!Camera.eye | Camera.eye} rotates about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * Deprecated - use {@link CameraControl.navMode} instead.
+     * Deprecated - use {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} instead.
      *
      * @returns {Boolean} Returns ````true```` if first-person mode is enabled.
      * @deprecated
@@ -786,11 +786,11 @@ export class CameraControl extends Component {
     /**
      * Sets whether this ````CameraControl```` is in first-person mode.
      *
-     * In "first person" mode (disabled by default) the look position rotates about the eye position. Otherwise,  {@link Camera.eye} rotates about {@link Camera.look}.
+     * In "first person" mode (disabled by default) the look position rotates about the eye position. Otherwise,  {@link @xeokit/viewer!Camera.eye | Camera.eye} rotates about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * Deprecated - use {@link CameraControl.navMode} instead.
+     * Deprecated - use {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} instead.
      *
      * @param value Set ````true```` to enable first-person mode.
      * @deprecated
@@ -808,9 +808,9 @@ export class CameraControl extends Component {
     /**
      * Gets whether to vertically constrain the {@link @xeokit/viewer!Camera}  position for first-person navigation.
      *
-     * When set ````true````, this constrains {@link Camera.eye} to its current vertical position.
+     * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
      *
      * Default is ````false````.
      *
@@ -823,9 +823,9 @@ export class CameraControl extends Component {
     /**
      * Sets whether to vertically constrain the {@link @xeokit/viewer!Camera}  position for first-person navigation.
      *
-     * When set ````true````, this constrains {@link Camera.eye} to its current vertical position.
+     * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
      *
      * Default is ````false````.
      *
@@ -836,7 +836,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Gets whether double-picking an {@link Entity} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
+     * Gets whether double-picking a {@link @xeokit/viewer!ViewObject} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
      *
      * Default is ````false````.
      *
@@ -847,7 +847,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets whether double-picking an {@link Entity} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
+     * Sets whether double-picking a {@link @xeokit/viewer!ViewObject} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
      *
      * Default is ````false````.
      *
@@ -884,7 +884,7 @@ export class CameraControl extends Component {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````, which disallows rotation.
      *
      * @returns {Number} The inertia factor.
      */
@@ -893,7 +893,8 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets a factor in range ````[0..1]```` indicating how much the {@link @xeokit/viewer!Camera}  keeps moving after you finish rotating it.
+     * Sets a factor in range ````[0..1]```` indicating how much the {@link @xeokit/viewer!Camera}  keeps moving after you
+     * finish rotating it.
      *
      * A value of ````0.0```` causes it to immediately stop, ````0.5```` causes its movement to decay 50% on each tick,
      * while ````1.0```` causes no decay, allowing it to continue moving, by the current rate of rotation.
@@ -904,7 +905,8 @@ export class CameraControl extends Component {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````,
+     * which disallows rotation.
      *
      * @param rotationInertia New inertial factor.
      */
@@ -963,7 +965,7 @@ export class CameraControl extends Component {
     }
 
     /**
-     * Sets how many degrees per second the {@link @xeokit/viewer!Camera}  rotates/orbits with keyboard input.
+     * Sets how many degrees per second the {@link @xeokit/viewer!Camera} rotates/orbits with keyboard input.
      *
      * Default is ````90.0````.
      *
@@ -1000,7 +1002,8 @@ export class CameraControl extends Component {
     /**
      * Sets the current drag rotation rate.
      *
-     * This configures how many degrees the {@link @xeokit/viewer!Camera}  rotates/orbits for a full sweep of the canvas by mouse or touch dragging.
+     * This configures how many degrees the {@link @xeokit/viewer!Camera}  rotates/orbits for a full sweep of the canvas by mouse or
+     * touch dragging.
      *
      * For example, a value of ````360.0```` indicates that the ````Camera```` rotates/orbits ````360.0```` degrees horizontally
      * when we sweep the entire width of the canvas.
@@ -1234,13 +1237,15 @@ export class CameraControl extends Component {
      * Gets whether smart default pivoting is enabled.
      *
      * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
-     * imaginary sphere that's centered at {@link Camera.eye} and sized to the {@link Scene} boundary.
+     * imaginary sphere that's centered at {@link @xeokit/viewer!Camera.eye | Camera.eye} and sized to the
+     * {@link @xeokit/scene!Scene} boundary.
      *
-     * When ````false````, we'll pivot by default about {@link Camera.look}.
+     * When ````false````, we'll pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * @returns {Boolean} Returns ````true```` when pivoting by default about the selected point on the virtual sphere, or ````false```` when pivoting by default about {@link Camera.look}.
+     * @returns {Boolean} Returns ````true```` when pivoting by default about the selected point on the virtual
+     * sphere, or ````false```` when pivoting by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      */
     get smartPivot(): boolean {
         return this.#configs.smartPivot;
@@ -1250,13 +1255,15 @@ export class CameraControl extends Component {
      * Sets whether smart default pivoting is enabled.
      *
      * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
-     * imaginary sphere that's centered at {@link Camera.eye} and sized to the {@link Scene} boundary.
+     * imaginary sphere that's centered at {@link @xeokit/viewer!Camera.eye | Camera.eye} and sized to
+     * the {@link @xeokit/scene!Scene} boundary.
      *
-     * When ````false````, we'll pivot by default about {@link Camera.look}.
+     * When ````false````, we'll pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere, or ````false```` to pivot by default about {@link Camera.look}.
+     * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere,
+     * or ````false```` to pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      */
     set smartPivot(enabled: boolean | undefined) {
         this.#configs.smartPivot = (enabled !== false);

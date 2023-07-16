@@ -2483,7 +2483,7 @@ var SDKError = /*#__PURE__*/function (_Error) {
  *
  * ## xeokit SDK Core Components
  *
- * * {@link Component} base class
+ * * a {@link @xeokit/core!Component} base class
  * * Various kdtree3 nterfaces that are implemented throughout the SDK.
  *
  * ## Installation
@@ -6155,7 +6155,7 @@ var index$j = {
  *
  * ---
  *
- * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within SceneModel.createGeometry implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
+ * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
 
  The compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC) coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
 
@@ -6190,7 +6190,7 @@ var index$j = {
  *
  * ## Usage
  *
- * In the example below, we'll use {@link compressGeometryParams} to compress
+ * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
  *
@@ -6274,7 +6274,7 @@ var index$j = {
  * }
  * ````
  *
- * In the next example, we'll again use {@link compressGeometryParams} to compress
+ * In the next example, we'll again use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
  * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.
@@ -7551,7 +7551,7 @@ function intersectAABB3s(aabb1, aabb2) {
   // return ret;
 }
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!TrianglesPrimitive | TrianglesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -7563,7 +7563,7 @@ function intersectFrustum3Triangles3(frustum, positions, indices) {
   return true;
 }
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given triangle primitive.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given triangle primitive.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -7576,7 +7576,7 @@ function intersectFrustum3Triangle3(frustum, a, b, c) {
   return true;
 }
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -7588,7 +7588,7 @@ function intersectFrustum3Lines3(frustum, positions, indices) {
   return true;
 }
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -7599,7 +7599,7 @@ function intersectFrustum3Positions3(frustum, positions) {
   return true;
 }
 /**
- * Tests if the given {@link @math/boundaries!Frustum3 | Frustum3} intersects the given position.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given position.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -8439,7 +8439,7 @@ var index$e = {
 };
 
 /**
- * A property in a {@link PropertySet}.
+ * A property in a {@link @xeokit/data!PropertySet}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -8570,19 +8570,19 @@ function DataObject(data, model, id, name, type, propertySets) {
    */
   this.type = void 0;
   /**
-   * {@link PropertySet | PropertySets} referenced by this DataObject.
+   *{@link @xeokit/data!PropertySet | PropertySets} referenced by this DataObject.
    */
   this.propertySets = void 0;
   /**
-   * The {@link Relationship | Relations} in which this DataObject is the {@link Relationship.relating} participant.
+   * The {@link @xeokit/data!Relationship | Relations} in which this DataObject is the {@link @xeokit/data!Relationship.relatingObject | Relationship.relatingObject} participant.
    *
-   * Each DataObject is mapped here by {@link Relationship.type | Relationship.type} and sub-mapped by {@link Relationship.relating | Relationship.relating}.
+   * Each DataObject is mapped here by {@link @xeokit/data!Relationship.type | Relationship.type} and sub-mapped by {@link @xeokit/data!Relationship.relatingObject | Relationship.relatingObject}.
    */
   this.relating = void 0;
   /**
-   * The {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.related} participant.
+   * The {@link @xeokit/data!Relationship | Relationships} in which this DataObject is the {@link @xeokit/data!Relationship.relatedObject | Relationship.relatedObject} participant.
    *
-   * Each DataObject is mapped here by {@link Relationship.type | Relationship.type} and sub-mapped by {@link Relationship.related | Relationship.related}.
+   * Each DataObject is mapped here by {@link @xeokit/data!Relationship.type | Relationship.type} and sub-mapped by {@link @xeokit/data!Relationship.relatedObject | Relationship.relatedObject}.
    */
   this.related = void 0;
   this.data = data;
@@ -8616,14 +8616,14 @@ function Relationship(type, relatingObject, relatedObject) {
    * The relating {@link DataObject} in this Relationship.
    *
    * This Relationship will be stored by {@link DataObject.type | DataObject.type}
-   * in the DataObject's {@link DataObject.relatedObject | DataObject.relatedObject} attribute.
+   * in the DataObject's {@link DataObject.related | DataObject.related} attribute.
    */
   this.relatingObject = void 0;
   /**
    * The related {@link DataObject} in this Relationship.
    *
    * This Relationship will be stored by {@link DataObject.type | DataObject.type} in
-   * the DataObject's {@link DataObject.relatingObject | DataObject.relatingObject} attribute.
+   * the DataObject's {@link DataObject.relating | DataObject.relating} attribute.
    */
   this.relatedObject = void 0;
   this.type = type;
@@ -8690,7 +8690,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
      */
     _this.schema = void 0;
     /**
-     * The {@link PropertySet | PropertySets} in this DataModel, mapped to {@link PropertySet.id | PropertySet.id}.
+     * The{@link @xeokit/data!PropertySet | PropertySets} in this DataModel, mapped to{@link @xeokit/data!PropertySet.id | PropertySet.id}.
      *
      * PropertySets have globally-unique IDs and will also be stored in {@link Data.propertySets | Data.propertySets}.
      */
@@ -8705,7 +8705,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
      * The root {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
      *
      * * This is the set of DataObjects in this DataModel that are not the *related* participant in
-     * any {@link Relationship | Relationships}, where they have no incoming Relationships and
+     * any {@link @xeokit/data!Relationship | Relationships}, where they have no incoming Relationships and
      * their {@link DataObject.relating} property is empty.
      */
     _this.rootObjects = void 0;
@@ -8715,7 +8715,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
      */
     _this.objectsByType = void 0;
     /**
-     * The {@link Relationship | Relationships} in this DataModel.
+     * The {@link @xeokit/data!Relationship | Relationships} in this DataModel.
      *
      * * The Relationships can be between DataObjects in different DataModels, but always within the same Data.
      */
@@ -8805,7 +8805,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
     }
   }
   /**
-   * Creates a new {@link PropertySet}.
+   * Creates a new {@link @xeokit/data!PropertySet}.
    *
    * * Stores the new PropertySet in {@link DataModel.propertySets | DataModel.propertySets}
    * and {@link Data.propertySets | Data.propertySets}.
@@ -8888,7 +8888,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
    * ````javascript
    * const myDataObject = dataModel.createObject({
    *     id: "myDataObject",
-   *     type: BasicEntity,     // @xeokit/datatypes!basicTypes
+   *     type: BasicEntity,     // @xeokit/basictypes!basicTypes
    *     name: "My Object",
    *     propertySetIds: ["myPropertySet"]
    * });
@@ -8994,7 +8994,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
     return dataObject;
   }
   /**
-   * Creates a new {@link Relationship} between two existing {@link DataObject | DataObjects}.
+   * Creates a new {@link @xeokit/data!Relationship} between two existing {@link DataObject | DataObjects}.
    *
    * * A Relationship involves a *relating* DataObject and a *related* DataObject.
    * * The *relating* and *related* DataObjects can exist within different DataModels,
@@ -9009,7 +9009,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
    *
    * ````javascript
    * const myRelationship = dataModel.createRelationship({
-   *     type: BasicAggregation,            // @xeokit/datatypes!basicTypes
+   *     type: BasicAggregation,            // @xeokit/basictypes!basicTypes
    *     relatingObjectId: "myDataObject",
    *     relatedObjectId: "myDataObject2"
    * });
@@ -9029,7 +9029,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/data"} for more usage info.
    *
    * @param relationshipParams - Relationship creation parameters.
-   * @returns *{@link Relationship}*
+   * @returns *{@link @xeokit/data!Relationship}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this DataModel has already been built or destroyed.
@@ -9269,7 +9269,7 @@ var Data = /*#__PURE__*/function (_Component) {
      */
     _this.models = void 0;
     /**
-     * The {@link PropertySet | PropertySets} belonging to this Data, mapped to {@link PropertySet.id | PropertySet.id}.
+     * The{@link @xeokit/data!PropertySet | PropertySets} belonging to this Data, mapped to{@link @xeokit/data!PropertySet.id | PropertySet.id}.
      */
     _this.propertySets = void 0;
     /**
@@ -9280,7 +9280,7 @@ var Data = /*#__PURE__*/function (_Component) {
      * The root {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id | DataObject.id}.
      *
      * * This is the set of DataObjects in the DataModels within this Data that are not the *related* participant in
-     * any {@link Relationship | Relationships}, where they have no incoming Relationships and
+     * any {@link @xeokit/data!Relationship | Relationships}, where they have no incoming Relationships and
      * their {@link DataObject.relating} property is empty.
      */
     _this.rootObjects = void 0;
@@ -9603,13 +9603,13 @@ function arrayToMap(array) {
  * to connect the DataObjects into an aggregation hierarchy, and we will assign {@link Property | Properties} to the
  * DataObjects to give them attributes such as height and weight.
  *
- * To give the DataObjects and {@link Relationship | Relationships} semantic meaning, we will assign
+ * To give the DataObjects and {@link @xeokit/data!Relationship | Relationships} semantic meaning, we will assign
  * them types from one of the SDK's bundled data type sets, basicTypes. This set of types classifies each DataObject
- * as a {@link @xeokit/datatypes/basicTypes!BasicEntity | BasicEntity} and each Relationship as
- * a {@link @xeokit/datatypes/basicTypes!BasicAggregation | BasicAggregation}.
+ * as a {@link @xeokit/basictypes!BasicEntity | BasicEntity} and each Relationship as
+ * a {@link @xeokit/basictypes!BasicAggregation | BasicAggregation}.
  *
  * It's worth noting that in a real-world scenario, we would likely use a more complex set of data types, such as
- * {@link "@xeokit/datatypes/ifcTypes" | ifcTypes}. However, we cannot mix different sets of data types within our {@link Data},
+ * {@link "@xeokit/ifctypes" | ifcTypes}. However, we cannot mix different sets of data types within our {@link Data},
  * as traversals of the DataObjects with {@link Data.searchObjects | Data.searchObjects } must be
  * guided uniformly by the same set of types across all the DataObjects and Relationships in the graph.
  *
@@ -9620,7 +9620,7 @@ function arrayToMap(array) {
  * ````javascript
  * import { SDKError } from "@xeokit/core";
  * import { Data } from "@xeokit/data";
- * import * as basicTypes from "@xeokit/datatypes/basicTypes";
+ * import * as basicTypes from "@xeokit/basictypes/basicTypes";
  *
  * const myData = new Data({});
  *
@@ -9749,13 +9749,13 @@ function arrayToMap(array) {
  * ### Creating a DataModel using Builder Methods
  *
  * In our second example, we'll create our {@link DataModel} again, this time instantiating
- * each {@link PropertySet}, {@link Property}, {@link DataObject} and {@link Relationship} individually, using the
+ * each {@link @xeokit/data!PropertySet}, {@link Property}, {@link DataObject} and {@link @xeokit/data!Relationship} individually, using the
  * {@link DataModel | DataModel's} builder methods.
  *
  * ````javascript
  * import {SDKError} from "@xeokit/core";
  * import {Data} from "@xeokit/data";
- * import * as basicTypes from "@xeokit/datatypes/basicTypes";
+ * import * as basicTypes from "@xeokit/basictypes/basicTypes";
  *
  * const data = new Data();
  *
@@ -9908,7 +9908,7 @@ function arrayToMap(array) {
  *
  * ### Reading DataObjects
  *
- * With our {@link SceneModel} built, we'll now use the {@link Data.searchObjects} method to
+ * With our {@link @xeokit/scene!SceneModel} built, we'll now use the {@link Data.searchObjects} method to
  * traverse it to fetch the IDs of the {@link DataObject | DataObjects} we find on that path.
  *
  * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
@@ -9930,7 +9930,7 @@ function arrayToMap(array) {
  * ### Searching DataObjects
  *
  * In our fourth example, we'll demonstrate how to traverse the {@link DataObject | DataObjects} along their
- * {@link Relationship | Relationships}. We'll start at the root DataObject and visit all the DataObjects
+ * {@link @xeokit/data!Relationship | Relationships}. We'll start at the root DataObject and visit all the DataObjects
  * we encounter along the outgoing Relationships.
  *
  * ````javascript
@@ -10007,12 +10007,12 @@ var GeometryBucket = function GeometryBucket(geometryBucketParams) {
 };
 
 /**
- * A geometry in a {@link SceneModel}.
+ * A geometry in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}
  * * Created with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}
  * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
- * * Referenced by {@link @xeokit/scene!SceneObject.geometry}
+ * * Referenced by {@link @xeokit/scene!Mesh.geometry | Mesh.geometry}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -10024,8 +10024,8 @@ var Geometry = function Geometry(params) {
   /**
    * Primitive type.
    *
-   * Possible values are {@link SolidPrimitive}, {@link SurfacePrimitive}, {@link LinesPrimitive}, {@link PointsPrimitive}
-   * and {@link TrianglesPrimitive}.
+   * Possible values are {@link @xeokit/constants!SolidPrimitive}, {@link @xeokit/constants!SurfacePrimitive}, {@link @xeokit/constants!LinesPrimitive}, {@link @xeokit/constants!PointsPrimitive}
+   * and {@link @xeokit/constants!TrianglesPrimitive}.
    */
   this.primitive = void 0;
   /**
@@ -10147,8 +10147,8 @@ var GeometryViewImpl = /*#__PURE__*/function () {
 }();
 var geometryView = new GeometryViewImpl();
 /**
- * Gets the uncompressed, World-space geometry of each {@link GeometryBucket} in each
- * {@link Geometry} in each {@link Mesh} in a {@link SceneObject}.
+ * Gets the uncompressed, World-space geometry of each {@link @xeokit/scene!GeometryBucket} in each
+ * {@link @xeokit/scene!Geometry} in each {@link @xeokit/scene!Mesh} in a {@link @xeokit/scene!SceneObject}.
  *
  * If the callback returns ````true````, then this method immediately stops iterating and also returns ````true````.
  *
@@ -10191,17 +10191,17 @@ var SceneObject = /*#__PURE__*/function () {
    */
   function SceneObject(cfg) {
     /**
-     * The {@link SceneModel} that contains this SceneObject.
+     * The {@link @xeokit/scene!SceneModel} that contains this SceneObject.
      */
     this.model = void 0;
     /**
      * Unique ID of this SceneObject.
      *
-     * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects} and {@link SceneModel.objects | SceneModel.objects}.
+     * SceneObjects are stored by ID in {@link @xeokit/scene!Scene.objects | Scene.objects} and {@link @xeokit/scene!SceneModel.objects | SceneModel.objects}.
      */
     this.id = void 0;
     /**
-     * The {@link Mesh | Meshes} belonging to this SceneObject.
+     * The {@link @xeokit/scene!Mesh | Meshes} belonging to this SceneObject.
      */
     this.meshes = void 0;
     /**
@@ -10209,13 +10209,13 @@ var SceneObject = /*#__PURE__*/function () {
      */
     this.layerId = void 0;
     /**
-     *  Internal interface through which a {@link SceneObject} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!SceneObject} can load property updates into a renderer.
      *
-     *  This is defined while the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined while the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */
-    this.rendererObject = void 0;
+    this.rendererSceneObject = void 0;
     Object.defineProperty(this, _aabb$3, {
       writable: true,
       value: void 0
@@ -10229,7 +10229,7 @@ var SceneObject = /*#__PURE__*/function () {
     this.meshes = cfg.meshes;
     _classPrivateFieldLooseBase(this, _aabb$3)[_aabb$3] = createAABB3();
     _classPrivateFieldLooseBase(this, _aabbDirty$2)[_aabbDirty$2] = true;
-    this.rendererObject = null;
+    this.rendererSceneObject = null;
   }
   /**
    * Gets the axis-aligned 3D World-space boundary of this SceneObject.
@@ -10260,11 +10260,11 @@ var SceneObject = /*#__PURE__*/function () {
 }();
 
 /**
- * A set of {@link Texture | Textures} in a {@link SceneModel}.
+ * A set of {@link Texture | Textures} in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}
  * * Created with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}
- * * Referenced by {@link Mesh.textureSet | Mesh.textureSet}
+ * * Referenced by {@link @xeokit/scene!Mesh.textureSet | Mesh.textureSet}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -10296,7 +10296,7 @@ function TextureSet(textureSetParams, textures) {
   /**
    *  Internal interface through which a TextureSet can load property updates into a renderer.
    *
-   *  This is defined while the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+   *  This is defined while the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
    *
    * @internal
    */
@@ -10310,7 +10310,7 @@ function TextureSet(textureSetParams, textures) {
 };
 
 /**
- * A texture in a {@link SceneModel}.
+ * A texture in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
  * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
@@ -10328,7 +10328,7 @@ function Texture(params) {
   /**
    *  Internal interface through which this {@link Texture} can load property updates into a renderer.
    *
-   *  This is defined when the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+   *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
    *
    * @internal
    */
@@ -10368,7 +10368,7 @@ function Texture(params) {
   /**
    * Media type of this Texture.
    *
-   * Supported values are {@link GIFMediaType}, {@link PNGMediaType} and {@link JPEGMediaType}.
+   * Supported values are {@link @xeokit/constants!GIFMediaType}, {@link @xeokit/constants!PNGMediaType} and {@link @xeokit/constants!JPEGMediaType}.
    *
    * Ignored for compressed textures.
    */
@@ -10376,14 +10376,14 @@ function Texture(params) {
   /**
    * How the texture is sampled when a texel covers more than one pixel.
    *
-   * Supported values are {@link LinearFilter} and {@link NearestFilter}.
+   * Supported values are {@link @xeokit/constants!LinearFilter} and {@link @xeokit/constants!NearestFilter}.
    */
   this.magFilter = void 0;
   /**
    * How the texture is sampled when a texel covers less than one pixel. Supported values
-   * are {@link LinearMipmapLinearFilter}, {@link LinearMipMapNearestFilter},
-   * {@link NearestMipMapNearestFilter}, {@link NearestMipMapLinearFilter}
-   * and {@link LinearMipMapLinearFilter}.
+   * are {@link @xeokit/constants!LinearMipmapLinearFilter}, {@link @xeokit/constants!LinearMipMapNearestFilter},
+   * {@link @xeokit/constants!NearestMipMapNearestFilter}, {@link @xeokit/constants!NearestMipMapLinearFilter}
+   * and {@link @xeokit/constants!LinearMipMapLinearFilter}.
    *
    * Ignored for compressed textures.
    */
@@ -10391,7 +10391,7 @@ function Texture(params) {
   /**
    * S wrapping mode.
    *
-   * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+   * Supported values are {@link @xeokit/constants!ClampToEdgeWrapping}, {@link @xeokit/constants!MirroredRepeatWrapping} and {@link @xeokit/constants!RepeatWrapping}.
    *
    * Ignored for compressed textures.
    */
@@ -10399,7 +10399,7 @@ function Texture(params) {
   /**
    * T wrapping mode.
    *
-   * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+   * Supported values are {@link @xeokit/constants!ClampToEdgeWrapping}, {@link @xeokit/constants!MirroredRepeatWrapping} and {@link @xeokit/constants!RepeatWrapping}.
    *
    * Ignored for compressed textures.
    */
@@ -10407,7 +10407,7 @@ function Texture(params) {
   /**
    * R wrapping mode.
    *
-   * Supported values are {@link ClampToEdgeWrapping}, {@link MirroredRepeatWrapping} and {@link RepeatWrapping}.
+   * Supported values are {@link @xeokit/constants!ClampToEdgeWrapping}, {@link @xeokit/constants!MirroredRepeatWrapping} and {@link @xeokit/constants!RepeatWrapping}.
    *
    * Ignored for compressed textures.
    */
@@ -10419,7 +10419,7 @@ function Texture(params) {
   /**
    * Texture encoding format.
    *
-   * Supported values are {@link LinearEncoding} and {@link sRGBEncoding}.
+   * Supported values are {@link @xeokit/constants!LinearEncoding} and {@link @xeokit/constants!sRGBEncoding}.
    */
   this.encoding = void 0;
   /**
@@ -10446,7 +10446,7 @@ function Texture(params) {
 };
 
 /**
- * A mesh in a {@link SceneModel}.
+ * A mesh in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
  * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
@@ -10479,7 +10479,7 @@ var Mesh = /*#__PURE__*/function () {
      */
     this.textureSet = void 0;
     /**
-     *  Internal interface through which a {@link Mesh} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!Mesh} can load property updates into a renderer.
      *
      *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to
      *  a {@link @xeokit/viewer!Viewer | Viewer}.
@@ -11229,8 +11229,8 @@ var OCCLUSION_TEXTURE = 4;
 /**
  * xeokit Geometry and Materials Model.
  *
- * * A representation of a model's geometry and materials within a {@link Scene}.
- * * Contains {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries} and {@link Texture | Textures}.
+ * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene}.
+ * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries} and {@link Texture | Textures}.
  * * Compresses textures using [Basis](/docs/pages/GLOSSARY.html#basis)
  * * Compresses geometry using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
@@ -11258,7 +11258,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
       value: _removeUnusedTextures2
     });
     /**
-     * The {@link Scene} that contains this SceneModel.
+     * The {@link @xeokit/scene!Scene} that contains this SceneModel.
      */
     _this.scene = void 0;
     /**
@@ -11269,8 +11269,8 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     /**
      * Indicates if this SceneModel has already been built.
      *
-     * * Set ````true```` by {@link SceneModel.build | SceneModel.build}.
-     * * Subscribe to updates using {@link SceneModel.onBuilt | SceneModel.onBuilt} and {@link Scene.onModelCreated | Scene.onModelCreated}.
+     * * Set ````true```` by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
+     * * Subscribe to updates using {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}.
      * * Don't create anything more in this SceneModel once it's built.
      */
     _this.built = void 0;
@@ -11281,44 +11281,44 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     /**
      * {@link @xeokit/scene!Geometry | Geometries} within this SceneModel, each mapped to {@link @xeokit/scene!Geometry.id | Geometry.id}.
      *
-     * * Created by {@link SceneModel.createGeometry | SceneModel.createGeometry}.
+     * * Created by {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}.
      */
     _this.geometries = void 0;
     /**
      * {@link Texture | Textures} within this SceneModel, each mapped to {@link Texture.id | Texture.id}.
      *
-     * * Created by {@link SceneModel.createTexture | SceneModel.createTexture}.
-     * * Compressed asynchronously in {@link SceneModel.build | SceneModel.build}.
+     * * Created by {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
+     * * Compressed asynchronously in {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      */
     _this.textures = void 0;
     /**
      * {@link TextureSet | TextureSets} within this SceneModel, each mapped to {@link TextureSet.id | TextureSet.id}.
      *
-     * * Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
+     * * Created by {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
      */
     _this.textureSets = void 0;
     /**
-     * {@link Mesh | Meshes} within this SceneModel, each mapped to {@link Mesh.id | Mesh.id}.
+     * {@link @xeokit/scene!Mesh | Meshes} within this SceneModel, each mapped to {@link @xeokit/scene!Mesh.id | Mesh.id}.
      *
-     * * Created by {@link SceneModel.createMesh | SceneModel.createMesh}.
+     * * Created by {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
      */
     _this.meshes = void 0;
     /**
-     * {@link SceneObject | SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id | SceneObject.id}.
+     * {@link @xeokit/scene!SceneObject | SceneObjects} within this SceneModel, each mapped to {@link @xeokit/scene!SceneObject.id | SceneObject.id}.
      *
-     * * Created by {@link SceneModel.createObject | SceneModel.createObject}.
+     * * Created by {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}.
      */
     _this.objects = void 0;
     /**
      * The axis-aligned 3D World-space boundary of this SceneModel.
      *
-     * * Created by {@link SceneModel.build | SceneModel.build}.
+     * * Created by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      */
     _this.aabb = void 0;
     /**
      * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has been built.
      *
-     * * Triggered by {@link SceneModel.build | SceneModel.build}.
+     * * Triggered by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      *
      * @event onBuilt
      */
@@ -11328,7 +11328,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
      *
      * @internal
      */
-    _this.rendererModel = void 0;
+    _this.rendererSceneModel = void 0;
     /**
      * Statistics on this SceneModel.
      */
@@ -11361,7 +11361,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     _this.objects = {};
     _this.aabb = createAABB3();
     _this.built = false;
-    _this.rendererModel = null;
+    _this.rendererSceneModel = null;
     _this.stats = {
       numGeometries: 0,
       numLines: 0,
@@ -11388,7 +11388,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been built.
    * * If this SceneModel has already been destroyed.
-   * * A duplicate component ({@link SceneObject}, {@link Mesh}, {@link Geometry}, {@link Texture} etc.) was already created within this SceneModel.
+   * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!Mesh}, {@link @xeokit/scene!Geometry}, {@link Texture} etc.) was already created within this SceneModel.
    */
   var _proto = SceneModel.prototype;
   _proto.fromJSON = function fromJSON(sceneModelParams) {
@@ -11427,7 +11427,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
   /**
    * Creates a new {@link Transform} within this SceneModel.
    *
-   * * Stores the new {@link Transform} in {@link SceneModel.transforms | SceneModel.transforms}.
+   * * Stores the new {@link Transform} in {@link @xeokit/scene!SceneModel.transforms | SceneModel.transforms}.
    *
    * ### Usage
    *
@@ -11460,8 +11460,8 @@ var SceneModel = /*#__PURE__*/function (_Component) {
   /**
    * Creates a new {@link Texture} within this SceneModel.
    *
-   * * Stores the new {@link Texture} in {@link SceneModel.textures | SceneModel.textures}.
-   * * Textures are compressed asynchronously by {@link SceneModel.build | SceneModel.build}.
+   * * Stores the new {@link Texture} in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}.
+   * * Textures are compressed asynchronously by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
    *
    * ### Usage
    *
@@ -11528,7 +11528,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
   /**
    * Creates a new {@link TextureSet} within this SceneModel.
    *
-   * * Stores the new {@link TextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
+   * * Stores the new {@link TextureSet} in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}.
    *
    * ### Usage
    *
@@ -11616,7 +11616,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
   /**
    * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from non-compressed geometry parameters.
    *
-   * * Stores the new {@link Geometry} in {@link SceneModel.geometries | SceneModel.geometries}.
+   * * Stores the new {@link @xeokit/scene!Geometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
    *
    * ### Usage
    *
@@ -11657,7 +11657,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * * Geometry of given ID already exists in this SceneModel.
    * * Unsupported primitive type given.
    * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
-   * * Mandatory indices were not given for primitive type that is not {@link PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+   * * Mandatory indices were not given for primitive type that is not {@link @xeokit/constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
    * * Indices out of range of vertex positions.
    * * Indices out of range of vertex UVs.
    * * Mismatch between given quantities of vertex positions and UVs.
@@ -11727,8 +11727,8 @@ var SceneModel = /*#__PURE__*/function (_Component) {
   /**
    * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from pre-compressed geometry parameters.
    *
-   * * Stores the new {@link Geometry} in {@link SceneModel.geometries | SceneModel.geometries}.
-   * * Use {@link @xeokit/compression!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
+   * * Stores the new {@link @xeokit/scene!Geometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
+   * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
    *
    * ### Usage
    *
@@ -11768,7 +11768,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/scene"} for more usage info.
    *
    * @param geometryCompressedParams Pre-compressed geometry parameters.
-   * @returns *{@link Geometry}*
+   * @returns *{@link @xeokit/scene!Geometry}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been destroyed.
@@ -11777,7 +11777,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * * Geometry of given ID already exists in this SceneModel.
    * * Unsupported primitive type given.
    * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
-   * * Mandatory indices were not given for primitive type that is not {@link PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+   * * Mandatory indices were not given for primitive type that is not {@link @xeokit/constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
    * * Indices out of range of vertex positions.
    * * Indices out of range of vertex UVs.
    * * Mismatch between given quantities of vertex positions and UVs.
@@ -11806,10 +11806,10 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     return geometry;
   }
   /**
-   * Creates a new {@link Mesh} within this SceneModel.
+   * Creates a new {@link @xeokit/scene!Mesh} within this SceneModel.
    *
-   * * Stores the new {@link Mesh} in {@link SceneModel.meshes | SceneModel.meshes}.
-   * * A {@link Mesh} can be owned by one {@link SceneObject}, which can own multiple {@link Mesh}es.
+   * * Stores the new {@link @xeokit/scene!Mesh} in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}.
+   * * A {@link @xeokit/scene!Mesh} can be owned by one {@link @xeokit/scene!SceneObject}, which can own multiple {@link @xeokit/scene!Mesh}es.
    *
    * ### Usage
    *
@@ -11834,7 +11834,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/scene"} for more usage info.
    *
    * @param meshParams Pre-compressed mesh parameters.
-   * @returns *{@link Mesh}*
+   * @returns *{@link @xeokit/scene!Mesh}*
    *  * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been destroyed.
@@ -11892,12 +11892,12 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     return mesh;
   }
   /**
-   * Creates a new {@link SceneObject}.
+   * Creates a new {@link @xeokit/scene!SceneObject}.
    *
-   * * Stores the new {@link SceneObject} in {@link SceneModel.objects | SceneModel.objects} and {@link Scene.objects | Scene.objects}.
-   * * Fires an event via {@link Scene.onObjectCreated | Scene.onObjectCreated}.
-   * * Each {@link Mesh} is allowed to belong to one SceneObject.
-   * * SceneObject IDs must be unique within the SceneModel's {@link Scene}.
+   * * Stores the new {@link @xeokit/scene!SceneObject} in {@link @xeokit/scene!SceneModel.objects | SceneModel.objects} and {@link @xeokit/scene!Scene.objects | Scene.objects}.
+   * * Fires an event via {@link @xeokit/scene!Scene.onObjectCreated | Scene.onObjectCreated}.
+   * * Each {@link @xeokit/scene!Mesh} is allowed to belong to one SceneObject.
+   * * SceneObject IDs must be unique within the SceneModel's {@link @xeokit/scene!Scene}.
    *
    * ### Usage
    *
@@ -11918,7 +11918,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/scene"} for more usage info.
    *
    * @param objectParams SceneObject parameters.
-   * @returns *{@link SceneObject}*
+   * @returns *{@link @xeokit/scene!SceneObject}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been destroyed.
@@ -11974,11 +11974,11 @@ var SceneModel = /*#__PURE__*/function (_Component) {
   /**
    * Finalizes this SceneModel, readying it for use.
    *
-   * * Fires an event via {@link SceneModel.onBuilt | SceneModel.onBuilt} and {@link Scene.onModelCreated | SceneModel.onCreated}, to indicate to subscribers that
+   * * Fires an event via {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and {@link @xeokit/scene!Scene.onModelCreated | SceneModel.onCreated}, to indicate to subscribers that
    * the SceneModel is complete and ready to use.
-   * * Sets {@link SceneModel.built | SceneModel.built} ````true````.
+   * * Sets {@link @xeokit/scene!SceneModel.built | SceneModel.built} ````true````.
    * * You can only call this method once on a SceneModel.
-   * * The SceneModel must have at least one {@link SceneObject}.
+   * * The SceneModel must have at least one {@link @xeokit/scene!SceneObject}.
    * * Once built, no more components can be created in a SceneModel.
    *
    * ### Usage
@@ -12048,7 +12048,7 @@ function _removeUnusedTextures2() {
 /**
  * A scene representation.
  *
- * A Scene is a container of {@link SceneModel | SceneModels} and {@link SceneObject | SceneObjects}.
+ * A Scene is a container of {@link @xeokit/scene!SceneModel | SceneModels} and {@link @xeokit/scene!SceneObject | SceneObjects}.
  */
 var _onModelBuilts = /*#__PURE__*/_classPrivateFieldLooseKey("onModelBuilts");
 var _onModelDestroys = /*#__PURE__*/_classPrivateFieldLooseKey("onModelDestroys");
@@ -12079,17 +12079,17 @@ var Scene = /*#__PURE__*/function (_Component) {
      */
     _this.models = void 0;
     /**
-     * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
+     * The {@link @xeokit/scene!SceneObject | SceneObjects} in this Scene, mapped to {@link @xeokit/scene!SceneObject.id | SceneObject.id}.
      */
     _this.objects = void 0;
     /**
-     * Emits an event each time a {@link SceneModel} is created in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneModel} is created in this Scene.
      *
      * @event
      */
     _this.onModelCreated = void 0;
     /**
-     * Emits an event each time a {@link SceneModel} is destroyed in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneModel} is destroyed in this Scene.
      *
      * @event
      */
@@ -12125,20 +12125,20 @@ var Scene = /*#__PURE__*/function (_Component) {
     return _this;
   }
   /**
-   * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
+   * Gets the collective World-space 3D center of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
    */
   var _proto = Scene.prototype;
   /**
    * Creates a new {@link @xeokit/scene!SceneModel} in this Scene.
    *
-   * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or loading the SceneModel. That will
-   * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
+   * Remember to call {@link @xeokit/scene!SceneModel.build | SceneModel.build} when you've finished building or loading the SceneModel. That will
+   * fire events via {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated} and {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt}, to
    * indicate to any subscribers that the SceneModel is built and ready for use.
    *
    * See {@link "@xeokit/scene"} for more details on usage.
    *
    * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
-   * @returns *{@link SceneModel}*
+   * @returns *{@link @xeokit/viewer!Renderer}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * This Scene has already been destroyed.
@@ -12176,9 +12176,9 @@ var Scene = /*#__PURE__*/function (_Component) {
     }
   }
   /**
-   * Destroys all contained {@link SceneModel | SceneModels}.
+   * Destroys all contained {@link @xeokit/scene!SceneModel | SceneModels}.
    *
-   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
    * for each existing SceneModel in this Scene.
    *
    * See {@link "@xeokit/scene"} for usage.
@@ -12196,11 +12196,11 @@ var Scene = /*#__PURE__*/function (_Component) {
     }
   }
   /**
-   * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
+   * Destroys this Scene and all contained {@link @xeokit/scene!SceneModel | SceneModels}.
    *
-   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
    * for each existing SceneModels in this Data.
-   * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * * Unsubscribes all subscribers to {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}, {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
    *
    * See {@link "@xeokit/scene"} for usage.
    *
@@ -12227,7 +12227,7 @@ var Scene = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _center)[_center];
     }
     /**
-     * Gets the collective World-space 3D [axis-aligned boundary](/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
+     * Gets the collective World-space 3D [axis-aligned boundary](/docs/pages/GLOSSARY.html#aabb) of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
      *
      * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
      */
@@ -12332,7 +12332,7 @@ function _deregisterObjects2(model) {
  * To elaborate further:
  *
  * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
- * comprise {@link SceneObject | SceneObjects}, {@link Mesh | Meshes}, {@link Geometry | Geometries}, {@link GeometryBucket | GeometryBuckets}, and {@link Texture | Textures}.
+ * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries}, {@link @xeokit/scene!GeometryBucket | GeometryBuckets}, and {@link Texture | Textures}.
  * * Textures undergo compression via Basis Universal.
  * * Geometry undergoes compression through bucketing and quantization.
  * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
@@ -12341,8 +12341,8 @@ function _deregisterObjects2(model) {
  * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel},
  * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}. Add geometry
- * primitives using mesh generator functions like {@link @xeokit/procgen/geometry!buildBoxGeometry | buildBoxGeometry}, {@link @xeokit/procgen/geometry!buildSphereGeometry | buildSphereGeometry}, {@link @xeokit/procgen/geometry!buildTorusGeometry | buildTorusGeometry}, {@link @xeokit/procgen/geometry!buildCylinderGeometry | buildCylinderGeometry}, {@link @xeokit/procgen/geometry!buildPlaneGeometry | buildPlaneGeometry} and {@link @xeokit/procgen/geometry!buildVectorTextGeometry | buildVectorTextGeometry}.
- * * Use a {@link "@xeokit/collision/pick" | Picker} to select SceneObjects and primitives that intersect rays and selection boundaries.
+ * primitives using mesh generator functions like {@link @xeokit/procgen!buildBoxGeometry | buildBoxGeometry}, {@link @xeokit/procgen!buildSphereGeometry | buildSphereGeometry}, {@link @xeokit/procgen!buildTorusGeometry | buildTorusGeometry}, {@link @xeokit/procgen!buildCylinderGeometry | buildCylinderGeometry}, {@link @xeokit/procgen!buildPlaneGeometry | buildPlaneGeometry} and {@link @xeokit/procgen!buildVectorTextGeometry | buildVectorTextGeometry}.
+ * * Use a {@link "@xeokit/collision!pick" | Picker} to select SceneObjects and primitives that intersect rays and selection boundaries.
  *
  * <br>
  *
@@ -12356,7 +12356,7 @@ function _deregisterObjects2(model) {
  * * Geometries are arranged automatically into {@link @xeokit/scene!GeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.
  * * Each Mesh can be assigned to only one SceneObject, whereas each Geometry and TextureSet can be allocated to an unlimited number of Meshes.
  * * The {@link getSceneObjectGeometry} function can be used to conveniently iterate the World-space geometry within each
- * {@link SceneObject | SceneObject} - useful for building k-d trees, finding intersections etc.
+ * {@link @xeokit/scene!SceneObject | SceneObject} - useful for building k-d trees, finding intersections etc.
  *
  * ## Installation
  *
@@ -12378,7 +12378,7 @@ function _deregisterObjects2(model) {
  * {@link @xeokit/scene!SceneObject | SceneObjects}, five {@link @xeokit/scene!Mesh | Meshes},
  * a {@link @xeokit/scene!Geometry | Geometry} and a {@link @xeokit/scene!Texture | Texture}.
  *
- * When we've finished constructing our SceneModel, we'll call {@link SceneModel.build | SceneModel.build}, which
+ * When we've finished constructing our SceneModel, we'll call {@link @xeokit/scene!SceneModel.build | SceneModel.build}, which
  * (asynchronously) compresses our Texture.
  *
  * At that point, we can use the SceneModel. For example, we could export it to xeokit's native XKT
@@ -12562,7 +12562,7 @@ function _deregisterObjects2(model) {
  *
  * ### Reading the SceneModel
  *
- * Now that we've built our SceneModel, we can read all of its components. Note that the {@link Texture} and {@link Geometry}
+ * Now that we've built our SceneModel, we can read all of its components. Note that the {@link Texture} and {@link @xeokit/scene!Geometry}
  * we just created will now be compressed.
  *
  * ````javascript
@@ -12577,15 +12577,15 @@ function _deregisterObjects2(model) {
  *
  * ### Geometry Compression
  *
- * The geometry from our query example requires a closer look. Internally, the {@link SceneModel.createGeometry}
- * method uses the {@link compressGeometryParams} function to compress the geometry and generate edge indices for
+ * The geometry from our query example requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.createGeometry}
+ * method uses the {@link @xeokit/scene!compressGeometryParams} function to compress the geometry and generate edge indices for
  * rendering it as a wireframe.
  *
  * We provide that function as part of the API in case users want to pre-compress the geometry themselves
  * and then use {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * to create the compressed geometry directly.
  *
- * The {@link compressGeometryParams} function performs these steps to compress the geometry:
+ * The {@link @xeokit/scene!compressGeometryParams} function performs these steps to compress the geometry:
  *
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes
@@ -12605,7 +12605,7 @@ function _deregisterObjects2(model) {
  *
  * The bucketing technique was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.
  *
- * In the example below, we'll now use {@link compressGeometryParams} to compress
+ * In the example below, we'll now use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
  * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
  *
@@ -12682,7 +12682,7 @@ function _deregisterObjects2(model) {
  *
  * ### Texture Compression
  *
- * The {@link Texture} from our query example also requires a closer look. Internally, the {@link SceneModel.build}
+ * The {@link Texture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
  * method uses [Basis](/docs/pages/GLOSSARY.html#basis) to compress the Texture to KTX2. We can now read that transcoded data
  * back from {@link @Texture.buffers | Texture.buffers}:
  *
@@ -12712,7 +12712,7 @@ var index$c = {
 var _typeNames$1;
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdatatypes.svg)](https://badge.fury.io/js/%40xeokit%2Fdatatypes)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/datatypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/datatypes)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/basictypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/basictypes)
  *
  * <img style="padding:10px; width:300px" src="media://images/xeokit_components_icon.png"/>
  *
@@ -12763,7 +12763,7 @@ var index$b = {
 var _typeNames;
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdatatypes.svg)](https://badge.fury.io/js/%40xeokit%2Fdatatypes)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/datatypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/datatypes)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/basictypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/basictypes)
  *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/cityJSONLogo.svg"/>
  *
@@ -13017,7 +13017,7 @@ var index$a = {
 
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdatatypes.svg)](https://badge.fury.io/js/%40xeokit%2Fdatatypes)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/datatypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/datatypes)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/basictypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/basictypes)
  *
  * <img style="padding-top:20px; padding-bottom: 10px;" src="media://images/ifc_logo.png"/>
  *
@@ -13033,7 +13033,7 @@ var index$a = {
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/datatypes
+ * npm install @xeokit/basictypes
  * ````
  *
  * @module @xeokit/ifcTypes
@@ -18218,9 +18218,9 @@ var _state$e = /*#__PURE__*/_classPrivateFieldLooseKey("state");
  *
  * ## Summary
  *
- * * Stored in {@link View.objects | View.objects} and {@link ViewLayer.objects | ViewLayer.objects}
+ * * Stored in {@link View.objects | View.objects} and {@link @xeokit/view!ViewLayer.objects | ViewLayer.objects}
  * * Viewer automatically creates one of these in each existing {@link @xeokit/viewer!View} for each {@link @xeokit/scene!SceneModel | SceneObject} created
- * * {@link SceneObject.layerId | SceneObject.layerId} determines which of the View's {@link ViewLayer | ViewLayers} to put the ViewObject in
+ * * {@link @xeokit/scene!SceneObject.layerId | SceneObject.layerId} determines which of the View's {@link @xeokit/view!ViewLayer | ViewLayers} to put the ViewObject in
  *
  * ## Overview
  *
@@ -18230,7 +18230,7 @@ var _state$e = /*#__PURE__*/_classPrivateFieldLooseKey("state");
  * we destroy a SceneObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View
  * are therefore a manifest of the ViewerObjects in the View.
  *
- * {@link ViewLayer}.
+ * {@link @xeokit/viewer!ViewLayer}.
  */
 var ViewObject = /*#__PURE__*/function () {
   /**
@@ -18238,7 +18238,7 @@ var ViewObject = /*#__PURE__*/function () {
    */
   function ViewObject(layer, sceneObject, rendererViewObject) {
     /**
-     * Unique ID of this ViewObject within {@link ViewLayer.objects}.
+     * Unique ID of this ViewObject within {@link @xeokit/view!ViewLayer.objects}.
      */
     this.id = void 0;
     /**
@@ -18246,7 +18246,7 @@ var ViewObject = /*#__PURE__*/function () {
      */
     this.layer = void 0;
     /**
-     * The corresponding {@link SceneObject}.
+     * The corresponding {@link @xeokit/scene!SceneObject}.
      */
     this.sceneObject = void 0;
     /**
@@ -18319,9 +18319,9 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Gets if this ViewObject is visible.
      *
-     * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
-     * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
+     * * When {@link @xeokit/viewer!ViewObject.visible} is ````true```` the ViewObject will be registered by {@link @xeokit/viewer!ViewObject.id} in {@link @xeokit/view!ViewLayer.visibleObjects}.
+     * * Each ViewObject is only rendered when {@link @xeokit/viewer!ViewObject.visible} is ````true```` and {@link @xeokit/viewer!ViewObject.culled} is ````false````.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
      */
   }, {
     key: "visible",
@@ -18331,10 +18331,10 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Sets if this ViewObject is visible.
      *
-     * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
-     * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Fires an "objectVisibility" event on associated {@link ViewLayer}s.
-     * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
+     * * When {@link @xeokit/viewer!ViewObject.visible} is ````true```` the ViewObject will be registered by {@link @xeokit/viewer!ViewObject.id} in {@link @xeokit/view!ViewLayer.visibleObjects}.
+     * * Each ViewObject is only rendered when {@link @xeokit/viewer!ViewObject.visible} is ````true```` and {@link @xeokit/viewer!ViewObject.culled} is ````false````.
+     * * Fires an "objectVisibility" event on associated {@link @xeokit/viewer!ViewLayer}s.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
      */,
     set: function set(visible) {
       if (visible === _classPrivateFieldLooseBase(this, _state$e)[_state$e].visible) {
@@ -18348,8 +18348,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Gets if this ViewObject is X-rayed.
      *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-     * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+     * * When {@link @xeokit/viewer!ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link @xeokit/viewer!ViewObject.id} in {@link @xeokit/view!ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
   }, {
     key: "xrayed",
@@ -18359,8 +18359,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Sets if this ViewObject is X-rayed.
      *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-     * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+     * * When {@link @xeokit/viewer!ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link @xeokit/viewer!ViewObject.id} in {@link @xeokit/view!ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */,
     set: function set(xrayed) {
       if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].xrayed === xrayed) {
@@ -18393,8 +18393,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Gets if this ViewObject is highlighted.
      *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-     * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+     * * When {@link @xeokit/viewer!ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link @xeokit/viewer!ViewObject.id} in {@link @xeokit/view!ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
   }, {
     key: "highlighted",
@@ -18404,8 +18404,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Sets if this ViewObject is highlighted.
      *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-     * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+     * * When {@link @xeokit/viewer!ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link @xeokit/viewer!ViewObject.id} in {@link @xeokit/view!ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */,
     set: function set(highlighted) {
       if (highlighted === _classPrivateFieldLooseBase(this, _state$e)[_state$e].highlighted) {
@@ -18419,8 +18419,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Gets if this ViewObject is selected.
      *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-     * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
+     * * When {@link @xeokit/viewer!ViewObject.selected} is ````true```` the ViewObject will be registered by {@link @xeokit/viewer!ViewObject.id} in {@link @xeokit/view!ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */
   }, {
     key: "selected",
@@ -18430,8 +18430,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Sets if this ViewObject is selected.
      *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-     * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
+     * * When {@link @xeokit/viewer!ViewObject.selected} is ````true```` the ViewObject will be registered by {@link @xeokit/viewer!ViewObject.id} in {@link @xeokit/view!ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */,
     set: function set(selected) {
       if (selected === _classPrivateFieldLooseBase(this, _state$e)[_state$e].selected) {
@@ -18445,8 +18445,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Gets if this ViewObject is culled.
      *
-     * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
+     * * The ViewObject is only rendered when {@link @xeokit/viewer!ViewObject.visible} is ````true```` and {@link @xeokit/viewer!ViewObject.culled} is ````false````.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */
   }, {
     key: "culled",
@@ -18456,8 +18456,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Sets if this ViewObject is culled.
      *
-     * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
+     * * The ViewObject is only rendered when {@link @xeokit/viewer!ViewObject.visible} is ````true```` and {@link @xeokit/viewer!ViewObject.culled} is ````false````.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */,
     set: function set(culled) {
       if (culled === _classPrivateFieldLooseBase(this, _state$e)[_state$e].culled) {
@@ -18469,8 +18469,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Gets if this ViewObject is clippable.
      *
-     * * Clipping is done by the {@link SectionPlane}s in {@link ViewLayer.sectionPlanes}.
-     * * Use {@link ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
+     * * Clipping is done by the {@link SectionPlane}s in {@link @xeokit/view!ViewLayer.sectionPlanes}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
      */
   }, {
     key: "clippable",
@@ -18480,8 +18480,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Sets if this ViewObject is clippable.
      *
-     * * Clipping is done by the {@link SectionPlane}s in {@link ViewLayer.sectionPlanes}.
-     * * Use {@link ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
+     * * Clipping is done by the {@link SectionPlane}s in {@link @xeokit/view!ViewLayer.sectionPlanes}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
      */,
     set: function set(value) {
       if (value === _classPrivateFieldLooseBase(this, _state$e)[_state$e].clippable) {
@@ -18493,9 +18493,9 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Gets if this ViewObject is included in boundary calculations.
      *
-     * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} will include this ViewObject's boundary.
-     * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
-     * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
+     * * When ````true````, the 3D World boundaries returned by {@link @xeokit/view!ViewLayer.aabb} will include this ViewObject's boundary.
+     * * The ViewObject's 3D boundary is held in {@link @xeokit/scene!SceneObject.aabb}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
   }, {
     key: "collidable",
@@ -18505,9 +18505,9 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Sets if this ViewObject included in boundary calculations.
      *
-     * * When ````true````, the 3D World boundaries returned by {@link ViewLayer.aabb} will include this ViewObject's boundary.
-     * * The ViewObject's 3D boundary is held in {@link SceneObject.aabb}.
-     * * Use {@link ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
+     * * When ````true````, the 3D World boundaries returned by {@link @xeokit/view!ViewLayer.aabb} will include this ViewObject's boundary.
+     * * The ViewObject's 3D boundary is held in {@link @xeokit/scene!SceneObject.aabb}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */,
     set: function set(value) {
       if (value === _classPrivateFieldLooseBase(this, _state$e)[_state$e].collidable) {
@@ -18520,8 +18520,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Gets if this ViewObject is pickable.
      *
-     * * Picking is done with {@link ViewLayer.pick}.
-     * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
+     * * Picking is done with {@link @xeokit/view!ViewLayer.pick}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
   }, {
     key: "pickable",
@@ -18531,8 +18531,8 @@ var ViewObject = /*#__PURE__*/function () {
     /**
      * Sets if this ViewObject is pickable.
      *
-     * * Picking is done with {@link ViewLayer.pick}.
-     * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
+     * * Picking is done with {@link @xeokit/view!ViewLayer.pick}.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */,
     set: function set(pickable) {
       if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].pickable === pickable) {
@@ -18547,7 +18547,7 @@ var ViewObject = /*#__PURE__*/function () {
      *
      * * Multiplies by rendered fragment colors.
      * * Each element of the color is in range ````[0..1]````.
-     * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
   }, {
     key: "colorize",
@@ -18560,7 +18560,7 @@ var ViewObject = /*#__PURE__*/function () {
      * * Multiplies by rendered fragment colors.
      * * Each element of the color is in range ````[0..1]````.
      * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
-     * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */,
     set: function set(value) {
       var colorize = _classPrivateFieldLooseBase(this, _state$e)[_state$e].colorize;
@@ -18581,7 +18581,7 @@ var ViewObject = /*#__PURE__*/function () {
      * Gets the opacity factor for this ViewObject.
      *
      * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
-     * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
      */
   }, {
     key: "opacity",
@@ -18593,7 +18593,7 @@ var ViewObject = /*#__PURE__*/function () {
      *
      * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
      * * Set to ````null```` or ````undefined```` to reset the opacity to its default value of ````1````.
-     * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
+     * * Use {@link @xeokit/view!ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
      */,
     set: function set(opacity) {
       var colorize = _classPrivateFieldLooseBase(this, _state$e)[_state$e].colorize;
@@ -18613,7 +18613,7 @@ var ViewObject = /*#__PURE__*/function () {
  * ## Summary
  *
  * * Belongs to a {@link @xeokit/viewer!View}.
- * * Slices portions off {@link ViewObject | ViewObjects} to create cross-section views or reveal interiors.
+ * * Slices portions off {@link @xeokit/viewer!ViewObject | ViewObjects} to create cross-section views or reveal interiors.
  * * Registered by {@link SectionPlane.id} in {@link View.sectionPlanes}.
  * * Indicates its World-space position in {@link SectionPlane.pos} and orientation vector in {@link SectionPlane.dir}.
  * * Discards elements from the half-space in the direction of {@link SectionPlane.dir}.
@@ -18845,7 +18845,7 @@ var unitsInfo = (_unitsInfo = {}, _unitsInfo[MetersUnit] = {
  * ## Summary
  *
  * * Located at {@link View.metrics}.
- * * {@link Metrics.units} configures the Real-space unit type, which is {@link MetersUnit} by default.
+ * * {@link Metrics.units} configures the Real-space unit type, which is {@link @xeokit/constants!MetersUnit} by default.
  * * {@link Metrics.scale} configures the number of Real-space units represented by each unit within the World-space 3D coordinate system. This is ````1.0```` by default.
  * * {@link Metrics.origin} configures the 3D Real-space origin, in current Real-space units, at which this {@link @xeokit/viewer!View}'s World-space coordinate origin sits, This is ````[0,0,0]```` by default.
  *
@@ -19019,7 +19019,7 @@ var Metrics = /*#__PURE__*/function (_Component) {
     /**
      * Sets the {@link @xeokit/viewer!View}'s Real-space unit type.
      *
-     * Accepted values are {@link MetersUnit}, {@link CentimetersUnit}, {@link MillimetersUnit}, {@link YardsUnit}, {@link FeetUnit} and {@link InchesUnit}.
+     * Accepted values are {@link @xeokit/constants!MetersUnit}, {@link @xeokit/constants!CentimetersUnit}, {@link @xeokit/constants!MillimetersUnit}, {@link @xeokit/constants!YardsUnit}, {@link @xeokit/constants!FeetUnit} and {@link @xeokit/constants!InchesUnit}.
      */,
     set: function set(value) {
       if (!value) {
@@ -19045,7 +19045,7 @@ var Metrics = /*#__PURE__*/function (_Component) {
     /**
      * Sets the number of Real-space units represented by each unit of the {@link @xeokit/viewer!View}'s World-space coordinate system.
      *
-     * For example, if {@link Metrics.units} is {@link MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
+     * For example, if {@link Metrics.units} is {@link @xeokit/constants!MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
      */,
     set: function set(value) {
       value = value || 1;
@@ -19502,26 +19502,26 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
 }(Component);
 
 /**
- * A layer of {@link ViewObject | ViewObjects} in a {@link @xeokit/viewer!View}.
+ * A layer of {@link @xeokit/viewer!ViewObject | ViewObjects} in a {@link @xeokit/viewer!View}.
  *
  * See {@link "@xeokit/viewer"} for usage.
  *
  * ## Summary
  *
- * * Automatically stores a {@link ViewObject} for each existing {@link RendererObject} that has a matching {@link RendererObject.layerId | ViewerObject.layerId}
- * * Useful for segreggating {@link ViewObject | ViewObjects} into layers
+ * * Automatically stores a {@link @xeokit/viewer!ViewObject} for each existing {@link RendererObject} that has a matching {@link RendererObject.layerId | ViewerObject.layerId}
+ * * Useful for segreggating {@link @xeokit/viewer!ViewObject | ViewObjects} into layers
  * * Created automatically or manually (see {@link View.createLayer | View.createLayer})
  * * Stored in {@link View.layers | View.layers}
  *
  * ## Overview
  *
- * ViewLayers organize a {@link View |View's} {@link ViewObject | ViewObjects} into layers, according to which aspects of
+ * ViewLayers organize a {@link View |View's} {@link @xeokit/viewer!ViewObject | ViewObjects} into layers, according to which aspects of
  * the view they represent. They make it easier for us to focus our interactions on the ViewObjects that are relevant
  * to the particular aspects we're interested in.
  *
  * ### Typical use case: segregating model objects from environment objects
  *
- * A typical use case for this feature is to group environmental {@link ViewObject | ViewObjects} (e.g. ground, skybox) in an "environment" ViewLayer,
+ * A typical use case for this feature is to group environmental {@link @xeokit/viewer!ViewObject | ViewObjects} (e.g. ground, skybox) in an "environment" ViewLayer,
  * and group model ViewObjects in a "model" ViewLayer. Then we can focus our model interactions (show, hide, highlight,
  * save/load BCF viewpoints, etc.) on the ViewObjects in the "model" ViewLayer, without involving the "environment"
  * ViewObjects at all, which are effectively in the background. We can basically ignore the environment objects as we
@@ -19530,13 +19530,13 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  * ### Automatic ViewLayers
  *
  * By default, each {@link @xeokit/viewer!View} automatically lazy-creates ViewLayers within itself as required. As {@link RendererObject | ViewerObjects} appear in the
- * {@link @xeokit/viewer!Viewer}, {@link ViewObject | ViewObjects} and Viewlayers magically appear in each existing View.
+ * {@link @xeokit/viewer!Viewer}, {@link @xeokit/viewer!ViewObject | ViewObjects} and Viewlayers magically appear in each existing View.
  *
  * Recall that, whenever a {@link RendererObject} is created, each existing {@link @xeokit/viewer!View} will automatically create a
- * corresponding {@link ViewObject} to represent and control that ViewerObject's appearance within the View's canvas.
+ * corresponding {@link @xeokit/viewer!ViewObject} to represent and control that ViewerObject's appearance within the View's canvas.
  *
  * If the {@link RendererObject} also happens to have a value set on its {@link RendererObject.layerId} ID property, then the View
- * will also automatically ensure that it contains a matching {@link ViewLayer}, and will register the new ViewObject
+ * will also automatically ensure that it contains a matching {@link @xeokit/viewer!ViewLayer}, and will register the new ViewObject
  * in that ViewLayer. Note that each ViewObject can belong to a maximum of one ViewLayer.
  *
  * When a {@link @xeokit/viewer!View} automatically creates Viewlayers, it will also automatically destroy them again whenever
@@ -19546,7 +19546,7 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  *
  * We can configure a {@link @xeokit/viewer!View} to **not** automatically create ViewLayers, and instead rely on us to manually create them.
  *
- * When we do that, the View will only create the {@link ViewObject | ViewObjects} within itself for the ViewLayers that we created. The
+ * When we do that, the View will only create the {@link @xeokit/viewer!ViewObject | ViewObjects} within itself for the ViewLayers that we created. The
  * View will ignore all ViewerObjects that don't have {@link RendererObject.layerId} values that match the IDs of our
  * manually-created ViewLayers.
  *
@@ -19588,7 +19588,7 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  * Next, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} containing two model {@link RendererObject | ViewerObjects} that represent a building
  * foundation and walls, along with two environmental ViewerObjects that represent a skybox and ground plane.
  *
- * The ground and skybox ViewerObjects specify that their {@link ViewObject | ViewObjects} belong
+ * The ground and skybox ViewerObjects specify that their {@link @xeokit/viewer!ViewObject | ViewObjects} belong
  * to "environment" ViewLayers, while the model ViewerObjects specify that their ViewObjects belong to "model" ViewLayers.
  *
  * ````javascript
@@ -19626,7 +19626,7 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  * sceneModel.build();
  * ````
  *
- * Our {@link @xeokit/viewer!View} has now automatically created an "environment" {@link ViewLayer}, which contains {@link ViewObject | ViewObjects} for the skybox and
+ * Our {@link @xeokit/viewer!View} has now automatically created an "environment" {@link @xeokit/viewer!ViewLayer}, which contains {@link @xeokit/viewer!ViewObject | ViewObjects} for the skybox and
  * ground plane ViewerObjects, and a "model" ViewLayer, which contains ViewObjects for the house foundation and walls.
  *
  * We can now batch-update the ViewObjects in each ViewLayer independently. As mentioned, this is useful when we need to ignore things
@@ -19686,7 +19686,7 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  * {@link RendererObject | ViewerObjects} that represent a building foundation and walls, along with two environmental
  * ViewerObjects that represent a skybox and ground plane.
  *
- * As before, the ground and skybox ViewerObjects specify that their {@link ViewObject | ViewObjects} belong to "environment" ViewLayers,
+ * As before, the ground and skybox ViewerObjects specify that their {@link @xeokit/viewer!ViewObject | ViewObjects} belong to "environment" ViewLayers,
  * while the model ViewerObjects specify that their ViewObjects belong to "model" ViewLayers.
  *
  * ````javascript
@@ -19724,7 +19724,7 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  * sceneModel.build();
  * ````
  *
- * This time, however, our {@link @xeokit/viewer!View} has now created {@link ViewObject | ViewObjects} for the "model" ViewerObjects, while
+ * This time, however, our {@link @xeokit/viewer!View} has now created {@link @xeokit/viewer!ViewObject | ViewObjects} for the "model" ViewerObjects, while
  * ignoring the "environment" ViewerObjects.
  *
  * As far as this View is concerned, the "environment" ViewerObjects do not exist.
@@ -19773,58 +19773,58 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       value: _initViewObjects2
     });
     /**
-     * Map of the all {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Map of the all {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
-     * These are the ViewObjects for which {@link ViewObject.layerId} has the same value as {@link ViewLayer.id}.
+     * These are the ViewObjects for which {@link @xeokit/viewer!ViewObject.layerId | ViewObject.layerId} has the same value as {@link @xeokit/view!ViewLayer.id}.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      *
-     * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
+     * The ViewLayer automatically ensures that there is a {@link @xeokit/viewer!ViewObject} here for
      * each {@link RendererObject} in the {@link @xeokit/viewer!Viewer}
      */
     _this.objects = void 0;
     /**
-     * Map of the currently visible {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Map of the currently visible {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
-     * A ViewObject is visible when {@link ViewObject.visible} is true.
+     * A ViewObject is visible when {@link @xeokit/viewer!ViewObject.visible} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.visibleObjects = void 0;
     /**
-     * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Map of currently x-rayed {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
-     * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
+     * A ViewObject is x-rayed when {@link @xeokit/viewer!ViewObject.xrayed} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.xrayedObjects = void 0;
     /**
-     * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Map of currently highlighted {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
-     * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
+     * A ViewObject is highlighted when {@link @xeokit/viewer!ViewObject.highlighted} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.highlightedObjects = void 0;
     /**
-     * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Map of currently selected {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
-     * A ViewObject is selected when {@link ViewObject.selected} is true.
+     * A ViewObject is selected when {@link @xeokit/viewer!ViewObject.selected} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.selectedObjects = void 0;
     /**
-     * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Map of currently colorized {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.colorizedObjects = void 0;
     /**
-     * Map of {@link ViewObject | ViewObjects} in this ViewLayer whose opacity has been updated.
+     * Map of {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer whose opacity has been updated.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.opacityObjects = void 0;
     /**
@@ -19834,9 +19834,9 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
      */
     _this.autoDestroy = void 0;
     /**
-     * Emits an event each time the visibility of a {@link ViewObject} changes.
+     * Emits an event each time the visibility of a {@link @xeokit/viewer!ViewObject} changes.
      *
-     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
+     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link @xeokit/view!ViewLayer.setObjectsVisible} or {@link @xeokit/viewer!ViewObject.visible}.
      *
      * @event
      */
@@ -20048,14 +20048,14 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     this.view.objectOpacityUpdated(viewObject, opacityUpdated);
   }
   /**
-   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Updates the visibility of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.visibleObjects} and {@link ViewLayer.numVisibleObjects}.
+   * - Updates {@link @xeokit/viewer!ViewObject.visible} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/view!ViewLayer.visibleObjects} and {@link @xeokit/view!ViewLayer.numVisibleObjects}.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param visible Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsVisible = function setObjectsVisible(objectIds, visible) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20065,13 +20065,13 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Updates the collidability of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
+   * Updates {@link @xeokit/viewer!ViewObject.collidable} on the Objects with the given IDs.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param collidable Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsCollidable = function setObjectsCollidable(objectIds, collidable) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20081,13 +20081,13 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Updates the culled status of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
+   * Updates {@link @xeokit/viewer!ViewObject.culled} on the Objects with the given IDs.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param culled Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsCulled = function setObjectsCulled(objectIds, culled) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20097,14 +20097,14 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Selects or deselects the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
+   * - Updates {@link @xeokit/viewer!ViewObject.selected} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/view!ViewLayer.selectedObjects} and {@link @xeokit/view!ViewLayer.numSelectedObjects}.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param selected Whether or not to select.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsSelected = function setObjectsSelected(objectIds, selected) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20114,14 +20114,14 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Highlights or un-highlights the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
+   * - Updates {@link @xeokit/viewer!ViewObject.highlighted} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/view!ViewLayer.highlightedObjects} and {@link @xeokit/view!ViewLayer.numHighlightedObjects}.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param highlighted Whether or not to highlight.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsHighlighted = function setObjectsHighlighted(objectIds, highlighted) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20131,14 +20131,14 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Applies or removes X-ray rendering for the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
+   * - Updates {@link @xeokit/viewer!ViewObject.xrayed} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/view!ViewLayer.xrayedObjects} and {@link @xeokit/view!ViewLayer.numXRayedObjects}.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param xrayed Whether or not to xray.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsXRayed = function setObjectsXRayed(objectIds, xrayed) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20150,14 +20150,14 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Colorizes the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.colorizedObjects} and {@link ViewLayer.numColorizedObjects}.
+   * - Updates {@link @xeokit/viewer!ViewObject.colorize} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/view!ViewLayer.colorizedObjects} and {@link @xeokit/view!ViewLayer.numColorizedObjects}.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsColorized = function setObjectsColorized(objectIds, colorize) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20165,14 +20165,14 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Sets the opacity of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.opacityObjects} and {@link ViewLayer.numOpacityObjects}.
+   * - Updates {@link @xeokit/viewer!ViewObject.opacity} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/view!ViewLayer.opacityObjects} and {@link @xeokit/view!ViewLayer.numOpacityObjects}.
    *
-   * @param  objectIds - One or more {@link ViewObject.id} values.
+   * @param  objectIds - One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param opacity - Opacity factor in range ````[0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsOpacity = function setObjectsOpacity(objectIds, opacity) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20184,14 +20184,14 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Sets the pickability of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
-   * - Enables or disables the ability to pick the given Objects with {@link ViewLayer.pick}.
+   * - Updates {@link @xeokit/viewer!ViewObject.pickable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link @xeokit/view!ViewLayer.pick}.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param pickable Whether or not to set pickable.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsPickable = function setObjectsPickable(objectIds, pickable) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20203,14 +20203,14 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Sets the clippability of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
-   * - Enables or disables the ability to pick the given Objects with {@link ViewLayer.pick}.
+   * - Updates {@link @xeokit/viewer!ViewObject.clippable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link @xeokit/view!ViewLayer.pick}.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param clippable Whether or not to set clippable.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsClippable = function setObjectsClippable(objectIds, clippable) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -20222,11 +20222,11 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   * Iterates with a callback over the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param callback Callback to execute on each {@link ViewObject}.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
+   * @param callback Callback to execute on each {@link @xeokit/viewer!ViewObject}.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.withObjects = function withObjects(objectIds, callback) {
     var changed = false;
@@ -20269,7 +20269,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _qualityRender$1)[_qualityRender$1];
     }
     /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the number of {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */,
     set: function set(value) {
       if (_classPrivateFieldLooseBase(this, _qualityRender$1)[_qualityRender$1] === value) {
@@ -20284,7 +20284,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numObjects$1)[_numObjects$1];
     }
     /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the IDs of the {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "objectIds",
@@ -20295,7 +20295,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _objectIds$1)[_objectIds$1];
     }
     /**
-     * Gets the number of visible {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the number of visible {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "numVisibleObjects",
@@ -20303,7 +20303,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numVisibleObjects$1)[_numVisibleObjects$1];
     }
     /**
-     * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the IDs of the visible {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "visibleObjectIds",
@@ -20314,7 +20314,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _visibleObjectIds$1)[_visibleObjectIds$1];
     }
     /**
-     * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the number of X-rayed {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "numXRayedObjects",
@@ -20322,7 +20322,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numXRayedObjects$1)[_numXRayedObjects$1];
     }
     /**
-     * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the IDs of the X-rayed {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "xrayedObjectIds",
@@ -20333,7 +20333,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _xrayedObjectIds$1)[_xrayedObjectIds$1];
     }
     /**
-     * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the number of highlighted {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "numHighlightedObjects",
@@ -20341,7 +20341,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numHighlightedObjects$1)[_numHighlightedObjects$1];
     }
     /**
-     * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the IDs of the highlighted {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "highlightedObjectIds",
@@ -20352,7 +20352,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _highlightedObjectIds$1)[_highlightedObjectIds$1];
     }
     /**
-     * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the number of selected {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "numSelectedObjects",
@@ -20360,7 +20360,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numSelectedObjects$1)[_numSelectedObjects$1];
     }
     /**
-     * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the IDs of the selected {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "selectedObjectIds",
@@ -20371,7 +20371,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _selectedObjectIds$1)[_selectedObjectIds$1];
     }
     /**
-     * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the number of colorized {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "numColorizedObjects",
@@ -20379,7 +20379,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numColorizedObjects$1)[_numColorizedObjects$1];
     }
     /**
-     * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets the IDs of the colorized {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */
   }, {
     key: "colorizedObjectIds",
@@ -20390,7 +20390,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _colorizedObjectIds$1)[_colorizedObjectIds$1];
     }
     /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
+     * Gets the IDs of the {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
      */
   }, {
     key: "opacityObjectIds",
@@ -20401,7 +20401,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _opacityObjectIds$1)[_opacityObjectIds$1];
     }
     /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
+     * Gets the number of {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
      */
   }, {
     key: "numOpacityObjects",
@@ -20450,14 +20450,14 @@ function _destroyViewObjects2$1(model) {
 }
 
 /**
- * Configures the appearance of {@link ViewObject | ViewObjects} when they are xrayed, highlighted or selected.
+ * Configures the appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} when they are xrayed, highlighted or selected.
  *
  * ## Summary
  *
  * * Located at {@link View.xrayMaterial}, {@link View.highlightMaterial} and {@link View.selectedMaterial}.
- * * XRay a {@link ViewObject} by setting {@link ViewObject.xrayed} ````true````.
- * * Highlight a {@link ViewObject} by setting {@link ViewObject.highlighted} ````true````.
- * * Select a {@link ViewObject} by setting {@link ViewObject.selected} ````true````.
+ * * XRay a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.xrayed} ````true````.
+ * * Highlight a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.highlighted} ````true````.
+ * * Select a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.selected} ````true````.
  */
 var _state$a = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var EmphasisMaterial = /*#__PURE__*/function (_Component) {
@@ -20493,7 +20493,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     return _this;
   }
   /**
-   * Sets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
+   * Sets if the surfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects} are filled with color.
    *
    * Default is ````true````.
    */
@@ -20508,7 +20508,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     key: "fill",
     get:
     /**
-     * Gets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
+     * Gets if the surfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects} are filled with color.
      *
      * Default is ````true````.
      */
@@ -20516,7 +20516,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$a)[_state$a].fill;
     }
     /**
-     * Sets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
+     * Sets the RGB surface fill color for the surfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * Default is ````[0.4, 0.4, 0.4]````.
      */,
@@ -20531,7 +20531,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     key: "fillColor",
     get:
     /**
-     * Gets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
+     * Gets the RGB surface fill color for the surfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * Default is ````[0.4, 0.4, 0.4]````.
      */
@@ -20539,7 +20539,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$a)[_state$a].fillColor;
     }
     /**
-     * Sets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
+     * Sets the transparency of the surfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -20559,7 +20559,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     key: "fillAlpha",
     get:
     /**
-     * Gets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
+     * Gets the transparency of the surfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -20569,7 +20569,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$a)[_state$a].fillAlpha;
     }
     /**
-     * Sets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
+     * Sets if the edges on emphasized {@link @xeokit/viewer!ViewObject | ViewObjects} are visible.
      *
      * Default is ````true````.
      */,
@@ -20584,7 +20584,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     key: "edges",
     get:
     /**
-     * Gets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
+     * Gets if the edges on emphasized {@link @xeokit/viewer!ViewObject | ViewObjects} are visible.
      *
      * Default is ````true````.
      */
@@ -20592,7 +20592,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edges;
     }
     /**
-     * Sets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
+     * Sets the RGB color of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * Default is ```` [0.2, 0.2, 0.2]````.
      */,
@@ -20607,7 +20607,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     key: "edgeColor",
     get:
     /**
-     * Gets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
+     * Gets the RGB color of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * Default is ```` [0.2, 0.2, 0.2]````.
      */
@@ -20615,7 +20615,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeColor;
     }
     /**
-     * Sets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
+     * Sets the transparency of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -20635,7 +20635,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     key: "edgeAlpha",
     get:
     /**
-     * Gets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
+     * Gets the transparency of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -20645,7 +20645,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeAlpha;
     }
     /**
-     * Sets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
+     * Sets the width of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * Default value is ````1.0```` pixels.
      */,
@@ -20660,7 +20660,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     key: "edgeWidth",
     get:
     /**
-     * Gets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
+     * Gets the width of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
      *
      * This is not supported by WebGL implementations based on DirectX [2019].
      *
@@ -20670,7 +20670,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeWidth;
     }
     /**
-     * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+     * Sets whether to render backfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
      *
      * Default is ````false````.
      */,
@@ -20682,7 +20682,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
     key: "backfaces",
     get:
     /**
-     * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+     * Gets whether to render backfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
      *
      * Default is ````false````.
      */
@@ -20709,12 +20709,12 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
 }(Component);
 
 /**
- * Configures the appearance of {@link ViewObject | ViewObjects} when their edges are emphasised.
+ * Configures the appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} when their edges are emphasised.
  *
  * ## Summary
  *
  * * Located at {@link View.edgeMaterial}.
- * * Emphasise edges of a {@link ViewObject} by setting {@link ViewObject.edges} ````true````.
+ * * Emphasise edges of a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.edges} ````true````.
  */
 var _state$9 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var EdgeMaterial = /*#__PURE__*/function (_Component) {
@@ -20886,7 +20886,7 @@ var EdgeMaterial = /*#__PURE__*/function (_Component) {
 }(Component);
 
 /**
- * Configures the size and shape of {@link ViewObject | ViewObjects} that represent clouds of points.
+ * Configures the size and shape of {@link @xeokit/viewer!ViewObject | ViewObjects} that represent clouds of points.
  *
  * ## Summary
  *
@@ -21135,10 +21135,10 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
  *
  * ## Summary
  *
- * * Located at {@link Camera.perspectiveProjection}.
- * * Implicitly sets the left, right, top, bottom frustum planes using {@link PerspectiveProjection.fov}.
- * * {@link PerspectiveProjection.near} and {@link PerspectiveProjection.far} specify the distances to the clipping planes.
- * * {@link PerspectiveProjection.onProjMatrix} will fire an event whenever {@link PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
+ * * Located at {@link @xeokit/viewer!Camera.perspectiveProjection | Camera.perspectiveProjection}.
+ * * Implicitly sets the left, right, top, bottom frustum planes using {@link @xeokit/viewer!PerspectiveProjection.fov | PerspectiveProjection.fov}.
+ * * {@link @xeokit/viewer!PerspectiveProjection.near | PerspectiveProjection.near} and {@link @xeokit/viewer!PerspectiveProjection.far| PerspectiveProjection.far} specify the distances to the clipping planes.
+ * * {@link @xeokit/viewer!PerspectiveProjection.onProjMatrix | PerspectiveProjection.onProjMatrix} will fire an event whenever {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
 var _state$7 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var _inverseMatrixDirty$2 = /*#__PURE__*/_classPrivateFieldLooseKey("inverseMatrixDirty");
@@ -21160,7 +21160,7 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
      */
     _this.camera = void 0;
     /**
-     * Emits an event each time {@link PerspectiveProjection.projMatrix} updates.
+     * Emits an event each time {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates.
      *
      * @event
      */
@@ -21377,9 +21377,9 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix;
     }
     /**
-     * Gets the inverse of {@link PerspectiveProjection.projMatrix}.
+     * Gets the inverse of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      *
-     * @returns  The inverse of {@link PerspectiveProjection.projMatrix}.
+     * @returns  The inverse of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      */
   }, {
     key: "inverseProjMatrix",
@@ -21394,9 +21394,9 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$7)[_state$7].inverseProjMatrix;
     }
     /**
-     * Gets the transpose of {@link PerspectiveProjection.projMatrix}.
+     * Gets the transpose of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      *
-     * @returns  The transpose of {@link PerspectiveProjection.projMatrix}.
+     * @returns  The transpose of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      */
   }, {
     key: "transposedProjMatrix",
@@ -21421,12 +21421,12 @@ PerspectiveProjection.type = PerspectiveProjectionType;
 /**
  * Orthographic projection configuration for a {@link @xeokit/viewer!Camera} .
  *
- * * Located at {@link Camera.orthoProjection}.
+ * * Located at {@link @xeokit/viewer!Camera.orthoProjection | Camera.orthoProjection}.
  * * Works like Blender's orthographic projection, where the positions of the left, right, top and bottom planes are implicitly
- * indicated with a single {@link OrthoProjection.scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
- * contain the number of units given by {@link OrthoProjection.scale}.
- * * {@link OrthoProjection.near} and {@link OrthoProjection.far} indicated the distances to the clipping planes.
- * * {@link OrthoProjection.onProjMatrix} will fire an event whenever {@link OrthoProjection.projMatrix} updates, which indicates that one or more other properties have updated.
+ * indicated with a single {@link @xeokit/viewer!OrthoProjection.scale | OrthoProjection.scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
+ * contain the number of units given by {@link @xeokit/viewer!OrthoProjection.scale | OrthoProjection.scale}.
+ * * {@link @xeokit/viewer!OrthoProjection.near | OrthoProjection.near} and {@link @xeokit/viewer!OrthoProjection.far | OrthoProjection.far} indicated the distances to the clipping planes.
+ * * {@link @xeokit/viewer!OrthoProjection.onProjMatrix | OrthoProjection.onProjMatrix} will fire an event whenever {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
 var _state$6 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var _inverseMatrixDirty$1 = /*#__PURE__*/_classPrivateFieldLooseKey("inverseMatrixDirty");
@@ -21448,7 +21448,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
      */
     _this.camera = void 0;
     /**
-     * Emits an event each time {@link OrthoProjection.projMatrix} updates.
+     * Emits an event each time {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix} updates.
      *
      * @event
      */
@@ -21650,9 +21650,9 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix;
     }
     /**
-     * Gets the inverse of {@link OrthoProjection.projMatrix}.
+     * Gets the inverse of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
      *
-     * @returns  The inverse of {@link OrthoProjection.projMatrix}.
+     * @returns  The inverse of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
      */
   }, {
     key: "inverseProjMatrix",
@@ -21667,9 +21667,9 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$6)[_state$6].inverseProjMatrix;
     }
     /**
-     * Gets the transpose of {@link OrthoProjection.projMatrix}.
+     * Gets the transpose of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
      *
-     * @returns  The transpose of {@link OrthoProjection.projMatrix}.
+     * @returns  The transpose of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
      */
   }, {
     key: "transposedProjMatrix",
@@ -22195,14 +22195,14 @@ var offsetEye = createVec3();
  *
  * ## Rotating the Camera
  *
- * Orbiting the {@link Camera.look} position:
+ * Orbiting the {@link @xeokit/viewer!Camera.look | Camera.look} position:
  *
  * ````javascript
  * camera.orbitYaw(20.0);
  * camera.orbitPitch(10.0);
  * ````
  *
- * Perform a *first-person* rotation, in which we rotate {@link Camera.look} and {@link Camera.up} about {@link Camera.eye}:
+ * Perform a *first-person* rotation, in which we rotate {@link @xeokit/viewer!Camera.look | Camera.look} and {@link @xeokit/viewer!Camera.up | Camera.up} about {@link @xeokit/viewer!Camera.eye | Camera.eye}:
  *
  * ````javascript
  * camera.yaw(5.0);
@@ -22219,13 +22219,13 @@ var offsetEye = createVec3();
  *
  * ## Zooming the Camera
  *
- * Zoom to vary distance between {@link Camera.eye} and {@link Camera.look}:
+ * Zoom to vary distance between {@link @xeokit/viewer!Camera.eye | Camera.eye} and {@link @xeokit/viewer!Camera.look | Camera.look}:
  *
  * ````javascript
  * camera.zoom(-5); // Move five units closer
  * ````
  *
- * Get the current distance between {@link Camera.eye} and {@link Camera.look}:
+ * Get the current distance between {@link @xeokit/viewer!Camera.eye | Camera.eye} and {@link @xeokit/viewer!Camera.look | Camera.look}:
  *
  * ````javascript
  * var distance = camera.eyeLookDist;
@@ -22352,19 +22352,19 @@ var Camera = /*#__PURE__*/function (_Component) {
     /**
      * The orthographic projection.
      *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link OrthoProjectionType}.
+     * The Camera uses this while {@link Camera.projectionType} equals {@link @xeokit/constants!OrthoProjectionType}.
      */
     _this.orthoProjection = void 0;
     /**
      * The frustum projection.
      *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link FrustumProjectionType}.
+     * The Camera uses this while {@link Camera.projectionType} equals {@link @xeokit/constants!FrustumProjectionType}.
      */
     _this.frustumProjection = void 0;
     /**
      * The custom projection.
      *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link CustomProjectionType}.
+     * The Camera uses this while {@link Camera.projectionType} equals {@link @xeokit/constants!CustomProjectionType}.
      */
     _this.customProjection = void 0;
     /**
@@ -22521,7 +22521,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     this.onFrustum.dispatch(this, _classPrivateFieldLooseBase(this, _frustum)[_frustum]);
   }
   /**
-   * Rotates {@link Camera.eye} about {@link Camera.look}, around the {@link Camera.up} vector
+   * Rotates {@link @xeokit/viewer!Camera.eye | Camera.eye} about {@link @xeokit/viewer!Camera.look | Camera.look}, around the {@link @xeokit/viewer!Camera.up | Camera.up} vector
    *
    * @param angleInc Angle of rotation in degrees
    */;
@@ -22533,7 +22533,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3d$1); // Rotate 'up' vector
   }
   /**
-   * Rotates {@link Camera.eye} about {@link Camera.look} around the right axis (orthogonal to {@link Camera.up} and "look").
+   * Rotates {@link @xeokit/viewer!Camera.eye | Camera.eye} about {@link @xeokit/viewer!Camera.look | Camera.look} around the right axis (orthogonal to {@link @xeokit/viewer!Camera.up | Camera.up} and "look").
    *
    * @param angleInc Angle of rotation in degrees
    */;
@@ -22552,7 +22552,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     this.eye = addVec3(eye2, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, tempVec3f);
   }
   /**
-   * Rotates {@link Camera.look} about {@link Camera.eye}, around the {@link Camera.up} vector.
+   * Rotates {@link @xeokit/viewer!Camera.look | Camera.look} about {@link @xeokit/viewer!Camera.eye | Camera.eye}, around the {@link @xeokit/viewer!Camera.up | Camera.up} vector.
    *
    * @param angleInc Angle of rotation in degrees
    */;
@@ -22566,7 +22566,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     }
   }
   /**
-   * Rotates {@link Camera.look} about {@link Camera.eye}, around the right axis (orthogonal to {@link Camera.up} and "look").
+   * Rotates {@link @xeokit/viewer!Camera.look | Camera.look} about {@link @xeokit/viewer!Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link @xeokit/viewer!Camera.up | Camera.up} and "look").
     * @param angleInc Angle of rotation in degrees
    */;
   _proto.pitch = function pitch(angleInc) {
@@ -22615,7 +22615,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     this.look = addVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].look, vec, tempVec3f);
   }
   /**
-   * Increments/decrements the Camera's zoom factor, which is the distance between {@link Camera.eye} and {@link Camera.look}.
+   * Increments/decrements the Camera's zoom factor, which is the distance between {@link @xeokit/viewer!Camera.eye | Camera.eye} and {@link @xeokit/viewer!Camera.look | Camera.look}.
    *
    * @param delta Zoom factor increment.
    */;
@@ -22694,7 +22694,7 @@ var Camera = /*#__PURE__*/function (_Component) {
       this.setDirty(); // Ensure matrix built on next "tick"
     }
     /**
-     * Gets the direction of this Camera's {@link Camera.up} vector.
+     * Gets the direction of this Camera's {@link @xeokit/viewer!Camera.up | Camera.up} vector.
      *
      * @returns {Number[]} Direction of "up".
      */
@@ -22704,7 +22704,7 @@ var Camera = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$3)[_state$3].up;
     }
     /**
-     * Sets the direction of this Camera's {@link Camera.up} vector.
+     * Sets the direction of this Camera's {@link @xeokit/viewer!Camera.up | Camera.up} vector.
      *
      * @param up Direction of "up".
      */,
@@ -22758,7 +22758,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     /**
      * Gets whether to prevent camera from being pitched upside down.
      *
-     * The camera is upside down when the angle between {@link Camera.up} and {@link Camera.worldUp} is less than one degree.
+     * The camera is upside down when the angle between {@link @xeokit/viewer!Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
      *
      * Default value is ````false````.
      *
@@ -22772,7 +22772,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     /**
      * Sets whether to prevent camera from being pitched upside down.
      *
-     * The camera is upside down when the angle between {@link Camera.up} and {@link Camera.worldUp} is less than one degree.
+     * The camera is upside down when the angle between {@link @xeokit/viewer!Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
      *
      * Default value is ````false````.
      *
@@ -22889,7 +22889,7 @@ var Camera = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[2] > _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[0] && _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[2] > _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[1];
     }
     /**
-     * Gets distance from {@link Camera.look} to {@link Camera.eye}.
+     * Gets distance from {@link @xeokit/viewer!Camera.look | Camera.look} to {@link @xeokit/viewer!Camera.eye | Camera.eye}.
      *
      * @returns {Number} The distance.
      */
@@ -23404,10 +23404,10 @@ var CameraFlightAnimation = /*#__PURE__*/function (_Component) {
    *  * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link @xeokit/viewer!Camera}  to that target and stop there.
    *
    * @param {Object|Component} [params=Scene] Either a parameters object or a {@link @xeokit/core!Component} subtype that has
-   * an AABB. Defaults to the {@link Scene}, which causes the {@link @xeokit/viewer!Camera}  to fit the Scene in view.
-   * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link Camera.eye} position
-   * will swing away from its {@link Camera.look} position as it flies to the target.
-   * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link Scene}.
+   * an AABB. Defaults to the {@link @xeokit/scene!Scene}, which causes the {@link @xeokit/viewer!Camera}  to fit the Scene in view.
+   * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link @xeokit/viewer!Camera.eye | Camera.eye} position
+   * will swing away from its {@link @xeokit/viewer!Camera.look | Camera.look} position as it flies to the target.
+   * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link @xeokit/scene!Scene}.
    * @param [params.aabb] World-space axis-aligned bounding box (AABB) target to fly to.
    * @param [params.eye] Position to fly the eye position to.
    * @param [params.look] Position to fly the look position to.
@@ -23553,7 +23553,7 @@ var CameraFlightAnimation = /*#__PURE__*/function (_Component) {
    * * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link @xeokit/viewer!Camera}  to that target.
    *
    * @param {*|Component} params  Either a parameters object or a {@link @xeokit/core!Component} subtype that has a World-space AABB.
-   * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link Camera.eye} will swing away from its {@link Camera.look} as it flies to the target.
+   * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link @xeokit/viewer!Camera.eye | Camera.eye} will swing away from its {@link @xeokit/viewer!Camera.look | Camera.look} as it flies to the target.
    * @param {Number|String|Component} [params.component] ID or instance of a component to fly to.
    * @param [params.aabb]  World-space axis-aligned bounding box (AABB) target to fly to.
    * @param [params.eye] Position to fly the eye position to.
@@ -23631,7 +23631,7 @@ var CameraFlightAnimation = /*#__PURE__*/function (_Component) {
     }
     /**
      * When flying to a {@link @xeokit/scene!SceneModel | SceneModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
-     * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
+     * the distance of {@link @xeokit/viewer!Camera.eye | Camera.eye} from {@link @xeokit/viewer!Camera.look | Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.
      *
@@ -23646,7 +23646,7 @@ var CameraFlightAnimation = /*#__PURE__*/function (_Component) {
     get:
     /**
      * When flying to a {@link @xeokit/scene!SceneModel | SceneModel}, {@link ViewerObject} or boundary, indicates if the CameraFlightAnimation always adjusts
-     * the distance of {@link Camera.eye} from {@link Camera.look} to ensure that the target always fits in view.
+     * the distance of {@link @xeokit/viewer!Camera.eye | Camera.eye} from {@link @xeokit/viewer!Camera.look | Camera.look} to ensure that the target always fits in view.
      *
      * When false, the eye will remain fixed at its current distance from the look position.
      *
@@ -23836,7 +23836,7 @@ Object.defineProperty(CameraFlightAnimation, _ease, {
  * ## Overview
  *
  * A View is an independently-configurable view of the {@link RendererViewObject | ViewerObjects} existing within a Viewer, with
- * its own HTML canvas. A View automatically contains a {@link ViewObject} for each existing ViewerObject. ViewObjects
+ * its own HTML canvas. A View automatically contains a {@link @xeokit/viewer!ViewObject} for each existing ViewerObject. ViewObjects
  * function as a kind of proxy for the ViewerObjects, through which we control their appearance
  * (show/hide/highlight etc.) within that particular View's canvas.
  *
@@ -23849,8 +23849,8 @@ Object.defineProperty(CameraFlightAnimation, _ease, {
  * * Control the View's viewpoint and projection with {@link View.camera}
  * * Create light sources with {@link View.createLightSource}
  * * Create slicing planes with {@link View createSectionPlane}
- * * Each View automatically has a {@link ViewObject} for every {@link RendererViewObject}
- * * Uses {@link ViewLayer | ViewLayers} to organize ViewObjects into layers
+ * * Each View automatically has a {@link @xeokit/viewer!ViewObject} for every {@link RendererViewObject}
+ * * Uses {@link @xeokit/view!ViewLayer | ViewLayers} to organize ViewObjects into layers
  * * Optionally uses ViewLayers to mask which ViewObjects are automatically maintained
  * * Control the visibility of ViewObjects with {@link View.setObjectsVisible}
  * * Emphasise ViewObjects with {@link View.setObjectsHighlighted}, {@link View.setObjectsSelected}, {@link View.setObjectsXRayed} and {@link View.setObjectsColorized}
@@ -23973,80 +23973,80 @@ var View = /*#__PURE__*/function (_Component) {
      */
     _this.metrics = void 0;
     /**
-     * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
+     * Configures the X-rayed appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
     _this.xrayMaterial = void 0;
     /**
-     * Configures the highlighted appearance of {@link ViewObject | ViewObjects} in this View.
+     * Configures the highlighted appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
     _this.highlightMaterial = void 0;
     /**
-     * Configures the appearance of {@link ViewObject | ViewObjects} in this View.
+     * Configures the appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
     _this.selectedMaterial = void 0;
     /**
-     * Configures the appearance of edges belonging to {@link ViewObject} in this View.
+     * Configures the appearance of edges belonging to {@link @xeokit/viewer!ViewObject} in this View.
      */
     _this.edgeMaterial = void 0;
     /**
-     * Configures the appearance of point primitives belonging to {@link ViewObject | ViewObjects} in this View .
+     * Configures the appearance of point primitives belonging to {@link @xeokit/viewer!ViewObject | ViewObjects} in this View .
      */
     _this.pointsMaterial = void 0;
     /**
-     * Configures the appearance of lines belonging to {@link ViewObject | ViewObjects} in this View.
+     * Configures the appearance of lines belonging to {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
     _this.linesMaterial = void 0;
     /**
-     * Map of the all {@link ViewObject | ViewObjects} in this View.
+     * Map of the all {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      *
-     * The View automatically ensures that there is a {@link ViewObject} here for
+     * The View automatically ensures that there is a {@link @xeokit/viewer!ViewObject} here for
      * each {@link RendererViewObject} in the {@link @xeokit/viewer!Viewer}
      */
     _this.objects = void 0;
     /**
-     * Map of the currently visible {@link ViewObject | ViewObjects} in this View.
+     * Map of the currently visible {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      *
-     * A ViewObject is visible when {@link ViewObject.visible} is true.
+     * A ViewObject is visible when {@link @xeokit/viewer!ViewObject.visible} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.visibleObjects = void 0;
     /**
-     * Map of currently x-rayed {@link ViewObject | ViewObjects} in this View.
+     * Map of currently x-rayed {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      *
-     * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
+     * A ViewObject is x-rayed when {@link @xeokit/viewer!ViewObject.xrayed} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.xrayedObjects = void 0;
     /**
-     * Map of currently highlighted {@link ViewObject | ViewObjects} in this View.
+     * Map of currently highlighted {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      *
-     * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
+     * A ViewObject is highlighted when {@link @xeokit/viewer!ViewObject.highlighted} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.highlightedObjects = void 0;
     /**
-     * Map of currently selected {@link ViewObject | ViewObjects} in this View.
+     * Map of currently selected {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      *
-     * A ViewObject is selected when {@link ViewObject.selected} is true.
+     * A ViewObject is selected when {@link @xeokit/viewer!ViewObject.selected} is true.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.selectedObjects = void 0;
     /**
-     * Map of currently colorized {@link ViewObject | ViewObjects} in this View.
+     * Map of currently colorized {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.colorizedObjects = void 0;
     /**
-     * Map of {@link ViewObject | ViewObjects} in this View whose opacity has been updated.
+     * Map of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View whose opacity has been updated.
      *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+     * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      */
     _this.opacityObjects = void 0;
     /**
@@ -24069,21 +24069,21 @@ var View = /*#__PURE__*/function (_Component) {
     _this.lightsList = [];
     _this.gammaOutput = void 0;
     /**
-     * Map of the all {@link ViewLayer}s in this View.
+     * Map of the all {@link @xeokit/viewer!ViewLayer}s in this View.
      *
-     * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
+     * Each {@link @xeokit/viewer!ViewLayer} is mapped here by {@link @xeokit/view!ViewLayer.id}.
      */
     _this.layers = void 0;
     /**
-     * Whether the View will automatically create {@link ViewLayer | ViewLayers} on-demand
+     * Whether the View will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} on-demand
      * as {@link RendererViewObject | ViewerObjects} are created.
      *
-     * When ````true```` (default), the View will automatically create {@link ViewLayer | ViewLayers} as needed for each new
+     * When ````true```` (default), the View will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} as needed for each new
      * {@link RendererViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
      * layerId. This default setting therefore ensures that a ViewObject is created in the View for every ViewerObject that is created.
      *
-     * If you set this ````false````, however, then the View will only create {@link ViewObject | ViewObjects} for {@link RendererViewObject | ViewerObjects} that have
-     * a {@link RendererViewObject.layerId} that matches the ID of a {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
+     * If you set this ````false````, however, then the View will only create {@link @xeokit/viewer!ViewObject | ViewObjects} for {@link RendererViewObject | ViewerObjects} that have
+     * a {@link RendererViewObject.layerId} that matches the ID of a {@link @xeokit/viewer!ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
      *
      * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
      * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
@@ -24097,23 +24097,23 @@ var View = /*#__PURE__*/function (_Component) {
      */
     _this.onBoundary = void 0;
     /**
-     * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
+     * Emits an event each time the visibility of a {@link @xeokit/viewer!ViewObject} changes in this View.
      *
-     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
+     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link @xeokit/view!ViewLayer.setObjectsVisible} or {@link @xeokit/viewer!ViewObject.visible}.
      *
      * @event
      */
     _this.onObjectVisibility = void 0;
     /**
-     * Emits an event each time the X-ray state of a {@link ViewObject} changes in this View.
+     * Emits an event each time the X-ray state of a {@link @xeokit/viewer!ViewObject} changes in this View.
      *
-     * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
+     * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link @xeokit/view!ViewLayer.setObjectsXRayed} or {@link @xeokit/viewer!ViewObject.xrayed}.
      *
      * @event
      */
     _this.onObjectXRayed = void 0;
     /**
-     * Emits an event each time a {@link ViewLayer} is created in this View.
+     * Emits an event each time a {@link @xeokit/viewer!ViewLayer} is created in this View.
      *
      * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link View.createModel} and {@link CreateModelParams.layerId}.
      *
@@ -24121,9 +24121,9 @@ var View = /*#__PURE__*/function (_Component) {
      */
     _this.onLayerCreated = void 0;
     /**
-     * Emits an event each time a {@link ViewLayer} in this View is destroyed.
+     * Emits an event each time a {@link @xeokit/viewer!ViewLayer} in this View is destroyed.
      *
-     * ViewLayers are destroyed explicitly with {@link ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
+     * ViewLayers are destroyed explicitly with {@link @xeokit/view!ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
      *
      * @event
      */
@@ -24661,14 +24661,14 @@ var View = /*#__PURE__*/function (_Component) {
     return [0, 0, 0, 1];
   }
   /**
-   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this View.
+   * Updates the visibility of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/viewer!ViewObject.visible} on the Objects with the given IDs.
    * - Updates {@link View.visibleObjects} and {@link View.numVisibleObjects}.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param visible Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsVisible = function setObjectsVisible(objectIds, visible) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24678,13 +24678,13 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this View.
+   * Updates the collidability of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
+   * Updates {@link @xeokit/viewer!ViewObject.collidable} on the Objects with the given IDs.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param collidable Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsCollidable = function setObjectsCollidable(objectIds, collidable) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24694,13 +24694,13 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this View.
+   * Updates the culled status of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
+   * Updates {@link @xeokit/viewer!ViewObject.culled} on the Objects with the given IDs.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param culled Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsCulled = function setObjectsCulled(objectIds, culled) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24710,14 +24710,14 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Selects or deselects the given {@link ViewObject | ViewObjects} in this View.
+   * Selects or deselects the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/viewer!ViewObject.selected} on the Objects with the given IDs.
    * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param selected Whether or not to select.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsSelected = function setObjectsSelected(objectIds, selected) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24727,14 +24727,14 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this View.
+   * Highlights or un-highlights the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/viewer!ViewObject.highlighted} on the Objects with the given IDs.
    * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param highlighted Whether or not to highlight.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsHighlighted = function setObjectsHighlighted(objectIds, highlighted) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24744,14 +24744,14 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this View.
+   * Applies or removes X-ray rendering for the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/viewer!ViewObject.xrayed} on the Objects with the given IDs.
    * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param xrayed Whether or not to xray.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsXRayed = function setObjectsXRayed(objectIds, xrayed) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24763,14 +24763,14 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Colorizes the given {@link ViewObject | ViewObjects} in this View.
+   * Colorizes the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/viewer!ViewObject.colorize} on the Objects with the given IDs.
    * - Updates {@link View.colorizedObjects} and {@link View.numColorizedObjects}.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsColorized = function setObjectsColorized(objectIds, colorize) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24778,14 +24778,14 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this View.
+   * Sets the opacity of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/viewer!ViewObject.opacity} on the Objects with the given IDs.
    * - Updates {@link View.opacityObjects} and {@link View.numOpacityObjects}.
    *
-   * @param  objectIds - One or more {@link ViewObject.id} values.
+   * @param  objectIds - One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param opacity - Opacity factor in range ````[0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsOpacity = function setObjectsOpacity(objectIds, opacity) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24797,14 +24797,14 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this View.
+   * Sets the pickability of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/viewer!ViewObject.pickable} on the Objects with the given IDs.
    * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param pickable Whether or not to set pickable.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsPickable = function setObjectsPickable(objectIds, pickable) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24816,14 +24816,14 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this View.
+   * Sets the clippability of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
+   * - Updates {@link @xeokit/viewer!ViewObject.clippable} on the Objects with the given IDs.
    * - Enables or disables the ability to clip the given Objects with {@link SectionPlane}.
    *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
    * @param clippable Whether or not to set clippable.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.setObjectsClippable = function setObjectsClippable(objectIds, clippable) {
     return this.withObjects(objectIds, function (viewObject) {
@@ -24835,11 +24835,11 @@ var View = /*#__PURE__*/function (_Component) {
     });
   }
   /**
-   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this View.
+   * Iterates with a callback over the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param callback Callback to execute on each {@link ViewObject}.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
+   * @param callback Callback to execute on each {@link @xeokit/viewer!ViewObject}.
+   * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
   _proto.withObjects = function withObjects(objectIds, callback) {
     var changed = false;
@@ -24853,11 +24853,11 @@ var View = /*#__PURE__*/function (_Component) {
     return changed;
   }
   /**
-   * Creates a {@link ViewLayer} in this View.
+   * Creates a {@link @xeokit/viewer!ViewLayer} in this View.
    *
    * The ViewLayer is then registered in {@link View.layers}.
    *
-   * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link ViewLayer.destroy}
+   * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link @xeokit/view!ViewLayer.destroy}
    * is called, or the {@link @xeokit/viewer!View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
    * returns that existing ViewLayer. The method will also ensure that the existing ViewLayer likewise persists.
    *
@@ -25029,7 +25029,7 @@ var View = /*#__PURE__*/function (_Component) {
       this.redraw();
     }
     /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this View.
+     * Gets the number of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "numObjects",
@@ -25037,7 +25037,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numObjects)[_numObjects];
     }
     /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this View.
+     * Gets the IDs of the {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "objectIds",
@@ -25048,7 +25048,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _objectIds)[_objectIds];
     }
     /**
-     * Gets the number of visible {@link ViewObject | ViewObjects} in this View.
+     * Gets the number of visible {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "numVisibleObjects",
@@ -25056,7 +25056,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numVisibleObjects)[_numVisibleObjects];
     }
     /**
-     * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this View.
+     * Gets the IDs of the visible {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "visibleObjectIds",
@@ -25067,7 +25067,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _visibleObjectIds)[_visibleObjectIds];
     }
     /**
-     * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this View.
+     * Gets the number of X-rayed {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "numXRayedObjects",
@@ -25075,7 +25075,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numXRayedObjects)[_numXRayedObjects];
     }
     /**
-     * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this View.
+     * Gets the IDs of the X-rayed {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "xrayedObjectIds",
@@ -25086,7 +25086,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _xrayedObjectIds)[_xrayedObjectIds];
     }
     /**
-     * Gets the number of highlighted {@link ViewObject | ViewObjects} in this View.
+     * Gets the number of highlighted {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "numHighlightedObjects",
@@ -25094,7 +25094,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numHighlightedObjects)[_numHighlightedObjects];
     }
     /**
-     * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this View.
+     * Gets the IDs of the highlighted {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "highlightedObjectIds",
@@ -25105,7 +25105,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _highlightedObjectIds)[_highlightedObjectIds];
     }
     /**
-     * Gets the number of selected {@link ViewObject | ViewObjects} in this View.
+     * Gets the number of selected {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "numSelectedObjects",
@@ -25113,7 +25113,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numSelectedObjects)[_numSelectedObjects];
     }
     /**
-     * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this View.
+     * Gets the IDs of the selected {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "selectedObjectIds",
@@ -25124,7 +25124,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _selectedObjectIds)[_selectedObjectIds];
     }
     /**
-     * Gets the number of colorized {@link ViewObject | ViewObjects} in this View.
+     * Gets the number of colorized {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "numColorizedObjects",
@@ -25132,7 +25132,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _numColorizedObjects)[_numColorizedObjects];
     }
     /**
-     * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this View.
+     * Gets the IDs of the colorized {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
   }, {
     key: "colorizedObjectIds",
@@ -25143,7 +25143,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _colorizedObjectIds)[_colorizedObjectIds];
     }
     /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this View that have updated opacities.
+     * Gets the IDs of the {@link @xeokit/viewer!ViewObject | ViewObjects} in this View that have updated opacities.
      */
   }, {
     key: "opacityObjectIds",
@@ -25154,7 +25154,7 @@ var View = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _opacityObjectIds)[_opacityObjectIds];
     }
     /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this View that have updated opacities.
+     * Gets the number of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View that have updated opacities.
      */
   }, {
     key: "numOpacityObjects",
@@ -25640,7 +25640,7 @@ var DirLight = /*#__PURE__*/function (_Component) {
   /**
    * @param view View that owns this DirLight. When destroyed, the View will destroy this DirLight as well.
    * @param options The DirLight configuration
-   * @param [options.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+   * @param [options.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
    * @param [options.dir=[1.0, 1.0, 1.0]]  A unit vector indicating the direction that the light is shining,  given in either World or View space, depending on the value of the ````space```` parameter.
    * @param [options.color=[0.7, 0.7, 0.8 ]] The color of this DirLight.
    * @param [options.intensity=1.0] The intensity of this DirLight, as a factor in range ````[0..1]````.
@@ -25773,7 +25773,7 @@ var PointLight = /*#__PURE__*/function (_Component) {
   /**
    * @param view View that owns this PointLight. When destroyed, the View will destroy this PointLight as well.
    * @param cfg The PointLight configuration
-   * @param [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+   * @param [cfg.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
    * @param [cfg.pos=[ 1.0, 1.0, 1.0 ]] Position, in either World or View space, depending on the value of the **space** parameter.
    * @param [cfg.color=[0.7, 0.7, 0.8 ]] Color of this PointLight.
    * @param [cfg.intensity=1.0] Intensity of this PointLight, as a factor in range ````[0..1]````.
@@ -26090,7 +26090,7 @@ var PickResult = /*#__PURE__*/function () {
     this.reset();
   }
   /**
-   * The picked {@link ViewObject}.
+   * The picked {@link @xeokit/viewer!ViewObject}.
    */
   var _proto = PickResult.prototype;
   /**
@@ -26557,7 +26557,7 @@ var PickResult = /*#__PURE__*/function () {
  * ````
  *
  * To show an independent view of {@link @xeokit/scene!SceneModel | SceneObjects}, a View
- * proxies them with {@link ViewObject | ViewObjects}, which represent and control their appearance within the View's canvas.
+ * proxies them with {@link @xeokit/viewer!ViewObject | ViewObjects}, which represent and control their appearance within the View's canvas.
  *
  * ### Slicing Objects
  *
@@ -27218,7 +27218,7 @@ var BasisWorker = function BasisWorker() {
  *
  * * Provides {@link KTX2TextureTranscoder}
  * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
- * * Then {@link @xeokit/scene!SceneModel.createTexture | ViewerModel.createTexture} can create textures from KTX2-encoded compressed textures
+ * * Then {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} can create textures from KTX2-encoded compressed textures
  * * Uses the [Basis Universal GPU Texture Codec](https://github.com/BinomialLLC/basis_universal) to
  * transcode [KTX2](https://github.khronos.org/KTX-Specification/) textures.
  * * Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/) by default, but can
@@ -27250,7 +27250,7 @@ var BasisWorker = function BasisWorker() {
  *
  * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadXKT} to
- * load an XKT file with KTX2-compressed textures into the ViewerModel. For each KTX2 texture in the file, the
+ * load an XKT file with KTX2-compressed textures into the SceneModel. For each KTX2 texture in the file, the
  * KTX2TextureTranscoder will transparently transcode the KTX2 data for us.
  *
  * ````javascript
@@ -27295,8 +27295,8 @@ var BasisWorker = function BasisWorker() {
  * As in the previous example, create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link KTX2TextureTranscoder}, then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
- * This time, we'll build the ViewerModel ourselves, using its builder methods. When we
- * call builder method {@link ViewerModel.createTexture} with a path to a KTX2-compressed texture file, the
+ * This time, we'll build the SceneModel ourselves, using its builder methods. When we
+ * call builder method {@link SceneModel.createTexture} with a path to a KTX2-compressed texture file, the
  * KTX2TextureTranscoder will transparently transcode that KTX2 data for us.
  *
  * ````javascript
@@ -27371,8 +27371,8 @@ var BasisWorker = function BasisWorker() {
  * As in the previous two examples, create a {@link @xeokit/viewer!Viewer} that has a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link KTX2TextureTranscoder}, and then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
- * Once more, build the ViewerModel using its builder methods. This time, call builder method
- * {@link ViewerModel.createTexture} with an ArrayBuffer containing the contents of a KTX2-compressed texture
+ * Once more, build the SceneModel using its builder methods. This time, call builder method
+ * {@link SceneModel.createTexture} with an ArrayBuffer containing the contents of a KTX2-compressed texture
  * file. As before, the KTX2TextureTranscoder will transparently transcode that KTX2 data for us.
  *
  * ````javascript
@@ -28774,7 +28774,7 @@ var RenderContext = /*#__PURE__*/function () {
     /**
      * The 4x4 viewing transform matrix the renderer is currently using when rendering a ray-pick.
      *
-     * This sets the viewpoint to look along the ray given to {@link Scene/pick:method"}}Scene#pick(){{/crossLink}}
+     * This sets the viewpoint to look along the ray given to {@link @xeokit/scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
      * when picking with a ray.
      */
     this.pickViewMatrix = void 0;
@@ -28976,7 +28976,7 @@ var LayerRenderer = /*#__PURE__*/function () {
       gl.uniformMatrix4fv(uniforms.projMatrix, false, view.camera.projMatrix);
     }
     if (uniforms.worldMatrix) {
-      gl.uniformMatrix4fv(uniforms.worldMatrix, false, layer.rendererModel.worldMatrix);
+      gl.uniformMatrix4fv(uniforms.worldMatrix, false, layer.rendererSceneModel.worldMatrix);
     }
     if (uniforms.color) {
       if (renderPass === RENDER_PASSES.SILHOUETTE_XRAYED) {
@@ -29003,7 +29003,7 @@ var LayerRenderer = /*#__PURE__*/function () {
     //     const origin = layer.renderState.origin;
     //     const sectionPlanes = view.sectionPlanesList;
     //     const baseIndex = layer.layerIndex * numSectionPlanes;
-    //     const drawFlags = rendererModel.drawFlags;
+    //     const drawFlags = rendererSceneModel.drawFlags;
     //     for (let sectionPlaneIndex = 0; sectionPlaneIndex < numSectionPlanes; sectionPlaneIndex++) {
     //         const sectionPlaneUniforms = this.#uniforms.sectionPlanes[sectionPlaneIndex];
     //         if (sectionPlaneUniforms) {
@@ -30958,7 +30958,7 @@ var Layer = /*#__PURE__*/function () {
     Object.defineProperty(this, _createGeometryBucket, {
       value: _createGeometryBucket2
     });
-    this.rendererModel = void 0;
+    this.rendererSceneModel = void 0;
     this.layerIndex = void 0;
     this.meshCounts = void 0;
     this.renderState = void 0;
@@ -31000,7 +31000,7 @@ var Layer = /*#__PURE__*/function () {
     });
     this.meshCounts = new MeshCounts();
     this.layerIndex = layerParams.layerIndex;
-    this.rendererModel = layerParams.rendererModel;
+    this.rendererSceneModel = layerParams.rendererSceneModel;
     this.renderState = {
       primitive: layerParams.primitive,
       dataTextureSet: new DataTextureSet(),
@@ -31648,7 +31648,7 @@ var _opacityUpdated = /*#__PURE__*/_classPrivateFieldLooseKey("opacityUpdated");
 var WebGLRendererObject = /*#__PURE__*/function () {
   function WebGLRendererObject(params) {
     this.id = void 0;
-    this.rendererModel = void 0;
+    this.rendererSceneModel = void 0;
     this.sceneObject = void 0;
     this.layerId = void 0;
     this.rendererMeshes = void 0;
@@ -31678,7 +31678,7 @@ var WebGLRendererObject = /*#__PURE__*/function () {
     });
     this.id = params.id;
     this.sceneObject = params.sceneObject;
-    this.rendererModel = params.rendererModel;
+    this.rendererSceneModel = params.rendererSceneModel;
     this.rendererMeshes = params.rendererMeshes || [];
     _classPrivateFieldLooseBase(this, _flags)[_flags] = 0;
     _classPrivateFieldLooseBase(this, _aabb$1)[_aabb$1] = params.aabb;
@@ -31836,8 +31836,8 @@ var WebGLRendererObject = /*#__PURE__*/function () {
     // this.#offsetAABB[5] = this.#aabb[5] + this.#offset[2];
     // // this.scene.#aabbDirty = true;
     // // this.scene._objectOffsetUpdated(this, offset);
-    // // this.rendererModel._aabbDirty = true;
-    // // this.rendererModel.glRedraw();
+    // // this.rendererSceneModel._aabbDirty = true;
+    // // this.rendererSceneModel.glRedraw();
   };
   _proto.build = function build() {
     for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
@@ -32011,7 +32011,7 @@ var WebGLRendererMesh = /*#__PURE__*/function () {
     return true;
   };
   _proto.drawPickNormals = function drawPickNormals(renderContext) {
-    //this.sceneObjectRenderer.rendererModel.drawPickNormals(renderContext);
+    //this.sceneObjectRenderer.rendererSceneModel.drawPickNormals(renderContext);
   }
   // delegatePickedEntity(): SceneObjectRendererCommands {
   //     return <SceneObjectRendererCommands>this.sceneObjectRenderer;
@@ -32305,8 +32305,8 @@ var WebGLRendererModel = /*#__PURE__*/function (_Component) {
     _this.rendererTextures = void 0;
     _this.rendererTextureSets = void 0;
     _this.rendererMeshes = void 0;
-    _this.rendererObjects = void 0;
-    _this.rendererObjectsList = void 0;
+    _this.rendererSceneObjects = void 0;
+    _this.rendererSceneObjectsList = void 0;
     _this.rendererViewObjects = void 0;
     _this.viewer = void 0;
     _this.layerList = void 0;
@@ -32431,8 +32431,8 @@ var WebGLRendererModel = /*#__PURE__*/function (_Component) {
     _this.rendererTextures = {};
     _this.rendererTextureSets = {};
     _this.rendererMeshes = {};
-    _this.rendererObjects = {};
-    _this.rendererObjectsList = [];
+    _this.rendererSceneObjects = {};
+    _this.rendererSceneObjectsList = [];
     _this.rendererViewObjects = {};
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numGeometries)[_numGeometries] = 0;
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numRendererObjects)[_numRendererObjects] = 0;
@@ -32486,65 +32486,65 @@ var WebGLRendererModel = /*#__PURE__*/function (_Component) {
   }
   var _proto = WebGLRendererModel.prototype;
   _proto.setVisible = function setVisible(viewIndex, visible) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setVisible(viewIndex, visible);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setVisible(viewIndex, visible);
     }
     _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
   };
   _proto.setXRayed = function setXRayed(viewIndex, xrayed) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setXRayed(viewIndex, xrayed);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setXRayed(viewIndex, xrayed);
     }
     _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
   };
   _proto.setHighlighted = function setHighlighted(viewIndex, highlighted) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setHighlighted(viewIndex, highlighted);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setHighlighted(viewIndex, highlighted);
     }
     _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
   };
   _proto.setSelected = function setSelected(viewIndex, selected) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setSelected(viewIndex, selected);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setSelected(viewIndex, selected);
     }
     _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
   };
   _proto.setEdges = function setEdges(viewIndex, edges) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setEdges(viewIndex, edges);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setEdges(viewIndex, edges);
     }
     _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
   };
   _proto.setCulled = function setCulled(viewIndex, culled) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setCulled(viewIndex, culled);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setCulled(viewIndex, culled);
     }
     _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
   };
   _proto.setClippable = function setClippable(viewIndex, clippable) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setClippable(viewIndex, clippable);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setClippable(viewIndex, clippable);
     }
     _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
   };
   _proto.setCollidable = function setCollidable(viewIndex, collidable) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setCollidable(viewIndex, collidable);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setCollidable(viewIndex, collidable);
     }
   };
   _proto.setPickable = function setPickable(viewIndex, pickable) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setPickable(viewIndex, pickable);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setPickable(viewIndex, pickable);
     }
   };
   _proto.setColorize = function setColorize(viewIndex, colorize) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setColorize(viewIndex, colorize);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setColorize(viewIndex, colorize);
     }
   };
   _proto.setOpacity = function setOpacity(viewIndex, opacity) {
-    for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-      this.rendererObjectsList[i].setOpacity(viewIndex, opacity);
+    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+      this.rendererSceneObjectsList[i].setOpacity(viewIndex, opacity);
     }
   };
   /*
@@ -32654,11 +32654,11 @@ var WebGLRendererModel = /*#__PURE__*/function (_Component) {
     */
   // build() {
   //     if (this.destroyed) {
-  //         this.log("rendererModel already destroyed");
+  //         this.log("rendererSceneModel already destroyed");
   //         return;
   //     }
   //     if (this.built) {
-  //         this.log("rendererModel already built");
+  //         this.log("rendererSceneModel already built");
   //         return;
   //     }
   //     for (let layerId in this.#currentLayers) {
@@ -32667,12 +32667,12 @@ var WebGLRendererModel = /*#__PURE__*/function (_Component) {
   //         }
   //     }
   //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-  //         const rendererObject = this.objectList[i];
-  //         rendererObject.build();
+  //         const rendererSceneObject = this.objectList[i];
+  //         rendererSceneObject.build();
   //     }
   //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-  //         const rendererObject = this.objectList[i];
-  //         rendererObject.build2();
+  //         const rendererSceneObject = this.objectList[i];
+  //         rendererSceneObject.build2();
   //     }
   //     // this.layerList.sort((a, b) => {
   //     //     if (a.sortId < b.sortId) {
@@ -32747,8 +32747,8 @@ var WebGLRendererModel = /*#__PURE__*/function (_Component) {
     for (var i = 0, len = this.layerList.length; i < len; i++) {
       this.layerList[i].destroy();
     }
-    for (var objectId in this.rendererObjects) {
-      this.rendererObjects[objectId].destroy();
+    for (var objectId in this.rendererSceneObjects) {
+      this.rendererSceneObjects[objectId].destroy();
     }
     _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers] = {};
     _classPrivateFieldLooseBase(this, _layers)[_layers] = {};
@@ -32873,11 +32873,11 @@ function _attachSceneModel2(sceneModel) {
   for (var layerId in _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers]) {
     _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers][layerId].build();
   }
-  for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-    this.rendererObjectsList[i].build();
+  for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+    this.rendererSceneObjectsList[i].build();
   }
-  for (var _i = 0, _len = this.rendererObjectsList.length; _i < _len; _i++) {
-    this.rendererObjectsList[_i].build2();
+  for (var _i = 0, _len = this.rendererSceneObjectsList.length; _i < _len; _i++) {
+    this.rendererSceneObjectsList[_i].build2();
   }
 }
 function _attachTexture2(texture) {
@@ -32930,7 +32930,7 @@ function _attachTexture2(texture) {
       default:
         // Assume other file types need transcoding
         if (!_classPrivateFieldLooseBase(this, _textureTranscoder$1)[_textureTranscoder$1]) {
-          this.error("Can't create texture from 'src' - rendererModel needs to be configured with a TextureTranscoder for this file type ('" + ext + "')");
+          this.error("Can't create texture from 'src' - rendererSceneModel needs to be configured with a TextureTranscoder for this file type ('" + ext + "')");
         } else {
           loadArraybuffer(texture.src, function (arrayBuffer) {
             if (!arrayBuffer.byteLength) {
@@ -32950,7 +32950,7 @@ function _attachTexture2(texture) {
   } else if (texture.buffers) {
     // Buffers implicitly require transcoding
     if (!_classPrivateFieldLooseBase(this, _textureTranscoder$1)[_textureTranscoder$1]) {
-      this.error("Can't create texture from 'buffers' - rendererModel needs to be configured with a TextureTranscoder for this option");
+      this.error("Can't create texture from 'buffers' - rendererSceneModel needs to be configured with a TextureTranscoder for this option");
     } else {
       _classPrivateFieldLooseBase(this, _textureTranscoder$1)[_textureTranscoder$1].transcode(texture.buffers).then(function (compressedTextureData) {
         glTexture.setCompressedData(compressedTextureData);
@@ -33056,7 +33056,7 @@ function _getLayer2(textureSetId, geometryCompressedParams) {
   layer = new Layer({
     gl: _classPrivateFieldLooseBase(this, _renderContext$1)[_renderContext$1].gl,
     view: _classPrivateFieldLooseBase(this, _view$a)[_view$a],
-    rendererModel: this,
+    rendererSceneModel: this,
     primitive: geometryCompressedParams.primitive,
     textureSet: textureSet,
     layerIndex: 0
@@ -33070,8 +33070,8 @@ function _attachSceneObject2(sceneObject) {
   var objectId = sceneObject.id;
   if (objectId === undefined) {
     objectId = createUUID();
-  } else if (this.rendererObjects[objectId]) {
-    this.error("[createObject] rendererModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
+  } else if (this.rendererSceneObjects[objectId]) {
+    this.error("[createObject] rendererSceneModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
     objectId = createUUID();
   }
   var meshes = sceneObject.meshes;
@@ -33084,17 +33084,17 @@ function _attachSceneObject2(sceneObject) {
     var rendererMesh = this.rendererMeshes[mesh.id];
     rendererMeshes.push(rendererMesh);
   }
-  var rendererObject = new WebGLRendererObject({
+  var rendererSceneObject = new WebGLRendererObject({
     id: objectId,
     sceneObject: sceneObject,
-    rendererModel: this,
+    rendererSceneModel: this,
     rendererMeshes: rendererMeshes,
     aabb: sceneObject.aabb,
     layerId: _classPrivateFieldLooseBase(this, _layerId)[_layerId]
   });
-  this.rendererObjectsList.push(rendererObject);
-  this.rendererObjects[objectId] = rendererObject; // <RendererObject>
-  this.rendererViewObjects[objectId] = rendererObject; // <RendererViewObject>
+  this.rendererSceneObjectsList.push(rendererSceneObject);
+  this.rendererSceneObjects[objectId] = rendererSceneObject; // <RendererSceneObject>
+  this.rendererViewObjects[objectId] = rendererSceneObject; // <RendererViewObject>
   _classPrivateFieldLooseBase(this, _numRendererObjects)[_numRendererObjects]++;
 }
 function _createDefaultTextureSet2() {
@@ -33138,9 +33138,9 @@ function _createDefaultTextureSet2() {
 }
 function _rebuildAABB2() {
   collapseAABB3(_classPrivateFieldLooseBase(this, _aabb)[_aabb]);
-  for (var i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-    var rendererObject = this.rendererObjectsList[i];
-    expandAABB3(_classPrivateFieldLooseBase(this, _aabb)[_aabb], rendererObject.aabb);
+  for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
+    var rendererSceneObject = this.rendererSceneObjectsList[i];
+    expandAABB3(_classPrivateFieldLooseBase(this, _aabb)[_aabb], rendererSceneObject.aabb);
   }
   _classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty] = false;
 }
@@ -33180,8 +33180,8 @@ function _detachSceneModel2() {
   if (objects) {
     for (var objectId in objects) {
       var object = objects[objectId];
-      if (object.rendererObject) {
-        object.rendererObject = null;
+      if (object.rendererSceneObject) {
+        object.rendererSceneObject = null;
       }
     }
   }
@@ -33346,7 +33346,7 @@ var _imageDirty = /*#__PURE__*/_classPrivateFieldLooseKey("imageDirty");
 var _saoEnabled = /*#__PURE__*/_classPrivateFieldLooseKey("saoEnabled");
 var _pbrEnabled = /*#__PURE__*/_classPrivateFieldLooseKey("pbrEnabled");
 var _backgroundColor = /*#__PURE__*/_classPrivateFieldLooseKey("backgroundColor");
-var _rendererModels = /*#__PURE__*/_classPrivateFieldLooseKey("rendererModels");
+var _rendererSceneModels = /*#__PURE__*/_classPrivateFieldLooseKey("rendererSceneModels");
 var _layerList = /*#__PURE__*/_classPrivateFieldLooseKey("layerList");
 var _layerListDirty = /*#__PURE__*/_classPrivateFieldLooseKey("layerListDirty");
 var _stateSortDirty = /*#__PURE__*/_classPrivateFieldLooseKey("stateSortDirty");
@@ -33373,9 +33373,9 @@ var WebGLRenderer = /*#__PURE__*/function () {
   /**
    Creates a WebGLRenderer.
     @param params Configs
-   @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
+   @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererSceneModel.createTexture}
    to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-   to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
+   to {@link rendererSceneModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererSceneModel````
    will then be in a format supported by this transcoder.
    */
   function WebGLRenderer(_params) {
@@ -33459,7 +33459,7 @@ var WebGLRenderer = /*#__PURE__*/function () {
       writable: true,
       value: void 0
     });
-    Object.defineProperty(this, _rendererModels, {
+    Object.defineProperty(this, _rendererSceneModels, {
       writable: true,
       value: void 0
     });
@@ -33536,7 +33536,7 @@ var WebGLRenderer = /*#__PURE__*/function () {
     // this.#saoDepthRenderBuffer = null;
     // this.#renderBufferManager = null;
     _classPrivateFieldLooseBase(this, _logarithmicDepthBufferEnabled)[_logarithmicDepthBufferEnabled] = false;
-    _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels] = {};
+    _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels] = {};
     _classPrivateFieldLooseBase(this, _viewMatrixDirty)[_viewMatrixDirty] = true;
   }
   var _proto = WebGLRenderer.prototype;
@@ -33613,7 +33613,7 @@ var WebGLRenderer = /*#__PURE__*/function () {
     if (!_classPrivateFieldLooseBase(this, _renderContext)[_renderContext]) {
       throw new SDKError("Must attach a View before you attach a SceneModel");
     }
-    var rendererModel = new WebGLRendererModel({
+    var rendererSceneModel = new WebGLRendererModel({
       id: sceneModel.id,
       sceneModel: sceneModel,
       view: _classPrivateFieldLooseBase(this, _view$9)[_view$9],
@@ -33621,24 +33621,24 @@ var WebGLRenderer = /*#__PURE__*/function () {
       webglRenderer: this,
       renderContext: _classPrivateFieldLooseBase(this, _renderContext)[_renderContext]
     });
-    _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][rendererModel.id] = rendererModel;
-    _classPrivateFieldLooseBase(this, _attachRendererViewObjects)[_attachRendererViewObjects](rendererModel);
+    _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels][rendererSceneModel.id] = rendererSceneModel;
+    _classPrivateFieldLooseBase(this, _attachRendererViewObjects)[_attachRendererViewObjects](rendererSceneModel);
     _classPrivateFieldLooseBase(this, _layerListDirty)[_layerListDirty] = true;
-    rendererModel.onDestroyed.one(function (component) {
-      var rendererModel = _classPrivateFieldLooseBase(_this2, _rendererModels)[_rendererModels][component.id];
-      delete _classPrivateFieldLooseBase(_this2, _rendererModels)[_rendererModels][component.id];
-      _classPrivateFieldLooseBase(_this2, _detachRendererViewObjects)[_detachRendererViewObjects](rendererModel);
+    rendererSceneModel.onDestroyed.one(function (component) {
+      var rendererSceneModel = _classPrivateFieldLooseBase(_this2, _rendererSceneModels)[_rendererSceneModels][component.id];
+      delete _classPrivateFieldLooseBase(_this2, _rendererSceneModels)[_rendererSceneModels][component.id];
+      _classPrivateFieldLooseBase(_this2, _detachRendererViewObjects)[_detachRendererViewObjects](rendererSceneModel);
       _classPrivateFieldLooseBase(_this2, _layerListDirty)[_layerListDirty] = true;
     });
-    sceneModel.rendererModel = rendererModel;
+    sceneModel.rendererSceneModel = rendererSceneModel;
   };
   _proto.detachSceneModel = function detachSceneModel(sceneModel) {
     if (_classPrivateFieldLooseBase(this, _sceneModels)[_sceneModels][sceneModel.id]) {
-      var rendererModel = _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][sceneModel.id];
-      delete _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][sceneModel.id];
-      _classPrivateFieldLooseBase(this, _detachRendererViewObjects)[_detachRendererViewObjects](rendererModel);
+      var rendererSceneModel = _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels][sceneModel.id];
+      delete _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels][sceneModel.id];
+      _classPrivateFieldLooseBase(this, _detachRendererViewObjects)[_detachRendererViewObjects](rendererSceneModel);
       _classPrivateFieldLooseBase(this, _layerListDirty)[_layerListDirty] = true;
-      sceneModel.rendererModel = null;
+      sceneModel.rendererSceneModel = null;
     }
   };
   /**
@@ -33720,14 +33720,14 @@ var WebGLRenderer = /*#__PURE__*/function () {
   };
   return WebGLRenderer;
 }();
-function _attachRendererViewObjects2(rendererModel) {
-  var rendererViewObjects = rendererModel.rendererViewObjects;
+function _attachRendererViewObjects2(rendererSceneModel) {
+  var rendererViewObjects = rendererSceneModel.rendererViewObjects;
   for (var id in rendererViewObjects) {
     this.rendererViewObjects[id] = rendererViewObjects[id];
   }
 }
-function _detachRendererViewObjects2(rendererModel) {
-  var rendererViewObjects = rendererModel.rendererViewObjects;
+function _detachRendererViewObjects2(rendererSceneModel) {
+  var rendererViewObjects = rendererSceneModel.rendererViewObjects;
   for (var id in rendererViewObjects) {
     delete this.rendererViewObjects[id];
   }
@@ -33746,8 +33746,8 @@ function _updateLayerList2() {
 }
 function _buildLayerList2() {
   var lenDrawableList = 0;
-  for (var id in _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels]) {
-    var webGLSceneModelRenderer = _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][id];
+  for (var id in _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels]) {
+    var webGLSceneModelRenderer = _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels][id];
     for (var i = 0, len = webGLSceneModelRenderer.layerList.length; i < len; i++) {
       _classPrivateFieldLooseBase(this, _layerList)[_layerList][lenDrawableList++] = webGLSceneModelRenderer.layerList[i];
     }
@@ -33893,10 +33893,10 @@ function _drawColor2(params) {
       continue;
     }
     if (meshCounts.numTransparent < meshCounts.numMeshes) {
-      if (_classPrivateFieldLooseBase(this, _saoEnabled)[_saoEnabled] && saoPossible && layer.rendererModel.qualityRender) {
+      if (_classPrivateFieldLooseBase(this, _saoEnabled)[_saoEnabled] && saoPossible && layer.rendererSceneModel.qualityRender) {
         normalDrawSAOBin[normalDrawSAOBinLen++] = layer;
       } else {
-        _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](layer, RENDER_PASSES.COLOR_OPAQUE, layer.rendererModel.qualityRender);
+        _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](layer, RENDER_PASSES.COLOR_OPAQUE, layer.rendererSceneModel.qualityRender);
       }
     }
     if (_classPrivateFieldLooseBase(this, _transparentEnabled)[_transparentEnabled]) {
@@ -36947,13 +36947,13 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      */
     _this.onRightClick = void 0;
     /**
-     * Event fired when the pointer moves while over a {@link ViewObject}.
+     * Event fired when the pointer moves while over a {@link @xeokit/viewer!ViewObject}.
      *
      * @event
      */
     _this.onHover = void 0;
     /**
-     * Event fired when the pointer moves while over a {@link ViewObject}.
+     * Event fired when the pointer moves while over a {@link @xeokit/viewer!ViewObject}.
      *
      * @event
      */
@@ -36965,19 +36965,19 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      */
     _this.onHoverOff = void 0;
     /**
-     * Event fired when the pointer moves onto a {@link ViewObject}.
+     * Event fired when the pointer moves onto a {@link @xeokit/viewer!ViewObject}.
      *
      * @event
      */
     _this.onHoverEnter = void 0;
     /**
-     * Event fired when the pointer moves off a {@link ViewObject}.
+     * Event fired when the pointer moves off a {@link @xeokit/viewer!ViewObject}.
      *
      * @event
      */
     _this.onHoverOut = void 0;
     /**
-     * Event fired when a {@link ViewObject} is picked.
+     * Event fired when a {@link @xeokit/viewer!ViewObject} is picked.
      *
      * @event
      */
@@ -37223,7 +37223,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
       }
     }
     /**
-     * Sets the HTMl element to represent the pivot point when {@link CameraControl.followPointer} is true.
+     * Sets the HTMl element to represent the pivot point when {@link @xeokit/cameracontrol!CameraControl.followPointer | CameraControl.followPointer} is true.
      *
      * See class comments for an example.
      *
@@ -37367,7 +37367,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
     /**
      * Gets the current World-space 3D pivot position.
      *
-     * Only applies when {@link CameraControl.followPointer} is ````true````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.followPointer | CameraControl.followPointer} is ````true````.
      *
      * @return {Number[]} worldPos The current World-space 3D pivot position.
      */
@@ -37379,7 +37379,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
     /**
      * Sets the current World-space 3D target position.
      *
-     * Only applies when {@link CameraControl.followPointer} is ````true````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.followPointer | CameraControl.followPointer} is ````true````.
      *
      * @param worldPos The new World-space 3D target position.
      */,
@@ -37428,7 +37428,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * Default is ````false````.
      *
-     * Deprecated - use {@link CameraControl.navMode} instead.
+     * Deprecated - use {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} instead.
      *
      * @returns {Boolean} Returns ````true```` if plan-view mode is enabled.
      * @deprecated
@@ -37446,7 +37446,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * Default is ````false````.
      *
-     * Deprecated - use {@link CameraControl.navMode} instead.
+     * Deprecated - use {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} instead.
      *
      * @param value Set ````true```` to enable plan-view mode.
      * @deprecated
@@ -37463,11 +37463,11 @@ var CameraControl = /*#__PURE__*/function (_Component) {
     /**
      * Gets whether this ````CameraControl```` is in first-person mode.
      *
-     * In "first person" mode (disabled by default) the look position rotates about the eye position. Otherwise,  {@link Camera.eye} rotates about {@link Camera.look}.
+     * In "first person" mode (disabled by default) the look position rotates about the eye position. Otherwise,  {@link @xeokit/viewer!Camera.eye | Camera.eye} rotates about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * Deprecated - use {@link CameraControl.navMode} instead.
+     * Deprecated - use {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} instead.
      *
      * @returns {Boolean} Returns ````true```` if first-person mode is enabled.
      * @deprecated
@@ -37481,11 +37481,11 @@ var CameraControl = /*#__PURE__*/function (_Component) {
     /**
      * Sets whether this ````CameraControl```` is in first-person mode.
      *
-     * In "first person" mode (disabled by default) the look position rotates about the eye position. Otherwise,  {@link Camera.eye} rotates about {@link Camera.look}.
+     * In "first person" mode (disabled by default) the look position rotates about the eye position. Otherwise,  {@link @xeokit/viewer!Camera.eye | Camera.eye} rotates about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * Deprecated - use {@link CameraControl.navMode} instead.
+     * Deprecated - use {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} instead.
      *
      * @param value Set ````true```` to enable first-person mode.
      * @deprecated
@@ -37502,9 +37502,9 @@ var CameraControl = /*#__PURE__*/function (_Component) {
     /**
      * Gets whether to vertically constrain the {@link @xeokit/viewer!Camera}  position for first-person navigation.
      *
-     * When set ````true````, this constrains {@link Camera.eye} to its current vertical position.
+     * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
      *
      * Default is ````false````.
      *
@@ -37518,9 +37518,9 @@ var CameraControl = /*#__PURE__*/function (_Component) {
     /**
      * Sets whether to vertically constrain the {@link @xeokit/viewer!Camera}  position for first-person navigation.
      *
-     * When set ````true````, this constrains {@link Camera.eye} to its current vertical position.
+     * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
      *
      * Default is ````false````.
      *
@@ -37530,7 +37530,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
       _classPrivateFieldLooseBase(this, _configs)[_configs].constrainVertical = !!value;
     }
     /**
-     * Gets whether double-picking an {@link Entity} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
+     * Gets whether double-picking a {@link @xeokit/viewer!ViewObject} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
      *
      * Default is ````false````.
      *
@@ -37542,7 +37542,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _configs)[_configs].doublePickFlyTo;
     }
     /**
-     * Sets whether double-picking an {@link Entity} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
+     * Sets whether double-picking a {@link @xeokit/viewer!ViewObject} causes the {@link @xeokit/viewer!Camera}  to fly to its boundary.
      *
      * Default is ````false````.
      *
@@ -37578,7 +37578,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````, which disallows rotation.
      *
      * @returns {Number} The inertia factor.
      */
@@ -37599,7 +37599,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````, which disallows rotation.
      *
      * @param rotationInertia New inertial factor.
      */,
@@ -37928,13 +37928,13 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      * Gets whether smart default pivoting is enabled.
      *
      * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
-     * imaginary sphere that's centered at {@link Camera.eye} and sized to the {@link Scene} boundary.
+     * imaginary sphere that's centered at {@link @xeokit/viewer!Camera.eye | Camera.eye} and sized to the {@link @xeokit/scene!Scene} boundary.
      *
-     * When ````false````, we'll pivot by default about {@link Camera.look}.
+     * When ````false````, we'll pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * @returns {Boolean} Returns ````true```` when pivoting by default about the selected point on the virtual sphere, or ````false```` when pivoting by default about {@link Camera.look}.
+     * @returns {Boolean} Returns ````true```` when pivoting by default about the selected point on the virtual sphere, or ````false```` when pivoting by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      */
   }, {
     key: "smartPivot",
@@ -37945,13 +37945,13 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      * Sets whether smart default pivoting is enabled.
      *
      * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
-     * imaginary sphere that's centered at {@link Camera.eye} and sized to the {@link Scene} boundary.
+     * imaginary sphere that's centered at {@link @xeokit/viewer!Camera.eye | Camera.eye} and sized to the {@link @xeokit/scene!Scene} boundary.
      *
-     * When ````false````, we'll pivot by default about {@link Camera.look}.
+     * When ````false````, we'll pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere, or ````false```` to pivot by default about {@link Camera.look}.
+     * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere, or ````false```` to pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      */,
     set: function set(enabled) {
       _classPrivateFieldLooseBase(this, _configs)[_configs].smartPivot = enabled !== false;
@@ -38143,7 +38143,7 @@ var index$2 = {
 };
 
 /**
- * Loads a {@link BCFViewpoint} into a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer}.
+ * Loads a {@link @xeokit/bcf!BCFViewpoint} into a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer}.
  *
  * See {@link "@xeokit/bcf"} for usage.
  *
@@ -38152,7 +38152,7 @@ var index$2 = {
 function loadBCFViewpoint(params) {}
 
 /**
- * Saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a {@link BCFViewpoint}.
+ * Saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a {@link @xeokit/bcf!BCFViewpoint}.
  *
  * See {@link @xeokit/bcf} for usage.
  *
@@ -38184,10 +38184,10 @@ function saveBCFViewpoint(params) {
  * project stakeholders in BIM workflows.
  *
  * To import a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} belonging to a {@link @xeokit/viewer!Viewer | Viewer}, use the
- * {@link loadBCFViewpoint} function. Similarly, to export the state of a View as a JSON-encoded BCF viewpoint, use
- * the {@link saveBCFViewpoint} function.
+ * {@link @xeokit/bcf!loadBCFViewpoint} function. Similarly, to export the state of a View as a JSON-encoded BCF viewpoint, use
+ * the {@link @xeokit/bcf!saveBCFViewpoint} function.
  *
- * Refer to {@link BCFViewpoint} for information on the BCF viewpoint format.
+ * Refer to {@link @xeokit/bcf!BCFViewpoint} for information on the BCF viewpoint format.
  *
  * <br>
  *
@@ -38223,7 +38223,7 @@ function saveBCFViewpoint(params) {
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {loadXKT} from "@xeokit/loadXKT";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
- * import * as ifcTypes from "@xeokit/datatypes/ifcTypes";
+ * import * as ifcTypes from "@xeokit/ifctypes";
  *
  * const scene = new Scene();
  * const data = new Data();
@@ -38264,7 +38264,7 @@ function saveBCFViewpoint(params) {
  * {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt} events.
  *
  * On the DataModel.onBuilt event, we'll customize the View by arranging the {@link @xeokit/viewer!Camera} and applying
- * an X-ray effect tp a couple of objects, then we'll use {@link saveBCFViewpoint} to save the state of the View to
+ * an X-ray effect tp a couple of objects, then we'll use {@link @xeokit/bcf!saveBCFViewpoint} to save the state of the View to
  * a BCF viewpoint.
  *
  * Once the SceneModel and DataModel have been built, we can no longer add anything to them.
@@ -38288,8 +38288,8 @@ function saveBCFViewpoint(params) {
  * });
  * ````
  *
- * Now that we've saved the {@link BCFViewpoint}, we could now use {@link loadBCFViewpoint} to load
- * the {@link BCFViewpoint} back into the {@link @xeokit/viewer!View | View}:
+ * Now that we've saved the {@link @xeokit/bcf!BCFViewpoint}, we could now use {@link @xeokit/bcf!loadBCFViewpoint} to load
+ * the {@link @xeokit/bcf!BCFViewpoint} back into the {@link @xeokit/viewer!View | View}:
  *
  * ````javascript
  * loadBCFViewpoint({
@@ -38353,8 +38353,8 @@ function saveBCFViewpoint(params) {
  * myOtherSceneModel.build();
  * ````
  *
- * Now we can use {@link saveBCFViewpoint} to save the states of only the {@link @xeokit/viewer!ViewObject | ViewObjects} in the
- * {@link @xeokit/viewer!ViewLayer | ViewLayer} that contains our SceneModel to a {@link BCFViewpoint}, while ignoring the
+ * Now we can use {@link @xeokit/bcf!saveBCFViewpoint} to save the states of only the {@link @xeokit/viewer!ViewObject | ViewObjects} in the
+ * {@link @xeokit/viewer!ViewLayer | ViewLayer} that contains our SceneModel to a {@link @xeokit/bcf!BCFViewpoint}, while ignoring the
  * other ViewLayer:
  *
  * ````javascript
@@ -38365,7 +38365,7 @@ function saveBCFViewpoint(params) {
  * });
  * ````
  *
- * Use {@link loadBCFViewpoint} to load the {@link BCFViewpoint} back into the {@link @xeokit/viewer!ViewLayer | ViewLayer}:
+ * Use {@link @xeokit/bcf!loadBCFViewpoint} to load the {@link @xeokit/bcf!BCFViewpoint} back into the {@link @xeokit/viewer!ViewLayer | ViewLayer}:
  *
  * ````javascript
  * loadBCFViewpoint({
@@ -38530,7 +38530,7 @@ var TreeView = /*#__PURE__*/function (_Component) {
      * Removes a model from this tree view.
      *
      * @private
-     * @param {String} modelId ID of a model {@link viewObject} in {@link Scene#models}.
+     * @param {String} modelId ID of a model {@link viewObject} in {@link @xeokit/scene!Scene#models}.
      */
     Object.defineProperty(_assertThisInitialized(_this), _removeModel, {
       value: _removeModel2
@@ -38539,7 +38539,7 @@ var TreeView = /*#__PURE__*/function (_Component) {
      * Adds a model to this tree view.
      *
      * @private
-     * @param {String} modelId ID of a model {@link viewObject} in {@link Scene#models}.
+     * @param {String} modelId ID of a model {@link viewObject} in {@link @xeokit/scene!Scene#models}.
      * @param {Object} [options] Options for model in the tree view.
      * @param {String} [options.rootName] Optional display name for the root node. Ordinary, for "containment"
      * and {@link @xeokit/treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy types, the tree would derive the root node name from the model's "IfcProject" element
@@ -38871,7 +38871,7 @@ var TreeView = /*#__PURE__*/function (_Component) {
    * If a node is previously highlighted, de-highlights that node and collapses the tree first.
    *
    * Note that if the TreeView was configured with ````pruneEmptyNodes: true```` (default configuration), then the
-   * node won't exist in the tree if it has no viewObjects in the {@link Scene}. in that case, nothing will happen.
+   * node won't exist in the tree if it has no viewObjects in the {@link @xeokit/scene!Scene}. in that case, nothing will happen.
    *
    * Within the DOM, the node is represented by an ````<li>```` element. This method will add a ````.highlighted-node```` class to
    * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
@@ -39781,7 +39781,7 @@ TreeView.GroupsHierarchy = void 0;
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {Data} from "@xeokit/data";
- * import * as ifcTypes from "@xeokit/datatypes/ifcTypes";
+ * import * as ifcTypes from "@xeokit/ifctypes";
  * import {TreeView} from "@xeokit/treeview!TreeView";
  * import {loadXKT} from "@xeokit/xkt";
  * ````

@@ -1,7 +1,7 @@
 import type { BCFViewpoint } from "./BCFViewpoint";
 import type { SaveBCFViewpointParams } from "./SaveBCFViewpointParams";
 /**
- * Saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a {@link BCFViewpoint}.
+ * Saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a {@link @xeokit/bcf!BCFViewpoint}.
  *
  * See {@link @xeokit/bcf} for usage.
  *

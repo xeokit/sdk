@@ -7,7 +7,7 @@ declare class PickResult {
     #private;
     constructor();
     /**
-     * The picked {@link ViewObject}.
+     * The picked {@link @xeokit/viewer!ViewObject}.
      */
     get viewObject(): ViewObject | null | undefined;
     /**

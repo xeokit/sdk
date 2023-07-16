@@ -5,7 +5,7 @@ import type { Data } from "./Data";
 /**
  * An object in a {@link @xeokit/data!DataModel}.
  *
- * * Created with {@link DataModel.createObject | DataModel.createObject}
+ * * Created with {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
  * * Stored in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | Data.objects}, {@link DataModel.rootObjects | Data.rootObjects}
  *
  * See {@link "@xeokit/data"} for usage.
@@ -34,21 +34,21 @@ export declare class DataObject {
      */
     readonly type: number;
     /**
-     * {@link PropertySet | PropertySets} referenced by this DataObject.
+     *{@link @xeokit/data!PropertySet | PropertySets} referenced by this DataObject.
      */
     readonly propertySets?: PropertySet[];
     /**
-     * The {@link Relationship | Relations} in which this DataObject is the {@link Relationship.relating} participant.
+     * The {@link @xeokit/data!Relationship | Relations} in which this DataObject is the {@link @xeokit/data!Relationship.relatingObject | Relationship.relatingObject} participant.
      *
-     * Each DataObject is mapped here by {@link Relationship.type | Relationship.type} and sub-mapped by {@link Relationship.relating | Relationship.relating}.
+     * Each DataObject is mapped here by {@link @xeokit/data!Relationship.type | Relationship.type} and sub-mapped by {@link @xeokit/data!Relationship.relatingObject | Relationship.relatingObject}.
      */
     readonly relating: {
         [key: number]: Relationship[];
     };
     /**
-     * The {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.related} participant.
+     * The {@link @xeokit/data!Relationship | Relationships} in which this DataObject is the {@link @xeokit/data!Relationship.relatedObject | Relationship.relatedObject} participant.
      *
-     * Each DataObject is mapped here by {@link Relationship.type | Relationship.type} and sub-mapped by {@link Relationship.related | Relationship.related}.
+     * Each DataObject is mapped here by {@link @xeokit/data!Relationship.type | Relationship.type} and sub-mapped by {@link @xeokit/data!Relationship.relatedObject | Relationship.relatedObject}.
      */
     readonly related: {
         [key: number]: Relationship[];

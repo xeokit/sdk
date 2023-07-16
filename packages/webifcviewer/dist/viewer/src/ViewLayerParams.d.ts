@@ -1,5 +1,5 @@
 /**
- * {@link ViewLayer} creation parameters for {@link View.createLayer}.
+ * {@link @xeokit/viewer!ViewLayer} creation parameters for {@link View.createLayer}.
  */
 export interface ViewLayerParams {
     /**
@@ -9,7 +9,7 @@ export interface ViewLayerParams {
      */
     id: string;
     /**
-     * Default initial visibility of the {@link ViewObject | ViewObjects} in the new ViewLayer.
+     * Default initial visibility of the {@link @xeokit/viewer!ViewObject | ViewObjects} in the new ViewLayer.
      */
     visible?: boolean;
 }

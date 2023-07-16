@@ -9,12 +9,12 @@ import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transpose
 /**
  * Orthographic projection configuration for a {@link @xeokit/viewer!Camera} .
  *
- * * Located at {@link Camera.orthoProjection}.
+ * * Located at {@link @xeokit/viewer!Camera.orthoProjection | Camera.orthoProjection}.
  * * Works like Blender's orthographic projection, where the positions of the left, right, top and bottom planes are implicitly
- * indicated with a single {@link OrthoProjection.scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
- * contain the number of units given by {@link OrthoProjection.scale}.
- * * {@link OrthoProjection.near} and {@link OrthoProjection.far} indicated the distances to the clipping planes.
- * * {@link OrthoProjection.onProjMatrix} will fire an event whenever {@link OrthoProjection.projMatrix} updates, which indicates that one or more other properties have updated.
+ * indicated with a single {@link @xeokit/viewer!OrthoProjection.scale | OrthoProjection.scale} property, which causes the frustum to be symmetrical on X and Y axis, large enough to
+ * contain the number of units given by {@link @xeokit/viewer!OrthoProjection.scale | OrthoProjection.scale}.
+ * * {@link @xeokit/viewer!OrthoProjection.near | OrthoProjection.near} and {@link @xeokit/viewer!OrthoProjection.far | OrthoProjection.far} indicated the distances to the clipping planes.
+ * * {@link @xeokit/viewer!OrthoProjection.onProjMatrix | OrthoProjection.onProjMatrix} will fire an event whenever {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
 export class OrthoProjection extends Component {
 
@@ -24,7 +24,7 @@ export class OrthoProjection extends Component {
     public readonly camera: Camera;
 
     /**
-     * Emits an event each time {@link OrthoProjection.projMatrix} updates.
+     * Emits an event each time {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix} updates.
      *
      * @event
      */
@@ -176,9 +176,9 @@ export class OrthoProjection extends Component {
     }
 
     /**
-     * Gets the inverse of {@link OrthoProjection.projMatrix}.
+     * Gets the inverse of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
      *
-     * @returns  The inverse of {@link OrthoProjection.projMatrix}.
+     * @returns  The inverse of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
      */
     get inverseProjMatrix(): FloatArrayParam {
         if (this.dirty) {
@@ -192,9 +192,9 @@ export class OrthoProjection extends Component {
     }
 
     /**
-     * Gets the transpose of {@link OrthoProjection.projMatrix}.
+     * Gets the transpose of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
      *
-     * @returns  The transpose of {@link OrthoProjection.projMatrix}.
+     * @returns  The transpose of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
      */
     get transposedProjMatrix(): FloatArrayParam {
         if (this.dirty) {

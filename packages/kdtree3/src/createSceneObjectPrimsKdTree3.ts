@@ -13,7 +13,7 @@ export class SceneObjectsPrimsKdTree3 extends KdTree3 {}
 /**
  * Creates a KdTree3 that indexes the primitives belonging to the given SceneObjects in 3D World-space.
  *
- * See {@link "@xeokit/collision/kdtree3"} for usage.
+ * See {@link "@xeokit/kdtree3"} for usage.
  *
  * @param sceneObjects
  */

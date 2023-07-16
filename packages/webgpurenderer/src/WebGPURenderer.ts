@@ -3,7 +3,7 @@ import {FloatArrayParam} from "@xeokit/math";
 import { Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 import {RendererViewObject} from "@xeokit/viewer";
 import type {Pickable} from "./Pickable";
-import {Capabilities, TextureTranscoder} from "@xeokit/core";
+import {Capabilities, SDKError, TextureTranscoder} from "@xeokit/core";
 import { SceneModel } from "@xeokit/scene";
 
 /**
@@ -17,9 +17,9 @@ export class WebGPURenderer implements Renderer {
      Creates a WebGPURenderer.
 
      @param params Configs
-     @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link ViewerModel.createTexture}
+     @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link SceneModel.createTexture}
      to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-     to {@link ViewerModel.createTexture}. We assume that all transcoded texture data added to a  ````ViewerModel````
+     to {@link SceneModel.createTexture}. We assume that all transcoded texture data added to a  ````SceneModel````
      will then be in a format supported by this transcoder.
      */
     constructor(params: {
@@ -35,12 +35,14 @@ export class WebGPURenderer implements Renderer {
     attachView(view: View): number {
         throw new Error("Method not implemented.");
     }
-    detachView(viewIndex: number): void {
+
+    detachView(viewIndex: number): SDKError {
         throw new Error("Method not implemented.");
     }
     attachSceneModel(sceneModel: SceneModel): void {
         throw new Error("Method not implemented.");
     }
+
     detachSceneModel(sceneModel: SceneModel): void {
         throw new Error("Method not implemented.");
     }
@@ -119,7 +121,7 @@ export class WebGPURenderer implements Renderer {
         throw "TODO";
     }
 
-    pickSceneObject(viewIndex: number, params: {}): ViewObject | null {
+    pickViewObject(viewIndex: number, params: {}): ViewObject | null {
         throw "TODO";
     };
 }

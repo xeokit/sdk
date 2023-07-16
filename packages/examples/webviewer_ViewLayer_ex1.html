@@ -39,7 +39,7 @@
             <a href="../docs/dist/classes/webviewer_src.viewlayer.html" target="_other">ViewLayer</a>
         </li>
         <li>
-            <a href="../docs/dist/interfaces/webviewer_src.scenemodel.html" target="_other">ViewerModel</a>
+            <a href="../docs/dist/interfaces/webviewer_src.scenemodel.html" target="_other">SceneModel</a>
         </li>
     </ul>
 </div>
@@ -85,7 +85,7 @@
 
     //---------------------------------------------------------------------------------------
     // Create a scene representation for the table model.
-    // The SceneObjects in this ViewerModel will get ViewObjects in our "model" ViewLayer.
+    // The SceneObjects in this SceneModel will get ViewObjects in our "model" ViewLayer.
     //---------------------------------------------------------------------------------------
 
     const sceneModel = viewer.scene.createModel({
@@ -197,7 +197,7 @@
 
     //------------------------------------------------------------------------------------------
     // Create a scene representation for the ground plane.
-    // The SceneObjects in this ViewerModel will get ViewObjects in our "environment" ViewLayer.
+    // The SceneObjects in this SceneModel will get ViewObjects in our "environment" ViewLayer.
     //------------------------------------------------------------------------------------------
 
     const groundPlaneSceneModel = viewer.scene.createModel({

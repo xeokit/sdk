@@ -239,7 +239,7 @@
  * ````
  *
  * To show an independent view of {@link @xeokit/scene!SceneModel | SceneObjects}, a View
- * proxies them with {@link ViewObject | ViewObjects}, which represent and control their appearance within the View's canvas.
+ * proxies them with {@link @xeokit/viewer!ViewObject | ViewObjects}, which represent and control their appearance within the View's canvas.
  *
  * ### Slicing Objects
  *

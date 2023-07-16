@@ -17,8 +17,8 @@
  * storage and sharing of 3D models. CityJSON can represent both basic geometric shapes and intricate objects such as
  * buildings and trees, offering a simple alternative to other formats like CityGML.
  *
- * To import a CityJSON model into xeokit, simply use the {@link load3DXML} function, which will load the file into both
- * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
+ * To import a CityJSON model into xeokit, simply use the {@link @xeokit/cityjson!loadCityJSON} function, which will load
+ * the file into both a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
  *
  * <br>
  *

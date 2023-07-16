@@ -1,13 +1,13 @@
 import type { FloatArrayParam } from "@xeokit/math";
 import type { SceneModel } from "@xeokit/scene";
 /**
- * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link Scene.createModel}.
+ * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link @xeokit/scene!Scene.createModel}.
  */
 export interface CreateModelParams {
     /**
      * Unique ID for the SceneModel.
      *
-     * The SceneModel is stored with this ID in {@link Scene.models | Scene.models}
+     * The SceneModel is stored with this ID in {@link @xeokit/scene!Scene.models | Scene.models}
      */
     id: string;
     /**

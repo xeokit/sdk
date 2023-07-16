@@ -3,11 +3,11 @@ import type {TextureSetParams} from "./TextureSetParams";
 import type {RendererTextureSet} from "./RendererTextureSet";
 
 /**
- * A set of {@link Texture | Textures} in a {@link SceneModel}.
+ * A set of {@link @xeokit/scene!Texture | Textures} in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}
  * * Created with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}
- * * Referenced by {@link Mesh.textureSet | Mesh.textureSet}
+ * * Referenced by {@link @xeokit/scene!Mesh.textureSet | Mesh.textureSet}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -19,29 +19,29 @@ export class TextureSet {
     id: string;
 
     /**
-     * The color {@link Texture} in this set.
+     * The color {@link @xeokit/scene!Texture} in this set.
      */
     colorTexture?: Texture;
 
     /**
-     * The metallic-roughness {@link Texture} in this set.
+     * The metallic-roughness {@link @xeokit/scene!Texture} in this set.
      */
     metallicRoughnessTexture?: Texture;
 
     /**
-     * The occlusion {@link Texture} in this set.
+     * The occlusion {@link @xeokit/scene!Texture} in this set.
      */
     occlusionTexture?: Texture;
 
     /**
-     * The emissive {@link Texture} in this set.
+     * The emissive {@link @xeokit/scene!Texture} in this set.
      */
     emissiveTexture?: Texture;
 
     /**
      *  Internal interface through which a TextureSet can load property updates into a renderer.
      *
-     *  This is defined while the owner {@link SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined while the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */

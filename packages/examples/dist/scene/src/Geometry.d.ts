@@ -3,12 +3,12 @@ import { GeometryBucket } from "./GeometryBucket";
 import type { GeometryCompressedParams } from "./GeometryCompressedParams";
 import type { RendererGeometry } from "./RendererGeometry";
 /**
- * A geometry in a {@link SceneModel}.
+ * A geometry in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}
  * * Created with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}
  * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
- * * Referenced by {@link @xeokit/scene!SceneObject.geometry}
+ * * Referenced by {@link @xeokit/scene!Mesh.geometry | Mesh.geometry}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -20,8 +20,8 @@ export declare class Geometry {
     /**
      * Primitive type.
      *
-     * Possible values are {@link SolidPrimitive}, {@link SurfacePrimitive}, {@link LinesPrimitive}, {@link PointsPrimitive}
-     * and {@link TrianglesPrimitive}.
+     * Possible values are {@link @xeokit/constants!SolidPrimitive}, {@link @xeokit/constants!SurfacePrimitive}, {@link @xeokit/constants!LinesPrimitive}, {@link @xeokit/constants!PointsPrimitive}
+     * and {@link @xeokit/constants!TrianglesPrimitive}.
      */
     primitive: number;
     /**

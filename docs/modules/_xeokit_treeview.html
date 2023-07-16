@@ -30,7 +30,7 @@
 <li><a href="../classes/_xeokit_treeview.TreeView.html">TreeView</a></li>
 <li>Fast HTML tree view to navigate federated models in a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a></li>
 <li>Use with a <a href="../classes/_xeokit_viewer.View.html">View</a> and a semantic <a href="../classes/_xeokit_data.Data.html">Data</a> model</li>
-<li>Supports Industry Foundation Classes (IFC)</li>
+<li>Supports Industry Foundation Classes (<a href="/docs/pages/GLOSSARY.html#ifc">IFC</a>)</li>
 <li>Supports any schema expressable as ER graph with aggregation relationships</li>
 </ul>
 
@@ -44,7 +44,7 @@
   <h2>Usage</h2>
 </a>
 <p>TODO</p>
-<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">WebGLRenderer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/webglrenderer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Data</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/data&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> </span><span class="hl-4">*</span><span class="hl-0"> </span><span class="hl-2">as</span><span class="hl-0"> </span><span class="hl-3">ifcTypes</span><span class="hl-0"> </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/datatypes/ifcTypes&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">TreeView</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/treeview!TreeView&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">loadXKT</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/xkt&quot;</span><span class="hl-0">;</span>
+<pre><code class="language-javascript"><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Viewer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/viewer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">WebGLRenderer</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/webglrenderer&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">Data</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/data&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> </span><span class="hl-4">*</span><span class="hl-0"> </span><span class="hl-2">as</span><span class="hl-0"> </span><span class="hl-3">ifcTypes</span><span class="hl-0"> </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/ifctypes&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">TreeView</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/treeview!TreeView&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> {</span><span class="hl-3">loadXKT</span><span class="hl-0">} </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-1">&quot;@xeokit/xkt&quot;</span><span class="hl-0">;</span>
 </code></pre>
 <p>Create a <a href="../classes/_xeokit_viewer.Viewer.html">Viewer</a>, configured with a <a href="../classes/_xeokit_webglrenderer.WebGLRenderer.html">WebGLRenderer</a>:</p>
 <pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">myViewer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Viewer</span><span class="hl-0">({</span><br/><span class="hl-0">    </span><span class="hl-3">id:</span><span class="hl-0"> </span><span class="hl-1">&quot;myViewer&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-3">renderer:</span><span class="hl-0"> </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">WebGLRenderer</span><span class="hl-0">({ })</span><br/><span class="hl-0">});</span>
@@ -57,7 +57,7 @@
 </code></pre>
 </div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/treeview/src/index.ts#L97">packages/treeview/src/index.ts:97</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/treeview/src/index.ts#L97">packages/treeview/src/index.ts:97</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"></section></section>
 <section class="tsd-panel-group tsd-index-group">
@@ -127,6 +127,7 @@
 <li class="tsd-kind-module"><a href="_xeokit_matrix.html">@xeokit/matrix</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_mockrenderer.html">@xeokit/mockrenderer</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_pick.html">@xeokit/pick</a></li>
+<li class="tsd-kind-module"><a href="_xeokit_procgen.html">@xeokit/procgen</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_rtc.html">@xeokit/rtc</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_scene.html">@xeokit/scene</a></li>
 <li class="tsd-kind-module"><a href="_xeokit_threedxml.html">@xeokit/threedxml</a></li>

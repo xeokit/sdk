@@ -24,7 +24,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">SceneObjectParams</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/scene/src/SceneObjectParams.ts#L4">packages/scene/src/SceneObjectParams.ts:4</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/scene/src/SceneObjectParams.ts#L4">packages/scene/src/SceneObjectParams.ts:4</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -44,25 +44,27 @@
 <div class="tsd-comment tsd-typography"><p>Unique ID for the SceneObject.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/scene/src/SceneObjectParams.ts#L9">packages/scene/src/SceneObjectParams.ts:9</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/scene/src/SceneObjectParams.ts#L9">packages/scene/src/SceneObjectParams.ts:9</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="layerId" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>layer<wbr/>Id</span><a href="#layerId" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">layer<wbr/>Id<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>Causes each <a href="../classes/_xeokit_viewer.View.html">View</a> to put the corresponding ViewObject into a ViewLayer with this ID.</p>
-<p>When you create an object in a model, each <a href="../classes/_xeokit_viewer.View.html">View</a> will automatically create a ViewObject to
-represent it. When the object has a <a href="_xeokit_scene.SceneObjectParams.html#layerId">layerId</a> property, then each View will first ensure that it
-has a ViewLayer with this ID, and will register the ViewObject in that ViewLayer.</p>
+<div class="tsd-comment tsd-typography"><p>Causes each <a href="../classes/_xeokit_viewer.View.html">View</a> to put the corresponding <a href="../classes/_xeokit_viewer.ViewObject.html">ViewObject</a> into
+a <a href="../classes/_xeokit_viewer.ViewLayer.html">ViewLayer</a> with this ID.</p>
+<p>When you create an object in a model, each <a href="../classes/_xeokit_viewer.View.html">View</a> will automatically create
+a <a href="../classes/_xeokit_viewer.ViewObject.html">ViewObject</a> to
+represent it. When the object has a <a href="_xeokit_scene.SceneObjectParams.html#layerId">layerId</a> property, then each View will first
+ensure that it has a <a href="../classes/_xeokit_viewer.ViewLayer.html">ViewLayer</a> with this ID, and will register the ViewObject in that ViewLayer.</p>
 <p>Overrides <a href="_xeokit_scene.SceneObjectParams.html#layerId">layerId</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/scene/src/SceneObjectParams.ts#L25">packages/scene/src/SceneObjectParams.ts:25</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/scene/src/SceneObjectParams.ts#L27">packages/scene/src/SceneObjectParams.ts:27</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="meshIds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>mesh<wbr/>Ids</span><a href="#meshIds" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">mesh<wbr/>Ids<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 <div class="tsd-comment tsd-typography"><p>IDs of meshes previously created with <a href="../classes/_xeokit_scene.SceneModel.html#createMesh">SceneModel.createMesh</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/scene/src/SceneObjectParams.ts#L14">packages/scene/src/SceneObjectParams.ts:14</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/scene/src/SceneObjectParams.ts#L14">packages/scene/src/SceneObjectParams.ts:14</a></li></ul></aside></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -117,6 +119,7 @@ has a ViewLayer with this ID, and will register the ViewObject in that ViewLayer
 <li class="tsd-kind-module"><a href="../modules/_xeokit_matrix.html">@xeokit/matrix</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_mockrenderer.html">@xeokit/mockrenderer</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_pick.html">@xeokit/pick</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_procgen.html">@xeokit/procgen</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_rtc.html">@xeokit/rtc</a></li>
 <li class="current tsd-kind-module"><a href="../modules/_xeokit_scene.html">@xeokit/scene</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_threedxml.html">@xeokit/threedxml</a></li>

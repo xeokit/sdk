@@ -24,9 +24,9 @@ a <a href="_xeokit_viewer.View.html">View&#39;s</a> canvas.</p>
   <h2>Summary</h2>
 </a>
 <ul>
-<li>Stored in <a href="_xeokit_viewer.View.html#objects">View.objects</a> and <a href="_xeokit_viewer.ViewLayer.html#objects">ViewLayer.objects</a></li>
+<li>Stored in <a href="_xeokit_viewer.View.html#objects">View.objects</a> and @xeokit/view!ViewLayer.objects | ViewLayer.objects</li>
 <li>Viewer automatically creates one of these in each existing <a href="_xeokit_viewer.View.html">View</a> for each <a href="_xeokit_scene.SceneModel.html">SceneObject</a> created</li>
-<li>SceneObject.layerId | SceneObject.layerId determines which of the View&#39;s <a href="_xeokit_viewer.ViewLayer.html">ViewLayers</a> to put the ViewObject in</li>
+<li><a href="_xeokit_scene.SceneObject.html#layerId">SceneObject.layerId</a> determines which of the View&#39;s @xeokit/view!ViewLayer | ViewLayers to put the ViewObject in</li>
 </ul>
 
 <a href="#overview" id="overview" style="color: inherit; text-decoration: none;">
@@ -43,7 +43,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <ul class="tsd-hierarchy">
 <li><span class="target">ViewObject</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L27">packages/viewer/src/ViewObject.ts:27</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L28">packages/viewer/src/ViewObject.ts:28</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -97,7 +97,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>rendererViewObject: <a href="../interfaces/_xeokit_viewer.RendererViewObject.html" class="tsd-signature-type" data-tsd-kind="Interface">RendererViewObject</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="_xeokit_viewer.ViewObject.html" class="tsd-signature-type" data-tsd-kind="Class">ViewObject</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L68">packages/viewer/src/ViewObject.ts:68</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L69">packages/viewer/src/ViewObject.ts:69</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_rendererViewObject" class="tsd-anchor"></a>
@@ -106,28 +106,28 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <div class="tsd-comment tsd-typography"><p>The corresponding <a href="../interfaces/_xeokit_viewer.RendererViewObject.html">RendererViewObject</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L48">packages/viewer/src/ViewObject.ts:48</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L49">packages/viewer/src/ViewObject.ts:49</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="id" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>Unique ID of this ViewObject within <a href="_xeokit_viewer.ViewLayer.html#objects">objects</a>.</p>
+<div class="tsd-comment tsd-typography"><p>Unique ID of this ViewObject within @xeokit/view!ViewLayer.objects.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L32">packages/viewer/src/ViewObject.ts:32</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L33">packages/viewer/src/ViewObject.ts:33</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="layer" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>layer</span><a href="#layer" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">layer<span class="tsd-signature-symbol">:</span> <a href="_xeokit_viewer.ViewLayer.html" class="tsd-signature-type" data-tsd-kind="Class">ViewLayer</a></div>
 <div class="tsd-comment tsd-typography"><p>The ViewLayer to which this ViewObject belongs.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L37">packages/viewer/src/ViewObject.ts:37</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L38">packages/viewer/src/ViewObject.ts:38</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="sceneObject" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>scene<wbr/>Object</span><a href="#sceneObject" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">scene<wbr/>Object<span class="tsd-signature-symbol">:</span> <a href="_xeokit_scene.SceneObject.html" class="tsd-signature-type" data-tsd-kind="Class">SceneObject</a></div>
-<div class="tsd-comment tsd-typography"><p>The corresponding SceneObject.</p>
+<div class="tsd-comment tsd-typography"><p>The corresponding <a href="_xeokit_scene.SceneObject.html">SceneObject</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L42">packages/viewer/src/ViewObject.ts:42</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L43">packages/viewer/src/ViewObject.ts:43</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Accessors</h2>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="aabb" class="tsd-anchor"></a>
@@ -139,7 +139,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../types/_xeokit_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L97">packages/viewer/src/ViewObject.ts:97</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L98">packages/viewer/src/ViewObject.ts:98</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="clippable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>clippable</span><a href="#clippable" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -147,29 +147,29 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets if this ViewObject is clippable.</p>
 <ul>
-<li>Clipping is done by the <a href="_xeokit_viewer.SectionPlane.html">SectionPlane</a>s in ViewLayer.sectionPlanes.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsClippable">setObjectsClippable</a> to batch-update the clippable state of ViewObjects.</li>
+<li>Clipping is done by the <a href="_xeokit_viewer.SectionPlane.html">SectionPlane</a>s in @xeokit/view!ViewLayer.sectionPlanes.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsClippable to batch-update the clippable state of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L260">packages/viewer/src/ViewObject.ts:260</a></li></ul></aside></li>
-<li class="tsd-signature" id="clippable.clippable-2"><span class="tsd-signature-symbol">set</span> clippable<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L277">packages/viewer/src/ViewObject.ts:277</a></li></ul></aside></li>
+<li class="tsd-signature" id="clippable.clippable-2"><span class="tsd-signature-symbol">set</span> clippable<span class="tsd-signature-symbol">(</span>clippable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject is clippable.</p>
 <ul>
-<li>Clipping is done by the <a href="_xeokit_viewer.SectionPlane.html">SectionPlane</a>s in ViewLayer.sectionPlanes.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsClippable">setObjectsClippable</a> to batch-update the clippable state of ViewObjects.</li>
+<li>Clipping is done by the <a href="_xeokit_viewer.SectionPlane.html">SectionPlane</a>s in @xeokit/view!ViewLayer.sectionPlanes.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsClippable to batch-update the clippable state of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>value: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
+<h5>clippable: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L270">packages/viewer/src/ViewObject.ts:270</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L287">packages/viewer/src/ViewObject.ts:287</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="collidable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>collidable</span><a href="#collidable" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -177,31 +177,31 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets if this ViewObject is included in boundary calculations.</p>
 <ul>
-<li>When <code>true</code>, the 3D World boundaries returned by ViewLayer.aabb will include this ViewObject&#39;s boundary.</li>
-<li>The ViewObject&#39;s 3D boundary is held in SceneObject.aabb.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsCollidable">setObjectsCollidable</a> to batch-update the collidable state of ViewObjects.</li>
+<li>When <code>true</code>, the 3D World boundaries returned by @xeokit/view!ViewLayer.aabb will include this ViewObject&#39;s boundary.</li>
+<li>The ViewObject&#39;s 3D boundary is held in <a href="_xeokit_scene.SceneObject.html#aabb">aabb</a>.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsCollidable to batch-update the collidable state of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L285">packages/viewer/src/ViewObject.ts:285</a></li></ul></aside></li>
-<li class="tsd-signature" id="collidable.collidable-2"><span class="tsd-signature-symbol">set</span> collidable<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L306">packages/viewer/src/ViewObject.ts:306</a></li></ul></aside></li>
+<li class="tsd-signature" id="collidable.collidable-2"><span class="tsd-signature-symbol">set</span> collidable<span class="tsd-signature-symbol">(</span>collidable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject included in boundary calculations.</p>
 <ul>
-<li>When <code>true</code>, the 3D World boundaries returned by ViewLayer.aabb will include this ViewObject&#39;s boundary.</li>
-<li>The ViewObject&#39;s 3D boundary is held in SceneObject.aabb.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsCollidable">setObjectsCollidable</a> to batch-update the collidable state of ViewObjects.</li>
+<li>When <code>true</code>, the 3D World boundaries returned by @xeokit/view!ViewLayer.aabb will include this ViewObject&#39;s boundary.</li>
+<li>The ViewObject&#39;s 3D boundary is held in <a href="_xeokit_scene.SceneObject.html#aabb">aabb</a>.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsCollidable to batch-update the collidable state of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>value: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
+<h5>collidable: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L296">packages/viewer/src/ViewObject.ts:296</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L317">packages/viewer/src/ViewObject.ts:317</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="colorize" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>colorize</span><a href="#colorize" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -211,12 +211,12 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <ul>
 <li>Multiplies by rendered fragment colors.</li>
 <li>Each element of the color is in range <code>[0..1]</code>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsColorized">setObjectsColorized</a> to batch-update the colorized state of ViewObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsColorized to batch-update the colorized state of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Float32Array</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L337">packages/viewer/src/ViewObject.ts:337</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L366">packages/viewer/src/ViewObject.ts:366</a></li></ul></aside></li>
 <li class="tsd-signature" id="colorize.colorize-2"><span class="tsd-signature-symbol">set</span> colorize<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><a href="../types/_xeokit_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the RGB colorize color for this ViewObject.</p>
@@ -224,7 +224,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li>Multiplies by rendered fragment colors.</li>
 <li>Each element of the color is in range <code>[0..1]</code>.</li>
 <li>Set to <code>null</code> or <code>undefined</code> to reset the colorize color to its default value of <code>[1,1,1]</code>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsColorized">setObjectsColorized</a> to batch-update the colorized state of ViewObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsColorized to batch-update the colorized state of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
@@ -234,7 +234,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>value: <a href="../types/_xeokit_math.FloatArrayParam.html" class="tsd-signature-type" data-tsd-kind="Type alias">FloatArrayParam</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L349">packages/viewer/src/ViewObject.ts:349</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L378">packages/viewer/src/ViewObject.ts:378</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="culled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>culled</span><a href="#culled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -243,18 +243,18 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <div class="tsd-comment tsd-typography"><p>Gets if this ViewObject is culled.</p>
 <ul>
 <li>The ViewObject is only rendered when <a href="_xeokit_viewer.ViewObject.html#visible">visible</a> is <code>true</code> and <a href="_xeokit_viewer.ViewObject.html#culled">culled</a> is <code>false</code>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsCulled">setObjectsCulled</a> to batch-update the culled state of ViewObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsCulled to batch-update the culled state of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L236">packages/viewer/src/ViewObject.ts:236</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L249">packages/viewer/src/ViewObject.ts:249</a></li></ul></aside></li>
 <li class="tsd-signature" id="culled.culled-2"><span class="tsd-signature-symbol">set</span> culled<span class="tsd-signature-symbol">(</span>culled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject is culled.</p>
 <ul>
 <li>The ViewObject is only rendered when <a href="_xeokit_viewer.ViewObject.html#visible">visible</a> is <code>true</code> and <a href="_xeokit_viewer.ViewObject.html#culled">culled</a> is <code>false</code>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsCulled">setObjectsCulled</a> to batch-update the culled state of ViewObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsCulled to batch-update the culled state of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
@@ -264,7 +264,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>culled: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L246">packages/viewer/src/ViewObject.ts:246</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L259">packages/viewer/src/ViewObject.ts:259</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="edges" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>edges</span><a href="#edges" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -274,7 +274,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L159">packages/viewer/src/ViewObject.ts:159</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L166">packages/viewer/src/ViewObject.ts:166</a></li></ul></aside></li>
 <li class="tsd-signature" id="edges.edges-2"><span class="tsd-signature-symbol">set</span> edges<span class="tsd-signature-symbol">(</span>edges<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject shows edges.</p>
@@ -286,7 +286,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>edges: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L166">packages/viewer/src/ViewObject.ts:166</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L173">packages/viewer/src/ViewObject.ts:173</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="highlighted" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>highlighted</span><a href="#highlighted" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -294,19 +294,19 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets if this ViewObject is highlighted.</p>
 <ul>
-<li>When <a href="_xeokit_viewer.ViewObject.html#highlighted">highlighted</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in <a href="_xeokit_viewer.ViewLayer.html#highlightedObjects">ViewLayer.highlightedObjects</a>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsHighlighted">setObjectsHighlighted</a> to batch-update the highlighted state of ViewObjects.</li>
+<li>When <a href="_xeokit_viewer.ViewObject.html#highlighted">highlighted</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in @xeokit/view!ViewLayer.highlightedObjects | ViewLayer.highlightedObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsHighlighted to batch-update the highlighted state of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L181">packages/viewer/src/ViewObject.ts:181</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L191">packages/viewer/src/ViewObject.ts:191</a></li></ul></aside></li>
 <li class="tsd-signature" id="highlighted.highlighted-2"><span class="tsd-signature-symbol">set</span> highlighted<span class="tsd-signature-symbol">(</span>highlighted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject is highlighted.</p>
 <ul>
-<li>When <a href="_xeokit_viewer.ViewObject.html#highlighted">highlighted</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in <a href="_xeokit_viewer.ViewLayer.html#highlightedObjects">ViewLayer.highlightedObjects</a>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsHighlighted">setObjectsHighlighted</a> to batch-update the highlighted state of ViewObjects.</li>
+<li>When <a href="_xeokit_viewer.ViewObject.html#highlighted">highlighted</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in @xeokit/view!ViewLayer.highlightedObjects | ViewLayer.highlightedObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsHighlighted to batch-update the highlighted state of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
@@ -316,7 +316,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>highlighted: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L191">packages/viewer/src/ViewObject.ts:191</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L201">packages/viewer/src/ViewObject.ts:201</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="opacity" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>opacity</span><a href="#opacity" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -325,19 +325,19 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <div class="tsd-comment tsd-typography"><p>Gets the opacity factor for this ViewObject.</p>
 <ul>
 <li>This is a factor in range <code>[0..1]</code> which multiplies by the rendered fragment alphas.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsOpacity">setObjectsOpacity</a> to batch-update the opacities of ViewObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsOpacity to batch-update the opacities of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L371">packages/viewer/src/ViewObject.ts:371</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L404">packages/viewer/src/ViewObject.ts:404</a></li></ul></aside></li>
 <li class="tsd-signature" id="opacity.opacity-2"><span class="tsd-signature-symbol">set</span> opacity<span class="tsd-signature-symbol">(</span>opacity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the opacity factor for this ViewObject.</p>
 <ul>
 <li>This is a factor in range <code>[0..1]</code> which multiplies by the rendered fragment alphas.</li>
 <li>Set to <code>null</code> or <code>undefined</code> to reset the opacity to its default value of <code>1</code>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsOpacity">setObjectsOpacity</a> to batch-update the opacities of ViewObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsOpacity to batch-update the opacities of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
@@ -347,7 +347,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>opacity: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L382">packages/viewer/src/ViewObject.ts:382</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L415">packages/viewer/src/ViewObject.ts:415</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="pickable" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pickable</span><a href="#pickable" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -355,19 +355,19 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets if this ViewObject is pickable.</p>
 <ul>
-<li>Picking is done with ViewLayer.pick.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsPickable">setObjectsPickable</a> to batch-update the pickable state of ViewObjects.</li>
+<li>Picking is done with @xeokit/view!ViewLayer.pick.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsPickable to batch-update the pickable state of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L311">packages/viewer/src/ViewObject.ts:311</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L336">packages/viewer/src/ViewObject.ts:336</a></li></ul></aside></li>
 <li class="tsd-signature" id="pickable.pickable-2"><span class="tsd-signature-symbol">set</span> pickable<span class="tsd-signature-symbol">(</span>pickable<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject is pickable.</p>
 <ul>
-<li>Picking is done with ViewLayer.pick.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsPickable">setObjectsPickable</a> to batch-update the pickable state of ViewObjects.</li>
+<li>Picking is done with @xeokit/view!ViewLayer.pick.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsPickable to batch-update the pickable state of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
@@ -377,7 +377,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>pickable: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L321">packages/viewer/src/ViewObject.ts:321</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L346">packages/viewer/src/ViewObject.ts:346</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="selected" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>selected</span><a href="#selected" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -385,19 +385,19 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets if this ViewObject is selected.</p>
 <ul>
-<li>When <a href="_xeokit_viewer.ViewObject.html#selected">selected</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in <a href="_xeokit_viewer.ViewLayer.html#selectedObjects">ViewLayer.selectedObjects</a>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsSelected">setObjectsSelected</a> to batch-update the selected state of ViewObjects.</li>
+<li>When <a href="_xeokit_viewer.ViewObject.html#selected">selected</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in @xeokit/view!ViewLayer.selectedObjects | ViewLayer.selectedObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsSelected to batch-update the selected state of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L210">packages/viewer/src/ViewObject.ts:210</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L220">packages/viewer/src/ViewObject.ts:220</a></li></ul></aside></li>
 <li class="tsd-signature" id="selected.selected-2"><span class="tsd-signature-symbol">set</span> selected<span class="tsd-signature-symbol">(</span>selected<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject is selected.</p>
 <ul>
-<li>When <a href="_xeokit_viewer.ViewObject.html#selected">selected</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in <a href="_xeokit_viewer.ViewLayer.html#selectedObjects">ViewLayer.selectedObjects</a>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsSelected">setObjectsSelected</a> to batch-update the selected state of ViewObjects.</li>
+<li>When <a href="_xeokit_viewer.ViewObject.html#selected">selected</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in @xeokit/view!ViewLayer.selectedObjects | ViewLayer.selectedObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsSelected to batch-update the selected state of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
@@ -407,7 +407,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>selected: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L220">packages/viewer/src/ViewObject.ts:220</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L230">packages/viewer/src/ViewObject.ts:230</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="visible" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>visible</span><a href="#visible" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -415,22 +415,22 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets if this ViewObject is visible.</p>
 <ul>
-<li>When <a href="_xeokit_viewer.ViewObject.html#visible">visible</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in <a href="_xeokit_viewer.ViewLayer.html#visibleObjects">visibleObjects</a>.</li>
+<li>When <a href="_xeokit_viewer.ViewObject.html#visible">visible</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in @xeokit/view!ViewLayer.visibleObjects.</li>
 <li>Each ViewObject is only rendered when <a href="_xeokit_viewer.ViewObject.html#visible">visible</a> is <code>true</code> and <a href="_xeokit_viewer.ViewObject.html#culled">culled</a> is <code>false</code>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsVisible">setObjectsVisible</a> to batch-update the visibility of ViewObjects, which fires a single event for the batch.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsVisible to batch-update the visibility of ViewObjects, which fires a single event for the batch.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L108">packages/viewer/src/ViewObject.ts:108</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L109">packages/viewer/src/ViewObject.ts:109</a></li></ul></aside></li>
 <li class="tsd-signature" id="visible.visible-2"><span class="tsd-signature-symbol">set</span> visible<span class="tsd-signature-symbol">(</span>visible<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject is visible.</p>
 <ul>
-<li>When <a href="_xeokit_viewer.ViewObject.html#visible">visible</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in <a href="_xeokit_viewer.ViewLayer.html#visibleObjects">visibleObjects</a>.</li>
+<li>When <a href="_xeokit_viewer.ViewObject.html#visible">visible</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in @xeokit/view!ViewLayer.visibleObjects.</li>
 <li>Each ViewObject is only rendered when <a href="_xeokit_viewer.ViewObject.html#visible">visible</a> is <code>true</code> and <a href="_xeokit_viewer.ViewObject.html#culled">culled</a> is <code>false</code>.</li>
 <li>Fires an &quot;objectVisibility&quot; event on associated <a href="_xeokit_viewer.ViewLayer.html">ViewLayer</a>s.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsVisible">setObjectsVisible</a> to batch-update the visibility of ViewObjects, which fires a single event for the batch.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsVisible to batch-update the visibility of ViewObjects, which fires a single event for the batch.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
@@ -440,7 +440,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>visible: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L120">packages/viewer/src/ViewObject.ts:120</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L121">packages/viewer/src/ViewObject.ts:121</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="xrayed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>xrayed</span><a href="#xrayed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -448,19 +448,19 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Gets if this ViewObject is X-rayed.</p>
 <ul>
-<li>When <a href="_xeokit_viewer.ViewObject.html#xrayed">xrayed</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in <a href="_xeokit_viewer.ViewLayer.html#xrayedObjects">ViewLayer.xrayedObjects</a>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsXRayed">setObjectsXRayed</a> to batch-update the X-rayed state of ViewObjects.</li>
+<li>When <a href="_xeokit_viewer.ViewObject.html#xrayed">xrayed</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in @xeokit/view!ViewLayer.xrayedObjects | ViewLayer.xrayedObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsXRayed to batch-update the X-rayed state of ViewObjects.</li>
 </ul>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L136">packages/viewer/src/ViewObject.ts:136</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L140">packages/viewer/src/ViewObject.ts:140</a></li></ul></aside></li>
 <li class="tsd-signature" id="xrayed.xrayed-2"><span class="tsd-signature-symbol">set</span> xrayed<span class="tsd-signature-symbol">(</span>xrayed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets if this ViewObject is X-rayed.</p>
 <ul>
-<li>When <a href="_xeokit_viewer.ViewObject.html#xrayed">xrayed</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in <a href="_xeokit_viewer.ViewLayer.html#xrayedObjects">ViewLayer.xrayedObjects</a>.</li>
-<li>Use <a href="_xeokit_viewer.ViewLayer.html#setObjectsXRayed">setObjectsXRayed</a> to batch-update the X-rayed state of ViewObjects.</li>
+<li>When <a href="_xeokit_viewer.ViewObject.html#xrayed">xrayed</a> is <code>true</code> the ViewObject will be registered by <a href="_xeokit_viewer.ViewObject.html#id">id</a> in @xeokit/view!ViewLayer.xrayedObjects | ViewLayer.xrayedObjects.</li>
+<li>Use @xeokit/view!ViewLayer.setObjectsXRayed to batch-update the X-rayed state of ViewObjects.</li>
 </ul>
 </div>
 <div class="tsd-parameters">
@@ -470,7 +470,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <h5>xrayed: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L146">packages/viewer/src/ViewObject.ts:146</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L150">packages/viewer/src/ViewObject.ts:150</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_destroy" class="tsd-anchor"></a>
@@ -480,7 +480,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-description"><code class="tsd-tag ts-flagPrivate">Private</code> 
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/b916dab3/packages/viewer/src/ViewObject.ts#L394">packages/viewer/src/ViewObject.ts:394</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/xeokit/xeokit-webgpu-sdk/blob/343076b48/packages/viewer/src/ViewObject.ts#L427">packages/viewer/src/ViewObject.ts:427</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -535,6 +535,7 @@ are therefore a manifest of the ViewerObjects in the View.</p>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_matrix.html">@xeokit/matrix</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_mockrenderer.html">@xeokit/mockrenderer</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_pick.html">@xeokit/pick</a></li>
+<li class="tsd-kind-module"><a href="../modules/_xeokit_procgen.html">@xeokit/procgen</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_rtc.html">@xeokit/rtc</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_scene.html">@xeokit/scene</a></li>
 <li class="tsd-kind-module"><a href="../modules/_xeokit_threedxml.html">@xeokit/threedxml</a></li>

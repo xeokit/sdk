@@ -470,3 +470,18 @@ export const FrustumProjectionType = 500002;
  * Custom projection type.
  */
 export const CustomProjectionType = 500003;
+
+/**
+ * Orbit navigation mode.
+ */
+export const OrbitNavigationMode = 600001;
+
+/**
+ * First-person navigation mode.
+ */
+export const FirstPersonNavigationMode = 600002;
+
+/**
+ * Plan view navigation mode.
+ */
+export const PlanViewNavigationMode = 600003;

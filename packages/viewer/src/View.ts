@@ -16,7 +16,7 @@ import {ViewLayer} from "./ViewLayer";
 import type {ViewLayerParams} from "./ViewLayerParams";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
 import {EmphasisMaterial} from "./EmphasisMaterial";
-import {EdgeMaterial} from "./EdgeMaterial";
+import {Edges} from "./Edges";
 import {PointsMaterial} from "./PointsMaterial";
 import {Camera} from "./Camera";
 import type {PointLight} from "./PointLight";
@@ -24,6 +24,11 @@ import {CameraFlightAnimation} from "./CameraFlightAnimation";
 import type {AmbientLight} from "./AmbientLight";
 import type {DirLight} from "./DirLight";
 import type {RendererViewObject} from "./RendererViewObject";
+import {PickParams} from "./PickParams";
+import {PickResult} from "./PickResult";
+import {SnapshotResult} from "./SnapshotResult";
+import {SnapshotParams} from "./SnapshotParams";
+import {ResolutionScale} from "./ResolutionScale";
 
 /**
  * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
@@ -87,6 +92,7 @@ import type {RendererViewObject} from "./RendererViewObject";
  * ````
  */
 class View extends Component {
+
     /**
      ID of this View, unique within the {@link @xeokit/viewer!Viewer}.
      */
@@ -123,42 +129,57 @@ class View extends Component {
      * Format is ````[xmin, ymin, xwidth, ywidth]````.
      */
     public readonly boundary: number[];
+
     /**
      * Whether the logarithmic depth buffer is enabled for this View.
      */
     readonly logarithmicDepthBufferEnabled: boolean;
+
     /**
      * Configures Scalable Ambient Obscurance (SAO) for this View.
      */
     readonly sao: SAO;
+
     /**
      * Flies or jumps the View's {@link @xeokit/viewer!Camera}  to given positions.
      */
     readonly cameraFlight: CameraFlightAnimation;
+
     /**
      * Manages measurement units, origin and scale for this View.
      */
     readonly metrics: Metrics;
+
     /**
      * Configures the X-rayed appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
     readonly xrayMaterial: EmphasisMaterial;
+
     /**
      * Configures the highlighted appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
     readonly highlightMaterial: EmphasisMaterial;
+
     /**
      * Configures the appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
     readonly selectedMaterial: EmphasisMaterial;
+
     /**
      * Configures the appearance of edges belonging to {@link @xeokit/viewer!ViewObject} in this View.
      */
-    readonly edgeMaterial: EdgeMaterial;
+    readonly edges: Edges;
+
+    /**
+     * Configures resolution scaling for this View.
+     */
+    readonly resolutionScale: ResolutionScale;
+
     /**
      * Configures the appearance of point primitives belonging to {@link @xeokit/viewer!ViewObject | ViewObjects} in this View .
      */
     readonly pointsMaterial: PointsMaterial;
+
     /**
      * Configures the appearance of lines belonging to {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      */
@@ -245,6 +266,7 @@ class View extends Component {
      * List of light sources in this View.
      */
     readonly lightsList: (AmbientLight | PointLight | DirLight)[] = [];
+
     gammaOutput: boolean;
 
     /**
@@ -260,7 +282,7 @@ class View extends Component {
      *
      * When ````true```` (default), the View will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} as needed for each new
      * {@link RendererViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
-     * layerId. This default setting therefore ensures that a ViewObject is created in the View for every ViewerObject that is created.
+     * layerId. This default setting therefore ensures that a ViewObject is created in the View for every SceneObject that is created.
      *
      * If you set this ````false````, however, then the View will only create {@link @xeokit/viewer!ViewObject | ViewObjects} for {@link RendererViewObject | ViewerObjects} that have
      * a {@link RendererViewObject.layerId} that matches the ID of a {@link @xeokit/viewer!ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
@@ -332,7 +354,6 @@ class View extends Component {
 
     #backgroundColor: FloatArrayParam;
     #backgroundColorFromAmbientLight: boolean;
-    #resolutionScale: number;
     #numObjects: number;
     #objectIds: string[] | null;
     #numVisibleObjects: number;
@@ -376,9 +397,11 @@ class View extends Component {
         const canvas =
             options.canvasElement ||
             document.getElementById(<string>options.canvasId);
+
         if (!(canvas instanceof HTMLCanvasElement)) {
             throw "Mandatory View config expected: valid canvasId or canvasElement";
         }
+
         this.canvasElement = canvas;
         this.viewIndex = 0;
         this.objects = {};
@@ -430,7 +453,6 @@ class View extends Component {
             new EventDispatcher<View, IntArrayParam>()
         );
 
-        this.#resolutionScale = 1;
         this.#backgroundColor = createVec3([
             options.backgroundColor ? options.backgroundColor[0] : 1,
             options.backgroundColor ? options.backgroundColor[1] : 1,
@@ -462,7 +484,7 @@ class View extends Component {
 
         this.#onTick = this.viewer.onTick.subscribe(() => {
             const canvasElement = this.canvasElement;
-            const newResolutionScale = this.#resolutionScale !== lastResolutionScale;
+            const newResolutionScale = this.resolutionScale.resolutionScale !== lastResolutionScale;
             const newWindowSize =
                 window.innerWidth !== lastWindowWidth ||
                 window.innerHeight !== lastWindowHeight;
@@ -487,11 +509,14 @@ class View extends Component {
                     const newWidth = canvasElement.clientWidth;
                     const newHeight = canvasElement.clientHeight;
                     if (newResolutionScale || newViewSize) {
+                        //////////////////////////////////////////////////////////////////////////////////////
+                        // TODO: apply resolutionscale properly
+                        //////////////////////////////////////////////////////////////////////////////////////
                         canvasElement.width = Math.round(
-                            canvasElement.clientWidth * this.#resolutionScale
+                            canvasElement.clientWidth * this.resolutionScale.resolutionScale
                         );
                         canvasElement.height = Math.round(
-                            canvasElement.clientHeight * this.#resolutionScale
+                            canvasElement.clientHeight * this.resolutionScale.resolutionScale
                         );
                     }
                     const boundary = this.boundary;
@@ -507,7 +532,7 @@ class View extends Component {
                 }
 
                 if (newResolutionScale) {
-                    lastResolutionScale = this.#resolutionScale;
+                 //   lastResolutionScale = this.#resolutionScale;
                 }
                 if (newWindowSize) {
                     lastWindowWidth = window.innerWidth;
@@ -565,11 +590,11 @@ class View extends Component {
             edgeWidth: 1,
         });
 
-        this.edgeMaterial = new EdgeMaterial(this, {
+        this.edges = new Edges(this, {
             edgeColor: [0.0, 0.0, 0.0],
             edgeAlpha: 1.0,
             edgeWidth: 1,
-            edges: true,
+            enabled: true,
             renderModes: [QualityRender],
         });
 
@@ -600,18 +625,23 @@ class View extends Component {
         this.onObjectVisibility = new EventEmitter(
             new EventDispatcher<View, ViewObject>()
         );
+
         this.onObjectXRayed = new EventEmitter(
             new EventDispatcher<View, ViewObject>()
         );
+
         this.onLayerCreated = new EventEmitter(
             new EventDispatcher<View, ViewLayer>()
         );
+
         this.onLayerDestroyed = new EventEmitter(
             new EventDispatcher<View, ViewLayer>()
         );
+
         this.onSectionPlaneCreated = new EventEmitter(
             new EventDispatcher<View, SectionPlane>()
         );
+
         this.onSectionPlaneDestroyed = new EventEmitter(
             new EventDispatcher<View, SectionPlane>()
         );
@@ -622,19 +652,19 @@ class View extends Component {
      */
     initViewObjects() {
         for (const id in this.viewer.scene.models) {
-            this.#createViewObjects(this.viewer.scene.models[id]);
+            this.#createViewObjectsForSceneModel(this.viewer.scene.models[id]);
         }
         this.viewer.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-                this.#createViewObjects(sceneModel);
+                this.#createViewObjectsForSceneModel(sceneModel);
             }
         );
         this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-                this.#destroyViewObjects(sceneModel);
+                this.#destroyViewObjectsForSceneModel(sceneModel);
             }
         );
     }
 
-    #createViewObjects(sceneModel: SceneModel) {
+    #createViewObjectsForSceneModel(sceneModel: SceneModel) {
         // The Renderer has a RendererViewObject for each object, through which a ViewObject can
         // push state changes into the Renderer for its object.
         // The RendererViewObject
@@ -731,44 +761,6 @@ class View extends Component {
     ) {
         this.#backgroundColorFromAmbientLight =
             backgroundColorFromAmbientLight !== false;
-    }
-
-    /**
-     * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
-     *
-     * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
-     * a performance boost.
-     *
-     * @returns  The resolution scale.
-     */
-    get resolutionScale(): number {
-        return this.#resolutionScale;
-    }
-
-    /**
-     * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
-     *
-     * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
-     * a performance boost.
-     *
-     * @param resolutionScale The resolution scale.
-     */
-    set resolutionScale(resolutionScale: number) {
-        resolutionScale = resolutionScale || 1.0;
-        if (resolutionScale === this.#resolutionScale) {
-            return;
-        }
-        this.#resolutionScale = resolutionScale;
-        const canvasElement = this.canvasElement;
-        canvasElement.width = Math.round(
-            canvasElement.clientWidth * this.#resolutionScale
-        );
-        canvasElement.height = Math.round(
-            canvasElement.clientHeight * this.#resolutionScale
-        );
-        this.redraw();
     }
 
     /**
@@ -1376,7 +1368,7 @@ class View extends Component {
     /**
      * Iterates with a callback over the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      *
-     * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
+     * @param objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
      * @param callback Callback to execute on each {@link @xeokit/viewer!ViewObject}.
      * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -1424,6 +1416,27 @@ class View extends Component {
         return viewLayer;
     }
 
+    /**
+     * Attempts to pick a {@link ViewObject} in this View.
+     *
+     * @param pickParams
+     * @param pickResult
+     */
+    pick(pickParams: PickParams, pickResult?: PickResult): PickResult | null {
+        return null;
+
+    }
+
+    /**
+     * Captures a snapshot image of this View.
+     *
+     * @param snapshotParams
+     * @param snapshotResult
+     */
+    getSnapshot(snapshotParams: SnapshotParams, snapshotResult?: SnapshotResult): SnapshotResult {
+        return new SnapshotResult();
+    }
+
     #registerSectionPlane(sectionPlane: SectionPlane) {
         this.sectionPlanesList.push(sectionPlane);
         this.sectionPlanes[sectionPlane.id] = sectionPlane;
@@ -1461,7 +1474,7 @@ class View extends Component {
         this.onSectionPlaneDestroyed.clear();
     }
 
-    #destroyViewObjects(sceneModel: SceneModel) {
+    #destroyViewObjectsForSceneModel(sceneModel: SceneModel) {
         const objects = sceneModel.objects;
         for (let id in objects) {
             const object = objects[id];

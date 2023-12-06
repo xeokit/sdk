@@ -1,6 +1,6 @@
 import type {View} from "./View";
 import {Component} from "@xeokit/core";
-import {CustomProjectionType, FrustumProjectionType, QualityRender} from "@xeokit/constants";
+import {CustomProjectionType, FastRender, FrustumProjectionType, QualityRender} from "@xeokit/constants";
 
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link @xeokit/viewer!View}.

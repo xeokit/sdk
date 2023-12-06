@@ -1,0 +1,9 @@
+
+
+/**
+ * TODO
+ */
+export interface SnapshotParams  {
+
+
+}

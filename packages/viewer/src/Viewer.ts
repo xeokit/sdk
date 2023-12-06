@@ -28,7 +28,7 @@ export class Viewer extends Component {
     /**
      True once this Viewer has been destroyed.
 
-     Don't use this Viewer if this is ````true````.
+     Don't use this Viewer if this is ````false````.
      */
     declare readonly destroyed: boolean;
 
@@ -36,6 +36,13 @@ export class Viewer extends Component {
      * Indicates the capabilities of this Viewer.
      */
     readonly capabilities: Capabilities;
+
+    /**
+     * Emits an event each time a message is logged.
+     *
+     * @event
+     */
+    readonly onLog: EventEmitter<Viewer, string>;
 
     /**
      * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
@@ -115,6 +122,7 @@ export class Viewer extends Component {
     }) {
         super(null, {});
 
+        this.onLog = new EventEmitter(new EventDispatcher<Viewer, string>());
         this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
         this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
         this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());

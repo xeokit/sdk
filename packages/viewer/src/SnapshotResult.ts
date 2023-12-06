@@ -5,7 +5,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 /**
  * Results of a pick attempted with {@link View.pick}.
  */
-class PickResult {
+class SnapshotResult {
 
     #viewObject?: ViewObject | null | undefined;
     #gotCanvasPos: boolean;
@@ -268,7 +268,7 @@ class PickResult {
 
     /**
      * Returns `true` if picking has snapped to the canvas coordinates of the nearest vertex.
-     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
+     * When this is `true`, then {@link SnapshotResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
      */
     get snappedToVertex(): boolean {
         return this.#viewObject && this.#snappedToVertex;
@@ -283,7 +283,7 @@ class PickResult {
 
     /**
      * Returns `true` if picking has snapped to the canvas coordinates of the nearest edge.
-     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
+     * When this is `true`, then {@link SnapshotResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
      */
     get snappedToEdge(): boolean {
         return this.#viewObject && this.#snappedToEdge;
@@ -295,7 +295,7 @@ class PickResult {
 
     /**
      * Snapped canvas coordinates when picking with a 2D pointer.
-     * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
+     * This has a value when {@link SnapshotResult.snappedToEdge} or {@link SnapshotResult.snappedToVertex} is `true`, otherwise will be `null`.
      */
     get snappedCanvasPos(): Int16Array | undefined {
         return this.#gotSnappedCanvasPos ? this.#snappedCanvasPos : undefined;
@@ -334,4 +334,4 @@ class PickResult {
     }
 }
 
-export {PickResult};
+export {SnapshotResult};

@@ -1,7 +1,4 @@
 import {Component} from "@xeokit/core";
-
-
-
 import type {View} from "./View";
 import type {FloatArrayParam} from "@xeokit/math";
 import {QualityRender} from "@xeokit/constants";
@@ -12,13 +9,13 @@ import {QualityRender} from "@xeokit/constants";
  *
  * ## Summary
  *
- * * Located at {@link View.edgeMaterial}.
- * * Emphasise edges of a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.edges} ````true````.
+ * * Located at {@link View.edges}.
+ * * Emphasise edges of a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.enabled} ````true````.
  */
-class EdgeMaterial extends Component {
+class Edges extends Component {
 
     /**
-     * The View to which this EdgeMaterial belongs.
+     * The View to which this Edges belongs.
      */
     public readonly view: View;
 
@@ -29,7 +26,7 @@ class EdgeMaterial extends Component {
         edgeColor: Float32Array;
         edgeWidth: number;
         edgeAlpha: number;
-        edges: boolean;
+        enabled: boolean;
         renderModes: number[];
     };
 
@@ -40,7 +37,7 @@ class EdgeMaterial extends Component {
         edgeColor?: FloatArrayParam;
         edgeWidth?: number;
         edgeAlpha?: number;
-        edges?: boolean;
+        enabled?: boolean;
         renderModes?: number[];
     } = {}) {
 
@@ -50,7 +47,7 @@ class EdgeMaterial extends Component {
 
         this.#state = {
             renderModes: options.renderModes || [QualityRender],
-            edges: options.edges !== false,
+            enabled: options.enabled !== false,
             edgeColor: new Float32Array(options.edgeColor || [0.2, 0.2, 0.2]),
             edgeAlpha: (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5,
             edgeWidth: (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1
@@ -81,29 +78,29 @@ class EdgeMaterial extends Component {
     }
 
     /**
-     * Sets if edges of {@link ViewObjects} are visible.
+     * Sets if edges of {@link ViewObject | ViewObjects} are visible.
      *
      * Default is ````true````.
      */
-    set edges(value: boolean) {
-        if (this.#state.edges === value) {
+    set enabled(value: boolean) {
+        if (this.#state.enabled === value) {
             return;
         }
-        this.#state.edges = value;
+        this.#state.enabled = value;
         this.view.redraw();
     }
 
     /**
-     * Gets if edges of {@link ViewObjects} are visible.
+     * Gets if edges of {@link ViewObject | ViewObjects} are visible.
      *
      * Default is ````true````.
      */
-    get edges(): boolean {
-        return this.#state.edges;
+    get enabled(): boolean {
+        return this.#state.enabled;
     }
 
     /**
-     * Sets RGB edge color for {@link ViewObjects}.
+     * Sets RGB edge color for {@link ViewObject | ViewObjects}.
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
@@ -119,7 +116,7 @@ class EdgeMaterial extends Component {
     }
 
     /**
-     * Gets RGB edge color for {@link ViewObjects}.
+     * Gets RGB edge color for {@link ViewObject | ViewObjects}.
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
@@ -128,7 +125,7 @@ class EdgeMaterial extends Component {
     }
 
     /**
-     * Sets edge transparency for {@link ViewObjects}.
+     * Sets edge transparency for {@link ViewObject | ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -143,7 +140,7 @@ class EdgeMaterial extends Component {
     }
 
     /**
-     * Gets edge transparency for {@link ViewObjects}.
+     * Gets edge transparency for {@link ViewObject | ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
@@ -154,7 +151,7 @@ class EdgeMaterial extends Component {
     }
 
     /**
-     * Sets edge width for {@link ViewObjects}.
+     * Sets edge width for {@link ViewObject | ViewObjects}.
      *
      * Default value is ````1.0```` pixels.
      */
@@ -167,7 +164,7 @@ class EdgeMaterial extends Component {
     }
 
     /**
-     * Gets edge width for {@link ViewObjects}.
+     * Gets edge width for {@link ViewObject | ViewObjects}.
      *
      * This is not supported by WebGL implementations based on DirectX [2019].
      *
@@ -185,4 +182,4 @@ class EdgeMaterial extends Component {
     }
 }
 
-export {EdgeMaterial};
+export {Edges};

@@ -16,7 +16,7 @@ export interface MeshParams {
      */
     geometryId: string;
     /**
-     * Optional ID of a {@link Transform} previously created with {@link @xeokit/scene!SceneModel.createTransform}.
+     * Optional ID of a {@link Transform} previously created with {@link @xeokit/scene!SceneModel.createTransform | SceneModel.createTransform}.
      */
     transformId?: string;
     /**
@@ -42,7 +42,7 @@ export interface MeshParams {
      *
      * * This is a continuous factor in the range ````[0,1]````, where 0 is fully non-metallic and 1 is fully metallic.
      * * Default is 0.
-     * * See [*Physically-Based Rendering*](/docs/pages/GLOSSARY.html#physically-based-rendering)
+     * * See [*Physically-Based Rendering*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#physically-based-rendering)
      */
     metallic?: number;
     /**
@@ -50,7 +50,7 @@ export interface MeshParams {
      *
      * * This is a continuous factor in the range ````[0,1]````, where 0 is fully rough and 1 is perfectly smooth.
      * * Default is 1.
-     * * See [*Physically-Based Rendering*](/docs/pages/GLOSSARY.html#physically-based-rendering)
+     * * See [*Physically-Based Rendering*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#physically-based-rendering)
      */
     roughness?: number;
     /**
@@ -72,7 +72,9 @@ export interface MeshParams {
     /**
      * Optional local 3D transform matrix.
      *
-     * Overrides {@link @xeokit/scene!MeshParams.position}, {@link @xeokit/scene!MeshParams.scale}, {@link @xeokit/scene!MeshParams.quaternion} and {@link @xeokit/scene!MeshParams.rotation}.
+     * Overrides {@link @xeokit/scene!MeshParams.position}, {@link @xeokit/scene!MeshParams.scale | MeshParams.scale},
+     * {@link @xeokit/scene!MeshParams.quaternion | MeshParams.quaternion}
+     * and {@link @xeokit/scene!MeshParams.rotation | MeshParams.rotation}.
      */
     matrix?: FloatArrayParam;
 }

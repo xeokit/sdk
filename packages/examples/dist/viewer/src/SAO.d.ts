@@ -1,5 +1,5 @@
 import type { View } from "./View";
-import { Component } from "@xeokit/core";
+import { Component, SDKError } from "@xeokit/core";
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link @xeokit/viewer!View}.
  */
@@ -12,23 +12,33 @@ export declare class SAO extends Component {
     /** @private */
     constructor(view: View, params: any);
     /**
+     * Sets which rendering modes in which to render SAO.
+     *
+     * Supported rendering modes are:
+     *
+     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+     *
+     * Default value is [{@link @xeokit/constants!QualityRender | QualityRender}].
+     *
+     * @param renderModes The rendering modes
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * Rendering mode not supported.
+     */
+    setRenderModes(renderModes: number[]): SDKError | void;
+    /**
      * Gets which rendering modes in which to render SAO.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Supported rendering modes are:
      *
-     * Default value is [{@link QualityRender}].
+     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+     *
+     * Default value is [{@link @xeokit/constants!QualityRender | QualityRender}].
      */
     get renderModes(): number[];
     /**
-     * Sets which rendering modes in which to render SAO.
-     *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
-     *
-     * Default value is [{@link QualityRender}].
-     */
-    set renderModes(value: number[]);
-    /**
-     * Gets whether or not SAO is supported by this browser and GPU.
+     * Gets whether SAO is supported by this browser and GPU.
      *
      * Even when enabled, SAO will only work if supported.
      */

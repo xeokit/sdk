@@ -353,17 +353,17 @@ declare class ViewLayer extends Component {
      */
     get gammaFactor(): number;
     /**
-     * Sets whether quality rendering is enabled for this ViewLayer.
+     * Sets which rendering modes in which to render the {@linkk ViewObject | ViewObjects} in this ViewLayer.
      *
-     * Default is ````false````.
+     * Default value is [].
      */
-    set qualityRender(value: boolean);
+    set renderModes(value: number[]);
     /**
-     * Gets whether quality rendering is enabled for this ViewLayer.
+     * Gets which rendering modes in which to render the {@linkk ViewObject | ViewObjects} in this ViewLayer.
      *
-     * Default is ````false````.
+     * Default value is [].
      */
-    get qualityRender(): boolean;
+    get renderModes(): number[];
     /**
      * Gets the number of {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */

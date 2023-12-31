@@ -20,7 +20,8 @@ export declare class Geometry {
     /**
      * Primitive type.
      *
-     * Possible values are {@link @xeokit/constants!SolidPrimitive}, {@link @xeokit/constants!SurfacePrimitive}, {@link @xeokit/constants!LinesPrimitive}, {@link @xeokit/constants!PointsPrimitive}
+     * Possible values are {@link @xeokit/constants!SolidPrimitive}, {@link @xeokit/constants!SurfacePrimitive},
+     * {@link @xeokit/constants!LinesPrimitive}, {@link @xeokit/constants!PointsPrimitive}
      * and {@link @xeokit/constants!TrianglesPrimitive}.
      */
     primitive: number;

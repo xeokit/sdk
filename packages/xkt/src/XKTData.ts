@@ -1,19 +1,19 @@
 /**
  *  XKT file data.
  *
- *  The elements of an [XKT](/docs/pages/GLOSSARY.html#xkt) file, unpacked into a set of arrays for parsing.
+ *  The elements of an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file, unpacked into a set of arrays for parsing.
  *
- *  This interface represents the structure of an [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+ *  This interface represents the structure of an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
  */
 export interface XKTData {
 
     /**
-     * Arbitrary metadata JSON for the [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Arbitrary metadata JSON for the [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     metadata: {};
 
     /**
-     * Combined data for all textures in the [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined data for all textures in the [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     textureData: Uint8Array;
 
@@ -40,47 +40,47 @@ export interface XKTData {
     eachTextureAttributes: Uint16Array;
 
     /**
-     * Combined vertex positions array for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined vertex positions array for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     positions: Uint16Array;
 
     /**
-     * Combined vertex colors array for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined vertex colors array for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     colors: Uint8Array;
 
     /**
-     * Combined vertex UV coordinates for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined vertex UV coordinates for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     uvs: Float32Array;
 
     /**
-     * Combined 8-bit indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 8-bit indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     indices8Bit: Uint8Array;
 
     /**
-     * Combined 16-bit indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 16-bit indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     indices16Bit: Uint16Array;
 
     /**
-     * Combined 32-bit indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 32-bit indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     indices32Bit: Uint32Array;
 
     /**
-     * Combined 8-bit edge indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 8-bit edge indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     edgeIndices8Bit: Uint8Array;
 
     /**
-     * Combined 16-bit edge indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 16-bit edge indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     edgeIndices16Bit: Uint16Array;
 
     /**
-     * Combines 32-bit edge indices for entire [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combines 32-bit edge indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     edgeIndices32Bit: Uint32Array;
 
@@ -140,7 +140,7 @@ export interface XKTData {
     eachGeometryDecodeMatricesPortion: Uint32Array;
 
     /**
-     * Combined list of all modeling transform matrices in this [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined list of all modeling transform matrices in this [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
     matrices: Float32Array;
 

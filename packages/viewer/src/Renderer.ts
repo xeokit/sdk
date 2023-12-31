@@ -99,8 +99,8 @@ export interface Renderer {
      * This method attaches various "hook objects" to the elements within the SceneModel, through which they can
      * convey their state updates to the Renderer.
      *
-     * * Sets a {@link @xeokit/scene!RendererSceneModel} on {@link @xeokit/scene!SceneModel | SceneModel.rendererSceneModel}
-     * * Sets a {@link @xeokit/scene!RendererSceneObject} on each {@link @xeokit/scene!SceneObject | SceneObject.rendererSceneObject}
+     * * Sets a {@link @xeokit/scene!RendererModel} on {@link @xeokit/scene!SceneModel | SceneModel.rendererModel}
+     * * Sets a {@link @xeokit/scene!RendererObject} on each {@link @xeokit/scene!SceneObject | SceneObject.rendererObject}
      * * Sets a {@link @xeokit/scene!RendererMesh} on each {@link @xeokit/scene!Mesh | Meshe.rendererMesh}
      * * Sets a {@link @xeokit/scene!RendererTextureSet} on each {@link @xeokit/scene!TextureSet | TextureSet.rendererTextureSet}
      * * Sets a {@link @xeokit/scene!RendererTexture} on each {@link @xeokit/scene!Texture | Texture.rendererTexture}
@@ -122,7 +122,7 @@ export interface Renderer {
     /**
      * Detaches a {@link @xeokit/scene!SceneModel | SceneModel} from this Renderer.
      *
-     * Detaches and destroys the {@link @xeokit/scene!RendererSceneModel}, {@link @xeokit/scene!RendererSceneObject} and
+     * Detaches and destroys the {@link @xeokit/scene!RendererModel}, {@link @xeokit/scene!RendererObject} and
      * {@link @xeokit/scene!RendererMesh},
      * {@link @xeokit/scene!RendererTexture} instances that were attached in {@link @xeokit/viewer!Renderer.attachSceneModel}.
      *

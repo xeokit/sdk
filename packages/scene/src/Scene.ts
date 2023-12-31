@@ -79,7 +79,7 @@ export class Scene extends Component {
     }
 
     /**
-     * Gets the collective World-space 3D [axis-aligned boundary](/docs/pages/GLOSSARY.html#aabb) of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
+     * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
      *
      * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
      */

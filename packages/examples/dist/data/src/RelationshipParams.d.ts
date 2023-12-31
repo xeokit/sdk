@@ -9,11 +9,11 @@ export interface RelationshipParams {
      */
     type: number;
     /**
-     * The relating {@link DataObject}.
+     * The relating {@link @xeokit/data!DataObject}.
      */
     relatingObjectId: string;
     /**
-     * The related {@link DataObject}.
+     * The related {@link @xeokit/data!DataObject}.
      */
     relatedObjectId: string;
 }

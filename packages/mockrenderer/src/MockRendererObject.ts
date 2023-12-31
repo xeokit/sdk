@@ -1,7 +1,7 @@
 import type {FloatArrayParam} from "@xeokit/math";
 import type {MockRendererMesh} from "./MockRendererMesh";
 import type {RendererViewObject} from "@xeokit/viewer";
-import type {RendererSceneModel, RendererSceneObject, SceneObject} from "@xeokit/scene";
+import type {RendererModel, RendererObject, SceneObject} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 
 /**
@@ -9,12 +9,12 @@ import {SDKError} from "@xeokit/core";
  *
  * See {@link @xeokit/mockrenderer} for usage.
  */
-export class MockRendererObject implements RendererSceneObject, RendererViewObject {
+export class MockRendererObject implements RendererObject, RendererViewObject {
 
     readonly id: string;
-    readonly rendererSceneModel: RendererSceneModel;
+    readonly rendererModel: RendererModel;
     readonly sceneObject: SceneObject;
-    readonly layerId: string | null;
+    readonly layerId: string;
 
     readonly rendererMeshes: MockRendererMesh[];
 
@@ -24,12 +24,16 @@ export class MockRendererObject implements RendererSceneObject, RendererViewObje
     constructor(params: {
         id: string,
         sceneObject: SceneObject,
-        rendererSceneModel: RendererSceneModel,
+        rendererModel: RendererModel,
         rendererMeshes: MockRendererMesh[],
         aabb: any,
         layerId?: string
     }) {
+        this.id = params.id;
         this.sceneObject = params.sceneObject;
+        this.rendererModel = params.rendererModel;
+        this.rendererMeshes = params.rendererMeshes;
+      //  this.layerId = params.layerId;
     }
 
     /**

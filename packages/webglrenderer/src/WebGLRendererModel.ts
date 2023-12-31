@@ -13,7 +13,7 @@ import type {
     Mesh,
     RendererGeometry,
     RendererMesh,
-    RendererSceneModel,
+    RendererModel,
     RendererTexture,
     RendererTextureSet,
     SceneModel,
@@ -53,7 +53,7 @@ const defaultTextureSetId = "defaultTextureSet";
  * TODO
  * @internal
  */
-export class WebGLRendererModel extends Component implements RendererSceneModel {
+export class WebGLRendererModel extends Component implements RendererModel {
 
     readonly qualityRender: boolean;
     declare readonly id: string;
@@ -66,15 +66,15 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
     rendererTextures: { [key: string]: RendererTexture };
     rendererTextureSets: { [key: string]: RendererTextureSet; };
     rendererMeshes: { [key: string]: RendererMesh };
-    rendererSceneObjects: { [key: string]: WebGLRendererObject };
-    rendererSceneObjectsList: WebGLRendererObject[];
+    rendererObjects: { [key: string]: WebGLRendererObject };
+    rendererObjectsList: WebGLRendererObject[];
 
     rendererViewObjects: { [key: string]: RendererViewObject };
 
     readonly viewer: Viewer;
 
     layerList: Layer[];
-    readonly onBuilt: EventEmitter<RendererSceneModel, null>;
+    readonly onBuilt: EventEmitter<RendererModel, null>;
     declare readonly onDestroyed: EventEmitter<Component, null>;
     #view: View;
     #webglRenderer: WebGLRenderer;
@@ -141,8 +141,8 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
         this.rendererTextures = {};
         this.rendererTextureSets = {};
         this.rendererMeshes = {};
-        this.rendererSceneObjects = {};
-        this.rendererSceneObjectsList = [];
+        this.rendererObjects = {};
+        this.rendererObjectsList = [];
 
         this.rendererViewObjects = {};
 
@@ -184,7 +184,7 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
 
         this.#createDefaultTextureSet();
 
-        this.onBuilt = new EventEmitter(new EventDispatcher<RendererSceneModel, null>());
+        this.onBuilt = new EventEmitter(new EventDispatcher<RendererModel, null>());
 
         this.#attachSceneModel(params.sceneModel);
 
@@ -236,11 +236,11 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
         for (let layerId in this.#currentLayers) {
             this.#currentLayers[layerId].build();
         }
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].build();
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].build();
         }
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].build2();
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].build2();
         }
     }
 
@@ -288,7 +288,7 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
                     break;
                 default: // Assume other file types need transcoding
                     if (!this.#textureTranscoder) {
-                        this.error(`Can't create texture from 'src' - rendererSceneModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);
+                        this.error(`Can't create texture from 'src' - rendererModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);
                     } else {
                         loadArraybuffer(texture.src, (arrayBuffer: ArrayBuffer) => {
                                 if (!arrayBuffer.byteLength) {
@@ -308,7 +308,7 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
             }
         } else if (texture.buffers) { // Buffers implicitly require transcoding
             if (!this.#textureTranscoder) {
-                this.error(`Can't create texture from 'buffers' - rendererSceneModel needs to be configured with a TextureTranscoder for this option`);
+                this.error(`Can't create texture from 'buffers' - rendererModel needs to be configured with a TextureTranscoder for this option`);
             } else {
                 this.#textureTranscoder.transcode(texture.buffers).then((compressedTextureData) => {
                     glTexture.setCompressedData(compressedTextureData);
@@ -417,7 +417,7 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
         layer = new Layer(<LayerParams>{
             gl: this.#renderContext.gl,
             view: this.#view,
-            rendererSceneModel: this,
+            rendererModel: this,
             primitive: geometryCompressedParams.primitive,
             textureSet,
             layerIndex: 0
@@ -432,8 +432,8 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
         let objectId = sceneObject.id;
         if (objectId === undefined) {
             objectId = createUUID();
-        } else if (this.rendererSceneObjects[objectId]) {
-            this.error("[createObject] rendererSceneModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
+        } else if (this.rendererObjects[objectId]) {
+            this.error("[createObject] rendererModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
             objectId = createUUID();
         }
         const meshes = sceneObject.meshes;
@@ -446,17 +446,17 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
             const rendererMesh = <WebGLRendererMesh>this.rendererMeshes[mesh.id];
             rendererMeshes.push(rendererMesh);
         }
-        const rendererSceneObject = new WebGLRendererObject({
+        const rendererObject = new WebGLRendererObject({
             id: objectId,
             sceneObject,
-            rendererSceneModel: this,
+            rendererModel: this,
             rendererMeshes,
             aabb: sceneObject.aabb,
             layerId: this.#layerId
         });
-        this.rendererSceneObjectsList.push(rendererSceneObject);
-        this.rendererSceneObjects[objectId] = rendererSceneObject; // <RendererSceneObject>
-        this.rendererViewObjects[objectId] = rendererSceneObject; // <RendererViewObject>
+        this.rendererObjectsList.push(rendererObject);
+        this.rendererObjects[objectId] = rendererObject; // <RendererObject>
+        this.rendererViewObjects[objectId] = rendererObject; // <RendererViewObject>
         this.#numRendererObjects++;
     }
 
@@ -529,75 +529,75 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
     }
 
     setVisible(viewIndex: number, visible: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setVisible(viewIndex, visible);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setVisible(viewIndex, visible);
         }
         this.#webglRenderer.setImageDirty(viewIndex);
     }
 
     setXRayed(viewIndex: number, xrayed: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setXRayed(viewIndex, xrayed);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setXRayed(viewIndex, xrayed);
         }
         this.#webglRenderer.setImageDirty(viewIndex);
     }
 
     setHighlighted(viewIndex: number, highlighted: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setHighlighted(viewIndex, highlighted);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setHighlighted(viewIndex, highlighted);
         }
         this.#webglRenderer.setImageDirty(viewIndex);
     }
 
     setSelected(viewIndex: number, selected: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setSelected(viewIndex, selected);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setSelected(viewIndex, selected);
         }
         this.#webglRenderer.setImageDirty(viewIndex);
     }
 
     setEdges(viewIndex: number, edges: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setEdges(viewIndex, edges);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setEdges(viewIndex, edges);
         }
         this.#webglRenderer.setImageDirty(viewIndex);
     }
 
     setCulled(viewIndex: number, culled: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setCulled(viewIndex, culled);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setCulled(viewIndex, culled);
         }
         this.#webglRenderer.setImageDirty(viewIndex);
     }
 
     setClippable(viewIndex: number, clippable: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setClippable(viewIndex, clippable);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setClippable(viewIndex, clippable);
         }
         this.#webglRenderer.setImageDirty(viewIndex);
     }
 
     setCollidable(viewIndex: number, collidable: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setCollidable(viewIndex, collidable);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setCollidable(viewIndex, collidable);
         }
     }
 
     setPickable(viewIndex: number, pickable: boolean): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setPickable(viewIndex, pickable);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setPickable(viewIndex, pickable);
         }
     }
 
     setColorize(viewIndex: number, colorize: FloatArrayParam): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setColorize(viewIndex, colorize);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setColorize(viewIndex, colorize);
         }
     }
 
     setOpacity(viewIndex: number, opacity: number): void {
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            this.rendererSceneObjectsList[i].setOpacity(viewIndex, opacity);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            this.rendererObjectsList[i].setOpacity(viewIndex, opacity);
         }
     }
 
@@ -849,9 +849,9 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
 
     #rebuildAABB() {
         collapseAABB3(this.#aabb);
-        for (let i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-            const rendererSceneObject = this.rendererSceneObjectsList[i];
-            expandAABB3(this.#aabb, rendererSceneObject.aabb);
+        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+            const rendererObject = this.rendererObjectsList[i];
+            expandAABB3(this.#aabb, rendererObject.aabb);
         }
         this.#aabbDirty = false;
     }
@@ -969,11 +969,11 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
 
     // build() {
     //     if (this.destroyed) {
-    //         this.log("rendererSceneModel already destroyed");
+    //         this.log("rendererModel already destroyed");
     //         return;
     //     }
     //     if (this.built) {
-    //         this.log("rendererSceneModel already built");
+    //         this.log("rendererModel already built");
     //         return;
     //     }
     //     for (let layerId in this.#currentLayers) {
@@ -982,12 +982,12 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
     //         }
     //     }
     //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-    //         const rendererSceneObject = this.objectList[i];
-    //         rendererSceneObject.build();
+    //         const rendererObject = this.objectList[i];
+    //         rendererObject.build();
     //     }
     //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-    //         const rendererSceneObject = this.objectList[i];
-    //         rendererSceneObject.build2();
+    //         const rendererObject = this.objectList[i];
+    //         rendererObject.build2();
     //     }
     //     // this.layerList.sort((a, b) => {
     //     //     if (a.sortId < b.sortId) {
@@ -1063,8 +1063,8 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
         for (let i = 0, len = this.layerList.length; i < len; i++) {
             this.layerList[i].destroy();
         }
-        for (let objectId in this.rendererSceneObjects) {
-            this.rendererSceneObjects[objectId].destroy();
+        for (let objectId in this.rendererObjects) {
+            this.rendererObjects[objectId].destroy();
         }
         for (let meshId in this.rendererMeshes) {
             //    this.#webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
@@ -1118,8 +1118,8 @@ export class WebGLRendererModel extends Component implements RendererSceneModel 
         if (objects) {
             for (let objectId in objects) {
                 const object = objects[objectId];
-                if (object.rendererSceneObject) {
-                    object.rendererSceneObject = null;
+                if (object.rendererObject) {
+                    object.rendererObject = null;
                 }
             }
         }

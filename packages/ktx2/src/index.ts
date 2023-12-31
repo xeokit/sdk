@@ -14,19 +14,19 @@
  *
  * * Provides {@link KTX2TextureTranscoder}
  * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
- * * Then {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} can create textures from KTX2-encoded compressed textures
+ * * Then a Viewer is able to view a {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} that has KTX2-encoded compressed textures
  * * Uses the [Basis Universal GPU Texture Codec](https://github.com/BinomialLLC/basis_universal) to
- * transcode [KTX2](/docs/pages/GLOSSARY.html#ktx2) textures.
+ * transcode [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures.
  * * Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/) by default, but can
  * also be configured to load the Codec from local files.
  * * We also bundle the Basis Codec with the xeokit-viewer npm package, and in the [repository](https://github.com/xeokit/sdk/tree/master/dist/basis).
  *
  * ### What is KTX2?
  *
- * A [KTX2](/docs/pages/GLOSSARY.html#ktx2) file stores GPU texture data in the Khronos Texture 2.0 (KTX2) container format. It contains image data for
+ * A [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) file stores GPU texture data in the Khronos Texture 2.0 (KTX2) container format. It contains image data for
  * a texture asset compressed with Basis Universal (BasisU) supercompression that can be transcoded to different formats
- * depending on the support provided by the target devices. [KTX2](/docs/pages/GLOSSARY.html#ktx2) provides a lightweight format for distributing texture
- * assets to GPUs. Due to BasisU compression, [KTX2](/docs/pages/GLOSSARY.html#ktx2) files can store any image format supported by GPUs.
+ * depending on the support provided by the target devices. [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) provides a lightweight format for distributing texture
+ * assets to GPUs. Due to BasisU compression, [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) files can store any image format supported by GPUs.
  *
  * <br>
  *
@@ -42,12 +42,12 @@
  *
  * ## Usage
  *
- * ### Loading an XKT file containing [KTX2](/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
+ * ### Loading an XKT file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
  *
  * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadXKT} to
- * load an [XKT](/docs/pages/GLOSSARY.html#xkt) file with KTX2-compressed textures into the SceneModel. For each [KTX2](/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
- * KTX2TextureTranscoder will transparently transcode the [KTX2](/docs/pages/GLOSSARY.html#ktx2) data for us.
+ * load an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
+ * KTX2TextureTranscoder will transparently transcode the [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -77,7 +77,7 @@
  *     id: "myModel"
  * });
  *
- * fetch("myModelWithTextures.xkt") // <<-- [XKT](/docs/pages/GLOSSARY.html#xkt) file with KTX2 textures
+ * fetch("myModelWithTextures.xkt") // <<-- [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file with KTX2 textures
  *     .then(response => {
  *          if (response.ok) {
  *              loadXKT(response.arrayBuffer(), sceneModel);
@@ -162,14 +162,14 @@
  * viewerModel.build();
  * ````
  *
- * ### Loading [KTX2](/docs/pages/GLOSSARY.html#ktx2) texture ArrayBuffers into a Viewer
+ * ### Loading [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture ArrayBuffers into a Viewer
  *
  * As in the previous two examples, create a {@link @xeokit/viewer!Viewer} that has a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link @xeokit/ktx2!KTX2TextureTranscoder}, and then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
  * Once more, build the SceneModel using its builder methods. This time, call builder method
  * {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} with an ArrayBuffer containing the contents of a KTX2-compressed texture
- * file. As before, the KTX2TextureTranscoder will transparently transcode that [KTX2](/docs/pages/GLOSSARY.html#ktx2) data for us.
+ * file. As before, the KTX2TextureTranscoder will transparently transcode that [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";

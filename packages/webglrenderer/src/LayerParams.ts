@@ -8,7 +8,7 @@ import type {RendererTextureSet} from "@xeokit/scene";
 export interface LayerParams { // Params for Layer constructor
     gl: WebGL2RenderingContext;
     view: View;
-    rendererSceneModel: WebGLRendererModel;
+    rendererModel: WebGLRendererModel;
     primitive: number;
     layerIndex: number;
     textureSet?: RendererTextureSet;

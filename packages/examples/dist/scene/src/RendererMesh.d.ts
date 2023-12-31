@@ -1,27 +1,45 @@
 import type { FloatArrayParam } from "@xeokit/math";
 /**
- *  Internal interface through which a {@link @xeokit/scene!Mesh} can load state updates into a renderer.
+ * Interface through which a {@link @xeokit/scene!Mesh | Mesh} loads attribute updates
+ * into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/viewer!Renderer | Renderer}.
  *
- *  This exists at each {@link @xeokit/scene!Mesh.rendererMesh} when the owner {@link @xeokit/scene!SceneModel} has been added
+ *  This exists at each {@link @xeokit/scene!Mesh.rendererMesh | Mesh.rendererMesh} when the
+ *  containing {@link @xeokit/scene!SceneModel} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * @internal
  */
 export interface RendererMesh {
     /**
-     * Sends an updated modeling matrix to the renderer.
+     * Loads the {@link @xeokit/scene!Mesh | Mesh's} modeling matrix into the {@link @xeokit/viewer!Renderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.matrix}.
+     *
+     * @internal
      */
     setMatrix(matrix: FloatArrayParam): void;
     /**
-     * Sends an RGB base color update to the renderer.
+     * Loads a material color value into the {@link @xeokit/viewer!Renderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.color}.
+     *
+     * @internal
      */
     setColor(color: FloatArrayParam): void;
     /**
-     * Sends a PBR metallic factor update to the renderer.
+     * Loads a material metalness value into the {@link @xeokit/viewer!Renderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.metalness}.
+     *
+     * @internal
      */
     setMetallic(metallic: number): void;
     /**
-     * Sends a PBR rougness factor update to the renderer.
+     * Loads a meterial roughness value into the {@link @xeokit/viewer!Renderer}.
+     *
+     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.roughness}.
+     *
+     * @internal
      */
     setRoughness(roughness: number): void;
 }

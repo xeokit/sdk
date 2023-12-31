@@ -159,6 +159,7 @@
 
     import * as xeokit from "./dist/xeokit-bundle.js";
 
+
     function log(msg) {
         document.getElementById("log").innerText += "[LOG]: " + (msg + "\n");
     }
@@ -175,302 +176,328 @@
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    const treeView = new xeokit.treeview.TreeView({
-        //    view: myView,
-        data,
-        containerElement: document.getElementById("treeViewContainer"),
-        hierarchy: xeokit.treeview.TreeView.GroupsHierarchy,
-        linkType: xeokit.ifctypes.IfcRelAggregates,
-        groupTypes: []
+    log("viewer = new xeokit.viewer.Viewer({scene, ..})");
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer: new xeokit.mockrenderer.MockRenderer({})
     });
 
+    log("view = viewer.createView(..)");
 
-    //-----------------------------------------------------------------------------------------------------------------
-    // Build SceneModel
-    //-----------------------------------------------------------------------------------------------------------------
-
-    const sceneModel = scene.createModel({
-        id: "myModel"
+    const view = viewer.createView({
+        canvasId: "myCanvas"
     });
 
-    if (sceneModel instanceof xeokit.core.SDKError) {
+    if (view instanceof xeokit.core.SDKError) {
         console.error(sceneModel.message);
 
     } else {
 
-        const geometry = sceneModel.createGeometry({
-            id: "boxGeometry",
-            primitive: xeokit.constants.TrianglesPrimitive,
-            positions: [
-                1, 1, 1, 0, 1, 1,
-                0, 0, 1, 1, 0, 1, 1,
-                0, 0, 1, 1, 0, 0, 1, 0, 0,
-                0, 0
-            ],
-            indices: [
-                0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
-                0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
-                4, 7, 6, 4, 6, 5
-            ]
-        });
+        view.camera.eye = [0, -100, 0];
+        view.camera.look = [0, 0, 0];
+        view.camera.up = [0, 1, 0];
 
-        if (geometry instanceof xeokit.core.SDKError) {
-            console.error(geometry.message);
-        }
+        log("treeView = new xeokit.treeview.TreeView(..)");
 
-        const redLegMesh = sceneModel.createMesh({
-            id: "redLegMesh",
-            geometryId: "boxGeometry",
-            position: [-4, -6, -4],
-            scale: [1, 3, 1],
-            rotation: [0, 0, 0],
-            color: [1, 0.3, 0.3]
-        });
-
-        if (redLegMesh instanceof xeokit.core.SDKError) {
-            console.error(redLegMesh.message);
-        }
-
-        sceneModel.createMesh({
-            id: "greenLegMesh",
-            geometryId: "boxGeometry",
-            position: [4, -6, -4],
-            scale: [1, 3, 1],
-            rotation: [0, 0, 0],
-            color: [0.3, 1.0, 0.3]
-        });
-
-        sceneModel.createMesh({
-            id: "blueLegMesh",
-            geometryId: "boxGeometry",
-            position: [4, -6, 4],
-            scale: [1, 3, 1],
-            rotation: [0, 0, 0],
-            color: [0.3, 0.3, 1.0]
-        });
-
-        sceneModel.createMesh({
-            id: "yellowLegMesh",
-            geometryId: "boxGeometry",
-            position: [-4, -6, 4],
-            scale: [1, 3, 1],
-            rotation: [0, 0, 0],
-            color: [1.0, 1.0, 0.0]
-        });
-
-        sceneModel.createMesh({
-            id: "tableTopMesh",
-            geometryId: "boxGeometry",
-            position: [0, -3, 0],
-            scale: [6, 0.5, 6],
-            rotation: [0, 0, 0],
-            color: [1.0, 0.3, 1.0]
-        });
-
-        // Create five SceneObjects, each using a Mesh.
-        // A Mesh belongs to exactly one SceneObject.
-
-        const redLegSceneObject = sceneModel.createObject({
-            id: "redLegObject",
-            meshIds: ["redLegMesh"]
-        });
-
-        if (redLegSceneObject instanceof xeokit.core.SDKError) {
-            console.error(redLegSceneObject.message);
-        }
-
-        sceneModel.createObject({
-            id: "greenLegObject",
-            meshIds: ["greenLegMesh"]
-        });
-
-        sceneModel.createObject({
-            id: "blueLegObject",
-            meshIds: ["blueLegMesh"]
-        });
-
-        sceneModel.createObject({
-            id: "yellowLegObject",
-            meshIds: ["yellowLegMesh"]
-        });
-
-        sceneModel.createObject({
-            id: "tableTopObject",
-            meshIds: ["tableTopMesh"]
+        const treeView = new xeokit.treeview.TreeView({
+            view,
+            data,
+            containerElement: document.getElementById("treeViewContainer"),
+            hierarchy: xeokit.treeview.TreeView.GroupsHierarchy,
+            linkType: xeokit.ifctypes.IfcRelAggregates,
+            groupTypes: []
         });
 
 
-        // Expect an event when we build the SceneModel
+        //-----------------------------------------------------------------------------------------------------------------
+        // Build SceneModel
+        //-----------------------------------------------------------------------------------------------------------------
 
-        sceneModel.onBuilt.subscribe((theSceneModel) => {
+        const sceneModel = scene.createModel({
+            id: "myModel"
         });
 
-        // Expect an event when we destroy the SceneModel
+        if (sceneModel instanceof xeokit.core.SDKError) {
+            console.error(sceneModel.message);
 
-        sceneModel.onDestroyed.subscribe((theSceneModel) => {
-        });
-
-        // Now build the SceneModel.
-        // This makes the SceneModel ready for use.
-        // Among other things, this will compress the texture.
-
-        sceneModel.build().then(() => {
-
-            // SceneModel is ready for use
-
-        }).catch((e) => {
-            console.error(e);
-            throw e;
-        });
-    }
-
-    //-----------------------------------------------------------------------------------------------------------------
-    // Build DataModel
-    //-----------------------------------------------------------------------------------------------------------------
-
-    const dataModel = data.createModel({ // DataModel | SDKError
-        id: "myTableModel"
-    });
-
-    if (dataModel instanceof xeokit.core.SDKError) {
-        console.error(dataModel.message);
-
-    } else {
-
-        const tablePropertySet = dataModel.createPropertySet({ // PropertySet | SDKError
-            id: "tablePropertySet",
-            name: "Table properties",
-            type: "",
-            properties: [ // Property[]
-                {
-                    name: "Weight",
-                    value: 5,
-                    type: "",
-                    valueType: "",
-                    description: "Weight of the thing"
-                },
-                {
-                    name: "Height",
-                    value: 12,
-                    type: "",
-                    valueType: "",
-                    description: "Height of the thing"
-                }
-            ]
-        });
-
-        if (tablePropertySet instanceof xeokit.core.SDKError) {
-            console.error(tablePropertySet.message);
-        }
-
-        const legPropertySet = dataModel.createPropertySet({
-            id: "legPropertySet",
-            name: "Table leg properties",
-            type: "",
-            properties: [
-                {
-                    name: "Weight",
-                    value: 5,
-                    type: "",
-                    valueType: "",
-                    description: "Weight of the thing"
-                },
-                {
-                    name: "Height",
-                    value: 12,
-                    type: "",
-                    valueType: "",
-                    description: "Height of the thing"
-                }
-            ]
-        });
-
-        const myTableObject = dataModel.createObject({ // DataObject | SDKError
-            id: "table",
-            type: xeokit.basicTypes.BasicEntity,
-            name: "Table",
-            propertySetIds: ["tablePropertySet"]
-        });
-
-        if (myTableObject instanceof xeokit.core.SDKError) {
-            console.error(myTableObject.message);
-        }
-
-        dataModel.createObject({
-            id: "redLeg",
-            name: "Red table Leg",
-            type: xeokit.basicTypes.BasicEntity,
-            propertySetIds: ["tableLegPropertySet"]
-        });
-
-        dataModel.createObject({
-            id: "greenLeg",
-            name: "Green table leg",
-            type: xeokit.basicTypes.BasicEntity,
-            propertySetIds: ["tableLegPropertySet"]
-        });
-
-        dataModel.createObject({
-            id: "blueLeg",
-            name: "Blue table leg",
-            type: xeokit.basicTypes.BasicEntity,
-            propertySetIds: ["tableLegPropertySet"]
-        });
-
-        dataModel.createObject({
-            id: "yellowLeg",
-            name: "Yellow table leg",
-            type: "leg",
-            propertySetIds: ["tableLegPropertySet"]
-        });
-
-        dataModel.createObject({
-            id: "tableTop",
-            name: "Purple table top",
-            type: xeokit.basicTypes.BasicEntity,
-            propertySetIds: ["tableTopPropertySet"]
-        });
-
-        const myRelationship = dataModel.createRelationship({
-            type: xeokit.basicTypes.BasicAggregation,
-            relatingObjectId: "table",
-            relatedObjectId: "tableTop"
-        });
-
-        if (myRelationship instanceof xeokit.core.SDKError) {
-            console.error(myRelationship.message);
-        }
-
-        dataModel.createRelationship({
-            type: xeokit.basicTypes.BasicAggregation,
-            relatingObjectId: "tableTop",
-            relatedObjectId: "redLeg"
-        });
-
-        dataModel.createRelationship({
-            type: xeokit.basicTypes.BasicAggregation,
-            relatingObjectId: "tableTop",
-            relatedObjectId: "greenLeg"
-        });
-
-        dataModel.createRelationship({
-            type: xeokit.basicTypes.BasicAggregation,
-            relatingObjectId: "tableTop",
-            relatedObjectId: "blueLeg"
-        });
-
-        dataModel.createRelationship({
-            type: xeokit.basicTypes.BasicAggregation,
-            relatingObjectId: "tableTop",
-            relatedObjectId: "yellowLeg"
-        });
-
-        const buildResult = dataModel.build(); // void | SDKError
-
-        if (buildResult instanceof xeokit.core.SDKError) {
-            console.error(buildResult.message);
         } else {
-            // Ready for action
+
+            const geometry = sceneModel.createGeometry({
+                id: "boxGeometry",
+                primitive: xeokit.constants.TrianglesPrimitive,
+                positions: [
+                    1, 1, 1, 0, 1, 1,
+                    0, 0, 1, 1, 0, 1, 1,
+                    0, 0, 1, 1, 0, 0, 1, 0, 0,
+                    0, 0
+                ],
+                indices: [
+                    0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
+                    0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
+                    4, 7, 6, 4, 6, 5
+                ]
+            });
+
+            if (geometry instanceof xeokit.core.SDKError) {
+                console.error(geometry.message);
+            }
+
+            const redLegMesh = sceneModel.createMesh({
+                id: "redLegMesh",
+                geometryId: "boxGeometry",
+                position: [-4, -6, -4],
+                scale: [1, 3, 1],
+                rotation: [0, 0, 0],
+                color: [1, 0.3, 0.3]
+            });
+
+            if (redLegMesh instanceof xeokit.core.SDKError) {
+                console.error(redLegMesh.message);
+            }
+
+            sceneModel.createMesh({
+                id: "greenLegMesh",
+                geometryId: "boxGeometry",
+                position: [4, -6, -4],
+                scale: [1, 3, 1],
+                rotation: [0, 0, 0],
+                color: [0.3, 1.0, 0.3]
+            });
+
+            sceneModel.createMesh({
+                id: "blueLegMesh",
+                geometryId: "boxGeometry",
+                position: [4, -6, 4],
+                scale: [1, 3, 1],
+                rotation: [0, 0, 0],
+                color: [0.3, 0.3, 1.0]
+            });
+
+            sceneModel.createMesh({
+                id: "yellowLegMesh",
+                geometryId: "boxGeometry",
+                position: [-4, -6, 4],
+                scale: [1, 3, 1],
+                rotation: [0, 0, 0],
+                color: [1.0, 1.0, 0.0]
+            });
+
+            sceneModel.createMesh({
+                id: "tableTopMesh",
+                geometryId: "boxGeometry",
+                position: [0, -3, 0],
+                scale: [6, 0.5, 6],
+                rotation: [0, 0, 0],
+                color: [1.0, 0.3, 1.0]
+            });
+
+            // Create five SceneObjects, each using a Mesh.
+            // A Mesh belongs to exactly one SceneObject.
+
+            const redLegSceneObject = sceneModel.createObject({
+                id: "redLegObject",
+                meshIds: ["redLegMesh"]
+            });
+
+            if (redLegSceneObject instanceof xeokit.core.SDKError) {
+                console.error(redLegSceneObject.message);
+            }
+
+            sceneModel.createObject({
+                id: "greenLegObject",
+                meshIds: ["greenLegMesh"]
+            });
+
+            sceneModel.createObject({
+                id: "blueLegObject",
+                meshIds: ["blueLegMesh"]
+            });
+
+            sceneModel.createObject({
+                id: "yellowLegObject",
+                meshIds: ["yellowLegMesh"]
+            });
+
+            sceneModel.createObject({
+                id: "tableTopObject",
+                meshIds: ["tableTopMesh"]
+            });
+
+
+            // Expect an event when we build the SceneModel
+
+            sceneModel.onBuilt.subscribe((theSceneModel) => {
+            });
+
+            // Expect an event when we destroy the SceneModel
+
+            sceneModel.onDestroyed.subscribe((theSceneModel) => {
+            });
+
+            // Now build the SceneModel.
+            // This makes the SceneModel ready for use.
+            // Among other things, this will compress the texture.
+
+            sceneModel.build().then(() => {
+
+                // SceneModel is ready for use
+
+            }).catch((e) => {
+                console.error(e);
+                throw e;
+            });
+        }
+
+        //-----------------------------------------------------------------------------------------------------------------
+        // Build DataModel
+        //-----------------------------------------------------------------------------------------------------------------
+
+        const dataModel = data.createModel({ // DataModel | SDKError
+            id: "myTableModel"
+        });
+
+        if (dataModel instanceof xeokit.core.SDKError) {
+            console.error(dataModel.message);
+
+        } else {
+
+            const tablePropertySet = dataModel.createPropertySet({ // PropertySet | SDKError
+                id: "tablePropertySet",
+                name: "Table properties",
+                type: "",
+                properties: [ // Property[]
+                    {
+                        name: "Weight",
+                        value: 5,
+                        type: "",
+                        valueType: "",
+                        description: "Weight of the thing"
+                    },
+                    {
+                        name: "Height",
+                        value: 12,
+                        type: "",
+                        valueType: "",
+                        description: "Height of the thing"
+                    }
+                ]
+            });
+
+            if (tablePropertySet instanceof xeokit.core.SDKError) {
+                console.error(tablePropertySet.message);
+            }
+
+            const legPropertySet = dataModel.createPropertySet({
+                id: "legPropertySet",
+                name: "Table leg properties",
+                type: "",
+                properties: [
+                    {
+                        name: "Weight",
+                        value: 5,
+                        type: "",
+                        valueType: "",
+                        description: "Weight of the thing"
+                    },
+                    {
+                        name: "Height",
+                        value: 12,
+                        type: "",
+                        valueType: "",
+                        description: "Height of the thing"
+                    }
+                ]
+            });
+
+            const myTableObject = dataModel.createObject({ // DataObject | SDKError
+                id: "table",
+                type: xeokit.basictypes.BasicEntity,
+                name: "Table",
+                propertySetIds: ["tablePropertySet"]
+            });
+
+            if (myTableObject instanceof xeokit.core.SDKError) {
+                console.error(myTableObject.message);
+            }
+
+            dataModel.createObject({
+                id: "redLeg",
+                name: "Red table Leg",
+                type: xeokit.basictypes.BasicEntity,
+                propertySetIds: ["tableLegPropertySet"]
+            });
+
+            dataModel.createObject({
+                id: "greenLeg",
+                name: "Green table leg",
+                type: xeokit.basictypes.BasicEntity,
+                propertySetIds: ["tableLegPropertySet"]
+            });
+
+            dataModel.createObject({
+                id: "blueLeg",
+                name: "Blue table leg",
+                type: xeokit.basictypes.BasicEntity,
+                propertySetIds: ["tableLegPropertySet"]
+            });
+
+            dataModel.createObject({
+                id: "yellowLeg",
+                name: "Yellow table leg",
+                type: "leg",
+                propertySetIds: ["tableLegPropertySet"]
+            });
+
+            dataModel.createObject({
+                id: "tableTop",
+                name: "Purple table top",
+                type: xeokit.basictypes.BasicEntity,
+                propertySetIds: ["tableTopPropertySet"]
+            });
+
+            const myRelationship = dataModel.createRelationship({
+                type: xeokit.basictypes.BasicAggregation,
+                relatingObjectId: "table",
+                relatedObjectId: "tableTop"
+            });
+
+            if (myRelationship instanceof xeokit.core.SDKError) {
+                console.error(myRelationship.message);
+            }
+
+            dataModel.createRelationship({
+                type: xeokit.basictypes.BasicAggregation,
+                relatingObjectId: "tableTop",
+                relatedObjectId: "redLeg"
+            });
+
+            dataModel.createRelationship({
+                type: xeokit.basictypes.BasicAggregation,
+                relatingObjectId: "tableTop",
+                relatedObjectId: "greenLeg"
+            });
+
+            dataModel.createRelationship({
+                type: xeokit.basictypes.BasicAggregation,
+                relatingObjectId: "tableTop",
+                relatedObjectId: "blueLeg"
+            });
+
+            dataModel.createRelationship({
+                type: xeokit.basictypes.BasicAggregation,
+                relatingObjectId: "tableTop",
+                relatedObjectId: "yellowLeg"
+            });
+
+            const buildResult = dataModel.build(); // void | SDKError
+
+            if (buildResult instanceof xeokit.core.SDKError) {
+                console.error(buildResult.message);
+            } else {
+                // Ready for action
+            }
         }
     }
 

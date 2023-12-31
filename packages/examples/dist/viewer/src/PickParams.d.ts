@@ -4,6 +4,18 @@ import type { FloatArrayParam } from "@xeokit/math";
  */
 export interface PickParams {
     /**
+     * Whether to snap to the nearest vertex to {@link PickParams.canvasPos}.
+     */
+    snapToVertex?: boolean;
+    /**
+     * Whether to snap to the nearest edge to {@link PickParams.canvasPos}.
+     */
+    snapToEdge?: boolean;
+    /**
+     * The snap radius around {@link PickParams.canvasPos}, in canvas pixels.
+     */
+    snapRadius?: number;
+    /**
      * Set this ````true```` to perform a ray-pick; leave ````false```` to pick at canvas coordinates.
      */
     rayPick?: boolean;

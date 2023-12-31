@@ -93,6 +93,30 @@ declare class PickResult {
      */
     set uv(value: any);
     /**
+     * Returns `true` if picking has snapped to the canvas coordinates of the nearest vertex.
+     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
+     */
+    get snappedToVertex(): boolean;
+    /**
+     * @private
+     */
+    set snappedToVertex(value: boolean);
+    /**
+     * Returns `true` if picking has snapped to the canvas coordinates of the nearest edge.
+     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
+     */
+    get snappedToEdge(): boolean;
+    set snappedToEdge(value: boolean);
+    /**
+     * Snapped canvas coordinates when picking with a 2D pointer.
+     * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
+     */
+    get snappedCanvasPos(): Int16Array | undefined;
+    /**
+     * @private
+     */
+    set snappedCanvasPos(value: FloatArrayParam | Int16Array | undefined);
+    /**
      * @private
      */
     reset(): void;

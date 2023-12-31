@@ -4,25 +4,25 @@
  *
  * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="media://images/xeokit_logo_mesh.png"/>
  *
- * # xeokit [XKT](/docs/pages/GLOSSARY.html#xkt) Importer and Exporter
+ * # xeokit [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) Importer and Exporter
  *
  * ---
  *
- * ### *Import and export models as xeokit's native binary [XKT](/docs/pages/GLOSSARY.html#xkt) format*
+ * ### *Import and export models as xeokit's native binary [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format*
  *
  * ---
  *
- * The xeokit SDK allows us to import 3D models from [XKT](/docs/pages/GLOSSARY.html#xkt), which is xeokit's
+ * The xeokit SDK allows us to import 3D models from [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt), which is xeokit's
  * native runtime asset delivery format for model representations and semantics.
  *
- * The [XKT](/docs/pages/GLOSSARY.html#xkt) format compresses large double-precision model representations and semantic data to a compact payload that
+ * The [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format compresses large double-precision model representations and semantic data to a compact payload that
  * loads quickly over the Web into a xeokit viewer running in the browser.
  *
- * To import an [XKT](/docs/pages/GLOSSARY.html#xkt) model into xeokit, use the {@link loadXKT} function, which will load the file into
+ * To import an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model into xeokit, use the {@link loadXKT} function, which will load the file into
  * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
  *
- * To export an [XKT](/docs/pages/GLOSSARY.html#xkt) model from xeokit, use the {@link saveXKT} function, which will save a
- * {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel} to [XKT](/docs/pages/GLOSSARY.html#xkt) file data.
+ * To export an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model from xeokit, use the {@link saveXKT} function, which will save a
+ * {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel} to [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data.
  *
  * <br>
  *
@@ -38,7 +38,7 @@
  *
  * ## Usage
  *
- * In the example below, we'll use {@link loadXKT} to import an [XKT](/docs/pages/GLOSSARY.html#xkt) file into a {@link @xeokit/data!DataModel | DataModel} and
+ * In the example below, we'll use {@link loadXKT} to import an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file into a {@link @xeokit/data!DataModel | DataModel} and
  * a {@link @xeokit/scene!SceneModel | SceneModel}. The {@link @xeokit/core!SDKError} class
  * is used to handle errors that may occur during the process:
  *
@@ -77,7 +77,7 @@
  * ````
  *
  * Using {@link @xeokit/xkt!saveXKT} to export the {@link @xeokit/data!DataModel | DataModel} and {@link @xeokit/scene!SceneModel | SceneModel} to
- * [XKT](/docs/pages/GLOSSARY.html#xkt) file data in an ArrayBuffer:
+ * [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data in an ArrayBuffer:
  *
  * ````javascript
  * const arrayBuffer = saveXKT({

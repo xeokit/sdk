@@ -13,7 +13,7 @@ export const RENDER_PASSES = {
     COLOR_OPAQUE: 1,
     COLOR_TRANSPARENT: 2,
 
-    // Emphasis silhouette rendering - mutually exclusive modes
+    // Accents silhouette rendering - mutually exclusive modes
 
     SILHOUETTE_HIGHLIGHTED: 3,
     SILHOUETTE_SELECTED: 4,

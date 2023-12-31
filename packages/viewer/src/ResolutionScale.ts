@@ -3,7 +3,6 @@ import type {View} from "./View";
 import {FastRender, QualityRender} from "@xeokit/constants";
 
 
-
 //  /**
 //      * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
 //      *
@@ -81,7 +80,7 @@ export class ResolutionScale extends Component {
         this.#state = {
             enabled: options.enabled !== false,
             renderModes: options.renderModes || [FastRender],
-            resolutionScale: options.resolutionScale ||1
+            resolutionScale: options.resolutionScale || 1
         };
     }
 
@@ -110,9 +109,9 @@ export class ResolutionScale extends Component {
     /**
      * Sets which rendering modes in which to apply ResolutionScale.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link FastRender}].
+     * Default value is [{@link @xeokit/constants!FastRender}].
      */
     set renderModes(value: number[]) {
         this.#state.renderModes = value;
@@ -122,9 +121,9 @@ export class ResolutionScale extends Component {
     /**
      * Gets which rendering modes in which to apply ResolutionScale.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link FastRender}].
+     * Default value is [{@link @xeokit/constants!FastRender}].
      */
     get renderModes(): number[] {
         return this.#state.renderModes;
@@ -150,6 +149,25 @@ export class ResolutionScale extends Component {
      */
     get resolutionScale(): number {
         return this.#state.resolutionScale;
+    }
+
+    /**
+     * Gets if resolution scaling is currently applied.
+     *
+     * This is `true` when {@link ResolutionScale.enabled | ResolutionScale.enabled} is `true`
+     * and {@link View.renderMode | View.renderMode} is
+     * in {@link ResolutionScale.renderModes | ResolutionScale.renderModes}.
+     */
+    get applied(): boolean {
+        if (!this.#state.enabled) {
+            return false;
+        }
+        for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
+            if (this.view.renderMode === this.#state.renderModes[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

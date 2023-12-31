@@ -20,17 +20,16 @@
  * To elaborate further:
  *
  * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
- * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries}, {@link @xeokit/scene!GeometryBucket | GeometryBuckets}, and {@link Texture | Textures}.
- * * Textures undergo compression via Basis Universal.
+ * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries}, {@link @xeokit/scene!GeometryBucket | GeometryBuckets}, and {@link @xeokit/scene!Texture | Textures}.
+ * * Textures undergo compression to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) via the Basis Universal codec.
  * * Geometry undergoes compression through bucketing and quantization.
  * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
  * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/xkt" | loadXKT}.
- * * Export SceneModels to the native XKT format through {@link "@xeokit/xkt" | saveXKT}.
+ * * Export SceneModels to the native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format through {@link "@xeokit/xkt" | saveXKT}.
  * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel},
  * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}. Add geometry
  * primitives using mesh generator functions like {@link @xeokit/procgen!buildBoxGeometry | buildBoxGeometry}, {@link @xeokit/procgen!buildSphereGeometry | buildSphereGeometry}, {@link @xeokit/procgen!buildTorusGeometry | buildTorusGeometry}, {@link @xeokit/procgen!buildCylinderGeometry | buildCylinderGeometry}, {@link @xeokit/procgen!buildPlaneGeometry | buildPlaneGeometry} and {@link @xeokit/procgen!buildVectorTextGeometry | buildVectorTextGeometry}.
- * * Use a {@link "@xeokit/collision!pick" | Picker} to select SceneObjects and primitives that intersect rays and selection boundaries.
  *
  * <br>
  *
@@ -69,7 +68,7 @@
  * When we've finished constructing our SceneModel, we'll call {@link @xeokit/scene!SceneModel.build | SceneModel.build}, which
  * (asynchronously) compresses our Texture.
  *
- * At that point, we can use the SceneModel. For example, we could export it to xeokit's native XKT
+ * At that point, we can use the SceneModel. For example, we could export it to xeokit's native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt)
  * file format using {@link "@xeokit/xkt" | saveXKT}, or view it in the Browser using a {@link "@xeokit/viewer" | Viewer}.
  *
  * ````javascript
@@ -250,7 +249,7 @@
  *
  * ### Reading the SceneModel
  *
- * Now that we've built our SceneModel, we can read all of its components. Note that the {@link Texture} and {@link @xeokit/scene!Geometry}
+ * Now that we've built our SceneModel, we can read all of its components. Note that the {@link @xeokit/scene!Texture} and {@link @xeokit/scene!Geometry}
  * we just created will now be compressed.
  *
  * ````javascript
@@ -370,9 +369,9 @@
  *
  * ### Texture Compression
  *
- * The {@link Texture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
- * method uses [Basis](/docs/pages/GLOSSARY.html#basis) to compress the Texture to KTX2. We can now read that transcoded data
- * back from {@link @Texture.buffers | Texture.buffers}:
+ * The {@link @xeokit/scene!Texture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
+ * method uses [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis) to compress the Texture to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2). We can now read that transcoded data
+ * back from {@link @xeokit/scene!Texture.buffers | Texture.buffers}:
  *
  * ````javascript
  * const theTexture = theSceneModel.textures["theColorTexture"];

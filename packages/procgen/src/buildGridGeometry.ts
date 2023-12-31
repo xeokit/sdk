@@ -11,27 +11,7 @@ import type {GeometryArrays} from "./GeometryArrays";
  * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildGridGeometry)]
  *
  * ````javascript
- * import {Viewer, Mesh, buildGridGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
- *
- * const viewer = new Viewer({
- *      canvasId: "myView"
- * });
- *
- * viewer.camera.eye = [0, 0, 5];
- * viewer.camera.look = [0, 0, 0];
- * viewer.camera.up = [0, 1, 0];
- *
- * new Mesh(viewer.scene, {
- *      geometry: new GeometryBucketHandle(viewer.scene, buildGridGeometry({
- *          size: 1000,
- *          divisions: 500
- *      })),
- *      material: new PhongMaterial(viewer.scene, {
- *          color: [0.0, 0.0, 0.0],
- *          emissive: [0.4, 0.4, 0.4]
- *      }),
- *      position: [0, -1.6, 0]
- * });
+
  * ````
  *
  * @function buildGridGeometry

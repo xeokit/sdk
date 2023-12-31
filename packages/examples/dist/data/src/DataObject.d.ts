@@ -6,23 +6,23 @@ import type { Data } from "./Data";
  * An object in a {@link @xeokit/data!DataModel}.
  *
  * * Created with {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
- * * Stored in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | Data.objects}, {@link DataModel.rootObjects | Data.rootObjects}
+ * * Stored in {@link @xeokit/data!Data.objects | Data.objects}, {@link @xeokit/data!Data.rootObjects | Data.rootObjects}, {@link @xeokit/data!Data.objectsByType | Data.objectsByType}, {@link @xeokit/data!DataModel.objects | Data.objects}, {@link @xeokit/data!DataModel.rootObjects | Data.rootObjects}
  *
  * See {@link "@xeokit/data"} for usage.
  */
 export declare class DataObject {
     /**
-     *  {@link Data} that contains this DataObject.
+     *  {@link @xeokit/data!Data} that contains this DataObject.
      */
     data: Data;
     /**
-     * {@link DataModel | DataModels} that share this DataObject.
+     * {@link @xeokit/data!DataModel | DataModels} that share this DataObject.
      */
     models: DataModel[];
     /**
      * Globally-unique ID.
      *
-     * DataObjects are stored by ID in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType} and {@link DataModel.rootObjects | Data.rootObjects}.
+     * DataObjects are stored by ID in {@link @xeokit/data!Data.objects | Data.objects}, {@link @xeokit/data!Data.rootObjects | Data.rootObjects}, {@link @xeokit/data!Data.objectsByType | Data.objectsByType} and {@link @xeokit/data!DataModel.rootObjects | Data.rootObjects}.
      */
     readonly id: string;
     /**

@@ -276,7 +276,7 @@
  * TODO TODO TODO TODO
  *
  * ````javascript
- * const modelViewLayer = view.createLayer({
+ * const environmentViewLayer = view.createLayer({
  *     id: "myEnviromentViewLayer"
  * });
  * ````
@@ -312,8 +312,22 @@
  * loadBCFViewpoint({
  *      bcfViewpoint: bcfViewpointAgain
  *      view: view2,
- *      excludeLayerIds: ["myEnviromentViewLayer"]
+ *      excludeLayerIds: ["myEnvironmentViewLayer"]
  * });
+ * ````
+ *
+ * ````javascript
+ * myViewer.viewModes.createViewMode({
+ *    id: "qualityViewMode"
+ * });
+ *
+ * myViewer.viewModes.createViewMode({
+ *    id: "navigationViewMode"
+ * });
+ *
+ * environmentViewLayer.setViewModes(["qualityViewMode"]};
+ * 
+ * myViewer.viewModes.setActiveViewMode("quality");
  * ````
  *
  * @module @xeokit/viewer

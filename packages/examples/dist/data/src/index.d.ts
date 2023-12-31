@@ -27,7 +27,7 @@
  *
  * Various model file formats can be imported into DataModels using methods such as {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS},
  * {@link @xeokit/cityjson!loadCityJSON}, and {@link @xeokit/xkt!loadXKT},
- * while DataModels can be exported to the native [XKT](/docs/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}.
+ * while DataModels can be exported to the native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}.
  *
  * To programmatically build DataModels, builder methods
  * such as {@link @xeokit/data!Data.createModel | Data.createModel}, {@link @xeokit/data!DataModel.createObject | DataModel.createObject},
@@ -56,9 +56,9 @@
  *
  * ### Creating a DataModel from JSON
  *
- * We will start with an example where we create a {@link @xeokit/data!DataModel} using a single parameter object of type {@link DataModelParams}.
+ * We will start with an example where we create a {@link @xeokit/data!DataModel} using a single parameter object of type {@link @xeokit/data!DataModelParams}.
  * The DataModel we create will define a simple piece of furniture - a table consisting of a tabletop and four legs.
- * We will then query the data model to retrieve all the {@link DataObject | DataObjects} within it.
+ * We will then query the data model to retrieve all the {@link @xeokit/data!DataObject | DataObjects} within it.
  *
  * To achieve this, we will create a DataModel that contains six DataObjects: one for the
  * table, one for the tabletop, and one for each of the four legs. We will also define Relationships
@@ -71,8 +71,8 @@
  * a {@link @xeokit/basictypes!BasicAggregation | BasicAggregation}.
  *
  * It's worth noting that in a real-world scenario, we would likely use a more complex set of data types, such as
- * {@link "@xeokit/ifctypes" | ifcTypes}. However, we cannot mix different sets of data types within our {@link Data},
- * as traversals of the DataObjects with {@link Data.searchObjects | Data.searchObjects } must be
+ * {@link @xeokit/ifctypes}. However, we cannot mix different sets of data types within our {@link @xeokit/data!Data},
+ * as traversals of the DataObjects with {@link @xeokit/data!Data.searchObjects | Data.searchObjects } must be
  * guided uniformly by the same set of types across all the DataObjects and Relationships in the graph.
  *
  * To create our DataModel, we will use the following code, which creates a new Data object and then
@@ -210,9 +210,9 @@
  *
  * ### Creating a DataModel using Builder Methods
  *
- * In our second example, we'll create our {@link DataModel} again, this time instantiating
- * each {@link @xeokit/data!PropertySet}, {@link Property}, {@link DataObject} and {@link @xeokit/data!Relationship} individually, using the
- * {@link DataModel | DataModel's} builder methods.
+ * In our second example, we'll create our {@link @xeokit/data!DataModel} again, this time instantiating
+ * each {@link @xeokit/data!PropertySet}, {@link Property}, {@link @xeokit/data!DataObject} and {@link @xeokit/data!Relationship} individually, using the
+ * {@link @xeokit/data!DataModel | DataModel's} builder methods.
  *
  * ````javascript
  * import {SDKError} from "@xeokit/core";
@@ -370,8 +370,8 @@
  *
  * ### Reading DataObjects
  *
- * With our {@link @xeokit/scene!SceneModel} built, we'll now use the {@link Data.searchObjects} method to
- * traverse it to fetch the IDs of the {@link DataObject | DataObjects} we find on that path.
+ * With our {@link @xeokit/scene!SceneModel} built, we'll now use the {@link @xeokit/data!Data.searchObjects} method to
+ * traverse it to fetch the IDs of the {@link @xeokit/data!DataObject | DataObjects} we find on that path.
  *
  * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
  * a tree view of an IFC element hierarchy.
@@ -391,7 +391,7 @@
  *
  * ### Searching DataObjects
  *
- * In our fourth example, we'll demonstrate how to traverse the {@link DataObject | DataObjects} along their
+ * In our fourth example, we'll demonstrate how to traverse the {@link @xeokit/data!DataObject | DataObjects} along their
  * {@link @xeokit/data!Relationship | Relationships}. We'll start at the root DataObject and visit all the DataObjects
  * we encounter along the outgoing Relationships.
  *

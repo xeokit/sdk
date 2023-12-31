@@ -14,7 +14,8 @@
  *
  * * Plug a {@link MockRenderer} into a {@link @xeokit/viewer!Viewer} to use a mock renderer for model storage and rendering
  * * Does not render anything
- * * Used for testing and development of custom renderers
+ * * Used for testing the Viewer
+ * * Used to guide the development of custom renderers
  *
  * ## Installation
  *

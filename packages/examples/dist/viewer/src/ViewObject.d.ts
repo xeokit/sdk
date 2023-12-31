@@ -138,7 +138,7 @@ export declare class ViewObject {
      * * Clipping is done by the {@link SectionPlane}s in {@link @xeokit/view!ViewLayer.sectionPlanes}.
      * * Use {@link @xeokit/view!ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
      */
-    set clippable(value: boolean);
+    set clippable(clippable: boolean);
     /**
      * Gets if this ViewObject is included in boundary calculations.
      *
@@ -154,7 +154,7 @@ export declare class ViewObject {
      * * The ViewObject's 3D boundary is held in {@link @xeokit/scene!SceneObject.aabb}.
      * * Use {@link @xeokit/view!ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */
-    set collidable(value: boolean);
+    set collidable(collidable: boolean);
     /**
      * Gets if this ViewObject is pickable.
      *

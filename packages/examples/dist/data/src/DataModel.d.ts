@@ -21,7 +21,7 @@ export declare class DataModel extends Component {
     /**
      * Unique ID of this DataModel.
      *
-     * DataModels are stored against this ID in {@link @xeokit/data!Data.models}.
+     * DataModels are stored against this ID in {@link @xeokit/data!Data.models | Data.models}.
      */
     readonly id: string;
     /**
@@ -61,26 +61,27 @@ export declare class DataModel extends Component {
         [key: string]: PropertySet;
     };
     /**
-     * The {@link @xeokit/data!DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} in this DataModel, mapped to {@link @xeokit/data!DataObject.id | DataObject.id}.
      *
-     * DataObjects have globally-unique IDs and will also be stored in {@link Data.objects | Data.objects}.
+     * DataObjects have globally-unique IDs and will also be stored in {@link @xeokit/data!Data.objects | Data.objects}.
      */
     objects: {
         [key: string]: DataObject;
     };
     /**
-     * The root {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
+     * The root {@link @xeokit/data!DataObject | DataObjects} in this DataModel, mapped
+     * to {@link @xeokit/data!DataObject.id | DataObject.id}.
      *
      * * This is the set of DataObjects in this DataModel that are not the *related* participant in
      * any {@link @xeokit/data!Relationship | Relationships}, where they have no incoming Relationships and
-     * their {@link DataObject.relating} property is empty.
+     * their {@link @xeokit/data!DataObject.relating} property is empty.
      */
     rootObjects: {
         [key: string]: DataObject;
     };
     /**
-     * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.type | DataObject.type},
-     * sub-mapped to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} in this DataModel, mapped to {@link @xeokit/data!DataObject.type | DataObject.type},
+     * sub-mapped to {@link @xeokit/data!DataObject.id | DataObject.id}.
      */
     objectsByType: {
         [key: string]: {
@@ -94,7 +95,7 @@ export declare class DataModel extends Component {
      */
     relationships: Relationship[];
     /**
-     * The count of each type of {@link DataObject} in this DataModel, mapped to {@link DataObject.type | DataObject.type}.
+     * The count of each type of {@link @xeokit/data!DataObject} in this DataModel, mapped to {@link @xeokit/data!DataObject.type | DataObject.type}.
      */
     readonly typeCounts: {
         [key: string]: number;
@@ -102,8 +103,8 @@ export declare class DataModel extends Component {
     /**
      * Emits an event when the {@link @xeokit/data!DataModel} has been built.
      *
-     * * The DataModel is built using {@link DataModel.build | DataModel.build}.
-     * * {@link DataModel.built | DataModel.built} indicates if the DataModel is currently built.
+     * * The DataModel is built using {@link @xeokit/data!DataModel.build | DataModel.build}.
+     * * {@link @xeokit/data!DataModel.built | DataModel.built} indicates if the DataModel is currently built.
      * * Don't create anything more in this DataModel once it's built.
      *
      * @event
@@ -112,8 +113,8 @@ export declare class DataModel extends Component {
     /**
      * Indicates if this DataModel has been built.
      *
-     * * Set true by {@link DataModel.build | DataModel.build}.
-     * * Subscribe to updates using {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | Data.onModelCreated}.
+     * * Set true by {@link @xeokit/data!DataModel.build | DataModel.build}.
+     * * Subscribe to updates using {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt} and {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated}.
      */
     built: boolean;
     /**
@@ -143,10 +144,10 @@ export declare class DataModel extends Component {
     /**
      * Creates a new {@link @xeokit/data!PropertySet}.
      *
-     * * Stores the new PropertySet in {@link DataModel.propertySets | DataModel.propertySets}
-     * and {@link Data.propertySets | Data.propertySets}.
+     * * Stores the new PropertySet in {@link @xeokit/data!DataModel.propertySets | DataModel.propertySets}
+     * and {@link @xeokit/data!Data.propertySets | Data.propertySets}.
      * * Note that PropertySet IDs are globally unique. PropertySet instances are automatically reused and shared among DataModels
-     * when IDs given to {@link DataModel.createPropertySet | DataModel.createPropertySet} match existing PropertySet
+     * when IDs given to {@link @xeokit/data!DataModel.createPropertySet | DataModel.createPropertySet} match existing PropertySet
      * instances in the same Data.
      *
      * ### Usage
@@ -191,13 +192,13 @@ export declare class DataModel extends Component {
      */
     createPropertySet(propertySetCfg: PropertySetParams): PropertySet | SDKError;
     /**
-     * Creates a new {@link DataObject}.
+     * Creates a new {@link @xeokit/data!DataObject}.
      *
-     * * Stores the new {@link DataObject} in {@link DataModel.objects | DataModel.objects} and {@link Data.objects | Data.objects}.
+     * * Stores the new {@link @xeokit/data!DataObject} in {@link DataModel.objects | DataModel.objects} and {@link Data.objects | Data.objects}.
      * * Fires an event via {@link Data.onObjectCreated | Data.onObjectCreated}.
      * * Note that DataObject IDs are globally unique. DataObject instances are automatically reused and shared among DataModels when
      * IDs given to {@link DataModel.createObject | DataModel.createObject} match existing DataObject instances in the same
-     * Data. This feature is part of how xeokit supports [*federated data models*](/docs/pages/GLOSSARY.html#federated-models).
+     * Data. This feature is part of how xeokit supports [*federated data models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
      *
      * ### Usage
      *
@@ -248,7 +249,7 @@ export declare class DataModel extends Component {
      * * A Relationship involves a *relating* DataObject and a *related* DataObject.
      * * The *relating* and *related* DataObjects can exist within different DataModels,
      * as long as the DataModels both exist in the same {@link Data}. This feature is part of
-     * how xeokit supports the viewing of [*federated models*](/docs/pages/GLOSSARY.html#federated-models).
+     * how xeokit supports the viewing of [*federated models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
      * * The new Relationship will be stored in
      *   - {@link DataModel.relationships | DataModel.relationships},
      *   - {@link DataObject.related | DataObject.related} on the *relating* DataObject, and

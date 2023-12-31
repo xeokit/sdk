@@ -57,9 +57,9 @@ class Edges extends Component {
     /**
      * Sets which rendering modes in which to render edges.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link QualityRender}].
+     * Default value is [{@link @xeokit/constants!QualityRender}].
      */
     set renderModes(value: number[]) {
         this.#state.renderModes = value;
@@ -69,9 +69,9 @@ class Edges extends Component {
     /**
      * Gets which rendering modes in which to render edges.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link QualityRender}].
+     * Default value is [{@link @xeokit/constants!QualityRender}].
      */
     get renderModes(): number[] {
         return this.#state.renderModes;
@@ -172,6 +172,25 @@ class Edges extends Component {
      */
     get edgeWidth(): number {
         return this.#state.edgeWidth;
+    }
+
+    /**
+     * Gets if edges are currently applied.
+     *
+     * This is `true` when {@link Edges.enabled | Edges.enabled} is `true`
+     * and {@link View.renderMode | View.renderMode} is
+     * in {@link Edges.renderModes | Edges.renderModes}.
+     */
+    get applied(): boolean {
+        if (!this.#state.enabled) {
+            return false;
+        }
+        for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
+            if (this.view.renderMode === this.#state.renderModes[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

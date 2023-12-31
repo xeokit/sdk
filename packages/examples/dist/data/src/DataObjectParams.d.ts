@@ -5,15 +5,15 @@
  */
 export interface DataObjectParams {
     /**
-     * Globally-unique ID for the {@link DataObject}.
+     * Globally-unique ID for the {@link @xeokit/data!DataObject}.
      *
-     * DataObjects are stored by ID in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | Data.objects}, {@link DataModel.rootObjects | Data.rootObjects}.
+     * DataObjects are stored by ID in {@link @xeokit/data!Data.objects | Data.objects}, {@link @xeokit/data!Data.rootObjects | Data.rootObjects}, {@link @xeokit/data!Data.objectsByType | Data.objectsByType}, {@link @xeokit/data!DataModel.objects | Data.objects}, {@link @xeokit/data!DataModel.rootObjects | Data.rootObjects}.
      *
-     * See {@link Data} for usage examples.
+     * See {@link @xeokit/data!Data} for usage examples.
      */
     id: string;
     /**
-     * The {@link DataObject} type.
+     * The {@link @xeokit/data!DataObject} type.
      */
     type: number;
     /**

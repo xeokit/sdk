@@ -3,7 +3,7 @@ import type { BCFViewpoint } from "./BCFViewpoint";
 /**
  * Options for {@link @xeokit/bcf!loadBCFViewpoint}.
  *
- * See {@link @xeokit/bcf} for usage.
+ * See {@link "@xeokit/bcf"} for usage.
  */
 export interface LoadBCFViewpointParams {
     /**
@@ -28,19 +28,19 @@ export interface LoadBCFViewpointParams {
      * The {@link @xeokit/bcf!loadBCFViewpoint} function will silently ignore each component state that has no corresponding
      * ViewObject in any of these ViewLayers.
      *
-     * Each ViewLayer's occurrence in {@link LoadBCFViewpointParams.excludeLayerIds} will override
+     * Each ViewLayer's occurrence in {@link @xeokit/bcf!LoadBCFViewpointParams.excludeLayerIds | LoadBCFViewpointParams.excludeLayerIds} will override
      * its appearance in this list.
      */
     includeLayerIds?: string[];
     /**
      * Never load BCF viewpoint components if their corresponding {@link @xeokit/viewer!ViewObject | ViewObjects}
-     * are in {@link @xeokit/viewer!ViewLayer |ViewLayers} that have the given IDs.
+     * are in {@link @xeokit/viewer!ViewLayer | ViewLayers} that have the given IDs.
      *
      * The {@link @xeokit/bcf!loadBCFViewpoint} function will silently ignore each component state that has a corresponding
      * ViewObject in any of these ViewLayers.
      *
      * Each ViewLayer's occurrence in this list will override its occurrance
-     * in {@link LoadBCFViewpointParams.includeLayerIds}.
+     * in {@link @xeokit/bcf!LoadBCFViewpointParams.includeLayerIds | LoadBCFViewpointParams.includeLayerIds}.
      */
     excludeLayerIds?: string[];
 }

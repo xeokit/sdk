@@ -6,7 +6,7 @@ import {unpackXKT} from "./unpackXKT";
 import {xktToModel} from "./xktToModel";
 
 /**
- * Imports [XKT](/docs/pages/GLOSSARY.html#xkt) file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel}
+ * Imports [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel}
  * and/or a {@link @xeokit/data!DataModel | DataModel}.
  *
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and
@@ -16,13 +16,13 @@ import {xktToModel} from "./xktToModel";
  *
  * See {@link "@xeokit/xkt"} for usage.
  *
- * See {@link @xeokit/xkt!XKTData} for insights into the structure of an [XKT](/docs/pages/GLOSSARY.html#xkt) file.
+ * See {@link @xeokit/xkt!XKTData} for insights into the structure of an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
  *
  * @param params - Loading parameters.
- * @param params.fileData - [XKT](/docs/pages/GLOSSARY.html#xkt) file data
+ * @param params.fileData - [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - Optional DataModel to load into.
- * @returns {Promise} Resolves when [XKT](/docs/pages/GLOSSARY.html#xkt) has been loaded.
+ * @returns {Promise} Resolves when [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) has been loaded.
  * @throws *{@link @xeokit/core!SDKError}*
  * * If the SceneModel has already been destroyed.
  * * If the SceneModel has already been built.

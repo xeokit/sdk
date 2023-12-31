@@ -260,7 +260,7 @@ export abstract class LayerRenderer {
         }
 
         if (uniforms.worldMatrix) {
-            gl.uniformMatrix4fv(uniforms.worldMatrix, false, <Float32Array | GLfloat[]>layer.rendererSceneModel.worldMatrix);
+            gl.uniformMatrix4fv(uniforms.worldMatrix, false, <Float32Array | GLfloat[]>layer.rendererModel.worldMatrix);
         }
 
         if (uniforms.color) {
@@ -292,7 +292,7 @@ export abstract class LayerRenderer {
         //     const origin = layer.renderState.origin;
         //     const sectionPlanes = view.sectionPlanesList;
         //     const baseIndex = layer.layerIndex * numSectionPlanes;
-        //     const drawFlags = rendererSceneModel.drawFlags;
+        //     const drawFlags = rendererModel.drawFlags;
         //     for (let sectionPlaneIndex = 0; sectionPlaneIndex < numSectionPlanes; sectionPlaneIndex++) {
         //         const sectionPlaneUniforms = this.#uniforms.sectionPlanes[sectionPlaneIndex];
         //         if (sectionPlaneUniforms) {

@@ -5,7 +5,7 @@ import type { PropertySetParams } from "./PropertySetParams";
  * A set of {@link Property | Properties} in a {@link @xeokit/data!DataModel | DataModel}.
  *
  * * Created with {@link @xeokit/data!DataModel.createPropertySet | DataModel.createPropertySet}
- * * Stored in {@link Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | Data.propertySets}
+ * * Stored in {@link @xeokit/data!Data.propertySets | Data.propertySets} and {@link @xeokit/data!DataModel.propertySets | Data.propertySets}
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -17,8 +17,8 @@ export declare class PropertySet {
     /**
      * Unique ID.
      *
-     * PropertySet instances are registered by this ID in {@link Data.propertySets | Data.propertySets}
-     * and {@link DataModel.propertySets | DataModel.propertySets}.
+     * PropertySet instances are registered by this ID in {@link @xeokit/data!Data.propertySets | Data.propertySets}
+     * and {@link @xeokit/data!DataModel.propertySets | DataModel.propertySets}.
      */
     readonly id: string;
     /**

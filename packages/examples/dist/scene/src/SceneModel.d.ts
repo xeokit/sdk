@@ -20,11 +20,11 @@ import type { SceneModelStats } from "./SceneModelStats";
  *
  * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene}.
  * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries} and {@link @xeokit/scene!Texture | Textures}.
- * * Compresses textures using [Basis](/docs/pages/GLOSSARY.html#basis)
- * * Compresses geometry using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
+ * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
+ * * Compresses geometry using [bucketing](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
  * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/xkt!loadXKT} (etc)
- * * Exportable to XKT format using {@link @xeokit/xkt!saveXKT}
+ * * Exportable to [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}
  * * Programmatically buildable using builder methods
  *
  * See {@link "@xeokit/scene"} for usage.
@@ -42,7 +42,7 @@ export declare class SceneModel extends Component {
      */
     readonly id: string;
     /**
-     * If we want to view this SceneModel with a {@link @xeokit/viewer}, an
+     * If we want to view this SceneModel with a {@link @xeokit/viewer!Viewer}, an
      * optional ID of a {@link @xeokit/viewer!ViewLayer | ViewLayer} to view it in.
      */
     readonly layerId?: string;
@@ -50,7 +50,8 @@ export declare class SceneModel extends Component {
      * Indicates if this SceneModel has already been built.
      *
      * * Set ````true```` by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
-     * * Subscribe to updates using {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}.
+     * * Subscribe to updates using {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt}
+     * and {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}.
      * * Don't create anything more in this SceneModel once it's built.
      */
     built: boolean;
@@ -62,7 +63,7 @@ export declare class SceneModel extends Component {
      */
     readonly destroyed: boolean;
     /**
-     * The edge threshold for automatic [edge primitive generation](/docs/pages/GLOSSARY.html#geometry-edge-generation).
+     * The edge threshold for automatic [edge primitive generation](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-edge-generation).
      */
     readonly edgeThreshold: number;
     /**
@@ -74,7 +75,7 @@ export declare class SceneModel extends Component {
         [key: string]: Geometry;
     };
     /**
-     * {@link @xeokit/scene!Texture | Textures} within this SceneModel, each mapped to {@link Texture.id | Texture.id}.
+     * {@link @xeokit/scene!Texture | Textures} within this SceneModel, each mapped to {@link @xeokit/scene!Texture.id | Texture.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
      * * Compressed asynchronously in {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
@@ -83,7 +84,7 @@ export declare class SceneModel extends Component {
         [key: string]: Texture;
     };
     /**
-     * {@link TextureSet | TextureSets} within this SceneModel, each mapped to {@link TextureSet.id | TextureSet.id}.
+     * {@link @xeokit/scene!TextureSet | TextureSets} within this SceneModel, each mapped to {@link @xeokit/scene!TextureSet.id | TextureSet.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
      */
@@ -125,15 +126,15 @@ export declare class SceneModel extends Component {
      *
      * * Triggered by {@link @xeokit/scene!SceneModel.destroy | SceneModel.destroy}.
      *
-     * @event
+     * @event onDestroyed
      */
     readonly onDestroyed: EventEmitter<SceneModel, null>;
     /**
-     *  Internal interface through which a SceneModel can load property updates into a renderer.
+     *  Internal interface through which a SceneModel can load updated content into a renderer.
      *
      * @internal
      */
-    rendererSceneModel: RendererModel | null;
+    rendererModel: RendererModel | null;
     /**
      * Statistics on this SceneModel.
      */
@@ -153,7 +154,8 @@ export declare class SceneModel extends Component {
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been built.
      * * If this SceneModel has already been destroyed.
-     * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!Mesh}, {@link @xeokit/scene!Geometry}, {@link Texture} etc.) was already created within this SceneModel.
+     * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!Mesh},
+     * {@link @xeokit/scene!Geometry}, {@link @xeokit/scene!Texture} etc.) was already created within this SceneModel.
      */
     fromJSON(sceneModelParams: SceneModelParams): void | SDKError;
     /**
@@ -182,9 +184,9 @@ export declare class SceneModel extends Component {
      */
     createTransform(transformParams: TransformParams): void | SDKError;
     /**
-     * Creates a new {@link Texture} within this SceneModel.
+     * Creates a new {@link @xeokit/scene!Texture} within this SceneModel.
      *
-     * * Stores the new {@link Texture} in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}.
+     * * Stores the new {@link @xeokit/scene!Texture} in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}.
      * * Textures are compressed asynchronously by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      *
      * ### Usage
@@ -211,7 +213,7 @@ export declare class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param textureParams - Texture creation parameters.
-     * @returns *{@link Texture}*
+     * @returns *{@link @xeokit/scene!Texture}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
@@ -220,9 +222,9 @@ export declare class SceneModel extends Component {
      */
     createTexture(textureParams: TextureParams): Texture | SDKError;
     /**
-     * Creates a new {@link TextureSet} within this SceneModel.
+     * Creates a new {@link @xeokit/scene!TextureSet} within this SceneModel.
      *
-     * * Stores the new {@link TextureSet} in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}.
+     * * Stores the new {@link @xeokit/scene!TextureSet} in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}.
      *
      * ### Usage
      *
@@ -239,7 +241,7 @@ export declare class SceneModel extends Component {
      *
      * @param textureSetParams TextureSet creation parameters.
      *
-     * @returns *{@link TextureSet}*
+     * @returns *{@link @xeokit/scene!TextureSet}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
@@ -302,7 +304,8 @@ export declare class SceneModel extends Component {
      * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from pre-compressed geometry parameters.
      *
      * * Stores the new {@link @xeokit/scene!Geometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
-     * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
+     * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams | GeometryParams}
+     * into {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
      *
      * ### Usage
      *

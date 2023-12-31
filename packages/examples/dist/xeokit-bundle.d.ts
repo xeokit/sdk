@@ -17,7 +17,6 @@ export * as cityjson from "@xeokit/cityjson";
 export * as dotbim from "@xeokit/dotbim";
 export * as viewer from "@xeokit/viewer";
 export * as mockrenderer from "@xeokit/mockrenderer";
-export * as webglrenderer from "@xeokit/webglrenderer";
 export * as ktx2 from "@xeokit/ktx2";
 export * as cameracontrol from "@xeokit/cameracontrol";
 export * as bcf from "@xeokit/bcf";

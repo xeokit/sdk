@@ -35,7 +35,7 @@
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
         scene,
-        renderer: new xeokit.webglrenderer.WebGLRenderer({})
+        renderer: new xeokit.mockrenderer.MockRenderer({})
     });
 
     log("view = viewer.createView(..)");

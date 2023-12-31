@@ -1,6 +1,6 @@
 
 import type {FloatArrayParam} from "@xeokit/math";
-import type { RendererSceneModel} from "@xeokit/scene";
+import type { RendererModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 
 
@@ -23,10 +23,10 @@ export interface RendererViewObject {
     readonly id: string;
 
     /**
-     * The {@link @xeokit/scene!RendererSceneModel | RendererSceneModel} that contains this RendererViewObject.
+     * The {@link @xeokit/scene!RendererModel | RendererModel} that contains this RendererViewObject.
      * @internal
      */
-    readonly rendererSceneModel: RendererSceneModel;
+    readonly rendererModel: RendererModel;
 
     /**
      * The axis-aligned World-space 3D boundary of this RendererViewObject.

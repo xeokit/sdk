@@ -260,7 +260,7 @@ export class ViewObject {
         if (culled === this.#state.culled) {
             return;
         }
-        const result =   this.#rendererViewObject.setCulled(this.layer.view.viewIndex, culled);
+        const result = this.#rendererViewObject.setCulled(this.layer.view.viewIndex, culled);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -288,7 +288,7 @@ export class ViewObject {
         if (clippable === this.#state.clippable) {
             return;
         }
-        const result =   this.#rendererViewObject.setCulled(this.layer.view.viewIndex, clippable);
+        const result = this.#rendererViewObject.setCulled(this.layer.view.viewIndex, clippable);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -318,7 +318,7 @@ export class ViewObject {
         if (collidable === this.#state.collidable) {
             return;
         }
-        const result =   this.#rendererViewObject.setCollidable(this.layer.view.viewIndex, collidable);
+        const result = this.#rendererViewObject.setCollidable(this.layer.view.viewIndex, collidable);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -347,7 +347,7 @@ export class ViewObject {
         if (this.#state.pickable === pickable) {
             return;
         }
-        const result =   this.#rendererViewObject.setPickable(this.layer.view.viewIndex, pickable);
+        const result = this.#rendererViewObject.setPickable(this.layer.view.viewIndex, pickable);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -386,7 +386,7 @@ export class ViewObject {
             colorize[1] = 1;
             colorize[2] = 1;
         }
-        const result =   this.#rendererViewObject.setColorize(this.layer.view.viewIndex, colorize);
+        const result = this.#rendererViewObject.setColorize(this.layer.view.viewIndex, colorize);
         if (result instanceof SDKError) {
             throw result;
         }

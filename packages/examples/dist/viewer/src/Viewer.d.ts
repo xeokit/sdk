@@ -20,13 +20,19 @@ export declare class Viewer extends Component {
     /**
      True once this Viewer has been destroyed.
 
-     Don't use this Viewer if this is ````true````.
+     Don't use this Viewer if this is ````false````.
      */
     readonly destroyed: boolean;
     /**
      * Indicates the capabilities of this Viewer.
      */
     readonly capabilities: Capabilities;
+    /**
+     * Emits an event each time a message is logged.
+     *
+     * @event
+     */
+    readonly onLog: EventEmitter<Viewer, string>;
     /**
      * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
      *

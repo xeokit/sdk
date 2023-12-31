@@ -25,12 +25,12 @@
  * * Each View also has it's own {@link @xeokit/viewer!Camera}, {@link @xeokit/viewer!DirLight | Lights} and {@link @xeokit/viewer!SectionPlane | SectionPlanes}.
  * * Each View can optionally organize its ViewObjects into {@link @xeokit/viewer!ViewLayer | ViewLayers}. These allow us to partition our ViewObjects into
  * different *bins* depending on what they represent in the View, and then conveniently focus our updates (toggle visibility, select, highlight, slice etc.)
- * eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer's [phycially-based](/docs/pages/GLOSSARY.html#pbr)
+ * eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer's [phycially-based](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#pbr)
  * quality rendering mode. This allows us to disable wasteful quality rendering for objects that are not supposed to appear realistic, such as grids and other 3D helper objects.
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBp7aIg-YqGL44QHqwEcPu48ILRW1iJhSpkpQbN82_l-9QtlzUF1E7s7PL9ZB6RVS2gGpEOdH6lpFHRTosWqaAGiZFtdpi4bHqO4NfoKpXLKrwUyBaUKBCQFMQEJYHy9RhSRUQAy71w8cQweKtVEx6lIgDiUmyebLVkwLpQJGw5uxxn-I6NLjhREAMcXIENSq8cpFUOYR2Rd4YWTl1Fxo16CVSl6yd6PDnQDgzx60fx0n2vSeeph-YZg2HtBFuKRChvW3CbzMFXpRtIK6p5FKx3zGRctb3JOv0jD6_vxHSNEUvSz_F1AccoYojk_I5rIY-yij5FEZUpJdDSyK91FVUsXYp_9dbpvwsE9PBieq3MHLBNtrIs-dz0mijCDWLRcH5Ac3dakQs9zZoI7tN7juV7YhR7KXchbNoRq3v-aThvBnWDs7-4EDUyBleynP-aY2gFUyQxJqB8Ta9tGB3K4_n2ufGsTgW4RBidIPRbLbwz20-hhPgLpzK8MjApwiEIhdhv7-IhvVFhdPSFnehOl4Fbn0Ghtw6D-w95imjLUSuNUuvQIMwumKi-vJ1vco3x2QNf3rrdDHkCEafr6__o53RLJfxJjorlPxep_vpjFGeHyyiUKm9sf31jnSYxu-V2ctJ5NT9WORzMv8zm50cnbpiXc-hcxOcYm6-XaCW18hSCmva7Hx_33t_juDRjG_CjNEVsoyOsNZ-cnw6RmZva2BU22ULD2Tg9u-3apZKBiN3R0FRbdQAV2joW3ua4kcK1Q-EaxuFlhmp1vEz5h5vfwF9HEi3?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBp7aIg-YqGL44QHqwEcPu48ILRW1iJhSpkpQbN82_l-9QtlzUF1E7s7PL9ZB6RVS2gGpEOdH6lpFHRTosWqaAGiZFtdpi4bHqO4NfoKpXLKrwUyBaUKBCQFMQEJYHy9RhSRUQAy71w8cQweKtVEx6lIgDiUmyebLVkwLpQJGw5uxxn-I6NLjhREAMcXIENSq8cpFUOYR2Rd4YWTl1Fxo16CVSl6yd6PDnQDgzx60fx0n2vSeeph-YZg2HtBFuKRChvW3CbzMFXpRtIK6p5FKx3zGRctb3JOv0jD6_vxHSNEUvSz_F1AccoYojk_I5rIY-yij5FEZUpJdDSyK91FVUsXYp_9dbpvwsE9PBieq3MHLBNtrIs-dz0mijCDWLRcH5Ac3dakQs9zZoI7tN7juV7YhR7KXchbNoRq3v-aThvBnWDs7-4EDUyBleynP-aY2gFUyQxJqB8Ta9tGB3K4_n2ufGsTgW4RBidIPRbLbwz20-hhPgLpzK8MjApwiEIhdhv7-IhvVFhdPSFnehOl4Fbn0Ghtw6D-w95imjLUSuNUuvQIMwumKi-vJ1vco3x2QNf3rrdDHkCEafr6__o53RLJfxJjorlPxep_vpjFGeHyyiUKm9sf31jnSYxu-V2ctJ5NT9WORzMv8zm50cnbpiXc-hcxOcYm6-XaCW18hSCmva7Hx_33t_juDRjG_CjNEVsoyOsNZ-cnw6RmZva2BU22ULD2Tg9u-3apZKBiN3R0FRbdQAV2joW3ua4kcK1Q-EaxuFlhmp1vEz5h5vfwF9HEi3)
+ * [![](https://mermaid.ink/img/pako:eNqNVU1v4jAQ_SuRT7srQKRAgKjiQqXdA6iI7oe0ysVJpsWtY2cdhy2l_Pd1_JEmkK7KJWbemzdj541zRAlPAYUoobgobgh-EDiLWEoEJJJw5q22EdOY95PAXxDeMWKe-QlgKQgQJlAkwMAs94pZmGUiAEuoUj99NpGInZqKTi_BbI9tEo8fVXWngDMQ2Kwpedi5eGEa3FDMwIYoPoBoFV5VEVfZhO4aeW1kValXoVaDWsJ1SdKODv-UmBJ52OrjOMu-1cTz9D0pSEzBbYQqClhop5rQ23SBZ6EasOuEUy7Ii01MKMlzXOvkJHl6-4dxHDd6WepTdH3AATx7ZJw_mVWZWxnBH80RNdKbh-ZEcl54VkXZpfleb4jQZ-mYFeyoegstF2ytjTT7-hrHhRQ4kYtFg_ML4q-rFrG5t7KQPNvUfbuyGZaCPDd3UVm0RpXvaafhtBnWFVz7gwIWLWdoKc35rzWMljGBE4tLQlP3JwW1W3641L40jsIjZoYwQn6E-v2Ffm7rMewA78xUmkcNfLGAKfIurPdnUbN-V-G8tMKrUGivgmp9AZrcsD6wt5imtLZgucosuYACmCw8wrxv39er-uborKGnN3QXQx2J0HAw-EA7rbNc2pvoopDze-jupwtGc34iZoWa2hvVX16R9t34rZA73omcuz9i9Zxcv_b7Z6MTeiTLKWTVCXYxNz8-RF3z5OkdYvO-WXKm3F2PiP4waCO34NbL8M3LQD2kGBkmqfo26fQIyZ2qEaFQLVO4xyVVPlFqiopLye8OLEHhPaYF9FCZp2ru7OesjkJKJBdr-8GrHj2UY4bCI3pGoT-dD4JgOJv644nvj-ejWQ8dUDgKZoPRfDjxx1fB_Go6np166IVzpTocTILJVGGjSTAMRrPxSMv91qAUJZz-AZsUb1U?type=png)](https://mermaid.live/edit#pako:eNqNVU1v4jAQ_SuRT7srQKRAgKjiQqXdA6iI7oe0ysVJpsWtY2cdhy2l_Pd1_JEmkK7KJWbemzdj541zRAlPAYUoobgobgh-EDiLWEoEJJJw5q22EdOY95PAXxDeMWKe-QlgKQgQJlAkwMAs94pZmGUiAEuoUj99NpGInZqKTi_BbI9tEo8fVXWngDMQ2Kwpedi5eGEa3FDMwIYoPoBoFV5VEVfZhO4aeW1kValXoVaDWsJ1SdKODv-UmBJ52OrjOMu-1cTz9D0pSEzBbYQqClhop5rQ23SBZ6EasOuEUy7Ii01MKMlzXOvkJHl6-4dxHDd6WepTdH3AATx7ZJw_mVWZWxnBH80RNdKbh-ZEcl54VkXZpfleb4jQZ-mYFeyoegstF2ytjTT7-hrHhRQ4kYtFg_ML4q-rFrG5t7KQPNvUfbuyGZaCPDd3UVm0RpXvaafhtBnWFVz7gwIWLWdoKc35rzWMljGBE4tLQlP3JwW1W3641L40jsIjZoYwQn6E-v2Ffm7rMewA78xUmkcNfLGAKfIurPdnUbN-V-G8tMKrUGivgmp9AZrcsD6wt5imtLZgucosuYACmCw8wrxv39er-uborKGnN3QXQx2J0HAw-EA7rbNc2pvoopDze-jupwtGc34iZoWa2hvVX16R9t34rZA73omcuz9i9Zxcv_b7Z6MTeiTLKWTVCXYxNz8-RF3z5OkdYvO-WXKm3F2PiP4waCO34NbL8M3LQD2kGBkmqfo26fQIyZ2qEaFQLVO4xyVVPlFqiopLye8OLEHhPaYF9FCZp2ru7OesjkJKJBdr-8GrHj2UY4bCI3pGoT-dD4JgOJv644nvj-ejWQ8dUDgKZoPRfDjxx1fB_Go6np166IVzpTocTILJVGGjSTAMRrPxSMv91qAUJZz-AZsUb1U)
  *
  * ## Installation
  *
@@ -276,7 +276,7 @@
  * TODO TODO TODO TODO
  *
  * ````javascript
- * const modelViewLayer = view.createLayer({
+ * const environmentViewLayer = view.createLayer({
  *     id: "myEnviromentViewLayer"
  * });
  * ````
@@ -312,8 +312,22 @@
  * loadBCFViewpoint({
  *      bcfViewpoint: bcfViewpointAgain
  *      view: view2,
- *      excludeLayerIds: ["myEnviromentViewLayer"]
+ *      excludeLayerIds: ["myEnvironmentViewLayer"]
  * });
+ * ````
+ *
+ * ````javascript
+ * myViewer.viewModes.createViewMode({
+ *    id: "qualityViewMode"
+ * });
+ *
+ * myViewer.viewModes.createViewMode({
+ *    id: "navigationViewMode"
+ * });
+ *
+ * environmentViewLayer.setViewModes(["qualityViewMode"]};
+ *
+ * myViewer.viewModes.setActiveViewMode("quality");
  * ````
  *
  * @module @xeokit/viewer
@@ -331,7 +345,7 @@ export * from "./AmbientLight";
 export * from "./DirLight";
 export * from "./PointLight";
 export * from "./EmphasisMaterial";
-export * from "./EdgeMaterial";
+export * from "./Edges";
 export * from "./PointsMaterial";
 export * from "./Metriqs";
 export * from "./View";

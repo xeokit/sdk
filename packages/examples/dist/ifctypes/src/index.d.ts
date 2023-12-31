@@ -6,7 +6,7 @@
  *
  * # xeokit IFC Data Types
  *
- * * Defines numeric constants for IFC entity and relationship types.
+ * * Defines numeric constants for [IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc) entity and relationship types.
  * * Use with {@link "@xeokit/data"} to assign IFC types to {@link @xeokit/data!DataObject | DataObjects} and
  * {@link @xeokit/data!Relationship | Relationships} and treat them as IFC elements.
  * * Use with {@link "@xeokit/treeview"} to configure the appearance and behaviour of

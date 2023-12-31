@@ -1,304 +1,3 @@
-function _regeneratorRuntime() {
-  _regeneratorRuntime = function () {
-    return exports;
-  };
-  var exports = {},
-    Op = Object.prototype,
-    hasOwn = Op.hasOwnProperty,
-    defineProperty = Object.defineProperty || function (obj, key, desc) {
-      obj[key] = desc.value;
-    },
-    $Symbol = "function" == typeof Symbol ? Symbol : {},
-    iteratorSymbol = $Symbol.iterator || "@@iterator",
-    asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator",
-    toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-  function define(obj, key, value) {
-    return Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: !0,
-      configurable: !0,
-      writable: !0
-    }), obj[key];
-  }
-  try {
-    define({}, "");
-  } catch (err) {
-    define = function (obj, key, value) {
-      return obj[key] = value;
-    };
-  }
-  function wrap(innerFn, outerFn, self, tryLocsList) {
-    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator,
-      generator = Object.create(protoGenerator.prototype),
-      context = new Context(tryLocsList || []);
-    return defineProperty(generator, "_invoke", {
-      value: makeInvokeMethod(innerFn, self, context)
-    }), generator;
-  }
-  function tryCatch(fn, obj, arg) {
-    try {
-      return {
-        type: "normal",
-        arg: fn.call(obj, arg)
-      };
-    } catch (err) {
-      return {
-        type: "throw",
-        arg: err
-      };
-    }
-  }
-  exports.wrap = wrap;
-  var ContinueSentinel = {};
-  function Generator() {}
-  function GeneratorFunction() {}
-  function GeneratorFunctionPrototype() {}
-  var IteratorPrototype = {};
-  define(IteratorPrototype, iteratorSymbol, function () {
-    return this;
-  });
-  var getProto = Object.getPrototypeOf,
-    NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-  NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype);
-  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
-  function defineIteratorMethods(prototype) {
-    ["next", "throw", "return"].forEach(function (method) {
-      define(prototype, method, function (arg) {
-        return this._invoke(method, arg);
-      });
-    });
-  }
-  function AsyncIterator(generator, PromiseImpl) {
-    function invoke(method, arg, resolve, reject) {
-      var record = tryCatch(generator[method], generator, arg);
-      if ("throw" !== record.type) {
-        var result = record.arg,
-          value = result.value;
-        return value && "object" == typeof value && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) {
-          invoke("next", value, resolve, reject);
-        }, function (err) {
-          invoke("throw", err, resolve, reject);
-        }) : PromiseImpl.resolve(value).then(function (unwrapped) {
-          result.value = unwrapped, resolve(result);
-        }, function (error) {
-          return invoke("throw", error, resolve, reject);
-        });
-      }
-      reject(record.arg);
-    }
-    var previousPromise;
-    defineProperty(this, "_invoke", {
-      value: function (method, arg) {
-        function callInvokeWithMethodAndArg() {
-          return new PromiseImpl(function (resolve, reject) {
-            invoke(method, arg, resolve, reject);
-          });
-        }
-        return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
-      }
-    });
-  }
-  function makeInvokeMethod(innerFn, self, context) {
-    var state = "suspendedStart";
-    return function (method, arg) {
-      if ("executing" === state) throw new Error("Generator is already running");
-      if ("completed" === state) {
-        if ("throw" === method) throw arg;
-        return doneResult();
-      }
-      for (context.method = method, context.arg = arg;;) {
-        var delegate = context.delegate;
-        if (delegate) {
-          var delegateResult = maybeInvokeDelegate(delegate, context);
-          if (delegateResult) {
-            if (delegateResult === ContinueSentinel) continue;
-            return delegateResult;
-          }
-        }
-        if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) {
-          if ("suspendedStart" === state) throw state = "completed", context.arg;
-          context.dispatchException(context.arg);
-        } else "return" === context.method && context.abrupt("return", context.arg);
-        state = "executing";
-        var record = tryCatch(innerFn, self, context);
-        if ("normal" === record.type) {
-          if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue;
-          return {
-            value: record.arg,
-            done: context.done
-          };
-        }
-        "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg);
-      }
-    };
-  }
-  function maybeInvokeDelegate(delegate, context) {
-    var methodName = context.method,
-      method = delegate.iterator[methodName];
-    if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator.return && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel;
-    var record = tryCatch(method, delegate.iterator, context.arg);
-    if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel;
-    var info = record.arg;
-    return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel);
-  }
-  function pushTryEntry(locs) {
-    var entry = {
-      tryLoc: locs[0]
-    };
-    1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry);
-  }
-  function resetTryEntry(entry) {
-    var record = entry.completion || {};
-    record.type = "normal", delete record.arg, entry.completion = record;
-  }
-  function Context(tryLocsList) {
-    this.tryEntries = [{
-      tryLoc: "root"
-    }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0);
-  }
-  function values(iterable) {
-    if (iterable) {
-      var iteratorMethod = iterable[iteratorSymbol];
-      if (iteratorMethod) return iteratorMethod.call(iterable);
-      if ("function" == typeof iterable.next) return iterable;
-      if (!isNaN(iterable.length)) {
-        var i = -1,
-          next = function next() {
-            for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next;
-            return next.value = undefined, next.done = !0, next;
-          };
-        return next.next = next;
-      }
-    }
-    return {
-      next: doneResult
-    };
-  }
-  function doneResult() {
-    return {
-      value: undefined,
-      done: !0
-    };
-  }
-  return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", {
-    value: GeneratorFunctionPrototype,
-    configurable: !0
-  }), defineProperty(GeneratorFunctionPrototype, "constructor", {
-    value: GeneratorFunction,
-    configurable: !0
-  }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) {
-    var ctor = "function" == typeof genFun && genFun.constructor;
-    return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name));
-  }, exports.mark = function (genFun) {
-    return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun;
-  }, exports.awrap = function (arg) {
-    return {
-      __await: arg
-    };
-  }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () {
-    return this;
-  }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) {
-    void 0 === PromiseImpl && (PromiseImpl = Promise);
-    var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
-    return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) {
-      return result.done ? result.value : iter.next();
-    });
-  }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () {
-    return this;
-  }), define(Gp, "toString", function () {
-    return "[object Generator]";
-  }), exports.keys = function (val) {
-    var object = Object(val),
-      keys = [];
-    for (var key in object) keys.push(key);
-    return keys.reverse(), function next() {
-      for (; keys.length;) {
-        var key = keys.pop();
-        if (key in object) return next.value = key, next.done = !1, next;
-      }
-      return next.done = !0, next;
-    };
-  }, exports.values = values, Context.prototype = {
-    constructor: Context,
-    reset: function (skipTempReset) {
-      if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined);
-    },
-    stop: function () {
-      this.done = !0;
-      var rootRecord = this.tryEntries[0].completion;
-      if ("throw" === rootRecord.type) throw rootRecord.arg;
-      return this.rval;
-    },
-    dispatchException: function (exception) {
-      if (this.done) throw exception;
-      var context = this;
-      function handle(loc, caught) {
-        return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught;
-      }
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i],
-          record = entry.completion;
-        if ("root" === entry.tryLoc) return handle("end");
-        if (entry.tryLoc <= this.prev) {
-          var hasCatch = hasOwn.call(entry, "catchLoc"),
-            hasFinally = hasOwn.call(entry, "finallyLoc");
-          if (hasCatch && hasFinally) {
-            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
-            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
-          } else if (hasCatch) {
-            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
-          } else {
-            if (!hasFinally) throw new Error("try statement without catch or finally");
-            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
-          }
-        }
-      }
-    },
-    abrupt: function (type, arg) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
-          var finallyEntry = entry;
-          break;
-        }
-      }
-      finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null);
-      var record = finallyEntry ? finallyEntry.completion : {};
-      return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record);
-    },
-    complete: function (record, afterLoc) {
-      if ("throw" === record.type) throw record.arg;
-      return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel;
-    },
-    finish: function (finallyLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel;
-      }
-    },
-    catch: function (tryLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.tryLoc === tryLoc) {
-          var record = entry.completion;
-          if ("throw" === record.type) {
-            var thrown = record.arg;
-            resetTryEntry(entry);
-          }
-          return thrown;
-        }
-      }
-      throw new Error("illegal catch attempt");
-    },
-    delegateYield: function (iterable, resultName, nextLoc) {
-      return this.delegate = {
-        iterator: values(iterable),
-        resultName: resultName,
-        nextLoc: nextLoc
-      }, "next" === this.method && (this.arg = undefined), ContinueSentinel;
-    }
-  }, exports;
-}
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
     var descriptor = props[i];
@@ -394,37 +93,6 @@ function _assertThisInitialized(self) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
   }
   return self;
-}
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return;
-  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-  return arr2;
-}
-function _createForOfIteratorHelperLoose(o, allowArrayLike) {
-  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-  if (it) return (it = it.call(o)).next.bind(it);
-  if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-    if (it) o = it;
-    var i = 0;
-    return function () {
-      if (i >= o.length) return {
-        done: true
-      };
-      return {
-        done: false,
-        value: o[i++]
-      };
-    };
-  }
-  throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 function _toPrimitive(input, hint) {
   if (typeof input !== "object" || input === null) return input;
@@ -2483,8 +2151,8 @@ var SDKError = /*#__PURE__*/function (_Error) {
  *
  * ## xeokit SDK Core Components
  *
- * * a {@link @xeokit/core!Component} base class
- * * Various kdtree3 nterfaces that are implemented throughout the SDK.
+ * * {@link @xeokit/core!Component} base class
+ * * Various interfaces that are implemented throughout the SDK.
  *
  * ## Installation
  *
@@ -2495,7 +2163,7 @@ var SDKError = /*#__PURE__*/function (_Error) {
  * @module @xeokit/core
  */
 
-var index$n = {
+var index$m = {
   __proto__: null,
   Component: Component,
   SDKError: SDKError,
@@ -2843,13 +2511,13 @@ var SolidPrimitive = 20003;
  */
 var SurfacePrimitive = 20004;
 /**
- * Quality rendering mode.
- */
-var QualityRender = 30000;
-/**
  * Fast rendering mode.
  */
 var FastRender = 300001;
+/**
+ * Quality rendering mode.
+ */
+var QualityRender = 30000;
 /**
  * Meters unit of measurement.
  */
@@ -2890,8 +2558,20 @@ var FrustumProjectionType = 500002;
  * Custom projection type.
  */
 var CustomProjectionType = 500003;
+/**
+ * Orbit navigation mode.
+ */
+var OrbitNavigationMode = 600001;
+/**
+ * First-person navigation mode.
+ */
+var FirstPersonNavigationMode = 600002;
+/**
+ * Plan view navigation mode.
+ */
+var PlanViewNavigationMode = 600003;
 
-var index$m = {
+var index$l = {
   __proto__: null,
   RepeatWrapping: RepeatWrapping,
   ClampToEdgeWrapping: ClampToEdgeWrapping,
@@ -2965,8 +2645,8 @@ var index$m = {
   TrianglesPrimitive: TrianglesPrimitive,
   SolidPrimitive: SolidPrimitive,
   SurfacePrimitive: SurfacePrimitive,
-  QualityRender: QualityRender,
   FastRender: FastRender,
+  QualityRender: QualityRender,
   MetersUnit: MetersUnit,
   CentimetersUnit: CentimetersUnit,
   MillimetersUnit: MillimetersUnit,
@@ -2976,7 +2656,10 @@ var index$m = {
   PerspectiveProjectionType: PerspectiveProjectionType,
   OrthoProjectionType: OrthoProjectionType,
   FrustumProjectionType: FrustumProjectionType,
-  CustomProjectionType: CustomProjectionType
+  CustomProjectionType: CustomProjectionType,
+  OrbitNavigationMode: OrbitNavigationMode,
+  FirstPersonNavigationMode: FirstPersonNavigationMode,
+  PlanViewNavigationMode: PlanViewNavigationMode
 };
 
 /**
@@ -3043,7 +2726,7 @@ function newFloatArray(values) {
   return new Float64Array(values);
 }
 
-var index$l = {
+var index$k = {
   __proto__: null,
   MIN_DOUBLE: MIN_DOUBLE,
   MAX_DOUBLE: MAX_DOUBLE,
@@ -3083,13 +2766,13 @@ var index$l = {
  *
  * @module @xeokit/matrix
  */
-var tempVec4a$3 = createVec4();
+var tempVec4a$2 = createVec4();
 var tempVec3$3 = createVec3();
 var tempVec3b$6 = createVec3();
 var tempVec3c$5 = createVec3();
 var tempVec3d$2 = createVec3();
 var tempVec3e$1 = createVec3();
-var tempVec4b$3 = createVec4();
+var tempVec4b$2 = createVec4();
 /**
  * Returns the dot product of two three-element vectors.
  */
@@ -3644,8 +3327,8 @@ function createMat4(values) {
   // @ts-ignore
   return newFloatArray(values || 16);
 }
-var tempMat4a$2 = createMat4();
-var tempMat4b$1 = createMat4();
+var tempMat4a$1 = createMat4();
+var tempMat4b = createMat4();
 /**
  * Returns true if the two 4x4 matrices are the same.
  * @param m1
@@ -3678,12 +3361,12 @@ function frustumMat4v(fmin, fmax, m) {
   }
   var fmin4 = [fmin[0], fmin[1], fmin[2], 0.0];
   var fmax4 = [fmax[0], fmax[1], fmax[2], 0.0];
-  addVec4(fmax4, fmin4, tempMat4a$2);
-  subVec4(fmax4, fmin4, tempMat4b$1);
+  addVec4(fmax4, fmin4, tempMat4a$1);
+  subVec4(fmax4, fmin4, tempMat4b);
   var t = 2.0 * fmin4[2];
-  var tempMat4b0 = tempMat4b$1[0];
-  var tempMat4b1 = tempMat4b$1[1];
-  var tempMat4b2 = tempMat4b$1[2];
+  var tempMat4b0 = tempMat4b[0];
+  var tempMat4b1 = tempMat4b[1];
+  var tempMat4b2 = tempMat4b[2];
   m[0] = t / tempMat4b0;
   m[1] = 0.0;
   m[2] = 0.0;
@@ -3692,9 +3375,9 @@ function frustumMat4v(fmin, fmax, m) {
   m[5] = t / tempMat4b1;
   m[6] = 0.0;
   m[7] = 0.0;
-  m[8] = tempMat4a$2[0] / tempMat4b0;
-  m[9] = tempMat4a$2[1] / tempMat4b1;
-  m[10] = -tempMat4a$2[2] / tempMat4b2;
+  m[8] = tempMat4a$1[0] / tempMat4b0;
+  m[9] = tempMat4a$1[1] / tempMat4b1;
+  m[10] = -tempMat4a$1[2] / tempMat4b2;
   m[11] = -1.0;
   m[12] = 0.0;
   m[13] = 0.0;
@@ -4885,8 +4568,8 @@ function quatToEuler(q, order, dest) {
   if (dest === void 0) {
     dest = createVec3();
   }
-  quatToRotationMat4(q, tempMat4a$2);
-  mat4ToEuler(tempMat4a$2, order, dest);
+  quatToRotationMat4(q, tempMat4a$1);
+  mat4ToEuler(tempMat4a$1, order, dest);
   return dest;
 }
 /**
@@ -5069,7 +4752,7 @@ function quatToAngleAxis(q, angleAxis) {
   if (angleAxis === void 0) {
     angleAxis = createVec4();
   }
-  q = normalizeQuat(q, tempVec4a$3);
+  q = normalizeQuat(q, tempVec4a$2);
   var q3 = q[3];
   var angle = 2 * Math.acos(q3);
   var s = Math.sqrt(1 - q3 * q3);
@@ -5124,25 +4807,25 @@ function rayTriangleIntersect(origin, dir, a, b, c, isect) {
  @param rayDirDest The transformed ray direction
  */
 function transformRay(matrix, rayOrigin, rayDir, rayOriginDest, rayDirDest) {
-  tempVec4a$3[0] = rayOrigin[0];
-  tempVec4a$3[1] = rayOrigin[1];
-  tempVec4a$3[2] = rayOrigin[2];
-  tempVec4a$3[3] = 1;
-  transformVec4(matrix, tempVec4a$3, tempVec4b$3);
-  rayOriginDest[0] = tempVec4b$3[0];
-  rayOriginDest[1] = tempVec4b$3[1];
-  rayOriginDest[2] = tempVec4b$3[2];
-  tempVec4a$3[0] = rayDir[0];
-  tempVec4a$3[1] = rayDir[1];
-  tempVec4a$3[2] = rayDir[2];
-  transformVec3(matrix, tempVec4a$3, tempVec4b$3);
-  normalizeVec3(tempVec4b$3);
-  rayDirDest[0] = tempVec4b$3[0];
-  rayDirDest[1] = tempVec4b$3[1];
-  rayDirDest[2] = tempVec4b$3[2];
+  tempVec4a$2[0] = rayOrigin[0];
+  tempVec4a$2[1] = rayOrigin[1];
+  tempVec4a$2[2] = rayOrigin[2];
+  tempVec4a$2[3] = 1;
+  transformVec4(matrix, tempVec4a$2, tempVec4b$2);
+  rayOriginDest[0] = tempVec4b$2[0];
+  rayOriginDest[1] = tempVec4b$2[1];
+  rayOriginDest[2] = tempVec4b$2[2];
+  tempVec4a$2[0] = rayDir[0];
+  tempVec4a$2[1] = rayDir[1];
+  tempVec4a$2[2] = rayDir[2];
+  transformVec3(matrix, tempVec4a$2, tempVec4b$2);
+  normalizeVec3(tempVec4b$2);
+  rayDirDest[0] = tempVec4b$2[0];
+  rayDirDest[1] = tempVec4b$2[1];
+  rayDirDest[2] = tempVec4b$2[2];
 }
 
-var index$k = {
+var index$j = {
   __proto__: null,
   dotVec3: dotVec3,
   createVec2: createVec2,
@@ -6107,7 +5790,7 @@ var createUUID = function () {
   };
 }();
 
-var index$j = {
+var index$i = {
   __proto__: null,
   clone: clone,
   b64: b64,
@@ -6155,14 +5838,28 @@ var index$j = {
  *
  * ---
  *
- * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
-
- The compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC) coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
-
- To use the library, install it using npm install @xeokit/compression. An example usage includes compressing a GeometryParams into a GeometryCompressedParams using the compressGeometryParams function. In this example, the geometry is simple, and only one bucket is needed. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the bucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
-
- The resulting GeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are generated for the TrianglesPrimitive, and a positionsDecompressMatrix is included to de-quantize the positions within the Viewer.
-
+ * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within
+ * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to compress geometry. These functions are also
+ * provided for users who want to pre-compress their geometry "offline" and then
+ * use {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
+ * to create compressed geometry directly.
+ *
+ * The compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge
+ * indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC)
+ * coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use
+ * the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
+ *
+ * An example usage includes compressing a GeometryParams into a {@link @xeokit/scene!GeometryCompressedParams} using the
+ * {@link @xeokit/scene!compressGeometryParams} function. In this example, the geometry is simple, and only one bucket is
+ * needed. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the
+ * bucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the
+ * positions.
+ *
+ * The resulting GeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin
+ * and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are
+ * generated for the {@link @xeokit/constants!TrianglesPrimitive}, and a positionsDecompressMatrix is included to de-quantize
+ * the positions within the Viewer.
+ *
  * This library provides a set of functions that are used internally within
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to
  * compress geometry. The functions are provided here in case users instead want to pre-compress their geometry "offline",
@@ -6795,7 +6492,7 @@ function octEncodeNormal(array, i, xfunc, yfunc) {
   return new Int8Array([Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0)), Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0))]);
 }
 
-var index$i = {
+var index$h = {
   __proto__: null,
   getPositions3MinMax: getPositions3MinMax,
   createPositions3DecompressMat4: createPositions3DecompressMat4,
@@ -6820,7 +6517,7 @@ var index$i = {
 
 var tempVec3a$5 = createVec3();
 var tempVec3b$5 = createVec3();
-var tempMat4a$1 = createMat4();
+var tempMat4a = createMat4();
 /**
  * Returns a new, uninitialized 3D axis-aligned bounding box.
  */
@@ -7463,7 +7160,7 @@ function Frustum3() {
  * Creates the frustum first if not given.
  */
 function setFrustum3(viewMat, projMat, frustum) {
-  var m = mulMat4(projMat, viewMat, tempMat4a$1);
+  var m = mulMat4(projMat, viewMat, tempMat4a);
   var m0 = m[0];
   var m1 = m[1];
   var m2 = m[2];
@@ -7576,7 +7273,8 @@ function intersectFrustum3Triangle3(frustum, a, b, c) {
   return true;
 }
 /**
- * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given
+ * {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -7588,7 +7286,8 @@ function intersectFrustum3Lines3(frustum, positions, indices) {
   return true;
 }
 /**
- * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the
+ * given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -7679,7 +7378,7 @@ function containsAABB2Point2(aabb, p) {
   return aabb[0] <= p[0] && p[0] <= aabb[3] && aabb[1] <= p[1] && p[1] <= aabb[4];
 }
 
-var index$h = {
+var index$g = {
   __proto__: null,
   createAABB3: createAABB3,
   createAABB3Int16: createAABB3Int16,
@@ -7855,7 +7554,7 @@ function getPlaneRTCPos(dist, dir, rtcCenter, rtcPlanePos) {
   return rtcPlanePos;
 }
 
-var index$g = {
+var index$f = {
   __proto__: null,
   createRTCViewMat: createRTCViewMat,
   worldToRTCPos: worldToRTCPos,
@@ -8025,7 +7724,7 @@ function b3(t, p0, p1, p2, p3) {
   return this.b3p0(t, p0) + this.b3p1(t, p1) + this.b3p2(t, p2) + this.b3p3(t, p3);
 }
 
-var index$f = {
+var index$e = {
   __proto__: null,
   'tangentQuadraticBézier': tangentQuadraticBézier,
   'tangentQuadraticBézier3': tangentQuadraticBézier3,
@@ -8334,7 +8033,7 @@ function vsprintf(msg, args) {
  * ````
  * ## Usage
  *
- *  In the example below, we'll create a LocaleService instance, configured with some English, Māori and French
+ *  In the example below, we'll create a {@link @xeokit/locale!LocaleService | LocaleService} instance, configured with some English, Māori and French
  *  translations for a NavCube widget.
  *
  *  Our LocaleServe will provide translations for the following terms:
@@ -8348,7 +8047,7 @@ function vsprintf(msg, args) {
  *
  *  These terms are effectively paths that map to translations for the currently active locale.
  *
- *  For example, if  the LocaleService's locale is set to "fr", then the path "NavCube.back" will drill down
+ *  For example, if  the {@link @xeokit/locale!LocaleService | LocaleService}'s locale is set to "fr", then the path "NavCube.back" will drill down
  *  into ````messages->fr->NavCube->front```` and fetch "Arrière".
  *
  *  ````javascript
@@ -8421,7 +8120,7 @@ function vsprintf(msg, args) {
  *  localeService.clearMessages();
  *  ````
  *
- *  We can also get an event from the LocaleService whenever we switch locales or load messages, which is useful
+ *  We can also get an event from the {@link @xeokit/locale!LocaleService | LocaleService} whenever we switch locales or load messages, which is useful
  *  for triggering UI elements to refresh themselves with updated translations:
  *
  *  ````javascript
@@ -8433,7 +8132,7 @@ function vsprintf(msg, args) {
  *  @module @xeokit/locale
  */
 
-var index$e = {
+var index$d = {
   __proto__: null,
   LocaleService: LocaleService
 };
@@ -8484,8 +8183,8 @@ function Property(propertySet, propertyCfg) {
 /**
  * A set of {@link Property | Properties} in a {@link @xeokit/data!DataModel | DataModel}.
  *
- * * Created with {@link DataModel.createPropertySet | DataModel.createPropertySet}
- * * Stored in {@link Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | Data.propertySets}
+ * * Created with {@link @xeokit/data!DataModel.createPropertySet | DataModel.createPropertySet}
+ * * Stored in {@link @xeokit/data!Data.propertySets | Data.propertySets} and {@link @xeokit/data!DataModel.propertySets | Data.propertySets}
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -8501,8 +8200,8 @@ function PropertySet(dataModel, propertySetCfg) {
   /**
    * Unique ID.
    *
-   * PropertySet instances are registered by this ID in {@link Data.propertySets | Data.propertySets}
-   * and {@link DataModel.propertySets | DataModel.propertySets}.
+   * PropertySet instances are registered by this ID in {@link @xeokit/data!Data.propertySets | Data.propertySets}
+   * and {@link @xeokit/data!DataModel.propertySets | DataModel.propertySets}.
    */
   this.id = void 0;
   /**
@@ -8537,8 +8236,8 @@ function PropertySet(dataModel, propertySetCfg) {
 /**
  * An object in a {@link @xeokit/data!DataModel}.
  *
- * * Created with {@link DataModel.createObject | DataModel.createObject}
- * * Stored in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType}, {@link DataModel.objects | Data.objects}, {@link DataModel.rootObjects | Data.rootObjects}
+ * * Created with {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
+ * * Stored in {@link @xeokit/data!Data.objects | Data.objects}, {@link @xeokit/data!Data.rootObjects | Data.rootObjects}, {@link @xeokit/data!Data.objectsByType | Data.objectsByType}, {@link @xeokit/data!DataModel.objects | Data.objects}, {@link @xeokit/data!DataModel.rootObjects | Data.rootObjects}
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -8548,17 +8247,17 @@ var DataObject =
  */
 function DataObject(data, model, id, name, type, propertySets) {
   /**
-   *  {@link Data} that contains this DataObject.
+   *  {@link @xeokit/data!Data} that contains this DataObject.
    */
   this.data = void 0;
   /**
-   * {@link DataModel | DataModels} that share this DataObject.
+   * {@link @xeokit/data!DataModel | DataModels} that share this DataObject.
    */
   this.models = void 0;
   /**
    * Globally-unique ID.
    *
-   * DataObjects are stored by ID in {@link Data.objects | Data.objects}, {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType} and {@link DataModel.rootObjects | Data.rootObjects}.
+   * DataObjects are stored by ID in {@link @xeokit/data!Data.objects | Data.objects}, {@link @xeokit/data!Data.rootObjects | Data.rootObjects}, {@link @xeokit/data!Data.objectsByType | Data.objectsByType} and {@link @xeokit/data!DataModel.rootObjects | Data.rootObjects}.
    */
   this.id = void 0;
   /**
@@ -8596,7 +8295,7 @@ function DataObject(data, model, id, name, type, propertySets) {
 };
 
 /**
- * A one-to-one relationship between two {@link DataObject | DataObjects}.
+ * A one-to-one relationship between two {@link @xeokit/data!DataObject | DataObjects}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
@@ -8613,17 +8312,17 @@ function Relationship(type, relatingObject, relatedObject) {
    */
   this.type = void 0;
   /**
-   * The relating {@link DataObject} in this Relationship.
+   * The relating {@link @xeokit/data!DataObject} in this Relationship.
    *
-   * This Relationship will be stored by {@link DataObject.type | DataObject.type}
-   * in the DataObject's {@link DataObject.related | DataObject.related} attribute.
+   * This Relationship will be stored by {@link @xeokit/data!DataObject.type | DataObject.type}
+   * in the DataObject's {@link @xeokit/data!DataObject.related | DataObject.related} attribute.
    */
   this.relatingObject = void 0;
   /**
-   * The related {@link DataObject} in this Relationship.
+   * The related {@link @xeokit/data!DataObject} in this Relationship.
    *
-   * This Relationship will be stored by {@link DataObject.type | DataObject.type} in
-   * the DataObject's {@link DataObject.relating | DataObject.relating} attribute.
+   * This Relationship will be stored by {@link @xeokit/data!DataObject.type | DataObject.type} in
+   * the DataObject's {@link @xeokit/data!DataObject.relating | DataObject.relating} attribute.
    */
   this.relatedObject = void 0;
   this.type = type;
@@ -8692,26 +8391,27 @@ var DataModel = /*#__PURE__*/function (_Component) {
     /**
      * The{@link @xeokit/data!PropertySet | PropertySets} in this DataModel, mapped to{@link @xeokit/data!PropertySet.id | PropertySet.id}.
      *
-     * PropertySets have globally-unique IDs and will also be stored in {@link Data.propertySets | Data.propertySets}.
+     * PropertySets have globally-unique IDs and will also be stored in {@link @xeokit/data!Data.propertySets | Data.propertySets}.
      */
     _this.propertySets = void 0;
     /**
-     * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} in this DataModel, mapped to {@link @xeokit/data!DataObject.id | DataObject.id}.
      *
-     * DataObjects have globally-unique IDs and will also be stored in {@link Data.objects | Data.objects}.
+     * DataObjects have globally-unique IDs and will also be stored in {@link @xeokit/data!Data.objects | Data.objects}.
      */
     _this.objects = void 0;
     /**
-     * The root {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
+     * The root {@link @xeokit/data!DataObject | DataObjects} in this DataModel, mapped
+     * to {@link @xeokit/data!DataObject.id | DataObject.id}.
      *
      * * This is the set of DataObjects in this DataModel that are not the *related* participant in
      * any {@link @xeokit/data!Relationship | Relationships}, where they have no incoming Relationships and
-     * their {@link DataObject.relating} property is empty.
+     * their {@link @xeokit/data!DataObject.relating} property is empty.
      */
     _this.rootObjects = void 0;
     /**
-     * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.type | DataObject.type},
-     * sub-mapped to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} in this DataModel, mapped to {@link @xeokit/data!DataObject.type | DataObject.type},
+     * sub-mapped to {@link @xeokit/data!DataObject.id | DataObject.id}.
      */
     _this.objectsByType = void 0;
     /**
@@ -8721,14 +8421,14 @@ var DataModel = /*#__PURE__*/function (_Component) {
      */
     _this.relationships = void 0;
     /**
-     * The count of each type of {@link DataObject} in this DataModel, mapped to {@link DataObject.type | DataObject.type}.
+     * The count of each type of {@link @xeokit/data!DataObject} in this DataModel, mapped to {@link @xeokit/data!DataObject.type | DataObject.type}.
      */
     _this.typeCounts = void 0;
     /**
      * Emits an event when the {@link @xeokit/data!DataModel} has been built.
      *
-     * * The DataModel is built using {@link DataModel.build | DataModel.build}.
-     * * {@link DataModel.built | DataModel.built} indicates if the DataModel is currently built.
+     * * The DataModel is built using {@link @xeokit/data!DataModel.build | DataModel.build}.
+     * * {@link @xeokit/data!DataModel.built | DataModel.built} indicates if the DataModel is currently built.
      * * Don't create anything more in this DataModel once it's built.
      *
      * @event
@@ -8737,8 +8437,8 @@ var DataModel = /*#__PURE__*/function (_Component) {
     /**
      * Indicates if this DataModel has been built.
      *
-     * * Set true by {@link DataModel.build | DataModel.build}.
-     * * Subscribe to updates using {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | Data.onModelCreated}.
+     * * Set true by {@link @xeokit/data!DataModel.build | DataModel.build}.
+     * * Subscribe to updates using {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt} and {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated}.
      */
     _this.built = void 0;
     Object.defineProperty(_assertThisInitialized(_this), _destroyed$1, {
@@ -8807,10 +8507,10 @@ var DataModel = /*#__PURE__*/function (_Component) {
   /**
    * Creates a new {@link @xeokit/data!PropertySet}.
    *
-   * * Stores the new PropertySet in {@link DataModel.propertySets | DataModel.propertySets}
-   * and {@link Data.propertySets | Data.propertySets}.
+   * * Stores the new PropertySet in {@link @xeokit/data!DataModel.propertySets | DataModel.propertySets}
+   * and {@link @xeokit/data!Data.propertySets | Data.propertySets}.
    * * Note that PropertySet IDs are globally unique. PropertySet instances are automatically reused and shared among DataModels
-   * when IDs given to {@link DataModel.createPropertySet | DataModel.createPropertySet} match existing PropertySet
+   * when IDs given to {@link @xeokit/data!DataModel.createPropertySet | DataModel.createPropertySet} match existing PropertySet
    * instances in the same Data.
    *
    * ### Usage
@@ -8875,13 +8575,13 @@ var DataModel = /*#__PURE__*/function (_Component) {
     return propertySet;
   }
   /**
-   * Creates a new {@link DataObject}.
+   * Creates a new {@link @xeokit/data!DataObject}.
    *
-   * * Stores the new {@link DataObject} in {@link DataModel.objects | DataModel.objects} and {@link Data.objects | Data.objects}.
+   * * Stores the new {@link @xeokit/data!DataObject} in {@link DataModel.objects | DataModel.objects} and {@link Data.objects | Data.objects}.
    * * Fires an event via {@link Data.onObjectCreated | Data.onObjectCreated}.
    * * Note that DataObject IDs are globally unique. DataObject instances are automatically reused and shared among DataModels when
    * IDs given to {@link DataModel.createObject | DataModel.createObject} match existing DataObject instances in the same
-   * Data. This feature is part of how xeokit supports [*federated data models*](/docs/pages/GLOSSARY.html#federated-models).
+   * Data. This feature is part of how xeokit supports [*federated data models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
    *
    * ### Usage
    *
@@ -8999,7 +8699,7 @@ var DataModel = /*#__PURE__*/function (_Component) {
    * * A Relationship involves a *relating* DataObject and a *related* DataObject.
    * * The *relating* and *related* DataObjects can exist within different DataModels,
    * as long as the DataModels both exist in the same {@link Data}. This feature is part of
-   * how xeokit supports the viewing of [*federated models*](/docs/pages/GLOSSARY.html#federated-models).
+   * how xeokit supports the viewing of [*federated models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
    * * The new Relationship will be stored in
    *   - {@link DataModel.relationships | DataModel.relationships},
    *   - {@link DataObject.related | DataObject.related} on the *relating* DataObject, and
@@ -9273,24 +8973,24 @@ var Data = /*#__PURE__*/function (_Component) {
      */
     _this.propertySets = void 0;
     /**
-     * The {@link DataObject | DataObjects} in this Data, mapped to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} in this Data, mapped to {@link @xeokit/data!DataObject.id | DataObject.id}.
      */
     _this.objects = void 0;
     /**
-     * The root {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id | DataObject.id}.
+     * The root {@link @xeokit/data!DataObject | DataObjects} belonging to this Data, each keyed to its {@link @xeokit/data!DataObject.id | DataObject.id}.
      *
      * * This is the set of DataObjects in the DataModels within this Data that are not the *related* participant in
      * any {@link @xeokit/data!Relationship | Relationships}, where they have no incoming Relationships and
-     * their {@link DataObject.relating} property is empty.
+     * their {@link @xeokit/data!DataObject.relating} property is empty.
      */
     _this.rootObjects = void 0;
     /**
-     * The {@link DataObject | DataObjects} belonging to this Data, each map keyed to {@link DataObject.type | DataObject.type},
-     * containing {@link DataObject | DataObjects} keyed to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} belonging to this Data, each map keyed to {@link @xeokit/data!DataObject.type | DataObject.type},
+     * containing {@link @xeokit/data!DataObject | DataObjects} keyed to {@link @xeokit/data!DataObject.id | DataObject.id}.
      */
     _this.objectsByType = void 0;
     /**
-     * Tracks number of {@link DataObject | DataObjects} of each type in this Data.
+     * Tracks number of {@link @xeokit/data!DataObject | DataObjects} of each type in this Data.
      */
     _this.typeCounts = void 0;
     /**
@@ -9306,13 +9006,13 @@ var Data = /*#__PURE__*/function (_Component) {
      */
     _this.onModelDestroyed = void 0;
     /**
-     * Emits an event each time a {@link DataObject} is created within this Data.
+     * Emits an event each time a {@link @xeokit/data!DataObject} is created within this Data.
      *
      * @event
      */
     _this.onObjectCreated = void 0;
     /**
-     * Emits an event each time a {@link DataObject} is destroyed within this Data.
+     * Emits an event each time a {@link @xeokit/data!DataObject} is destroyed within this Data.
      *
      * @event
      */
@@ -9332,24 +9032,24 @@ var Data = /*#__PURE__*/function (_Component) {
   /**
    * Creates a new {@link @xeokit/data!DataModel} in this Data.
    *
-   * Remember to call {@link DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
-   * fire events via {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}, to
+   * Remember to call {@link @xeokit/data!DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
+   * fire events via {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated} and {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt}, to
    * indicate to any subscribers that the DataModel is built and ready for use.
    *
-   * Note that while we're building/loading the SceneModel, each call that we make to {@link DataModel.createObject | DataModel.createObject}
-   * will create a new {@link DataObject}
-   * in {@link Data.objects | Data.objects} and {@link DataModel.objects | DataModel.objects}, and will also fire an event
-   * via {@link Data.onObjectCreated | Data.onObjectCreated}. However,
-   * only when we've received the {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}
+   * Note that while we're building/loading the SceneModel, each call that we make to {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
+   * will create a new {@link @xeokit/data!DataObject}
+   * in {@link @xeokit/data!Data.objects | Data.objects} and {@link @xeokit/data!DataModel.objects | DataModel.objects}, and will also fire an event
+   * via {@link @xeokit/data!Data.onObjectCreated | Data.onObjectCreated}. However,
+   * only when we've received the {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated} and {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt}
    * events can we actually consider the DataModel to be fully constructed.
    *
    * See {@link "@xeokit/data"} for more details on usage.
    *
    * @param  dataModelParams Creation parameters for the new {@link @xeokit/data!DataModel}.
    * @param [options] Options for creating the {@link @xeokit/data!DataModel}.
-   * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
-   * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
-   * @returns {@link DataModel}
+   * @param [options.includeTypes] When provided, only create {@link @xeokit/data!DataObject | DataObjects} with types in this list.
+   * @param  [options.excludeRelating] When provided, never create {@link @xeokit/data!DataObject | DataObjects} with types in this list.
+   * @returns {@link @xeokit/data!DataModel}
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * This Data has already been destroyed.
@@ -9378,7 +9078,7 @@ var Data = /*#__PURE__*/function (_Component) {
     return dataModel;
   }
   /**
-   * Gets the {@link DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
+   * Gets the {@link @xeokit/data!DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
    *
    * See {@link "@xeokit/data"} for usage.
    *
@@ -9565,7 +9265,7 @@ function arrayToMap(array) {
  *
  * Various model file formats can be imported into DataModels using methods such as {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS},
  * {@link @xeokit/cityjson!loadCityJSON}, and {@link @xeokit/xkt!loadXKT},
- * while DataModels can be exported to the native [XKT](/docs/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}.
+ * while DataModels can be exported to the native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}.
  *
  * To programmatically build DataModels, builder methods
  * such as {@link @xeokit/data!Data.createModel | Data.createModel}, {@link @xeokit/data!DataModel.createObject | DataModel.createObject},
@@ -9594,9 +9294,9 @@ function arrayToMap(array) {
  *
  * ### Creating a DataModel from JSON
  *
- * We will start with an example where we create a {@link DataModel} using a single parameter object of type {@link DataModelParams}.
+ * We will start with an example where we create a {@link @xeokit/data!DataModel} using a single parameter object of type {@link @xeokit/data!DataModelParams}.
  * The DataModel we create will define a simple piece of furniture - a table consisting of a tabletop and four legs.
- * We will then query the data model to retrieve all the {@link DataObject | DataObjects} within it.
+ * We will then query the data model to retrieve all the {@link @xeokit/data!DataObject | DataObjects} within it.
  *
  * To achieve this, we will create a DataModel that contains six DataObjects: one for the
  * table, one for the tabletop, and one for each of the four legs. We will also define Relationships
@@ -9609,8 +9309,8 @@ function arrayToMap(array) {
  * a {@link @xeokit/basictypes!BasicAggregation | BasicAggregation}.
  *
  * It's worth noting that in a real-world scenario, we would likely use a more complex set of data types, such as
- * {@link "@xeokit/ifctypes" | ifcTypes}. However, we cannot mix different sets of data types within our {@link Data},
- * as traversals of the DataObjects with {@link Data.searchObjects | Data.searchObjects } must be
+ * {@link @xeokit/ifctypes}. However, we cannot mix different sets of data types within our {@link @xeokit/data!Data},
+ * as traversals of the DataObjects with {@link @xeokit/data!Data.searchObjects | Data.searchObjects } must be
  * guided uniformly by the same set of types across all the DataObjects and Relationships in the graph.
  *
  * To create our DataModel, we will use the following code, which creates a new Data object and then
@@ -9748,9 +9448,9 @@ function arrayToMap(array) {
  *
  * ### Creating a DataModel using Builder Methods
  *
- * In our second example, we'll create our {@link DataModel} again, this time instantiating
- * each {@link @xeokit/data!PropertySet}, {@link Property}, {@link DataObject} and {@link @xeokit/data!Relationship} individually, using the
- * {@link DataModel | DataModel's} builder methods.
+ * In our second example, we'll create our {@link @xeokit/data!DataModel} again, this time instantiating
+ * each {@link @xeokit/data!PropertySet}, {@link Property}, {@link @xeokit/data!DataObject} and {@link @xeokit/data!Relationship} individually, using the
+ * {@link @xeokit/data!DataModel | DataModel's} builder methods.
  *
  * ````javascript
  * import {SDKError} from "@xeokit/core";
@@ -9908,8 +9608,8 @@ function arrayToMap(array) {
  *
  * ### Reading DataObjects
  *
- * With our {@link @xeokit/scene!SceneModel} built, we'll now use the {@link Data.searchObjects} method to
- * traverse it to fetch the IDs of the {@link DataObject | DataObjects} we find on that path.
+ * With our {@link @xeokit/scene!SceneModel} built, we'll now use the {@link @xeokit/data!Data.searchObjects} method to
+ * traverse it to fetch the IDs of the {@link @xeokit/data!DataObject | DataObjects} we find on that path.
  *
  * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
  * a tree view of an IFC element hierarchy.
@@ -9929,7 +9629,7 @@ function arrayToMap(array) {
  *
  * ### Searching DataObjects
  *
- * In our fourth example, we'll demonstrate how to traverse the {@link DataObject | DataObjects} along their
+ * In our fourth example, we'll demonstrate how to traverse the {@link @xeokit/data!DataObject | DataObjects} along their
  * {@link @xeokit/data!Relationship | Relationships}. We'll start at the root DataObject and visit all the DataObjects
  * we encounter along the outgoing Relationships.
  *
@@ -9950,7 +9650,7 @@ function arrayToMap(array) {
  * @module @xeokit/data
  */
 
-var index$d = {
+var index$c = {
   __proto__: null,
   Data: Data,
   DataModel: DataModel,
@@ -9972,7 +9672,7 @@ var GeometryBucket = function GeometryBucket(geometryBucketParams) {
   /**
    * GeometryBucket's 3D vertex positions, quantized as 16-bit integers.
    *
-   * Internally, the Viewer dequantizes these with {@link @xeokit/scene!Geometry.positionsDecompressMatrix}.
+   * Internally, the Viewer dequantizes these with {@link @xeokit/scene!Geometry.positionsDecompressMatrix | Geometry.positionsDecompressMatrix}.
    *
    * Vertex positions are required for all primitive types.
    */
@@ -9980,7 +9680,7 @@ var GeometryBucket = function GeometryBucket(geometryBucketParams) {
   /**
    * GeometryBucket's UV coordinates, quantized as 16-bit integers.
    *
-   * Internally, the Viewer de-quantizes these with {@link @xeokit/scene!Geometry.uvsDecompressMatrix}.
+   * Internally, the Viewer de-quantizes these with {@link @xeokit/scene!Geometry.uvsDecompressMatrix | Geometry.uvsDecompressMatrix}.
    */
   this.uvsCompressed = void 0;
   /**
@@ -10024,7 +9724,8 @@ var Geometry = function Geometry(params) {
   /**
    * Primitive type.
    *
-   * Possible values are {@link @xeokit/constants!SolidPrimitive}, {@link @xeokit/constants!SurfacePrimitive}, {@link @xeokit/constants!LinesPrimitive}, {@link @xeokit/constants!PointsPrimitive}
+   * Possible values are {@link @xeokit/constants!SolidPrimitive}, {@link @xeokit/constants!SurfacePrimitive},
+   * {@link @xeokit/constants!LinesPrimitive}, {@link @xeokit/constants!PointsPrimitive}
    * and {@link @xeokit/constants!TrianglesPrimitive}.
    */
   this.primitive = void 0;
@@ -10183,8 +9884,8 @@ function getSceneObjectGeometry(sceneObject, withEachGeometry) {
  *
  * See {@link "@xeokit/scene"} for usage.
  */
-var _aabb$3 = /*#__PURE__*/_classPrivateFieldLooseKey("aabb");
-var _aabbDirty$2 = /*#__PURE__*/_classPrivateFieldLooseKey("aabbDirty");
+var _aabb$1 = /*#__PURE__*/_classPrivateFieldLooseKey("aabb");
+var _aabbDirty$1 = /*#__PURE__*/_classPrivateFieldLooseKey("aabbDirty");
 var SceneObject = /*#__PURE__*/function () {
   /**
    * @private
@@ -10197,7 +9898,8 @@ var SceneObject = /*#__PURE__*/function () {
     /**
      * Unique ID of this SceneObject.
      *
-     * SceneObjects are stored by ID in {@link @xeokit/scene!Scene.objects | Scene.objects} and {@link @xeokit/scene!SceneModel.objects | SceneModel.objects}.
+     * SceneObjects are stored by ID in {@link @xeokit/scene!Scene.objects | Scene.objects}
+     * and {@link @xeokit/scene!SceneModel.objects | SceneModel.objects}.
      */
     this.id = void 0;
     /**
@@ -10215,21 +9917,21 @@ var SceneObject = /*#__PURE__*/function () {
      *
      * @internal
      */
-    this.rendererSceneObject = void 0;
-    Object.defineProperty(this, _aabb$3, {
+    this.rendererObject = void 0;
+    Object.defineProperty(this, _aabb$1, {
       writable: true,
       value: void 0
     });
-    Object.defineProperty(this, _aabbDirty$2, {
+    Object.defineProperty(this, _aabbDirty$1, {
       writable: true,
       value: void 0
     });
     this.id = cfg.id;
     this.layerId = cfg.layerId;
     this.meshes = cfg.meshes;
-    _classPrivateFieldLooseBase(this, _aabb$3)[_aabb$3] = createAABB3();
-    _classPrivateFieldLooseBase(this, _aabbDirty$2)[_aabbDirty$2] = true;
-    this.rendererSceneObject = null;
+    _classPrivateFieldLooseBase(this, _aabb$1)[_aabb$1] = createAABB3();
+    _classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1] = true;
+    this.rendererObject = null;
   }
   /**
    * Gets the axis-aligned 3D World-space boundary of this SceneObject.
@@ -10239,28 +9941,28 @@ var SceneObject = /*#__PURE__*/function () {
    * @private
    */
   _proto.setAABBDirty = function setAABBDirty() {
-    _classPrivateFieldLooseBase(this, _aabbDirty$2)[_aabbDirty$2] = true;
+    _classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1] = true;
   };
   _createClass(SceneObject, [{
     key: "aabb",
     get: function get() {
       var _this = this;
-      if (_classPrivateFieldLooseBase(this, _aabbDirty$2)[_aabbDirty$2]) {
-        collapseAABB3(_classPrivateFieldLooseBase(this, _aabb$3)[_aabb$3]);
+      if (_classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1]) {
+        collapseAABB3(_classPrivateFieldLooseBase(this, _aabb$1)[_aabb$1]);
         getSceneObjectGeometry(this, function (geometryView) {
-          expandAABB3Points3(_classPrivateFieldLooseBase(_this, _aabb$3)[_aabb$3], geometryView.positionsWorld);
+          expandAABB3Points3(_classPrivateFieldLooseBase(_this, _aabb$1)[_aabb$1], geometryView.positionsWorld);
           return false;
         });
-        _classPrivateFieldLooseBase(this, _aabbDirty$2)[_aabbDirty$2] = false;
+        _classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1] = false;
       }
-      return _classPrivateFieldLooseBase(this, _aabb$3)[_aabb$3];
+      return _classPrivateFieldLooseBase(this, _aabb$1)[_aabb$1];
     }
   }]);
   return SceneObject;
 }();
 
 /**
- * A set of {@link Texture | Textures} in a {@link @xeokit/scene!SceneModel}.
+ * A set of {@link @xeokit/scene!Texture | Textures} in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}
  * * Created with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}
@@ -10278,19 +9980,19 @@ function TextureSet(textureSetParams, textures) {
    */
   this.id = void 0;
   /**
-   * The color {@link Texture} in this set.
+   * The color {@link @xeokit/scene!Texture} in this set.
    */
   this.colorTexture = void 0;
   /**
-   * The metallic-roughness {@link Texture} in this set.
+   * The metallic-roughness {@link @xeokit/scene!Texture} in this set.
    */
   this.metallicRoughnessTexture = void 0;
   /**
-   * The occlusion {@link Texture} in this set.
+   * The occlusion {@link @xeokit/scene!Texture} in this set.
    */
   this.occlusionTexture = void 0;
   /**
-   * The emissive {@link Texture} in this set.
+   * The emissive {@link @xeokit/scene!Texture} in this set.
    */
   this.emissiveTexture = void 0;
   /**
@@ -10314,9 +10016,9 @@ function TextureSet(textureSetParams, textures) {
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
  * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
- * * Referenced by {@link TextureSet.colorTexture | TextureSet.colorTexture},
- * {@link TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
- * {@link TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link TextureSet.emissiveTexture | TextureSet.emissiveTexture}
+ * * Referenced by {@link @xeokit/scene!TextureSet.colorTexture | TextureSet.colorTexture},
+ * {@link @xeokit/scene!TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
+ * {@link @xeokit/scene!TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link @xeokit/scene!TextureSet.emissiveTexture | TextureSet.emissiveTexture}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -10326,7 +10028,7 @@ var Texture =
  */
 function Texture(params) {
   /**
-   *  Internal interface through which this {@link Texture} can load property updates into a renderer.
+   *  Internal interface through which this {@link @xeokit/scene!Texture} can load property updates into a renderer.
    *
    *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
    *
@@ -10686,9 +10388,9 @@ var numFaces = 0;
 var compa = new Uint16Array(3);
 var compb = new Uint16Array(3);
 var compc = new Uint16Array(3);
-var a$1 = createVec3();
-var b$1 = createVec3();
-var c$1 = createVec3();
+var a = createVec3();
+var b = createVec3();
+var c = createVec3();
 var cb = createVec3();
 var ab = createVec3();
 var cross = createVec3();
@@ -10742,22 +10444,22 @@ function buildFaces(numIndices, positionsDecompressMatrix) {
       compc[1] = uniquePositions[ic + 1];
       compc[2] = uniquePositions[ic + 2];
       // Decode
-      decompressPoint3(compa, positionsDecompressMatrix, a$1);
-      decompressPoint3(compb, positionsDecompressMatrix, b$1);
-      decompressPoint3(compc, positionsDecompressMatrix, c$1);
+      decompressPoint3(compa, positionsDecompressMatrix, a);
+      decompressPoint3(compb, positionsDecompressMatrix, b);
+      decompressPoint3(compc, positionsDecompressMatrix, c);
     } else {
-      a$1[0] = uniquePositions[ia];
-      a$1[1] = uniquePositions[ia + 1];
-      a$1[2] = uniquePositions[ia + 2];
-      b$1[0] = uniquePositions[ib];
-      b$1[1] = uniquePositions[ib + 1];
-      b$1[2] = uniquePositions[ib + 2];
-      c$1[0] = uniquePositions[ic];
-      c$1[1] = uniquePositions[ic + 1];
-      c$1[2] = uniquePositions[ic + 2];
+      a[0] = uniquePositions[ia];
+      a[1] = uniquePositions[ia + 1];
+      a[2] = uniquePositions[ia + 2];
+      b[0] = uniquePositions[ib];
+      b[1] = uniquePositions[ib + 1];
+      b[2] = uniquePositions[ib + 2];
+      c[0] = uniquePositions[ic];
+      c[1] = uniquePositions[ic + 1];
+      c[2] = uniquePositions[ic + 2];
     }
-    subVec3(c$1, b$1, cb);
-    subVec3(a$1, b$1, ab);
+    subVec3(c, b, cb);
+    subVec3(a, b, ab);
     cross3Vec3(cb, ab, cross);
     normalizeVec3(cross, normal);
     // @ts-ignore
@@ -11230,12 +10932,12 @@ var OCCLUSION_TEXTURE = 4;
  * xeokit Geometry and Materials Model.
  *
  * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene}.
- * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries} and {@link Texture | Textures}.
- * * Compresses textures using [Basis](/docs/pages/GLOSSARY.html#basis)
- * * Compresses geometry using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
+ * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries} and {@link @xeokit/scene!Texture | Textures}.
+ * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
+ * * Compresses geometry using [bucketing](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
  * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/xkt!loadXKT} (etc)
- * * Exportable to XKT format using {@link @xeokit/xkt!saveXKT}
+ * * Exportable to [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}
  * * Programmatically buildable using builder methods
  *
  * See {@link "@xeokit/scene"} for usage.
@@ -11262,7 +10964,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
      */
     _this.scene = void 0;
     /**
-     * If we want to view this SceneModel with a {@link @xeokit/viewer}, an
+     * If we want to view this SceneModel with a {@link @xeokit/viewer!Viewer}, an
      * optional ID of a {@link @xeokit/viewer!ViewLayer | ViewLayer} to view it in.
      */
     _this.layerId = void 0;
@@ -11270,12 +10972,13 @@ var SceneModel = /*#__PURE__*/function (_Component) {
      * Indicates if this SceneModel has already been built.
      *
      * * Set ````true```` by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
-     * * Subscribe to updates using {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}.
+     * * Subscribe to updates using {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt}
+     * and {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}.
      * * Don't create anything more in this SceneModel once it's built.
      */
     _this.built = void 0;
     /**
-     * The edge threshold for automatic [edge primitive generation](/docs/pages/GLOSSARY.html#geometry-edge-generation).
+     * The edge threshold for automatic [edge primitive generation](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-edge-generation).
      */
     _this.edgeThreshold = void 0;
     /**
@@ -11285,14 +10988,14 @@ var SceneModel = /*#__PURE__*/function (_Component) {
      */
     _this.geometries = void 0;
     /**
-     * {@link Texture | Textures} within this SceneModel, each mapped to {@link Texture.id | Texture.id}.
+     * {@link @xeokit/scene!Texture | Textures} within this SceneModel, each mapped to {@link @xeokit/scene!Texture.id | Texture.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
      * * Compressed asynchronously in {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      */
     _this.textures = void 0;
     /**
-     * {@link TextureSet | TextureSets} within this SceneModel, each mapped to {@link TextureSet.id | TextureSet.id}.
+     * {@link @xeokit/scene!TextureSet | TextureSets} within this SceneModel, each mapped to {@link @xeokit/scene!TextureSet.id | TextureSet.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
      */
@@ -11324,11 +11027,11 @@ var SceneModel = /*#__PURE__*/function (_Component) {
      */
     _this.onBuilt = void 0;
     /**
-     *  Internal interface through which a SceneModel can load property updates into a renderer.
+     *  Internal interface through which a SceneModel can load updated content into a renderer.
      *
      * @internal
      */
-    _this.rendererSceneModel = void 0;
+    _this.rendererModel = void 0;
     /**
      * Statistics on this SceneModel.
      */
@@ -11361,7 +11064,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     _this.objects = {};
     _this.aabb = createAABB3();
     _this.built = false;
-    _this.rendererSceneModel = null;
+    _this.rendererModel = null;
     _this.stats = {
       numGeometries: 0,
       numLines: 0,
@@ -11388,7 +11091,8 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been built.
    * * If this SceneModel has already been destroyed.
-   * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!Mesh}, {@link @xeokit/scene!Geometry}, {@link Texture} etc.) was already created within this SceneModel.
+   * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!Mesh},
+   * {@link @xeokit/scene!Geometry}, {@link @xeokit/scene!Texture} etc.) was already created within this SceneModel.
    */
   var _proto = SceneModel.prototype;
   _proto.fromJSON = function fromJSON(sceneModelParams) {
@@ -11458,9 +11162,9 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     //...
   }
   /**
-   * Creates a new {@link Texture} within this SceneModel.
+   * Creates a new {@link @xeokit/scene!Texture} within this SceneModel.
    *
-   * * Stores the new {@link Texture} in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}.
+   * * Stores the new {@link @xeokit/scene!Texture} in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}.
    * * Textures are compressed asynchronously by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
    *
    * ### Usage
@@ -11487,7 +11191,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/scene"} for more usage info.
    *
    * @param textureParams - Texture creation parameters.
-   * @returns *{@link Texture}*
+   * @returns *{@link @xeokit/scene!Texture}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If SceneModel has already been built or destroyed.
@@ -11526,9 +11230,9 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     return texture;
   }
   /**
-   * Creates a new {@link TextureSet} within this SceneModel.
+   * Creates a new {@link @xeokit/scene!TextureSet} within this SceneModel.
    *
-   * * Stores the new {@link TextureSet} in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}.
+   * * Stores the new {@link @xeokit/scene!TextureSet} in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}.
    *
    * ### Usage
    *
@@ -11545,7 +11249,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    *
    * @param textureSetParams TextureSet creation parameters.
    *
-   * @returns *{@link TextureSet}*
+   * @returns *{@link @xeokit/scene!TextureSet}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If SceneModel has already been built or destroyed.
@@ -11728,7 +11432,8 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from pre-compressed geometry parameters.
    *
    * * Stores the new {@link @xeokit/scene!Geometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
-   * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams|GeometryParams} into {@link @xeokit/scene!GeometryCompressedParams|GeometryCompressedParams}.
+   * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams | GeometryParams}
+   * into {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
    *
    * ### Usage
    *
@@ -12053,8 +11758,8 @@ function _removeUnusedTextures2() {
 var _onModelBuilts = /*#__PURE__*/_classPrivateFieldLooseKey("onModelBuilts");
 var _onModelDestroys = /*#__PURE__*/_classPrivateFieldLooseKey("onModelDestroys");
 var _center = /*#__PURE__*/_classPrivateFieldLooseKey("center");
-var _aabbDirty$1 = /*#__PURE__*/_classPrivateFieldLooseKey("aabbDirty");
-var _aabb$2 = /*#__PURE__*/_classPrivateFieldLooseKey("aabb");
+var _aabbDirty = /*#__PURE__*/_classPrivateFieldLooseKey("aabbDirty");
+var _aabb = /*#__PURE__*/_classPrivateFieldLooseKey("aabb");
 var _registerObjects = /*#__PURE__*/_classPrivateFieldLooseKey("registerObjects");
 var _deregisterObjects = /*#__PURE__*/_classPrivateFieldLooseKey("deregisterObjects");
 var Scene = /*#__PURE__*/function (_Component) {
@@ -12106,16 +11811,16 @@ var Scene = /*#__PURE__*/function (_Component) {
       writable: true,
       value: void 0
     });
-    Object.defineProperty(_assertThisInitialized(_this), _aabbDirty$1, {
+    Object.defineProperty(_assertThisInitialized(_this), _aabbDirty, {
       writable: true,
       value: void 0
     });
-    Object.defineProperty(_assertThisInitialized(_this), _aabb$2, {
+    Object.defineProperty(_assertThisInitialized(_this), _aabb, {
       writable: true,
       value: void 0
     });
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _aabb$2)[_aabb$2] = createAABB3();
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _aabbDirty$1)[_aabbDirty$1] = true;
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _aabb)[_aabb] = createAABB3();
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _aabbDirty)[_aabbDirty] = true;
     _this.models = {};
     _this.objects = {};
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _onModelBuilts)[_onModelBuilts] = {};
@@ -12131,14 +11836,15 @@ var Scene = /*#__PURE__*/function (_Component) {
   /**
    * Creates a new {@link @xeokit/scene!SceneModel} in this Scene.
    *
-   * Remember to call {@link @xeokit/scene!SceneModel.build | SceneModel.build} when you've finished building or loading the SceneModel. That will
+   * Remember to call {@link @xeokit/scene!SceneModel.build | SceneModel.build} when you've finished building or
+   * loading the SceneModel. That will
    * fire events via {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated} and {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt}, to
    * indicate to any subscribers that the SceneModel is built and ready for use.
    *
    * See {@link "@xeokit/scene"} for more details on usage.
    *
    * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
-   * @returns *{@link @xeokit/viewer!Renderer}*
+   * @returns *{@link @xeokit/scene!SceneModel}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * This Scene has already been destroyed.
@@ -12170,16 +11876,16 @@ var Scene = /*#__PURE__*/function (_Component) {
    * @private
    */;
   _proto.setAABBDirty = function setAABBDirty() {
-    if (!_classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1]) {
-      _classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1] = true;
+    if (!_classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty]) {
+      _classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty] = true;
       //this.events.fire("aabb", true);
     }
   }
   /**
    * Destroys all contained {@link @xeokit/scene!SceneModel | SceneModels}.
    *
-   * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
-   * for each existing SceneModel in this Scene.
+   * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and
+   * {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
    *
    * See {@link "@xeokit/scene"} for usage.
    * @returns *void*
@@ -12218,7 +11924,7 @@ var Scene = /*#__PURE__*/function (_Component) {
   _createClass(Scene, [{
     key: "center",
     get: function get() {
-      if (_classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1]) {
+      if (_classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty]) {
         var aabb = this.aabb; // Lazy-build
         _classPrivateFieldLooseBase(this, _center)[_center][0] = (aabb[0] + aabb[3]) / 2;
         _classPrivateFieldLooseBase(this, _center)[_center][1] = (aabb[1] + aabb[4]) / 2;
@@ -12227,14 +11933,14 @@ var Scene = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _center)[_center];
     }
     /**
-     * Gets the collective World-space 3D [axis-aligned boundary](/docs/pages/GLOSSARY.html#aabb) of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
+     * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
      *
      * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
      */
   }, {
     key: "aabb",
     get: function get() {
-      if (_classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1]) {
+      if (_classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty]) {
         var xmin = MAX_DOUBLE;
         var ymin = MAX_DOUBLE;
         var zmin = MAX_DOUBLE;
@@ -12280,15 +11986,15 @@ var Scene = /*#__PURE__*/function (_Component) {
           ymax = 100;
           zmax = 100;
         }
-        _classPrivateFieldLooseBase(this, _aabb$2)[_aabb$2][0] = xmin;
-        _classPrivateFieldLooseBase(this, _aabb$2)[_aabb$2][1] = ymin;
-        _classPrivateFieldLooseBase(this, _aabb$2)[_aabb$2][2] = zmin;
-        _classPrivateFieldLooseBase(this, _aabb$2)[_aabb$2][3] = xmax;
-        _classPrivateFieldLooseBase(this, _aabb$2)[_aabb$2][4] = ymax;
-        _classPrivateFieldLooseBase(this, _aabb$2)[_aabb$2][5] = zmax;
-        _classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1] = false;
+        _classPrivateFieldLooseBase(this, _aabb)[_aabb][0] = xmin;
+        _classPrivateFieldLooseBase(this, _aabb)[_aabb][1] = ymin;
+        _classPrivateFieldLooseBase(this, _aabb)[_aabb][2] = zmin;
+        _classPrivateFieldLooseBase(this, _aabb)[_aabb][3] = xmax;
+        _classPrivateFieldLooseBase(this, _aabb)[_aabb][4] = ymax;
+        _classPrivateFieldLooseBase(this, _aabb)[_aabb][5] = zmax;
+        _classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty] = false;
       }
-      return _classPrivateFieldLooseBase(this, _aabb$2)[_aabb$2];
+      return _classPrivateFieldLooseBase(this, _aabb)[_aabb];
     }
   }]);
   return Scene;
@@ -12299,7 +12005,7 @@ function _registerObjects2(model) {
     var object = objects[id];
     this.objects[object.id] = object;
   }
-  _classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1] = true;
+  _classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty] = true;
 }
 function _deregisterObjects2(model) {
   var objects = model.objects;
@@ -12307,7 +12013,7 @@ function _deregisterObjects2(model) {
     var object = objects[id];
     delete this.objects[object.id];
   }
-  _classPrivateFieldLooseBase(this, _aabbDirty$1)[_aabbDirty$1] = true;
+  _classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty] = true;
 }
 
 /**
@@ -12332,17 +12038,16 @@ function _deregisterObjects2(model) {
  * To elaborate further:
  *
  * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
- * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries}, {@link @xeokit/scene!GeometryBucket | GeometryBuckets}, and {@link Texture | Textures}.
- * * Textures undergo compression via Basis Universal.
+ * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries}, {@link @xeokit/scene!GeometryBucket | GeometryBuckets}, and {@link @xeokit/scene!Texture | Textures}.
+ * * Textures undergo compression to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) via the Basis Universal codec.
  * * Geometry undergoes compression through bucketing and quantization.
  * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
  * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/xkt" | loadXKT}.
- * * Export SceneModels to the native XKT format through {@link "@xeokit/xkt" | saveXKT}.
+ * * Export SceneModels to the native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format through {@link "@xeokit/xkt" | saveXKT}.
  * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel},
  * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}. Add geometry
  * primitives using mesh generator functions like {@link @xeokit/procgen!buildBoxGeometry | buildBoxGeometry}, {@link @xeokit/procgen!buildSphereGeometry | buildSphereGeometry}, {@link @xeokit/procgen!buildTorusGeometry | buildTorusGeometry}, {@link @xeokit/procgen!buildCylinderGeometry | buildCylinderGeometry}, {@link @xeokit/procgen!buildPlaneGeometry | buildPlaneGeometry} and {@link @xeokit/procgen!buildVectorTextGeometry | buildVectorTextGeometry}.
- * * Use a {@link "@xeokit/collision!pick" | Picker} to select SceneObjects and primitives that intersect rays and selection boundaries.
  *
  * <br>
  *
@@ -12381,7 +12086,7 @@ function _deregisterObjects2(model) {
  * When we've finished constructing our SceneModel, we'll call {@link @xeokit/scene!SceneModel.build | SceneModel.build}, which
  * (asynchronously) compresses our Texture.
  *
- * At that point, we can use the SceneModel. For example, we could export it to xeokit's native XKT
+ * At that point, we can use the SceneModel. For example, we could export it to xeokit's native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt)
  * file format using {@link "@xeokit/xkt" | saveXKT}, or view it in the Browser using a {@link "@xeokit/viewer" | Viewer}.
  *
  * ````javascript
@@ -12562,7 +12267,7 @@ function _deregisterObjects2(model) {
  *
  * ### Reading the SceneModel
  *
- * Now that we've built our SceneModel, we can read all of its components. Note that the {@link Texture} and {@link @xeokit/scene!Geometry}
+ * Now that we've built our SceneModel, we can read all of its components. Note that the {@link @xeokit/scene!Texture} and {@link @xeokit/scene!Geometry}
  * we just created will now be compressed.
  *
  * ````javascript
@@ -12682,9 +12387,9 @@ function _deregisterObjects2(model) {
  *
  * ### Texture Compression
  *
- * The {@link Texture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
- * method uses [Basis](/docs/pages/GLOSSARY.html#basis) to compress the Texture to KTX2. We can now read that transcoded data
- * back from {@link @Texture.buffers | Texture.buffers}:
+ * The {@link @xeokit/scene!Texture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
+ * method uses [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis) to compress the Texture to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2). We can now read that transcoded data
+ * back from {@link @xeokit/scene!Texture.buffers | Texture.buffers}:
  *
  * ````javascript
  * const theTexture = theSceneModel.textures["theColorTexture"];
@@ -12695,7 +12400,7 @@ function _deregisterObjects2(model) {
  * @module @xeokit/scene
  */
 
-var index$c = {
+var index$b = {
   __proto__: null,
   Scene: Scene,
   SceneModel: SceneModel,
@@ -12752,7 +12457,7 @@ var typeCodes$2 = {
   "BasicAggregation": BasicAggregation$1
 };
 
-var index$b = {
+var index$a = {
   __proto__: null,
   BasicEntity: BasicEntity,
   BasicAggregation: BasicAggregation$1,
@@ -12769,7 +12474,7 @@ var _typeNames;
  *
  * # xeokit CityJSON 1.1.3 Data Types
  *
- * * Defines numeric constants for the set of [CityJSON](/docs/pages/GLOSSARY.html#cityjson) 1.1.3 entity and relationship types.
+ * * Defines numeric constants for the set of [CityJSON](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#cityjson) 1.1.3 entity and relationship types.
  * * Use with {@link "@xeokit/data"} to assign CityJSON types to {@link @xeokit/data!DataObject | DataObjects}
  * and {@link @xeokit/data!Relationship | Relationships} and treat them as elements of a basic entity-relationship graph.
  * * Use with {@link "@xeokit/treeview"}, to configure the appearance and behaviour of
@@ -12976,7 +12681,7 @@ var typeCodes$1 = {
   "Waterway": Waterway
 };
 
-var index$a = {
+var index$9 = {
   __proto__: null,
   BasicAggregation: BasicAggregation,
   Bridge: Bridge,
@@ -13023,7 +12728,7 @@ var index$a = {
  *
  * # xeokit IFC Data Types
  *
- * * Defines numeric constants for IFC entity and relationship types.
+ * * Defines numeric constants for [IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc) entity and relationship types.
  * * Use with {@link "@xeokit/data"} to assign IFC types to {@link @xeokit/data!DataObject | DataObjects} and
  * {@link @xeokit/data!Relationship | Relationships} and treat them as IFC elements.
  * * Use with {@link "@xeokit/treeview"} to configure the appearance and behaviour of
@@ -16147,7 +15852,7 @@ var typeCodes = {
   // TODO
 };
 
-var index$9 = {
+var index$8 = {
   __proto__: null,
   IfcActionRequest: IfcActionRequest,
   IfcActor: IfcActor,
@@ -17952,13 +17657,13 @@ function to2D(_p, _n, re) {
  *
  * ---
  *
- * The xeokit SDK allows us to import 3D urban models from [CityJSON](/docs/pages/GLOSSARY.html#cityjson), a JSON-based
+ * The xeokit SDK allows us to import 3D urban models from [CityJSON](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#cityjson), a JSON-based
  * file format specifically designed for lightweight, user-friendly, and human-readable
  * storage and sharing of 3D models. CityJSON can represent both basic geometric shapes and intricate objects such as
  * buildings and trees, offering a simple alternative to other formats like CityGML.
  *
- * To import a CityJSON model into xeokit, simply use the {@link load3DXML} function, which will load the file into both
- * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
+ * To import a CityJSON model into xeokit, simply use the {@link @xeokit/cityjson!loadCityJSON} function, which will load
+ * the file into both a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
  *
  * <br>
  *
@@ -18016,7 +17721,7 @@ function to2D(_p, _n, re) {
  * @module @xeokit/cityjson
  */
 
-var index$8 = {
+var index$7 = {
   __proto__: null,
   loadCityJSON: loadCityJSON
 };
@@ -18141,7 +17846,7 @@ function parseDotBIM(ctx) {
  *
  * ---
  *
- * The xeokit SDK allows us to import 3D models from [.BIM](/docs/pages/GLOSSARY.html#dotbim), a JSON-based
+ * The xeokit SDK allows us to import 3D models from [.BIM](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dotbim), a JSON-based
  * file format specifically designed for lightweight, user-friendly, and human-readable storage and sharing of 3D BIM models.
  *
  * .BIM is an open-source and minimalist file format for BIM that's built to be easy to read and write. Essentially, .BIM
@@ -18205,13 +17910,11 @@ function parseDotBIM(ctx) {
  * @module @xeokit/dotbim
  */
 
-var index$7 = {
+var index$6 = {
   __proto__: null,
   loadDotBIM: loadDotBIM
 };
 
-var _rendererViewObject = /*#__PURE__*/_classPrivateFieldLooseKey("rendererViewObject");
-var _state$e = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 /**
  * Represents and controls the visual state of a {@link @xeokit/scene!SceneModel | SceneObject} in
  * a {@link @xeokit/viewer!View |View's} canvas.
@@ -18232,6 +17935,8 @@ var _state$e = /*#__PURE__*/_classPrivateFieldLooseKey("state");
  *
  * {@link @xeokit/viewer!ViewLayer}.
  */
+var _rendererViewObject = /*#__PURE__*/_classPrivateFieldLooseKey("rendererViewObject");
+var _state$f = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var ViewObject = /*#__PURE__*/function () {
   /**
    * @private
@@ -18257,7 +17962,7 @@ var ViewObject = /*#__PURE__*/function () {
       writable: true,
       value: void 0
     });
-    Object.defineProperty(this, _state$e, {
+    Object.defineProperty(this, _state$f, {
       writable: true,
       value: void 0
     });
@@ -18265,7 +17970,7 @@ var ViewObject = /*#__PURE__*/function () {
     this.layer = layer;
     this.sceneObject = sceneObject;
     _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject] = rendererViewObject;
-    _classPrivateFieldLooseBase(this, _state$e)[_state$e] = {
+    _classPrivateFieldLooseBase(this, _state$f)[_state$f] = {
       visible: true,
       culled: false,
       pickable: true,
@@ -18279,8 +17984,8 @@ var ViewObject = /*#__PURE__*/function () {
       colorized: false,
       opacityUpdated: false
     };
-    _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setVisible(this.layer.view.viewIndex, _classPrivateFieldLooseBase(this, _state$e)[_state$e].visible);
-    this.layer.objectVisibilityUpdated(this, _classPrivateFieldLooseBase(this, _state$e)[_state$e].visible, true);
+    _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setVisible(this.layer.view.viewIndex, _classPrivateFieldLooseBase(this, _state$f)[_state$f].visible);
+    this.layer.objectVisibilityUpdated(this, _classPrivateFieldLooseBase(this, _state$f)[_state$f].visible, true);
   }
   /**
    * Gets the World-space axis-aligned 3D boundary of this ViewObject.
@@ -18291,22 +17996,22 @@ var ViewObject = /*#__PURE__*/function () {
    */
   _proto._destroy = function _destroy() {
     // Called by ViewLayer#destroyViewObjects
-    if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].visible) {
+    if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].visible) {
       this.layer.objectVisibilityUpdated(this, false, false);
     }
-    if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].xrayed) {
+    if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].xrayed) {
       this.layer.objectXRayedUpdated(this, false);
     }
-    if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].selected) {
+    if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].selected) {
       this.layer.objectSelectedUpdated(this, false);
     }
-    if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].highlighted) {
+    if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].highlighted) {
       this.layer.objectHighlightedUpdated(this, false);
     }
-    if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].colorized) {
+    if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].colorized) {
       this.layer.objectColorizeUpdated(this, false);
     }
-    if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].opacityUpdated) {
+    if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].opacityUpdated) {
       this.layer.objectOpacityUpdated(this, false);
     }
     this.layer.redraw();
@@ -18326,7 +18031,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "visible",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].visible;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].visible;
     }
     /**
      * Sets if this ViewObject is visible.
@@ -18337,11 +18042,14 @@ var ViewObject = /*#__PURE__*/function () {
      * * Use {@link @xeokit/view!ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
      */,
     set: function set(visible) {
-      if (visible === _classPrivateFieldLooseBase(this, _state$e)[_state$e].visible) {
+      if (visible === _classPrivateFieldLooseBase(this, _state$f)[_state$f].visible) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].visible = visible;
-      _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setVisible(this.layer.view.viewIndex, visible);
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].visible = visible;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setVisible(this.layer.view.viewIndex, visible);
+      if (result instanceof SDKError) {
+        throw result;
+      }
       this.layer.objectVisibilityUpdated(this, visible, true);
       this.layer.redraw();
     }
@@ -18354,7 +18062,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "xrayed",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].xrayed;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].xrayed;
     }
     /**
      * Sets if this ViewObject is X-rayed.
@@ -18363,11 +18071,14 @@ var ViewObject = /*#__PURE__*/function () {
      * * Use {@link @xeokit/view!ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */,
     set: function set(xrayed) {
-      if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].xrayed === xrayed) {
+      if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].xrayed === xrayed) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].xrayed = xrayed;
-      _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setXRayed(this.layer.view.viewIndex, xrayed);
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].xrayed = xrayed;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setXRayed(this.layer.view.viewIndex, xrayed);
+      if (result instanceof SDKError) {
+        throw result;
+      }
       this.layer.objectXRayedUpdated(this, xrayed);
       this.layer.redraw();
     }
@@ -18377,17 +18088,20 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "edges",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].edges;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].edges;
     }
     /**
      * Sets if this ViewObject shows edges.
      */,
     set: function set(edges) {
-      if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].edges === edges) {
+      if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].edges === edges) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].edges = edges;
-      _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setEdges(this.layer.view.viewIndex, edges);
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].edges = edges;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setEdges(this.layer.view.viewIndex, edges);
+      if (result instanceof SDKError) {
+        throw result;
+      }
       this.layer.redraw();
     }
     /**
@@ -18399,7 +18113,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "highlighted",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].highlighted;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].highlighted;
     }
     /**
      * Sets if this ViewObject is highlighted.
@@ -18408,11 +18122,14 @@ var ViewObject = /*#__PURE__*/function () {
      * * Use {@link @xeokit/view!ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */,
     set: function set(highlighted) {
-      if (highlighted === _classPrivateFieldLooseBase(this, _state$e)[_state$e].highlighted) {
+      if (highlighted === _classPrivateFieldLooseBase(this, _state$f)[_state$f].highlighted) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].highlighted = highlighted;
-      _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setHighlighted(this.layer.view.viewIndex, highlighted);
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].highlighted = highlighted;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setHighlighted(this.layer.view.viewIndex, highlighted);
+      if (result instanceof SDKError) {
+        throw result;
+      }
       this.layer.objectHighlightedUpdated(this, highlighted);
       this.layer.redraw();
     }
@@ -18425,7 +18142,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "selected",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].selected;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].selected;
     }
     /**
      * Sets if this ViewObject is selected.
@@ -18434,11 +18151,14 @@ var ViewObject = /*#__PURE__*/function () {
      * * Use {@link @xeokit/view!ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */,
     set: function set(selected) {
-      if (selected === _classPrivateFieldLooseBase(this, _state$e)[_state$e].selected) {
+      if (selected === _classPrivateFieldLooseBase(this, _state$f)[_state$f].selected) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].selected = selected;
-      _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setSelected(this.layer.view.viewIndex, selected);
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].selected = selected;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setSelected(this.layer.view.viewIndex, selected);
+      if (result instanceof SDKError) {
+        throw result;
+      }
       this.layer.objectSelectedUpdated(this, selected);
       this.layer.redraw();
     }
@@ -18451,7 +18171,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "culled",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].culled;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].culled;
     }
     /**
      * Sets if this ViewObject is culled.
@@ -18460,10 +18180,14 @@ var ViewObject = /*#__PURE__*/function () {
      * * Use {@link @xeokit/view!ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */,
     set: function set(culled) {
-      if (culled === _classPrivateFieldLooseBase(this, _state$e)[_state$e].culled) {
+      if (culled === _classPrivateFieldLooseBase(this, _state$f)[_state$f].culled) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].culled = culled;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setCulled(this.layer.view.viewIndex, culled);
+      if (result instanceof SDKError) {
+        throw result;
+      }
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].culled = culled;
       this.layer.redraw();
     }
     /**
@@ -18475,7 +18199,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "clippable",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].clippable;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].clippable;
     }
     /**
      * Sets if this ViewObject is clippable.
@@ -18483,11 +18207,15 @@ var ViewObject = /*#__PURE__*/function () {
      * * Clipping is done by the {@link SectionPlane}s in {@link @xeokit/view!ViewLayer.sectionPlanes}.
      * * Use {@link @xeokit/view!ViewLayer.setObjectsClippable} to batch-update the clippable state of ViewObjects.
      */,
-    set: function set(value) {
-      if (value === _classPrivateFieldLooseBase(this, _state$e)[_state$e].clippable) {
+    set: function set(clippable) {
+      if (clippable === _classPrivateFieldLooseBase(this, _state$f)[_state$f].clippable) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].clippable = value;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setCulled(this.layer.view.viewIndex, clippable);
+      if (result instanceof SDKError) {
+        throw result;
+      }
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].clippable = clippable;
       this.layer.redraw();
     }
     /**
@@ -18500,7 +18228,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "collidable",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].collidable;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].collidable;
     }
     /**
      * Sets if this ViewObject included in boundary calculations.
@@ -18509,11 +18237,15 @@ var ViewObject = /*#__PURE__*/function () {
      * * The ViewObject's 3D boundary is held in {@link @xeokit/scene!SceneObject.aabb}.
      * * Use {@link @xeokit/view!ViewLayer.setObjectsCollidable} to batch-update the collidable state of ViewObjects.
      */,
-    set: function set(value) {
-      if (value === _classPrivateFieldLooseBase(this, _state$e)[_state$e].collidable) {
+    set: function set(collidable) {
+      if (collidable === _classPrivateFieldLooseBase(this, _state$f)[_state$f].collidable) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].collidable = value;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setCollidable(this.layer.view.viewIndex, collidable);
+      if (result instanceof SDKError) {
+        throw result;
+      }
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].collidable = collidable;
       // this._setAABBDirty();
       // this.layer._aabbDirty = true;
     }
@@ -18526,7 +18258,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "pickable",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].pickable;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].pickable;
     }
     /**
      * Sets if this ViewObject is pickable.
@@ -18535,10 +18267,14 @@ var ViewObject = /*#__PURE__*/function () {
      * * Use {@link @xeokit/view!ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */,
     set: function set(pickable) {
-      if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].pickable === pickable) {
+      if (_classPrivateFieldLooseBase(this, _state$f)[_state$f].pickable === pickable) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].pickable = pickable;
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setPickable(this.layer.view.viewIndex, pickable);
+      if (result instanceof SDKError) {
+        throw result;
+      }
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].pickable = pickable;
       // No need to trigger a render;
       // state is only used when picking
     }
@@ -18552,7 +18288,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "colorize",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].colorize;
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].colorize;
     }
     /**
      * Sets the RGB colorize color for this ViewObject.
@@ -18563,7 +18299,7 @@ var ViewObject = /*#__PURE__*/function () {
      * * Use {@link @xeokit/view!ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */,
     set: function set(value) {
-      var colorize = _classPrivateFieldLooseBase(this, _state$e)[_state$e].colorize;
+      var colorize = _classPrivateFieldLooseBase(this, _state$f)[_state$f].colorize;
       if (value) {
         colorize[0] = value[0];
         colorize[1] = value[1];
@@ -18573,8 +18309,12 @@ var ViewObject = /*#__PURE__*/function () {
         colorize[1] = 1;
         colorize[2] = 1;
       }
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].colorized = !!value;
-      this.layer.objectColorizeUpdated(this, _classPrivateFieldLooseBase(this, _state$e)[_state$e].colorized);
+      var result = _classPrivateFieldLooseBase(this, _rendererViewObject)[_rendererViewObject].setColorize(this.layer.view.viewIndex, colorize);
+      if (result instanceof SDKError) {
+        throw result;
+      }
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].colorized = !!value;
+      this.layer.objectColorizeUpdated(this, _classPrivateFieldLooseBase(this, _state$f)[_state$f].colorized);
       this.layer.redraw();
     }
     /**
@@ -18586,7 +18326,7 @@ var ViewObject = /*#__PURE__*/function () {
   }, {
     key: "opacity",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].colorize[3];
+      return _classPrivateFieldLooseBase(this, _state$f)[_state$f].colorize[3];
     }
     /**
      * Sets the opacity factor for this ViewObject.
@@ -18596,11 +18336,11 @@ var ViewObject = /*#__PURE__*/function () {
      * * Use {@link @xeokit/view!ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
      */,
     set: function set(opacity) {
-      var colorize = _classPrivateFieldLooseBase(this, _state$e)[_state$e].colorize;
-      _classPrivateFieldLooseBase(this, _state$e)[_state$e].opacityUpdated = opacity !== null && opacity !== undefined;
+      var colorize = _classPrivateFieldLooseBase(this, _state$f)[_state$f].colorize;
+      _classPrivateFieldLooseBase(this, _state$f)[_state$f].opacityUpdated = opacity !== null && opacity !== undefined;
       // @ts-ignore
-      colorize[3] = _classPrivateFieldLooseBase(this, _state$e)[_state$e].opacityUpdated ? opacity : 1.0;
-      this.layer.objectOpacityUpdated(this, _classPrivateFieldLooseBase(this, _state$e)[_state$e].opacityUpdated);
+      colorize[3] = _classPrivateFieldLooseBase(this, _state$f)[_state$f].opacityUpdated ? opacity : 1.0;
+      this.layer.objectOpacityUpdated(this, _classPrivateFieldLooseBase(this, _state$f)[_state$f].opacityUpdated);
       this.layer.redraw();
     }
   }]);
@@ -18655,7 +18395,7 @@ var ViewObject = /*#__PURE__*/function () {
  * });
  * ````
  */
-var _state$d = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$e = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var SectionPlane = /*#__PURE__*/function (_Component) {
   _inheritsLoose(SectionPlane, _Component);
   /**
@@ -18694,12 +18434,12 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
      * @event
      */
     _this.onActive = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$d, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$e, {
       writable: true,
       value: void 0
     });
     _this.view = view;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$d)[_state$d] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$e)[_state$e] = {
       active: cfg.active !== false,
       pos: new Float64Array(cfg.pos || [0, 0, 0]),
       dir: new Float32Array(cfg.pos || [0, 0, -1]),
@@ -18722,12 +18462,12 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
    * Inverts the direction of {@link SectionPlane.dir}.
    */
   _proto.flipDir = function flipDir() {
-    var dir = _classPrivateFieldLooseBase(this, _state$d)[_state$d].dir;
+    var dir = _classPrivateFieldLooseBase(this, _state$e)[_state$e].dir;
     dir[0] *= -1.0;
     dir[1] *= -1.0;
     dir[2] *= -1.0;
-    _classPrivateFieldLooseBase(this, _state$d)[_state$d].dist = -dotVec3(_classPrivateFieldLooseBase(this, _state$d)[_state$d].pos, _classPrivateFieldLooseBase(this, _state$d)[_state$d].dir);
-    this.onDir.dispatch(this, _classPrivateFieldLooseBase(this, _state$d)[_state$d].dir);
+    _classPrivateFieldLooseBase(this, _state$e)[_state$e].dist = -dotVec3(_classPrivateFieldLooseBase(this, _state$e)[_state$e].pos, _classPrivateFieldLooseBase(this, _state$e)[_state$e].dir);
+    this.onDir.dispatch(this, _classPrivateFieldLooseBase(this, _state$e)[_state$e].dir);
     this.view.redraw();
   }
   /**
@@ -18741,7 +18481,7 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
   _createClass(SectionPlane, [{
     key: "active",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].active;
+      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].active;
     }
     /**
      * Sets if this SectionPlane is active or not.
@@ -18751,12 +18491,12 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
      * @param value Set ````true```` to activate else ````false```` to deactivate.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].active === value) {
+      if (_classPrivateFieldLooseBase(this, _state$e)[_state$e].active === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$d)[_state$d].active = value;
+      _classPrivateFieldLooseBase(this, _state$e)[_state$e].active = value;
       this.view.redraw();
-      this.onActive.dispatch(this, _classPrivateFieldLooseBase(this, _state$d)[_state$d].active);
+      this.onActive.dispatch(this, _classPrivateFieldLooseBase(this, _state$e)[_state$e].active);
     }
     /**
      * Gets the World-space position of this SectionPlane's plane.
@@ -18768,7 +18508,7 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
   }, {
     key: "pos",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].pos;
+      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].pos;
     }
     /**
      * Sets the World-space position of this SectionPlane's plane.
@@ -18778,9 +18518,9 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
      * @param value New position.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$d)[_state$d].pos.set(value);
-      _classPrivateFieldLooseBase(this, _state$d)[_state$d].dist = -dotVec3(_classPrivateFieldLooseBase(this, _state$d)[_state$d].pos, _classPrivateFieldLooseBase(this, _state$d)[_state$d].dir);
-      this.onPos.dispatch(this, _classPrivateFieldLooseBase(this, _state$d)[_state$d].pos);
+      _classPrivateFieldLooseBase(this, _state$e)[_state$e].pos.set(value);
+      _classPrivateFieldLooseBase(this, _state$e)[_state$e].dist = -dotVec3(_classPrivateFieldLooseBase(this, _state$e)[_state$e].pos, _classPrivateFieldLooseBase(this, _state$e)[_state$e].dir);
+      this.onPos.dispatch(this, _classPrivateFieldLooseBase(this, _state$e)[_state$e].pos);
     }
     /**
      * Gets the direction of this SectionPlane's plane.
@@ -18792,7 +18532,7 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
   }, {
     key: "dir",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].dir;
+      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].dir;
     }
     /**
      * Sets the direction of this SectionPlane's plane.
@@ -18802,10 +18542,10 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
      * @param value New direction.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$d)[_state$d].dir.set(value);
-      _classPrivateFieldLooseBase(this, _state$d)[_state$d].dist = -dotVec3(_classPrivateFieldLooseBase(this, _state$d)[_state$d].pos, _classPrivateFieldLooseBase(this, _state$d)[_state$d].dir);
+      _classPrivateFieldLooseBase(this, _state$e)[_state$e].dir.set(value);
+      _classPrivateFieldLooseBase(this, _state$e)[_state$e].dist = -dotVec3(_classPrivateFieldLooseBase(this, _state$e)[_state$e].pos, _classPrivateFieldLooseBase(this, _state$e)[_state$e].dir);
       this.view.redraw();
-      this.onDir.dispatch(this, _classPrivateFieldLooseBase(this, _state$d)[_state$d].dir);
+      this.onDir.dispatch(this, _classPrivateFieldLooseBase(this, _state$e)[_state$e].dir);
     }
     /**
      * Gets this SectionPlane's distance to the origin of the World-space coordinate system.
@@ -18818,7 +18558,7 @@ var SectionPlane = /*#__PURE__*/function (_Component) {
   }, {
     key: "dist",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].dist;
+      return _classPrivateFieldLooseBase(this, _state$e)[_state$e].dist;
     }
   }]);
   return SectionPlane;
@@ -18869,7 +18609,7 @@ var unitsInfo = (_unitsInfo = {}, _unitsInfo[MetersUnit] = {
  * ````
  */
 var _units = /*#__PURE__*/_classPrivateFieldLooseKey("units");
-var _scale$1 = /*#__PURE__*/_classPrivateFieldLooseKey("scale");
+var _scale = /*#__PURE__*/_classPrivateFieldLooseKey("scale");
 var _origin$1 = /*#__PURE__*/_classPrivateFieldLooseKey("origin");
 var Metrics = /*#__PURE__*/function (_Component) {
   _inheritsLoose(Metrics, _Component);
@@ -18890,7 +18630,7 @@ var Metrics = /*#__PURE__*/function (_Component) {
       writable: true,
       value: void 0
     });
-    Object.defineProperty(_assertThisInitialized(_this), _scale$1, {
+    Object.defineProperty(_assertThisInitialized(_this), _scale, {
       writable: true,
       value: void 0
     });
@@ -18920,7 +18660,7 @@ var Metrics = /*#__PURE__*/function (_Component) {
     _this.onScale = new EventEmitter(new dist.EventDispatcher());
     _this.onOrigin = new EventEmitter(new dist.EventDispatcher());
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _units)[_units] = MetersUnit;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _scale$1)[_scale$1] = 1.0;
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _scale)[_scale] = 1.0;
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _origin$1)[_origin$1] = createVec3([0, 0, 0]);
     _this.units = cfg.units;
     _this.scale = cfg.scale;
@@ -18971,9 +18711,9 @@ var Metrics = /*#__PURE__*/function (_Component) {
     if (realPos === void 0) {
       realPos = createVec3();
     }
-    realPos[0] = _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][0] + _classPrivateFieldLooseBase(this, _scale$1)[_scale$1] * worldPos[0];
-    realPos[1] = _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][1] + _classPrivateFieldLooseBase(this, _scale$1)[_scale$1] * worldPos[1];
-    realPos[2] = _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][2] + _classPrivateFieldLooseBase(this, _scale$1)[_scale$1] * worldPos[2];
+    realPos[0] = _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][0] + _classPrivateFieldLooseBase(this, _scale)[_scale] * worldPos[0];
+    realPos[1] = _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][1] + _classPrivateFieldLooseBase(this, _scale)[_scale] * worldPos[1];
+    realPos[2] = _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][2] + _classPrivateFieldLooseBase(this, _scale)[_scale] * worldPos[2];
     return realPos;
   }
   /**
@@ -18989,9 +18729,9 @@ var Metrics = /*#__PURE__*/function (_Component) {
     if (worldPos === void 0) {
       worldPos = createVec3();
     }
-    worldPos[0] = (realPos[0] - _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][0]) / _classPrivateFieldLooseBase(this, _scale$1)[_scale$1];
-    worldPos[1] = (realPos[1] - _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][1]) / _classPrivateFieldLooseBase(this, _scale$1)[_scale$1];
-    worldPos[2] = (realPos[2] - _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][2]) / _classPrivateFieldLooseBase(this, _scale$1)[_scale$1];
+    worldPos[0] = (realPos[0] - _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][0]) / _classPrivateFieldLooseBase(this, _scale)[_scale];
+    worldPos[1] = (realPos[1] - _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][1]) / _classPrivateFieldLooseBase(this, _scale)[_scale];
+    worldPos[2] = (realPos[2] - _classPrivateFieldLooseBase(this, _origin$1)[_origin$1][2]) / _classPrivateFieldLooseBase(this, _scale)[_scale];
     return worldPos;
   }
   /**
@@ -19040,7 +18780,7 @@ var Metrics = /*#__PURE__*/function (_Component) {
   }, {
     key: "scale",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _scale$1)[_scale$1];
+      return _classPrivateFieldLooseBase(this, _scale)[_scale];
     }
     /**
      * Sets the number of Real-space units represented by each unit of the {@link @xeokit/viewer!View}'s World-space coordinate system.
@@ -19053,8 +18793,8 @@ var Metrics = /*#__PURE__*/function (_Component) {
         this.error("scale value should be larger than zero");
         return;
       }
-      _classPrivateFieldLooseBase(this, _scale$1)[_scale$1] = value;
-      this.onScale.dispatch(this, _classPrivateFieldLooseBase(this, _scale$1)[_scale$1]);
+      _classPrivateFieldLooseBase(this, _scale)[_scale] = value;
+      this.onScale.dispatch(this, _classPrivateFieldLooseBase(this, _scale)[_scale]);
     }
     /**
      * Gets the 3D Real-space origin, in Real-space units, at which this {@link @xeokit/viewer!View}'s World-space coordinate origin ````[0,0,0]```` sits.
@@ -19086,7 +18826,7 @@ var Metrics = /*#__PURE__*/function (_Component) {
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link @xeokit/viewer!View}.
  */
-var _state$c = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$d = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var SAO = /*#__PURE__*/function (_Component) {
   _inheritsLoose(SAO, _Component);
   /** @private */
@@ -19097,12 +18837,12 @@ var SAO = /*#__PURE__*/function (_Component) {
      * The View to which this SAO belongs.
      */
     _this.view = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$c, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$d, {
       writable: true,
       value: void 0
     });
     _this.view = view;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$c)[_state$c] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$d)[_state$d] = {
       renderModes: [QualityRender],
       enabled: params.enabled !== false,
       kernelRadius: params.kernelRadius || 100.0,
@@ -19118,13 +18858,40 @@ var SAO = /*#__PURE__*/function (_Component) {
     return _this;
   }
   /**
-   * Gets which rendering modes in which to render SAO.
+   * Sets which rendering modes in which to render SAO.
    *
-   * Accepted modes are {@link QualityRender} and {@link FastRender}.
+   * Supported rendering modes are:
    *
-   * Default value is [{@link QualityRender}].
+   * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+   * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+   *
+   * Default value is [{@link @xeokit/constants!QualityRender | QualityRender}].
+   *
+   * @param renderModes The rendering modes
+   * @returns *{@link @xeokit/core!SDKError}*
+   * * Rendering mode not supported.
    */
   var _proto = SAO.prototype;
+  _proto.setRenderModes = function setRenderModes(renderModes) {
+    for (var i = 0, len = renderModes.length; i < len; i++) {
+      var renderMode = renderModes[i];
+      if (renderMode !== QualityRender && renderMode !== FastRender) {
+        return new SDKError("Failed to set render modes for SAO - unsupported mode - supported modes are FastRender and QualityRender");
+      }
+    }
+    _classPrivateFieldLooseBase(this, _state$d)[_state$d].renderModes = renderModes;
+    this.view.redraw();
+  }
+  /**
+   * Gets which rendering modes in which to render SAO.
+   *
+   * Supported rendering modes are:
+   *
+   * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+   * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+   *
+   * Default value is [{@link @xeokit/constants!QualityRender | QualityRender}].
+   */;
   /**
    * @private
    */
@@ -19134,21 +18901,10 @@ var SAO = /*#__PURE__*/function (_Component) {
   _createClass(SAO, [{
     key: "renderModes",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].renderModes;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].renderModes;
     }
     /**
-     * Sets which rendering modes in which to render SAO.
-     *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
-     *
-     * Default value is [{@link QualityRender}].
-     */,
-    set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].renderModes = value;
-      this.view.redraw();
-    }
-    /**
-     * Gets whether or not SAO is supported by this browser and GPU.
+     * Gets whether SAO is supported by this browser and GPU.
      *
      * Even when enabled, SAO will only work if supported.
      */
@@ -19167,7 +18923,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "enabled",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].enabled;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].enabled;
     }
     /**
      * Sets whether SAO is enabled for the {@link @xeokit/viewer!View}.
@@ -19178,10 +18934,10 @@ var SAO = /*#__PURE__*/function (_Component) {
      */,
     set: function set(value) {
       value = !!value;
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].enabled === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].enabled === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].enabled = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].enabled = value;
       this.view.redraw();
     }
     /**
@@ -19195,7 +18951,7 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (!this.supported) {
         return false;
       }
-      if (!_classPrivateFieldLooseBase(this, _state$c)[_state$c].enabled) {
+      if (!_classPrivateFieldLooseBase(this, _state$d)[_state$d].enabled) {
         return false;
       }
       var projectionType = this.view.camera.projectionType;
@@ -19215,7 +18971,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "kernelRadius",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].kernelRadius;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].kernelRadius;
     }
     /**
      * Sets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
@@ -19226,10 +18982,10 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (value === undefined || value === null) {
         value = 100.0;
       }
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].kernelRadius === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].kernelRadius === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].kernelRadius = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].kernelRadius = value;
       this.view.redraw();
     }
     /**
@@ -19240,7 +18996,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "intensity",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].intensity;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].intensity;
     }
     /**
      * Sets the degree of darkening (ambient obscurance) produced by the SAO effect.
@@ -19251,10 +19007,10 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (value === undefined || value === null) {
         value = 0.15;
       }
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].intensity === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].intensity === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].intensity = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].intensity = value;
       this.view.redraw();
     }
     /**
@@ -19265,7 +19021,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "bias",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].bias;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].bias;
     }
     /**
      * Sets the SAO bias.
@@ -19276,10 +19032,10 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (value === undefined || value === null) {
         value = 0.5;
       }
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].bias === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].bias === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].bias = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].bias = value;
       this.view.redraw();
     }
     /**
@@ -19290,7 +19046,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "scale",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].scale;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].scale;
     }
     /**
      * Sets the SAO occlusion scale.
@@ -19301,10 +19057,10 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (value === undefined || value === null) {
         value = 1.0;
       }
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].scale === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].scale === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].scale = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].scale = value;
       this.view.redraw();
     }
     /**
@@ -19315,7 +19071,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "minResolution",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].minResolution;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].minResolution;
     }
     /**
      * Sets the SAO minimum resolution.
@@ -19326,10 +19082,10 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (value === undefined || value === null) {
         value = 0.0;
       }
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].minResolution === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].minResolution === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].minResolution = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].minResolution = value;
       this.view.redraw();
     }
     /**
@@ -19340,7 +19096,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "numSamples",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].numSamples;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].numSamples;
     }
     /**
      * Sets the number of SAO samples.
@@ -19353,10 +19109,10 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (value === undefined || value === null) {
         value = 10;
       }
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].numSamples === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].numSamples === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].numSamples = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].numSamples = value;
       this.view.redraw();
     }
     /**
@@ -19367,7 +19123,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "blur",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].blur;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].blur;
     }
     /**
      * Sets whether Guassian blur is enabled.
@@ -19376,10 +19132,10 @@ var SAO = /*#__PURE__*/function (_Component) {
      */,
     set: function set(value) {
       value = value !== false;
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].blur === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].blur === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].blur = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].blur = value;
       this.view.redraw();
     }
     /**
@@ -19392,7 +19148,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "blendCutoff",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].blendCutoff;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].blendCutoff;
     }
     /**
      * Sets the SAO blend cutoff.
@@ -19405,10 +19161,10 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (value === undefined || value === null) {
         value = 0.3;
       }
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].blendCutoff === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].blendCutoff === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].blendCutoff = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].blendCutoff = value;
       this.view.redraw();
     }
     /**
@@ -19421,7 +19177,7 @@ var SAO = /*#__PURE__*/function (_Component) {
   }, {
     key: "blendFactor",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].blendFactor;
+      return _classPrivateFieldLooseBase(this, _state$d)[_state$d].blendFactor;
     }
     /**
      * Sets the SAO blend factor.
@@ -19434,10 +19190,10 @@ var SAO = /*#__PURE__*/function (_Component) {
       if (value === undefined || value === null) {
         value = 1.0;
       }
-      if (_classPrivateFieldLooseBase(this, _state$c)[_state$c].blendFactor === value) {
+      if (_classPrivateFieldLooseBase(this, _state$d)[_state$d].blendFactor === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$c)[_state$c].blendFactor = value;
+      _classPrivateFieldLooseBase(this, _state$d)[_state$d].blendFactor = value;
       this.view.redraw();
     }
   }]);
@@ -19449,7 +19205,7 @@ var SAO = /*#__PURE__*/function (_Component) {
  *
  * * Located at {@link View#linesMaterial}.
  */
-var _state$b = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$c = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var LinesMaterial = /*#__PURE__*/function (_Component) {
   _inheritsLoose(LinesMaterial, _Component);
   /**
@@ -19467,12 +19223,12 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
      * The View to which this LinesMaterial belongs.
      */
     _this.view = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$b, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$c, {
       writable: true,
       value: void 0
     });
     _this.view = view;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$b)[_state$b] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$c)[_state$c] = {
       lineWidth: options.lineWidth !== undefined && options.lineWidth !== null ? options.lineWidth : 1
     };
     return _this;
@@ -19491,10 +19247,10 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````1```` pixels.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].lineWidth;
+      return _classPrivateFieldLooseBase(this, _state$c)[_state$c].lineWidth;
     },
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$b)[_state$b].lineWidth = value || 1;
+      _classPrivateFieldLooseBase(this, _state$c)[_state$c].lineWidth = value || 1;
       this.view.redraw();
     }
   }]);
@@ -19740,6 +19496,7 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  * modelLayer.setObjectsVisible(modelLayer.objectIds, true);
  * ````
  */
+var _renderModes = /*#__PURE__*/_classPrivateFieldLooseKey("renderModes");
 var _numObjects$1 = /*#__PURE__*/_classPrivateFieldLooseKey("numObjects");
 var _objectIds$1 = /*#__PURE__*/_classPrivateFieldLooseKey("objectIds");
 var _numVisibleObjects$1 = /*#__PURE__*/_classPrivateFieldLooseKey("numVisibleObjects");
@@ -19756,18 +19513,18 @@ var _numOpacityObjects$1 = /*#__PURE__*/_classPrivateFieldLooseKey("numOpacityOb
 var _opacityObjectIds$1 = /*#__PURE__*/_classPrivateFieldLooseKey("opacityObjectIds");
 var _qualityRender$1 = /*#__PURE__*/_classPrivateFieldLooseKey("qualityRender");
 var _initViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("initViewObjects");
-var _createViewObjects$1 = /*#__PURE__*/_classPrivateFieldLooseKey("createViewObjects");
-var _destroyViewObjects$1 = /*#__PURE__*/_classPrivateFieldLooseKey("destroyViewObjects");
+var _createViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("createViewObjects");
+var _destroyViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("destroyViewObjects");
 var ViewLayer = /*#__PURE__*/function (_Component) {
   _inheritsLoose(ViewLayer, _Component);
   function ViewLayer(options) {
     var _this;
     _this = _Component.call(this, options.view, options) || this;
-    Object.defineProperty(_assertThisInitialized(_this), _destroyViewObjects$1, {
-      value: _destroyViewObjects2$1
+    Object.defineProperty(_assertThisInitialized(_this), _destroyViewObjects, {
+      value: _destroyViewObjects2
     });
-    Object.defineProperty(_assertThisInitialized(_this), _createViewObjects$1, {
-      value: _createViewObjects2$1
+    Object.defineProperty(_assertThisInitialized(_this), _createViewObjects, {
+      value: _createViewObjects2
     });
     Object.defineProperty(_assertThisInitialized(_this), _initViewObjects, {
       value: _initViewObjects2
@@ -19841,6 +19598,10 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
      * @event
      */
     _this.onObjectVisibility = void 0;
+    Object.defineProperty(_assertThisInitialized(_this), _renderModes, {
+      writable: true,
+      value: void 0
+    });
     Object.defineProperty(_assertThisInitialized(_this), _numObjects$1, {
       writable: true,
       value: void 0
@@ -19921,6 +19682,7 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numColorizedObjects$1)[_numColorizedObjects$1] = 0;
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numOpacityObjects$1)[_numOpacityObjects$1] = 0;
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _qualityRender$1)[_qualityRender$1] = !!options.qualityRender;
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _renderModes)[_renderModes] = [];
     _this.onObjectVisibility = new EventEmitter(new dist.EventDispatcher());
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _initViewObjects)[_initViewObjects]();
     return _this;
@@ -20253,30 +20015,27 @@ var ViewLayer = /*#__PURE__*/function (_Component) {
       return 1.0;
     }
     /**
-     * Sets whether quality rendering is enabled for this ViewLayer.
+     * Sets which rendering modes in which to render the {@linkk ViewObject | ViewObjects} in this ViewLayer.
      *
-     * Default is ````false````.
+     * Default value is [].
      */
   }, {
-    key: "qualityRender",
+    key: "renderModes",
     get:
     /**
-     * Gets whether quality rendering is enabled for this ViewLayer.
+     * Gets which rendering modes in which to render the {@linkk ViewObject | ViewObjects} in this ViewLayer.
      *
-     * Default is ````false````.
+     * Default value is [].
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _qualityRender$1)[_qualityRender$1];
+      return _classPrivateFieldLooseBase(this, _renderModes)[_renderModes];
     }
     /**
      * Gets the number of {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _qualityRender$1)[_qualityRender$1] === value) {
-        return;
-      }
-      _classPrivateFieldLooseBase(this, _qualityRender$1)[_qualityRender$1] = value;
-      this.redraw();
+      _classPrivateFieldLooseBase(this, _renderModes)[_renderModes] = value;
+      this.view.redraw();
     }
   }, {
     key: "numObjects",
@@ -20416,16 +20175,16 @@ function _initViewObjects2() {
   var models = this.viewer.scene.models;
   for (var id in models) {
     var model = models[id];
-    _classPrivateFieldLooseBase(this, _createViewObjects$1)[_createViewObjects$1](model);
+    _classPrivateFieldLooseBase(this, _createViewObjects)[_createViewObjects](model);
   }
   this.viewer.scene.onModelCreated.subscribe(function (scene, model) {
-    _classPrivateFieldLooseBase(_this2, _createViewObjects$1)[_createViewObjects$1](model);
+    _classPrivateFieldLooseBase(_this2, _createViewObjects)[_createViewObjects](model);
   });
   this.viewer.scene.onModelDestroyed.subscribe(function (scene, model) {
-    _classPrivateFieldLooseBase(_this2, _destroyViewObjects$1)[_destroyViewObjects$1](model);
+    _classPrivateFieldLooseBase(_this2, _destroyViewObjects)[_destroyViewObjects](model);
   });
 }
-function _createViewObjects2$1(model) {
+function _createViewObjects2(model) {
   var sceneObjects = model.objects;
   for (var id in sceneObjects) {
     var sceneObject = sceneObjects[id];
@@ -20438,7 +20197,7 @@ function _createViewObjects2$1(model) {
     }
   }
 }
-function _destroyViewObjects2$1(model) {
+function _destroyViewObjects2(model) {
   var viewerObjects = model.objects;
   for (var id in viewerObjects) {
     var viewerObject = viewerObjects[id];
@@ -20459,7 +20218,7 @@ function _destroyViewObjects2$1(model) {
  * * Highlight a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.highlighted} ````true````.
  * * Select a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.selected} ````true````.
  */
-var _state$a = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$b = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var EmphasisMaterial = /*#__PURE__*/function (_Component) {
   _inheritsLoose(EmphasisMaterial, _Component);
   /**
@@ -20475,12 +20234,12 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * The View to which this EmphasisMaterial belongs.
      */
     _this.view = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$a, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$b, {
       writable: true,
       value: void 0
     });
     _this.view = view;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$a)[_state$a] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$b)[_state$b] = {
       fill: !!options.fill,
       fillColor: new Float32Array(options.fillColor || [0.4, 0.4, 0.4]),
       fillAlpha: options.fillAlpha !== undefined && options.fillAlpha !== null ? options.fillAlpha : 0.2,
@@ -20513,7 +20272,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````true````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].fill;
+      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].fill;
     }
     /**
      * Sets the RGB surface fill color for the surfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
@@ -20521,10 +20280,10 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````[0.4, 0.4, 0.4]````.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$a)[_state$a].fill === value) {
+      if (_classPrivateFieldLooseBase(this, _state$b)[_state$b].fill === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$a)[_state$a].fill = value;
+      _classPrivateFieldLooseBase(this, _state$b)[_state$b].fill = value;
       this.view.redraw();
     }
   }, {
@@ -20536,7 +20295,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````[0.4, 0.4, 0.4]````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].fillColor;
+      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].fillColor;
     }
     /**
      * Sets the transparency of the surfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
@@ -20546,7 +20305,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````0.2````.
      */,
     set: function set(value) {
-      var fillColor = _classPrivateFieldLooseBase(this, _state$a)[_state$a].fillColor;
+      var fillColor = _classPrivateFieldLooseBase(this, _state$b)[_state$b].fillColor;
       if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
         return;
       }
@@ -20566,7 +20325,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````0.2````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].fillAlpha;
+      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].fillAlpha;
     }
     /**
      * Sets if the edges on emphasized {@link @xeokit/viewer!ViewObject | ViewObjects} are visible.
@@ -20574,10 +20333,10 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````true````.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$a)[_state$a].fillAlpha === value) {
+      if (_classPrivateFieldLooseBase(this, _state$b)[_state$b].fillAlpha === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$a)[_state$a].fillAlpha = value;
+      _classPrivateFieldLooseBase(this, _state$b)[_state$b].fillAlpha = value;
       this.view.redraw();
     }
   }, {
@@ -20589,7 +20348,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````true````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edges;
+      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].edges;
     }
     /**
      * Sets the RGB color of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
@@ -20597,10 +20356,10 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ```` [0.2, 0.2, 0.2]````.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$a)[_state$a].edges === value) {
+      if (_classPrivateFieldLooseBase(this, _state$b)[_state$b].edges === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$a)[_state$a].edges = value;
+      _classPrivateFieldLooseBase(this, _state$b)[_state$b].edges = value;
       this.view.redraw();
     }
   }, {
@@ -20612,7 +20371,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ```` [0.2, 0.2, 0.2]````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeColor;
+      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].edgeColor;
     }
     /**
      * Sets the transparency of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
@@ -20622,7 +20381,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````0.2````.
      */,
     set: function set(value) {
-      var edgeColor = _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeColor;
+      var edgeColor = _classPrivateFieldLooseBase(this, _state$b)[_state$b].edgeColor;
       if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
         return;
       }
@@ -20642,7 +20401,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````0.2````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeAlpha;
+      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].edgeAlpha;
     }
     /**
      * Sets the width of the edges of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects}.
@@ -20650,10 +20409,10 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````1.0```` pixels.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeAlpha === value) {
+      if (_classPrivateFieldLooseBase(this, _state$b)[_state$b].edgeAlpha === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeAlpha = value;
+      _classPrivateFieldLooseBase(this, _state$b)[_state$b].edgeAlpha = value;
       this.view.redraw();
     }
   }, {
@@ -20667,7 +20426,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````1.0```` pixels.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeWidth;
+      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].edgeWidth;
     }
     /**
      * Sets whether to render backfaces of emphasized {@link @xeokit/viewer!ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
@@ -20675,7 +20434,7 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````false````.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeWidth = value;
+      _classPrivateFieldLooseBase(this, _state$b)[_state$b].edgeWidth = value;
       this.view.redraw();
     }
   }, {
@@ -20687,16 +20446,16 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````false````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].backfaces;
+      return _classPrivateFieldLooseBase(this, _state$b)[_state$b].backfaces;
     }
     /**
      * @private
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$a)[_state$a].backfaces === value) {
+      if (_classPrivateFieldLooseBase(this, _state$b)[_state$b].backfaces === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$a)[_state$a].backfaces = value;
+      _classPrivateFieldLooseBase(this, _state$b)[_state$b].backfaces = value;
       this.view.redraw();
     }
   }, {
@@ -20713,36 +20472,36 @@ var EmphasisMaterial = /*#__PURE__*/function (_Component) {
  *
  * ## Summary
  *
- * * Located at {@link View.edgeMaterial}.
- * * Emphasise edges of a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.edges} ````true````.
+ * * Located at {@link View.edges}.
+ * * Emphasise edges of a {@link @xeokit/viewer!ViewObject} by setting {@link @xeokit/viewer!ViewObject.enabled} ````true````.
  */
-var _state$9 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
-var EdgeMaterial = /*#__PURE__*/function (_Component) {
-  _inheritsLoose(EdgeMaterial, _Component);
+var _state$a = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var Edges = /*#__PURE__*/function (_Component) {
+  _inheritsLoose(Edges, _Component);
   /**
    * @private
    */
-  function EdgeMaterial(view, options) {
+  function Edges(view, options) {
     var _this;
     if (options === void 0) {
       options = {};
     }
     _this = _Component.call(this, view, options) || this;
     /**
-     * The View to which this EdgeMaterial belongs.
+     * The View to which this Edges belongs.
      */
     _this.view = void 0;
     /**
      * @private
      */
-    Object.defineProperty(_assertThisInitialized(_this), _state$9, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$a, {
       writable: true,
       value: void 0
     });
     _this.view = view;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$9)[_state$9] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$a)[_state$a] = {
       renderModes: options.renderModes || [QualityRender],
-      edges: options.edges !== false,
+      enabled: options.enabled !== false,
       edgeColor: new Float32Array(options.edgeColor || [0.2, 0.2, 0.2]),
       edgeAlpha: options.edgeAlpha !== undefined && options.edgeAlpha !== null ? options.edgeAlpha : 0.5,
       edgeWidth: options.edgeWidth !== undefined && options.edgeWidth !== null ? options.edgeWidth : 1
@@ -20752,82 +20511,82 @@ var EdgeMaterial = /*#__PURE__*/function (_Component) {
   /**
    * Sets which rendering modes in which to render edges.
    *
-   * Accepted modes are {@link QualityRender} and {@link FastRender}.
+   * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
    *
-   * Default value is [{@link QualityRender}].
+   * Default value is [{@link @xeokit/constants!QualityRender}].
    */
-  var _proto = EdgeMaterial.prototype;
+  var _proto = Edges.prototype;
   /**
    * @private
    */
   _proto.destroy = function destroy() {
     _Component.prototype.destroy.call(this);
   };
-  _createClass(EdgeMaterial, [{
+  _createClass(Edges, [{
     key: "renderModes",
     get:
     /**
      * Gets which rendering modes in which to render edges.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link QualityRender}].
+     * Default value is [{@link @xeokit/constants!QualityRender}].
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].renderModes;
+      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].renderModes;
     }
     /**
-     * Sets if edges of {@link ViewObjects} are visible.
+     * Sets if edges of {@link ViewObject | ViewObjects} are visible.
      *
      * Default is ````true````.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$9)[_state$9].renderModes = value;
+      _classPrivateFieldLooseBase(this, _state$a)[_state$a].renderModes = value;
       this.view.redraw();
     }
   }, {
-    key: "edges",
+    key: "enabled",
     get:
     /**
-     * Gets if edges of {@link ViewObjects} are visible.
+     * Gets if edges of {@link ViewObject | ViewObjects} are visible.
      *
      * Default is ````true````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].edges;
+      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].enabled;
     }
     /**
-     * Sets RGB edge color for {@link ViewObjects}.
+     * Sets RGB edge color for {@link ViewObject | ViewObjects}.
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].edges === value) {
+      if (_classPrivateFieldLooseBase(this, _state$a)[_state$a].enabled === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$9)[_state$9].edges = value;
+      _classPrivateFieldLooseBase(this, _state$a)[_state$a].enabled = value;
       this.view.redraw();
     }
   }, {
     key: "edgeColor",
     get:
     /**
-     * Gets RGB edge color for {@link ViewObjects}.
+     * Gets RGB edge color for {@link ViewObject | ViewObjects}.
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].edgeColor;
+      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeColor;
     }
     /**
-     * Sets edge transparency for {@link ViewObjects}.
+     * Sets edge transparency for {@link ViewObject | ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
      * Default value is ````1.0````.
      */,
     set: function set(value) {
-      var edgeColor = _classPrivateFieldLooseBase(this, _state$9)[_state$9].edgeColor;
+      var edgeColor = _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeColor;
       if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
         return;
       }
@@ -20840,49 +20599,49 @@ var EdgeMaterial = /*#__PURE__*/function (_Component) {
     key: "edgeAlpha",
     get:
     /**
-     * Gets edge transparency for {@link ViewObjects}.
+     * Gets edge transparency for {@link ViewObject | ViewObjects}.
      *
      * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
      *
      * Default value is ````1.0````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].edgeAlpha;
+      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeAlpha;
     }
     /**
-     * Sets edge width for {@link ViewObjects}.
+     * Sets edge width for {@link ViewObject | ViewObjects}.
      *
      * Default value is ````1.0```` pixels.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].edgeAlpha === value) {
+      if (_classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeAlpha === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$9)[_state$9].edgeAlpha = value;
+      _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeAlpha = value;
       this.view.redraw();
     }
   }, {
     key: "edgeWidth",
     get:
     /**
-     * Gets edge width for {@link ViewObjects}.
+     * Gets edge width for {@link ViewObject | ViewObjects}.
      *
      * This is not supported by WebGL implementations based on DirectX [2019].
      *
      * Default value is ````1.0```` pixels.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].edgeWidth;
+      return _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeWidth;
     },
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].edgeWidth === value) {
+      if (_classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeWidth === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$9)[_state$9].edgeWidth = value;
+      _classPrivateFieldLooseBase(this, _state$a)[_state$a].edgeWidth = value;
       this.view.redraw();
     }
   }]);
-  return EdgeMaterial;
+  return Edges;
 }(Component);
 
 /**
@@ -20894,7 +20653,7 @@ var EdgeMaterial = /*#__PURE__*/function (_Component) {
  * * Supports round and square points.
  * * Optional perspective point scaling.
  */
-var _state$8 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$9 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var PointsMaterial = /*#__PURE__*/function (_Component) {
   _inheritsLoose(PointsMaterial, _Component);
   /**
@@ -20910,12 +20669,12 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * The View to which this PointsMaterial belongs.
      */
     _this.view = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$8, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$9, {
       writable: true,
       value: void 0
     });
     _this.view = view;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$8)[_state$8] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$9)[_state$9] = {
       pointSize: options.pointSize !== undefined && options.pointSize !== null ? options.pointSize : 1,
       roundPoints: options.roundPoints !== false,
       perspectivePoints: options.perspectivePoints !== false,
@@ -20948,7 +20707,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````2.0```` pixels.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].pointSize;
+      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].pointSize;
     }
     /**
      * Sets if points are round or square.
@@ -20956,7 +20715,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````true```` to set points round.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$8)[_state$8].pointSize = value;
+      _classPrivateFieldLooseBase(this, _state$9)[_state$9].pointSize = value;
       this.view.redraw();
     }
   }, {
@@ -20968,7 +20727,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````true```` to set points round.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].roundPoints;
+      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].roundPoints;
     }
     /**
      * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
@@ -20976,10 +20735,10 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````true````.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].roundPoints === value) {
+      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].roundPoints === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$8)[_state$8].roundPoints = value;
+      _classPrivateFieldLooseBase(this, _state$9)[_state$9].roundPoints = value;
       this.view.rebuild();
     }
   }, {
@@ -20991,7 +20750,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````false````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].perspectivePoints;
+      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].perspectivePoints;
     }
     /**
      * Sets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
@@ -20999,10 +20758,10 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````1.0```` pixels.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].perspectivePoints === value) {
+      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].perspectivePoints === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$8)[_state$8].perspectivePoints = value;
+      _classPrivateFieldLooseBase(this, _state$9)[_state$9].perspectivePoints = value;
       this.view.rebuild();
     }
   }, {
@@ -21016,7 +20775,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * @type {Number}
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].minPerspectivePointSize;
+      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].minPerspectivePointSize;
     }
     /**
      * Sets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
@@ -21024,10 +20783,10 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````6```` pixels.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].minPerspectivePointSize === value) {
+      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].minPerspectivePointSize === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$8)[_state$8].minPerspectivePointSize = value;
+      _classPrivateFieldLooseBase(this, _state$9)[_state$9].minPerspectivePointSize = value;
       this.view.rebuild();
     }
   }, {
@@ -21039,7 +20798,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````6```` pixels.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].maxPerspectivePointSize;
+      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].maxPerspectivePointSize;
     }
     /**
      * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
@@ -21047,10 +20806,10 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````false````.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].maxPerspectivePointSize === value) {
+      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].maxPerspectivePointSize === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$8)[_state$8].maxPerspectivePointSize = value;
+      _classPrivateFieldLooseBase(this, _state$9)[_state$9].maxPerspectivePointSize = value;
       this.view.rebuild();
     }
   }, {
@@ -21062,7 +20821,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default is ````false````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].filterIntensity;
+      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].filterIntensity;
     }
     /**
      * Sets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
@@ -21070,10 +20829,10 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````0````.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].filterIntensity === value) {
+      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].filterIntensity === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$8)[_state$8].filterIntensity = value;
+      _classPrivateFieldLooseBase(this, _state$9)[_state$9].filterIntensity = value;
       this.view.rebuild();
     }
   }, {
@@ -21085,7 +20844,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````0````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].minIntensity;
+      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].minIntensity;
     }
     /**
      * Sets the maximum rendered size of points when {@link PointsMaterial.filterIntensity} is ````true````.
@@ -21093,10 +20852,10 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````1````.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].minIntensity === value) {
+      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].minIntensity === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$8)[_state$8].minIntensity = value;
+      _classPrivateFieldLooseBase(this, _state$9)[_state$9].minIntensity = value;
       this.view.redraw();
     }
   }, {
@@ -21108,22 +20867,22 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
      * Default value is ````1````.
      */
     function get() {
-      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].maxIntensity;
+      return _classPrivateFieldLooseBase(this, _state$9)[_state$9].maxIntensity;
     }
     /**
      * @private
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].maxIntensity === value) {
+      if (_classPrivateFieldLooseBase(this, _state$9)[_state$9].maxIntensity === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$8)[_state$8].maxIntensity = value;
+      _classPrivateFieldLooseBase(this, _state$9)[_state$9].maxIntensity = value;
       this.view.redraw();
     }
   }, {
     key: "hash",
     get: function get() {
-      var state = _classPrivateFieldLooseBase(this, _state$8)[_state$8];
+      var state = _classPrivateFieldLooseBase(this, _state$9)[_state$9];
       return state.pointSize + ";\n        " + state.roundPoints + ";\n        " + state.perspectivePoints + ";\n        " + state.minPerspectivePointSize + ";\n        " + state.maxPerspectivePointSize + ";\n        " + state.filterIntensity;
     }
   }]);
@@ -21140,7 +20899,7 @@ var PointsMaterial = /*#__PURE__*/function (_Component) {
  * * {@link @xeokit/viewer!PerspectiveProjection.near | PerspectiveProjection.near} and {@link @xeokit/viewer!PerspectiveProjection.far| PerspectiveProjection.far} specify the distances to the clipping planes.
  * * {@link @xeokit/viewer!PerspectiveProjection.onProjMatrix | PerspectiveProjection.onProjMatrix} will fire an event whenever {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-var _state$7 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$8 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var _inverseMatrixDirty$2 = /*#__PURE__*/_classPrivateFieldLooseKey("inverseMatrixDirty");
 var _transposedProjMatrixDirty$3 = /*#__PURE__*/_classPrivateFieldLooseKey("transposedProjMatrixDirty");
 var _onViewBoundary$1 = /*#__PURE__*/_classPrivateFieldLooseKey("onViewBoundary");
@@ -21165,7 +20924,7 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
      * @event
      */
     _this.onProjMatrix = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$7, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$8, {
       writable: true,
       value: void 0
     });
@@ -21182,7 +20941,7 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
       value: void 0
     });
     _this.camera = camera;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$7)[_state$7] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$8)[_state$8] = {
       near: cfg.near || 0.1,
       far: cfg.far || 2000.0,
       fov: cfg.fov || 60.0,
@@ -21215,17 +20974,17 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
     var HEIGHT_INDEX = 3;
     var boundary = this.camera.view.boundary;
     var aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
-    var fovAxis = _classPrivateFieldLooseBase(this, _state$7)[_state$7].fovAxis;
-    var fov = _classPrivateFieldLooseBase(this, _state$7)[_state$7].fov;
+    var fovAxis = _classPrivateFieldLooseBase(this, _state$8)[_state$8].fovAxis;
+    var fov = _classPrivateFieldLooseBase(this, _state$8)[_state$8].fov;
     if (fovAxis === "x" || fovAxis === "min" && aspect < 1 || fovAxis === "max" && aspect > 1) {
       fov = fov / aspect;
     }
     fov = Math.min(fov, 120);
-    perspectiveMat4(fov * (Math.PI / 180.0), aspect, _classPrivateFieldLooseBase(this, _state$7)[_state$7].near, _classPrivateFieldLooseBase(this, _state$7)[_state$7].far, _classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix);
+    perspectiveMat4(fov * (Math.PI / 180.0), aspect, _classPrivateFieldLooseBase(this, _state$8)[_state$8].near, _classPrivateFieldLooseBase(this, _state$8)[_state$8].far, _classPrivateFieldLooseBase(this, _state$8)[_state$8].projMatrix);
     _classPrivateFieldLooseBase(this, _inverseMatrixDirty$2)[_inverseMatrixDirty$2] = true;
     _classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$3)[_transposedProjMatrixDirty$3] = true;
     this.camera.view.redraw();
-    this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix);
+    this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$8)[_state$8].projMatrix);
   }
   /**
    * Un-projects the given View-space coordinates and Screen-space depth, using this PerspectiveProjection projection.
@@ -21262,7 +21021,7 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
   _createClass(PerspectiveProjection, [{
     key: "fov",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].fov;
+      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].fov;
     }
     /**
      * Sets the PerspectiveProjection's field-of-view angle (FOV).
@@ -21272,10 +21031,10 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
      * @param value New field-of-view.
      */,
     set: function set(value) {
-      if (value === _classPrivateFieldLooseBase(this, _state$7)[_state$7].fov) {
+      if (value === _classPrivateFieldLooseBase(this, _state$8)[_state$8].fov) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$7)[_state$7].fov = value;
+      _classPrivateFieldLooseBase(this, _state$8)[_state$8].fov = value;
       this.setDirty();
     }
     /**
@@ -21290,7 +21049,7 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "fovAxis",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].fovAxis;
+      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].fovAxis;
     }
     /**
      * Sets the PerspectiveProjection's FOV axis.
@@ -21303,14 +21062,14 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
      */,
     set: function set(value) {
       value = value || "min";
-      if (_classPrivateFieldLooseBase(this, _state$7)[_state$7].fovAxis === value) {
+      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].fovAxis === value) {
         return;
       }
       if (value !== "x" && value !== "y" && value !== "min") {
         this.error("Unsupported value for 'fovAxis': " + value + " - defaulting to 'min'");
         value = "min";
       }
-      _classPrivateFieldLooseBase(this, _state$7)[_state$7].fovAxis = value;
+      _classPrivateFieldLooseBase(this, _state$8)[_state$8].fovAxis = value;
       this.setDirty();
     }
     /**
@@ -21323,7 +21082,7 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "near",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].near;
+      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].near;
     }
     /**
      * Sets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
@@ -21333,10 +21092,10 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
      * @param value New PerspectiveProjection near plane position.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$7)[_state$7].near === value) {
+      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].near === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$7)[_state$7].near = value;
+      _classPrivateFieldLooseBase(this, _state$8)[_state$8].near = value;
       this.setDirty();
     }
     /**
@@ -21347,7 +21106,7 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "far",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].far;
+      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].far;
     }
     /**
      * Sets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
@@ -21355,10 +21114,10 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
      * @param value New PerspectiveProjection far plane position.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$7)[_state$7].far === value) {
+      if (_classPrivateFieldLooseBase(this, _state$8)[_state$8].far === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$7)[_state$7].far = value;
+      _classPrivateFieldLooseBase(this, _state$8)[_state$8].far = value;
       this.setDirty();
     }
     /**
@@ -21374,7 +21133,7 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
       if (this.dirty) {
         this.cleanIfDirty();
       }
-      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix;
+      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].projMatrix;
     }
     /**
      * Gets the inverse of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
@@ -21388,10 +21147,10 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
         this.cleanIfDirty();
       }
       if (_classPrivateFieldLooseBase(this, _inverseMatrixDirty$2)[_inverseMatrixDirty$2]) {
-        inverseMat4(_classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix, _classPrivateFieldLooseBase(this, _state$7)[_state$7].inverseProjMatrix);
+        inverseMat4(_classPrivateFieldLooseBase(this, _state$8)[_state$8].projMatrix, _classPrivateFieldLooseBase(this, _state$8)[_state$8].inverseProjMatrix);
         _classPrivateFieldLooseBase(this, _inverseMatrixDirty$2)[_inverseMatrixDirty$2] = false;
       }
-      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].inverseProjMatrix;
+      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].inverseProjMatrix;
     }
     /**
      * Gets the transpose of {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
@@ -21405,10 +21164,10 @@ var PerspectiveProjection = /*#__PURE__*/function (_Component) {
         this.cleanIfDirty();
       }
       if (_classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$3)[_transposedProjMatrixDirty$3]) {
-        transposeMat4(_classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix, _classPrivateFieldLooseBase(this, _state$7)[_state$7].transposedProjMatrix);
+        transposeMat4(_classPrivateFieldLooseBase(this, _state$8)[_state$8].projMatrix, _classPrivateFieldLooseBase(this, _state$8)[_state$8].transposedProjMatrix);
         _classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$3)[_transposedProjMatrixDirty$3] = false;
       }
-      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].transposedProjMatrix;
+      return _classPrivateFieldLooseBase(this, _state$8)[_state$8].transposedProjMatrix;
     }
   }]);
   return PerspectiveProjection;
@@ -21428,7 +21187,7 @@ PerspectiveProjection.type = PerspectiveProjectionType;
  * * {@link @xeokit/viewer!OrthoProjection.near | OrthoProjection.near} and {@link @xeokit/viewer!OrthoProjection.far | OrthoProjection.far} indicated the distances to the clipping planes.
  * * {@link @xeokit/viewer!OrthoProjection.onProjMatrix | OrthoProjection.onProjMatrix} will fire an event whenever {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-var _state$6 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$7 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var _inverseMatrixDirty$1 = /*#__PURE__*/_classPrivateFieldLooseKey("inverseMatrixDirty");
 var _transposedProjMatrixDirty$2 = /*#__PURE__*/_classPrivateFieldLooseKey("transposedProjMatrixDirty");
 var _onViewBoundary = /*#__PURE__*/_classPrivateFieldLooseKey("onViewBoundary");
@@ -21453,7 +21212,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
      * @event
      */
     _this.onProjMatrix = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$6, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$7, {
       writable: true,
       value: void 0
     });
@@ -21470,7 +21229,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
       value: void 0
     });
     _this.camera = camera;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$6)[_state$6] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$7)[_state$7] = {
       near: cfg.near || 0.1,
       far: cfg.far || 2000.0,
       scale: cfg.scale || 1.0,
@@ -21503,7 +21262,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
     var WIDTH_INDEX = 2;
     var HEIGHT_INDEX = 3;
     var view = this.camera.view;
-    var scale = _classPrivateFieldLooseBase(this, _state$6)[_state$6].scale;
+    var scale = _classPrivateFieldLooseBase(this, _state$7)[_state$7].scale;
     var halfSize = 0.5 * scale;
     var boundary = view.boundary;
     var boundaryWidth = boundary[WIDTH_INDEX];
@@ -21524,11 +21283,11 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
       top = halfSize;
       bottom = -halfSize;
     }
-    orthoMat4c(left, right, bottom, top, _classPrivateFieldLooseBase(this, _state$6)[_state$6].near, _classPrivateFieldLooseBase(this, _state$6)[_state$6].far, _classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix);
+    orthoMat4c(left, right, bottom, top, _classPrivateFieldLooseBase(this, _state$7)[_state$7].near, _classPrivateFieldLooseBase(this, _state$7)[_state$7].far, _classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix);
     _classPrivateFieldLooseBase(this, _inverseMatrixDirty$1)[_inverseMatrixDirty$1] = true;
     _classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$2)[_transposedProjMatrixDirty$2] = true;
     this.camera.view.redraw();
-    this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix);
+    this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix);
   }
   /**
    * Un-projects the given View-space coordinates, using this OrthoProjection projection.
@@ -21565,7 +21324,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
   _createClass(OrthoProjection, [{
     key: "scale",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].scale;
+      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].scale;
     }
     /**
      * Sets scale factor for this OrthoProjection's extents on X and Y axis.
@@ -21579,7 +21338,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
       if (value <= 0) {
         value = 0.01;
       }
-      _classPrivateFieldLooseBase(this, _state$6)[_state$6].scale = value;
+      _classPrivateFieldLooseBase(this, _state$7)[_state$7].scale = value;
       this.setDirty();
     }
     /**
@@ -21592,7 +21351,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "near",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].near;
+      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].near;
     }
     /**
      * Sets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
@@ -21602,10 +21361,10 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
      * @param value New OrthoProjection near plane position.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$6)[_state$6].near === value) {
+      if (_classPrivateFieldLooseBase(this, _state$7)[_state$7].near === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$6)[_state$6].near = value;
+      _classPrivateFieldLooseBase(this, _state$7)[_state$7].near = value;
       this.setDirty();
     }
     /**
@@ -21618,7 +21377,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "far",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].far;
+      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].far;
     }
     /**
      * Sets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
@@ -21628,10 +21387,10 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
      * @param value New far ortho plane position.
      */,
     set: function set(value) {
-      if (_classPrivateFieldLooseBase(this, _state$6)[_state$6].far === value) {
+      if (_classPrivateFieldLooseBase(this, _state$7)[_state$7].far === value) {
         return;
       }
-      _classPrivateFieldLooseBase(this, _state$6)[_state$6].far = value;
+      _classPrivateFieldLooseBase(this, _state$7)[_state$7].far = value;
       this.setDirty();
     }
     /**
@@ -21647,7 +21406,7 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
       if (this.dirty) {
         this.cleanIfDirty();
       }
-      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix;
+      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix;
     }
     /**
      * Gets the inverse of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
@@ -21661,10 +21420,10 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
         this.cleanIfDirty();
       }
       if (_classPrivateFieldLooseBase(this, _inverseMatrixDirty$1)[_inverseMatrixDirty$1]) {
-        inverseMat4(_classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix, _classPrivateFieldLooseBase(this, _state$6)[_state$6].inverseProjMatrix);
+        inverseMat4(_classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix, _classPrivateFieldLooseBase(this, _state$7)[_state$7].inverseProjMatrix);
         _classPrivateFieldLooseBase(this, _inverseMatrixDirty$1)[_inverseMatrixDirty$1] = false;
       }
-      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].inverseProjMatrix;
+      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].inverseProjMatrix;
     }
     /**
      * Gets the transpose of {@link @xeokit/viewer!OrthoProjection.projMatrix| OrthoProjection.projMatrix}.
@@ -21678,10 +21437,10 @@ var OrthoProjection = /*#__PURE__*/function (_Component) {
         this.cleanIfDirty();
       }
       if (_classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$2)[_transposedProjMatrixDirty$2]) {
-        transposeMat4(_classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix, _classPrivateFieldLooseBase(this, _state$6)[_state$6].transposedProjMatrix);
+        transposeMat4(_classPrivateFieldLooseBase(this, _state$7)[_state$7].projMatrix, _classPrivateFieldLooseBase(this, _state$7)[_state$7].transposedProjMatrix);
         _classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$2)[_transposedProjMatrixDirty$2] = false;
       }
-      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].transposedProjMatrix;
+      return _classPrivateFieldLooseBase(this, _state$7)[_state$7].transposedProjMatrix;
     }
   }]);
   return OrthoProjection;
@@ -21699,7 +21458,7 @@ OrthoProjection.type = OrthoProjectionType;
  * * {@link FrustumProjection.near} and {@link FrustumProjection.far} specify the distances to the clipping planes.
  * * {@link FrustumProjection.onProjMatrix} will fire an event whenever {@link FrustumProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-var _state$5 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$6 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var _inverseMatrixDirty = /*#__PURE__*/_classPrivateFieldLooseKey("inverseMatrixDirty");
 var _transposedProjMatrixDirty$1 = /*#__PURE__*/_classPrivateFieldLooseKey("transposedProjMatrixDirty");
 var FrustumProjection = /*#__PURE__*/function (_Component) {
@@ -21723,7 +21482,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
      * @event
      */
     _this.onProjMatrix = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$5, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$6, {
       writable: true,
       value: void 0
     });
@@ -21736,7 +21495,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
       value: void 0
     });
     _this.camera = camera;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$5)[_state$5] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$6)[_state$6] = {
       projMatrix: createMat4(),
       inverseProjMatrix: createMat4(),
       transposedProjMatrix: createMat4(),
@@ -21762,11 +21521,11 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
    * @private
    */
   _proto.clean = function clean() {
-    frustumMat4(_classPrivateFieldLooseBase(this, _state$5)[_state$5].left, _classPrivateFieldLooseBase(this, _state$5)[_state$5].right, _classPrivateFieldLooseBase(this, _state$5)[_state$5].bottom, _classPrivateFieldLooseBase(this, _state$5)[_state$5].top, _classPrivateFieldLooseBase(this, _state$5)[_state$5].near, _classPrivateFieldLooseBase(this, _state$5)[_state$5].far, _classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix);
+    frustumMat4(_classPrivateFieldLooseBase(this, _state$6)[_state$6].left, _classPrivateFieldLooseBase(this, _state$6)[_state$6].right, _classPrivateFieldLooseBase(this, _state$6)[_state$6].bottom, _classPrivateFieldLooseBase(this, _state$6)[_state$6].top, _classPrivateFieldLooseBase(this, _state$6)[_state$6].near, _classPrivateFieldLooseBase(this, _state$6)[_state$6].far, _classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix);
     _classPrivateFieldLooseBase(this, _inverseMatrixDirty)[_inverseMatrixDirty] = true;
     _classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$1)[_transposedProjMatrixDirty$1] = true;
     this.camera.view.redraw();
-    this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix);
+    this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix);
   }
   /**
    * Un-projects the given View-space coordinates, using this FrustumProjection projection.
@@ -21802,7 +21561,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
   _createClass(FrustumProjection, [{
     key: "left",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].left;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].left;
     }
     /**
      * Sets the position of the FrustumProjection's left plane on the View-space X-axis.
@@ -21810,7 +21569,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
      * @param value New left frustum plane position.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$5)[_state$5].left = value;
+      _classPrivateFieldLooseBase(this, _state$6)[_state$6].left = value;
       this.setDirty();
     }
     /**
@@ -21821,7 +21580,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "right",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].right;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].right;
     }
     /**
      * Sets the position of the FrustumProjection's right plane on the View-space X-axis.
@@ -21829,7 +21588,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
      * @param value New right frustum plane position.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$5)[_state$5].right = value;
+      _classPrivateFieldLooseBase(this, _state$6)[_state$6].right = value;
       this.setDirty();
     }
     /**
@@ -21840,7 +21599,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "top",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].top;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].top;
     }
     /**
      * Sets the position of the FrustumProjection's top plane on the View-space Y-axis.
@@ -21848,7 +21607,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
      * @param value New top frustum plane position.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$5)[_state$5].top = value;
+      _classPrivateFieldLooseBase(this, _state$6)[_state$6].top = value;
       this.setDirty();
     }
     /**
@@ -21859,7 +21618,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "bottom",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].bottom;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].bottom;
     }
     /**
      * Sets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
@@ -21867,7 +21626,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
      * @param value New bottom frustum plane position.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$5)[_state$5].bottom = value;
+      _classPrivateFieldLooseBase(this, _state$6)[_state$6].bottom = value;
       this.setDirty();
     }
     /**
@@ -21880,7 +21639,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "near",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].near;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].near;
     }
     /**
      * Sets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
@@ -21890,7 +21649,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
      * @param value New FrustumProjection near plane position.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$5)[_state$5].near = value;
+      _classPrivateFieldLooseBase(this, _state$6)[_state$6].near = value;
       this.setDirty();
     }
     /**
@@ -21903,7 +21662,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
   }, {
     key: "far",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].far;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].far;
     }
     /**
      * Sets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
@@ -21913,7 +21672,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
      * @param value New far frustum plane position.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$5)[_state$5].far = value;
+      _classPrivateFieldLooseBase(this, _state$6)[_state$6].far = value;
       this.setDirty();
     }
     /**
@@ -21929,7 +21688,7 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
       if (this.dirty) {
         this.cleanIfDirty();
       }
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix;
     }
     /**
      * Gets the inverse of {@link FrustumProjection.projMatrix}.
@@ -21943,10 +21702,10 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
         this.cleanIfDirty();
       }
       if (_classPrivateFieldLooseBase(this, _inverseMatrixDirty)[_inverseMatrixDirty]) {
-        inverseMat4(_classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix, _classPrivateFieldLooseBase(this, _state$5)[_state$5].inverseProjMatrix);
+        inverseMat4(_classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix, _classPrivateFieldLooseBase(this, _state$6)[_state$6].inverseProjMatrix);
         _classPrivateFieldLooseBase(this, _inverseMatrixDirty)[_inverseMatrixDirty] = false;
       }
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].inverseProjMatrix;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].inverseProjMatrix;
     }
     /**
      * Gets the transpose of {@link FrustumProjection.projMatrix}.
@@ -21960,10 +21719,10 @@ var FrustumProjection = /*#__PURE__*/function (_Component) {
         this.cleanIfDirty();
       }
       if (_classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$1)[_transposedProjMatrixDirty$1]) {
-        transposeMat4(_classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix, _classPrivateFieldLooseBase(this, _state$5)[_state$5].transposedProjMatrix);
+        transposeMat4(_classPrivateFieldLooseBase(this, _state$6)[_state$6].projMatrix, _classPrivateFieldLooseBase(this, _state$6)[_state$6].transposedProjMatrix);
         _classPrivateFieldLooseBase(this, _transposedProjMatrixDirty$1)[_transposedProjMatrixDirty$1] = false;
       }
-      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].transposedProjMatrix;
+      return _classPrivateFieldLooseBase(this, _state$6)[_state$6].transposedProjMatrix;
     }
   }]);
   return FrustumProjection;
@@ -21979,7 +21738,7 @@ FrustumProjection.type = FrustumProjectionType;
  * * Located at {@link Camera.customProjection}.
  * * {@link CustomProjection.onProjMatrix} will fire an event whenever {@link CustomProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-var _state$4 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$5 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var _inverseProjMatrixDirty = /*#__PURE__*/_classPrivateFieldLooseKey("inverseProjMatrixDirty");
 var _transposedProjMatrixDirty = /*#__PURE__*/_classPrivateFieldLooseKey("transposedProjMatrixDirty");
 var CustomProjection = /*#__PURE__*/function (_Component) {
@@ -22003,7 +21762,7 @@ var CustomProjection = /*#__PURE__*/function (_Component) {
      * @event
      */
     _this.onProjMatrix = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$4, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$5, {
       writable: true,
       value: void 0
     });
@@ -22016,7 +21775,7 @@ var CustomProjection = /*#__PURE__*/function (_Component) {
       value: void 0
     });
     _this.camera = camera;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$4)[_state$4] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$5)[_state$5] = {
       projMatrix: createMat4(cfg.projMatrix || identityMat4()),
       inverseProjMatrix: createMat4(),
       transposedProjMatrix: createMat4()
@@ -22068,7 +21827,7 @@ var CustomProjection = /*#__PURE__*/function (_Component) {
   _createClass(CustomProjection, [{
     key: "projMatrix",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].projMatrix;
+      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix;
     }
     /**
      * Sets the CustomProjection's projection transform matrix.
@@ -22079,12 +21838,12 @@ var CustomProjection = /*#__PURE__*/function (_Component) {
      */,
     set: function set(projMatrix) {
       // @ts-ignore
-      _classPrivateFieldLooseBase(this, _state$4)[_state$4].projMatrix.set(projMatrix);
+      _classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix.set(projMatrix);
       _classPrivateFieldLooseBase(this, _inverseProjMatrixDirty)[_inverseProjMatrixDirty] = true;
       _classPrivateFieldLooseBase(this, _transposedProjMatrixDirty)[_transposedProjMatrixDirty] = true;
       this.setDirty();
       this.camera.view.redraw();
-      this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$4)[_state$4].projMatrix);
+      this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix);
     }
     /**
      * Gets the inverse of {@link CustomProjection.projMatrix}.
@@ -22098,10 +21857,10 @@ var CustomProjection = /*#__PURE__*/function (_Component) {
         this.cleanIfDirty();
       }
       if (_classPrivateFieldLooseBase(this, _inverseProjMatrixDirty)[_inverseProjMatrixDirty]) {
-        inverseMat4(_classPrivateFieldLooseBase(this, _state$4)[_state$4].projMatrix, _classPrivateFieldLooseBase(this, _state$4)[_state$4].inverseProjMatrix);
+        inverseMat4(_classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix, _classPrivateFieldLooseBase(this, _state$5)[_state$5].inverseProjMatrix);
         _classPrivateFieldLooseBase(this, _inverseProjMatrixDirty)[_inverseProjMatrixDirty] = false;
       }
-      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].inverseProjMatrix;
+      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].inverseProjMatrix;
     }
     /**
      * Gets the transpose of {@link CustomProjection.projMatrix}.
@@ -22115,10 +21874,10 @@ var CustomProjection = /*#__PURE__*/function (_Component) {
         this.cleanIfDirty();
       }
       if (_classPrivateFieldLooseBase(this, _transposedProjMatrixDirty)[_transposedProjMatrixDirty]) {
-        transposeMat4(_classPrivateFieldLooseBase(this, _state$4)[_state$4].projMatrix, _classPrivateFieldLooseBase(this, _state$4)[_state$4].transposedProjMatrix);
+        transposeMat4(_classPrivateFieldLooseBase(this, _state$5)[_state$5].projMatrix, _classPrivateFieldLooseBase(this, _state$5)[_state$5].transposedProjMatrix);
         _classPrivateFieldLooseBase(this, _transposedProjMatrixDirty)[_transposedProjMatrixDirty] = false;
       }
-      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].transposedProjMatrix;
+      return _classPrivateFieldLooseBase(this, _state$5)[_state$5].transposedProjMatrix;
     }
   }]);
   return CustomProjection;
@@ -22321,7 +22080,7 @@ var offsetEye = createVec3();
  *
  * See: <a href="https://en.wikipedia.org/wiki/Gimbal_lock">https://en.wikipedia.org/wiki/Gimbal_lock</a>
  */
-var _state$3 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var _state$4 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
 var _frustum = /*#__PURE__*/_classPrivateFieldLooseKey("frustum");
 var _activeProjection = /*#__PURE__*/_classPrivateFieldLooseKey("activeProjection");
 var Camera = /*#__PURE__*/function (_Component) {
@@ -22417,7 +22176,7 @@ var Camera = /*#__PURE__*/function (_Component) {
      * @event
      */
     _this.onFrustum = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _state$3, {
+    Object.defineProperty(_assertThisInitialized(_this), _state$4, {
       writable: true,
       value: void 0
     });
@@ -22438,7 +22197,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     _this.onWorldAxis = new EventEmitter(new dist.EventDispatcher());
     _this.onFrustum = new EventEmitter(new dist.EventDispatcher());
     _this.view = view;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$3)[_state$3] = {
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$4)[_state$4] = {
       eye: createVec3(cfg.eye || [0, 0, 10]),
       look: createVec3(cfg.look || [0, 0, 0]),
       up: createVec3(cfg.up || [0, 1, 0]),
@@ -22462,22 +22221,22 @@ var Camera = /*#__PURE__*/function (_Component) {
     _this.customProjection = new CustomProjection(_assertThisInitialized(_this));
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _activeProjection)[_activeProjection] = _this.perspectiveProjection;
     _this.perspectiveProjection.onProjMatrix.subscribe(function () {
-      if (_classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$3)[_state$3].projectionType === PerspectiveProjectionType) {
+      if (_classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$4)[_state$4].projectionType === PerspectiveProjectionType) {
         _this.onProjMatrix.dispatch(_assertThisInitialized(_this), _this.perspectiveProjection.projMatrix);
       }
     });
     _this.orthoProjection.onProjMatrix.subscribe(function () {
-      if (_classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$3)[_state$3].projectionType === OrthoProjectionType) {
+      if (_classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$4)[_state$4].projectionType === OrthoProjectionType) {
         _this.onProjMatrix.dispatch(_assertThisInitialized(_this), _this.orthoProjection.projMatrix);
       }
     });
     _this.frustumProjection.onProjMatrix.subscribe(function () {
-      if (_classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$3)[_state$3].projectionType === FrustumProjectionType) {
+      if (_classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$4)[_state$4].projectionType === FrustumProjectionType) {
         _this.onProjMatrix.dispatch(_assertThisInitialized(_this), _this.frustumProjection.projMatrix);
       }
     });
     _this.customProjection.onProjMatrix.subscribe(function () {
-      if (_classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$3)[_state$3].projectionType === CustomProjectionType) {
+      if (_classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$4)[_state$4].projectionType === CustomProjectionType) {
         _this.onProjMatrix.dispatch(_assertThisInitialized(_this), _this.customProjection.projMatrix);
       }
     });
@@ -22492,32 +22251,32 @@ var Camera = /*#__PURE__*/function (_Component) {
    */
   var _proto = Camera.prototype;
   _proto.clean = function clean() {
-    var state = _classPrivateFieldLooseBase(this, _state$3)[_state$3];
+    var state = _classPrivateFieldLooseBase(this, _state$4)[_state$4];
     // In ortho mode, build the view matrix with an eye position that's translated
     // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
     // the front off the view (not a problem with perspective, since objects close enough
     // to be clipped by the front plane are usually too big to see anything of their cross-sections).
     var eye;
     if (this.projectionType === OrthoProjectionType) {
-      subVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, eyeLookVec);
+      subVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, _classPrivateFieldLooseBase(this, _state$4)[_state$4].look, eyeLookVec);
       normalizeVec3(eyeLookVec, eyeLookVecNorm);
       mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
-      addVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].look, eyeLookOffset, offsetEye);
+      addVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].look, eyeLookOffset, offsetEye);
       eye = offsetEye;
     } else {
-      eye = _classPrivateFieldLooseBase(this, _state$3)[_state$3].eye;
+      eye = _classPrivateFieldLooseBase(this, _state$4)[_state$4].eye;
     }
     if (state.hasDeviceMatrix) {
-      lookAtMat4v(eye, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempMatb);
+      lookAtMat4v(eye, _classPrivateFieldLooseBase(this, _state$4)[_state$4].look, _classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempMatb);
       mulMat4(state.deviceMatrix, tempMatb, state.viewMatrix);
     } else {
-      lookAtMat4v(eye, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, state.viewMatrix);
+      lookAtMat4v(eye, _classPrivateFieldLooseBase(this, _state$4)[_state$4].look, _classPrivateFieldLooseBase(this, _state$4)[_state$4].up, state.viewMatrix);
     }
-    inverseMat4(_classPrivateFieldLooseBase(this, _state$3)[_state$3].viewMatrix, _classPrivateFieldLooseBase(this, _state$3)[_state$3].inverseViewMatrix);
-    transposeMat4(_classPrivateFieldLooseBase(this, _state$3)[_state$3].inverseViewMatrix, _classPrivateFieldLooseBase(this, _state$3)[_state$3].viewNormalMatrix);
+    inverseMat4(_classPrivateFieldLooseBase(this, _state$4)[_state$4].viewMatrix, _classPrivateFieldLooseBase(this, _state$4)[_state$4].inverseViewMatrix);
+    transposeMat4(_classPrivateFieldLooseBase(this, _state$4)[_state$4].inverseViewMatrix, _classPrivateFieldLooseBase(this, _state$4)[_state$4].viewNormalMatrix);
     this.view.redraw();
-    setFrustum3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].viewMatrix, _classPrivateFieldLooseBase(this, _activeProjection)[_activeProjection].projMatrix, _classPrivateFieldLooseBase(this, _frustum)[_frustum]);
-    this.onViewMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$3)[_state$3].viewMatrix);
+    setFrustum3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].viewMatrix, _classPrivateFieldLooseBase(this, _activeProjection)[_activeProjection].projMatrix, _classPrivateFieldLooseBase(this, _frustum)[_frustum]);
+    this.onViewMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _state$4)[_state$4].viewMatrix);
     this.onFrustum.dispatch(this, _classPrivateFieldLooseBase(this, _frustum)[_frustum]);
   }
   /**
@@ -22526,11 +22285,11 @@ var Camera = /*#__PURE__*/function (_Component) {
    * @param angleInc Angle of rotation in degrees
    */;
   _proto.orbitYaw = function orbitYaw(angleInc) {
-    var lookEyeVec = subVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, tempVec3$2);
-    rotationMat4v(angleInc * 0.0174532925, _classPrivateFieldLooseBase(this, _state$3)[_state$3].gimbalLock ? _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp : _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempMat);
+    var lookEyeVec = subVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, _classPrivateFieldLooseBase(this, _state$4)[_state$4].look, tempVec3$2);
+    rotationMat4v(angleInc * 0.0174532925, _classPrivateFieldLooseBase(this, _state$4)[_state$4].gimbalLock ? _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp : _classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempMat);
     lookEyeVec = transformPoint3(tempMat, lookEyeVec, tempVec3b$3);
-    this.eye = addVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].look, lookEyeVec, tempVec3c$3); // Set eye position as 'look' plus 'eye' vector
-    this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3d$1); // Rotate 'up' vector
+    this.eye = addVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].look, lookEyeVec, tempVec3c$3); // Set eye position as 'look' plus 'eye' vector
+    this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempVec3d$1); // Rotate 'up' vector
   }
   /**
    * Rotates {@link @xeokit/viewer!Camera.eye | Camera.eye} about {@link @xeokit/viewer!Camera.look | Camera.look} around the right axis (orthogonal to {@link @xeokit/viewer!Camera.up | Camera.up} and "look").
@@ -22538,18 +22297,18 @@ var Camera = /*#__PURE__*/function (_Component) {
    * @param angleInc Angle of rotation in degrees
    */;
   _proto.orbitPitch = function orbitPitch(angleInc) {
-    if (_classPrivateFieldLooseBase(this, _state$3)[_state$3].constrainPitch) {
-      angleInc = dotVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].up, _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp) / DEGTORAD;
+    if (_classPrivateFieldLooseBase(this, _state$4)[_state$4].constrainPitch) {
+      angleInc = dotVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].up, _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp) / DEGTORAD;
       if (angleInc < 1) {
         return;
       }
     }
-    var eye2 = subVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, tempVec3$2);
-    var left = cross3Vec3(normalizeVec3(eye2, tempVec3b$3), normalizeVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3c$3));
+    var eye2 = subVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, _classPrivateFieldLooseBase(this, _state$4)[_state$4].look, tempVec3$2);
+    var left = cross3Vec3(normalizeVec3(eye2, tempVec3b$3), normalizeVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempVec3c$3));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat);
     eye2 = transformPoint3(tempMat, eye2, tempVec3d$1);
-    this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3e);
-    this.eye = addVec3(eye2, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, tempVec3f);
+    this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempVec3e);
+    this.eye = addVec3(eye2, _classPrivateFieldLooseBase(this, _state$4)[_state$4].look, tempVec3f);
   }
   /**
    * Rotates {@link @xeokit/viewer!Camera.look | Camera.look} about {@link @xeokit/viewer!Camera.eye | Camera.eye}, around the {@link @xeokit/viewer!Camera.up | Camera.up} vector.
@@ -22557,12 +22316,12 @@ var Camera = /*#__PURE__*/function (_Component) {
    * @param angleInc Angle of rotation in degrees
    */;
   _proto.yaw = function yaw(angleInc) {
-    var look2 = subVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].look, _classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, tempVec3$2);
-    rotationMat4v(angleInc * 0.0174532925, _classPrivateFieldLooseBase(this, _state$3)[_state$3].gimbalLock ? _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp : _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempMat);
+    var look2 = subVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].look, _classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, tempVec3$2);
+    rotationMat4v(angleInc * 0.0174532925, _classPrivateFieldLooseBase(this, _state$4)[_state$4].gimbalLock ? _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp : _classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempMat);
     look2 = transformPoint3(tempMat, look2, tempVec3b$3);
-    this.look = addVec3(look2, _classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, tempVec3c$3);
-    if (_classPrivateFieldLooseBase(this, _state$3)[_state$3].gimbalLock) {
-      this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3d$1);
+    this.look = addVec3(look2, _classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, tempVec3c$3);
+    if (_classPrivateFieldLooseBase(this, _state$4)[_state$4].gimbalLock) {
+      this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempVec3d$1);
     }
   }
   /**
@@ -22570,18 +22329,18 @@ var Camera = /*#__PURE__*/function (_Component) {
     * @param angleInc Angle of rotation in degrees
    */;
   _proto.pitch = function pitch(angleInc) {
-    if (_classPrivateFieldLooseBase(this, _state$3)[_state$3].constrainPitch) {
-      angleInc = dotVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].up, _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp) / DEGTORAD;
+    if (_classPrivateFieldLooseBase(this, _state$4)[_state$4].constrainPitch) {
+      angleInc = dotVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].up, _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp) / DEGTORAD;
       if (angleInc < 1) {
         return;
       }
     }
-    var look2 = subVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].look, _classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, tempVec3$2);
-    var left = cross3Vec3(normalizeVec3(look2, tempVec3b$3), normalizeVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3c$3));
+    var look2 = subVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].look, _classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, tempVec3$2);
+    var left = cross3Vec3(normalizeVec3(look2, tempVec3b$3), normalizeVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempVec3c$3));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat);
-    this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3f);
+    this.up = transformPoint3(tempMat, _classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempVec3f);
     look2 = transformPoint3(tempMat, look2, tempVec3d$1);
-    this.look = addVec3(look2, _classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, tempVec3e);
+    this.look = addVec3(look2, _classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, tempVec3e);
   }
   /**
    * Pans the Camera along its local X, Y and Z axis.
@@ -22589,18 +22348,18 @@ var Camera = /*#__PURE__*/function (_Component) {
    * @param pan The pan vector
    */;
   _proto.pan = function pan(_pan) {
-    var eye2 = subVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, tempVec3$2);
+    var eye2 = subVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, _classPrivateFieldLooseBase(this, _state$4)[_state$4].look, tempVec3$2);
     var vec = [0, 0, 0];
     var v;
     if (_pan[0] !== 0) {
-      var left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3b$3));
+      var left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempVec3b$3));
       v = mulVec3Scalar(left, _pan[0]);
       vec[0] += v[0];
       vec[1] += v[1];
       vec[2] += v[2];
     }
     if (_pan[1] !== 0) {
-      v = mulVec3Scalar(normalizeVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].up, tempVec3c$3), _pan[1]);
+      v = mulVec3Scalar(normalizeVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].up, tempVec3c$3), _pan[1]);
       vec[0] += v[0];
       vec[1] += v[1];
       vec[2] += v[2];
@@ -22611,8 +22370,8 @@ var Camera = /*#__PURE__*/function (_Component) {
       vec[1] += v[1];
       vec[2] += v[2];
     }
-    this.eye = addVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, vec, tempVec3e);
-    this.look = addVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].look, vec, tempVec3f);
+    this.eye = addVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, vec, tempVec3e);
+    this.look = addVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].look, vec, tempVec3f);
   }
   /**
    * Increments/decrements the Camera's zoom factor, which is the distance between {@link @xeokit/viewer!Camera.eye | Camera.eye} and {@link @xeokit/viewer!Camera.look | Camera.look}.
@@ -22620,14 +22379,14 @@ var Camera = /*#__PURE__*/function (_Component) {
    * @param delta Zoom factor increment.
    */;
   _proto.zoom = function zoom(delta) {
-    var vec = subVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, _classPrivateFieldLooseBase(this, _state$3)[_state$3].look, tempVec3$2);
+    var vec = subVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, _classPrivateFieldLooseBase(this, _state$4)[_state$4].look, tempVec3$2);
     var lenLook = Math.abs(lenVec3(vec));
     var newLenLook = Math.abs(lenLook + delta);
     if (newLenLook < 0.5) {
       return;
     }
     var dir = normalizeVec3(vec, tempVec3c$3);
-    this.eye = addVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].look, mulVec3Scalar(dir, newLenLook), tempVec3d$1);
+    this.eye = addVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].look, mulVec3Scalar(dir, newLenLook), tempVec3d$1);
   }
   /**
    * @private
@@ -22654,7 +22413,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "eye",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].eye;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].eye;
     }
     /**
      * Sets the position of the Camera's eye.
@@ -22666,7 +22425,7 @@ var Camera = /*#__PURE__*/function (_Component) {
      */,
     set: function set(eye) {
       // @ts-ignore
-      _classPrivateFieldLooseBase(this, _state$3)[_state$3].eye.set(eye);
+      _classPrivateFieldLooseBase(this, _state$4)[_state$4].eye.set(eye);
       this.setDirty(); // Ensure matrix built on next "tick"
     }
     /**
@@ -22679,7 +22438,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "look",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].look;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].look;
     }
     /**
      * Sets the position of this Camera's point-of-interest.
@@ -22690,7 +22449,7 @@ var Camera = /*#__PURE__*/function (_Component) {
      */,
     set: function set(look) {
       // @ts-ignore
-      _classPrivateFieldLooseBase(this, _state$3)[_state$3].look.set(look);
+      _classPrivateFieldLooseBase(this, _state$4)[_state$4].look.set(look);
       this.setDirty(); // Ensure matrix built on next "tick"
     }
     /**
@@ -22701,7 +22460,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "up",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].up;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].up;
     }
     /**
      * Sets the direction of this Camera's {@link @xeokit/viewer!Camera.up | Camera.up} vector.
@@ -22710,7 +22469,7 @@ var Camera = /*#__PURE__*/function (_Component) {
      */,
     set: function set(up) {
       // @ts-ignore
-      _classPrivateFieldLooseBase(this, _state$3)[_state$3].up.set(up);
+      _classPrivateFieldLooseBase(this, _state$4)[_state$4].up.set(up);
       this.setDirty();
     }
     /**
@@ -22725,7 +22484,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "worldUp",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp;
     }
     /**
      * Gets the direction of World-space "right".
@@ -22739,7 +22498,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "worldRight",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldRight;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldRight;
     }
     /**
      * Gets the direction of World-space "forwards".
@@ -22753,7 +22512,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "worldForward",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldForward;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldForward;
     }
     /**
      * Gets whether to prevent camera from being pitched upside down.
@@ -22767,7 +22526,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "constrainPitch",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].constrainPitch;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].constrainPitch;
     }
     /**
      * Sets whether to prevent camera from being pitched upside down.
@@ -22779,7 +22538,7 @@ var Camera = /*#__PURE__*/function (_Component) {
      * @param value Set ````true```` to contrain pitch rotation.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$3)[_state$3].constrainPitch = value;
+      _classPrivateFieldLooseBase(this, _state$4)[_state$4].constrainPitch = value;
     }
     /**
      * Gets whether to lock yaw rotation to pivot about the World-space "up" axis.
@@ -22789,7 +22548,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "gimbalLock",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].gimbalLock;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].gimbalLock;
     }
     /**
      * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
@@ -22797,7 +22556,7 @@ var Camera = /*#__PURE__*/function (_Component) {
      * @params {Boolean} gimbalLock Set true to lock gimbal.
      */,
     set: function set(value) {
-      _classPrivateFieldLooseBase(this, _state$3)[_state$3].gimbalLock = value;
+      _classPrivateFieldLooseBase(this, _state$4)[_state$4].gimbalLock = value;
     }
     /**
      * Gets the up, right and forward axis of the World coordinate system.
@@ -22811,7 +22570,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "worldAxis",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldAxis;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldAxis;
     }
     /**
      * Sets the up, right and forward axis of the World coordinate system.
@@ -22823,7 +22582,7 @@ var Camera = /*#__PURE__*/function (_Component) {
      * @param axis The new Wworld coordinate axis.
      */,
     set: function set(axis) {
-      var state = _classPrivateFieldLooseBase(this, _state$3)[_state$3];
+      var state = _classPrivateFieldLooseBase(this, _state$4)[_state$4];
       // @ts-ignore
       state.worldAxis.set(axis);
       state.worldRight[0] = state.worldAxis[0];
@@ -22846,7 +22605,7 @@ var Camera = /*#__PURE__*/function (_Component) {
     key: "deviceMatrix",
     get: function get() {
       // @ts-ignore
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].deviceMatrix;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].deviceMatrix;
     }
     /**
      * Sets an optional matrix to premultiply into {@link Camera.projMatrix} matrix.
@@ -22857,8 +22616,8 @@ var Camera = /*#__PURE__*/function (_Component) {
      */,
     set: function set(matrix) {
       // @ts-ignore
-      _classPrivateFieldLooseBase(this, _state$3)[_state$3].deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-      _classPrivateFieldLooseBase(this, _state$3)[_state$3].hasDeviceMatrix = !!matrix;
+      _classPrivateFieldLooseBase(this, _state$4)[_state$4].deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+      _classPrivateFieldLooseBase(this, _state$4)[_state$4].hasDeviceMatrix = !!matrix;
       this.setDirty();
     }
     /**
@@ -22868,7 +22627,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "xUp",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[0] > _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[1] && _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[0] > _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[2];
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[0] > _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[1] && _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[0] > _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[2];
     }
     /**
      * Gets if the World-space Y-axis is "up".
@@ -22877,7 +22636,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "yUp",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[1] > _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[0] && _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[1] > _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[2];
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[1] > _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[0] && _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[1] > _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[2];
     }
     /**
      * Gets if the World-space Z-axis is "up".
@@ -22886,7 +22645,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "zUp",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[2] > _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[0] && _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[2] > _classPrivateFieldLooseBase(this, _state$3)[_state$3].worldUp[1];
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[2] > _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[0] && _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[2] > _classPrivateFieldLooseBase(this, _state$4)[_state$4].worldUp[1];
     }
     /**
      * Gets distance from {@link @xeokit/viewer!Camera.look | Camera.look} to {@link @xeokit/viewer!Camera.eye | Camera.eye}.
@@ -22896,7 +22655,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "eyeLookDist",
     get: function get() {
-      return lenVec3(subVec3(_classPrivateFieldLooseBase(this, _state$3)[_state$3].look, _classPrivateFieldLooseBase(this, _state$3)[_state$3].eye, tempVec3$2));
+      return lenVec3(subVec3(_classPrivateFieldLooseBase(this, _state$4)[_state$4].look, _classPrivateFieldLooseBase(this, _state$4)[_state$4].eye, tempVec3$2));
     }
     /**
      * Gets the Camera's viewing transformation matrix.
@@ -22909,7 +22668,7 @@ var Camera = /*#__PURE__*/function (_Component) {
       if (this.dirty) {
         this.cleanIfDirty();
       }
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].viewMatrix;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].viewMatrix;
     }
     /**
      * Gets the inverse of the Camera's viewing transform matrix.
@@ -22922,7 +22681,7 @@ var Camera = /*#__PURE__*/function (_Component) {
       if (this.dirty) {
         this.cleanIfDirty();
       }
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].inverseViewMatrix;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].inverseViewMatrix;
     }
     /**
      * Gets the Camera's projection transformation projMatrix.
@@ -22960,7 +22719,7 @@ var Camera = /*#__PURE__*/function (_Component) {
   }, {
     key: "projectionType",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].projectionType;
+      return _classPrivateFieldLooseBase(this, _state$4)[_state$4].projectionType;
     }
     /**
      * Sets the active projection type.
@@ -22973,7 +22732,7 @@ var Camera = /*#__PURE__*/function (_Component) {
      */,
     set: function set(value) {
       value = value || PerspectiveProjectionType;
-      if (_classPrivateFieldLooseBase(this, _state$3)[_state$3].projectionType === value) {
+      if (_classPrivateFieldLooseBase(this, _state$4)[_state$4].projectionType === value) {
         return;
       }
       if (value === PerspectiveProjectionType) {
@@ -22991,9 +22750,9 @@ var Camera = /*#__PURE__*/function (_Component) {
       }
       // @ts-ignore
       _classPrivateFieldLooseBase(this, _activeProjection)[_activeProjection].clean();
-      _classPrivateFieldLooseBase(this, _state$3)[_state$3].projectionType = value;
+      _classPrivateFieldLooseBase(this, _state$4)[_state$4].projectionType = value;
       this.clean();
-      this.onProjectionType.dispatch(this, _classPrivateFieldLooseBase(this, _state$3)[_state$3].projectionType);
+      this.onProjectionType.dispatch(this, _classPrivateFieldLooseBase(this, _state$4)[_state$4].projectionType);
       this.onProjMatrix.dispatch(this, _classPrivateFieldLooseBase(this, _activeProjection)[_activeProjection].projMatrix);
     }
   }]);
@@ -23829,6 +23588,177 @@ Object.defineProperty(CameraFlightAnimation, _ease, {
 });
 
 /**
+ * Results of a snapshot attempted with {@link View.getSnapshot}.
+ */
+var SnapshotResult = /*#__PURE__*/function () {
+  function SnapshotResult() {
+    this.reset();
+  }
+  /**
+   * @private
+   */
+  var _proto = SnapshotResult.prototype;
+  _proto.reset = function reset() {};
+  return SnapshotResult;
+}();
+
+//  /**
+//      * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+//      *
+//      * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
+//      * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+//      * a performance boost.
+//      *
+//      * @returns  The resolution scale.
+//      */
+// get resolutionScale(): number {
+//     return this.#resolutionScale;
+// }
+//
+// /**
+//  * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+//  *
+//  * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
+//  * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+//  * a performance boost.
+//  *
+//  * @param resolutionScale The resolution scale.
+//  */
+// set resolutionScale(resolutionScale: number) {
+//     resolutionScale = resolutionScale || 1.0;
+//     if (resolutionScale === this.#resolutionScale) {
+//         return;
+//     }
+//     this.#resolutionScale = resolutionScale;
+//     const canvasElement = this.canvasElement;
+//     canvasElement.width = Math.round(
+//         canvasElement.clientWidth * this.#resolutionScale
+//     );
+//     canvasElement.height = Math.round(
+//         canvasElement.clientHeight * this.#resolutionScale
+//     );
+//     this.redraw();
+// }
+/**
+ * Configures the appearance of {@link @xeokit/viewer!ViewObject | ViewObjects} when canvas resolution scaling is applied.
+ *
+ * ## Summary
+ *
+ * * Located at {@link View.resolutionScale}.
+ */
+var _state$3 = /*#__PURE__*/_classPrivateFieldLooseKey("state");
+var ResolutionScale = /*#__PURE__*/function (_Component) {
+  _inheritsLoose(ResolutionScale, _Component);
+  /**
+   * @private
+   */
+  function ResolutionScale(view, options) {
+    var _this;
+    if (options === void 0) {
+      options = {};
+    }
+    _this = _Component.call(this, view, options) || this;
+    /**
+     * The View to which this ResolutionScale belongs.
+     */
+    _this.view = void 0;
+    /**
+     * @private
+     */
+    Object.defineProperty(_assertThisInitialized(_this), _state$3, {
+      writable: true,
+      value: void 0
+    });
+    _this.view = view;
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _state$3)[_state$3] = {
+      enabled: options.enabled !== false,
+      renderModes: options.renderModes || [FastRender],
+      resolutionScale: options.resolutionScale || 1
+    };
+    return _this;
+  }
+  /**
+   * Sets if resolution scaling is enabled.
+   *
+   * Default is ````true````.
+   */
+  var _proto = ResolutionScale.prototype;
+  /**
+   * @private
+   */
+  _proto.destroy = function destroy() {
+    _Component.prototype.destroy.call(this);
+  };
+  _createClass(ResolutionScale, [{
+    key: "enabled",
+    get:
+    /**
+     * Gets if resolution scaling is enabled.
+     *
+     * Default is ````true````.
+     */
+    function get() {
+      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].enabled;
+    }
+    /**
+     * Sets which rendering modes in which to apply ResolutionScale.
+     *
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
+     *
+     * Default value is [{@link @xeokit/constants!FastRender}].
+     */,
+    set: function set(value) {
+      if (_classPrivateFieldLooseBase(this, _state$3)[_state$3].enabled === value) {
+        return;
+      }
+      _classPrivateFieldLooseBase(this, _state$3)[_state$3].enabled = value;
+      this.view.redraw();
+    }
+  }, {
+    key: "renderModes",
+    get:
+    /**
+     * Gets which rendering modes in which to apply ResolutionScale.
+     *
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
+     *
+     * Default value is [{@link @xeokit/constants!FastRender}].
+     */
+    function get() {
+      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].renderModes;
+    }
+    /**
+     * Sets the scale when ResolutionScale is applied.
+     *
+     * Default is ````1.0````.
+     */,
+    set: function set(value) {
+      _classPrivateFieldLooseBase(this, _state$3)[_state$3].renderModes = value;
+      this.view.redraw();
+    }
+  }, {
+    key: "resolutionScale",
+    get:
+    /**
+     * Gets the scale when ResolutionScale is applied.
+     *
+     * Default is ````1.0````.
+     */
+    function get() {
+      return _classPrivateFieldLooseBase(this, _state$3)[_state$3].resolutionScale;
+    },
+    set: function set(value) {
+      if (_classPrivateFieldLooseBase(this, _state$3)[_state$3].resolutionScale === value) {
+        return;
+      }
+      _classPrivateFieldLooseBase(this, _state$3)[_state$3].resolutionScale = value;
+      this.view.redraw();
+    }
+  }]);
+  return ResolutionScale;
+}(Component);
+
+/**
  * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
  *
  * See {@link @xeokit/viewer} for usage.
@@ -23890,9 +23820,9 @@ Object.defineProperty(CameraFlightAnimation, _ease, {
  * ````
  */
 var _onTick$4 = /*#__PURE__*/_classPrivateFieldLooseKey("onTick");
-var _backgroundColor$1 = /*#__PURE__*/_classPrivateFieldLooseKey("backgroundColor");
+var _renderMode = /*#__PURE__*/_classPrivateFieldLooseKey("renderMode");
+var _backgroundColor = /*#__PURE__*/_classPrivateFieldLooseKey("backgroundColor");
 var _backgroundColorFromAmbientLight = /*#__PURE__*/_classPrivateFieldLooseKey("backgroundColorFromAmbientLight");
-var _resolutionScale = /*#__PURE__*/_classPrivateFieldLooseKey("resolutionScale");
 var _numObjects = /*#__PURE__*/_classPrivateFieldLooseKey("numObjects");
 var _objectIds = /*#__PURE__*/_classPrivateFieldLooseKey("objectIds");
 var _numVisibleObjects = /*#__PURE__*/_classPrivateFieldLooseKey("numVisibleObjects");
@@ -23910,10 +23840,10 @@ var _opacityObjectIds = /*#__PURE__*/_classPrivateFieldLooseKey("opacityObjectId
 var _qualityRender = /*#__PURE__*/_classPrivateFieldLooseKey("qualityRender");
 var _lightsHash = /*#__PURE__*/_classPrivateFieldLooseKey("lightsHash");
 var _sectionPlanesHash = /*#__PURE__*/_classPrivateFieldLooseKey("sectionPlanesHash");
-var _createViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("createViewObjects");
+var _createViewObjectsForSceneModel = /*#__PURE__*/_classPrivateFieldLooseKey("createViewObjectsForSceneModel");
 var _registerSectionPlane = /*#__PURE__*/_classPrivateFieldLooseKey("registerSectionPlane");
 var _deregisterSectionPlane = /*#__PURE__*/_classPrivateFieldLooseKey("deregisterSectionPlane");
-var _destroyViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("destroyViewObjects");
+var _destroyViewObjectsForSceneModel = /*#__PURE__*/_classPrivateFieldLooseKey("destroyViewObjectsForSceneModel");
 var View = /*#__PURE__*/function (_Component) {
   _inheritsLoose(View, _Component);
   /**
@@ -23922,8 +23852,8 @@ var View = /*#__PURE__*/function (_Component) {
   function View(options) {
     var _this;
     _this = _Component.call(this, null, options) || this;
-    Object.defineProperty(_assertThisInitialized(_this), _destroyViewObjects, {
-      value: _destroyViewObjects2
+    Object.defineProperty(_assertThisInitialized(_this), _destroyViewObjectsForSceneModel, {
+      value: _destroyViewObjectsForSceneModel2
     });
     Object.defineProperty(_assertThisInitialized(_this), _deregisterSectionPlane, {
       value: _deregisterSectionPlane2
@@ -23931,8 +23861,8 @@ var View = /*#__PURE__*/function (_Component) {
     Object.defineProperty(_assertThisInitialized(_this), _registerSectionPlane, {
       value: _registerSectionPlane2
     });
-    Object.defineProperty(_assertThisInitialized(_this), _createViewObjects, {
-      value: _createViewObjects2
+    Object.defineProperty(_assertThisInitialized(_this), _createViewObjectsForSceneModel, {
+      value: _createViewObjectsForSceneModel2
     });
     /**
      * The index of this View in {@link Viewer.viewList}.
@@ -23987,7 +23917,11 @@ var View = /*#__PURE__*/function (_Component) {
     /**
      * Configures the appearance of edges belonging to {@link @xeokit/viewer!ViewObject} in this View.
      */
-    _this.edgeMaterial = void 0;
+    _this.edges = void 0;
+    /**
+     * Configures resolution scaling for this View.
+     */
+    _this.resolutionScale = void 0;
     /**
      * Configures the appearance of point primitives belonging to {@link @xeokit/viewer!ViewObject | ViewObjects} in this View .
      */
@@ -24080,7 +24014,7 @@ var View = /*#__PURE__*/function (_Component) {
      *
      * When ````true```` (default), the View will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} as needed for each new
      * {@link RendererViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
-     * layerId. This default setting therefore ensures that a ViewObject is created in the View for every ViewerObject that is created.
+     * layerId. This default setting therefore ensures that a ViewObject is created in the View for every SceneObject that is created.
      *
      * If you set this ````false````, however, then the View will only create {@link @xeokit/viewer!ViewObject | ViewObjects} for {@link RendererViewObject | ViewerObjects} that have
      * a {@link RendererViewObject.layerId} that matches the ID of a {@link @xeokit/viewer!ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
@@ -24144,15 +24078,15 @@ var View = /*#__PURE__*/function (_Component) {
       writable: true,
       value: void 0
     });
-    Object.defineProperty(_assertThisInitialized(_this), _backgroundColor$1, {
+    Object.defineProperty(_assertThisInitialized(_this), _renderMode, {
+      writable: true,
+      value: QualityRender
+    });
+    Object.defineProperty(_assertThisInitialized(_this), _backgroundColor, {
       writable: true,
       value: void 0
     });
     Object.defineProperty(_assertThisInitialized(_this), _backgroundColorFromAmbientLight, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _resolutionScale, {
       writable: true,
       value: void 0
     });
@@ -24273,13 +24207,17 @@ var View = /*#__PURE__*/function (_Component) {
     //     this.redraw();
     // });
     _this.onBoundary = new EventEmitter(new dist.EventDispatcher());
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _resolutionScale)[_resolutionScale] = 1;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _backgroundColor$1)[_backgroundColor$1] = createVec3([options.backgroundColor ? options.backgroundColor[0] : 1, options.backgroundColor ? options.backgroundColor[1] : 1, options.backgroundColor ? options.backgroundColor[2] : 1]);
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _backgroundColor)[_backgroundColor] = createVec3([options.backgroundColor ? options.backgroundColor[0] : 1, options.backgroundColor ? options.backgroundColor[1] : 1, options.backgroundColor ? options.backgroundColor[2] : 1]);
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _backgroundColorFromAmbientLight)[_backgroundColorFromAmbientLight] = !!options.backgroundColorFromAmbientLight;
     _this.transparent = !!options.transparent;
     _this.canvasElement.width = _this.canvasElement.clientWidth;
     _this.canvasElement.height = _this.canvasElement.clientHeight;
     _this.boundary = [_this.canvasElement.offsetLeft, _this.canvasElement.offsetTop, _this.canvasElement.clientWidth, _this.canvasElement.clientHeight];
+    _this.resolutionScale = new ResolutionScale(_assertThisInitialized(_this), {
+      enabled: true,
+      renderModes: [FastRender],
+      resolutionScale: 0.5
+    });
     // Publish canvasElement size and position changes on each scene tick
     var lastWindowWidth = 0;
     var lastWindowHeight = 0;
@@ -24291,7 +24229,7 @@ var View = /*#__PURE__*/function (_Component) {
     var lastResolutionScale = null;
     _classPrivateFieldLooseBase(_assertThisInitialized(_this), _onTick$4)[_onTick$4] = _this.viewer.onTick.subscribe(function () {
       var canvasElement = _this.canvasElement;
-      var newResolutionScale = _classPrivateFieldLooseBase(_assertThisInitialized(_this), _resolutionScale)[_resolutionScale] !== lastResolutionScale;
+      var newResolutionScale = _this.resolutionScale.resolutionScale !== lastResolutionScale;
       var newWindowSize = window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight;
       var newViewSize = canvasElement.clientWidth !== lastViewWidth || canvasElement.clientHeight !== lastViewHeight;
       var newViewPos = canvasElement.offsetLeft !== lastViewOffsetLeft || canvasElement.offsetTop !== lastViewOffsetTop;
@@ -24303,8 +24241,11 @@ var View = /*#__PURE__*/function (_Component) {
           var newWidth = canvasElement.clientWidth;
           var newHeight = canvasElement.clientHeight;
           if (newResolutionScale || newViewSize) {
-            canvasElement.width = Math.round(canvasElement.clientWidth * _classPrivateFieldLooseBase(_assertThisInitialized(_this), _resolutionScale)[_resolutionScale]);
-            canvasElement.height = Math.round(canvasElement.clientHeight * _classPrivateFieldLooseBase(_assertThisInitialized(_this), _resolutionScale)[_resolutionScale]);
+            //////////////////////////////////////////////////////////////////////////////////////
+            // TODO: apply resolutionscale properly
+            //////////////////////////////////////////////////////////////////////////////////////
+            canvasElement.width = Math.round(canvasElement.clientWidth * _this.resolutionScale.resolutionScale);
+            canvasElement.height = Math.round(canvasElement.clientHeight * _this.resolutionScale.resolutionScale);
           }
           var boundary = _this.boundary;
           boundary[0] = canvasElement.offsetLeft;
@@ -24316,9 +24257,6 @@ var View = /*#__PURE__*/function (_Component) {
           }
           lastViewWidth = newWidth;
           lastViewHeight = newHeight;
-        }
-        if (newResolutionScale) {
-          lastResolutionScale = _classPrivateFieldLooseBase(_assertThisInitialized(_this), _resolutionScale)[_resolutionScale];
         }
         if (newWindowSize) {
           lastWindowWidth = window.innerWidth;
@@ -24368,11 +24306,11 @@ var View = /*#__PURE__*/function (_Component) {
       edgeAlpha: 1.0,
       edgeWidth: 1
     });
-    _this.edgeMaterial = new EdgeMaterial(_assertThisInitialized(_this), {
+    _this.edges = new Edges(_assertThisInitialized(_this), {
       edgeColor: [0.0, 0.0, 0.0],
       edgeAlpha: 1.0,
       edgeWidth: 1,
-      edges: true,
+      enabled: true,
       renderModes: [QualityRender]
     });
     _this.pointsMaterial = new PointsMaterial(_assertThisInitialized(_this), {
@@ -24407,15 +24345,45 @@ var View = /*#__PURE__*/function (_Component) {
   _proto.initViewObjects = function initViewObjects() {
     var _this2 = this;
     for (var id in this.viewer.scene.models) {
-      _classPrivateFieldLooseBase(this, _createViewObjects)[_createViewObjects](this.viewer.scene.models[id]);
+      _classPrivateFieldLooseBase(this, _createViewObjectsForSceneModel)[_createViewObjectsForSceneModel](this.viewer.scene.models[id]);
     }
     this.viewer.scene.onModelCreated.subscribe(function (scene, sceneModel) {
-      _classPrivateFieldLooseBase(_this2, _createViewObjects)[_createViewObjects](sceneModel);
+      _classPrivateFieldLooseBase(_this2, _createViewObjectsForSceneModel)[_createViewObjectsForSceneModel](sceneModel);
     });
     this.viewer.scene.onModelDestroyed.subscribe(function (scene, sceneModel) {
-      _classPrivateFieldLooseBase(_this2, _destroyViewObjects)[_destroyViewObjects](sceneModel);
+      _classPrivateFieldLooseBase(_this2, _destroyViewObjectsForSceneModel)[_destroyViewObjectsForSceneModel](sceneModel);
     });
   };
+  /**
+   * Sets which rendering mode this View is in.
+   *
+   * Supported rendering modes are:
+   *
+   * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+   * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+   *
+   * Default value is {@link @xeokit/constants!QualityRender | QualityRender}.
+   *
+   * @param renderMode The rendering mode
+   * @returns *{@link @xeokit/core!SDKError}*
+   * * Rendering mode not supported.
+   */
+  _proto.setRenderMode = function setRenderMode(renderMode) {
+    if (renderMode !== QualityRender && renderMode !== FastRender) {
+      return new SDKError("Failed to set render mode for View - unsupported mode - supported modes are FastRender and QualityRender");
+    }
+    _classPrivateFieldLooseBase(this, _renderMode)[_renderMode] = renderMode;
+  }
+  /**
+   * Gets which rendering mode this View is in.
+   *
+   * Supported rendering modes are:
+   *
+   * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+   * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+   *
+   * Default value is {@link @xeokit/constants!QualityRender | QualityRender}.
+   */;
   /**
    * @private
    */
@@ -24837,7 +24805,7 @@ var View = /*#__PURE__*/function (_Component) {
   /**
    * Iterates with a callback over the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
    *
-   * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
+   * @param objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
    * @param callback Callback to execute on each {@link @xeokit/viewer!ViewObject}.
    * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */;
@@ -24883,6 +24851,24 @@ var View = /*#__PURE__*/function (_Component) {
     }
     viewLayer.autoDestroy = false;
     return viewLayer;
+  }
+  /**
+   * Attempts to pick a {@link ViewObject} in this View.
+   *
+   * @param pickParams
+   * @param pickResult
+   */;
+  _proto.pick = function pick(pickParams, pickResult) {
+    return null;
+  }
+  /**
+   * Captures a snapshot image of this View.
+   *
+   * @param snapshotParams
+   * @param snapshotResult
+   */;
+  _proto.getSnapshot = function getSnapshot(snapshotParams, snapshotResult) {
+    return new SnapshotResult();
   };
   /**
    * Destroys this View.
@@ -24900,12 +24886,16 @@ var View = /*#__PURE__*/function (_Component) {
     this.onSectionPlaneDestroyed.clear();
   };
   _createClass(View, [{
-    key: "aabb",
-    get:
+    key: "renderMode",
+    get: function get() {
+      return _classPrivateFieldLooseBase(this, _renderMode)[_renderMode];
+    }
     /**
      *
      */
-    function get() {
+  }, {
+    key: "aabb",
+    get: function get() {
       return this.viewer.scene.aabb;
     }
     /**
@@ -24916,7 +24906,7 @@ var View = /*#__PURE__*/function (_Component) {
   }, {
     key: "backgroundColor",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _backgroundColor$1)[_backgroundColor$1];
+      return _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor];
     }
     /**
      * Sets the canvas clear color.
@@ -24925,13 +24915,13 @@ var View = /*#__PURE__*/function (_Component) {
      */,
     set: function set(value) {
       if (value) {
-        _classPrivateFieldLooseBase(this, _backgroundColor$1)[_backgroundColor$1][0] = value[0];
-        _classPrivateFieldLooseBase(this, _backgroundColor$1)[_backgroundColor$1][1] = value[1];
-        _classPrivateFieldLooseBase(this, _backgroundColor$1)[_backgroundColor$1][2] = value[2];
+        _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][0] = value[0];
+        _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][1] = value[1];
+        _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][2] = value[2];
       } else {
-        _classPrivateFieldLooseBase(this, _backgroundColor$1)[_backgroundColor$1][0] = 1.0;
-        _classPrivateFieldLooseBase(this, _backgroundColor$1)[_backgroundColor$1][1] = 1.0;
-        _classPrivateFieldLooseBase(this, _backgroundColor$1)[_backgroundColor$1][2] = 1.0;
+        _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][0] = 1.0;
+        _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][1] = 1.0;
+        _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][2] = 1.0;
       }
       this.redraw();
     }
@@ -24962,40 +24952,6 @@ var View = /*#__PURE__*/function (_Component) {
      */,
     set: function set(backgroundColorFromAmbientLight) {
       _classPrivateFieldLooseBase(this, _backgroundColorFromAmbientLight)[_backgroundColorFromAmbientLight] = backgroundColorFromAmbientLight !== false;
-    }
-    /**
-     * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
-     *
-     * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
-     * a performance boost.
-     *
-     * @returns  The resolution scale.
-     */
-  }, {
-    key: "resolutionScale",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _resolutionScale)[_resolutionScale];
-    }
-    /**
-     * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
-     *
-     * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
-     * a performance boost.
-     *
-     * @param resolutionScale The resolution scale.
-     */,
-    set: function set(resolutionScale) {
-      resolutionScale = resolutionScale || 1.0;
-      if (resolutionScale === _classPrivateFieldLooseBase(this, _resolutionScale)[_resolutionScale]) {
-        return;
-      }
-      _classPrivateFieldLooseBase(this, _resolutionScale)[_resolutionScale] = resolutionScale;
-      var canvasElement = this.canvasElement;
-      canvasElement.width = Math.round(canvasElement.clientWidth * _classPrivateFieldLooseBase(this, _resolutionScale)[_resolutionScale]);
-      canvasElement.height = Math.round(canvasElement.clientHeight * _classPrivateFieldLooseBase(this, _resolutionScale)[_resolutionScale]);
-      this.redraw();
     }
     /**
      * Gets the gamma factor.
@@ -25164,7 +25120,7 @@ var View = /*#__PURE__*/function (_Component) {
   }]);
   return View;
 }(Component);
-function _createViewObjects2(sceneModel) {
+function _createViewObjectsForSceneModel2(sceneModel) {
   var _this5 = this;
   // The Renderer has a RendererViewObject for each object, through which a ViewObject can
   // push state changes into the Renderer for its object.
@@ -25221,7 +25177,7 @@ function _deregisterSectionPlane2(sectionPlane) {
     }
   }
 }
-function _destroyViewObjects2(sceneModel) {
+function _destroyViewObjectsForSceneModel2(sceneModel) {
   var objects = sceneModel.objects;
   for (var id in objects) {
     var object = objects[id];
@@ -25277,6 +25233,12 @@ var Viewer = /*#__PURE__*/function (_Component) {
      */
     _this.capabilities = void 0;
     /**
+     * Emits an event each time a message is logged.
+     *
+     * @event
+     */
+    _this.onLog = void 0;
+    /**
      * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
      *
      * @event
@@ -25322,6 +25284,7 @@ var Viewer = /*#__PURE__*/function (_Component) {
      * @private
      */
     _this.renderer = void 0;
+    _this.onLog = new EventEmitter(new dist.EventDispatcher());
     _this.onTick = new EventEmitter(new dist.EventDispatcher());
     _this.onViewCreated = new EventEmitter(new dist.EventDispatcher());
     _this.onViewDestroyed = new EventEmitter(new dist.EventDispatcher());
@@ -25403,7 +25366,14 @@ var Viewer = /*#__PURE__*/function (_Component) {
     _classPrivateFieldLooseBase(this, _registerView)[_registerView](view);
     // Renderer.attachView sets up internal Renderer resources
     // that are expected by Renderer.attachSceneModel
-    view.viewIndex = this.renderer.attachView(view);
+    {
+      var result = this.renderer.attachView(view);
+      if (result instanceof SDKError) {
+        return result;
+      } else {
+        view.viewIndex = result;
+      }
+    }
     view.onDestroyed.one(function () {
       _classPrivateFieldLooseBase(_this2, _deregisterView)[_deregisterView](view);
       _this2.renderer.detachView(view.viewIndex);
@@ -25970,6 +25940,7 @@ var PointLight = /*#__PURE__*/function (_Component) {
 
 var _viewObject = /*#__PURE__*/_classPrivateFieldLooseKey("viewObject");
 var _gotCanvasPos = /*#__PURE__*/_classPrivateFieldLooseKey("gotCanvasPos");
+var _gotSnappedCanvasPos = /*#__PURE__*/_classPrivateFieldLooseKey("gotSnappedCanvasPos");
 var _gotOrigin = /*#__PURE__*/_classPrivateFieldLooseKey("gotOrigin");
 var _gotDirection = /*#__PURE__*/_classPrivateFieldLooseKey("gotDirection");
 var _gotIndices = /*#__PURE__*/_classPrivateFieldLooseKey("gotIndices");
@@ -25978,7 +25949,10 @@ var _gotWorldPos = /*#__PURE__*/_classPrivateFieldLooseKey("gotWorldPos");
 var _gotViewPos = /*#__PURE__*/_classPrivateFieldLooseKey("gotViewPos");
 var _gotWorldNormal = /*#__PURE__*/_classPrivateFieldLooseKey("gotWorldNormal");
 var _gotUV = /*#__PURE__*/_classPrivateFieldLooseKey("gotUV");
+var _snappedToVertex = /*#__PURE__*/_classPrivateFieldLooseKey("snappedToVertex");
+var _snappedToEdge = /*#__PURE__*/_classPrivateFieldLooseKey("snappedToEdge");
 var _canvasPos = /*#__PURE__*/_classPrivateFieldLooseKey("canvasPos");
+var _snappedCanvasPos = /*#__PURE__*/_classPrivateFieldLooseKey("snappedCanvasPos");
 var _origin = /*#__PURE__*/_classPrivateFieldLooseKey("origin");
 var _direction = /*#__PURE__*/_classPrivateFieldLooseKey("direction");
 var _indices = /*#__PURE__*/_classPrivateFieldLooseKey("indices");
@@ -25997,6 +25971,10 @@ var PickResult = /*#__PURE__*/function () {
       value: void 0
     });
     Object.defineProperty(this, _gotCanvasPos, {
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, _gotSnappedCanvasPos, {
       writable: true,
       value: void 0
     });
@@ -26032,7 +26010,19 @@ var PickResult = /*#__PURE__*/function () {
       writable: true,
       value: void 0
     });
+    Object.defineProperty(this, _snappedToVertex, {
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, _snappedToEdge, {
+      writable: true,
+      value: void 0
+    });
     Object.defineProperty(this, _canvasPos, {
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, _snappedCanvasPos, {
       writable: true,
       value: void 0
     });
@@ -26082,11 +26072,14 @@ var PickResult = /*#__PURE__*/function () {
     _classPrivateFieldLooseBase(this, _gotDirection)[_gotDirection] = false;
     _classPrivateFieldLooseBase(this, _gotIndices)[_gotIndices] = false;
     _classPrivateFieldLooseBase(this, _gotCanvasPos)[_gotCanvasPos] = false;
+    _classPrivateFieldLooseBase(this, _gotSnappedCanvasPos)[_gotSnappedCanvasPos] = false;
     _classPrivateFieldLooseBase(this, _gotLocalPos)[_gotLocalPos] = false;
     _classPrivateFieldLooseBase(this, _gotWorldPos)[_gotWorldPos] = false;
     _classPrivateFieldLooseBase(this, _gotViewPos)[_gotViewPos] = false;
     _classPrivateFieldLooseBase(this, _gotWorldNormal)[_gotWorldNormal] = false;
     _classPrivateFieldLooseBase(this, _gotUV)[_gotUV] = false;
+    _classPrivateFieldLooseBase(this, _snappedToVertex)[_snappedToVertex] = false;
+    _classPrivateFieldLooseBase(this, _snappedToEdge)[_snappedToEdge] = false;
     this.reset();
   }
   /**
@@ -26099,6 +26092,7 @@ var PickResult = /*#__PURE__*/function () {
   _proto.reset = function reset() {
     _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] = null;
     _classPrivateFieldLooseBase(this, _gotCanvasPos)[_gotCanvasPos] = false;
+    _classPrivateFieldLooseBase(this, _gotSnappedCanvasPos)[_gotSnappedCanvasPos] = false;
     _classPrivateFieldLooseBase(this, _gotOrigin)[_gotOrigin] = false;
     _classPrivateFieldLooseBase(this, _gotDirection)[_gotDirection] = false;
     _classPrivateFieldLooseBase(this, _gotIndices)[_gotIndices] = false;
@@ -26107,6 +26101,8 @@ var PickResult = /*#__PURE__*/function () {
     _classPrivateFieldLooseBase(this, _gotViewPos)[_gotViewPos] = false;
     _classPrivateFieldLooseBase(this, _gotWorldNormal)[_gotWorldNormal] = false;
     _classPrivateFieldLooseBase(this, _gotUV)[_gotUV] = false;
+    _classPrivateFieldLooseBase(this, _snappedToVertex)[_snappedToVertex] = false;
+    _classPrivateFieldLooseBase(this, _snappedToEdge)[_snappedToEdge] = false;
   };
   _createClass(PickResult, [{
     key: "viewObject",
@@ -26188,7 +26184,7 @@ var PickResult = /*#__PURE__*/function () {
   }, {
     key: "indices",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] && _classPrivateFieldLooseBase(this, _gotIndices)[_gotIndices] ? _classPrivateFieldLooseBase(this, _indices)[_indices] : null;
+      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] !== null && _classPrivateFieldLooseBase(this, _gotIndices)[_gotIndices] ? _classPrivateFieldLooseBase(this, _indices)[_indices] : null;
     }
     /**
      * @private
@@ -26210,7 +26206,7 @@ var PickResult = /*#__PURE__*/function () {
   }, {
     key: "localPos",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] && _classPrivateFieldLooseBase(this, _gotLocalPos)[_gotLocalPos] ? _classPrivateFieldLooseBase(this, _localPos)[_localPos] : null;
+      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] !== null && _classPrivateFieldLooseBase(this, _gotLocalPos)[_gotLocalPos] ? _classPrivateFieldLooseBase(this, _localPos)[_localPos] : null;
     }
     /**
      * @private
@@ -26276,7 +26272,7 @@ var PickResult = /*#__PURE__*/function () {
   }, {
     key: "worldNormal",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] && _classPrivateFieldLooseBase(this, _gotWorldNormal)[_gotWorldNormal] ? _classPrivateFieldLooseBase(this, _worldNormal)[_worldNormal] : null;
+      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] !== null && _classPrivateFieldLooseBase(this, _gotWorldNormal)[_gotWorldNormal] ? _classPrivateFieldLooseBase(this, _worldNormal)[_worldNormal] : null;
     }
     /**
      * @private
@@ -26298,7 +26294,7 @@ var PickResult = /*#__PURE__*/function () {
   }, {
     key: "uv",
     get: function get() {
-      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] && _classPrivateFieldLooseBase(this, _gotUV)[_gotUV] ? _classPrivateFieldLooseBase(this, _uv)[_uv] : null;
+      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] !== null && _classPrivateFieldLooseBase(this, _gotUV)[_gotUV] ? _classPrivateFieldLooseBase(this, _uv)[_uv] : null;
     }
     /**
      * @private
@@ -26310,6 +26306,54 @@ var PickResult = /*#__PURE__*/function () {
         _classPrivateFieldLooseBase(this, _gotUV)[_gotUV] = true;
       } else {
         _classPrivateFieldLooseBase(this, _gotUV)[_gotUV] = false;
+      }
+    }
+    /**
+     * Returns `true` if picking has snapped to the canvas coordinates of the nearest vertex.
+     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
+     */
+  }, {
+    key: "snappedToVertex",
+    get: function get() {
+      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] !== null && _classPrivateFieldLooseBase(this, _snappedToVertex)[_snappedToVertex];
+    }
+    /**
+     * @private
+     */,
+    set: function set(value) {
+      _classPrivateFieldLooseBase(this, _snappedToVertex)[_snappedToVertex] = value;
+    }
+    /**
+     * Returns `true` if picking has snapped to the canvas coordinates of the nearest edge.
+     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
+     */
+  }, {
+    key: "snappedToEdge",
+    get: function get() {
+      return _classPrivateFieldLooseBase(this, _viewObject)[_viewObject] !== null && _classPrivateFieldLooseBase(this, _snappedToEdge)[_snappedToEdge];
+    },
+    set: function set(value) {
+      _classPrivateFieldLooseBase(this, _snappedToEdge)[_snappedToEdge] = value;
+    }
+    /**
+     * Snapped canvas coordinates when picking with a 2D pointer.
+     * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
+     */
+  }, {
+    key: "snappedCanvasPos",
+    get: function get() {
+      return _classPrivateFieldLooseBase(this, _gotSnappedCanvasPos)[_gotSnappedCanvasPos] ? _classPrivateFieldLooseBase(this, _snappedCanvasPos)[_snappedCanvasPos] : undefined;
+    }
+    /**
+     * @private
+     */,
+    set: function set(value) {
+      if (value) {
+        _classPrivateFieldLooseBase(this, _snappedCanvasPos)[_snappedCanvasPos][0] = value[0];
+        _classPrivateFieldLooseBase(this, _snappedCanvasPos)[_snappedCanvasPos][1] = value[1];
+        _classPrivateFieldLooseBase(this, _gotSnappedCanvasPos)[_gotSnappedCanvasPos] = true;
+      } else {
+        _classPrivateFieldLooseBase(this, _gotSnappedCanvasPos)[_gotSnappedCanvasPos] = false;
       }
     }
   }]);
@@ -26343,12 +26387,12 @@ var PickResult = /*#__PURE__*/function () {
  * * Each View also has it's own {@link @xeokit/viewer!Camera}, {@link @xeokit/viewer!DirLight | Lights} and {@link @xeokit/viewer!SectionPlane | SectionPlanes}.
  * * Each View can optionally organize its ViewObjects into {@link @xeokit/viewer!ViewLayer | ViewLayers}. These allow us to partition our ViewObjects into
  * different *bins* depending on what they represent in the View, and then conveniently focus our updates (toggle visibility, select, highlight, slice etc.)
- * eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer's [phycially-based](/docs/pages/GLOSSARY.html#pbr)
+ * eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer's [phycially-based](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#pbr)
  * quality rendering mode. This allows us to disable wasteful quality rendering for objects that are not supposed to appear realistic, such as grids and other 3D helper objects.
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBp7aIg-YqGL44QHqwEcPu48ILRW1iJhSpkpQbN82_l-9QtlzUF1E7s7PL9ZB6RVS2gGpEOdH6lpFHRTosWqaAGiZFtdpi4bHqO4NfoKpXLKrwUyBaUKBCQFMQEJYHy9RhSRUQAy71w8cQweKtVEx6lIgDiUmyebLVkwLpQJGw5uxxn-I6NLjhREAMcXIENSq8cpFUOYR2Rd4YWTl1Fxo16CVSl6yd6PDnQDgzx60fx0n2vSeeph-YZg2HtBFuKRChvW3CbzMFXpRtIK6p5FKx3zGRctb3JOv0jD6_vxHSNEUvSz_F1AccoYojk_I5rIY-yij5FEZUpJdDSyK91FVUsXYp_9dbpvwsE9PBieq3MHLBNtrIs-dz0mijCDWLRcH5Ac3dakQs9zZoI7tN7juV7YhR7KXchbNoRq3v-aThvBnWDs7-4EDUyBleynP-aY2gFUyQxJqB8Ta9tGB3K4_n2ufGsTgW4RBidIPRbLbwz20-hhPgLpzK8MjApwiEIhdhv7-IhvVFhdPSFnehOl4Fbn0Ghtw6D-w95imjLUSuNUuvQIMwumKi-vJ1vco3x2QNf3rrdDHkCEafr6__o53RLJfxJjorlPxep_vpjFGeHyyiUKm9sf31jnSYxu-V2ctJ5NT9WORzMv8zm50cnbpiXc-hcxOcYm6-XaCW18hSCmva7Hx_33t_juDRjG_CjNEVsoyOsNZ-cnw6RmZva2BU22ULD2Tg9u-3apZKBiN3R0FRbdQAV2joW3ua4kcK1Q-EaxuFlhmp1vEz5h5vfwF9HEi3?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBp7aIg-YqGL44QHqwEcPu48ILRW1iJhSpkpQbN82_l-9QtlzUF1E7s7PL9ZB6RVS2gGpEOdH6lpFHRTosWqaAGiZFtdpi4bHqO4NfoKpXLKrwUyBaUKBCQFMQEJYHy9RhSRUQAy71w8cQweKtVEx6lIgDiUmyebLVkwLpQJGw5uxxn-I6NLjhREAMcXIENSq8cpFUOYR2Rd4YWTl1Fxo16CVSl6yd6PDnQDgzx60fx0n2vSeeph-YZg2HtBFuKRChvW3CbzMFXpRtIK6p5FKx3zGRctb3JOv0jD6_vxHSNEUvSz_F1AccoYojk_I5rIY-yij5FEZUpJdDSyK91FVUsXYp_9dbpvwsE9PBieq3MHLBNtrIs-dz0mijCDWLRcH5Ac3dakQs9zZoI7tN7juV7YhR7KXchbNoRq3v-aThvBnWDs7-4EDUyBleynP-aY2gFUyQxJqB8Ta9tGB3K4_n2ufGsTgW4RBidIPRbLbwz20-hhPgLpzK8MjApwiEIhdhv7-IhvVFhdPSFnehOl4Fbn0Ghtw6D-w95imjLUSuNUuvQIMwumKi-vJ1vco3x2QNf3rrdDHkCEafr6__o53RLJfxJjorlPxep_vpjFGeHyyiUKm9sf31jnSYxu-V2ctJ5NT9WORzMv8zm50cnbpiXc-hcxOcYm6-XaCW18hSCmva7Hx_33t_juDRjG_CjNEVsoyOsNZ-cnw6RmZva2BU22ULD2Tg9u-3apZKBiN3R0FRbdQAV2joW3ua4kcK1Q-EaxuFlhmp1vEz5h5vfwF9HEi3)
+ * [![](https://mermaid.ink/img/pako:eNqNVU1v4jAQ_SuRT7srQKRAgKjiQqXdA6iI7oe0ysVJpsWtY2cdhy2l_Pd1_JEmkK7KJWbemzdj541zRAlPAYUoobgobgh-EDiLWEoEJJJw5q22EdOY95PAXxDeMWKe-QlgKQgQJlAkwMAs94pZmGUiAEuoUj99NpGInZqKTi_BbI9tEo8fVXWngDMQ2Kwpedi5eGEa3FDMwIYoPoBoFV5VEVfZhO4aeW1kValXoVaDWsJ1SdKODv-UmBJ52OrjOMu-1cTz9D0pSEzBbYQqClhop5rQ23SBZ6EasOuEUy7Ii01MKMlzXOvkJHl6-4dxHDd6WepTdH3AATx7ZJw_mVWZWxnBH80RNdKbh-ZEcl54VkXZpfleb4jQZ-mYFeyoegstF2ytjTT7-hrHhRQ4kYtFg_ML4q-rFrG5t7KQPNvUfbuyGZaCPDd3UVm0RpXvaafhtBnWFVz7gwIWLWdoKc35rzWMljGBE4tLQlP3JwW1W3641L40jsIjZoYwQn6E-v2Ffm7rMewA78xUmkcNfLGAKfIurPdnUbN-V-G8tMKrUGivgmp9AZrcsD6wt5imtLZgucosuYACmCw8wrxv39er-uborKGnN3QXQx2J0HAw-EA7rbNc2pvoopDze-jupwtGc34iZoWa2hvVX16R9t34rZA73omcuz9i9Zxcv_b7Z6MTeiTLKWTVCXYxNz8-RF3z5OkdYvO-WXKm3F2PiP4waCO34NbL8M3LQD2kGBkmqfo26fQIyZ2qEaFQLVO4xyVVPlFqiopLye8OLEHhPaYF9FCZp2ru7OesjkJKJBdr-8GrHj2UY4bCI3pGoT-dD4JgOJv644nvj-ejWQ8dUDgKZoPRfDjxx1fB_Go6np166IVzpTocTILJVGGjSTAMRrPxSMv91qAUJZz-AZsUb1U?type=png)](https://mermaid.live/edit#pako:eNqNVU1v4jAQ_SuRT7srQKRAgKjiQqXdA6iI7oe0ysVJpsWtY2cdhy2l_Pd1_JEmkK7KJWbemzdj541zRAlPAYUoobgobgh-EDiLWEoEJJJw5q22EdOY95PAXxDeMWKe-QlgKQgQJlAkwMAs94pZmGUiAEuoUj99NpGInZqKTi_BbI9tEo8fVXWngDMQ2Kwpedi5eGEa3FDMwIYoPoBoFV5VEVfZhO4aeW1kValXoVaDWsJ1SdKODv-UmBJ52OrjOMu-1cTz9D0pSEzBbYQqClhop5rQ23SBZ6EasOuEUy7Ii01MKMlzXOvkJHl6-4dxHDd6WepTdH3AATx7ZJw_mVWZWxnBH80RNdKbh-ZEcl54VkXZpfleb4jQZ-mYFeyoegstF2ytjTT7-hrHhRQ4kYtFg_ML4q-rFrG5t7KQPNvUfbuyGZaCPDd3UVm0RpXvaafhtBnWFVz7gwIWLWdoKc35rzWMljGBE4tLQlP3JwW1W3641L40jsIjZoYwQn6E-v2Ffm7rMewA78xUmkcNfLGAKfIurPdnUbN-V-G8tMKrUGivgmp9AZrcsD6wt5imtLZgucosuYACmCw8wrxv39er-uborKGnN3QXQx2J0HAw-EA7rbNc2pvoopDze-jupwtGc34iZoWa2hvVX16R9t34rZA73omcuz9i9Zxcv_b7Z6MTeiTLKWTVCXYxNz8-RF3z5OkdYvO-WXKm3F2PiP4waCO34NbL8M3LQD2kGBkmqfo26fQIyZ2qEaFQLVO4xyVVPlFqiopLye8OLEHhPaYF9FCZp2ru7OesjkJKJBdr-8GrHj2UY4bCI3pGoT-dD4JgOJv644nvj-ejWQ8dUDgKZoPRfDjxx1fB_Go6np166IVzpTocTILJVGGjSTAMRrPxSMv91qAUJZz-AZsUb1U)
  *
  * ## Installation
  *
@@ -26594,7 +26638,7 @@ var PickResult = /*#__PURE__*/function () {
  * TODO TODO TODO TODO
  *
  * ````javascript
- * const modelViewLayer = view.createLayer({
+ * const environmentViewLayer = view.createLayer({
  *     id: "myEnviromentViewLayer"
  * });
  * ````
@@ -26630,14 +26674,28 @@ var PickResult = /*#__PURE__*/function () {
  * loadBCFViewpoint({
  *      bcfViewpoint: bcfViewpointAgain
  *      view: view2,
- *      excludeLayerIds: ["myEnviromentViewLayer"]
+ *      excludeLayerIds: ["myEnvironmentViewLayer"]
  * });
+ * ````
+ *
+ * ````javascript
+ * myViewer.viewModes.createViewMode({
+ *    id: "qualityViewMode"
+ * });
+ *
+ * myViewer.viewModes.createViewMode({
+ *    id: "navigationViewMode"
+ * });
+ *
+ * environmentViewLayer.setViewModes(["qualityViewMode"]};
+ *
+ * myViewer.viewModes.setActiveViewMode("quality");
  * ````
  *
  * @module @xeokit/viewer
  */
 
-var index$6 = {
+var index$5 = {
   __proto__: null,
   Viewer: Viewer,
   Camera: Camera,
@@ -26650,7 +26708,7 @@ var index$6 = {
   DirLight: DirLight,
   PointLight: PointLight,
   EmphasisMaterial: EmphasisMaterial,
-  EdgeMaterial: EdgeMaterial,
+  Edges: Edges,
   PointsMaterial: PointsMaterial,
   Metrics: Metrics,
   View: View,
@@ -26662,53 +26720,685 @@ var index$6 = {
 };
 
 /**
- * Mock rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
+ * Mock rendering strategy for a {@link @xeokit/scene!SceneObject | SceneObject}.
  *
  * See {@link @xeokit/mockrenderer} for usage.
  */
+var MockRendererObject = /*#__PURE__*/function () {
+  /**
+   * @private
+   */
+  function MockRendererObject(params) {
+    this.id = void 0;
+    this.rendererModel = void 0;
+    this.sceneObject = void 0;
+    this.layerId = void 0;
+    this.rendererMeshes = void 0;
+    this.id = params.id;
+    this.sceneObject = params.sceneObject;
+    this.rendererModel = params.rendererModel;
+    this.rendererMeshes = params.rendererMeshes;
+    //  this.layerId = params.layerId;
+  }
+  /**
+   * @inheritdoc
+   */
+  var _proto = MockRendererObject.prototype;
+  /**
+   * @inheritdoc
+   */
+  _proto.setVisible = function setVisible(viewIndex, visible) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setHighlighted = function setHighlighted(viewIndex, highlighted) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setXRayed = function setXRayed(viewIndex, xrayed) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setSelected = function setSelected(viewIndex, selected) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setEdges = function setEdges(viewIndex, edges) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setCulled = function setCulled(viewIndex, culled) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setClippable = function setClippable(viewIndex, clippable) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setCollidable = function setCollidable(viewIndex, collidable) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setPickable = function setPickable(viewIndex, pickable) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setColorize = function setColorize(viewIndex, color) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setOpacity = function setOpacity(viewIndex, opacity) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setOffset = function setOffset(viewIndex, offset) {};
+  _proto.destroy = function destroy() {
+    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
+      this.rendererMeshes[i].destroy();
+    }
+  };
+  _createClass(MockRendererObject, [{
+    key: "aabb",
+    get: function get() {
+      return this.sceneObject.aabb;
+    }
+  }]);
+  return MockRendererObject;
+}();
+
+/**
+ * TODO
+ *
+ * @internal
+ */
+var MockRendererTexture = /*#__PURE__*/function () {
+  function MockRendererTexture(texture) {
+    this.texture = void 0;
+    this.texture = texture;
+  }
+  var _proto = MockRendererTexture.prototype;
+  _proto.destroy = function destroy() {};
+  return MockRendererTexture;
+}();
+
+/**
+ * @internal
+ * @inheritdoc
+ */
+var MockRendererGeometry = function MockRendererGeometry() {};
+
+/**
+ * Mock rendering strategy for a {@link @xeokit/scene!Mesh | Mesh}.
+ *
+ * See {@link @xeokit/mockrenderer} for usage.
+ */
+var MockRendererMesh = /*#__PURE__*/function () {
+  /**
+   * @private
+   */
+  function MockRendererMesh(params) {}
+  /**
+   * @inheritdoc
+   */
+  var _proto = MockRendererMesh.prototype;
+  _proto.delegatePickedEntity = function delegatePickedEntity() {
+    throw new Error("Method not implemented.");
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.setMatrix = function setMatrix(matrix) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setMetallic = function setMetallic(metallic) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setRoughness = function setRoughness(roughness) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.setColor = function setColor(color) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.canPickTriangle = function canPickTriangle() {
+    return false;
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.canPickWorldPos = function canPickWorldPos() {
+    return false;
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.pickTriangleSurface = function pickTriangleSurface(pickResult) {}
+  /**
+   * @inheritdoc
+   */;
+  _proto.destroy = function destroy() {};
+  return MockRendererMesh;
+}();
+
+/**
+ * TODO
+ *
+ * @internal
+ */
+var MockRendererTextureSet = function MockRendererTextureSet(params) {
+  this.id = void 0;
+  this.colorRendererTexture = void 0;
+  this.metallicRoughnessRendererTexture = void 0;
+  this.emissiveRendererTexture = void 0;
+  this.occlusionRendererTexture = void 0;
+  this.id = params.id;
+  this.colorRendererTexture = params.colorRendererTexture;
+  this.metallicRoughnessRendererTexture = params.metallicRoughnessRendererTexture;
+  this.emissiveRendererTexture = params.emissiveRendererTexture;
+  this.occlusionRendererTexture = params.occlusionRendererTexture;
+};
+
+var defaultColorTextureId = "defaultColorTexture";
+var defaultMetalRoughTextureId = "defaultMetalRoughTexture";
+var defaultNormalsTextureId = "defaultNormalsTexture";
+var defaultEmissiveTextureId = "defaultEmissiveTexture";
+var defaultOcclusionTextureId = "defaultOcclusionTexture";
+var defaultTextureSetId = "defaultTextureSet";
+/**
+ * Mock rendering strategy for a {@link @xeokit/scene!Mesh | Mesh}.
+ *
+ * See {@link @xeokit/mockrenderer} for usage.
+ */
+var _createDefaultTextureSet = /*#__PURE__*/_classPrivateFieldLooseKey("createDefaultTextureSet");
+var _attachSceneModel = /*#__PURE__*/_classPrivateFieldLooseKey("attachSceneModel");
+var _attachTexture = /*#__PURE__*/_classPrivateFieldLooseKey("attachTexture");
+var _attachGeometry = /*#__PURE__*/_classPrivateFieldLooseKey("attachGeometry");
+var _attachMesh = /*#__PURE__*/_classPrivateFieldLooseKey("attachMesh");
+var _attachSceneObject = /*#__PURE__*/_classPrivateFieldLooseKey("attachSceneObject");
+var MockRendererModel = /*#__PURE__*/function (_Component) {
+  _inheritsLoose(MockRendererModel, _Component);
+  /**
+   * @private
+   */
+  function MockRendererModel(params) {
+    var _this;
+    _this = _Component.call(this, params.view) || this;
+    Object.defineProperty(_assertThisInitialized(_this), _attachSceneObject, {
+      value: _attachSceneObject2
+    });
+    Object.defineProperty(_assertThisInitialized(_this), _attachMesh, {
+      value: _attachMesh2
+    });
+    Object.defineProperty(_assertThisInitialized(_this), _attachGeometry, {
+      value: _attachGeometry2
+    });
+    Object.defineProperty(_assertThisInitialized(_this), _attachTexture, {
+      value: _attachTexture2
+    });
+    Object.defineProperty(_assertThisInitialized(_this), _attachSceneModel, {
+      value: _attachSceneModel2
+    });
+    Object.defineProperty(_assertThisInitialized(_this), _createDefaultTextureSet, {
+      value: _createDefaultTextureSet2
+    });
+    _this.qualityRender = void 0;
+    _this.viewer = void 0;
+    _this.sceneModel = void 0;
+    _this.rendererGeometries = void 0;
+    _this.rendererTextures = void 0;
+    _this.rendererTextureSets = void 0;
+    _this.rendererMeshes = void 0;
+    _this.rendererObjects = void 0;
+    _this.rendererObjectsList = void 0;
+    _this.rendererViewObjects = void 0;
+    _this.onBuilt = void 0;
+    _this.id = params.id;
+    _this.sceneModel = params.sceneModel;
+    _this.viewer = params.view.viewer;
+    _this.rendererGeometries = {};
+    _this.rendererTextures = {};
+    _this.rendererTextureSets = {};
+    _this.rendererMeshes = {};
+    _this.rendererObjects = {};
+    _this.rendererObjectsList = [];
+    _this.rendererViewObjects = {};
+    _this.built = false;
+    _this.qualityRender = params.qualityRender !== false;
+    _this.onBuilt = new EventEmitter(new dist.EventDispatcher());
+    _this.built = true;
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _createDefaultTextureSet)[_createDefaultTextureSet]();
+    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _attachSceneModel)[_attachSceneModel](_this.sceneModel);
+    return _this;
+  }
+  var _proto = MockRendererModel.prototype;
+  _proto.destroy = function destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this.rendererGeometries = {};
+    this.rendererTextures = {};
+    this.rendererTextureSets = {};
+    this.rendererMeshes = {};
+    this.rendererViewObjects = {};
+    this.onBuilt.clear();
+    _Component.prototype.destroy.call(this);
+  };
+  return MockRendererModel;
+}(Component);
+function _createDefaultTextureSet2() {
+  var defaultColorRendererTexture = new MockRendererTexture(null);
+  var defaultMetalRoughRendererTexture = new MockRendererTexture(null);
+  var defaultNormalsRendererTexture = new MockRendererTexture(null);
+  var defaultEmissiveRendererTexture = new MockRendererTexture(null);
+  var defaultOcclusionRendererTexture = new MockRendererTexture(null);
+  this.rendererTextures[defaultColorTextureId] = defaultColorRendererTexture;
+  this.rendererTextures[defaultMetalRoughTextureId] = defaultMetalRoughRendererTexture;
+  this.rendererTextures[defaultNormalsTextureId] = defaultNormalsRendererTexture;
+  this.rendererTextures[defaultEmissiveTextureId] = defaultEmissiveRendererTexture;
+  this.rendererTextures[defaultOcclusionTextureId] = defaultOcclusionRendererTexture;
+  this.rendererTextureSets[defaultTextureSetId] = new MockRendererTextureSet({
+    id: defaultTextureSetId,
+    colorRendererTexture: defaultColorRendererTexture,
+    metallicRoughnessRendererTexture: defaultMetalRoughRendererTexture,
+    emissiveRendererTexture: defaultEmissiveRendererTexture,
+    occlusionRendererTexture: defaultOcclusionRendererTexture
+  });
+}
+function _attachSceneModel2(sceneModel) {
+  var _this2 = this;
+  var attach = function attach() {
+    var textures = sceneModel.textures;
+    var geometries = sceneModel.geometries;
+    var meshes = sceneModel.meshes;
+    var objects = sceneModel.objects;
+    if (textures) {
+      for (var textureId in textures) {
+        _classPrivateFieldLooseBase(_this2, _attachTexture)[_attachTexture](textures[textureId]);
+      }
+    }
+    if (geometries) {
+      for (var geometryId in geometries) {
+        _classPrivateFieldLooseBase(_this2, _attachGeometry)[_attachGeometry](geometries[geometryId]);
+      }
+    }
+    if (meshes) {
+      for (var meshId in meshes) {
+        _classPrivateFieldLooseBase(_this2, _attachMesh)[_attachMesh](meshes[meshId]);
+      }
+    }
+    if (objects) {
+      for (var objectId in objects) {
+        _classPrivateFieldLooseBase(_this2, _attachSceneObject)[_attachSceneObject](objects[objectId]);
+      }
+    }
+    _this2.onBuilt.dispatch(_this2, null);
+  };
+  if (sceneModel.built) {
+    attach();
+  } else {
+    sceneModel.onBuilt.one(attach);
+  }
+}
+function _attachTexture2(texture) {
+  var textureId = texture.id;
+  if (this.rendererTextures[textureId]) {
+    throw new SDKError("RendererTexture already created: " + textureId);
+  }
+  var rendererTexture = new MockRendererTexture(texture);
+  texture.rendererTexture = rendererTexture;
+  this.rendererTextures[textureId] = rendererTexture;
+}
+function _attachGeometry2(geometry) {
+  var geometryId = geometry.id;
+  if (this.rendererGeometries[geometryId]) {
+    throw new SDKError("RendererGeometry already created: " + geometryId);
+  }
+  var rendererGeometry = new MockRendererGeometry();
+  this.rendererGeometries[geometryId] = rendererGeometry;
+  geometry.rendererGeometry = rendererGeometry;
+}
+function _attachMesh2(mesh) {
+  var rendererGeometry = this.rendererGeometries[mesh.geometry.id];
+  if (!rendererGeometry) {
+    throw new SDKError("RendererGeometry not found");
+  }
+  var textureSetId = mesh.textureSet ? mesh.textureSet.id : defaultTextureSetId;
+  var rendererTextureSet = this.rendererTextureSets[textureSetId];
+  if (!rendererTextureSet) {
+    throw new SDKError("TextureSet not found");
+  }
+  var meshRenderer = new MockRendererMesh({
+    id: mesh.id,
+    rendererTextureSet: rendererTextureSet,
+    rendererGeometry: rendererGeometry,
+    meshIndex: 0
+  });
+  this.rendererMeshes[mesh.id] = meshRenderer;
+}
+function _attachSceneObject2(sceneObject) {
+  var objectId = sceneObject.id;
+  if (objectId === undefined) {
+    objectId = createUUID();
+  } else if (this.rendererObjects[objectId]) {
+    this.error("[createObject] rendererModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
+    objectId = createUUID();
+  }
+  var meshes = sceneObject.meshes;
+  if (meshes === undefined) {
+    throw new SDKError("[createObject] Param expected: meshes");
+  }
+  var rendererMeshes = [];
+  for (var i = 0, len = meshes.length; i < len; i++) {
+    var mesh = meshes[i];
+    var rendererMesh = this.rendererMeshes[mesh.id];
+    rendererMeshes.push(rendererMesh);
+  }
+  var rendererObject = new MockRendererObject({
+    id: objectId,
+    sceneObject: sceneObject,
+    rendererModel: this,
+    rendererMeshes: rendererMeshes,
+    aabb: sceneObject.aabb,
+    layerId: "0"
+  });
+  this.rendererObjectsList.push(rendererObject);
+  this.rendererObjects[objectId] = rendererObject; // <RendererObject>
+  this.rendererViewObjects[objectId] = rendererObject; // <RendererViewObject>
+}
+
+/**
+ * Mock rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
+ *
+ * Plug a MockRenderer into a Viewer to effectively make it think it has a renderer, but not
+ * actually render anything. This is useful for testing, and to demonstrate the API contract
+ * to help you implement your own rendering strategies.
+ *
+ * See {@link @xeokit/mockrenderer} for usage.
+ */
+var _view$9 = /*#__PURE__*/_classPrivateFieldLooseKey("view");
+var _viewMatrixDirty = /*#__PURE__*/_classPrivateFieldLooseKey("viewMatrixDirty");
+var _rendererModels = /*#__PURE__*/_classPrivateFieldLooseKey("rendererModels");
+var _viewer$1 = /*#__PURE__*/_classPrivateFieldLooseKey("viewer");
+var _onViewMat = /*#__PURE__*/_classPrivateFieldLooseKey("onViewMat");
+var _detachRendererViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("detachRendererViewObjects");
+var _attachRendererViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("attachRendererViewObjects");
 var MockRenderer = /*#__PURE__*/function () {
   /**
-   Creates a MockRenderer.
-    @param params Configs
+   * Creates a MockRenderer.
+   *
+   * @param params Configs
    */
   function MockRenderer(params) {
+    Object.defineProperty(this, _attachRendererViewObjects, {
+      value: _attachRendererViewObjects2
+    });
+    Object.defineProperty(this, _detachRendererViewObjects, {
+      value: _detachRendererViewObjects2
+    });
+    /**
+     * @inheritdoc
+     */
     this.rendererViewObjects = void 0;
+    Object.defineProperty(this, _view$9, {
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, _viewMatrixDirty, {
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, _rendererModels, {
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, _viewer$1, {
+      writable: true,
+      value: void 0
+    });
+    Object.defineProperty(this, _onViewMat, {
+      writable: true,
+      value: void 0
+    });
     this.rendererViewObjects = {};
+    _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels] = {};
   }
+  /**
+   * @inheritdoc
+   */
   var _proto = MockRenderer.prototype;
   _proto.getCapabilities = function getCapabilities(capabilities) {
     capabilities.maxViews = 1;
     capabilities.headless = true;
-  };
-  _proto.attachViewer = function attachViewer(viewer) {};
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.attachViewer = function attachViewer(viewer) {
+    if (_classPrivateFieldLooseBase(this, _viewer$1)[_viewer$1]) {
+      return new SDKError("Only one Viewer allowed with MockRenderer");
+    }
+    _classPrivateFieldLooseBase(this, _viewer$1)[_viewer$1] = viewer;
+  }
+  /**
+   * @inheritdoc
+   */;
   _proto.attachView = function attachView(view) {
+    var _this = this;
+    if (_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("Only one View allowed with MockRenderer (see WebViewerCapabilities.maxViews)");
+    }
+    _classPrivateFieldLooseBase(this, _view$9)[_view$9] = view;
+    view.camera.onViewMatrix.sub(_classPrivateFieldLooseBase(this, _onViewMat)[_onViewMat] = function () {
+      _classPrivateFieldLooseBase(_this, _viewMatrixDirty)[_viewMatrixDirty] = true;
+    });
     return 0;
-  };
-  _proto.detachView = function detachView(viewIndex) {};
-  _proto.attachSceneModel = function attachSceneModel(sceneModel) {};
-  _proto.detachSceneModel = function detachSceneModel(sceneModel) {};
-  _proto.setImageDirty = function setImageDirty(viewIndex) {};
-  _proto.setBackgroundColor = function setBackgroundColor(viewIndex, color) {};
-  _proto.setEdgesEnabled = function setEdgesEnabled(viewIndex, enabled) {};
-  _proto.setPBREnabled = function setPBREnabled(viewIndex, enabled) {};
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.detachView = function detachView(viewIndex) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    _classPrivateFieldLooseBase(this, _view$9)[_view$9].camera.onViewMatrix.unsub(_classPrivateFieldLooseBase(this, _onViewMat)[_onViewMat]);
+    _classPrivateFieldLooseBase(this, _onViewMat)[_onViewMat] = null;
+    _classPrivateFieldLooseBase(this, _view$9)[_view$9] = null;
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.attachSceneModel = function attachSceneModel(sceneModel) {
+    var _this2 = this;
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (sceneModel.rendererModel) {
+      if (_classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][sceneModel.id]) {
+        return new SDKError("SceneModel not attached to this Renderer");
+      } else {
+        return new SDKError("SceneModel already attached to another Renderer");
+      }
+    }
+    var rendererModel = new MockRendererModel({
+      qualityRender: false,
+      id: sceneModel.id,
+      sceneModel: sceneModel,
+      view: _classPrivateFieldLooseBase(this, _view$9)[_view$9],
+      mockRenderer: this
+    });
+    _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][rendererModel.id] = rendererModel;
+    _classPrivateFieldLooseBase(this, _attachRendererViewObjects)[_attachRendererViewObjects](rendererModel);
+    rendererModel.onDestroyed.one(function (component) {
+      var rendererModel = _classPrivateFieldLooseBase(_this2, _rendererModels)[_rendererModels][component.id];
+      delete _classPrivateFieldLooseBase(_this2, _rendererModels)[_rendererModels][component.id];
+      _classPrivateFieldLooseBase(_this2, _detachRendererViewObjects)[_detachRendererViewObjects](rendererModel);
+    });
+    sceneModel.rendererModel = rendererModel;
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.detachSceneModel = function detachSceneModel(sceneModel) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (!sceneModel.rendererModel) {
+      return new SDKError("SceneModel not attached to any Renderer");
+    }
+    if (!_classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][sceneModel.id]) {
+      return new SDKError("SceneModel not attached to this Renderer");
+    }
+    var rendererModel = _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][sceneModel.id];
+    delete _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][sceneModel.id];
+    _classPrivateFieldLooseBase(this, _detachRendererViewObjects)[_detachRendererViewObjects](rendererModel);
+    sceneModel.rendererModel = null;
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.setImageDirty = function setImageDirty(viewIndex) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.setBackgroundColor = function setBackgroundColor(viewIndex, color) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.setEdgesEnabled = function setEdgesEnabled(viewIndex, enabled) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.setPBREnabled = function setPBREnabled(viewIndex, enabled) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
+  }
+  /**
+   * @inheritdoc
+   */;
   _proto.getSAOSupported = function getSAOSupported() {
     return false;
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.setSAOEnabled = function setSAOEnabled(viewIndex, enabled) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.setTransparentEnabled = function setTransparentEnabled(viewIndex, enabled) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.clear = function clear(viewIndex) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
   };
-  _proto.setSAOEnabled = function setSAOEnabled(viewIndex, enabled) {};
-  _proto.setTransparentEnabled = function setTransparentEnabled(viewIndex, enabled) {};
-  _proto.clear = function clear(viewIndex) {};
-  _proto.needsRebuild = function needsRebuild(viewIndex) {};
+  /**
+   * @inheritdoc
+   */
+  _proto.needsRebuild = function needsRebuild(viewIndex) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
+  }
+  /**
+   * @inheritdoc
+   */;
   _proto.needsRender = function needsRender(viewIndex) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
     return false;
-  };
+  }
+  /**
+   * @inheritdoc
+   */;
   _proto.render = function render(viewIndex, params) {
-    // NOP
-  };
-  _proto.pickSceneObject = function pickSceneObject(viewIndex, params) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
+  }
+  /**
+   * @inheritdoc
+   */;
+  _proto.pickViewObject = function pickViewObject(viewIndex, params) {
+    if (!_classPrivateFieldLooseBase(this, _view$9)[_view$9]) {
+      return new SDKError("No View is currently attached to this Renderer");
+    }
+    if (viewIndex !== 0) {
+      return new SDKError("No View with the given handle (" + viewIndex + ") is currently attached to this Renderer");
+    }
     return null;
   };
   return MockRenderer;
 }();
+function _detachRendererViewObjects2(rendererModel) {
+  var rendererViewObjects = rendererModel.rendererViewObjects;
+  for (var id in rendererViewObjects) {
+    delete this.rendererViewObjects[id];
+  }
+}
+function _attachRendererViewObjects2(rendererModel) {
+  var rendererViewObjects = rendererModel.rendererViewObjects;
+  for (var id in rendererViewObjects) {
+    this.rendererViewObjects[id] = rendererViewObjects[id];
+  }
+}
 
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fwebgl.svg)](https://badge.fury.io/js/%40xeokit%2Fwebgl)
@@ -26726,7 +27416,8 @@ var MockRenderer = /*#__PURE__*/function () {
  *
  * * Plug a {@link MockRenderer} into a {@link @xeokit/viewer!Viewer} to use a mock renderer for model storage and rendering
  * * Does not render anything
- * * Used to testing and development of custom renderers
+ * * Used for testing the Viewer
+ * * Used to guide the development of custom renderers
  *
  * ## Installation
  *
@@ -26756,7 +27447,7 @@ var MockRenderer = /*#__PURE__*/function () {
  * @module @xeokit/mockrenderer
  */
 
-var index$5 = {
+var index$4 = {
   __proto__: null,
   MockRenderer: MockRenderer
 };
@@ -26800,7 +27491,7 @@ var EngineFormat = {
   RGB_S3TC_DXT1_Format: RGB_S3TC_DXT1_Format
 };
 /**
- * KTX2 texture decompression strategy.
+ * [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture decompression strategy.
  *
  * See {@link @xeokit/ktx2} for usage.
  */
@@ -27208,7 +27899,7 @@ var BasisWorker = function BasisWorker() {
  *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="media://images/xeokit_ktx_logo.svg"/>
  *
- * # xeokit [KTX2](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#ktx2) Texture Transcoder
+ * # xeokit KTX2 Texture Transcoder
  *
  * ---
  *
@@ -27218,19 +27909,19 @@ var BasisWorker = function BasisWorker() {
  *
  * * Provides {@link KTX2TextureTranscoder}
  * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
- * * Then {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} can create textures from KTX2-encoded compressed textures
+ * * Then a Viewer is able to view a {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} that has KTX2-encoded compressed textures
  * * Uses the [Basis Universal GPU Texture Codec](https://github.com/BinomialLLC/basis_universal) to
- * transcode [KTX2](https://github.khronos.org/KTX-Specification/) textures.
+ * transcode [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures.
  * * Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/) by default, but can
  * also be configured to load the Codec from local files.
  * * We also bundle the Basis Codec with the xeokit-viewer npm package, and in the [repository](https://github.com/xeokit/sdk/tree/master/dist/basis).
  *
  * ### What is KTX2?
  *
- * A [KTX2](https://github.khronos.org/KTX-Specification/) file stores GPU texture data in the Khronos Texture 2.0 (KTX2) container format. It contains image data for
+ * A [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) file stores GPU texture data in the Khronos Texture 2.0 (KTX2) container format. It contains image data for
  * a texture asset compressed with Basis Universal (BasisU) supercompression that can be transcoded to different formats
- * depending on the support provided by the target devices. KTX2 provides a lightweight format for distributing texture
- * assets to GPUs. Due to BasisU compression, KTX2 files can store any image format supported by GPUs.
+ * depending on the support provided by the target devices. [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) provides a lightweight format for distributing texture
+ * assets to GPUs. Due to BasisU compression, [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) files can store any image format supported by GPUs.
  *
  * <br>
  *
@@ -27246,12 +27937,12 @@ var BasisWorker = function BasisWorker() {
  *
  * ## Usage
  *
- * ### Loading an XKT file containing KTX2 textures into a Viewer
+ * ### Loading an XKT file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
  *
  * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadXKT} to
- * load an XKT file with KTX2-compressed textures into the SceneModel. For each KTX2 texture in the file, the
- * KTX2TextureTranscoder will transparently transcode the KTX2 data for us.
+ * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadXKT} to
+ * load an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
+ * KTX2TextureTranscoder will transparently transcode the [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -27281,7 +27972,7 @@ var BasisWorker = function BasisWorker() {
  *     id: "myModel"
  * });
  *
- * fetch("myModelWithTextures.xkt") // <<-- XKT file with KTX2 textures
+ * fetch("myModelWithTextures.xkt") // <<-- [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file with KTX2 textures
  *     .then(response => {
  *          if (response.ok) {
  *              loadXKT(response.arrayBuffer(), sceneModel);
@@ -27293,10 +27984,10 @@ var BasisWorker = function BasisWorker() {
  * ### Loading KTX2 texture files into a Viewer
  *
  * As in the previous example, create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}, then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
+ * {@link @xeokit/ktx2!KTX2TextureTranscoder}, then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
  * This time, we'll build the SceneModel ourselves, using its builder methods. When we
- * call builder method {@link SceneModel.createTexture} with a path to a KTX2-compressed texture file, the
+ * call builder method {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} with a path to a KTX2-compressed texture file, the
  * KTX2TextureTranscoder will transparently transcode that KTX2 data for us.
  *
  * ````javascript
@@ -27366,14 +28057,14 @@ var BasisWorker = function BasisWorker() {
  * viewerModel.build();
  * ````
  *
- * ### Loading KTX2 texture ArrayBuffers into a Viewer
+ * ### Loading [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture ArrayBuffers into a Viewer
  *
  * As in the previous two examples, create a {@link @xeokit/viewer!Viewer} that has a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
- * {@link KTX2TextureTranscoder}, and then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
+ * {@link @xeokit/ktx2!KTX2TextureTranscoder}, and then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
  * Once more, build the SceneModel using its builder methods. This time, call builder method
- * {@link SceneModel.createTexture} with an ArrayBuffer containing the contents of a KTX2-compressed texture
- * file. As before, the KTX2TextureTranscoder will transparently transcode that KTX2 data for us.
+ * {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} with an ArrayBuffer containing the contents of a KTX2-compressed texture
+ * file. As before, the KTX2TextureTranscoder will transparently transcode that [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -27451,6715 +28142,9 @@ var BasisWorker = function BasisWorker() {
  * @module @xeokit/ktx2
  */
 
-var index$4 = {
-  __proto__: null,
-  KTX2TextureTranscoder: KTX2TextureTranscoder
-};
-
-/**
- * Represents a WebGL vertex attribute.
- */
-var GLAttribute = /*#__PURE__*/function () {
-  /**
-   * Creates a new vertex attribute.
-   * @param gl
-   * @param location
-   */
-  function GLAttribute(gl, location) {
-    this.gl = void 0;
-    this.location = void 0;
-    this.gl = gl;
-    this.location = location;
-  }
-  /**
-   * Binds an array buffer to this vertex attribute.
-   * @param arrayBuf
-   */
-  var _proto = GLAttribute.prototype;
-  _proto.bindArrayBuffer = function bindArrayBuffer(arrayBuf) {
-    if (!arrayBuf) {
-      return;
-    }
-    arrayBuf.bind();
-    this.gl.enableVertexAttribArray(this.location);
-    this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
-  };
-  return GLAttribute;
-}();
-
-var _onDestroyed = /*#__PURE__*/_classPrivateFieldLooseKey("onDestroyed");
-/**
- * Represents a WebGL2 data texture.
- */
-var GLDataTexture = /*#__PURE__*/function () {
-  /**
-   * Constructs a new GLDataTexture.
-   * @param params
-   */
-  function GLDataTexture(params) {
-    if (params === void 0) {
-      params = {};
-    }
-    this.gl = void 0;
-    this.texture = void 0;
-    this.textureWidth = void 0;
-    this.textureHeight = void 0;
-    this.textureData = void 0;
-    Object.defineProperty(this, _onDestroyed, {
-      writable: true,
-      value: void 0
-    });
-    this.gl = params.gl;
-    this.texture = params.texture;
-    this.textureWidth = params.textureWidth;
-    this.textureHeight = params.textureHeight;
-    this.textureData = params.textureData;
-    _classPrivateFieldLooseBase(this, _onDestroyed)[_onDestroyed] = params.onDestroyed;
-  }
-  /**
-   * Binds this GLDataTexture to the given {@link GLSampler}.
-   * @param glProgram
-   * @param sampler
-   * @param unit
-   */
-  var _proto = GLDataTexture.prototype;
-  _proto.bindTexture = function bindTexture(glProgram, sampler, unit) {
-    if (!this.gl) {
-      return;
-    }
-    sampler.bindTexture(this, unit);
-  }
-  /**
-   * Unbinds this GLDataTexture from whichever {@link GLSampler} it's currently bound to, if any.
-   * @param unit
-   */;
-  _proto.bind = function bind(unit) {
-    if (!this.gl || !this.texture) {
-      return false;
-    }
-    // @ts-ignore
-    this.gl.activeTexture(this.gl["TEXTURE" + unit]);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-    return true;
-  };
-  _proto.disableFiltering = function disableFiltering() {
-    if (!this.gl) {
-      return;
-    }
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-  };
-  _proto.unbind = function unbind(unit) {
-    if (!this.gl) {
-      return;
-    }
-    // This `unbind` method is ignored at the moment to allow avoiding to rebind same texture already bound to a texture unit.
-    // this.gl.activeTexture(this.state.gl["TEXTURE" + unit]);
-    // this.gl.bindTexture(this.state.gl.TEXTURE_2D, null);
-  };
-  _proto.destroy = function destroy() {
-    if (!this.gl || !this.texture) {
-      return;
-    }
-    this.gl.deleteTexture(this.texture);
-    this.texture = null;
-    if (_classPrivateFieldLooseBase(this, _onDestroyed)[_onDestroyed]) {
-      _classPrivateFieldLooseBase(this, _onDestroyed)[_onDestroyed]();
-    }
-  };
-  return GLDataTexture;
-}();
-
-/**
- * Represents a WebGL2 shader.
- */
-var GLShader = /*#__PURE__*/function () {
-  /**
-   * Creates a new shader.
-   * @param gl
-   * @param type
-   * @param source
-   */
-  function GLShader(gl, type, source) {
-    /**
-     * Compilation errors, if any.
-     */
-    this.errors = void 0;
-    /**
-     * True when this shader was successfully allocated.
-     */
-    this.allocated = void 0;
-    /**
-     * True when this shader was successfully compiled.
-     */
-    this.compiled = void 0;
-    /**
-     * Handle to GPU-resident WebGL2 shader.
-     */
-    this.handle = void 0;
-    this.allocated = false;
-    this.compiled = false;
-    // @ts-ignore
-    this.handle = gl.createShader(type);
-    if (!this.handle) {
-      this.errors = ["Failed to allocate"];
-      return;
-    }
-    this.allocated = true;
-    gl.shaderSource(this.handle, source);
-    gl.compileShader(this.handle);
-    this.compiled = gl.getShaderParameter(this.handle, gl.COMPILE_STATUS);
-    if (!this.compiled) {
-      if (!gl.isContextLost()) {
-        // Handled explicitly elsewhere, so won't re-handle here
-        var lines = source.split("\n");
-        var numberedLines = [];
-        for (var i = 0; i < lines.length; i++) {
-          numberedLines.push(i + 1 + ": " + lines[i] + "\n");
-        }
-        this.errors = [];
-        this.errors.push("");
-        this.errors.push(gl.getShaderInfoLog(this.handle) || "");
-        this.errors = this.errors.concat(numberedLines.join(""));
-      }
-    }
-  }
-  /**
-   * Destroys this shader.
-   */
-  var _proto = GLShader.prototype;
-  _proto.destroy = function destroy() {};
-  return GLShader;
-}();
-
-/**
- * Represents a WebGL2 sampler.
- */
-var GLSampler = /*#__PURE__*/function () {
-  /**
-   * Creates a new sampler.
-   * @param gl
-   * @param location
-   */
-  function GLSampler(gl, location) {
-    this.location = void 0;
-    this.gl = void 0;
-    this.gl = gl;
-    this.location = location;
-  }
-  /**
-   * Binds a texture to this sampler.
-   * @param texture
-   * @param unit
-   */
-  var _proto = GLSampler.prototype;
-  _proto.bindTexture = function bindTexture(texture, unit) {
-    if (texture.bind(unit)) {
-      this.gl.uniform1i(this.location, unit);
-      return true;
-    }
-    return false;
-  };
-  return GLSampler;
-}();
-
-var ids = new Map$1({}, "");
-/**
- * Represents a WebGL2 program.
- */
-var GLProgram = /*#__PURE__*/function () {
-  /**
-   * Creates a new program.
-   * @param gl
-   * @param shaderSource
-   */
-  function GLProgram(gl, shaderSource) {
-    /**
-     * Unique ID of this program.
-     */
-    this.id = void 0;
-    /**
-     * The vertex shader.
-     */
-    this.vertexShader = void 0;
-    /**
-     * The fragment shader.
-     */
-    this.fragmentShader = void 0;
-    /**
-     * Map of all attributes in this program.
-     */
-    this.attributes = void 0;
-    /**
-     * Map of all samplers in this program.
-     */
-    this.samplers = void 0;
-    /**
-     * Map of all uniforms in this program.
-     */
-    this.uniforms = void 0;
-    /**
-     * List of compilation errors for this program, if any.
-     */
-    this.errors = void 0;
-    /**
-     * Flag set true when program has been validated.
-     */
-    this.validated = void 0;
-    /**
-     * Flag set true when this program has been successfully linked.
-     */
-    this.linked = void 0;
-    /**
-     * Flag set true when this program has been successfully conpiled.
-     */
-    this.compiled = void 0;
-    /**
-     * Flag set true when this program has been successfully allocated.
-     */
-    this.allocated = void 0;
-    /**
-     * The WebGL2 rendering context.
-     */
-    this.gl = void 0;
-    /**
-     * The source code from which the shaders are built.
-     */
-    this.source = void 0;
-    /**
-     * Handle to the WebGL program itself, which resides on the GPU.
-     */
-    this.handle = void 0;
-    // @ts-ignore
-    this.id = ids.addItem({});
-    this.source = shaderSource;
-    this.gl = gl;
-    this.allocated = false;
-    this.compiled = false;
-    this.linked = false;
-    this.validated = false;
-    this.errors = [];
-    this.uniforms = {};
-    this.samplers = {};
-    this.attributes = {};
-    this.vertexShader = new GLShader(gl, gl.VERTEX_SHADER, this.source.vertex);
-    this.fragmentShader = new GLShader(gl, gl.FRAGMENT_SHADER, this.source.fragment);
-    if (!this.vertexShader.allocated) {
-      this.errors = ["Vertex shader failed to allocate"].concat(this.vertexShader.errors);
-      logErrors(this.errors);
-      return;
-    }
-    if (!this.fragmentShader.allocated) {
-      this.errors = ["Fragment shader failed to allocate"].concat(this.fragmentShader.errors);
-      logErrors(this.errors);
-      return;
-    }
-    this.allocated = true;
-    if (!this.vertexShader.compiled) {
-      this.errors = ["Vertex shader failed to compile"].concat(this.vertexShader.errors);
-      logErrors(this.errors);
-      return;
-    }
-    if (!this.fragmentShader.compiled) {
-      this.errors = ["Fragment shader failed to compile"].concat(this.fragmentShader.errors);
-      logErrors(this.errors);
-      return;
-    }
-    this.compiled = true;
-    // @ts-ignore
-    this.handle = gl.createProgram();
-    if (!this.handle) {
-      this.errors = ["Failed to allocate program"];
-      return;
-    }
-    gl.attachShader(this.handle, this.vertexShader.handle);
-    gl.attachShader(this.handle, this.fragmentShader.handle);
-    gl.linkProgram(this.handle);
-    this.linked = gl.getProgramParameter(this.handle, gl.LINK_STATUS);
-    // HACK: Disable validation temporarily: https://github.com/xeolabs/xeokit-sdk/issues/5
-    // Perhaps we should defer validation until render-time, when the program has values set for all inputs?
-    this.validated = true;
-    if (!this.linked || !this.validated) {
-      this.errors = [];
-      this.errors.push("");
-      // @ts-ignore
-      this.errors.push(gl.getProgramInfoLog(this.handle));
-      this.errors.push("\nVertex shader:\n");
-      this.errors = this.errors.concat(this.source.vertex);
-      this.errors.push("\nFragment shader:\n");
-      this.errors = this.errors.concat(this.source.fragment);
-      logErrors(this.errors);
-      return;
-    }
-    var numUniforms = gl.getProgramParameter(this.handle, gl.ACTIVE_UNIFORMS);
-    for (var i = 0; i < numUniforms; ++i) {
-      var u = gl.getActiveUniform(this.handle, i);
-      if (u) {
-        var uName = u.name;
-        if (uName[uName.length - 1] === "\0") {
-          uName = uName.substr(0, uName.length - 1);
-        }
-        var location = gl.getUniformLocation(this.handle, uName);
-        if (u.type === gl.SAMPLER_2D || u.type === gl.SAMPLER_CUBE || u.type === 35682) {
-          // @ts-ignore
-          this.samplers[uName] = new GLSampler(gl, location);
-        } else {
-          // @ts-ignore
-          this.uniforms[uName] = location;
-        }
-      }
-    }
-    var numAttribs = gl.getProgramParameter(this.handle, gl.ACTIVE_ATTRIBUTES);
-    for (var _i = 0; _i < numAttribs; _i++) {
-      var a = gl.getActiveAttrib(this.handle, _i);
-      if (a) {
-        var _location = gl.getAttribLocation(this.handle, a.name);
-        this.attributes[a.name] = new GLAttribute(gl, _location);
-      }
-    }
-    this.allocated = true;
-  }
-  /**
-   * Binds this program.
-   */
-  var _proto = GLProgram.prototype;
-  _proto.bind = function bind() {
-    if (!this.allocated) {
-      return;
-    }
-    this.gl.useProgram(this.handle);
-  }
-  /**
-   * Gets the location of the given uniform within this program.
-   * @param name
-   */;
-  _proto.getLocation = function getLocation(name) {
-    return this.uniforms[name];
-  }
-  /**
-   * Gets an attribute within this program.
-   * @param name
-   */;
-  _proto.getAttribute = function getAttribute(name) {
-    return this.attributes[name];
-  }
-  /**
-   * Gets a sampler within this program.
-   * @param name
-   */;
-  _proto.getSampler = function getSampler(name) {
-    return this.samplers[name];
-  }
-  /**
-   * Binds a texture to this program.
-   * @param name
-   * @param texture
-   * @param unit
-   */;
-  _proto.bindTexture = function bindTexture(name, texture, unit) {
-    if (!this.allocated) {
-      return false;
-    }
-    var sampler = this.samplers[name];
-    if (sampler) {
-      return sampler.bindTexture(texture, unit);
-    } else {
-      return false;
-    }
-  }
-  /**
-   * Destroys this program.
-   */;
-  _proto.destroy = function destroy() {
-    if (!this.allocated) {
-      return;
-    }
-    ids.removeItem(this.id);
-    this.gl.deleteProgram(this.handle);
-    this.gl.deleteShader(this.vertexShader.handle);
-    this.gl.deleteShader(this.fragmentShader.handle);
-    this.attributes = {};
-    this.uniforms = {};
-    this.samplers = {};
-    this.allocated = false;
-  };
-  return GLProgram;
-}();
-function logErrors(errors) {
-  console.error(errors.join("\n"));
-}
-
-/**
- * Canvas2Image v0.1
- * Copyright (c) 2008 Jacob Seidelin, cupboy@gmail.com
- * MIT License [http://www.opensource.org/licenses/mit-license.php]
- *
- * Modified by @xeolabs to permit vertical flipping, so that snapshot can be taken from WebGL frame buffers,
- * which vertically flip image data as part of the way that WebGL renders textures.
- */
-(function () {
-  // check if we have canvas support
-  var oCanvas = document.createElement("canvas"),
-    sc = String.fromCharCode;
-  // no canvas, bail out.
-  if (!oCanvas.getContext) {
-    return {
-      saveAsBMP: function saveAsBMP() {},
-      saveAsPNG: function saveAsPNG() {},
-      saveAsJPEG: function saveAsJPEG() {}
-    };
-  }
-  // @ts-ignore
-  var bHasImageData = !!oCanvas.getContext("2d").getImageData,
-    bHasDataURL = !!oCanvas.toDataURL,
-    bHasBase64 = !!window.btoa;
-  // ok, we're good
-  var readCanvasData = function readCanvasData(oCanvas) {
-    // @ts-ignore
-    var iWidth = parseInt(oCanvas.width),
-      iHeight = parseInt(oCanvas.height);
-    // @ts-ignore
-    return oCanvas.getContext("2d").getImageData(0, 0, iWidth, iHeight);
-  };
-  // base64 encodes either a string or an array of charcodes
-  var encodeData = function encodeData(data) {
-    var i,
-      aData,
-      strData = "";
-    if (typeof data == "string") {
-      strData = data;
-    } else {
-      aData = data;
-      for (i = 0; i < aData.length; i++) {
-        strData += sc(aData[i]);
-      }
-    }
-    return btoa(strData);
-  };
-  // creates a base64 encoded string containing BMP data takes an imagedata object as argument
-  var createBMP = function createBMP(oData) {
-    var strHeader = '';
-    var iWidth = oData.width;
-    var iHeight = oData.height;
-    strHeader += 'BM';
-    var iFileSize = iWidth * iHeight * 4 + 54; // total header size = 54 bytes
-    strHeader += sc(iFileSize % 256);
-    iFileSize = Math.floor(iFileSize / 256);
-    strHeader += sc(iFileSize % 256);
-    iFileSize = Math.floor(iFileSize / 256);
-    strHeader += sc(iFileSize % 256);
-    iFileSize = Math.floor(iFileSize / 256);
-    strHeader += sc(iFileSize % 256);
-    strHeader += sc(0, 0, 0, 0, 54, 0, 0, 0); // data offset
-    strHeader += sc(40, 0, 0, 0); // info header size
-    var iImageWidth = iWidth;
-    strHeader += sc(iImageWidth % 256);
-    iImageWidth = Math.floor(iImageWidth / 256);
-    strHeader += sc(iImageWidth % 256);
-    iImageWidth = Math.floor(iImageWidth / 256);
-    strHeader += sc(iImageWidth % 256);
-    iImageWidth = Math.floor(iImageWidth / 256);
-    strHeader += sc(iImageWidth % 256);
-    var iImageHeight = iHeight;
-    strHeader += sc(iImageHeight % 256);
-    iImageHeight = Math.floor(iImageHeight / 256);
-    strHeader += sc(iImageHeight % 256);
-    iImageHeight = Math.floor(iImageHeight / 256);
-    strHeader += sc(iImageHeight % 256);
-    iImageHeight = Math.floor(iImageHeight / 256);
-    strHeader += sc(iImageHeight % 256);
-    strHeader += sc(1, 0, 32, 0); // num of planes & num of bits per pixel
-    strHeader += sc(0, 0, 0, 0); // compression = none
-    var iDataSize = iWidth * iHeight * 4;
-    strHeader += sc(iDataSize % 256);
-    iDataSize = Math.floor(iDataSize / 256);
-    strHeader += sc(iDataSize % 256);
-    iDataSize = Math.floor(iDataSize / 256);
-    strHeader += sc(iDataSize % 256);
-    iDataSize = Math.floor(iDataSize / 256);
-    strHeader += sc(iDataSize % 256);
-    strHeader += sc(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); // these bytes are not used
-    var aImgData = oData.data;
-    var strPixelData = "";
-    var x;
-    var y = iHeight;
-    var iOffsetX;
-    var iOffsetY;
-    var strPixelRow;
-    do {
-      iOffsetY = iWidth * (y - 1) * 4;
-      strPixelRow = "";
-      for (x = 0; x < iWidth; x++) {
-        iOffsetX = 4 * x;
-        strPixelRow += sc(aImgData[iOffsetY + iOffsetX + 2],
-        // B
-        aImgData[iOffsetY + iOffsetX + 1],
-        // G
-        aImgData[iOffsetY + iOffsetX],
-        // R
-        aImgData[iOffsetY + iOffsetX + 3] // A
-        );
-      }
-
-      strPixelData += strPixelRow;
-    } while (--y);
-    return encodeData(strHeader + strPixelData);
-  };
-  // sends the generated file to the client
-  var saveFile = function saveFile(strData) {
-    if (!window.open(strData)) {
-      document.location.href = strData;
-    }
-  };
-  var makeDataURI = function makeDataURI(strData, strMime) {
-    return "data:" + strMime + ";base64," + strData;
-  };
-  // generates a <img> object containing the imagedata
-  var makeImageObject = function makeImageObject(strSource) {
-    var oImgElement = document.createElement("img");
-    oImgElement.src = strSource;
-    return oImgElement;
-  };
-  var scaleCanvas = function scaleCanvas(oCanvas, iWidth, iHeight, flipy) {
-    if (iWidth && iHeight) {
-      var oSaveCanvas = document.createElement("canvas");
-      oSaveCanvas.width = iWidth;
-      oSaveCanvas.height = iHeight;
-      oSaveCanvas.style.width = iWidth + "px";
-      oSaveCanvas.style.height = iHeight + "px";
-      var oSaveCtx = oSaveCanvas.getContext("2d");
-      if (flipy) {
-        // @ts-ignore
-        oSaveCtx.save();
-        // @ts-ignore
-        oSaveCtx.scale(1.0, -1.0);
-        // @ts-ignore
-        oSaveCtx.imageSmoothingEnabled = true;
-        // @ts-ignore
-        oSaveCtx.drawImage(oCanvas, 0, 0, oCanvas.width, oCanvas.height, 0, 0, iWidth, -iHeight);
-        // @ts-ignore
-        oSaveCtx.restore();
-      } else {
-        // @ts-ignore
-        oSaveCtx.imageSmoothingEnabled = true;
-        // @ts-ignore
-        oSaveCtx.drawImage(oCanvas, 0, 0, oCanvas.width, oCanvas.height, 0, 0, iWidth, iHeight);
-      }
-      return oSaveCanvas;
-    }
-    return oCanvas;
-  };
-  return {
-    saveAsPNG: function saveAsPNG(oCanvas, bReturnImg, iWidth, iHeight, flipy) {
-      if (!bHasDataURL) return false;
-      var oScaledCanvas = scaleCanvas(oCanvas, iWidth, iHeight, flipy);
-      var strMime = "image/png";
-      var strData = oScaledCanvas.toDataURL(strMime);
-      if (bReturnImg) {
-        return makeImageObject(strData);
-      } else {
-        saveFile(strData);
-      }
-      return true;
-    },
-    saveAsJPEG: function saveAsJPEG(oCanvas, bReturnImg, iWidth, iHeight, flipy) {
-      if (!bHasDataURL) return false;
-      var oScaledCanvas = scaleCanvas(oCanvas, iWidth, iHeight, flipy);
-      var strMime = "image/jpeg";
-      var strData = oScaledCanvas.toDataURL(strMime);
-      // check if browser actually supports jpeg by looking for the mime type in the data uri. if not, return false
-      if (strData.indexOf(strMime) != 5) return false;
-      if (bReturnImg) {
-        return makeImageObject(strData);
-      } else {
-        saveFile(strData);
-      }
-      return true;
-    },
-    saveAsBMP: function saveAsBMP(oCanvas, bReturnImg, iWidth, iHeight, flipy) {
-      if (!(bHasDataURL && bHasImageData && bHasBase64)) return false;
-      var oScaledCanvas = scaleCanvas(oCanvas, iWidth, iHeight, flipy);
-      var strMime = "image/bmp";
-      var oData = readCanvasData(oScaledCanvas),
-        strImgData = createBMP(oData);
-      if (bReturnImg) {
-        return makeImageObject(makeDataURI(strImgData, strMime));
-      } else {
-        saveFile(makeDataURI(strImgData, strMime));
-      }
-      return true;
-    }
-  };
-})();
-
-/**
- * Gets a WebGL2 extension.
- * @param gl
- * @param name
- */
-function getExtension(gl, name) {
-  // @ts-ignore
-  if (gl._cachedExtensions === undefined) {
-    // @ts-ignore
-    gl._cachedExtensions = {};
-  }
-  // @ts-ignore
-  if (gl._cachedExtensions[name] !== undefined) {
-    // @ts-ignore
-    return gl._cachedExtensions[name];
-  }
-  var extension;
-  switch (name) {
-    case 'WEBGL_depth_texture':
-      extension = gl.getExtension('WEBGL_depth_texture') || gl.getExtension('MOZ_WEBGL_depth_texture') || gl.getExtension('WEBKIT_WEBGL_depth_texture');
-      break;
-    case 'EXT_texture_filter_anisotropic':
-      extension = gl.getExtension('EXT_texture_filter_anisotropic') || gl.getExtension('MOZ_EXT_texture_filter_anisotropic') || gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic');
-      break;
-    case 'WEBGL_compressed_texture_s3tc':
-      extension = gl.getExtension('WEBGL_compressed_texture_s3tc') || gl.getExtension('MOZ_WEBGL_compressed_texture_s3tc') || gl.getExtension('WEBKIT_WEBGL_compressed_texture_s3tc');
-      break;
-    case 'WEBGL_compressed_texture_pvrtc':
-      extension = gl.getExtension('WEBGL_compressed_texture_pvrtc') || gl.getExtension('WEBKIT_WEBGL_compressed_texture_pvrtc');
-      break;
-    default:
-      extension = gl.getExtension(name);
-  }
-  // @ts-ignore
-  gl._cachedExtensions[name] = extension;
-  return extension;
-}
-
-/**
- * Converts a xeokit SDK constant to its eauivalent WebGL2 constant/enumeration value.
- *
- * @param gl
- * @param constantVal
- * @param encoding
- */
-function convertConstant(gl, constantVal, encoding) {
-  var extension;
-  var p = constantVal;
-  if (p === UnsignedByteType) return gl.UNSIGNED_BYTE;
-  if (p === UnsignedShort4444Type) return gl.UNSIGNED_SHORT_4_4_4_4;
-  if (p === UnsignedShort5551Type) return gl.UNSIGNED_SHORT_5_5_5_1;
-  if (p === ByteType) return gl.BYTE;
-  if (p === ShortType) return gl.SHORT;
-  if (p === UnsignedShortType) return gl.UNSIGNED_SHORT;
-  if (p === IntType) return gl.INT;
-  if (p === UnsignedIntType) return gl.UNSIGNED_INT;
-  if (p === FloatType) return gl.FLOAT;
-  if (p === HalfFloatType) {
-    return gl.HALF_FLOAT;
-  }
-  if (p === AlphaFormat) return gl.ALPHA;
-  if (p === RGBAFormat) return gl.RGBA;
-  if (p === LuminanceFormat) return gl.LUMINANCE;
-  if (p === LuminanceAlphaFormat) return gl.LUMINANCE_ALPHA;
-  if (p === DepthFormat) return gl.DEPTH_COMPONENT;
-  if (p === DepthStencilFormat) return gl.DEPTH_STENCIL;
-  if (p === RedFormat) return gl.RED;
-  if (p === RGBFormat) {
-    return gl.RGBA;
-  }
-  // WebGL formats.
-  if (p === RedIntegerFormat) return gl.RED_INTEGER;
-  if (p === RGFormat) return gl.RG;
-  if (p === RGIntegerFormat) return gl.RG_INTEGER;
-  if (p === RGBAIntegerFormat) return gl.RGBA_INTEGER;
-  // S3TC
-  if (p === RGB_S3TC_DXT1_Format || p === RGBA_S3TC_DXT1_Format || p === RGBA_S3TC_DXT3_Format || p === RGBA_S3TC_DXT5_Format) {
-    if (encoding === sRGBEncoding) {
-      var _extension = getExtension(gl, 'WEBGL_compressed_texture_s3tc_srgb');
-      if (_extension !== null) {
-        if (p === RGB_S3TC_DXT1_Format) return _extension.COMPRESSED_SRGB_S3TC_DXT1_EXT;
-        if (p === RGBA_S3TC_DXT1_Format) return _extension.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-        if (p === RGBA_S3TC_DXT3_Format) return _extension.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-        if (p === RGBA_S3TC_DXT5_Format) return _extension.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-      } else {
-        return null;
-      }
-    } else {
-      extension = getExtension(gl, 'WEBGL_compressed_texture_s3tc');
-      if (extension !== null) {
-        if (p === RGB_S3TC_DXT1_Format) return extension.COMPRESSED_RGB_S3TC_DXT1_EXT;
-        if (p === RGBA_S3TC_DXT1_Format) return extension.COMPRESSED_RGBA_S3TC_DXT1_EXT;
-        if (p === RGBA_S3TC_DXT3_Format) return extension.COMPRESSED_RGBA_S3TC_DXT3_EXT;
-        if (p === RGBA_S3TC_DXT5_Format) return extension.COMPRESSED_RGBA_S3TC_DXT5_EXT;
-      } else {
-        return null;
-      }
-    }
-  }
-  // PVRTC
-  if (p === RGB_PVRTC_4BPPV1_Format || p === RGB_PVRTC_2BPPV1_Format || p === RGBA_PVRTC_4BPPV1_Format || p === RGBA_PVRTC_2BPPV1_Format) {
-    var _extension2 = getExtension(gl, 'WEBGL_compressed_texture_pvrtc');
-    if (_extension2 !== null) {
-      if (p === RGB_PVRTC_4BPPV1_Format) return _extension2.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
-      if (p === RGB_PVRTC_2BPPV1_Format) return _extension2.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
-      if (p === RGBA_PVRTC_4BPPV1_Format) return _extension2.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
-      if (p === RGBA_PVRTC_2BPPV1_Format) return _extension2.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
-    } else {
-      return null;
-    }
-  }
-  // ETC1
-  if (p === RGB_ETC1_Format) {
-    var _extension3 = getExtension(gl, 'WEBGL_compressed_texture_etc1');
-    if (_extension3 !== null) {
-      return _extension3.COMPRESSED_RGB_ETC1_WEBGL;
-    } else {
-      return null;
-    }
-  }
-  // ETC2
-  if (p === RGB_ETC2_Format || p === RGBA_ETC2_EAC_Format) {
-    var _extension4 = getExtension(gl, 'WEBGL_compressed_texture_etc');
-    if (_extension4 !== null) {
-      if (p === RGB_ETC2_Format) return encoding === sRGBEncoding ? _extension4.COMPRESSED_SRGB8_ETC2 : _extension4.COMPRESSED_RGB8_ETC2;
-      if (p === RGBA_ETC2_EAC_Format) return encoding === sRGBEncoding ? _extension4.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC : _extension4.COMPRESSED_RGBA8_ETC2_EAC;
-    } else {
-      return null;
-    }
-  }
-  // ASTC
-  if (p === RGBA_ASTC_4x4_Format || p === RGBA_ASTC_5x4_Format || p === RGBA_ASTC_5x5_Format || p === RGBA_ASTC_6x5_Format || p === RGBA_ASTC_6x6_Format || p === RGBA_ASTC_8x5_Format || p === RGBA_ASTC_8x6_Format || p === RGBA_ASTC_8x8_Format || p === RGBA_ASTC_10x5_Format || p === RGBA_ASTC_10x6_Format || p === RGBA_ASTC_10x8_Format || p === RGBA_ASTC_10x10_Format || p === RGBA_ASTC_12x10_Format || p === RGBA_ASTC_12x12_Format) {
-    var _extension5 = getExtension(gl, 'WEBGL_compressed_texture_astc');
-    if (_extension5 !== null) {
-      if (p === RGBA_ASTC_4x4_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR : _extension5.COMPRESSED_RGBA_ASTC_4x4_KHR;
-      if (p === RGBA_ASTC_5x4_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR : _extension5.COMPRESSED_RGBA_ASTC_5x4_KHR;
-      if (p === RGBA_ASTC_5x5_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR : _extension5.COMPRESSED_RGBA_ASTC_5x5_KHR;
-      if (p === RGBA_ASTC_6x5_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR : _extension5.COMPRESSED_RGBA_ASTC_6x5_KHR;
-      if (p === RGBA_ASTC_6x6_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR : _extension5.COMPRESSED_RGBA_ASTC_6x6_KHR;
-      if (p === RGBA_ASTC_8x5_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR : _extension5.COMPRESSED_RGBA_ASTC_8x5_KHR;
-      if (p === RGBA_ASTC_8x6_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR : _extension5.COMPRESSED_RGBA_ASTC_8x6_KHR;
-      if (p === RGBA_ASTC_8x8_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR : _extension5.COMPRESSED_RGBA_ASTC_8x8_KHR;
-      if (p === RGBA_ASTC_10x5_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR : _extension5.COMPRESSED_RGBA_ASTC_10x5_KHR;
-      if (p === RGBA_ASTC_10x6_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR : _extension5.COMPRESSED_RGBA_ASTC_10x6_KHR;
-      if (p === RGBA_ASTC_10x8_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR : _extension5.COMPRESSED_RGBA_ASTC_10x8_KHR;
-      if (p === RGBA_ASTC_10x10_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR : _extension5.COMPRESSED_RGBA_ASTC_10x10_KHR;
-      if (p === RGBA_ASTC_12x10_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR : _extension5.COMPRESSED_RGBA_ASTC_12x10_KHR;
-      if (p === RGBA_ASTC_12x12_Format) return encoding === sRGBEncoding ? _extension5.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR : _extension5.COMPRESSED_RGBA_ASTC_12x12_KHR;
-    } else {
-      return null;
-    }
-  }
-  // BPTC
-  if (p === RGBA_BPTC_Format) {
-    var _extension6 = getExtension(gl, 'EXT_texture_compression_bptc');
-    if (_extension6 !== null) {
-      if (p === RGBA_BPTC_Format) {
-        return encoding === sRGBEncoding ? _extension6.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT : _extension6.COMPRESSED_RGBA_BPTC_UNORM_EXT;
-      }
-    } else {
-      return null;
-    }
-  }
-  //
-  if (p === UnsignedInt248Type) {
-    return gl.UNSIGNED_INT_24_8;
-  }
-  if (p === RepeatWrapping) {
-    return gl.REPEAT;
-  }
-  if (p === ClampToEdgeWrapping) {
-    return gl.CLAMP_TO_EDGE;
-  }
-  if (p === NearestMipMapNearestFilter) {
-    return gl.NEAREST_MIPMAP_LINEAR;
-  }
-  if (p === NearestMipMapLinearFilter) {
-    return gl.NEAREST_MIPMAP_LINEAR;
-  }
-  if (p === LinearMipMapNearestFilter) {
-    return gl.LINEAR_MIPMAP_NEAREST;
-  }
-  if (p === LinearMipMapLinearFilter) {
-    return gl.LINEAR_MIPMAP_LINEAR;
-  }
-  if (p === NearestFilter) {
-    return gl.NEAREST;
-  }
-  if (p === LinearFilter) {
-    return gl.LINEAR;
-  }
-  return null;
-}
-
-var color = new Uint8Array([0, 0, 0, 1]);
-/**
- * Represents a WebGL2 texture.
- */
-var GLTexture = /*#__PURE__*/function () {
-  function GLTexture(params) {
-    this.gl = void 0;
-    this.target = void 0;
-    this.format = void 0;
-    this.type = void 0;
-    this.internalFormat = void 0;
-    this.premultiplyAlpha = void 0;
-    this.flipY = void 0;
-    this.unpackAlignment = void 0;
-    this.wrapS = void 0;
-    this.wrapT = void 0;
-    this.wrapR = void 0;
-    this.texture = void 0;
-    this.allocated = void 0;
-    this.minFilter = void 0;
-    this.magFilter = void 0;
-    this.encoding = void 0;
-    this.gl = params.gl;
-    this.target = params.target || params.gl.TEXTURE_2D;
-    this.format = params.format || RGBAFormat;
-    this.type = params.type || UnsignedByteType;
-    this.internalFormat = -1;
-    this.premultiplyAlpha = !!params.premultiplyAlpha;
-    this.flipY = !!params.flipY;
-    this.unpackAlignment = 4;
-    this.wrapS = params.wrapS || RepeatWrapping;
-    this.wrapT = params.wrapT || RepeatWrapping;
-    this.wrapR = params.wrapR || RepeatWrapping;
-    // @ts-ignore
-    this.texture = params.gl.createTexture();
-    if (params.preloadColor) {
-      this.setPreloadColor(params.preloadColor); // Prevents "there is no texture bound to the unit 0" error
-    }
-
-    this.allocated = true;
-  }
-  var _proto = GLTexture.prototype;
-  _proto.setPreloadColor = function setPreloadColor(value) {
-    if (!value) {
-      color[0] = 0;
-      color[1] = 0;
-      color[2] = 0;
-      color[3] = 255;
-    } else {
-      color[0] = Math.floor(value[0] * 255);
-      color[1] = Math.floor(value[1] * 255);
-      color[2] = Math.floor(value[2] * 255);
-      color[3] = Math.floor((value[3] !== undefined ? value[3] : 1) * 255);
-    }
-    var gl = this.gl;
-    gl.bindTexture(this.target, this.texture);
-    if (this.target === gl.TEXTURE_CUBE_MAP) {
-      var faces = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z];
-      for (var i = 0, len = faces.length; i < len; i++) {
-        gl.texImage2D(faces[i], 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, color);
-      }
-    } else {
-      gl.texImage2D(this.target, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, color);
-    }
-    gl.bindTexture(this.target, null);
-  };
-  _proto.setTarget = function setTarget(target) {
-    this.target = target || this.gl.TEXTURE_2D;
-  };
-  _proto.setImage = function setImage(image, props) {
-    if (props === void 0) {
-      props = {};
-    }
-    var gl = this.gl;
-    if (props.format !== undefined) {
-      this.format = props.format;
-    }
-    if (props.internalFormat !== undefined) {
-      this.internalFormat = props.internalFormat;
-    }
-    if (props.encoding !== undefined) {
-      this.encoding = props.encoding;
-    }
-    if (props.type !== undefined) {
-      this.type = props.type;
-    }
-    if (props.flipY !== undefined) {
-      this.flipY = props.flipY;
-    }
-    if (props.premultiplyAlpha !== undefined) {
-      this.premultiplyAlpha = props.premultiplyAlpha;
-    }
-    if (props.unpackAlignment !== undefined) {
-      this.unpackAlignment = props.unpackAlignment;
-    }
-    if (props.minFilter !== undefined) {
-      this.minFilter = props.minFilter;
-    }
-    if (props.magFilter !== undefined) {
-      this.magFilter = props.magFilter;
-    }
-    if (props.wrapS !== undefined) {
-      this.wrapS = props.wrapS;
-    }
-    if (props.wrapT !== undefined) {
-      this.wrapT = props.wrapT;
-    }
-    if (props.wrapR !== undefined) {
-      this.wrapR = props.wrapR;
-    }
-    gl.bindTexture(this.target, this.texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, this.flipY);
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, this.unpackAlignment);
-    gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
-    var minFilter = convertConstant(gl, this.minFilter);
-    gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, minFilter);
-    var magFilter = convertConstant(gl, this.magFilter);
-    if (magFilter) {
-      gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, magFilter);
-    }
-    var wrapS = convertConstant(gl, this.wrapS);
-    if (wrapS) {
-      gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, wrapS);
-    }
-    var wrapT = convertConstant(gl, this.wrapT);
-    if (wrapT) {
-      gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, wrapT);
-    }
-    var glFormat = convertConstant(gl, this.format, this.encoding);
-    var glType = convertConstant(gl, this.type);
-    var glInternalFormat = getInternalFormat(gl, this.internalFormat, glFormat, glType, this.encoding, false);
-    if (this.target === gl.TEXTURE_CUBE_MAP) {
-      if (isArray(image)) {
-        var images = image;
-        var faces = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z];
-        for (var i = 0, len = faces.length; i < len; i++) {
-          // @ts-ignore
-          gl.texImage2D(faces[i], 0, glInternalFormat, glFormat, glType, images[i]);
-        }
-      }
-    } else {
-      gl.texImage2D(gl.TEXTURE_2D, 0, glInternalFormat, glFormat, glType, image);
-    }
-    // if (generateMipMap) {
-    //     gl.generateMipmap(this.target);
-    // }
-    gl.bindTexture(this.target, null);
-  };
-  _proto.setCompressedData = function setCompressedData(params) {
-    var gl = this.gl;
-    var mipmaps = params.mipmaps || [];
-    var levels = mipmaps.length;
-    var props = params.props;
-    // Cache props
-    if (props.format !== undefined) {
-      this.format = props.format;
-    }
-    if (props.internalFormat !== undefined) {
-      this.internalFormat = props.internalFormat;
-    }
-    if (props.encoding !== undefined) {
-      this.encoding = props.encoding;
-    }
-    if (props.type !== undefined) {
-      this.type = props.type;
-    }
-    if (props.flipY !== undefined) {
-      this.flipY = props.flipY;
-    }
-    if (props.premultiplyAlpha !== undefined) {
-      this.premultiplyAlpha = props.premultiplyAlpha;
-    }
-    if (props.unpackAlignment !== undefined) {
-      this.unpackAlignment = props.unpackAlignment;
-    }
-    if (props.minFilter !== undefined) {
-      this.minFilter = props.minFilter;
-    }
-    if (props.magFilter !== undefined) {
-      this.magFilter = props.magFilter;
-    }
-    if (props.wrapS !== undefined) {
-      this.wrapS = props.wrapS;
-    }
-    if (props.wrapT !== undefined) {
-      this.wrapT = props.wrapT;
-    }
-    if (props.wrapR !== undefined) {
-      this.wrapR = props.wrapR;
-    }
-    gl.activeTexture(gl.TEXTURE0 + 0);
-    gl.bindTexture(this.target, this.texture);
-    var supportsMips = mipmaps.length > 1;
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, this.flipY);
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, this.unpackAlignment);
-    gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
-    var wrapS = convertConstant(gl, this.wrapS);
-    if (wrapS) {
-      gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, wrapS);
-    }
-    var wrapT = convertConstant(gl, this.wrapT);
-    if (wrapT) {
-      gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, wrapT);
-    }
-    // @ts-ignore
-    if (this.type === gl.TEXTURE_3D || this.type === gl.TEXTURE_2D_ARRAY) {
-      var wrapR = convertConstant(gl, this.wrapR);
-      if (wrapR) {
-        gl.texParameteri(this.target, gl.TEXTURE_WRAP_R, wrapR);
-      }
-      gl.texParameteri(this.type, gl.TEXTURE_WRAP_R, wrapR);
-    }
-    if (supportsMips) {
-      gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, filterFallback(gl, this.minFilter));
-      gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, filterFallback(gl, this.magFilter));
-    } else {
-      gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, convertConstant(gl, this.minFilter));
-      gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, convertConstant(gl, this.magFilter));
-    }
-    var glFormat = convertConstant(gl, this.format, this.encoding);
-    var glType = convertConstant(gl, this.type);
-    var glInternalFormat = getInternalFormat(gl, this.internalFormat, glFormat, glType, this.encoding, false);
-    gl.texStorage2D(gl.TEXTURE_2D, levels, glInternalFormat, mipmaps[0].width, mipmaps[0].height);
-    for (var i = 0, len = mipmaps.length; i < len; i++) {
-      var mipmap = mipmaps[i];
-      if (this.format !== RGBAFormat) {
-        if (glFormat !== null) {
-          gl.compressedTexSubImage2D(gl.TEXTURE_2D, i, 0, 0, mipmap.width, mipmap.height, glFormat, mipmap.data);
-        } else {
-          console.warn('Attempt to load unsupported compressed texture format in .setCompressedData()');
-        }
-      } else {
-        gl.texSubImage2D(gl.TEXTURE_2D, i, 0, 0, mipmap.width, mipmap.height, glFormat, glType, mipmap.data);
-      }
-    }
-    gl.bindTexture(this.target, null);
-  };
-  _proto.setProps = function setProps(props) {
-    var gl = this.gl;
-    gl.bindTexture(this.target, this.texture);
-    this._uploadProps(props);
-    gl.bindTexture(this.target, null);
-  };
-  _proto._uploadProps = function _uploadProps(props) {
-    var gl = this.gl;
-    if (props.format !== undefined) {
-      this.format = props.format;
-    }
-    if (props.internalFormat !== undefined) {
-      this.internalFormat = props.internalFormat;
-    }
-    if (props.encoding !== undefined) {
-      this.encoding = props.encoding;
-    }
-    if (props.type !== undefined) {
-      this.type = props.type;
-    }
-    if (props.minFilter !== undefined) {
-      var minFilter = convertConstant(gl, props.minFilter);
-      if (minFilter) {
-        this.minFilter = props.minFilter;
-        gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, minFilter);
-        if (minFilter === gl.NEAREST_MIPMAP_NEAREST || minFilter === gl.LINEAR_MIPMAP_NEAREST || minFilter === gl.NEAREST_MIPMAP_LINEAR || minFilter === gl.LINEAR_MIPMAP_LINEAR) {
-          gl.generateMipmap(this.target);
-        }
-      }
-    }
-    if (props.magFilter !== undefined) {
-      var magFilter = convertConstant(gl, props.magFilter);
-      if (magFilter) {
-        this.magFilter = props.magFilter;
-        gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, magFilter);
-      }
-    }
-    if (props.wrapS !== undefined) {
-      var wrapS = convertConstant(gl, props.wrapS);
-      if (wrapS) {
-        this.wrapS = props.wrapS;
-        gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, wrapS);
-      }
-    }
-    if (props.wrapT !== undefined) {
-      var wrapT = convertConstant(gl, props.wrapT);
-      if (wrapT) {
-        this.wrapT = props.wrapT;
-        gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, wrapT);
-      }
-    }
-  };
-  _proto.bind = function bind(unit) {
-    if (!this.allocated) {
-      return false;
-    }
-    if (this.texture) {
-      var gl = this.gl;
-      // @ts-ignore
-      gl.activeTexture(gl["TEXTURE" + unit]);
-      gl.bindTexture(this.target, this.texture);
-      return true;
-    }
-    return false;
-  };
-  _proto.unbind = function unbind(unit) {
-    if (!this.allocated) {
-      return;
-    }
-    if (this.texture) {
-      var gl = this.gl;
-      // @ts-ignore
-      gl.activeTexture(gl["TEXTURE" + unit]);
-      gl.bindTexture(this.target, null);
-    }
-  };
-  _proto.destroy = function destroy() {
-    if (!this.allocated) {
-      return;
-    }
-    if (this.texture) {
-      this.gl.deleteTexture(this.texture);
-      // @ts-ignore
-      this.texture = null;
-    }
-  };
-  return GLTexture;
-}();
-function getInternalFormat(gl, internalFormatName, glFormat, glType, encoding, isVideoTexture) {
-  if (isVideoTexture === void 0) {
-    isVideoTexture = false;
-  }
-  if (internalFormatName !== null) {
-    // @ts-ignore
-    if (gl[internalFormatName] !== undefined) {
-      // @ts-ignore
-      return gl[internalFormatName];
-    }
-    console.warn('Attempt to use non-existing WebGL internal format \'' + internalFormatName + '\'');
-  }
-  var internalFormat = glFormat;
-  if (glFormat === gl.RED) {
-    if (glType === gl.FLOAT) internalFormat = gl.R32F;
-    if (glType === gl.HALF_FLOAT) internalFormat = gl.R16F;
-    if (glType === gl.UNSIGNED_BYTE) internalFormat = gl.R8;
-  }
-  if (glFormat === gl.RG) {
-    if (glType === gl.FLOAT) internalFormat = gl.RG32F;
-    if (glType === gl.HALF_FLOAT) internalFormat = gl.RG16F;
-    if (glType === gl.UNSIGNED_BYTE) internalFormat = gl.RG8;
-  }
-  if (glFormat === gl.RGBA) {
-    if (glType === gl.FLOAT) internalFormat = gl.RGBA32F;
-    if (glType === gl.HALF_FLOAT) internalFormat = gl.RGBA16F;
-    if (glType === gl.UNSIGNED_BYTE) internalFormat = encoding === sRGBEncoding && isVideoTexture === false ? gl.SRGB8_ALPHA8 : gl.RGBA8;
-    if (glType === gl.UNSIGNED_SHORT_4_4_4_4) internalFormat = gl.RGBA4;
-    if (glType === gl.UNSIGNED_SHORT_5_5_5_1) internalFormat = gl.RGB5_A1;
-  }
-  if (internalFormat === gl.R16F || internalFormat === gl.R32F || internalFormat === gl.RG16F || internalFormat === gl.RG32F || internalFormat === gl.RGBA16F || internalFormat === gl.RGBA32F) {
-    getExtension(gl, 'EXT_color_buffer_float');
-  }
-  return internalFormat;
-}
-function filterFallback(gl, f) {
-  if (f === NearestFilter || f === NearestMipmapNearestFilter || f === NearestMipmapLinearFilter) {
-    return gl.NEAREST;
-  }
-  return gl.LINEAR;
-}
-
-/**
- * Information about WebGL2 support on the client machine.
- */
-var WEBGL_INFO = {
-  WEBGL: false,
-  SUPPORTED_EXTENSIONS: {}
-};
-var canvas = document.createElement("canvas");
-if (canvas) {
-  // @ts-ignore
-  var gl = canvas.getContext("webgl2", {
-    antialias: true
-  });
-  WEBGL_INFO.WEBGL = !!gl;
-  if (WEBGL_INFO.WEBGL) {
-    // @ts-ignore
-    WEBGL_INFO.ANTIALIAS = gl.getContextAttributes().antialias;
-    if (gl.getShaderPrecisionFormat) {
-      // @ts-ignore
-      if (gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision > 0) {
-        WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "highp";
-      } else {
-        // @ts-ignore
-        if (gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT).precision > 0) {
-          WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "mediump";
-        } else {
-          WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "lowp";
-        }
-      }
-    } else {
-      WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "mediump";
-    }
-    WEBGL_INFO.DEPTH_BUFFER_BITS = gl.getParameter(gl.DEPTH_BITS);
-    WEBGL_INFO.MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    WEBGL_INFO.MAX_CUBE_MAP_SIZE = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-    WEBGL_INFO.MAX_RENDERBUFFER_SIZE = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
-    WEBGL_INFO.MAX_TEXTURE_UNITS = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-    WEBGL_INFO.MAX_TEXTURE_IMAGE_UNITS = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-    WEBGL_INFO.MAX_VERTEX_ATTRIBS = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-    WEBGL_INFO.MAX_VERTEX_UNIFORM_VECTORS = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-    WEBGL_INFO.MAX_FRAGMENT_UNIFORM_VECTORS = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-    WEBGL_INFO.MAX_VARYING_VECTORS = gl.getParameter(gl.MAX_VARYING_VECTORS);
-    // @ts-ignore
-    gl.getSupportedExtensions().forEach(function (ext) {
-      WEBGL_INFO.SUPPORTED_EXTENSIONS[ext] = true;
-    });
-    WEBGL_INFO.depthTexturesSupported = WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"];
-  }
-}
-
-/**
- * Provides rendering context within a WebGLRenderer.
- */
-var RenderContext = /*#__PURE__*/function () {
-  function RenderContext(viewer, view, gl) {
-    /**
-     * The Viewer.
-     */
-    this.viewer = void 0;
-    /**
-     * The View we are rendering.
-     */
-    this.view = void 0;
-    /**
-     * The WebGL rendering context.
-     */
-    this.gl = void 0;
-    this.viewMatrixDataTexture = void 0;
-    /**
-     * Whether to render a quality representation for triangle surfaces.
-     *
-     * When ````false````, we'll render them with a fast vertex-shaded Gouraud-shaded representation, which
-     * is great for zillions of objects.
-     *
-     * When ````true````, we'll render them at a better visual quality, using smooth, per-fragment shading
-     * and a more realistic lighting model.
-     */
-    this.pbrEnabled = void 0;
-    /**
-     * Whether SAO is currently enabled during the current frame.
-     */
-    this.withSAO = void 0;
-    /**
-     * Whether backfaces are currently enabled during the current frame.
-     */
-    this.backfaces = void 0;
-    /**
-     * The vertex winding order for what we currently consider to be a backface during current
-     * frame: true == "cw", false == "ccw".
-     */
-    this.frontface = void 0;
-    /**
-     * The next available texture unit to bind a {@link GLAbstractTexture} to.
-     */
-    this.textureUnit = void 0;
-    /**
-     * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
-     */
-    this.bindTexture = void 0;
-    /**
-     * Indicates which pass the renderer is currently rendering.
-     */
-    this.renderPass = void 0;
-    /**
-     * The 4x4 viewing transform matrix the renderer is currently using when rendering castsShadows.
-     *
-     * This sets the viewpoint to look from the point of view of each {@link DirLight}
-     * or {@link PointLight} that casts a shadow.
-     */
-    this.shadowViewMatrix = void 0;
-    /**
-     * The 4x4 viewing projection matrix the renderer is currently using when rendering shadows.
-     */
-    this.shadowProjMatrix = void 0;
-    /**
-     * The 4x4 viewing transform matrix the renderer is currently using when rendering a ray-pick.
-     *
-     * This sets the viewpoint to look along the ray given to {@link @xeokit/scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
-     * when picking with a ray.
-     */
-    this.pickViewMatrix = void 0;
-    /**
-     * The 4x4 orthographic projection transform matrix the renderer is currently using when rendering a ray-pick.
-     */
-    this.pickProjMatrix = void 0;
-    /**
-     * Distance to the near clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
-     */
-    this.pickZNear = void 0;
-    /**
-     * Distance to the far clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
-     */
-    this.pickZFar = void 0;
-    /**
-     * Whether or not the renderer is currently picking invisible objects.
-     */
-    this.pickInvisible = void 0;
-    /** The current line width.
-     */
-    this.lineWidth = void 0;
-    /**
-     * ID of the last {@link WebGLProgram} that was bound during the current frame.
-     */
-    this.lastProgramId = void 0;
-    /**
-     * The occlusion rendering texture.
-     */
-    this.occlusionTexture = void 0;
-    this.viewer = viewer;
-    this.view = view;
-    this.gl = gl;
-    this.reset();
-  }
-  /**
-   * Called by the renderer before each frame.
-   */
-  var _proto = RenderContext.prototype;
-  _proto.reset = function reset() {
-    this.lastProgramId = -1;
-    this.pbrEnabled = false;
-    this.withSAO = false;
-    this.backfaces = false;
-    this.frontface = true;
-    this.textureUnit = 0;
-    this.shadowViewMatrix = null;
-    this.shadowProjMatrix = null;
-    this.pickViewMatrix = null;
-    this.pickProjMatrix = null;
-    this.pickZNear = 0.01;
-    this.pickZFar = 5000;
-    this.pickInvisible = false;
-    this.lineWidth = 1;
-    this.occlusionTexture = null;
-  }
-  /**
-   * Gets the next available texture unit for this render
-   */;
-  _createClass(RenderContext, [{
-    key: "nextTextureUnit",
-    get: function get() {
-      var textureUnit = this.textureUnit;
-      this.textureUnit = (this.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-      return textureUnit;
-    }
-  }]);
-  return RenderContext;
-}();
-
-/**
- * @private
- */
-var RENDER_PASSES = {
-  // Skipped - suppress rendering
-  NOT_RENDERED: 0,
-  // Normal rendering - mutually exclusive modes
-  COLOR_OPAQUE: 1,
-  COLOR_TRANSPARENT: 2,
-  // Emphasis silhouette rendering - mutually exclusive modes
-  SILHOUETTE_HIGHLIGHTED: 3,
-  SILHOUETTE_SELECTED: 4,
-  SILHOUETTE_XRAYED: 5,
-  // Edges rendering - mutually exclusive modes
-  EDGES_COLOR_OPAQUE: 6,
-  EDGES_COLOR_TRANSPARENT: 7,
-  EDGES_HIGHLIGHTED: 8,
-  EDGES_SELECTED: 9,
-  EDGES_XRAYED: 10,
-  // Picking
-  PICK: 11
-};
-
-var tempVec4 = createVec4();
-/**
- * @private
- */
-var _hash = /*#__PURE__*/_classPrivateFieldLooseKey("hash");
-var _program = /*#__PURE__*/_classPrivateFieldLooseKey("program");
-var _needRebuild = /*#__PURE__*/_classPrivateFieldLooseKey("needRebuild");
-var _uniforms = /*#__PURE__*/_classPrivateFieldLooseKey("uniforms");
-var _samplers = /*#__PURE__*/_classPrivateFieldLooseKey("samplers");
-var _build = /*#__PURE__*/_classPrivateFieldLooseKey("build");
-var _buildShader = /*#__PURE__*/_classPrivateFieldLooseKey("buildShader");
-var _getValid = /*#__PURE__*/_classPrivateFieldLooseKey("getValid");
-var _bind = /*#__PURE__*/_classPrivateFieldLooseKey("bind");
-var LayerRenderer = /*#__PURE__*/function () {
-  function LayerRenderer(renderContext) {
-    Object.defineProperty(this, _bind, {
-      value: _bind2
-    });
-    /**
-     * Gets if this LayerRenderer's configuration is still valid for the current View state.
-     */
-    Object.defineProperty(this, _getValid, {
-      value: _getValid2
-    });
-    Object.defineProperty(this, _buildShader, {
-      value: _buildShader2
-    });
-    Object.defineProperty(this, _build, {
-      value: _build2
-    });
-    /**
-     * Initialization error messages
-     */
-    this.errors = void 0;
-    this.renderContext = void 0;
-    Object.defineProperty(this, _hash, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _program, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _needRebuild, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _uniforms, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _samplers, {
-      writable: true,
-      value: void 0
-    });
-    this.renderContext = renderContext;
-    _classPrivateFieldLooseBase(this, _needRebuild)[_needRebuild] = true;
-    _classPrivateFieldLooseBase(this, _build)[_build]();
-  }
-  var _proto = LayerRenderer.prototype;
-  /**
-   * Indicates that the LayerRenderer may need to rebuild shaders
-   */
-  _proto.needRebuild = function needRebuild() {
-    _classPrivateFieldLooseBase(this, _needRebuild)[_needRebuild] = true;
-  };
-  /**
-   * Draws the given Layer.
-   *
-   * @param layer The Layer to draw
-   */
-  _proto.draw = function draw(layer) {
-    if (_classPrivateFieldLooseBase(this, _program)[_program] && !_classPrivateFieldLooseBase(this, _getValid)[_getValid]()) {
-      _classPrivateFieldLooseBase(this, _program)[_program].destroy();
-      _classPrivateFieldLooseBase(this, _program)[_program] = null;
-    }
-    if (!_classPrivateFieldLooseBase(this, _program)[_program]) {
-      _classPrivateFieldLooseBase(this, _build)[_build]();
-      if (this.errors) {
-        return;
-      }
-      this.renderContext.lastProgramId = -1;
-    }
-    var renderState = layer.renderState;
-    var program = _classPrivateFieldLooseBase(this, _program)[_program];
-    var renderContext = this.renderContext;
-    var renderPass = renderContext.renderPass;
-    var gl = this.renderContext.gl;
-    var view = this.renderContext.view;
-    var uniforms = _classPrivateFieldLooseBase(this, _uniforms)[_uniforms];
-    var samplers = _classPrivateFieldLooseBase(this, _samplers)[_samplers];
-    // @ts-ignore
-    if (renderContext.lastProgramId !== program.id) {
-      // @ts-ignore
-      renderContext.lastProgramId = program.id;
-      _classPrivateFieldLooseBase(this, _bind)[_bind]();
-    }
-    if (uniforms.renderPass) {
-      gl.uniform1i(uniforms.renderPass, renderPass);
-    }
-    // if (uniforms.viewMatrix) {
-    //     //gl.uniformMatrix4fv(uniforms.viewMatrix, false, <Float32Array | GLfloat[]>layer.rtcViewMat.viewMatrix);
-    //     gl.uniformMatrix4fv(uniforms.viewMatrix, false, <Float32Array | GLfloat[]>view.camera.viewMatrix);
-    // }
-    if (uniforms.projMatrix) {
-      gl.uniformMatrix4fv(uniforms.projMatrix, false, view.camera.projMatrix);
-    }
-    if (uniforms.worldMatrix) {
-      gl.uniformMatrix4fv(uniforms.worldMatrix, false, layer.rendererSceneModel.worldMatrix);
-    }
-    if (uniforms.color) {
-      if (renderPass === RENDER_PASSES.SILHOUETTE_XRAYED) {
-        var material = view.xrayMaterial;
-        var fillColor = material.fillColor;
-        var fillAlpha = material.fillAlpha;
-        gl.uniform4f(uniforms.color, fillColor[0], fillColor[1], fillColor[2], fillAlpha);
-      } else if (renderPass === RENDER_PASSES.SILHOUETTE_HIGHLIGHTED) {
-        var _material = view.highlightMaterial;
-        var _fillColor = _material.fillColor;
-        var _fillAlpha = _material.fillAlpha;
-        gl.uniform4f(uniforms.color, _fillColor[0], _fillColor[1], _fillColor[2], _fillAlpha);
-      } else if (renderPass === RENDER_PASSES.SILHOUETTE_SELECTED) {
-        var _material2 = view.selectedMaterial;
-        var _fillColor2 = _material2.fillColor;
-        var _fillAlpha2 = _material2.fillAlpha;
-        gl.uniform4f(uniforms.color, _fillColor2[0], _fillColor2[1], _fillColor2[2], _fillAlpha2);
-      } else {
-        gl.uniform4fv(uniforms.color, new Float32Array([1, 1, 1]));
-      }
-    }
-    // if (view.sectionPlanesList.length) {
-    //     const numSectionPlanes = view.sectionPlanesList.length;
-    //     const origin = layer.renderState.origin;
-    //     const sectionPlanes = view.sectionPlanesList;
-    //     const baseIndex = layer.layerIndex * numSectionPlanes;
-    //     const drawFlags = rendererSceneModel.drawFlags;
-    //     for (let sectionPlaneIndex = 0; sectionPlaneIndex < numSectionPlanes; sectionPlaneIndex++) {
-    //         const sectionPlaneUniforms = this.#uniforms.sectionPlanes[sectionPlaneIndex];
-    //         if (sectionPlaneUniforms) {
-    //             const active = drawFlags.sectionPlanesActivePerLayer[baseIndex + sectionPlaneIndex];
-    //             gl.uniform1i(sectionPlaneUniforms.active, active ? 1 : 0);
-    //             if (active) {
-    //                 const sectionPlane = sectionPlanes[sectionPlaneIndex];
-    //                 if (origin) {
-    //                     const rtcSectionPlanePos = rtc.getPlaneRTCPos(sectionPlane.dist, sectionPlane.dir, origin, tempVec3a);
-    //                     gl.uniform3fv(sectionPlaneUniforms.pos, rtcSectionPlanePos);
-    //                 } else {
-    //                     gl.uniform3fv(sectionPlaneUniforms.pos, sectionPlane.pos);
-    //                 }
-    //                 gl.uniform3fv(sectionPlaneUniforms.dir, sectionPlane.dir);
-    //             }
-    //         }
-    //     }
-    // }
-    if (samplers.viewMatrices) {
-      // @ts-ignore
-      renderState.dataTextureSet.viewMatrices.bindTexture(program, samplers.viewMatrices, renderContext.nextTextureUnit);
-    }
-    if (samplers.positions) {
-      // @ts-ignore
-      renderState.dataTextureSet.positions.bindTexture(program, samplers.positions, renderContext.nextTextureUnit);
-    }
-    if (samplers.eachMeshMatrices) {
-      // @ts-ignore
-      renderState.dataTextureSet.eachMeshMatrices.bindTexture(program, samplers.eachMeshMatrices, renderContext.nextTextureUnit);
-    }
-    if (samplers.eachMeshAttributes) {
-      // @ts-ignore
-      renderState.dataTextureSet.eachMeshAttributes.bindTexture(program, samplers.eachMeshAttributes, renderContext.nextTextureUnit);
-    }
-    if (samplers.eachPrimitiveMesh) {
-      if (renderState.numIndices8Bits > 0) {
-        // @ts-ignore
-        renderState.dataTextureSet.eachPrimitiveMesh_8Bits.bindTexture(program, samplers.eachPrimitiveMesh, renderContext.nextTextureUnit);
-        // @ts-ignore
-        renderState.dataTextureSet.indices_8Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
-        gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices8Bits);
-      }
-      if (renderState.numIndices16Bits > 0) {
-        // @ts-ignore
-        renderState.dataTextureSet.eachPrimitiveMesh_16Bits.bindTexture(program, samplers.eachPrimitiveMesh, renderContext.nextTextureUnit);
-        // @ts-ignore
-        renderState.dataTextureSet.indices_16Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
-        gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices16Bits);
-      }
-      if (renderState.numIndices32Bits > 0) {
-        // @ts-ignore
-        renderState.dataTextureSet.eachPrimitiveMesh_32Bits.bindTexture(program, samplers.eachPrimitiveMesh, renderContext.nextTextureUnit);
-        // @ts-ignore
-        renderState.dataTextureSet.indices_32Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
-        gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices32Bits);
-      }
-    }
-    if (samplers.baseColorMap) {
-      samplers.baseColorMap.bindTexture(renderState.materialTextureSet.colorTexture.texture2D, renderContext.nextTextureUnit);
-    }
-    if (samplers.metallicRoughMap) {
-      samplers.metallicRoughMap.bindTexture(renderState.materialTextureSet.metallicRoughnessTexture.texture2D, renderContext.nextTextureUnit);
-    }
-    if (samplers.emissiveMap) {
-      samplers.emissiveMap.bindTexture(renderState.materialTextureSet.emissiveTexture.texture2D, renderContext.nextTextureUnit);
-    }
-    if (samplers.occlusionMap) {
-      samplers.occlusionMap.bindTexture(renderState.materialTextureSet.occlusionTexture.texture2D, renderContext.nextTextureUnit);
-    }
-  };
-  _proto.destroy = function destroy() {
-    if (_classPrivateFieldLooseBase(this, _program)[_program]) {
-      _classPrivateFieldLooseBase(this, _program)[_program].destroy();
-    }
-    _classPrivateFieldLooseBase(this, _program)[_program] = null;
-  };
-  _createClass(LayerRenderer, [{
-    key: "vertHeader",
-    get:
-    // protected get vertexShader(): string {
-    //     return `${this.vertHeader}
-    //     ${this.vertDataTextureDefs}
-    //     ${this.vertLogDepthBufDefs}
-    //     void main(void) {
-    //             ${this.vertDataTextureSamples}
-    //             ${this.vertLogDepthBufOutputs}
-    //     }`;
-    // }
-    function get() {
-      return "#version 300 es\n                #ifdef GL_FRAGMENT_PRECISION_HIGH\n                precision highp float;\n                precision highp int;\n                precision highp usampler2D;\n                precision highp isampler2D;\n                precision highp sampler2D;\n                #else\n                precision mediump float;\n                precision mediump int;\n                precision mediump usampler2D;\n                precision mediump isampler2D;\n                precision mediump sampler2D;\n                uniform int renderPass;\n                #endif";
-    }
-  }, {
-    key: "vertDataTextureDefs",
-    get: function get() {
-      return "uniform mediump sampler2D eachMeshMatrices;\n                uniform lowp usampler2D eachMeshAttributes;\n                uniform highp sampler2D eachMeshOffset;\n                uniform mediump usampler2D positions;\n                uniform highp usampler2D indices;\n                uniform mediump usampler2D eachPrimitiveMesh;\n                uniform highp sampler2D cameraMatrices;\n                uniform highp sampler2D sceneModelRendererMatrices;";
-    }
-  }, {
-    key: "vertLogDepthBufDefs",
-    get: function get() {
-      if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-        return "uniform float logDepthBufFC;\n                    out float fragDepth;\n                    bool isPerspectiveMatrix(mat4 m) {\n                        return (m[2][3] == - 1.0);\n                    }\n                    out float isPerspective;";
-      } else {
-        return "";
-      }
-    }
-  }, {
-    key: "vertDataTextureSamples",
-    get: function get() {
-      return "";
-    }
-  }, {
-    key: "vertLogDepthBufOutputs",
-    get: function get() {
-      if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-        return "fragDepth = 1.0 + clipPos.w;\n                    isPerspective = float (isPerspectiveMatrix(projMatrix));";
-      } else {
-        return "";
-      }
-    }
-  }, {
-    key: "fragmentShader",
-    get: function get() {
-      return this.fragHeader + "\n        " + this.fragGammaDefs + "\n        " + this.fragSectionPlaneDefs + "\n        " + this.fragLightDefs + "\n        " + this.fragLogDepthBufDefs + "\n        void main(void) {\n            " + this.fragSectionPlanesSlice + "\n            " + this.fragLighting + "\n            " + this.fragLogDepthBufOutput + "\n        }";
-    }
-  }, {
-    key: "fragHeader",
-    get: function get() {
-      return "#version 300 es\n        #ifdef GL_FRAGMENT_PRECISION_HIGH\n       precision highp float;\n        precision highp int;\n        #else\n        precision mediump float;\n        precision mediump int;\n        #endif";
-    }
-  }, {
-    key: "fragGammaDefs",
-    get: function get() {
-      return "uniform float gammaFactor;\n        vec4 linearToLinear( in vec4 value ) {\n            return value;\n        }\n        vec4 sRGBToLinear( in vec4 value ) {\n            return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.w );\n        }\n        vec4 gammaToLinear( in vec4 value) {\n            return vec4( pow( value.xyz, vec3( gammaFactor ) ), value.w );\n        }\n        vec4 linearToGamma( in vec4 value, in float gammaFactor ) {\n              return vec4( pow( value.xyz, vec3( 1.0 / gammaFactor ) ), value.w );\");\n        }";
-    }
-  }, {
-    key: "fragLightDefs",
-    get: function get() {
-      var view = this.renderContext.view;
-      var src = [];
-      src.push("uniform vec4 lightAmbient;");
-      for (var i = 0, len = view.lightsList.length; i < len; i++) {
-        var light = view.lightsList[i];
-        if (light.type === "ambient") {
-          continue;
-        }
-        src.push("uniform vec4 lightColor" + i + ";");
-        if (light.type === "dir") {
-          src.push("uniform vec3 lightDir" + i + ";");
-        }
-        if (light.type === "point") {
-          src.push("uniform vec3 lightPos" + i + ";");
-        }
-        if (light.type === "spot") {
-          src.push("uniform vec3 lightPos" + i + ";");
-          src.push("uniform vec3 lightDir" + i + ";");
-        }
-      }
-      return src.join("\n");
-    }
-  }, {
-    key: "fragLogDepthBufDefs",
-    get: function get() {
-      if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-        return "in float isPerspective;\n                    uniform float logDepthBufFC;\n                    in float fragDepth;";
-      } else {
-        return "";
-      }
-    }
-  }, {
-    key: "fragLogDepthBufOutput",
-    get: function get() {
-      if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-        return "gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;";
-      } else {
-        return "";
-      }
-    }
-  }, {
-    key: "fragLighting",
-    get: function get() {
-      var src = [];
-      src.push("vec4 viewPosition  = viewMatrix * worldPosition; ");
-      src.push("vec4 modelNormal = vec4(octDecode(normal.xy), 0.0); ");
-      src.push("vec4 worldNormal = worldNormalMatrix * vec4(dot(modelNormal, modelNormalMatrixCol0), dot(modelNormal, modelNormalMatrixCol1), dot(modelNormal, modelNormalMatrixCol2), 0.0);");
-      src.push("vec3 viewNormal = normalize(vec4(viewNormalMatrix * worldNormal).xyz);");
-      src.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);");
-      src.push("vec3 viewLightDir = vec3(0.0, 0.0, -1.0);");
-      src.push("float lambertian = 1.0;");
-      for (var i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
-        var light = this.renderContext.view.lightsList[i];
-        if (light.type === "ambient") {
-          continue;
-        }
-        if (light.type === "dir") {
-          if (light.space === "view") {
-            src.push("viewLightDir = normalize(lightDir" + i + ");");
-          } else {
-            src.push("viewLightDir = normalize((viewMatrix * vec4(lightDir" + i + ", 0.0)).xyz);");
-          }
-        } else if (light.type === "point") {
-          if (light.space === "view") {
-            src.push("viewLightDir = -normalize(lightPos" + i + " - viewPosition.xyz);");
-          } else {
-            src.push("viewLightDir = -normalize((viewMatrix * vec4(lightPos" + i + ", 0.0)).xyz);");
-          }
-        } else if (light.type === "spot") {
-          if (light.space === "view") {
-            src.push("viewLightDir = normalize(lightDir" + i + ");");
-          } else {
-            src.push("viewLightDir = normalize((viewMatrix * vec4(lightDir" + i + ", 0.0)).xyz);");
-          }
-        } else {
-          continue;
-        }
-        src.push("lambertian = max(dot(-viewNormal, viewLightDir), 0.0);");
-        src.push("reflectedColor += lambertian * (lightColor" + i + ".rgb * lightColor" + i + ".a);");
-      }
-      src.push("vec3 rgb = (vec3(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0));");
-      src.push("meshColor =  vec4((lightAmbient.rgb * lightAmbient.a * rgb) + (reflectedColor * rgb), float(color.a) / 255.0);");
-      return src.join("\n");
-    }
-  }, {
-    key: "fragSAOOutput",
-    get: function get() {
-      if (this.renderContext.view.sao.enabled) {
-        // Doing SAO blend in the main solid fill draw shader just so that edge lines can be drawn over the top
-        // Would be more efficient to defer this, then render lines later, using same depth buffer for Z-reject
-        return "float viewportWidth     = uSAOParams[0];\n                    float viewportHeight    = uSAOParams[1];\n                    float blendCutoff       = uSAOParams[2];\n                    float blendFactor       = uSAOParams[3];\n                    vec2 uv                 = vec2(gl_FragCoord.x / viewportWidth, gl_FragCoord.y / viewportHeight);\n                    float ambient           = smoothstep(blendCutoff, 1.0, unpackRGBToFloat(texture(uOcclusionTexture, uv))) * blendFactor;\n                    outColor                = vec4(fragColor.rgb * ambient, 1.0);";
-      } else {
-        return "outColor            = fragColor;";
-      }
-    }
-  }, {
-    key: "fragOutput",
-    get: function get() {
-      return "outColor            = fragColor;";
-    }
-  }, {
-    key: "fragSectionPlaneDefs",
-    get: function get() {
-      var src = [];
-      src.push("in vec4 worldPosition;\n                  in vec4 meshFlags2;");
-      for (var i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
-        src.push("uniform bool sectionPlaneActive" + i + ";\n                      uniform vec3 sectionPlanePos" + i + ";\n                      uniform vec3 sectionPlaneDir" + i + ";");
-      }
-      return src.join("\n");
-    }
-  }, {
-    key: "fragLightSourceUniforms",
-    get: function get() {
-      var src = [];
-      src.push("uniform vec4 lightAmbient;");
-      for (var i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
-        var light = this.renderContext.view.lightsList[i];
-        if (light instanceof AmbientLight) {
-          continue;
-        }
-        src.push("uniform vec4 lightColor" + i + ";");
-        if (light instanceof DirLight) {
-          src.push("uniform vec3 lightDir" + i + ";");
-        }
-        if (light instanceof PointLight) {
-          src.push("uniform vec3 lightPos" + i + ";");
-        }
-      }
-      return src.join("\n");
-    }
-  }, {
-    key: "fragSectionPlanesSlice",
-    get: function get() {
-      var src = [];
-      var clipping = this.renderContext.view.sectionPlanesList.length > 0;
-      if (clipping) {
-        src.push("bool clippable = (float(meshFlags2.x) > 0.0);\n                      if (clippable) {\n                          float dist = 0.0;");
-        for (var i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
-          src.push("if (sectionPlaneActive" + i + ") {\n                              dist += clamp(dot(-sectionPlaneDir" + i + ".xyz, worldPosition.xyz - sectionPlanePos" + i + ".xyz), 0.0, 1000.0);\n                          }");
-        }
-        src.push("if (dist > 0.0) { \n                          discard;\n                      }\n                  }");
-      }
-      return src.join("\n");
-    }
-  }, {
-    key: "fragFlatShading",
-    get: function get() {
-      var src = [];
-      src.push("");
-      return src.join("\n");
-    }
-  }]);
-  return LayerRenderer;
-}();
-function _build2() {
-  var view = this.renderContext.view;
-  var gl = this.renderContext.gl;
-  _classPrivateFieldLooseBase(this, _program)[_program] = new GLProgram(gl, _classPrivateFieldLooseBase(this, _buildShader)[_buildShader]());
-  if (_classPrivateFieldLooseBase(this, _program)[_program].errors) {
-    this.errors = _classPrivateFieldLooseBase(this, _program)[_program].errors;
-    return;
-  }
-  var program = _classPrivateFieldLooseBase(this, _program)[_program];
-  _classPrivateFieldLooseBase(this, _uniforms)[_uniforms] = {
-    renderPass: program.getLocation("renderPass"),
-    viewMatrix: program.getLocation("viewMatrix"),
-    projMatrix: program.getLocation("projMatrix"),
-    worldMatrix: program.getLocation("worldMatrix"),
-    sao: program.getLocation("sao"),
-    logDepthBufFC: program.getLocation("logDepthBufFC"),
-    gammaFactor: program.getLocation("gammaFactor"),
-    pointSize: program.getLocation("pointSize"),
-    nearPlaneHeight: program.getLocation("nearPlaneHeight"),
-    pointCloudIntensityRange: program.getLocation("pointCloudIntensityRange"),
-    pickZNear: program.getLocation("pickZNear"),
-    pickZFar: program.getLocation("pickZFar"),
-    pickInvisible: program.getLocation("pickInvisible"),
-    color: program.getLocation("color"),
-    lightAmbient: program.getLocation("lightAmbient"),
-    lights: [],
-    sectionPlanes: []
-  };
-  var uniforms = _classPrivateFieldLooseBase(this, _uniforms)[_uniforms];
-  var lights = view.lightsList;
-  for (var i = 0, len = lights.length; i < len; i++) {
-    var light = lights[i];
-    switch (light.type) {
-      case "dir":
-        uniforms.lights.push({
-          color: program.getLocation("lightColor" + i),
-          dir: program.getLocation("lightDir" + i)
-        });
-        break;
-      case "point":
-        uniforms.lights.push({
-          color: program.getLocation("lightColor" + i),
-          pos: program.getLocation("lightPos" + i),
-          attenuation: program.getLocation("lightAttenuation" + i)
-        });
-        break;
-      case "spot":
-        uniforms.lights.push({
-          color: program.getLocation("lightColor" + i),
-          pos: program.getLocation("lightPos" + i),
-          dir: program.getLocation("lightDir" + i),
-          attenuation: program.getLocation("lightAttenuation" + i)
-        });
-        break;
-    }
-  }
-  for (var _i = 0, _len = view.sectionPlanesList.length; _i < _len; _i++) {
-    uniforms.sectionPlanes.push({
-      active: program.getLocation("sectionPlaneActive" + _i),
-      pos: program.getLocation("sectionPlanePos" + _i),
-      dir: program.getLocation("sectionPlaneDir" + _i)
-    });
-  }
-  _classPrivateFieldLooseBase(this, _samplers)[_samplers] = {
-    viewMatrices: program.getSampler("viewMatrices"),
-    positions: program.getSampler("positions"),
-    indices: program.getSampler("indices"),
-    edgeIndices: program.getSampler("edgeIndices"),
-    eachMeshAttributes: program.getSampler("eachMeshAttributes"),
-    eachMeshMatrices: program.getSampler("eachMeshMatrices"),
-    eachEdgeOffset: program.getSampler("eachMeshOffset"),
-    eachPrimitiveMesh: program.getSampler("eachMeshTriangleMesh"),
-    eachEdgeMesh: program.getSampler("eachEdgeMesh"),
-    baseColorMap: program.getSampler("baseColorMap"),
-    metallicRoughMap: program.getSampler("metallicRoughMap"),
-    emissiveMap: program.getSampler("emissiveMap"),
-    normalMap: program.getSampler("normalMap"),
-    occlusionMap: program.getSampler("occlusionMap")
-  };
-  _classPrivateFieldLooseBase(this, _hash)[_hash] = this.getHash();
-}
-function _buildShader2() {
-  return {
-    vertex: this.buildVertexShader(),
-    fragment: this.buildFragmentShader()
-  };
-}
-function _getValid2() {
-  if (!_classPrivateFieldLooseBase(this, _needRebuild)[_needRebuild]) {
-    return true;
-  }
-  _classPrivateFieldLooseBase(this, _needRebuild)[_needRebuild] = false;
-  return _classPrivateFieldLooseBase(this, _hash)[_hash] === this.getHash();
-}
-function _bind2() {
-  var view = this.renderContext.view;
-  var gl = this.renderContext.gl;
-  var uniforms = _classPrivateFieldLooseBase(this, _uniforms)[_uniforms];
-  var project = view.camera.project;
-  // @ts-ignore
-  _classPrivateFieldLooseBase(this, _program)[_program].bind();
-  // if (this.#uProjMatrix) {
-  //     gl.uniformMatrix4fv(this.#uProjMatrix, false, project.matrix);
-  // }
-  if (uniforms.lightAmbient) {
-    // @ts-ignore
-    gl.uniform4fv(uniforms.lightAmbient, view.getAmbientColorAndIntensity());
-  }
-  for (var i = 0, len = uniforms.lights.length; i < len; i++) {
-    var fragLightSourceUniforms = uniforms.lights[i];
-    var light = view.lightsList[i];
-    if (fragLightSourceUniforms.color) {
-      gl.uniform4f(fragLightSourceUniforms.color, light.color[0], light.color[1], light.color[2], light.intensity);
-    }
-    if (fragLightSourceUniforms.dir) {
-      // @ts-ignore
-      gl.uniform3f(fragLightSourceUniforms.dir, light.dir[0], light.dir[1], light.dir[2]);
-    }
-    if (fragLightSourceUniforms.pos) {
-      // @ts-ignore
-      gl.uniform3f(fragLightSourceUniforms.pos, light.pos[0], light.pos[1], light.pos[2]);
-    }
-    if (fragLightSourceUniforms.attenuation) {
-      // @ts-ignore
-      gl.uniform1f(fragLightSourceUniforms.attenuation, light.attenuation);
-    }
-  }
-  if (uniforms.sao) {
-    var sao = view.sao;
-    var saoEnabled = sao.possible;
-    if (saoEnabled) {
-      var viewportWidth = gl.drawingBufferWidth;
-      var viewportHeight = gl.drawingBufferHeight;
-      tempVec4[0] = viewportWidth;
-      tempVec4[1] = viewportHeight;
-      tempVec4[2] = sao.blendCutoff;
-      tempVec4[3] = sao.blendFactor;
-      // @ts-ignore
-      gl.uniform4fv(uniforms.sao, tempVec4);
-      // program.bindTexture(this.#uOcclusionTexture, renderContext.occlusionTexture, 0);
-    }
-  }
-
-  if (uniforms.gammaFactor) {
-    gl.uniform1f(uniforms.gammaFactor, view.gammaFactor);
-  }
-  if (uniforms.pointSize) {
-    gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
-  }
-  if (uniforms.nearPlaneHeight) {
-    gl.uniform1f(uniforms.nearPlaneHeight, view.camera.projectionType === OrthoProjectionType ? 1.0 : gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180.0)));
-  }
-  if (uniforms.pickZNear) {
-    gl.uniform1f(uniforms.pickZNear, this.renderContext.pickZNear);
-    gl.uniform1f(uniforms.pickZFar, this.renderContext.pickZFar);
-  }
-  if (uniforms.pickInvisible) {
-    gl.uniform1i(uniforms.pickInvisible, this.renderContext.pickInvisible ? 1 : 0);
-  }
-  if (uniforms.logDepthBufFC) {
-    var logDepthBufFC = 2.0 / (Math.log(project.far + 1.0) / Math.LN2);
-    gl.uniform1f(uniforms.logDepthBufFC, logDepthBufFC);
-  }
-}
-
-var FastColorTrianglesRenderer = /*#__PURE__*/function (_LayerRenderer) {
-  _inheritsLoose(FastColorTrianglesRenderer, _LayerRenderer);
-  function FastColorTrianglesRenderer(renderContext) {
-    return _LayerRenderer.call(this, renderContext) || this;
-  }
-  var _proto = FastColorTrianglesRenderer.prototype;
-  _proto.getHash = function getHash() {
-    return this.renderContext.view.getSectionPlanesHash() + "-" + this.renderContext.view.getLightsHash();
-  };
-  _proto.buildVertexShader = function buildVertexShader() {
-    return this.vertHeader + "   \n        \n                uniform int                 renderPass;   \n            \n                uniform highp   mat4        projMatrix;\n                uniform highp   mat4        worldMatrix;\n                      \n                uniform mediump sampler2D   viewMatrices;\n                           \n                uniform mediump usampler2D  eachPrimitiveMesh;\n                uniform lowp    usampler2D  eachMeshAttributes;\n                \n                uniform mediump sampler2D   eachMeshMatrices;\n                uniform mediump usampler2D  positions;\n                uniform highp   usampler2D  indices;\n                \n                uniform  float  logDepthBufFC;\n                 \n                out vec4        worldPosition;\n                flat out uint   meshFlags2r;                       \n                flat out uvec4  meshColor;\n                out float       fragDepth;\n                \n                bool isPerspectiveMatrix(mat4 m) {\n                    return (m[2][3] == - 1.0);\n                }\n                \n                out float isPerspective;\n                    \n                void main(void) {\n                                   \n                    int triangleIndex      = gl_VertexID / 3;\n                    \n                    int hPackedMeshIdIndex = (triangleIndex >> 3) & 1023;\n                    int vPackedMeshIdIndex = (triangleIndex >> 3) >> 10;\n                    \n                    int meshIndex          = int(texelFetch(eachPrimitiveMesh, ivec2(hPackedMeshIdIndex, vPackedMeshIdIndex), 0).r);                   \n                    uvec4 meshFlags        = texelFetch (eachMeshAttributes, ivec2(2, meshIndex), 0);\n\n                    if (int(meshFlags.x) != renderPass) {\n                        gl_Position = vec4(3.0, 3.0, 3.0, 1.0);\n                        return;\n                    } \n                 \n                    uvec4 meshFlags2 = texelFetch (eachMeshAttributes, ivec2(3, meshIndex), 0);\n\n                    ivec4 packedVertexBase = ivec4(texelFetch (eachMeshAttributes, ivec2(4, meshIndex), 0));\n                    ivec4 packedIndexBaseOffset = ivec4(texelFetch (eachMeshAttributes, ivec2(5, meshIndex), 0));\n                    int indexBaseOffset =   (packedIndexBaseOffset.r << 24) + \n                                            (packedIndexBaseOffset.g << 16) + \n                                            (packedIndexBaseOffset.b << 8) + \n                                            (packedIndexBaseOffset.a);\n\n                    int hIndex = (triangleIndex - indexBaseOffset) & 1023;\n                    int vIndex = (triangleIndex - indexBaseOffset) >> 10;\n\n                    ivec3 vertexIndices = ivec3(texelFetch(indices, ivec2(hIndex, vIndex), 0));\n                    ivec3 uniqueVertexIndexes = vertexIndices + (packedVertexBase.r << 24) + (packedVertexBase.g << 16) + (packedVertexBase.b << 8) + packedVertexBase.a;\n\n                    ivec3 indexPositionH = uniqueVertexIndexes & 1023;\n                    ivec3 indexPositionV = uniqueVertexIndexes >> 10;\n\n                    mat4 positionsDecompressMatrix = mat4 (\n                        texelFetch (eachMeshMatrices, ivec2(0, meshIndex), 0), \n                        texelFetch (eachMeshMatrices, ivec2(1, meshIndex), 0), \n                        texelFetch (eachMeshMatrices, ivec2(2, meshIndex), 0), \n                        texelFetch (eachMeshMatrices, ivec2(3, meshIndex), 0));\n                        \n                    mat4 meshMatrix = mat4 (\n                        texelFetch (eachMeshMatrices, ivec2(4, meshIndex), 0), \n                        texelFetch (eachMeshMatrices, ivec2(5, meshIndex), 0), \n                        texelFetch (eachMeshMatrices, ivec2(6, meshIndex), 0), \n                        texelFetch (eachMeshMatrices, ivec2(7, meshIndex), 0));\n\n                    ivec4 packedViewMatrixIndex = ivec4(texelFetch (eachMeshAttributes, ivec2(7, meshIndex), 0));\n                    int viewMatrixIndex = \n                            (packedViewMatrixIndex.r << 24) + \n                            (packedViewMatrixIndex.g << 16) + \n                            (packedViewMatrixIndex.b << 8) + \n                            (packedViewMatrixIndex.a);\n                   \n                    mat4 viewMatrix = mat4 (\n                        texelFetch (viewMatrices, ivec2(4, viewMatrixIndex), 0), \n                        texelFetch (viewMatrices, ivec2(5, viewMatrixIndex), 0), \n                        texelFetch (viewMatrices, ivec2(6, viewMatrixIndex), 0), \n                        texelFetch (viewMatrices, ivec2(7, viewMatrixIndex), 0));\n\n                    vec3 _positions[3];\n                   \n                    _positions[0] = vec3(texelFetch(positions, ivec2(indexPositionH.r, indexPositionV.r), 0));\n                    _positions[1] = vec3(texelFetch(positions, ivec2(indexPositionH.g, indexPositionV.g), 0));\n                    _positions[2] = vec3(texelFetch(positions, ivec2(indexPositionH.b, indexPositionV.b), 0));\n  \n                    vec3  position       = _positions[gl_VertexID % 3];\n                   \n                    vec4  _worldPosition = worldMatrix * ((meshMatrix * positionsDecompressMatrix) * vec4(position, 1.0)); \n                    vec4  viewPosition   = viewMatrix * _worldPosition;                   \n                    vec4  clipPosition   = projMatrix * viewPosition;\n\n                    meshFlags2r     = meshFlags2.r;                     \n                    meshColor       = texelFetch (eachMeshAttributes, ivec2(0, meshIndex), 0);                          \n                    fragDepth       = 1.0 + clipPosition.w;\n                    isPerspective   = float (isPerspectiveMatrix(projMatrix));\n                    worldPosition   = _worldPosition;                                               \n                    \n                    gl_Position     = clipPosition;\n                }";
-  };
-  _proto.buildFragmentShader = function buildFragmentShader() {
-    return this.fragHeader + "                        \n    \n             flat   in uvec4    meshColor;\n                in float        fragDepth;\n                in float        isPerspective;    \n                flat in uint    meshFlags2r;        \n                uniform float   logDepthBufFC;                        \n    \n                " + this.fragSectionPlaneDefs + "                  \n                " + this.fragLightSourceUniforms + "                                                             \n    \n                out vec4 outColor;        \n    \n                void main(void) {         \n                \n                // src.push(\"float lambertian = 1.0;\");\n                // \n                //  vec3 xTangent = dFdx( vViewPosition.xyz );\n                //  vec3 yTangent = dFdy( vViewPosition.xyz );\n                // \n                //  vec3 viewNormal = normalize( cross( xTangent, yTangent ) );        \n    \n                    " + this.fragSectionPlanesSlice + "                                    \n                    " + this.fragFlatShading + "     \n          \n                    outColor = vec4(meshColor);                   \n                    gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;                        \n                }";
-  };
-  return FastColorTrianglesRenderer;
-}(LayerRenderer);
-
-var _built$1 = /*#__PURE__*/_classPrivateFieldLooseKey("built");
-var DataTextureSet = /*#__PURE__*/function () {
-  function DataTextureSet() {
-    this.positions = void 0;
-    // All quantized positions for a Layer
-    this.indices_8Bits = void 0;
-    // All 8-bit indices
-    this.indices_16Bits = void 0;
-    // All 16-bit indices
-    this.indices_32Bits = void 0;
-    // All 32-bt indices
-    this.edgeIndices_8Bits = void 0;
-    // All 8-bit edge indices
-    this.edgeIndices_16Bits = void 0;
-    // All 16-bit edges indices
-    this.edgeIndices_32Bits = void 0;
-    // All 32-bit edges indices
-    this.indices = void 0;
-    // All 8, 16, and 32-bit indices
-    this.edgeIndices = void 0;
-    // All 8, 16 and 32-bit indices
-    this.eachMeshAttributes = void 0;
-    // For each mesh, a set of attributes including color, opacity, visibility etc
-    this.eachMeshMatrices = void 0;
-    // For each mesh, a positions decompression matrix and a modeling matrix
-    this.eachEdgeOffset = void 0;
-    this.eachPrimitiveMesh_8Bits = void 0;
-    this.eachPrimitiveMesh_16Bits = void 0;
-    this.eachPrimitiveMesh_32Bits = void 0;
-    this.eachPrimitiveMesh = void 0;
-    this.eachEdgeMesh_8Bits = void 0;
-    this.eachEdgeMesh_16Bits = void 0;
-    this.eachEdgeMesh_32Bits = void 0;
-    this.eachEdgeMesh = void 0;
-    Object.defineProperty(this, _built$1, {
-      writable: true,
-      value: void 0
-    });
-    this.positions = null;
-    this.indices_8Bits = null;
-    this.indices_16Bits = null;
-    this.indices_32Bits = null;
-    this.edgeIndices_8Bits = null;
-    this.edgeIndices_16Bits = null;
-    this.edgeIndices_32Bits = null;
-    this.eachMeshAttributes = null;
-    this.eachMeshMatrices = null;
-    this.eachPrimitiveMesh_8Bits = null;
-    this.eachPrimitiveMesh_16Bits = null;
-    this.eachPrimitiveMesh_32Bits = null;
-    this.eachEdgeMesh_8Bits = null;
-    this.eachEdgeMesh_16Bits = null;
-    this.eachEdgeMesh_32Bits = null;
-    this.eachEdgeOffset = null;
-    _classPrivateFieldLooseBase(this, _built$1)[_built$1] = false;
-  }
-  var _proto = DataTextureSet.prototype;
-  _proto.build = function build() {
-    this.indices = {
-      8: this.indices_8Bits,
-      16: this.indices_16Bits,
-      32: this.indices_32Bits
-    };
-    this.eachPrimitiveMesh = {
-      8: this.eachPrimitiveMesh_8Bits,
-      16: this.eachPrimitiveMesh_16Bits,
-      32: this.eachPrimitiveMesh_32Bits
-    };
-    this.edgeIndices = {
-      8: this.edgeIndices_8Bits,
-      16: this.edgeIndices_16Bits,
-      32: this.edgeIndices_32Bits
-    };
-    this.eachEdgeMesh = {
-      8: this.eachEdgeMesh_8Bits,
-      16: this.eachEdgeMesh_16Bits,
-      32: this.eachEdgeMesh_32Bits
-    };
-    _classPrivateFieldLooseBase(this, _built$1)[_built$1] = true;
-  };
-  _proto.destroy = function destroy() {
-    if (this.positions) {
-      this.positions.destroy();
-    }
-    if (this.indices_8Bits) {
-      this.indices_8Bits.destroy();
-    }
-    if (this.indices_16Bits) {
-      this.indices_16Bits.destroy();
-    }
-    if (this.indices_32Bits) {
-      this.indices_32Bits.destroy();
-    }
-    if (this.edgeIndices_8Bits) {
-      this.edgeIndices_8Bits.destroy();
-    }
-    if (this.edgeIndices_16Bits) {
-      this.edgeIndices_16Bits.destroy();
-    }
-    if (this.edgeIndices_32Bits) {
-      this.edgeIndices_32Bits.destroy();
-    }
-    if (this.eachMeshMatrices) {
-      this.eachMeshMatrices.destroy();
-    }
-    if (this.eachMeshAttributes) {
-      this.eachMeshAttributes.destroy();
-    }
-    if (this.eachEdgeOffset) {
-      this.eachEdgeOffset.destroy();
-    }
-    if (this.eachPrimitiveMesh_8Bits) {
-      this.eachPrimitiveMesh_8Bits.destroy();
-    }
-    if (this.eachPrimitiveMesh_16Bits) {
-      this.eachPrimitiveMesh_16Bits.destroy();
-    }
-    if (this.eachPrimitiveMesh_32Bits) {
-      this.eachPrimitiveMesh_32Bits.destroy();
-    }
-    if (this.eachEdgeMesh_8Bits) {
-      this.eachEdgeMesh_8Bits.destroy();
-    }
-    if (this.eachEdgeMesh_16Bits) {
-      this.eachEdgeMesh_16Bits.destroy();
-    }
-    if (this.eachEdgeMesh_32Bits) {
-      this.eachEdgeMesh_32Bits.destroy();
-    }
-  };
-  return DataTextureSet;
-}();
-
-/**
- * @private
- */
-var MeshCounts = /*#__PURE__*/function () {
-  function MeshCounts() {
-    this.numMeshes = void 0;
-    this.numVisible = void 0;
-    this.numTransparent = void 0;
-    this.numEdges = void 0;
-    this.numXRayed = void 0;
-    this.numSelected = void 0;
-    this.numHighlighted = void 0;
-    this.numClippable = void 0;
-    this.numPickable = void 0;
-    this.numCulled = void 0;
-    this.reset();
-  }
-  var _proto = MeshCounts.prototype;
-  _proto.reset = function reset() {
-    this.numMeshes = 0;
-    this.numVisible = 0;
-    this.numTransparent = 0;
-    this.numEdges = 0;
-    this.numXRayed = 0;
-    this.numSelected = 0;
-    this.numHighlighted = 0;
-    this.numClippable = 0;
-    this.numPickable = 0;
-    this.numCulled = 0;
-  };
-  return MeshCounts;
-}();
-
-/**
- * @private
- */
-var SCENE_OBJECT_FLAGS = {
-  VISIBLE: 1,
-  CULLED: 1 << 2,
-  PICKABLE: 1 << 3,
-  CLIPPABLE: 1 << 4,
-  COLLIDABLE: 1 << 5,
-  CAST_SHADOW: 1 << 6,
-  RECEIVE_SHADOW: 1 << 7,
-  XRAYED: 1 << 8,
-  HIGHLIGHTED: 1 << 9,
-  SELECTED: 1 << 10,
-  EDGES: 1 << 11,
-  BACKFACES: 1 << 12,
-  TRANSPARENT: 1 << 13
-};
-
-var _m2;
-/**
- * Bundled by jsDelivr using Rollup v2.59.0 and Terser v5.9.0.
- * Original file: /npm/@petamoriken/float16@3.5.11/src/index.mjs
- *
- * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
- */
-function t(t) {
-  // @ts-ignore
-  return function (r) {
-    return n(t, r, [].slice.call(arguments, 1));
-  };
-}
-function r(r, n) {
-  // @ts-ignore
-  return t(s(r, n).get);
-}
-// @ts-ignore
-// @ts-ignore
-var n = Reflect.apply,
-  e = Reflect.construct,
-  o = Reflect.defineProperty,
-  i = Reflect.get,
-  s = Reflect.getOwnPropertyDescriptor,
-  c = Reflect.getPrototypeOf,
-  u = Reflect.has,
-  f = Reflect.ownKeys,
-  h = Reflect.set,
-  l = Reflect.setPrototypeOf,
-  a = Proxy,
-  y = Number,
-  p = y.isFinite,
-  w = y.isNaN,
-  g = Symbol.iterator,
-  d = Symbol.species,
-  v = Symbol.toStringTag,
-  b = Symbol["for"],
-  A = Object,
-  m = A.create,
-  B = A.defineProperty,
-  x = A.freeze,
-  E = A.is,
-  T = A.prototype,
-  O = t(T.isPrototypeOf),
-  j = A.hasOwn || t(T.hasOwnProperty),
-  I = Array,
-  P = I.isArray,
-  S = I.prototype,
-  _ = t(S.join),
-  F = t(S.push),
-  L = t(S.toLocaleString),
-  R = S[g],
-  C = t(R),
-  N = Math.trunc,
-  U = ArrayBuffer,
-  M = U.isView,
-  D = t(U.prototype.slice),
-  k = r(U.prototype, "byteLength"),
-  W = "undefined" != typeof SharedArrayBuffer ? SharedArrayBuffer : null,
-  V = W && r(W.prototype, "byteLength"),
-  Y = c(Uint8Array),
-  z = Y.from,
-  G = Y.prototype,
-  K = G[g],
-  X = t(G.keys),
-  q = t(G.values),
-  H = t(G.entries),
-  J = t(G.set),
-  Q = t(G.reverse),
-  Z = t(G.fill),
-  $ = t(G.copyWithin),
-  tt = t(G.sort),
-  rt = t(G.slice),
-  nt = t(G.subarray),
-  et = r(G, "buffer"),
-  ot = r(G, "byteOffset"),
-  it = r(G, "length"),
-  st = r(G, v),
-  ct = Uint16Array,
-  ut = function ut() {
-    return n(z, ct, [].slice.call(arguments));
-  },
-  ft = Uint32Array,
-  ht = Float32Array,
-  lt = c([][g]()),
-  at = t(lt.next),
-  yt = t( _regeneratorRuntime().mark(function _callee() {
-    return _regeneratorRuntime().wrap(function _callee$(_context) {
-      while (1) switch (_context.prev = _context.next) {
-        case 0:
-        case "end":
-          return _context.stop();
-      }
-    }, _callee);
-  })().next),
-  pt = c(lt),
-  vt = TypeError,
-  bt = RangeError,
-  At = Set,
-  mt = At.prototype,
-  Bt = t(mt.add),
-  xt = t(mt.has),
-  Et = WeakMap,
-  Tt = Et.prototype,
-  Ot = t(Tt.get),
-  jt = t(Tt.has),
-  It = t(Tt.set),
-  Pt = new U(4),
-  St = new ht(Pt),
-  _t = new ft(Pt),
-  Ft = new ft(512),
-  Lt = new ft(512);
-for (var _t2 = 0; _t2 < 256; ++_t2) {
-  var _r = _t2 - 127;
-  _r < -27 ? (Ft[_t2] = 0, Ft[256 | _t2] = 32768, Lt[_t2] = 24, Lt[256 | _t2] = 24) : _r < -14 ? (Ft[_t2] = 1024 >> -_r - 14, Ft[256 | _t2] = 1024 >> -_r - 14 | 32768, Lt[_t2] = -_r - 1, Lt[256 | _t2] = -_r - 1) : _r <= 15 ? (Ft[_t2] = _r + 15 << 10, Ft[256 | _t2] = _r + 15 << 10 | 32768, Lt[_t2] = 13, Lt[256 | _t2] = 13) : _r < 128 ? (Ft[_t2] = 31744, Ft[256 | _t2] = 64512, Lt[_t2] = 24, Lt[256 | _t2] = 24) : (Ft[_t2] = 31744, Ft[256 | _t2] = 64512, Lt[_t2] = 13, Lt[256 | _t2] = 13);
-}
-function Rt(t) {
-  St[0] = t;
-  var r = _t[0],
-    n = r >> 23 & 511;
-  return Ft[n] + ((8388607 & r) >> Lt[n]);
-}
-var Ct = new ft(2048),
-  Nt = new ft(64),
-  Ut = new ft(64);
-Ct[0] = 0;
-for (var _t3 = 1; _t3 < 1024; ++_t3) {
-  var _r2 = _t3 << 13,
-    _n = 0;
-  for (; 0 == (8388608 & _r2);) _n -= 8388608, _r2 <<= 1;
-  _r2 &= -8388609, _n += 947912704, Ct[_t3] = _r2 | _n;
-}
-for (var _t4 = 1024; _t4 < 2048; ++_t4) Ct[_t4] = 939524096 + (_t4 - 1024 << 13);
-Nt[0] = 0;
-for (var _t5 = 1; _t5 < 31; ++_t5) Nt[_t5] = _t5 << 23;
-Nt[31] = 1199570944, Nt[32] = 2147483648;
-for (var _t6 = 33; _t6 < 63; ++_t6) Nt[_t6] = 2147483648 + (_t6 - 32 << 23);
-Nt[63] = 3347054592, Ut[0] = 0;
-for (var _t7 = 1; _t7 < 64; ++_t7) Ut[_t7] = 32 === _t7 ? 0 : 1024;
-function Mt(t) {
-  var r = t >> 10;
-  return _t[0] = Ct[Ut[r] + (1023 & t)] + Nt[r], St[0];
-}
-function kt(t) {
-  var _m;
-  // @ts-ignore
-  if (t[g] === R) return t;
-  var r = C(t);
-  return m(null, (_m = {
-    next: {
-      value: function value() {
-        return at(r);
-      }
-    }
-  }, _m[g] = {
-    value: function value() {
-      return this;
-    }
-  }, _m));
-}
-var Wt = new Et(),
-  Vt = m(pt, (_m2 = {
-    next: {
-      value: function value() {
-        var t = Ot(Wt, this);
-        return yt(t);
-      },
-      writable: !0,
-      configurable: !0
-    }
-  }, _m2[v] = {
-    value: "Array Iterator",
-    configurable: !0
-  }, _m2));
-function Yt(t) {
-  var r = m(Vt);
-  return It(Wt, r, t), r;
-}
-function zt(t) {
-  return null !== t && "object" == typeof t || "function" == typeof t;
-}
-function Gt(t) {
-  return null !== t && "object" == typeof t;
-}
-function Kt(t) {
-  return void 0 !== st(t);
-}
-function Xt(t) {
-  var r = st(t);
-  return "BigInt64Array" === r || "BigUint64Array" === r;
-}
-function qt(t) {
-  if (null === W) return !1;
-  try {
-    // @ts-ignore
-    return V(t), !0;
-  } catch (t) {
-    return !1;
-  }
-}
-function Ht(t) {
-  if (!P(t)) return !1;
-  // @ts-ignore
-  if (t[g] === R) return !0;
-  // @ts-ignore
-  return "Array Iterator" === t[g]()[v];
-}
-function Jt(t) {
-  if ("string" != typeof t) return !1;
-  var r = y(t);
-  return t === r + "" && !!p(r) && r === N(r);
-}
-var Qt = y.MAX_SAFE_INTEGER;
-function Zt(t) {
-  if ("bigint" == typeof t) throw vt("Cannot convert a BigInt value to a number");
-  var r = y(t);
-  return w(r) || 0 === r ? 0 : N(r);
-}
-function $t(t) {
-  var r = Zt(t);
-  return r < 0 ? 0 : r < Qt ? r : Qt;
-}
-function tr(t, r) {
-  if (!zt(t)) throw vt("This is not an object");
-  var n = t.constructor;
-  if (void 0 === n) return r;
-  if (!zt(n)) throw vt("The constructor property value is not an object");
-  var e = n[d];
-  return null == e ? r : e;
-}
-function rr(t) {
-  if (qt(t)) return !1;
-  try {
-    return D(t, 0, 0), !1;
-  } catch (t) {}
-  return !0;
-}
-function nr(t, r) {
-  var n = w(t),
-    e = w(r);
-  if (n && e) return 0;
-  if (n) return 1;
-  if (e) return -1;
-  // @ts-ignore
-  if (t < r) return -1;
-  // @ts-ignore
-  if (t > r) return 1;
-  if (0 === t && 0 === r) {
-    var _n2 = E(t, 0),
-      _e = E(r, 0);
-    if (!_n2 && _e) return -1;
-    if (_n2 && !_e) return 1;
-  }
-  return 0;
-}
-var er = b("__Float16Array__"),
-  or = new Et();
-function ir(t) {
-  return jt(or, t) || !M(t) && function (t) {
-    if (!Gt(t)) return !1;
-    var r = c(t);
-    if (!Gt(r)) return !1;
-    // @ts-ignore
-    var n = r.constructor;
-    if (void 0 === n) return !1;
-    if (!zt(n)) throw vt("The constructor property value is not an object");
-    return u(n, er);
-  }(t);
-}
-function sr(t) {
-  if (!ir(t)) throw vt("This is not a Float16Array object");
-}
-function cr(t, r) {
-  var n = ir(t),
-    e = Kt(t);
-  if (!n && !e) throw vt("Species constructor didn't return TypedArray object");
-  if ("number" == typeof r) {
-    var _e2;
-    if (n) {
-      var _r3 = ur(t);
-      _e2 = it(_r3);
-    } else _e2 = it(t);
-    if (_e2 < r) throw vt("Derived constructor created TypedArray object which was too small length");
-  }
-  if (Xt(t)) throw vt("Cannot mix BigInt and other types, use explicit conversions");
-}
-function ur(t) {
-  var r = Ot(or, t);
-  if (void 0 !== r) {
-    if (rr(et(r))) throw vt("Attempting to access detached ArrayBuffer");
-    return r;
-  }
-  var n = t.buffer;
-  if (rr(n)) throw vt("Attempting to access detached ArrayBuffer");
-  var o = e(ar, [n, t.byteOffset, t.length], t.constructor);
-  return Ot(or, o);
-}
-function fr(t) {
-  var r = it(t),
-    n = [];
-  for (var _e3 = 0; _e3 < r; ++_e3) n[_e3] = Mt(t[_e3]);
-  return n;
-}
-var hr = new At();
-for (var _iterator = _createForOfIteratorHelperLoose(f(G)), _step; !(_step = _iterator()).done;) {
-  var _t12 = _step.value;
-  if (_t12 === v) continue;
-  var _r28 = s(G, _t12);
-  j(_r28, "get") && Bt(hr, _t12);
-}
-var lr = x({
-  get: function get(t, r, n) {
-    return Jt(r) && j(t, r) ? Mt(i(t, r)) : xt(hr, r) && O(G, t) ? i(t, r) : i(t, r, n);
-  },
-  set: function set(t, r, n, e) {
-    return Jt(r) && j(t, r) ? h(t, r, Rt(n)) : h(t, r, n, e);
-  },
-  getOwnPropertyDescriptor: function getOwnPropertyDescriptor(t, r) {
-    if (Jt(r) && j(t, r)) {
-      var _n3 = s(t, r);
-      // @ts-ignore
-      return _n3.value = Mt(_n3.value), _n3;
-    }
-    return s(t, r);
-  },
-  defineProperty: function defineProperty(t, r, n) {
-    return Jt(r) && j(t, r) && j(n, "value") ? (n.value = Rt(n.value), o(t, r, n)) : o(t, r, n);
-  }
-});
-var ar = /*#__PURE__*/function () {
-  function ar(t, r, n) {
-    var o;
-    if (ir(t)) o = e(ct, [ur(t)], this instanceof ar ? this.constructor : void 0);else if (zt(t) && !function (t) {
-      try {
-        return k(t), !0;
-      } catch (t) {
-        return !1;
-      }
-    }(t)) {
-      var _r4, _n4;
-      if (Kt(t)) {
-        _r4 = t, _n4 = it(t);
-        var _i = et(t),
-          _s = qt(_i) ? U : tr(_i, U);
-        if (rr(_i)) throw vt("Attempting to access detached ArrayBuffer");
-        if (Xt(t)) throw vt("Cannot mix BigInt and other types, use explicit conversions");
-        var _c = new _s(2 * _n4);
-        o = e(ct, [_c], this instanceof ar ? this.constructor : void 0);
-      } else {
-        // @ts-ignore
-        var _i2 = t[g];
-        if (null != _i2 && "function" != typeof _i2) throw vt("@@iterator property is not callable");
-        // @ts-ignore
-        null != _i2 ? Ht(t) ? (_r4 = t, _n4 = t.length) : (_r4 = [].concat(t), _n4 = _r4.length) : (_r4 = t, _n4 = $t(_r4.length)), o = e(ct, [_n4], this instanceof ar ? this.constructor : void 0);
-      }
-      for (var _t8 = 0; _t8 < _n4; ++_t8) {
-        // @ts-ignore
-        o[_t8] = Rt(_r4[_t8]);
-      }
-    } else o = e(ct, arguments, this instanceof ar ? this.constructor : void 0);
-    var i = new a(o, lr);
-    return It(or, i, o), i;
-  }
-  ar.from = function from(t) {
-    var _this = this;
-    var r = [].slice.call(arguments, 1);
-    var e = this;
-    if (!u(e, er)) throw vt("This constructor is not a subclass of Float16Array");
-    if (e === ar) {
-      if (ir(t) && 0 === r.length) {
-        var _r5 = ur(t),
-          _n5 = new ct(et(_r5), ot(_r5), it(_r5));
-        // @ts-ignore
-        return new ar(et(rt(_n5)));
-      }
-      // @ts-ignore
-      if (0 === r.length) return new ar(et(ut(t, Rt)));
-      var _e4 = r[0],
-        _o = r[1];
-      // @ts-ignore
-      return new ar(et(ut(t, function (t) {
-        return Rt(n(_e4, _this, [t].concat(kt([].slice.call(arguments, 1)))));
-      }, _o)));
-    }
-    var o, i;
-    // @ts-ignore
-    var s = t[g];
-    if (null != s && "function" != typeof s) throw vt("@@iterator property is not callable");
-    // @ts-ignore
-    if (null != s) Ht(t) ? (o = t, i = t.length) : !Kt(c = t) || c[g] !== K && "Array Iterator" !== c[g]()[v] ? (o = [].concat(t), i = o.length) : (o = t, i = it(t));else {
-      if (null == t) throw vt("Cannot convert undefined or null to object");
-      o = A(t), i = $t(o.length);
-    }
-    var c;
-    // @ts-ignore
-    var f = new e(i);
-    if (0 === r.length)
-      // @ts-ignore
-      for (var _t9 = 0; _t9 < i; ++_t9) f[_t9] = o[_t9];else {
-      var _t10 = r[0],
-        _e5 = r[1];
-      // @ts-ignore
-      for (var _r6 = 0; _r6 < i; ++_r6) f[_r6] = n(_t10, _e5, [o[_r6], _r6]);
-    }
-    return f;
-  };
-  ar.of = function of() {
-    var t = [].slice.call(arguments);
-    var r = this;
-    if (!u(r, er)) throw vt("This constructor is not a subclass of Float16Array");
-    var n = t.length;
-    if (r === ar) {
-      // @ts-ignore
-      var _r7 = new ar(n),
-        _e6 = ur(_r7);
-      for (var _r8 = 0; _r8 < n; ++_r8) _e6[_r8] = Rt(t[_r8]);
-      return _r7;
-    }
-    // @ts-ignore
-    var e = new r(n);
-    // @ts-ignore
-    for (var _r9 = 0; _r9 < n; ++_r9) e[_r9] = t[_r9];
-    return e;
-  };
-  var _proto = ar.prototype;
-  _proto.keys = function keys() {
-    sr(this);
-    var t = ur(this);
-    return X(t);
-  };
-  _proto.values = function values() {
-    sr(this);
-    var t = ur(this);
-    return Yt( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-      var _iterator2, _step2, _r10;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
-          case 0:
-            _iterator2 = _createForOfIteratorHelperLoose(q(t));
-          case 1:
-            if ((_step2 = _iterator2()).done) {
-              _context2.next = 7;
-              break;
-            }
-            _r10 = _step2.value;
-            _context2.next = 5;
-            return Mt(_r10);
-          case 5:
-            _context2.next = 1;
-            break;
-          case 7:
-          case "end":
-            return _context2.stop();
-        }
-      }, _callee2);
-    })());
-  };
-  _proto.entries = function entries() {
-    sr(this);
-    var t = ur(this);
-    return Yt( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-      var _iterator3, _step3, _step3$value, _r11, _n6;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
-          case 0:
-            _iterator3 = _createForOfIteratorHelperLoose(H(t));
-          case 1:
-            if ((_step3 = _iterator3()).done) {
-              _context3.next = 7;
-              break;
-            }
-            _step3$value = _step3.value, _r11 = _step3$value[0], _n6 = _step3$value[1];
-            _context3.next = 5;
-            return [_r11, Mt(_n6)];
-          case 5:
-            _context3.next = 1;
-            break;
-          case 7:
-          case "end":
-            return _context3.stop();
-        }
-      }, _callee3);
-    })());
-  };
-  _proto.at = function at(t) {
-    sr(this);
-    var r = ur(this),
-      n = it(r),
-      e = Zt(t),
-      o = e >= 0 ? e : n + e;
-    if (!(o < 0 || o >= n)) return Mt(r[o]);
-  };
-  _proto.map = function map(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0],
-      // @ts-ignore
-      s = tr(e, ar);
-    if (s === ar) {
-      // @ts-ignore
-      var _r12 = new ar(o),
-        _s2 = ur(_r12);
-      for (var _r13 = 0; _r13 < o; ++_r13) {
-        var _o2 = Mt(e[_r13]);
-        _s2[_r13] = Rt(n(t, i, [_o2, _r13, this]));
-      }
-      return _r12;
-    }
-    var c = new s(o);
-    cr(c, o);
-    for (var _r14 = 0; _r14 < o; ++_r14) {
-      var _o3 = Mt(e[_r14]);
-      c[_r14] = n(t, i, [_o3, _r14, this]);
-    }
-    return c;
-  };
-  _proto.filter = function filter(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0],
-      // @ts-ignore
-      s = [];
-    for (var _r15 = 0; _r15 < o; ++_r15) {
-      var _o4 = Mt(e[_r15]);
-      // @ts-ignore
-      n(t, i, [_o4, _r15, this]) && F(s, _o4);
-    }
-    // @ts-ignore
-    var c = new (tr(e, ar))(s);
-    // @ts-ignore
-    return cr(c), c;
-  };
-  _proto.reduce = function reduce(t) {
-    var r = [].slice.call(arguments, 1);
-    sr(this);
-    var n = ur(this),
-      e = it(n);
-    if (0 === e && 0 === r.length) throw vt("Reduce of empty array with no initial value");
-    var o, i;
-    0 === r.length ? (o = Mt(n[0]), i = 1) : (o = r[0], i = 0);
-    for (var _r16 = i; _r16 < e; ++_r16) o = t(o, Mt(n[_r16]), _r16, this);
-    return o;
-  };
-  _proto.reduceRight = function reduceRight(t) {
-    var r = [].slice.call(arguments, 1);
-    sr(this);
-    var n = ur(this),
-      e = it(n);
-    if (0 === e && 0 === r.length) throw vt("Reduce of empty array with no initial value");
-    var o, i;
-    0 === r.length ? (o = Mt(n[e - 1]), i = e - 2) : (o = r[0], i = e - 1);
-    for (var _r17 = i; _r17 >= 0; --_r17) o = t(o, Mt(n[_r17]), _r17, this);
-    return o;
-  };
-  _proto.forEach = function forEach(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0];
-    for (var _r18 = 0; _r18 < o; ++_r18) n(t, i, [Mt(e[_r18]), _r18, this]);
-  };
-  _proto.find = function find(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0];
-    for (var _r19 = 0; _r19 < o; ++_r19) {
-      var _o5 = Mt(e[_r19]);
-      if (n(t, i, [_o5, _r19, this])) return _o5;
-    }
-  };
-  _proto.findIndex = function findIndex(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0];
-    for (var _r20 = 0; _r20 < o; ++_r20) {
-      var _o6 = Mt(e[_r20]);
-      if (n(t, i, [_o6, _r20, this])) return _r20;
-    }
-    return -1;
-  };
-  _proto.findLast = function findLast(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0];
-    for (var _r21 = o - 1; _r21 >= 0; --_r21) {
-      var _o7 = Mt(e[_r21]);
-      if (n(t, i, [_o7, _r21, this])) return _o7;
-    }
-  };
-  _proto.findLastIndex = function findLastIndex(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0];
-    for (var _r22 = o - 1; _r22 >= 0; --_r22) {
-      var _o8 = Mt(e[_r22]);
-      if (n(t, i, [_o8, _r22, this])) return _r22;
-    }
-    return -1;
-  };
-  _proto.every = function every(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0];
-    for (var _r23 = 0; _r23 < o; ++_r23) if (!n(t, i, [Mt(e[_r23]), _r23, this])) return !1;
-    return !0;
-  };
-  _proto.some = function some(t) {
-    sr(this);
-    var e = ur(this),
-      o = it(e),
-      i = [].slice.call(arguments, 1)[0];
-    for (var _r24 = 0; _r24 < o; ++_r24) if (n(t, i, [Mt(e[_r24]), _r24, this])) return !0;
-    return !1;
-  };
-  _proto.set = function set(t) {
-    sr(this);
-    var n = ur(this),
-      e = Zt([].slice.call(arguments, 1)[0]);
-    if (e < 0) throw bt("Offset is out of bounds");
-    if (null == t) throw vt("Cannot convert undefined or null to object");
-    if (Xt(t)) throw vt("Cannot mix BigInt and other types, use explicit conversions");
-    if (ir(t)) return J(ur(this), ur(t), e);
-    if (Kt(t)) {
-      if (rr(et(t))) throw vt("Attempting to access detached ArrayBuffer");
-    }
-    var o = it(n),
-      i = A(t),
-      s = $t(i.length);
-    if (e === 1 / 0 || s + e > o) throw bt("Offset is out of bounds");
-    for (var _t11 = 0; _t11 < s; ++_t11) n[_t11 + e] = Rt(i[_t11]);
-  };
-  _proto.reverse = function reverse() {
-    sr(this);
-    var t = ur(this);
-    return Q(t), this;
-  };
-  _proto.fill = function fill(t) {
-    sr(this);
-    var n = ur(this);
-    return Z.apply(void 0, [n, Rt(t)].concat(kt([].slice.call(arguments, 1)))), this;
-  };
-  _proto.copyWithin = function copyWithin(t, r) {
-    sr(this);
-    var e = ur(this);
-    return $.apply(void 0, [e, t, r].concat(kt([].slice.call(arguments, 2)))), this;
-  };
-  _proto.sort = function sort() {
-    var t = [].slice.call(arguments);
-    sr(this);
-    var r = ur(this),
-      n = void 0 !== t[0] ? t[0] : nr;
-    // @ts-ignore
-    return tt(r, function (t, r) {
-      return n(Mt(t), Mt(r));
-    }), this;
-  };
-  _proto.slice = function slice() {
-    var t = [].slice.call(arguments);
-    sr(this);
-    var r = ur(this),
-      // @ts-ignore
-      n = tr(r, ar);
-    if (n === ar) {
-      var _n7 = new ct(et(r), ot(r), it(r));
-      // @ts-ignore
-      return new ar(et(rt.apply(void 0, [_n7].concat(kt(t)))));
-    }
-    var e = it(r),
-      o = Zt(t[0]),
-      i = void 0 === t[1] ? e : Zt(t[1]);
-    var s, c;
-    s = o === -1 / 0 ? 0 : o < 0 ? e + o > 0 ? e + o : 0 : e < o ? e : o, c = i === -1 / 0 ? 0 : i < 0 ? e + i > 0 ? e + i : 0 : e < i ? e : i;
-    var u = c - s > 0 ? c - s : 0,
-      f = new n(u);
-    if (cr(f, u), 0 === u) return f;
-    if (rr(et(r))) throw vt("Attempting to access detached ArrayBuffer");
-    var h = 0;
-    for (; s < c;) f[h] = Mt(r[s]), ++s, ++h;
-    return f;
-  };
-  _proto.subarray = function subarray() {
-    sr(this);
-    var r = ur(this),
-      // @ts-ignore
-      n = tr(r, ar),
-      e = new ct(et(r), ot(r), it(r)),
-      o = nt.apply(void 0, [e].concat(kt([].slice.call(arguments)))),
-      i = new n(et(o), ot(o), it(o));
-    // @ts-ignore
-    return cr(i), i;
-  };
-  _proto.indexOf = function indexOf(t) {
-    sr(this);
-    var n = ur(this),
-      e = it(n);
-    var o = Zt([].slice.call(arguments, 1)[0]);
-    if (o === 1 / 0) return -1;
-    o < 0 && (o += e, o < 0 && (o = 0));
-    for (var _r25 = o; _r25 < e; ++_r25) if (j(n, _r25) && Mt(n[_r25]) === t) return _r25;
-    return -1;
-  };
-  _proto.lastIndexOf = function lastIndexOf(t) {
-    var r = [].slice.call(arguments, 1);
-    sr(this);
-    var n = ur(this),
-      e = it(n);
-    var o = r.length >= 1 ? Zt(r[0]) : e - 1;
-    if (o === -1 / 0) return -1;
-    o >= 0 ? o = o < e - 1 ? o : e - 1 : o += e;
-    for (var _r26 = o; _r26 >= 0; --_r26) if (j(n, _r26) && Mt(n[_r26]) === t) return _r26;
-    return -1;
-  };
-  _proto.includes = function includes(t) {
-    sr(this);
-    var n = ur(this),
-      e = it(n);
-    var o = Zt([].slice.call(arguments, 1)[0]);
-    if (o === 1 / 0) return !1;
-    o < 0 && (o += e, o < 0 && (o = 0));
-    var i = w(t);
-    for (var _r27 = o; _r27 < e; ++_r27) {
-      var _e7 = Mt(n[_r27]);
-      if (i && w(_e7)) return !0;
-      if (_e7 === t) return !0;
-    }
-    return !1;
-  };
-  _proto.join = function join() {
-    sr(this);
-    var r = fr(ur(this));
-    return _.apply(void 0, [r].concat(kt([].slice.call(arguments))));
-  };
-  _proto.toLocaleString = function toLocaleString() {
-    sr(this);
-    var r = fr(ur(this));
-    return L.apply(void 0, [r].concat(kt([].slice.call(arguments))));
-  };
-  _createClass(ar, [{
-    key: v,
-    get: function get() {
-      if (ir(this)) return "Float16Array";
-    }
-  }]);
-  return ar;
-}();
-B(ar, "BYTES_PER_ELEMENT", {
-  value: 2
-}), B(ar, er, {}), l(ar, Y);
-var yr = ar.prototype;
-B(yr, "BYTES_PER_ELEMENT", {
-  value: 2
-}), B(yr, g, {
-  value: yr.values,
-  writable: !0,
-  configurable: !0
-}), l(yr, G);
-
-var emptyDataTexture = new GLDataTexture({
-  textureWidth: 0,
-  textureHeight: 0
-});
-/**
- * Enables the currently bound ````WebGLTexture```` to be used as a data texture.
- */
-function disableFilteringForBoundTexture(gl) {
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-}
-/**
- * Creates a GLDataTexture containing the given vertex positions.
- */
-function createPositionsDataTexture(gl, positions) {
-  var numVertices = positions.length / 3;
-  var textureWidth = 1024;
-  var textureHeight = Math.ceil(numVertices / textureWidth);
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureDataSize = textureWidth * textureHeight * 3;
-  var textureData = new Uint16Array(textureDataSize);
-  //   dataTextureRamStats.sizeDataTexturePositions += textureData.byteLength;
-  textureData.fill(0);
-  // @ts-ignore
-  textureData.set(positions, 0);
-  var texture = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGB16UI, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB_INTEGER, gl.UNSIGNED_SHORT, textureData, 0);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  // @ts-ignore
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-/**
- * Creates a GLDataTexture containing the given 8-bit indices.
- */
-function createIndices8BitDataTexture(gl, indices_8Bits) {
-  if (indices_8Bits.length == 0) {
-    return emptyDataTexture;
-  }
-  var textureWidth = 1024;
-  var textureHeight = Math.ceil(indices_8Bits.length / 3 / textureWidth);
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureDataSize = textureWidth * textureHeight * 3;
-  var textureData = new Uint8Array(textureDataSize);
-  //dataTextureRamStats.sizeDataTextureIndices += textureData.byteLength;
-  textureData.fill(0);
-  textureData.set(indices_8Bits, 0);
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGB8UI, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB_INTEGER, gl.UNSIGNED_BYTE, textureData, 0);
-  disableFilteringForBoundTexture(gl);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-/**
- * Creates a GLDataTexture containing the given 16-bit indices.
- */
-function createIndices16BitDataTexture(gl, indices_16Bits) {
-  if (indices_16Bits.length == 0) {
-    return emptyDataTexture;
-  }
-  var textureWidth = 1024;
-  var textureHeight = Math.ceil(indices_16Bits.length / 3 / textureWidth);
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureDataSize = textureWidth * textureHeight * 3;
-  var textureData = new Uint16Array(textureDataSize);
-  // dataTextureRamStats.sizeDataTextureIndices += textureData.byteLength;
-  textureData.fill(0);
-  // @ts-ignore
-  textureData.set(indices_16Bits, 0);
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGB16UI, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB_INTEGER, gl.UNSIGNED_SHORT, textureData, 0);
-  disableFilteringForBoundTexture(gl);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-/**
- * Creates a GLDataTexture containing the given 32-bit indices.
- */
-function createIndices32BitDataTexture(gl, indices_32Bits) {
-  if (indices_32Bits.length == 0) {
-    return emptyDataTexture;
-  }
-  var textureWidth = 1024;
-  var textureHeight = Math.ceil(indices_32Bits.length / 3 / textureWidth);
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureDataSize = textureWidth * textureHeight * 3;
-  var textureData = new Uint32Array(textureDataSize);
-  // dataTextureRamStats.sizeDataTextureIndices += textureData.byteLength;
-  textureData.fill(0);
-  // @ts-ignore
-  textureData.set(indices_32Bits, 0);
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGB32UI, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB_INTEGER, gl.UNSIGNED_INT, textureData, 0);
-  disableFilteringForBoundTexture(gl);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-/**
- * Creates a GLDataTexture containing the given 8-bit edge indices.
- */
-function createEdgeIndices8BitDataTexture(gl, edgeIndices_8Bits) {
-  if (edgeIndices_8Bits.length == 0) {
-    return emptyDataTexture;
-  }
-  var textureWidth = 1024;
-  var textureHeight = Math.ceil(edgeIndices_8Bits.length / 2 / textureWidth);
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureDataSize = textureWidth * textureHeight * 2;
-  var textureData = new Uint8Array(textureDataSize);
-  // dataTextureRamStats.sizeDataTextureEdgeIndices += textureData.byteLength;
-  textureData.fill(0);
-  // @ts-ignore
-  textureData.set(edgeIndices_8Bits, 0);
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RG8UI, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RG_INTEGER, gl.UNSIGNED_BYTE, textureData, 0);
-  disableFilteringForBoundTexture(gl);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-/**
- * Creates a GLDataTexture containing the given 16-bit edge indices.
- */
-function createEdgeIndices16BitDataTexture(gl, edgeIndices_16Bits) {
-  if (edgeIndices_16Bits.length == 0) {
-    return emptyDataTexture;
-  }
-  var textureWidth = 1024;
-  var textureHeight = Math.ceil(edgeIndices_16Bits.length / 2 / textureWidth);
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureDataSize = textureWidth * textureHeight * 2;
-  var textureData = new Uint16Array(textureDataSize);
-  //     dataTextureRamStats.sizeDataTextureEdgeIndices += textureData.byteLength;
-  textureData.fill(0);
-  // @ts-ignore
-  textureData.set(edgeIndices_16Bits, 0);
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RG16UI, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RG_INTEGER, gl.UNSIGNED_SHORT, textureData, 0);
-  disableFilteringForBoundTexture(gl);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-/**
- * Creates a GLDataTexture containing the given 32-bit edge indices.
- */
-function createEdgeIndices32BitDataTexture(gl, edgeIndices_32Bits) {
-  if (edgeIndices_32Bits.length == 0) {
-    return emptyDataTexture;
-  }
-  var textureWidth = 1024;
-  var textureHeight = Math.ceil(edgeIndices_32Bits.length / 2 / textureWidth);
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureDataSize = textureWidth * textureHeight * 2;
-  var textureData = new Uint32Array(textureDataSize);
-  //   dataTextureRamStats.sizeDataTextureEdgeIndices += textureData.byteLength;
-  textureData.fill(0);
-  // @ts-ignore
-  textureData.set(edgeIndices_32Bits, 0);
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RG32UI, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RG_INTEGER, gl.UNSIGNED_INT, textureData, 0);
-  disableFilteringForBoundTexture(gl);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-/**
- * Creates a GLDataTexture containing per-mesh colors, pick colors, flags, vertex portion bases, indices portion bases, edge indices portion bases
- *
- * The texture will have:
- * - 4 RGBA columns per row: for each mesh (pick) color and flags(2)
- * - N rows where N is the number of meshes
- *
- * @param gl
- * @param colors Color per mesh
- * @param pickColors Pick color per mesh
- * @param vertexBases Vertex index base for each mesh
- * @param indexBaseOffsets For triangles: array of offsets between the (gl_VertexID / 3) and the position where the indices start in the texture layer
- * @param edgeIndexBaseOffsets For edges: Array of offsets between the (gl_VertexID / 2) and the position where the edge indices start in the texture layer
- */
-function createEachMeshAttributesDataTexture(gl, colors, pickColors, vertexBases, indexBaseOffsets, edgeIndexBaseOffsets) {
-  // Texture has one row per mesh:
-  //
-  //    - col0: (RGBA) mesh color RGBA
-  //    - col1: (packed Uint32 as RGBA) mesh pick color
-  //    - col2: (packed 4 bytes as RGBA) mesh flags
-  //    - col3: (packed 4 bytes as RGBA) mesh flags2
-  //    - col4: (packed Uint32 bytes as RGBA) vertex base
-  //    - col5: (packed Uint32 bytes as RGBA) index base offset
-  //    - col6: (packed Uint32 bytes as RGBA) edge index base offset
-  //    - col7: (packed Uint32 bytes as RGBA) RTC view matrix index base offset
-  var textureHeight = colors.length;
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureWidth = 8;
-  var textureData = new Uint8Array(4 * textureWidth * textureHeight);
-  for (var i = 0; i < textureHeight; i++) {
-    textureData.set(colors[i], i * 28 + 0); // mesh color
-    textureData.set(pickColors[i], i * 28 + 4); // mesh pick color
-    textureData.set([0, 0, 0, 0], i * 28 + 8); // mesh flags
-    textureData.set([0, 0, 0, 0], i * 28 + 12); // mesh flags2
-    textureData.set([vertexBases[i] >> 24 & 255, vertexBases[i] >> 16 & 255, vertexBases[i] >> 8 & 255, vertexBases[i] & 255], i * 28 + 16); // vertex base
-    textureData.set([indexBaseOffsets[i] >> 24 & 255, indexBaseOffsets[i] >> 16 & 255, indexBaseOffsets[i] >> 8 & 255, indexBaseOffsets[i] & 255], i * 28 + 20); // triangles index base offset
-    textureData.set([edgeIndexBaseOffsets[i] >> 24 & 255, edgeIndexBaseOffsets[i] >> 16 & 255, edgeIndexBaseOffsets[i] >> 8 & 255, edgeIndexBaseOffsets[i] & 255], i * 28 + 24); // edge index base offset
-    //    textureData.set([(rtcViewMatIndices[i] >> 24) & 255, (rtcViewMatIndices[i] >> 16) & 255, (rtcViewMatIndices[i] >> 8) & 255, (rtcViewMatIndices[i]) & 255], i * 28 + 28);    // RTC view matrix
-  }
-
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8UI, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, textureData, 0);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight,
-    textureData: textureData
-  }); // Re-writeable texture data
-}
-/**
- * Creates GLDataTexture containing a 3D offset for each mesh
- *
- * @param gl
- * @param offsets An offset for each mesh
- */
-function createEachEdgeOffsetDataTexture(gl, offsets) {
-  var textureHeight = offsets.length;
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureWidth = 1;
-  var textureData = new Float32Array(3 * textureWidth * textureHeight);
-  for (var i = 0; i < offsets.length; i++) {
-    textureData.set(offsets[i], i * 3); // mesh offset
-  }
-
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGB32F, textureWidth, textureHeight);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGB, gl.FLOAT, textureData, 0);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight,
-    textureData: textureData
-  }); // Re-writeable texture data
-}
-/**
- * Creates a GLDataTexture that holds per-mesh matrices for positions decode, position modeling, and normals modeling.
- *
- * The texture will have:
- * - 4 RGBA columns per row (each column will contain 4 packed half-float (16 bits) components).
- *   Thus, each row will contain 16 packed half-floats corresponding to a complete positions decode matrix)
- * - N rows where N is the number of meshes
- *
- * @param gl
- * @param positionDecodeMatrices Positions decode matrix for each mesh in the layer
- * @param matrices Positions instancing matrix for each mesh in the layer. Null if the meshes are not instanced.
- */
-function createEachMeshMatricesDataTexture(gl, positionDecodeMatrices, matrices) {
-  // Texture has one row per mesh:
-  //
-  //    - col0: Positions decode matrix
-  //    - col1: Positions modeling matrix
-  //    - col2: Normals modeling matrix
-  var textureHeight = positionDecodeMatrices.length;
-  if (textureHeight == 0) {
-    throw "texture height == 0";
-  }
-  var textureWidth = 4 * 3;
-  // @ts-ignore
-  var textureData = new ar(4 * textureWidth * textureHeight);
-  for (var i = 0; i < positionDecodeMatrices.length; i++) {
-    textureData.set(positionDecodeMatrices[i], i * 48); // 4x4 values
-    textureData.set(matrices[i], i * 48 + 16); // 4x4 values
-  }
-
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16F, textureWidth, textureHeight);
-  // @ts-ignore
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.HALF_FLOAT, new Uint16Array(textureData.buffer), 0);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-/**
- * Creates a GLDataTexture that holds matrices.
- *
- * The texture will have:
- * - 4 RGBA columns per row (each column will contain 4 packed half-float (16 bits) components).
- *   Thus, each row will contain 16 packed half-floats corresponding to a complete positions decode matrix)
- * - N rows where N is the number of matrices
- *
- * @param gl
- * @param numMatrices
- */
-function createMatricesDataTexture(gl, numMatrices) {
-  var textureHeight = numMatrices;
-  if (textureHeight === 0) {
-    throw "texture height == 0";
-  }
-  var textureWidth = 4 * 3;
-  // @ts-ignore
-  var textureData = new ar(4 * textureWidth * textureHeight);
-  var texture = gl.createTexture();
-  if (!texture) {
-    return emptyDataTexture;
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16F, textureWidth, textureHeight);
-  // @ts-ignore
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.HALF_FLOAT, new Uint16Array(textureData.buffer), 0);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  return new GLDataTexture({
-    gl: gl,
-    texture: texture,
-    textureWidth: textureWidth,
-    textureHeight: textureHeight
-  });
-}
-
-var DataTextureBuffer = function DataTextureBuffer() {
-  this.positionsDecompressMatrices = void 0;
-  this.positionsCompressed = void 0;
-  this.indices_8Bits = void 0;
-  this.indices_16Bits = void 0;
-  this.indices_32Bits = void 0;
-  this.edgeIndices_8Bits = void 0;
-  this.edgeIndices_16Bits = void 0;
-  this.edgeIndices_32Bits = void 0;
-  this.eachPrimitiveMesh_8Bits = void 0;
-  this.eachPrimitiveMesh_16Bits = void 0;
-  this.eachPrimitiveMesh_32Bits = void 0;
-  this.eachEdgeMesh_8Bits = void 0;
-  this.eachEdgeMesh_16Bits = void 0;
-  this.eachEdgeMesh_32Bits = void 0;
-  this.eachMeshVertexPortionBase = void 0;
-  this.eachMeshVertexPortionOffset = void 0;
-  this.eachMeshEdgeIndicesOffset = void 0;
-  this.eachMeshColor = void 0;
-  this.eachMeshPickColor = void 0;
-  this.eachMeshMatrices = void 0;
-  this.eachMeshNormalMatrix = void 0;
-  this.eachMeshPositionsDecompressMatrix = void 0;
-  this.eachMeshFlags1 = void 0;
-  this.eachMeshFlags2 = void 0;
-  this.eachEdgeOffset = void 0;
-  this.eachMeshParts = void 0;
-  this.positionsDecompressMatrices = [];
-  this.positionsCompressed = [];
-  this.indices_8Bits = [];
-  this.indices_16Bits = [];
-  this.indices_32Bits = [];
-  this.edgeIndices_8Bits = [];
-  this.edgeIndices_16Bits = [];
-  this.edgeIndices_32Bits = [];
-  this.eachMeshVertexPortionBase = [];
-  this.eachMeshVertexPortionOffset = [];
-  this.eachMeshEdgeIndicesOffset = [];
-  this.eachMeshColor = [];
-  this.eachMeshPickColor = [];
-  this.eachMeshMatrices = [];
-  this.eachMeshNormalMatrix = [];
-  this.eachMeshPositionsDecompressMatrix = [];
-  this.eachMeshFlags1 = [];
-  this.eachMeshFlags2 = [];
-  this.eachPrimitiveMesh_32Bits = [];
-  this.eachPrimitiveMesh_16Bits = [];
-  this.eachPrimitiveMesh_8Bits = [];
-  this.eachEdgeMesh_32Bits = [];
-  this.eachEdgeMesh_16Bits = [];
-  this.eachEdgeMesh_8Bits = [];
-  this.eachEdgeOffset = [];
-  this.eachMeshParts = [];
-};
-
-var MAX_MESH_PARTS = 1 << 12; // 12 bits 
-var MAX_DATATEXTURE_HEIGHT = 1 << 11; // 2048
-var INDICES_EDGE_INDICES_ALIGNMENT_SIZE = 8;
-var identityMatrix = identityMat4();
-var tempVec4a$2 = createVec4([0, 0, 0, 1]);
-var tempVec4b$2 = createVec4([0, 0, 0, 1]);
-var tempUint8Array4 = new Uint8Array(4);
-var tempFloat32Array3 = new Float32Array(3);
-/**
- * @private
- */
-var _gl$1 = /*#__PURE__*/_classPrivateFieldLooseKey("gl");
-var _view$b = /*#__PURE__*/_classPrivateFieldLooseKey("view");
-var _dataTextureBuffer = /*#__PURE__*/_classPrivateFieldLooseKey("dataTextureBuffer");
-var _geometryHandles = /*#__PURE__*/_classPrivateFieldLooseKey("geometryHandles");
-var _meshPartHandles = /*#__PURE__*/_classPrivateFieldLooseKey("meshPartHandles");
-var _numMeshParts = /*#__PURE__*/_classPrivateFieldLooseKey("numMeshParts");
-var _deferredSetFlagsActive = /*#__PURE__*/_classPrivateFieldLooseKey("deferredSetFlagsActive");
-var _deferredSetFlagsDirty = /*#__PURE__*/_classPrivateFieldLooseKey("deferredSetFlagsDirty");
-var _built = /*#__PURE__*/_classPrivateFieldLooseKey("built");
-var _createGeometryBucket = /*#__PURE__*/_classPrivateFieldLooseKey("createGeometryBucket");
-var _createMeshPart = /*#__PURE__*/_classPrivateFieldLooseKey("createMeshPart");
-var _setMeshFlags = /*#__PURE__*/_classPrivateFieldLooseKey("setMeshFlags");
-var _setMeshFlags3 = /*#__PURE__*/_classPrivateFieldLooseKey("setMeshFlags2");
-var Layer = /*#__PURE__*/function () {
-  function Layer(layerParams, renderers) {
-    Object.defineProperty(this, _setMeshFlags3, {
-      value: _setMeshFlags4
-    });
-    Object.defineProperty(this, _setMeshFlags, {
-      value: _setMeshFlags2
-    });
-    Object.defineProperty(this, _createMeshPart, {
-      value: _createMeshPart2
-    });
-    Object.defineProperty(this, _createGeometryBucket, {
-      value: _createGeometryBucket2
-    });
-    this.rendererSceneModel = void 0;
-    this.layerIndex = void 0;
-    this.meshCounts = void 0;
-    this.renderState = void 0;
-    Object.defineProperty(this, _gl$1, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _view$b, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _dataTextureBuffer, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _geometryHandles, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _meshPartHandles, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _numMeshParts, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _deferredSetFlagsActive, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _deferredSetFlagsDirty, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _built, {
-      writable: true,
-      value: void 0
-    });
-    this.meshCounts = new MeshCounts();
-    this.layerIndex = layerParams.layerIndex;
-    this.rendererSceneModel = layerParams.rendererSceneModel;
-    this.renderState = {
-      primitive: layerParams.primitive,
-      dataTextureSet: new DataTextureSet(),
-      numIndices8Bits: 0,
-      numIndices16Bits: 0,
-      numIndices32Bits: 0,
-      numEdgeIndices8Bits: 0,
-      numEdgeIndices16Bits: 0,
-      numEdgeIndices32Bits: 0,
-      numVertices: 0
-    };
-    _classPrivateFieldLooseBase(this, _gl$1)[_gl$1] = layerParams.gl;
-    _classPrivateFieldLooseBase(this, _view$b)[_view$b] = layerParams.view;
-    _classPrivateFieldLooseBase(this, _dataTextureBuffer)[_dataTextureBuffer] = new DataTextureBuffer();
-    _classPrivateFieldLooseBase(this, _numMeshParts)[_numMeshParts] = 0;
-    _classPrivateFieldLooseBase(this, _geometryHandles)[_geometryHandles] = {};
-    _classPrivateFieldLooseBase(this, _meshPartHandles)[_meshPartHandles] = [];
-    _classPrivateFieldLooseBase(this, _built)[_built] = false;
-    this.beginDeferredFlags();
-  }
-  var _proto = Layer.prototype;
-  _proto.canCreateMesh = function canCreateMesh(geometryCompressedParams) {
-    if (_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Already built";
-    }
-    var renderState = this.renderState;
-    var numGeometryBuckets = geometryCompressedParams.geometryBuckets.length;
-    if (_classPrivateFieldLooseBase(this, _numMeshParts)[_numMeshParts] + numGeometryBuckets > MAX_MESH_PARTS) {
-      return false;
-    }
-    var numPositions = 0;
-    var numIndices = 0;
-    for (var i = 0; i < numGeometryBuckets; i++) {
-      var geometryBucket = geometryCompressedParams.geometryBuckets[i];
-      numPositions += geometryBucket.positionsCompressed.length;
-      if (geometryBucket.indices) {
-        numIndices += geometryBucket.indices.length;
-      }
-    }
-    var primVerts = geometryCompressedParams.primitive === PointsPrimitive ? 1 : geometryCompressedParams.primitive == LinesPrimitive ? 2 : 3;
-    var numVerts = numPositions / primVerts;
-    var numTriangleIndices = numIndices / 3;
-    return renderState.numVertices + numVerts <= MAX_DATATEXTURE_HEIGHT * 1024 && numTriangleIndices + numIndices <= MAX_DATATEXTURE_HEIGHT * 1024;
-  };
-  _proto.hasGeometry = function hasGeometry(geometryId) {
-    return _classPrivateFieldLooseBase(this, _geometryHandles)[_geometryHandles][geometryId];
-  };
-  _proto.createGeometryCompressed = function createGeometryCompressed(geometryCompressedParams) {
-    if (_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Already built";
-    }
-    var geometryBucketHandles = [];
-    for (var i = 0, len = geometryCompressedParams.geometryBuckets.length; i < len; i++) {
-      geometryBucketHandles.push(_classPrivateFieldLooseBase(this, _createGeometryBucket)[_createGeometryBucket](geometryCompressedParams.geometryBuckets[i]));
-    }
-    _classPrivateFieldLooseBase(this, _geometryHandles)[_geometryHandles][geometryCompressedParams.id] = {
-      id: geometryCompressedParams.id,
-      aabb: geometryCompressedParams.aabb,
-      positionsDecompressMatrix: geometryCompressedParams.positionsDecompressMatrix,
-      geometryBucketHandles: geometryBucketHandles
-    };
-  };
-  _proto.createMesh = function createMesh(meshParams) {
-    var _this = this;
-    if (_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw new Error("Already built");
-    }
-    var meshIndex = this.meshCounts.numMeshes;
-    if (!meshParams.geometryId) {
-      throw new Error("geometryId expected");
-    }
-    var geometryHandle = _classPrivateFieldLooseBase(this, _geometryHandles)[_geometryHandles][meshParams.geometryId];
-    if (!geometryHandle) {
-      throw new Error("Geometry not found");
-    }
-    geometryHandle.geometryBucketHandles.forEach(function (geometryBucketHandle) {
-      _classPrivateFieldLooseBase(_this, _createMeshPart)[_createMeshPart](meshParams, geometryHandle, geometryBucketHandle);
-    });
-    var worldAABB = collapseAABB3();
-    var geometryOBB = AABB3ToOBB3(geometryHandle.aabb);
-    for (var i = 0, len = geometryOBB.length; i < len; i += 4) {
-      tempVec4a$2[0] = geometryOBB[i + 0];
-      tempVec4a$2[1] = geometryOBB[i + 1];
-      tempVec4a$2[2] = geometryOBB[i + 2];
-      if (meshParams.matrix) {
-        transformPoint4(meshParams.matrix, tempVec4a$2, tempVec4b$2);
-        // transformPoint4(meshParams.matrix, tempVec4b, tempVec4c);
-        expandAABB3Point3(worldAABB, tempVec4b$2);
-      } else {
-        expandAABB3Point3(worldAABB, tempVec4b$2);
-      }
-    }
-    this.meshCounts.numMeshes++;
-    return meshIndex;
-  };
-  _proto.build = function build() {
-    if (_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw new Error("Already built");
-    }
-    var gl = _classPrivateFieldLooseBase(this, _gl$1)[_gl$1];
-    var dataTextureBuffer = _classPrivateFieldLooseBase(this, _dataTextureBuffer)[_dataTextureBuffer];
-    var dataTextureSet = this.renderState.dataTextureSet;
-    dataTextureSet.positions = createPositionsDataTexture(gl, dataTextureBuffer.positionsCompressed);
-    dataTextureSet.indices_8Bits = createIndices8BitDataTexture(gl, dataTextureBuffer.indices_8Bits);
-    dataTextureSet.indices_16Bits = createIndices16BitDataTexture(gl, dataTextureBuffer.indices_16Bits);
-    dataTextureSet.indices_32Bits = createIndices32BitDataTexture(gl, dataTextureBuffer.indices_32Bits);
-    dataTextureSet.edgeIndices_8Bits = createEdgeIndices8BitDataTexture(gl, dataTextureBuffer.edgeIndices_8Bits);
-    dataTextureSet.edgeIndices_16Bits = createEdgeIndices16BitDataTexture(gl, dataTextureBuffer.edgeIndices_16Bits);
-    dataTextureSet.edgeIndices_32Bits = createEdgeIndices32BitDataTexture(gl, dataTextureBuffer.edgeIndices_32Bits);
-    dataTextureSet.eachMeshAttributes = createEachMeshAttributesDataTexture(gl, dataTextureBuffer.eachMeshColor, dataTextureBuffer.eachMeshPickColor, dataTextureBuffer.eachMeshVertexPortionBase, dataTextureBuffer.eachMeshVertexPortionOffset, dataTextureBuffer.eachMeshEdgeIndicesOffset);
-    dataTextureSet.eachMeshMatrices = createEachMeshMatricesDataTexture(gl, dataTextureBuffer.eachMeshPositionsDecompressMatrix, dataTextureBuffer.eachMeshMatrices);
-    // dataTextureSet.eachPrimitiveMesh8BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_8Bits);
-    // dataTextureSet.eachPrimitiveMesh16BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_16Bits);
-    // dataTextureSet.eachPrimitiveMesh32BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachPrimitiveMesh_32Bits);
-    // dataTextureSet.eachEdgeMesh8BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_8Bits);
-    // dataTextureSet.eachEdgeMesh16BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_16Bits);
-    // dataTextureSet.eachEdgeMesh32BitsDataTexture = createPointerTableDataTexture(gl, dataTextureBuffer.eachEdgeMesh_32Bits);
-    dataTextureSet.eachEdgeOffset = createEachEdgeOffsetDataTexture(gl, dataTextureBuffer.eachEdgeOffset);
-    dataTextureSet.build();
-    // @ts-ignore
-    _classPrivateFieldLooseBase(this, _dataTextureBuffer)[_dataTextureBuffer] = null;
-    _classPrivateFieldLooseBase(this, _geometryHandles)[_geometryHandles] = {};
-    _classPrivateFieldLooseBase(this, _meshPartHandles)[_meshPartHandles] = [];
-    _classPrivateFieldLooseBase(this, _built)[_built] = true;
-  };
-  _proto.isEmpty = function isEmpty() {
-    return this.meshCounts.numMeshes == 0;
-  };
-  _proto.initFlags = function initFlags(meshIndex, flags, meshTransparent) {
-    if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
-      this.meshCounts.numVisible++;
-    }
-    if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
-      this.meshCounts.numHighlighted++;
-    }
-    if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
-      this.meshCounts.numXRayed++;
-    }
-    if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
-      this.meshCounts.numSelected++;
-    }
-    if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
-      this.meshCounts.numClippable++;
-    }
-    if (flags & SCENE_OBJECT_FLAGS.EDGES) {
-      this.meshCounts.numEdges++;
-    }
-    if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
-      this.meshCounts.numPickable++;
-    }
-    if (flags & SCENE_OBJECT_FLAGS.CULLED) {
-      this.meshCounts.numCulled++;
-    }
-    if (meshTransparent) {
-      this.meshCounts.numTransparent++;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, meshTransparent);
-    _classPrivateFieldLooseBase(this, _setMeshFlags3)[_setMeshFlags3](meshIndex, flags);
-  };
-  _proto.beginDeferredFlags = function beginDeferredFlags() {
-    _classPrivateFieldLooseBase(this, _deferredSetFlagsActive)[_deferredSetFlagsActive] = true;
-  };
-  _proto.commitDeferredFlags = function commitDeferredFlags() {
-    _classPrivateFieldLooseBase(this, _deferredSetFlagsActive)[_deferredSetFlagsActive] = false;
-    if (!_classPrivateFieldLooseBase(this, _deferredSetFlagsDirty)[_deferredSetFlagsDirty]) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _deferredSetFlagsDirty)[_deferredSetFlagsDirty] = false;
-    var gl = _classPrivateFieldLooseBase(this, _gl$1)[_gl$1];
-    var dataTextureSet = this.renderState.dataTextureSet;
-    // @ts-ignore
-    gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
-    // @ts-ignore
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, dataTextureSet.eachMeshAttributes.textureWidth, dataTextureSet.eachMeshAttributes.textureHeight, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, dataTextureSet.eachMeshAttributes.textureData);
-    // @ts-ignore
-    gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachEdgeOffset.texture);
-    // @ts-ignore
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, dataTextureSet.eachEdgeOffset.textureWidth, dataTextureSet.eachEdgeOffset.textureHeight, gl.RGB, gl.FLOAT, dataTextureSet.eachEdgeOffset.textureData);
-  };
-  _proto.flushInitFlags = function flushInitFlags() {
-    this.commitDeferredFlags();
-  };
-  _proto.setMeshVisible = function setMeshVisible(meshIndex, flags, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
-      debugger;
-      this.meshCounts.numVisible++;
-    } else {
-      this.meshCounts.numVisible--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, transparent);
-  };
-  _proto.setMeshHighlighted = function setMeshHighlighted(meshIndex, flags, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
-      this.meshCounts.numHighlighted++;
-    } else {
-      this.meshCounts.numHighlighted--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, transparent);
-  };
-  _proto.setMeshXRayed = function setMeshXRayed(meshIndex, flags, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
-      this.meshCounts.numXRayed++;
-    } else {
-      this.meshCounts.numXRayed--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, transparent);
-  };
-  _proto.setMeshSelected = function setMeshSelected(meshIndex, flags, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
-      this.meshCounts.numSelected++;
-    } else {
-      this.meshCounts.numSelected--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, transparent);
-  };
-  _proto.setMeshEdges = function setMeshEdges(meshIndex, flags, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (flags & SCENE_OBJECT_FLAGS.EDGES) {
-      this.meshCounts.numEdges++;
-    } else {
-      this.meshCounts.numEdges--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, transparent);
-  };
-  _proto.setMeshClippable = function setMeshClippable(meshIndex, flags) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
-      this.meshCounts.numClippable++;
-    } else {
-      this.meshCounts.numClippable--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags3)[_setMeshFlags3](meshIndex, flags);
-  };
-  _proto.setMeshCulled = function setMeshCulled(meshIndex, flags, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (flags & SCENE_OBJECT_FLAGS.CULLED) {
-      this.meshCounts.numCulled++;
-    } else {
-      this.meshCounts.numCulled--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, transparent);
-  };
-  _proto.setMeshCollidable = function setMeshCollidable(meshIndex, flags) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-  };
-  _proto.setMeshPickable = function setMeshPickable(meshIndex, flags, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
-      this.meshCounts.numPickable++;
-    } else {
-      this.meshCounts.numPickable--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, transparent);
-  };
-  _proto.setMeshColor = function setMeshColor(meshIndex, color, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    var dataTextureSet = this.renderState.dataTextureSet;
-    var gl = _classPrivateFieldLooseBase(this, _gl$1)[_gl$1];
-    tempUint8Array4[0] = color[0];
-    tempUint8Array4[1] = color[1];
-    tempUint8Array4[2] = color[2];
-    tempUint8Array4[3] = color[3];
-    // @ts-ignore
-    dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshIndex * 28);
-    if (_classPrivateFieldLooseBase(this, _deferredSetFlagsActive)[_deferredSetFlagsActive]) {
-      _classPrivateFieldLooseBase(this, _deferredSetFlagsDirty)[_deferredSetFlagsDirty] = true;
-      return;
-    }
-    // @ts-ignore
-    gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshIndex, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
-    // gl.bindTexture (gl.TEXTURE_2D, null);
-  };
-  _proto.setMeshTransparent = function setMeshTransparent(meshIndex, flags, transparent) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    if (transparent) {
-      this.meshCounts.numTransparent++;
-      this.meshCounts.numTransparent++;
-    } else {
-      this.meshCounts.numTransparent--;
-      this.meshCounts.numTransparent--;
-    }
-    _classPrivateFieldLooseBase(this, _setMeshFlags)[_setMeshFlags](meshIndex, flags, transparent);
-  };
-  _proto.setMeshOffset = function setMeshOffset(meshIndex, offset) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    var gl = _classPrivateFieldLooseBase(this, _gl$1)[_gl$1];
-    tempFloat32Array3[0] = offset[0];
-    tempFloat32Array3[1] = offset[1];
-    tempFloat32Array3[2] = offset[2];
-    // dataTextureSet.eachMeshOffset.textureData.set(tempFloat32Array3, meshIndex * 3);
-    if (_classPrivateFieldLooseBase(this, _deferredSetFlagsActive)[_deferredSetFlagsActive]) {
-      _classPrivateFieldLooseBase(this, _deferredSetFlagsDirty)[_deferredSetFlagsDirty] = true;
-      return;
-    }
-    //gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshOffset.texture);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshIndex, 1, 1, gl.RGB, gl.FLOAT, tempFloat32Array3);
-    // gl.bindTexture (gl.TEXTURE_2D, null);
-  };
-  _proto.setMeshMatrix = function setMeshMatrix(meshIndex, matrix) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    _classPrivateFieldLooseBase(this, _gl$1)[_gl$1];
-    if (_classPrivateFieldLooseBase(this, _deferredSetFlagsActive)[_deferredSetFlagsActive]) {
-      _classPrivateFieldLooseBase(this, _deferredSetFlagsDirty)[_deferredSetFlagsDirty] = true;
-      return;
-    }
-  };
-  _proto.setMeshViewMatrixIndex = function setMeshViewMatrixIndex(meshIndex, index) {
-    if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-      throw "Not built";
-    }
-    _classPrivateFieldLooseBase(this, _gl$1)[_gl$1];
-    // tempUint8Array4 [0] = color[0];
-    // tempUint8Array4 [1] = color[1];
-    // tempUint8Array4 [2] = color[2];
-    // tempUint8Array4 [3] = color[3];
-    // // @ts-ignore
-    // dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshIndex * 28);
-    if (_classPrivateFieldLooseBase(this, _deferredSetFlagsActive)[_deferredSetFlagsActive]) {
-      _classPrivateFieldLooseBase(this, _deferredSetFlagsDirty)[_deferredSetFlagsDirty] = true;
-      return;
-    }
-    // // @ts-ignore
-    // gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
-    // gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, meshIndex, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
-    // // gl.bindTexture (gl.TEXTURE_2D, null);
-  };
-  _proto.destroy = function destroy() {
-    this.renderState.dataTextureSet.destroy();
-  };
-  _createClass(Layer, [{
-    key: "hash",
-    get: function get() {
-      return "layer-" + this.renderState.primitive;
-    }
-  }]);
-  return Layer;
-}();
-function _createGeometryBucket2(geometryBucket) {
-  var renderState = this.renderState;
-  if (geometryBucket.indices) {
-    // Align indices to INDICES_EDGE_INDICES_ALIGNMENT_SIZE
-    var numVertsForPrim = this.renderState.primitive === PointsPrimitive ? 1 : this.renderState.primitive === LinesPrimitive ? 2 : 3;
-    var alignedIndicesLen = Math.ceil(geometryBucket.indices.length / numVertsForPrim / INDICES_EDGE_INDICES_ALIGNMENT_SIZE) * INDICES_EDGE_INDICES_ALIGNMENT_SIZE * numVertsForPrim;
-    var alignedIndices = new Uint32Array(alignedIndicesLen);
-    alignedIndices.fill(0);
-    alignedIndices.set(geometryBucket.indices);
-    geometryBucket.indices = alignedIndices;
-  }
-  if (geometryBucket.edgeIndices) {
-    // Align edge indices to INDICES_EDGE_INDICES_ALIGNMENT_SIZE
-    var alignedEdgeIndicesLen = Math.ceil(geometryBucket.edgeIndices.length / 2 / INDICES_EDGE_INDICES_ALIGNMENT_SIZE) * INDICES_EDGE_INDICES_ALIGNMENT_SIZE * 2;
-    var alignedEdgeIndices = new Uint32Array(alignedEdgeIndicesLen);
-    alignedEdgeIndices.fill(0);
-    alignedEdgeIndices.set(geometryBucket.edgeIndices);
-    geometryBucket.edgeIndices = alignedEdgeIndices;
-  }
-  var dataTextureBuffer = _classPrivateFieldLooseBase(this, _dataTextureBuffer)[_dataTextureBuffer];
-  var positionsCompressed = geometryBucket.positionsCompressed;
-  var indices = geometryBucket.indices;
-  var edgeIndices = geometryBucket.edgeIndices;
-  var vertexBase = dataTextureBuffer.positionsCompressed.length / 3;
-  var numVertices = positionsCompressed.length / 3;
-  for (var i = 0, len = positionsCompressed.length; i < len; i++) {
-    dataTextureBuffer.positionsCompressed.push(positionsCompressed[i]);
-  }
-  var indicesBase;
-  var numTriangles = 0;
-  if (indices) {
-    numTriangles = indices.length / 3;
-    var indicesBuffer;
-    if (numVertices <= 1 << 8) {
-      indicesBuffer = dataTextureBuffer.indices_8Bits;
-    } else if (numVertices <= 1 << 16) {
-      indicesBuffer = dataTextureBuffer.indices_16Bits;
-    } else {
-      indicesBuffer = dataTextureBuffer.indices_32Bits;
-    }
-    indicesBase = indicesBuffer.length / 3;
-    for (var _i = 0, _len = indices.length; _i < _len; _i++) {
-      indicesBuffer.push(indices[_i]);
-    }
-  }
-  var edgeIndicesBase;
-  var numEdges = 0;
-  if (edgeIndices) {
-    numEdges = edgeIndices.length / 2;
-    var edgeIndicesBuffer;
-    if (numVertices <= 1 << 8) {
-      edgeIndicesBuffer = dataTextureBuffer.edgeIndices_8Bits;
-    } else if (numVertices <= 1 << 16) {
-      edgeIndicesBuffer = dataTextureBuffer.edgeIndices_16Bits;
-    } else {
-      edgeIndicesBuffer = dataTextureBuffer.edgeIndices_32Bits;
-    }
-    edgeIndicesBase = edgeIndicesBuffer.length / 2;
-    for (var _i2 = 0, _len2 = edgeIndices.length; _i2 < _len2; _i2++) {
-      edgeIndicesBuffer.push(edgeIndices[_i2]);
-    }
-  }
-  renderState.numVertices += numVertices;
-  return {
-    vertexBase: vertexBase,
-    numVertices: numVertices,
-    numTriangles: numTriangles,
-    numEdges: numEdges,
-    indicesBase: indicesBase,
-    edgeIndicesBase: edgeIndicesBase
-  };
-}
-function _createMeshPart2(meshParams, geometryHandle, geometryBucketHandle) {
-  var dataTextureBuffer = _classPrivateFieldLooseBase(this, _dataTextureBuffer)[_dataTextureBuffer];
-  var renderState = this.renderState;
-  var matrix = meshParams.matrix || identityMatrix;
-  var color = meshParams.color || [255, 255, 255];
-  var positionsIndex = dataTextureBuffer.positionsCompressed.length;
-  var vertsIndex = positionsIndex / 3;
-  dataTextureBuffer.eachMeshPositionsDecompressMatrix.push(geometryHandle.positionsDecompressMatrix);
-  dataTextureBuffer.eachMeshMatrices.push(matrix);
-  dataTextureBuffer.eachMeshColor.push([color[0], color[1], color[2], 255]);
-  dataTextureBuffer.eachMeshPickColor.push(meshParams.pickColor);
-  var currentNumIndices;
-  if (geometryBucketHandle.numVertices <= 1 << 8) {
-    currentNumIndices = renderState.numIndices8Bits;
-  } else if (geometryBucketHandle.numVertices <= 1 << 16) {
-    currentNumIndices = renderState.numIndices16Bits;
-  } else {
-    currentNumIndices = renderState.numIndices32Bits;
-  }
-  dataTextureBuffer.eachMeshVertexPortionBase.push(geometryBucketHandle.vertexBase);
-  dataTextureBuffer.eachMeshVertexPortionOffset.push(currentNumIndices / 3 - geometryBucketHandle.indicesBase);
-  // Edge indices
-  var currentNumEdgeIndices;
-  if (geometryBucketHandle.numVertices <= 1 << 8) {
-    currentNumEdgeIndices = renderState.numEdgeIndices8Bits;
-  } else if (geometryBucketHandle.numVertices <= 1 << 16) {
-    currentNumEdgeIndices = renderState.numEdgeIndices16Bits;
-  } else {
-    currentNumEdgeIndices = renderState.numEdgeIndices32Bits;
-  }
-  dataTextureBuffer.eachMeshEdgeIndicesOffset.push(currentNumEdgeIndices / 2 - geometryBucketHandle.edgeIndicesBase);
-  // Primitive -> mesh lookup
-  var meshPartId = _classPrivateFieldLooseBase(this, _meshPartHandles)[_meshPartHandles].length;
-  if (geometryBucketHandle.numTriangles > 0) {
-    var numIndices = geometryBucketHandle.numTriangles * 3;
-    var eachPrimitiveMeshBuffer;
-    if (geometryBucketHandle.numVertices <= 1 << 8) {
-      eachPrimitiveMeshBuffer = dataTextureBuffer.eachPrimitiveMesh_8Bits;
-      renderState.numIndices8Bits += numIndices;
-    } else if (geometryBucketHandle.numVertices <= 1 << 16) {
-      eachPrimitiveMeshBuffer = dataTextureBuffer.eachPrimitiveMesh_16Bits;
-      renderState.numIndices16Bits += numIndices;
-    } else {
-      eachPrimitiveMeshBuffer = dataTextureBuffer.eachPrimitiveMesh_32Bits;
-      renderState.numIndices32Bits += numIndices;
-    }
-    for (var i = 0; i < geometryBucketHandle.numTriangles; i += INDICES_EDGE_INDICES_ALIGNMENT_SIZE) {
-      eachPrimitiveMeshBuffer.push(meshPartId);
-    }
-  }
-  // Edge index -> mesh lookup
-  if (geometryBucketHandle.numEdges > 0) {
-    var numEdgeIndices = geometryBucketHandle.numEdges * 2;
-    var edgeIndicesMeshIdBuffer;
-    if (geometryBucketHandle.numVertices <= 1 << 8) {
-      edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_8Bits;
-      renderState.numEdgeIndices8Bits += numEdgeIndices;
-    } else if (geometryBucketHandle.numVertices <= 1 << 16) {
-      edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_16Bits;
-      renderState.numEdgeIndices16Bits += numEdgeIndices;
-    } else {
-      edgeIndicesMeshIdBuffer = dataTextureBuffer.eachEdgeMesh_32Bits;
-      renderState.numEdgeIndices32Bits += numEdgeIndices;
-    }
-    for (var _i3 = 0; _i3 < geometryBucketHandle.numEdges; _i3 += INDICES_EDGE_INDICES_ALIGNMENT_SIZE) {
-      edgeIndicesMeshIdBuffer.push(meshPartId);
-    }
-  }
-  dataTextureBuffer.eachEdgeOffset.push([0, 0, 0]);
-  _classPrivateFieldLooseBase(this, _meshPartHandles)[_meshPartHandles].push({
-    vertsBase: vertsIndex,
-    numVerts: geometryBucketHandle.numTriangles //////////////////// TODO
-  });
-
-  _classPrivateFieldLooseBase(this, _numMeshParts)[_numMeshParts]++;
-  return meshPartId;
-}
-function _setMeshFlags2(meshIndex, flags, transparent) {
-  if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-    throw "Not built";
-  }
-  var visible = !!(flags & SCENE_OBJECT_FLAGS.VISIBLE);
-  var xrayed = !!(flags & SCENE_OBJECT_FLAGS.XRAYED);
-  var highlighted = !!(flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED);
-  var selected = !!(flags & SCENE_OBJECT_FLAGS.SELECTED);
-  var edges = !!(flags & SCENE_OBJECT_FLAGS.EDGES);
-  var pickable = !!(flags & SCENE_OBJECT_FLAGS.PICKABLE);
-  var culled = !!(flags & SCENE_OBJECT_FLAGS.CULLED);
-  var f0; // Color
-  if (!visible || culled || xrayed) {
-    // Highlight & select are layered on top of color - not mutually exclusive
-    f0 = RENDER_PASSES.NOT_RENDERED;
-  } else {
-    if (transparent) {
-      f0 = RENDER_PASSES.COLOR_TRANSPARENT;
-    } else {
-      f0 = RENDER_PASSES.COLOR_OPAQUE;
-    }
-  }
-  var f1; // Silhouette
-  if (!visible || culled) {
-    f1 = RENDER_PASSES.NOT_RENDERED;
-  } else if (selected) {
-    f1 = RENDER_PASSES.SILHOUETTE_SELECTED;
-  } else if (highlighted) {
-    f1 = RENDER_PASSES.SILHOUETTE_HIGHLIGHTED;
-  } else if (xrayed) {
-    f1 = RENDER_PASSES.SILHOUETTE_XRAYED;
-  } else {
-    f1 = RENDER_PASSES.NOT_RENDERED;
-  }
-  var f2 = 0; // Edges
-  if (!visible || culled) {
-    f2 = RENDER_PASSES.NOT_RENDERED;
-  } else if (selected) {
-    f2 = RENDER_PASSES.EDGES_SELECTED;
-  } else if (highlighted) {
-    f2 = RENDER_PASSES.EDGES_HIGHLIGHTED;
-  } else if (xrayed) {
-    f2 = RENDER_PASSES.EDGES_XRAYED;
-  } else if (edges) {
-    if (transparent) {
-      f2 = RENDER_PASSES.EDGES_COLOR_TRANSPARENT;
-    } else {
-      f2 = RENDER_PASSES.EDGES_COLOR_OPAQUE;
-    }
-  } else {
-    f2 = RENDER_PASSES.NOT_RENDERED;
-  }
-  var f3 = visible && !culled && pickable ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED; // Pick
-  var dataTextureSet = this.renderState.dataTextureSet;
-  var gl = _classPrivateFieldLooseBase(this, _gl$1)[_gl$1];
-  tempUint8Array4[0] = f0;
-  tempUint8Array4[1] = f1;
-  tempUint8Array4[2] = f2;
-  tempUint8Array4[3] = f3;
-  if (_classPrivateFieldLooseBase(this, _deferredSetFlagsActive)[_deferredSetFlagsActive]) {
-    // @ts-ignore
-    dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshIndex * 28 + 8);
-    _classPrivateFieldLooseBase(this, _deferredSetFlagsDirty)[_deferredSetFlagsDirty] = true;
-    return;
-  }
-  // @ts-ignore
-  gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 2, meshIndex, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
-  // gl.bindTexture (gl.TEXTURE_2D, null);
-}
-function _setMeshFlags4(meshIndex, flags) {
-  if (!_classPrivateFieldLooseBase(this, _built)[_built]) {
-    throw "Not built";
-  }
-  var clippable = !!(flags & SCENE_OBJECT_FLAGS.CLIPPABLE) ? 255 : 0;
-  var dataTextureSet = this.renderState.dataTextureSet;
-  var gl = _classPrivateFieldLooseBase(this, _gl$1)[_gl$1];
-  tempUint8Array4[0] = clippable;
-  tempUint8Array4[1] = 0;
-  tempUint8Array4[2] = 1;
-  tempUint8Array4[3] = 2;
-  if (_classPrivateFieldLooseBase(this, _deferredSetFlagsActive)[_deferredSetFlagsActive]) {
-    // @ts-ignore
-    dataTextureSet.eachMeshAttributes.textureData.set(tempUint8Array4, meshIndex * 28 + 12); // Flags
-    _classPrivateFieldLooseBase(this, _deferredSetFlagsDirty)[_deferredSetFlagsDirty] = true;
-    return;
-  }
-  // @ts-ignore
-  gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.eachMeshAttributes.texture);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 3, meshIndex, 1, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, tempUint8Array4);
-  // gl.bindTexture (gl.TEXTURE_2D, null);
-}
-
-/**
- * @private
- */
-var WebGLRendererGeometry = function WebGLRendererGeometry() {};
-
-/**
- * @private
- */
-var WebGLRendererTexture = /*#__PURE__*/function () {
-  function WebGLRendererTexture(texture, texture2D) {
-    this.texture = void 0;
-    this.texture2D = void 0;
-    this.texture = texture;
-    this.texture2D = texture2D;
-  }
-  var _proto = WebGLRendererTexture.prototype;
-  _proto.destroy = function destroy() {
-    if (this.texture2D) {
-      this.texture2D.destroy();
-    }
-  };
-  return WebGLRendererTexture;
-}();
-
-var tempIntRGB = new Uint16Array([0, 0, 0]);
-/**
- * @private
- */
-var _flags = /*#__PURE__*/_classPrivateFieldLooseKey("flags");
-var _aabb$1 = /*#__PURE__*/_classPrivateFieldLooseKey("aabb");
-var _offsetAABB = /*#__PURE__*/_classPrivateFieldLooseKey("offsetAABB");
-var _offset = /*#__PURE__*/_classPrivateFieldLooseKey("offset");
-var _colorizeUpdated = /*#__PURE__*/_classPrivateFieldLooseKey("colorizeUpdated");
-var _opacityUpdated = /*#__PURE__*/_classPrivateFieldLooseKey("opacityUpdated");
-var WebGLRendererObject = /*#__PURE__*/function () {
-  function WebGLRendererObject(params) {
-    this.id = void 0;
-    this.rendererSceneModel = void 0;
-    this.sceneObject = void 0;
-    this.layerId = void 0;
-    this.rendererMeshes = void 0;
-    Object.defineProperty(this, _flags, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _aabb$1, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _offsetAABB, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _offset, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _colorizeUpdated, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _opacityUpdated, {
-      writable: true,
-      value: void 0
-    });
-    this.id = params.id;
-    this.sceneObject = params.sceneObject;
-    this.rendererSceneModel = params.rendererSceneModel;
-    this.rendererMeshes = params.rendererMeshes || [];
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = 0;
-    _classPrivateFieldLooseBase(this, _aabb$1)[_aabb$1] = params.aabb;
-    _classPrivateFieldLooseBase(this, _offsetAABB)[_offsetAABB] = createAABB3(params.aabb);
-    _classPrivateFieldLooseBase(this, _offset)[_offset] = createVec3();
-    _classPrivateFieldLooseBase(this, _colorizeUpdated)[_colorizeUpdated] = false;
-    _classPrivateFieldLooseBase(this, _opacityUpdated)[_opacityUpdated] = false;
-    this.layerId = params.layerId || null;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      // TODO: tidier way? Refactor?
-      this.rendererMeshes[i].setRendererObject(this);
-    }
-  }
-  var _proto = WebGLRendererObject.prototype;
-  _proto.setVisible = function setVisible(viewIndex, visible) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.VISIBLE) === visible) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = visible ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.VISIBLE : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.VISIBLE;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setVisible(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setHighlighted = function setHighlighted(viewIndex, highlighted) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.HIGHLIGHTED) === highlighted) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = highlighted ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.HIGHLIGHTED : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.HIGHLIGHTED;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setHighlighted(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setXRayed = function setXRayed(viewIndex, xrayed) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.XRAYED) === xrayed) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = xrayed ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.XRAYED : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.XRAYED;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setXRayed(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setSelected = function setSelected(viewIndex, selected) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.SELECTED) === selected) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = selected ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.SELECTED : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.SELECTED;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setSelected(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setEdges = function setEdges(viewIndex, edges) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.EDGES) === edges) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = edges ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.EDGES : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.EDGES;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setEdges(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setCulled = function setCulled(viewIndex, culled) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.CULLED) === culled) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = culled ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.CULLED : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.CULLED;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setCulled(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setClippable = function setClippable(viewIndex, clippable) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.CLIPPABLE) === clippable) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = clippable ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.CLIPPABLE : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.CLIPPABLE;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setClippable(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setCollidable = function setCollidable(viewIndex, collidable) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.COLLIDABLE) === collidable) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = collidable ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.COLLIDABLE : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.COLLIDABLE;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setCollidable(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setPickable = function setPickable(viewIndex, pickable) {
-    if (!!(_classPrivateFieldLooseBase(this, _flags)[_flags] & SCENE_OBJECT_FLAGS.PICKABLE) === pickable) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _flags)[_flags] = pickable ? _classPrivateFieldLooseBase(this, _flags)[_flags] | SCENE_OBJECT_FLAGS.PICKABLE : _classPrivateFieldLooseBase(this, _flags)[_flags] & ~SCENE_OBJECT_FLAGS.PICKABLE;
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setPickable(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setColorize = function setColorize(viewIndex, color) {
-    if (color) {
-      tempIntRGB[0] = Math.floor(color[0] * 255.0); // Quantize
-      tempIntRGB[1] = Math.floor(color[1] * 255.0);
-      tempIntRGB[2] = Math.floor(color[2] * 255.0);
-      for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-        this.rendererMeshes[i].setColorize(tempIntRGB);
-      }
-    } else {
-      for (var _i = 0, _len = this.rendererMeshes.length; _i < _len; _i++) {
-        this.rendererMeshes[_i].setColorize(null);
-      }
-    }
-  };
-  _proto.setOpacity = function setOpacity(viewIndex, opacity) {
-    if (this.rendererMeshes.length === 0) {
-      return;
-    }
-    // @ts-ignore
-    var lastOpacityQuantized = this.rendererMeshes[0].colorize[3];
-    var opacityQuantized = 255;
-    if (opacity !== null && opacity !== undefined) {
-      if (opacity < 0) {
-        opacity = 0;
-      } else if (opacity > 1) {
-        opacity = 1;
-      }
-      opacityQuantized = Math.floor(opacity * 255.0); // Quantize
-      if (lastOpacityQuantized === opacityQuantized) {
-        return;
-      }
-    } else {
-      opacityQuantized = 255.0;
-      if (lastOpacityQuantized === opacityQuantized) {
-        return;
-      }
-    }
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setOpacity(opacityQuantized, _classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.setOffset = function setOffset(viewIndex, offset) {
-    // if (offset) {
-    //     this.#offset[0] = offset[0];
-    //     this.#offset[1] = offset[1];
-    //     this.#offset[2] = offset[2];
-    // } else {
-    //     this.#offset[0] = 0;
-    //     this.#offset[1] = 0;
-    //     this.#offset[2] = 0;
-    // }
-    // for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-    //     this.rendererMeshes[i].setOffset(this.#offset);
-    // }
-    // this.#offsetAABB[0] = this.#aabb[0] + this.#offset[0];
-    // this.#offsetAABB[1] = this.#aabb[1] + this.#offset[1];
-    // this.#offsetAABB[2] = this.#aabb[2] + this.#offset[2];
-    // this.#offsetAABB[3] = this.#aabb[3] + this.#offset[0];
-    // this.#offsetAABB[4] = this.#aabb[4] + this.#offset[1];
-    // this.#offsetAABB[5] = this.#aabb[5] + this.#offset[2];
-    // // this.scene.#aabbDirty = true;
-    // // this.scene._objectOffsetUpdated(this, offset);
-    // // this.rendererSceneModel._aabbDirty = true;
-    // // this.rendererSceneModel.glRedraw();
-  };
-  _proto.build = function build() {
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].build(_classPrivateFieldLooseBase(this, _flags)[_flags]);
-    }
-  };
-  _proto.build2 = function build2() {
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].build2();
-    }
-  };
-  _proto.destroy = function destroy() {
-    for (var i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].destroy();
-    }
-  };
-  _createClass(WebGLRendererObject, [{
-    key: "aabb",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _offsetAABB)[_offsetAABB];
-    }
-  }]);
-  return WebGLRendererObject;
-}();
-
-var tempMat4a = createMat4();
-var tempMat4b = createMat4();
-/**
- * @private
- */
-var WebGLRendererMesh = /*#__PURE__*/function () {
-  function WebGLRendererMesh(params) {
-    this.id = void 0;
-    this.color = void 0;
-    this.rendererGeometry = void 0;
-    this.rendererTextureSet = void 0;
-    this.matrix = void 0;
-    this.metallic = void 0;
-    this.roughness = void 0;
-    this.opacity = void 0;
-    this.pickId = void 0;
-    this.tileManager = void 0;
-    this.tile = void 0;
-    this.sceneObjectRenderer = void 0;
-    this.aabb = void 0;
-    this.layer = void 0;
-    this.meshIndex = void 0;
-    this.colorize = void 0;
-    this.colorizing = void 0;
-    this.transparent = void 0;
-    this.sceneObjectRenderer = null;
-    this.tileManager = params.tileManager;
-    this.id = params.id;
-    this.pickId = 0;
-    this.color = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
-    this.colorize = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
-    this.colorizing = false;
-    this.transparent = params.opacity < 255;
-    this.layer = params.layer;
-    this.matrix = params.matrix;
-    this.metallic = params.metallic;
-    this.roughness = params.roughness;
-    this.opacity = params.opacity;
-    this.aabb = createAABB3();
-    this.rendererTextureSet = params.rendererTextureSet;
-    this.rendererGeometry = params.rendererGeometry;
-    this.meshIndex = params.meshIndex;
-  }
-  var _proto = WebGLRendererMesh.prototype;
-  _proto.delegatePickedEntity = function delegatePickedEntity() {
-    throw new Error("Method not implemented.");
-  };
-  _proto.setRendererObject = function setRendererObject(sceneObjectRenderer) {
-    this.sceneObjectRenderer = sceneObjectRenderer;
-  };
-  _proto.build = function build(flags) {
-    // @ts-ignore
-    this.layer.initFlags(this.meshIndex, flags, this.transparent);
-  };
-  _proto.build2 = function build2() {
-    this.layer.flushInitFlags();
-  };
-  _proto.setVisible = function setVisible(flags) {
-    this.layer.setMeshVisible(this.meshIndex, flags, this.transparent);
-  };
-  _proto.setMatrix = function setMatrix(matrix) {
-    var center = transformPoint3(matrix, [0, 0, 0]);
-    var oldTile = this.tile;
-    this.tile = oldTile ? this.tileManager.updateTileCenter(oldTile, center) : this.tileManager.getTile(center);
-    var tileChanged = !oldTile || oldTile.id !== this.tile.id;
-    var tileCenter = this.tile.center;
-    var needRTC = tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0;
-    this.layer.setMeshMatrix(this.meshIndex, needRTC ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b) : matrix);
-    if (tileChanged) {
-      this.layer.setMeshViewMatrixIndex(this.meshIndex, this.tile.index);
-    }
-  };
-  _proto.setMetallic = function setMetallic(metallic) {};
-  _proto.setRoughness = function setRoughness(roughness) {};
-  _proto.setColor = function setColor(color) {
-    this.color[0] = color[0];
-    this.color[1] = color[1];
-    this.color[2] = color[2];
-    if (!this.colorizing) {
-      this.layer.setMeshColor(this.meshIndex, this.color);
-    }
-  };
-  _proto.setColorize = function setColorize(colorize) {
-    var setOpacity = false;
-    if (colorize) {
-      this.colorize[0] = colorize[0];
-      this.colorize[1] = colorize[1];
-      this.colorize[2] = colorize[2];
-      this.layer.setMeshColor(this.meshIndex, this.colorize, setOpacity);
-      this.colorizing = true;
-    } else {
-      this.layer.setMeshColor(this.meshIndex, this.color, setOpacity);
-      this.colorizing = false;
-    }
-  };
-  _proto.setOpacity = function setOpacity(opacity, flags) {
-    var newTransparent = opacity < 255;
-    var lastTransparent = this.transparent;
-    var changingTransparency = lastTransparent !== newTransparent;
-    this.color[3] = opacity;
-    this.colorize[3] = opacity;
-    this.transparent = newTransparent;
-    if (this.colorizing) {
-      this.layer.setMeshColor(this.meshIndex, this.colorize);
-    } else {
-      this.layer.setMeshColor(this.meshIndex, this.color);
-    }
-    if (changingTransparency) {
-      this.layer.setMeshTransparent(this.meshIndex, flags, newTransparent);
-    }
-  };
-  _proto.setHighlighted = function setHighlighted(flags) {
-    this.layer.setMeshHighlighted(this.meshIndex, flags, this.transparent);
-  };
-  _proto.setXRayed = function setXRayed(flags) {
-    this.layer.setMeshXRayed(this.meshIndex, flags, this.transparent);
-  };
-  _proto.setSelected = function setSelected(flags) {
-    this.layer.setMeshSelected(this.meshIndex, flags, this.transparent);
-  };
-  _proto.setEdges = function setEdges(flags) {
-    this.layer.setMeshEdges(this.meshIndex, flags, this.transparent);
-  };
-  _proto.setClippable = function setClippable(flags) {
-    this.layer.setMeshClippable(this.meshIndex, flags);
-  };
-  _proto.setCollidable = function setCollidable(flags) {
-    this.layer.setMeshCollidable(this.meshIndex, flags);
-  };
-  _proto.setPickable = function setPickable(flags) {
-    this.layer.setMeshPickable(this.meshIndex, flags, this.transparent);
-  };
-  _proto.setCulled = function setCulled(flags) {
-    this.layer.setMeshCulled(this.meshIndex, flags, this.transparent);
-  };
-  _proto.canPickTriangle = function canPickTriangle() {
-    return false;
-  };
-  _proto.drawPickTriangles = function drawPickTriangles(drawFlags, renderContext) {
-    // NOP
-  };
-  _proto.pickTriangleSurface = function pickTriangleSurface(pickResult) {
-    // NOP
-  };
-  _proto.canPickWorldPos = function canPickWorldPos() {
-    return true;
-  };
-  _proto.drawPickNormals = function drawPickNormals(renderContext) {
-    //this.sceneObjectRenderer.rendererSceneModel.drawPickNormals(renderContext);
-  }
-  // delegatePickedEntity(): SceneObjectRendererCommands {
-  //     return <SceneObjectRendererCommands>this.sceneObjectRenderer;
-  // }
-  ;
-  _proto.destroy = function destroy() {
-    if (this.tile && this.tileManager) {
-      this.tileManager.putTile(this.tile);
-    }
-  };
-  return WebGLRendererMesh;
-}();
-
-/**
- * @private
- */
-var WebGLRendererTextureSet = function WebGLRendererTextureSet(params) {
-  this.id = void 0;
-  this.colorTexture = void 0;
-  this.metallicRoughnessTexture = void 0;
-  this.emissiveTexture = void 0;
-  this.occlusionTexture = void 0;
-  this.id = params.id;
-  this.colorTexture = params.colorTexture;
-  this.metallicRoughnessTexture = params.metallicRoughnessTexture;
-  this.emissiveTexture = params.emissiveTexture;
-  this.occlusionTexture = params.occlusionTexture;
-};
-
-identityQuat();
-var defaultColorTextureId = "defaultColorTexture";
-var defaultMetalRoughTextureId = "defaultMetalRoughTexture";
-var defaultNormalsTextureId = "defaultNormalsTexture";
-var defaultEmissiveTextureId = "defaultEmissiveTexture";
-var defaultOcclusionTextureId = "defaultOcclusionTexture";
-var defaultTextureSetId = "defaultTextureSet";
-/**
- * @private
- */
-var _view$a = /*#__PURE__*/_classPrivateFieldLooseKey("view");
-var _webglRenderer = /*#__PURE__*/_classPrivateFieldLooseKey("webglRenderer");
-var _renderContext$1 = /*#__PURE__*/_classPrivateFieldLooseKey("renderContext");
-var _position = /*#__PURE__*/_classPrivateFieldLooseKey("position");
-var _rotation = /*#__PURE__*/_classPrivateFieldLooseKey("rotation");
-var _quaternion = /*#__PURE__*/_classPrivateFieldLooseKey("quaternion");
-var _scale = /*#__PURE__*/_classPrivateFieldLooseKey("scale");
-var _worldMatrix = /*#__PURE__*/_classPrivateFieldLooseKey("worldMatrix");
-var _viewMatrix = /*#__PURE__*/_classPrivateFieldLooseKey("viewMatrix");
-var _colorTextureEnabled = /*#__PURE__*/_classPrivateFieldLooseKey("colorTextureEnabled");
-var _backfaces = /*#__PURE__*/_classPrivateFieldLooseKey("backfaces");
-var _layers = /*#__PURE__*/_classPrivateFieldLooseKey("layers");
-var _numGeometries = /*#__PURE__*/_classPrivateFieldLooseKey("numGeometries");
-var _numTriangles = /*#__PURE__*/_classPrivateFieldLooseKey("numTriangles");
-var _numLines = /*#__PURE__*/_classPrivateFieldLooseKey("numLines");
-var _numPoints = /*#__PURE__*/_classPrivateFieldLooseKey("numPoints");
-var _numRendererObjects = /*#__PURE__*/_classPrivateFieldLooseKey("numRendererObjects");
-var _textureTranscoder$1 = /*#__PURE__*/_classPrivateFieldLooseKey("textureTranscoder");
-var _aabbDirty = /*#__PURE__*/_classPrivateFieldLooseKey("aabbDirty");
-var _edgeThreshold = /*#__PURE__*/_classPrivateFieldLooseKey("edgeThreshold");
-var _currentLayers = /*#__PURE__*/_classPrivateFieldLooseKey("currentLayers");
-var _aabb = /*#__PURE__*/_classPrivateFieldLooseKey("aabb");
-var _viewMatrixDirty$1 = /*#__PURE__*/_classPrivateFieldLooseKey("viewMatrixDirty");
-var _worldMatrixNonIdentity = /*#__PURE__*/_classPrivateFieldLooseKey("worldMatrixNonIdentity");
-var _onCameraViewMatrix = /*#__PURE__*/_classPrivateFieldLooseKey("onCameraViewMatrix");
-var _layerId = /*#__PURE__*/_classPrivateFieldLooseKey("layerId");
-var _attachSceneModel = /*#__PURE__*/_classPrivateFieldLooseKey("attachSceneModel");
-var _attachTexture = /*#__PURE__*/_classPrivateFieldLooseKey("attachTexture");
-var _attachGeometry = /*#__PURE__*/_classPrivateFieldLooseKey("attachGeometry");
-var _attachMesh = /*#__PURE__*/_classPrivateFieldLooseKey("attachMesh");
-var _getLayer = /*#__PURE__*/_classPrivateFieldLooseKey("getLayer");
-var _attachSceneObject = /*#__PURE__*/_classPrivateFieldLooseKey("attachSceneObject");
-var _createDefaultTextureSet = /*#__PURE__*/_classPrivateFieldLooseKey("createDefaultTextureSet");
-var _rebuildAABB = /*#__PURE__*/_classPrivateFieldLooseKey("rebuildAABB");
-var _detachSceneModel = /*#__PURE__*/_classPrivateFieldLooseKey("detachSceneModel");
-var WebGLRendererModel = /*#__PURE__*/function (_Component) {
-  _inheritsLoose(WebGLRendererModel, _Component);
-  function WebGLRendererModel(params) {
-    var _this;
-    _this = _Component.call(this, params.view) || this;
-    Object.defineProperty(_assertThisInitialized(_this), _detachSceneModel, {
-      value: _detachSceneModel2
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _rebuildAABB, {
-      value: _rebuildAABB2
-    });
-    /*
-    rebuildDrawFlags() {
-        this.drawFlags.reset();
-        this.#updateDrawFlagsVisibleLayers();
-        if (this.drawFlags.numLayers > 0 && this.drawFlags.numVisibleLayers === 0) {
-            this.drawFlags.culled = true;
-            return;
-        }
-        this.#updateDrawFlags();
-    }
-     drawColorOpaque(renderContext: RenderContext): void {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawColorOpaque(drawFlags, renderContext);
-        }
-    }
-     drawColorTransparent(renderContext: RenderContext): void {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawColorTransparent(drawFlags, renderContext);
-        }
-    }
-     drawDepth(renderContext: RenderContext): void { // Dedicated to SAO because it skips transparent objects
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawDepth(drawFlags, renderContext);
-        }
-    }
-     drawNormals(renderContext: RenderContext): void { // Dedicated to SAO because it skips transparent objects
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawNormals(drawFlags, renderContext);
-        }
-    }
-     drawSilhouetteXRayed(renderContext: RenderContext): void {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawSilhouetteXRayed(drawFlags, renderContext);
-        }
-    }
-     drawSilhouetteHighlighted(renderContext: RenderContext): void {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawSilhouetteHighlighted(drawFlags, renderContext);
-        }
-    }
-     drawSilhouetteSelected(renderContext: RenderContext): void {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawSilhouetteSelected(drawFlags, renderContext);
-        }
-    }
-     drawEdgesColorOpaque(renderContext: RenderContext): void {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesColorOpaque(drawFlags, renderContext);
-        }
-    }
-     drawEdgesColorTransparent(renderContext: RenderContext): void {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesColorTransparent(drawFlags, renderContext);
-        }
-    }
-     drawEdgesXRayed(renderContext: RenderContext): void {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesXRayed(drawFlags, renderContext);
-        }
-    }
-     drawEdgesHighlighted(renderContext: RenderContext) {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesHighlighted(drawFlags, renderContext);
-        }
-    }
-     drawEdgesSelected(renderContext: RenderContext) {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesSelected(drawFlags, renderContext);
-        }
-    }
-     drawOcclusion(renderContext: RenderContext) {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawOcclusion(drawFlags, renderContext);
-        }
-    }
-     drawShadow(renderContext: RenderContext) {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawShadow(drawFlags, renderContext);
-        }
-    }
-     drawPickMesh(renderContext: RenderContext) {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawPickMesh(drawFlags, renderContext);
-        }
-    }
-     drawPickDepths(renderContext: RenderContext) {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawPickDepths(drawFlags, renderContext);
-        }
-    }
-     drawPickNormals(renderContext: RenderContext) {
-        if (this.meshCounts.numVisible === 0) {
-            return;
-        }
-        const drawFlags = this.drawFlags;
-        for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
-            const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawPickNormals(drawFlags, renderContext);
-        }
-    }
-    */
-    Object.defineProperty(_assertThisInitialized(_this), _createDefaultTextureSet, {
-      value: _createDefaultTextureSet2
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _attachSceneObject, {
-      value: _attachSceneObject2
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _getLayer, {
-      value: _getLayer2
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _attachMesh, {
-      value: _attachMesh2
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _attachGeometry, {
-      value: _attachGeometry2
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _attachTexture, {
-      value: _attachTexture2
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _attachSceneModel, {
-      value: _attachSceneModel2
-    });
-    _this.qualityRender = void 0;
-    _this.sceneModel = void 0;
-    _this.rendererGeometries = void 0;
-    _this.rendererTextures = void 0;
-    _this.rendererTextureSets = void 0;
-    _this.rendererMeshes = void 0;
-    _this.rendererSceneObjects = void 0;
-    _this.rendererSceneObjectsList = void 0;
-    _this.rendererViewObjects = void 0;
-    _this.viewer = void 0;
-    _this.layerList = void 0;
-    _this.onBuilt = void 0;
-    Object.defineProperty(_assertThisInitialized(_this), _view$a, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _webglRenderer, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _renderContext$1, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _position, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _rotation, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _quaternion, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _scale, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _worldMatrix, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _viewMatrix, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _colorTextureEnabled, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _backfaces, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _layers, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _numGeometries, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _numTriangles, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _numLines, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _numPoints, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _numRendererObjects, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _textureTranscoder$1, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _aabbDirty, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _edgeThreshold, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _currentLayers, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _aabb, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _viewMatrixDirty$1, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _worldMatrixNonIdentity, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _onCameraViewMatrix, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(_assertThisInitialized(_this), _layerId, {
-      writable: true,
-      value: void 0
-    });
-    _this.id = params.id;
-    _this.sceneModel = params.sceneModel;
-    _this.viewer = params.view.viewer;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _view$a)[_view$a] = params.view;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _webglRenderer)[_webglRenderer] = params.webglRenderer;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _renderContext$1)[_renderContext$1] = params.renderContext;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _textureTranscoder$1)[_textureTranscoder$1] = params.textureTranscoder;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _aabb)[_aabb] = collapseAABB3();
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _aabbDirty)[_aabbDirty] = false;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _layers)[_layers] = {};
-    _this.layerList = [];
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _currentLayers)[_currentLayers] = {};
-    _this.rendererGeometries = {};
-    _this.rendererTextures = {};
-    _this.rendererTextureSets = {};
-    _this.rendererMeshes = {};
-    _this.rendererSceneObjects = {};
-    _this.rendererSceneObjectsList = [];
-    _this.rendererViewObjects = {};
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numGeometries)[_numGeometries] = 0;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numRendererObjects)[_numRendererObjects] = 0;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numTriangles)[_numTriangles] = 0;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numLines)[_numLines] = 0;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _numPoints)[_numPoints] = 0;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _edgeThreshold)[_edgeThreshold] = params.edgeThreshold || 10;
-    _this.built = false;
-    // Build static matrix
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _position)[_position] = createVec3(params.position || [0, 0, 0]);
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _rotation)[_rotation] = createVec3(params.rotation || [0, 0, 0]);
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _quaternion)[_quaternion] = createVec4(params.quaternion || [0, 0, 0, 1]);
-    if (params.rotation) {
-      eulerToQuat(_classPrivateFieldLooseBase(_assertThisInitialized(_this), _rotation)[_rotation], "XYZ", _classPrivateFieldLooseBase(_assertThisInitialized(_this), _quaternion)[_quaternion]);
-    }
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _scale)[_scale] = createVec3(params.scale || [1, 1, 1]);
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _worldMatrix)[_worldMatrix] = createMat4();
-    composeMat4(_classPrivateFieldLooseBase(_assertThisInitialized(_this), _position)[_position], _classPrivateFieldLooseBase(_assertThisInitialized(_this), _quaternion)[_quaternion], _classPrivateFieldLooseBase(_assertThisInitialized(_this), _scale)[_scale], _classPrivateFieldLooseBase(_assertThisInitialized(_this), _worldMatrix)[_worldMatrix]);
-    if (params.matrix || params.position || params.rotation || params.scale || params.quaternion) {
-      _classPrivateFieldLooseBase(_assertThisInitialized(_this), _viewMatrix)[_viewMatrix] = createMat4();
-      _classPrivateFieldLooseBase(_assertThisInitialized(_this), _viewMatrixDirty$1)[_viewMatrixDirty$1] = true;
-      _classPrivateFieldLooseBase(_assertThisInitialized(_this), _worldMatrixNonIdentity)[_worldMatrixNonIdentity] = true;
-    }
-    _this.qualityRender = params.qualityRender !== false;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _layerId)[_layerId] = params.layerId;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _onCameraViewMatrix)[_onCameraViewMatrix] = _classPrivateFieldLooseBase(_assertThisInitialized(_this), _view$a)[_view$a].camera.onViewMatrix.subscribe(function (camera, viewMatrix) {
-      _classPrivateFieldLooseBase(_assertThisInitialized(_this), _viewMatrixDirty$1)[_viewMatrixDirty$1] = true;
-    });
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _createDefaultTextureSet)[_createDefaultTextureSet]();
-    _this.onBuilt = new EventEmitter(new dist.EventDispatcher());
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _attachSceneModel)[_attachSceneModel](params.sceneModel);
-    // this.layerList.sort((a, b) => {
-    //     if (a.sortId < b.sortId) {
-    //         return -1;
-    //     }
-    //     if (a.sortId > b.sortId) {
-    //         return 1;
-    //     }
-    //     return 0;
-    // });
-    for (var i = 0, len = _this.layerList.length; i < len; i++) {
-      var layer = _this.layerList[i];
-      layer.layerIndex = i;
-    }
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _currentLayers)[_currentLayers] = {};
-    _this.built = true;
-    _classPrivateFieldLooseBase(_assertThisInitialized(_this), _webglRenderer)[_webglRenderer].setImageDirty();
-    //     this.#view.viewer.scene.setAABBDirty();
-    _this.onBuilt.dispatch(_assertThisInitialized(_this), null);
-    return _this;
-  }
-  var _proto = WebGLRendererModel.prototype;
-  _proto.setVisible = function setVisible(viewIndex, visible) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setVisible(viewIndex, visible);
-    }
-    _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
-  };
-  _proto.setXRayed = function setXRayed(viewIndex, xrayed) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setXRayed(viewIndex, xrayed);
-    }
-    _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
-  };
-  _proto.setHighlighted = function setHighlighted(viewIndex, highlighted) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setHighlighted(viewIndex, highlighted);
-    }
-    _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
-  };
-  _proto.setSelected = function setSelected(viewIndex, selected) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setSelected(viewIndex, selected);
-    }
-    _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
-  };
-  _proto.setEdges = function setEdges(viewIndex, edges) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setEdges(viewIndex, edges);
-    }
-    _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
-  };
-  _proto.setCulled = function setCulled(viewIndex, culled) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setCulled(viewIndex, culled);
-    }
-    _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
-  };
-  _proto.setClippable = function setClippable(viewIndex, clippable) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setClippable(viewIndex, clippable);
-    }
-    _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty(viewIndex);
-  };
-  _proto.setCollidable = function setCollidable(viewIndex, collidable) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setCollidable(viewIndex, collidable);
-    }
-  };
-  _proto.setPickable = function setPickable(viewIndex, pickable) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setPickable(viewIndex, pickable);
-    }
-  };
-  _proto.setColorize = function setColorize(viewIndex, colorize) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setColorize(viewIndex, colorize);
-    }
-  };
-  _proto.setOpacity = function setOpacity(viewIndex, opacity) {
-    for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-      this.rendererSceneObjectsList[i].setOpacity(viewIndex, opacity);
-    }
-  };
-  /*
-      #getActiveSectionPlanesForLayer(layer: any) {
-          const drawFlags = this.drawFlags;
-          const sectionPlanes = this.#view.sectionPlanesList;
-          const numSectionPlanes = sectionPlanes.length;
-          const baseIndex = layer.layerIndex * numSectionPlanes;
-          if (numSectionPlanes > 0) {
-              for (let i = 0; i < numSectionPlanes; i++) {
-                  const sectionPlane = sectionPlanes[i];
-                  if (!sectionPlane.active) {
-                      drawFlags.sectionPlanesActivePerLayer[baseIndex + i] = false;
-                   } else {
-                      drawFlags.sectionPlanesActivePerLayer[baseIndex + i] = true;
-                      drawFlags.sectioned = true;
-                  }
-              }
-          }
-          return true;
-      }
-       #updateDrawFlagsVisibleLayers() {
-          const drawFlags = this.drawFlags;
-          drawFlags.numLayers = this.layerList.length;
-          drawFlags.numVisibleLayers = 0;
-          for (let layerIndex = 0, len = this.layerList.length; layerIndex < len; layerIndex++) {
-              const layer = this.layerList[layerIndex];
-              const layerVisible = this.#getActiveSectionPlanesForLayer(layer);
-              if (layerVisible) {
-                  drawFlags.visibleLayers[drawFlags.numVisibleLayers++] = layerIndex;
-              }
-          }
-      }
-       #updateDrawFlags() {
-          if (this.meshCounts.numVisible === 0) {
-              return;
-          }
-          if (this.meshCounts.numCulled === this.meshCounts.numMeshes) {
-              return;
-          }
-          const drawFlags = this.drawFlags;
-          drawFlags.colorOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
-          if (this.meshCounts.numTransparent > 0) {
-              drawFlags.colorTransparent = true;
-          }
-          if (this.meshCounts.numXRayed > 0) {
-              const xrayMaterial = this.#view.xrayMaterial.state;
-              if (xrayMaterial.fill) {
-                  if (xrayMaterial.fillAlpha < 1.0) {
-                      drawFlags.xrayedSilhouetteTransparent = true;
-                  } else {
-                      drawFlags.xrayedSilhouetteOpaque = true;
-                  }
-              }
-              if (xrayMaterial.edges) {
-                  if (xrayMaterial.edgeAlpha < 1.0) {
-                      drawFlags.xrayedEdgesTransparent = true;
-                  } else {
-                      drawFlags.xrayedEdgesOpaque = true;
-                  }
-              }
-          }
-          if (this.meshCounts.numEdges > 0) {
-              const edgeMaterial = this.#view.edgeMaterial.state;
-              if (edgeMaterial.edges) {
-                  drawFlags.edgesOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
-                  if (this.meshCounts.numTransparent > 0) {
-                      drawFlags.edgesTransparent = true;
-                  }
-              }
-          }
-          if (this.meshCounts.numSelected > 0) {
-              const selectedMaterial = this.#view.selectedMaterial.state;
-              if (selectedMaterial.fill) {
-                  if (selectedMaterial.fillAlpha < 1.0) {
-                      drawFlags.selectedSilhouetteTransparent = true;
-                  } else {
-                      drawFlags.selectedSilhouetteOpaque = true;
-                  }
-              }
-              if (selectedMaterial.edges) {
-                  if (selectedMaterial.edgeAlpha < 1.0) {
-                      drawFlags.selectedEdgesTransparent = true;
-                  } else {
-                      drawFlags.selectedEdgesOpaque = true;
-                  }
-              }
-          }
-          if (this.meshCounts.numHighlighted > 0) {
-              const highlightMaterial = this.#view.highlightMaterial.state;
-              if (highlightMaterial.fill) {
-                  if (highlightMaterial.fillAlpha < 1.0) {
-                      drawFlags.highlightedSilhouetteTransparent = true;
-                  } else {
-                      drawFlags.highlightedSilhouetteOpaque = true;
-                  }
-              }
-              if (highlightMaterial.edges) {
-                  if (highlightMaterial.edgeAlpha < 1.0) {
-                      drawFlags.highlightedEdgesTransparent = true;
-                  } else {
-                      drawFlags.highlightedEdgesOpaque = true;
-                  }
-              }
-          }
-      }
-    */
-  // build() {
-  //     if (this.destroyed) {
-  //         this.log("rendererSceneModel already destroyed");
-  //         return;
-  //     }
-  //     if (this.built) {
-  //         this.log("rendererSceneModel already built");
-  //         return;
-  //     }
-  //     for (let layerId in this.#currentLayers) {
-  //         if (this.#currentLayers.hasOwnProperty(layerId)) {
-  //             this.#currentLayers[layerId].build();
-  //         }
-  //     }
-  //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-  //         const rendererSceneObject = this.objectList[i];
-  //         rendererSceneObject.build();
-  //     }
-  //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-  //         const rendererSceneObject = this.objectList[i];
-  //         rendererSceneObject.build2();
-  //     }
-  //     // this.layerList.sort((a, b) => {
-  //     //     if (a.sortId < b.sortId) {
-  //     //         return -1;
-  //     //     }
-  //     //     if (a.sortId > b.sortId) {
-  //     //         return 1;
-  //     //     }
-  //     //     return 0;
-  //     // });
-  //     for (let i = 0, len = this.layerList.length; i < len; i++) {
-  //         const layer = this.layerList[i];
-  //         layer.layerIndex = i;
-  //     }
-  //     this.#currentLayers = {};
-  //     this.built = true;
-  //     this.#webglRenderer.setImageDirty();
-  //     //     this.#view.viewer.scene.setAABBDirty();
-  //     this.onBuilt.dispatch(this, null);
-  // }
-  //
-  // addModel(params: {
-  //     id: string,
-  //     sceneModel: SceneModel
-  // }) {
-  //
-  //     const sceneModel = params.sceneModel;
-  //     const textures = sceneModel.textures;
-  //     const geometries = sceneModel.geometries;
-  //     const meshes = sceneModel.meshes;
-  //     const objects = sceneModel.objects;
-  //
-  //     if (textures) {
-  //         for (let textureId in textures) {
-  //             const texture = textures[textureId];
-  //             this.#attachTexture(texture);
-  //         }
-  //     }
-  //
-  //     if (geometries) {
-  //         for (let geometryId in geometries) {
-  //             const geometry = geometries[geometryId];
-  //             this.#attachGeometry(geometry);
-  //         }
-  //     }
-  //
-  //     if (meshes) {
-  //         for (let meshId in meshes) {
-  //             const mesh = meshes[meshId];
-  //             this.#attachMesh(mesh);
-  //         }
-  //     }
-  //
-  //     if (objects) {
-  //         for (let geometryId in objects) {
-  //             const object = objects[geometryId];
-  //             this.#attachSceneObject(object);
-  //         }
-  //     }
-  // }
-  _proto.destroy = function destroy() {
-    if (this.destroyed) {
-      return;
-    }
-    _classPrivateFieldLooseBase(this, _detachSceneModel)[_detachSceneModel]();
-    _classPrivateFieldLooseBase(this, _view$a)[_view$a].camera.onViewMatrix.unsubscribe(_classPrivateFieldLooseBase(this, _onCameraViewMatrix)[_onCameraViewMatrix]);
-    for (var layerId in _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers]) {
-      if (_classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers].hasOwnProperty(layerId)) {
-        _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers][layerId].destroy();
-      }
-    }
-    for (var i = 0, len = this.layerList.length; i < len; i++) {
-      this.layerList[i].destroy();
-    }
-    for (var objectId in this.rendererSceneObjects) {
-      this.rendererSceneObjects[objectId].destroy();
-    }
-    _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers] = {};
-    _classPrivateFieldLooseBase(this, _layers)[_layers] = {};
-    this.layerList = [];
-    this.rendererGeometries = {};
-    this.rendererTextures = {};
-    this.rendererTextureSets = {};
-    this.rendererMeshes = {};
-    this.rendererViewObjects = {};
-    // this.#view.viewer.setAABBDirty();
-    this.onBuilt.clear();
-    _Component.prototype.destroy.call(this);
-  };
-  _createClass(WebGLRendererModel, [{
-    key: "position",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _position)[_position];
-    }
-  }, {
-    key: "rotation",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _rotation)[_rotation];
-    }
-  }, {
-    key: "quaternion",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _quaternion)[_quaternion];
-    }
-  }, {
-    key: "scale",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _scale)[_scale];
-    }
-  }, {
-    key: "worldMatrix",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _worldMatrix)[_worldMatrix];
-    }
-  }, {
-    key: "viewMatrix",
-    get: function get() {
-      if (!_classPrivateFieldLooseBase(this, _viewMatrix)[_viewMatrix]) {
-        return _classPrivateFieldLooseBase(this, _view$a)[_view$a].camera.viewMatrix;
-      }
-      if (_classPrivateFieldLooseBase(this, _viewMatrixDirty$1)[_viewMatrixDirty$1]) {
-        mulMat4(_classPrivateFieldLooseBase(this, _view$a)[_view$a].camera.viewMatrix, _classPrivateFieldLooseBase(this, _worldMatrix)[_worldMatrix], _classPrivateFieldLooseBase(this, _viewMatrix)[_viewMatrix]);
-        _classPrivateFieldLooseBase(this, _viewMatrixDirty$1)[_viewMatrixDirty$1] = false;
-      }
-      return _classPrivateFieldLooseBase(this, _viewMatrix)[_viewMatrix];
-    }
-  }, {
-    key: "colorTextureEnabled",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _colorTextureEnabled)[_colorTextureEnabled];
-    }
-  }, {
-    key: "backfaces",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _backfaces)[_backfaces];
-    },
-    set: function set(backfaces) {
-      backfaces = !!backfaces;
-      _classPrivateFieldLooseBase(this, _backfaces)[_backfaces] = backfaces;
-      _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].setImageDirty();
-    }
-  }, {
-    key: "matrix",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _worldMatrix)[_worldMatrix];
-    }
-  }, {
-    key: "aabb",
-    get: function get() {
-      if (_classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty]) {
-        _classPrivateFieldLooseBase(this, _rebuildAABB)[_rebuildAABB]();
-      }
-      return _classPrivateFieldLooseBase(this, _aabb)[_aabb];
-    }
-  }, {
-    key: "numTriangles",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _numTriangles)[_numTriangles];
-    }
-  }, {
-    key: "numLines",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _numLines)[_numLines];
-    }
-  }, {
-    key: "numPoints",
-    get: function get() {
-      return _classPrivateFieldLooseBase(this, _numPoints)[_numPoints];
-    }
-  }]);
-  return WebGLRendererModel;
-}(Component);
-function _attachSceneModel2(sceneModel) {
-  var textures = sceneModel.textures;
-  var geometries = sceneModel.geometries;
-  var meshes = sceneModel.meshes;
-  var objects = sceneModel.objects;
-  if (textures) {
-    for (var textureId in textures) {
-      _classPrivateFieldLooseBase(this, _attachTexture)[_attachTexture](textures[textureId]);
-    }
-  }
-  if (geometries) {
-    for (var geometryId in geometries) {
-      _classPrivateFieldLooseBase(this, _attachGeometry)[_attachGeometry](geometries[geometryId]);
-    }
-  }
-  if (meshes) {
-    for (var meshId in meshes) {
-      _classPrivateFieldLooseBase(this, _attachMesh)[_attachMesh](meshes[meshId]);
-    }
-  }
-  if (objects) {
-    for (var objectId in objects) {
-      _classPrivateFieldLooseBase(this, _attachSceneObject)[_attachSceneObject](objects[objectId]);
-    }
-  }
-  for (var layerId in _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers]) {
-    _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers][layerId].build();
-  }
-  for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-    this.rendererSceneObjectsList[i].build();
-  }
-  for (var _i = 0, _len = this.rendererSceneObjectsList.length; _i < _len; _i++) {
-    this.rendererSceneObjectsList[_i].build2();
-  }
-}
-function _attachTexture2(texture) {
-  var _this2 = this;
-  var textureId = texture.id;
-  if (this.rendererTextures[textureId]) {
-    throw new SDKError("RendererTexture already created: " + textureId);
-  }
-  var glTexture = new GLTexture({
-    gl: _classPrivateFieldLooseBase(this, _renderContext$1)[_renderContext$1].gl
-  });
-  if (texture.preloadColor) {
-    glTexture.setPreloadColor(texture.preloadColor);
-  }
-  if (texture.image) {
-    // Ignore transcoder for Images
-    var image = texture.image;
-    image.crossOrigin = "Anonymous";
-    glTexture.setImage(image, {
-      minFilter: texture.minFilter,
-      magFilter: texture.magFilter,
-      wrapS: texture.wrapS,
-      wrapT: texture.wrapT,
-      wrapR: texture.wrapR,
-      flipY: texture.flipY,
-      encoding: texture.encoding
-    });
-  } else if (texture.src) {
-    var ext = texture.src.split('.').pop();
-    switch (ext) {
-      // Don't transcode recognized image file types
-      case "jpeg":
-      case "jpg":
-      case "png":
-      case "gif":
-        var _image = new Image();
-        _image.onload = function () {
-          glTexture.setImage(_image, {
-            minFilter: texture.minFilter,
-            magFilter: texture.magFilter,
-            wrapS: texture.wrapS,
-            wrapT: texture.wrapT,
-            wrapR: texture.wrapR,
-            flipY: texture.flipY,
-            encoding: texture.encoding
-          });
-        };
-        _image.src = texture.src; // URL or Base64 string
-        break;
-      default:
-        // Assume other file types need transcoding
-        if (!_classPrivateFieldLooseBase(this, _textureTranscoder$1)[_textureTranscoder$1]) {
-          this.error("Can't create texture from 'src' - rendererSceneModel needs to be configured with a TextureTranscoder for this file type ('" + ext + "')");
-        } else {
-          loadArraybuffer(texture.src, function (arrayBuffer) {
-            if (!arrayBuffer.byteLength) {
-              _this2.error("Can't create texture from 'src': file data is zero length");
-              return;
-            }
-            _classPrivateFieldLooseBase(_this2, _textureTranscoder$1)[_textureTranscoder$1].transcode([arrayBuffer]).then(function (compressedTextureData) {
-              glTexture.setCompressedData(compressedTextureData);
-              _classPrivateFieldLooseBase(_this2, _webglRenderer)[_webglRenderer].setImageDirty();
-            });
-          }, function (errMsg) {
-            _this2.error("Can't create texture from 'src': " + errMsg);
-          });
-        }
-        break;
-    }
-  } else if (texture.buffers) {
-    // Buffers implicitly require transcoding
-    if (!_classPrivateFieldLooseBase(this, _textureTranscoder$1)[_textureTranscoder$1]) {
-      this.error("Can't create texture from 'buffers' - rendererSceneModel needs to be configured with a TextureTranscoder for this option");
-    } else {
-      _classPrivateFieldLooseBase(this, _textureTranscoder$1)[_textureTranscoder$1].transcode(texture.buffers).then(function (compressedTextureData) {
-        glTexture.setCompressedData(compressedTextureData);
-        _classPrivateFieldLooseBase(_this2, _webglRenderer)[_webglRenderer].setImageDirty();
-      });
-    }
-  }
-  var rendererTexture = new WebGLRendererTexture(texture, glTexture);
-  texture.rendererTexture = rendererTexture;
-  this.rendererTextures[textureId] = rendererTexture;
-}
-function _attachGeometry2(geometry) {
-  var geometryId = geometry.id;
-  if (this.rendererGeometries[geometryId]) {
-    throw new SDKError("RendererGeometry already created: " + geometryId);
-  }
-  var rendererGeometry = new WebGLRendererGeometry();
-  this.rendererGeometries[geometryId] = rendererGeometry;
-  geometry.rendererGeometry = rendererGeometry;
-  _classPrivateFieldLooseBase(this, _numGeometries)[_numGeometries]++;
-}
-function _attachMesh2(mesh) {
-  var rendererGeometry = this.rendererGeometries[mesh.geometry.id];
-  if (!rendererGeometry) {
-    throw new SDKError("RendererGeometry not found");
-  }
-  var textureSetId = mesh.textureSet ? mesh.textureSet.id : defaultTextureSetId;
-  var rendererTextureSet = this.rendererTextureSets[textureSetId];
-  if (!rendererTextureSet) {
-    throw new SDKError("TextureSet not found");
-  }
-  var layer = _classPrivateFieldLooseBase(this, _getLayer)[_getLayer](textureSetId, mesh.geometry);
-  if (!layer) {
-    return;
-  }
-  if (!layer.hasGeometry(mesh.geometry.id)) {
-    layer.createGeometryCompressed(mesh.geometry);
-  }
-  var meshMatrix;
-  _classPrivateFieldLooseBase(this, _worldMatrixNonIdentity)[_worldMatrixNonIdentity] ? _classPrivateFieldLooseBase(this, _worldMatrix)[_worldMatrix] : null;
-  meshMatrix = mesh.matrix;
-  var color = mesh.color ? new Uint8Array([Math.floor(mesh.color[0] * 255), Math.floor(mesh.color[1] * 255), Math.floor(mesh.color[2] * 255)]) : [255, 255, 255];
-  var opacity = mesh.opacity !== undefined && mesh.opacity !== null ? Math.floor(mesh.opacity * 255) : 255;
-  var metallic = mesh.metallic !== undefined && mesh.metallic !== null ? Math.floor(mesh.metallic * 255) : 0;
-  var roughness = mesh.roughness !== undefined && mesh.roughness !== null ? Math.floor(mesh.roughness * 255) : 255;
-  var meshRenderer = new WebGLRendererMesh({
-    tileManager: _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].tileManager,
-    id: mesh.id,
-    layer: layer,
-    color: color,
-    opacity: opacity,
-    matrix: meshMatrix,
-    metallic: metallic,
-    roughness: roughness,
-    rendererTextureSet: rendererTextureSet,
-    rendererGeometry: rendererGeometry,
-    meshIndex: 0
-  });
-  meshRenderer.pickId = _classPrivateFieldLooseBase(this, _webglRenderer)[_webglRenderer].attachPickable(meshRenderer);
-  var a = meshRenderer.pickId >> 24 & 0xFF;
-  var b = meshRenderer.pickId >> 16 & 0xFF;
-  var g = meshRenderer.pickId >> 8 & 0xFF;
-  var r = meshRenderer.pickId & 0xFF;
-  var pickColor = new Uint8Array([r, g, b, a]); // Quantized pick color
-  collapseAABB3(meshRenderer.aabb);
-  var meshIndex = layer.createMesh({
-    id: mesh.id,
-    geometryId: mesh.geometry.id,
-    color: color,
-    opacity: opacity,
-    metallic: metallic,
-    roughness: roughness,
-    matrix: meshMatrix,
-    //     worldMatrix: worldMatrix,
-    //    aabb: mesh.aabb,
-    pickColor: pickColor
-  });
-  _classPrivateFieldLooseBase(this, _numGeometries)[_numGeometries]++;
-  expandAABB3(_classPrivateFieldLooseBase(this, _aabb)[_aabb], meshRenderer.aabb);
-  meshRenderer.layer = layer;
-  meshRenderer.meshIndex = meshIndex;
-  this.rendererMeshes[mesh.id] = meshRenderer;
-}
-function _getLayer2(textureSetId, geometryCompressedParams) {
-  var layerId = textureSetId + "_" + geometryCompressedParams.primitive;
-  var layer = _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers][layerId];
-  if (layer) {
-    if (layer.canCreateMesh(geometryCompressedParams)) {
-      return layer;
-    } else {
-      layer.build();
-      delete _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers][layerId];
-    }
-  }
-  var textureSet;
-  if (textureSetId) {
-    textureSet = this.rendererTextureSets[textureSetId];
-    if (!textureSet) {
-      this.error("TextureSet not found: " + textureSetId + " - ensure that you create it first with createTextureSet()");
-      return;
-    }
-  }
-  layer = new Layer({
-    gl: _classPrivateFieldLooseBase(this, _renderContext$1)[_renderContext$1].gl,
-    view: _classPrivateFieldLooseBase(this, _view$a)[_view$a],
-    rendererSceneModel: this,
-    primitive: geometryCompressedParams.primitive,
-    textureSet: textureSet,
-    layerIndex: 0
-  });
-  _classPrivateFieldLooseBase(this, _layers)[_layers][layerId] = layer;
-  this.layerList.push(layer);
-  _classPrivateFieldLooseBase(this, _currentLayers)[_currentLayers][layerId] = layer;
-  return layer;
-}
-function _attachSceneObject2(sceneObject) {
-  var objectId = sceneObject.id;
-  if (objectId === undefined) {
-    objectId = createUUID();
-  } else if (this.rendererSceneObjects[objectId]) {
-    this.error("[createObject] rendererSceneModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
-    objectId = createUUID();
-  }
-  var meshes = sceneObject.meshes;
-  if (meshes === undefined) {
-    throw new SDKError("[createObject] Param expected: meshes");
-  }
-  var rendererMeshes = [];
-  for (var i = 0, len = meshes.length; i < len; i++) {
-    var mesh = meshes[i];
-    var rendererMesh = this.rendererMeshes[mesh.id];
-    rendererMeshes.push(rendererMesh);
-  }
-  var rendererSceneObject = new WebGLRendererObject({
-    id: objectId,
-    sceneObject: sceneObject,
-    rendererSceneModel: this,
-    rendererMeshes: rendererMeshes,
-    aabb: sceneObject.aabb,
-    layerId: _classPrivateFieldLooseBase(this, _layerId)[_layerId]
-  });
-  this.rendererSceneObjectsList.push(rendererSceneObject);
-  this.rendererSceneObjects[objectId] = rendererSceneObject; // <RendererSceneObject>
-  this.rendererViewObjects[objectId] = rendererSceneObject; // <RendererViewObject>
-  _classPrivateFieldLooseBase(this, _numRendererObjects)[_numRendererObjects]++;
-}
-function _createDefaultTextureSet2() {
-  var defaultColorTexture = new WebGLRendererTexture(null, new GLTexture({
-    gl: _classPrivateFieldLooseBase(this, _renderContext$1)[_renderContext$1].gl,
-    preloadColor: [1, 1, 1, 1] // [r, g, b, a]})
-  }));
-
-  var defaultMetalRoughTexture = new WebGLRendererTexture(null, new GLTexture({
-    gl: _classPrivateFieldLooseBase(this, _renderContext$1)[_renderContext$1].gl,
-    preloadColor: [0, 1, 1, 1] // [unused, roughness, metalness, unused]
-  }));
-
-  var defaultNormalsTexture = new WebGLRendererTexture(null, new GLTexture({
-    gl: _classPrivateFieldLooseBase(this, _renderContext$1)[_renderContext$1].gl,
-    preloadColor: [0, 0, 0, 0] // [x, y, z, unused] - these must be zeros
-  }));
-
-  var defaultEmissiveTexture = new WebGLRendererTexture(null, new GLTexture({
-    gl: _classPrivateFieldLooseBase(this, _renderContext$1)[_renderContext$1].gl,
-    preloadColor: [0, 0, 0, 1] // [x, y, z, unused]
-  }));
-
-  var defaultOcclusionTexture = new WebGLRendererTexture(null, new GLTexture({
-    gl: _classPrivateFieldLooseBase(this, _renderContext$1)[_renderContext$1].gl,
-    preloadColor: [1, 1, 1, 1] // [x, y, z, unused]
-  }));
-
-  this.rendererTextures[defaultColorTextureId] = defaultColorTexture;
-  this.rendererTextures[defaultMetalRoughTextureId] = defaultMetalRoughTexture;
-  this.rendererTextures[defaultNormalsTextureId] = defaultNormalsTexture;
-  this.rendererTextures[defaultEmissiveTextureId] = defaultEmissiveTexture;
-  this.rendererTextures[defaultOcclusionTextureId] = defaultOcclusionTexture;
-  this.rendererTextureSets[defaultTextureSetId] = new WebGLRendererTextureSet({
-    id: defaultTextureSetId,
-    colorTexture: defaultColorTexture,
-    metallicRoughnessTexture: defaultMetalRoughTexture,
-    emissiveTexture: defaultEmissiveTexture,
-    occlusionTexture: defaultOcclusionTexture
-  });
-}
-function _rebuildAABB2() {
-  collapseAABB3(_classPrivateFieldLooseBase(this, _aabb)[_aabb]);
-  for (var i = 0, len = this.rendererSceneObjectsList.length; i < len; i++) {
-    var rendererSceneObject = this.rendererSceneObjectsList[i];
-    expandAABB3(_classPrivateFieldLooseBase(this, _aabb)[_aabb], rendererSceneObject.aabb);
-  }
-  _classPrivateFieldLooseBase(this, _aabbDirty)[_aabbDirty] = false;
-}
-function _detachSceneModel2() {
-  var sceneModel = this.sceneModel;
-  if (!sceneModel) {
-    return;
-  }
-  var textures = sceneModel.textures;
-  var geometries = sceneModel.geometries;
-  var meshes = sceneModel.meshes;
-  var objects = sceneModel.objects;
-  if (textures) {
-    for (var textureId in textures) {
-      var texture = textures[textureId];
-      if (texture.rendererTexture) {
-        texture.rendererTexture = null;
-      }
-    }
-  }
-  if (geometries) {
-    for (var geometryId in geometries) {
-      var geometry = geometries[geometryId];
-      if (geometry.rendererGeometry) {
-        geometry.rendererGeometry = null;
-      }
-    }
-  }
-  if (meshes) {
-    for (var meshId in meshes) {
-      var mesh = meshes[meshId];
-      if (mesh.rendererMesh) {
-        mesh.rendererMesh = null;
-      }
-    }
-  }
-  if (objects) {
-    for (var objectId in objects) {
-      var object = objects[objectId];
-      if (object.rendererSceneObject) {
-        object.rendererSceneObject = null;
-      }
-    }
-  }
-  this.sceneModel = null;
-}
-
-var NUM_TILES = 2000;
-var _gl = /*#__PURE__*/_classPrivateFieldLooseKey("gl");
-var _indexesUsed = /*#__PURE__*/_classPrivateFieldLooseKey("indexesUsed");
-var _tiles = /*#__PURE__*/_classPrivateFieldLooseKey("tiles");
-var _dataTexture = /*#__PURE__*/_classPrivateFieldLooseKey("dataTexture");
-var _camera = /*#__PURE__*/_classPrivateFieldLooseKey("camera");
-var _lastFreeIndex = /*#__PURE__*/_classPrivateFieldLooseKey("lastFreeIndex");
-var _numTiles = /*#__PURE__*/_classPrivateFieldLooseKey("numTiles");
-var _putFreeTile = /*#__PURE__*/_classPrivateFieldLooseKey("putFreeTile");
-var _findFreeTile = /*#__PURE__*/_classPrivateFieldLooseKey("findFreeTile");
-var WebGLTileManager = /*#__PURE__*/function () {
-  function WebGLTileManager(params) {
-    Object.defineProperty(this, _findFreeTile, {
-      value: _findFreeTile2
-    });
-    Object.defineProperty(this, _putFreeTile, {
-      value: _putFreeTile2
-    });
-    Object.defineProperty(this, _gl, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _indexesUsed, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _tiles, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _dataTexture, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _camera, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _lastFreeIndex, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _numTiles, {
-      writable: true,
-      value: void 0
-    });
-    _classPrivateFieldLooseBase(this, _camera)[_camera] = params.camera;
-    _classPrivateFieldLooseBase(this, _gl)[_gl] = params.gl;
-    _classPrivateFieldLooseBase(this, _indexesUsed)[_indexesUsed] = [];
-    _classPrivateFieldLooseBase(this, _lastFreeIndex)[_lastFreeIndex] = 0;
-    _classPrivateFieldLooseBase(this, _tiles)[_tiles] = {};
-    _classPrivateFieldLooseBase(this, _dataTexture)[_dataTexture] = createMatricesDataTexture(_classPrivateFieldLooseBase(this, _gl)[_gl], NUM_TILES);
-    _classPrivateFieldLooseBase(this, _numTiles)[_numTiles] = 0;
-  }
-  var _proto = WebGLTileManager.prototype;
-  _proto.getTile = function getTile(center) {
-    var rtcCenter = worldToRTCCenter(center, createVec3());
-    var id = rtcCenter[0] + "-" + rtcCenter[1] + "-" + rtcCenter[2];
-    var tile = _classPrivateFieldLooseBase(this, _tiles)[_tiles][id];
-    if (!tile) {
-      tile = {
-        id: id,
-        index: _classPrivateFieldLooseBase(this, _findFreeTile)[_findFreeTile](),
-        useCount: 0,
-        center: createVec3(),
-        rtcViewMatrix: createMat4()
-      };
-      _classPrivateFieldLooseBase(this, _tiles)[_tiles][tile.id] = tile;
-      _classPrivateFieldLooseBase(this, _numTiles)[_numTiles]++;
-    }
-    tile.useCount++;
-    return tile;
-  };
-  _proto.putTile = function putTile(tile) {
-    if (--tile.useCount === 0) {
-      delete _classPrivateFieldLooseBase(this, _tiles)[_tiles][tile.id];
-      _classPrivateFieldLooseBase(this, _putFreeTile)[_putFreeTile](tile.index);
-      _classPrivateFieldLooseBase(this, _numTiles)[_numTiles]--;
-    }
-  };
-  _proto.updateTileCenter = function updateTileCenter(tile, newCenter) {
-    var newRTCCenter = worldToRTCCenter(newCenter, createVec3());
-    var newId = newRTCCenter[0] + "-" + newRTCCenter[1] + "-" + newRTCCenter[2];
-    if (newId === tile.id) {
-      return tile;
-    }
-    this.putTile(tile);
-    var newTile = _classPrivateFieldLooseBase(this, _tiles)[_tiles][newId];
-    if (!newTile) {
-      newTile = {
-        id: newId,
-        index: _classPrivateFieldLooseBase(this, _findFreeTile)[_findFreeTile](),
-        useCount: 0,
-        center: createVec3(),
-        rtcViewMatrix: createMat4()
-      };
-      _classPrivateFieldLooseBase(this, _tiles)[_tiles][newTile.id] = newTile;
-    }
-    newTile.useCount++;
-    return newTile;
-  };
-  _proto.refreshMatrices = function refreshMatrices() {
-    if (!_classPrivateFieldLooseBase(this, _dataTexture)[_dataTexture].texture) {
-      return;
-    }
-    var tileIds = Object.keys(_classPrivateFieldLooseBase(this, _tiles)[_tiles]);
-    var numTiles = tileIds.length;
-    if (numTiles > 0) {
-      var gl = _classPrivateFieldLooseBase(this, _gl)[_gl];
-      var viewMatrix = _classPrivateFieldLooseBase(this, _camera)[_camera].viewMatrix;
-      var data = new Float32Array(16 * numTiles);
-      for (var i = 0; i < numTiles; i++) {
-        var tileId = tileIds[i];
-        var tile = _classPrivateFieldLooseBase(this, _tiles)[_tiles][tileId];
-        createRTCViewMat(viewMatrix, tile.center, tile.rtcViewMatrix);
-        data.set(tile.rtcViewMatrix, tile.index * 16);
-      }
-      gl.bindTexture(gl.TEXTURE_2D, _classPrivateFieldLooseBase(this, _dataTexture)[_dataTexture].texture);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.FLOAT, data);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-    }
-  };
-  return WebGLTileManager;
-}();
-function _putFreeTile2(index) {
-  if (_classPrivateFieldLooseBase(this, _indexesUsed)[_indexesUsed][index]) {
-    delete _classPrivateFieldLooseBase(this, _indexesUsed)[_indexesUsed][index];
-    _classPrivateFieldLooseBase(this, _lastFreeIndex)[_lastFreeIndex] = index;
-    _classPrivateFieldLooseBase(this, _numTiles)[_numTiles]--;
-  }
-}
-function _findFreeTile2() {
-  for (var index = _classPrivateFieldLooseBase(this, _lastFreeIndex)[_lastFreeIndex];; index = (index + 1) % NUM_TILES) {
-    if (!_classPrivateFieldLooseBase(this, _indexesUsed)[_indexesUsed][index]) {
-      _classPrivateFieldLooseBase(this, _indexesUsed)[_indexesUsed][index] = true;
-      return index;
-    }
-  }
-}
-
-var ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
-var isSafari = ua && ua[1].toLowerCase() === "safari";
-/**
- * WebGL-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
- *
- * See {@link @xeokit/webglrenderer} for usage.
- */
-var _sceneModels = /*#__PURE__*/_classPrivateFieldLooseKey("sceneModels");
-var _viewer$1 = /*#__PURE__*/_classPrivateFieldLooseKey("viewer");
-var _view$9 = /*#__PURE__*/_classPrivateFieldLooseKey("view");
-var _renderContext = /*#__PURE__*/_classPrivateFieldLooseKey("renderContext");
-var _canvasTransparent = /*#__PURE__*/_classPrivateFieldLooseKey("canvasTransparent");
-var _transparentEnabled = /*#__PURE__*/_classPrivateFieldLooseKey("transparentEnabled");
-var _edgesEnabled = /*#__PURE__*/_classPrivateFieldLooseKey("edgesEnabled");
-var _imageDirty = /*#__PURE__*/_classPrivateFieldLooseKey("imageDirty");
-var _saoEnabled = /*#__PURE__*/_classPrivateFieldLooseKey("saoEnabled");
-var _pbrEnabled = /*#__PURE__*/_classPrivateFieldLooseKey("pbrEnabled");
-var _backgroundColor = /*#__PURE__*/_classPrivateFieldLooseKey("backgroundColor");
-var _rendererSceneModels = /*#__PURE__*/_classPrivateFieldLooseKey("rendererSceneModels");
-var _layerList = /*#__PURE__*/_classPrivateFieldLooseKey("layerList");
-var _layerListDirty = /*#__PURE__*/_classPrivateFieldLooseKey("layerListDirty");
-var _stateSortDirty = /*#__PURE__*/_classPrivateFieldLooseKey("stateSortDirty");
-var _pickIDs = /*#__PURE__*/_classPrivateFieldLooseKey("pickIDs");
-var _saoDepthRenderBuffer = /*#__PURE__*/_classPrivateFieldLooseKey("saoDepthRenderBuffer");
-var _extensionHandles = /*#__PURE__*/_classPrivateFieldLooseKey("extensionHandles");
-var _logarithmicDepthBufferEnabled = /*#__PURE__*/_classPrivateFieldLooseKey("logarithmicDepthBufferEnabled");
-var _alphaDepthMask = /*#__PURE__*/_classPrivateFieldLooseKey("alphaDepthMask");
-var _occlusionTester = /*#__PURE__*/_classPrivateFieldLooseKey("occlusionTester");
-var _textureTranscoder = /*#__PURE__*/_classPrivateFieldLooseKey("textureTranscoder");
-var _layerRenderers = /*#__PURE__*/_classPrivateFieldLooseKey("layerRenderers");
-var _viewMatrixDirty = /*#__PURE__*/_classPrivateFieldLooseKey("viewMatrixDirty");
-var _attachRendererViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("attachRendererViewObjects");
-var _detachRendererViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("detachRendererViewObjects");
-var _updateLayerList = /*#__PURE__*/_classPrivateFieldLooseKey("updateLayerList");
-var _buildLayerList = /*#__PURE__*/_classPrivateFieldLooseKey("buildLayerList");
-var _draw = /*#__PURE__*/_classPrivateFieldLooseKey("draw");
-var _activateExtensions = /*#__PURE__*/_classPrivateFieldLooseKey("activateExtensions");
-var _drawSAOBuffers = /*#__PURE__*/_classPrivateFieldLooseKey("drawSAOBuffers");
-var _drawDepth = /*#__PURE__*/_classPrivateFieldLooseKey("drawDepth");
-var _drawColor = /*#__PURE__*/_classPrivateFieldLooseKey("drawColor");
-var _drawLayer = /*#__PURE__*/_classPrivateFieldLooseKey("drawLayer");
-var WebGLRenderer = /*#__PURE__*/function () {
-  /**
-   Creates a WebGLRenderer.
-    @param params Configs
-   @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererSceneModel.createTexture}
-   to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-   to {@link rendererSceneModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererSceneModel````
-   will then be in a format supported by this transcoder.
-   */
-  function WebGLRenderer(_params) {
-    Object.defineProperty(this, _drawLayer, {
-      value: _drawLayer2
-    });
-    Object.defineProperty(this, _drawColor, {
-      value: _drawColor2
-    });
-    Object.defineProperty(this, _drawDepth, {
-      value: _drawDepth2
-    });
-    Object.defineProperty(this, _drawSAOBuffers, {
-      value: _drawSAOBuffers2
-    });
-    Object.defineProperty(this, _activateExtensions, {
-      value: _activateExtensions2
-    });
-    Object.defineProperty(this, _draw, {
-      value: _draw2
-    });
-    Object.defineProperty(this, _buildLayerList, {
-      value: _buildLayerList2
-    });
-    Object.defineProperty(this, _updateLayerList, {
-      value: _updateLayerList2
-    });
-    Object.defineProperty(this, _detachRendererViewObjects, {
-      value: _detachRendererViewObjects2
-    });
-    Object.defineProperty(this, _attachRendererViewObjects, {
-      value: _attachRendererViewObjects2
-    });
-    /**
-     * A RendererViewObject is an interface through which a ViewObject can push updates
-     * to its object representation within the Renderer.
-     */
-    this.rendererViewObjects = void 0;
-    this.tileManager = void 0;
-    Object.defineProperty(this, _sceneModels, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _viewer$1, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _view$9, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _renderContext, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _canvasTransparent, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _transparentEnabled, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _edgesEnabled, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _imageDirty, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _saoEnabled, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _pbrEnabled, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _backgroundColor, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _rendererSceneModels, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _layerList, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _layerListDirty, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _stateSortDirty, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _pickIDs, {
-      writable: true,
-      value: new Map$1({})
-    });
-    Object.defineProperty(this, _saoDepthRenderBuffer, {
-      writable: true,
-      value: void 0
-    });
-    // #renderBufferManager: GLRenderBufferManager;
-    Object.defineProperty(this, _extensionHandles, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _logarithmicDepthBufferEnabled, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _alphaDepthMask, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _occlusionTester, {
-      writable: true,
-      value: void 0
-    });
-    // #saoOcclusionRenderer: null | SAOOcclusionRenderer;
-    // #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
-    Object.defineProperty(this, _textureTranscoder, {
-      writable: true,
-      value: void 0
-    });
-    // @ts-ignore
-    Object.defineProperty(this, _layerRenderers, {
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, _viewMatrixDirty, {
-      writable: true,
-      value: void 0
-    });
-    this.rendererViewObjects = {};
-    this.tileManager = null;
-    _classPrivateFieldLooseBase(this, _sceneModels)[_sceneModels] = {};
-    _classPrivateFieldLooseBase(this, _textureTranscoder)[_textureTranscoder] = _params.textureTranscoder || new KTX2TextureTranscoder({});
-    _classPrivateFieldLooseBase(this, _canvasTransparent)[_canvasTransparent] = false;
-    _classPrivateFieldLooseBase(this, _alphaDepthMask)[_alphaDepthMask] = false;
-    _classPrivateFieldLooseBase(this, _extensionHandles)[_extensionHandles] = {};
-    _classPrivateFieldLooseBase(this, _pickIDs)[_pickIDs] = new Map$1({});
-    _classPrivateFieldLooseBase(this, _layerList)[_layerList] = [];
-    _classPrivateFieldLooseBase(this, _layerListDirty)[_layerListDirty] = true;
-    _classPrivateFieldLooseBase(this, _stateSortDirty)[_stateSortDirty] = true;
-    _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-    _classPrivateFieldLooseBase(this, _transparentEnabled)[_transparentEnabled] = true;
-    _classPrivateFieldLooseBase(this, _edgesEnabled)[_edgesEnabled] = true;
-    _classPrivateFieldLooseBase(this, _saoEnabled)[_saoEnabled] = true;
-    _classPrivateFieldLooseBase(this, _pbrEnabled)[_pbrEnabled] = true;
-    _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor] = createVec3();
-    _classPrivateFieldLooseBase(this, _occlusionTester)[_occlusionTester] = null; // Lazy-created in #addMarker()
-    // this.#saoDepthRenderBuffer = null;
-    // this.#renderBufferManager = null;
-    _classPrivateFieldLooseBase(this, _logarithmicDepthBufferEnabled)[_logarithmicDepthBufferEnabled] = false;
-    _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels] = {};
-    _classPrivateFieldLooseBase(this, _viewMatrixDirty)[_viewMatrixDirty] = true;
-  }
-  var _proto = WebGLRenderer.prototype;
-  _proto.getCapabilities = function getCapabilities(capabilities) {
-    capabilities.maxViews = 1;
-    var canvasElement = document.createElement('canvas');
-    var gl;
-    try {
-      gl = canvasElement.getContext("webgl2");
-    } catch (e) {
-      console.error('Failed to get a WebGL context');
-    }
-    if (gl) {
-      capabilities.astcSupported = !!getExtension(gl, 'WEBGL_compressed_texture_astc');
-      capabilities.etc1Supported = true; // WebGL
-      capabilities.etc2Supported = !!getExtension(gl, 'WEBGL_compressed_texture_etc');
-      capabilities.dxtSupported = !!getExtension(gl, 'WEBGL_compressed_texture_s3tc');
-      capabilities.bptcSupported = !!getExtension(gl, 'EXT_texture_compression_bptc');
-      capabilities.pvrtcSupported = !!(getExtension(gl, 'WEBGL_compressed_texture_pvrtc') || getExtension(gl, 'WEBKIT_WEBGL_compressed_texture_pvrtc'));
-    }
-  };
-  _proto.attachViewer = function attachViewer(viewer) {
-    _classPrivateFieldLooseBase(this, _viewer$1)[_viewer$1] = viewer;
-    _classPrivateFieldLooseBase(this, _textureTranscoder)[_textureTranscoder].init(_classPrivateFieldLooseBase(this, _viewer$1)[_viewer$1].capabilities);
-  };
-  _proto.attachView = function attachView(view) {
-    var _this = this;
-    if (_classPrivateFieldLooseBase(this, _renderContext)[_renderContext]) {
-      throw "Only one View allowed with WebGLRenderer (see WebViewerCapabilities.maxViews)";
-    }
-    _classPrivateFieldLooseBase(this, _view$9)[_view$9] = view;
-    var WEBGL_CONTEXT_NAMES = ["webgl2"];
-    var canvasElement = view.canvasElement;
-    var contextAttr = {};
-    var gl = null;
-    for (var i = 0; !gl && i < WEBGL_CONTEXT_NAMES.length; i++) {
-      try {
-        // @ts-ignore
-        gl = canvasElement.getContext(WEBGL_CONTEXT_NAMES[i], contextAttr);
-      } catch (e) {// Try with next context name
-      }
-    }
-    if (!gl) {
-      console.error('Failed to get a WebGL2 context');
-      //  view.events.fire("webglContextFailed", true, true);
-      return 0;
-    }
-    if (gl) {
-      gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
-    }
-    _classPrivateFieldLooseBase(this, _renderContext)[_renderContext] = new RenderContext(_classPrivateFieldLooseBase(this, _viewer$1)[_viewer$1], _classPrivateFieldLooseBase(this, _view$9)[_view$9], gl);
-    this.tileManager = new WebGLTileManager({
-      camera: view.camera,
-      gl: gl
-    });
-    _classPrivateFieldLooseBase(this, _layerRenderers)[_layerRenderers] = {
-      //       colorPoints: new ColorPointsLayerRenderer(this.#renderContext),
-      colorTriangles: new FastColorTrianglesRenderer(_classPrivateFieldLooseBase(this, _renderContext)[_renderContext])
-      // qualityColorTriangles: new QualityColorTrianglesRenderer(this.#renderContext),
-      // colorLines: new ColorLinesLayerRenderer(this.#renderContext),
-      // silhouettePoints: new SilhouettePointsRenderer(this.#renderContext),
-      // silhouetteTriangles: new SilhouetteTrianglesLayerRenderer(this.#renderContext),
-      // silhouetteLines: new SilhouetteLinesRenderer(this.#renderContext)
-    };
-
-    view.camera.onViewMatrix.sub(function () {
-      _classPrivateFieldLooseBase(_this, _viewMatrixDirty)[_viewMatrixDirty] = true;
-    });
-    return 0;
-  };
-  _proto.detachView = function detachView(viewIndex) {};
-  _proto.attachSceneModel = function attachSceneModel(sceneModel) {
-    var _this2 = this;
-    if (!_classPrivateFieldLooseBase(this, _renderContext)[_renderContext]) {
-      throw new SDKError("Must attach a View before you attach a SceneModel");
-    }
-    var rendererSceneModel = new WebGLRendererModel({
-      id: sceneModel.id,
-      sceneModel: sceneModel,
-      view: _classPrivateFieldLooseBase(this, _view$9)[_view$9],
-      textureTranscoder: _classPrivateFieldLooseBase(this, _textureTranscoder)[_textureTranscoder],
-      webglRenderer: this,
-      renderContext: _classPrivateFieldLooseBase(this, _renderContext)[_renderContext]
-    });
-    _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels][rendererSceneModel.id] = rendererSceneModel;
-    _classPrivateFieldLooseBase(this, _attachRendererViewObjects)[_attachRendererViewObjects](rendererSceneModel);
-    _classPrivateFieldLooseBase(this, _layerListDirty)[_layerListDirty] = true;
-    rendererSceneModel.onDestroyed.one(function (component) {
-      var rendererSceneModel = _classPrivateFieldLooseBase(_this2, _rendererSceneModels)[_rendererSceneModels][component.id];
-      delete _classPrivateFieldLooseBase(_this2, _rendererSceneModels)[_rendererSceneModels][component.id];
-      _classPrivateFieldLooseBase(_this2, _detachRendererViewObjects)[_detachRendererViewObjects](rendererSceneModel);
-      _classPrivateFieldLooseBase(_this2, _layerListDirty)[_layerListDirty] = true;
-    });
-    sceneModel.rendererSceneModel = rendererSceneModel;
-  };
-  _proto.detachSceneModel = function detachSceneModel(sceneModel) {
-    if (_classPrivateFieldLooseBase(this, _sceneModels)[_sceneModels][sceneModel.id]) {
-      var rendererSceneModel = _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels][sceneModel.id];
-      delete _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels][sceneModel.id];
-      _classPrivateFieldLooseBase(this, _detachRendererViewObjects)[_detachRendererViewObjects](rendererSceneModel);
-      _classPrivateFieldLooseBase(this, _layerListDirty)[_layerListDirty] = true;
-      sceneModel.rendererSceneModel = null;
-    }
-  };
-  /**
-   * @private
-   */
-  _proto.attachPickable = function attachPickable(pickable) {
-    return _classPrivateFieldLooseBase(this, _pickIDs)[_pickIDs].addItem(pickable);
-  }
-  /**
-   * @private
-   */;
-  _proto.detachPickable = function detachPickable(pickId) {
-    _classPrivateFieldLooseBase(this, _pickIDs)[_pickIDs].removeItem(pickId);
-  };
-  _proto.setImageDirty = function setImageDirty(viewIndex) {
-    _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-  };
-  _proto.setBackgroundColor = function setBackgroundColor(viewIndex, color) {
-    _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor].set(color);
-    _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-  };
-  _proto.setEdgesEnabled = function setEdgesEnabled(viewIndex, enabled) {
-    _classPrivateFieldLooseBase(this, _edgesEnabled)[_edgesEnabled] = enabled;
-    _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-  };
-  _proto.setPBREnabled = function setPBREnabled(viewIndex, enabled) {
-    _classPrivateFieldLooseBase(this, _pbrEnabled)[_pbrEnabled] = enabled;
-    _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-  };
-  _proto.getSAOSupported = function getSAOSupported() {
-    return isSafari && WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_standard_derivatives"];
-  };
-  _proto.setSAOEnabled = function setSAOEnabled(viewIndex, enabled) {
-    _classPrivateFieldLooseBase(this, _saoEnabled)[_saoEnabled] = enabled;
-    _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-  };
-  _proto.setTransparentEnabled = function setTransparentEnabled(viewIndex, enabled) {
-    _classPrivateFieldLooseBase(this, _transparentEnabled)[_transparentEnabled] = enabled;
-    _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-  };
-  _proto.clear = function clear(viewIndex) {
-    var gl = _classPrivateFieldLooseBase(this, _renderContext)[_renderContext].gl;
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-    if (_classPrivateFieldLooseBase(this, _canvasTransparent)[_canvasTransparent]) {
-      gl.clearColor(1, 1, 1, 1);
-    } else {
-      gl.clearColor(_classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][0], _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][1], _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][2], 1.0);
-    }
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  };
-  _proto.needsRebuild = function needsRebuild(viewIndex) {
-    for (var rendererId in _classPrivateFieldLooseBase(this, _layerRenderers)[_layerRenderers]) {
-      // @ts-ignore
-      _classPrivateFieldLooseBase(this, _layerRenderers)[_layerRenderers][rendererId].needRebuild();
-    }
-  };
-  _proto.needsRender = function needsRender(viewIndex) {
-    return _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] || _classPrivateFieldLooseBase(this, _layerListDirty)[_layerListDirty] || _classPrivateFieldLooseBase(this, _stateSortDirty)[_stateSortDirty];
-  };
-  _proto.render = function render(viewIndex, params) {
-    params = params || {};
-    if (params.force) {
-      _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-    }
-    if (_classPrivateFieldLooseBase(this, _viewMatrixDirty)[_viewMatrixDirty]) {
-      this.tileManager.refreshMatrices();
-      _classPrivateFieldLooseBase(this, _viewMatrixDirty)[_viewMatrixDirty] = false;
-    }
-    _classPrivateFieldLooseBase(this, _updateLayerList)[_updateLayerList]();
-    if (_classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty]) {
-      _classPrivateFieldLooseBase(this, _draw)[_draw]({
-        clear: true
-      });
-      _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = false;
-    }
-  };
-  _proto.pickSceneObject = function pickSceneObject(viewIndex, params) {
-    return null;
-  };
-  return WebGLRenderer;
-}();
-function _attachRendererViewObjects2(rendererSceneModel) {
-  var rendererViewObjects = rendererSceneModel.rendererViewObjects;
-  for (var id in rendererViewObjects) {
-    this.rendererViewObjects[id] = rendererViewObjects[id];
-  }
-}
-function _detachRendererViewObjects2(rendererSceneModel) {
-  var rendererViewObjects = rendererSceneModel.rendererViewObjects;
-  for (var id in rendererViewObjects) {
-    delete this.rendererViewObjects[id];
-  }
-}
-function _updateLayerList2() {
-  if (_classPrivateFieldLooseBase(this, _layerListDirty)[_layerListDirty]) {
-    _classPrivateFieldLooseBase(this, _buildLayerList)[_buildLayerList]();
-    _classPrivateFieldLooseBase(this, _layerListDirty)[_layerListDirty] = false;
-    _classPrivateFieldLooseBase(this, _stateSortDirty)[_stateSortDirty] = true;
-  }
-  if (_classPrivateFieldLooseBase(this, _stateSortDirty)[_stateSortDirty]) {
-    //     this.#sortLayerList();
-    _classPrivateFieldLooseBase(this, _stateSortDirty)[_stateSortDirty] = false;
-    _classPrivateFieldLooseBase(this, _imageDirty)[_imageDirty] = true;
-  }
-}
-function _buildLayerList2() {
-  var lenDrawableList = 0;
-  for (var id in _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels]) {
-    var webGLSceneModelRenderer = _classPrivateFieldLooseBase(this, _rendererSceneModels)[_rendererSceneModels][id];
-    for (var i = 0, len = webGLSceneModelRenderer.layerList.length; i < len; i++) {
-      _classPrivateFieldLooseBase(this, _layerList)[_layerList][lenDrawableList++] = webGLSceneModelRenderer.layerList[i];
-    }
-  }
-  _classPrivateFieldLooseBase(this, _layerList)[_layerList].length = lenDrawableList;
-}
-function _draw2(params) {
-  _classPrivateFieldLooseBase(this, _activateExtensions)[_activateExtensions]();
-  if (_classPrivateFieldLooseBase(this, _saoEnabled)[_saoEnabled] && _classPrivateFieldLooseBase(this, _view$9)[_view$9].sao.possible) {
-    _classPrivateFieldLooseBase(this, _drawSAOBuffers)[_drawSAOBuffers](params);
-  }
-  _classPrivateFieldLooseBase(this, _drawColor)[_drawColor](params);
-}
-function _activateExtensions2() {
-  if (WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_element_index_uint"]) {
-    _classPrivateFieldLooseBase(this, _extensionHandles)[_extensionHandles].OES_element_index_uint = _classPrivateFieldLooseBase(this, _renderContext)[_renderContext].gl.getExtension("OES_element_index_uint");
-  }
-  if (_classPrivateFieldLooseBase(this, _logarithmicDepthBufferEnabled)[_logarithmicDepthBufferEnabled] && WEBGL_INFO.SUPPORTED_EXTENSIONS["EXT_frag_depth"]) {
-    _classPrivateFieldLooseBase(this, _extensionHandles)[_extensionHandles].EXT_frag_depth = _classPrivateFieldLooseBase(this, _renderContext)[_renderContext].gl.getExtension('EXT_frag_depth');
-  }
-  if (WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]) {
-    _classPrivateFieldLooseBase(this, _extensionHandles)[_extensionHandles].WEBGL_depth_texture = _classPrivateFieldLooseBase(this, _renderContext)[_renderContext].gl.getExtension('WEBGL_depth_texture');
-  }
-}
-function _drawSAOBuffers2(params) {
-  // const sao = this.#view.sao;
-  // const saoDepthRenderBuffer = this.#renderBufferManager.getRenderBuffer("saoDepth", {
-  //     depthTexture: WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]
-  // });
-  // this.#saoDepthRenderBuffer.bind();
-  // this.#saoDepthRenderBuffer.clear();
-  // this.#drawDepth(params);
-  // this.#saoDepthRenderBuffer.unbind();
-  // // Render occlusion buffer
-  // const occlusionRenderBuffer1 = this.#renderBufferManager.getRenderBuffer("saoOcclusion");
-  // occlusionRenderBuffer1.bind();
-  // occlusionRenderBuffer1.clear();
-  // this.#saoOcclusionRenderer.render(saoDepthRenderBuffer);
-  // occlusionRenderBuffer1.unbind();
-  // if (sao.blur) {
-  //     // Horizontally blur occlusion buffer 1 into occlusion buffer 2
-  //     const occlusionRenderBuffer2 = this.#renderBufferManager.getRenderBuffer("saoOcclusion2");
-  //     occlusionRenderBuffer2.bind();
-  //     occlusionRenderBuffer2.clear();
-  //     this.#saoDepthLimitedBlurRenderer.render(saoDepthRenderBuffer, occlusionRenderBuffer1, 0);
-  //     occlusionRenderBuffer2.unbind();
-  //     // Vertically blur occlusion buffer 2 back into occlusion buffer 1
-  //     occlusionRenderBuffer1.bind();
-  //     occlusionRenderBuffer1.clear();
-  //     this.#saoDepthLimitedBlurRenderer.render(saoDepthRenderBuffer, occlusionRenderBuffer2, 1);
-  //     occlusionRenderBuffer1.unbind();
-  // }
-}
-function _drawDepth2(params) {
-  _classPrivateFieldLooseBase(this, _renderContext)[_renderContext].reset();
-  var gl = _classPrivateFieldLooseBase(this, _renderContext)[_renderContext].gl;
-  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-  gl.clearColor(0, 0, 0, 0);
-  gl.enable(gl.DEPTH_TEST);
-  gl.frontFace(gl.CCW);
-  gl.enable(gl.CULL_FACE);
-  gl.depthMask(true);
-  if (params.clear !== false) {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  }
-  // for (let i = 0, len = this.#layerListPostCull.length; i < len; i++) {
-  //     const layer = this.#layerListPostCull[i];
-  //     // if (layer.culled === true || layer.visible === false || !layer.drawDepth) {
-  //     //     continue;
-  //     // }
-  //     // if (layer.drawFlags.colorOpaque) {
-  //     //     //    layer.drawDepth(this.#renderContext);
-  //     // }
-  // }
-  // const numVertexAttribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; // Fixes https://github.com/xeokit/xeokit-sdk/issues/174
-  // for (let ii = 0; ii < numVertexAttribs; ii++) {
-  //     gl.disableVertexAttribArray(ii);
-  // }
-}
-function _drawColor2(params) {
-  var view = _classPrivateFieldLooseBase(this, _view$9)[_view$9];
-  var renderContext = _classPrivateFieldLooseBase(this, _renderContext)[_renderContext];
-  var gl = renderContext.gl;
-  var normalDrawSAOBin = [];
-  var edgesColorOpaqueBin = [];
-  var normalFillTransparentBin = [];
-  var edgesColorTransparentBin = [];
-  var xrayedSilhouetteOpaqueBin = [];
-  var xrayEdgesOpaqueBin = [];
-  var xrayedSilhouetteTransparentBin = [];
-  var xrayEdgesTransparentBin = [];
-  var highlightedSilhouetteOpaqueBin = [];
-  var highlightedEdgesOpaqueBin = [];
-  var highlightedSilhouetteTransparentBin = [];
-  var highlightedEdgesTransparentBin = [];
-  var selectedSilhouetteOpaqueBin = [];
-  var selectedEdgesOpaqueBin = [];
-  var selectedSilhouetteTransparentBin = [];
-  var selectedEdgesTransparentBin = [];
-  renderContext.reset();
-  renderContext.withSAO = false;
-  renderContext.pbrEnabled = _classPrivateFieldLooseBase(this, _pbrEnabled)[_pbrEnabled] && !!view.qualityRender;
-  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-  if (_classPrivateFieldLooseBase(this, _canvasTransparent)[_canvasTransparent]) {
-    gl.clearColor(0, 0, 0, 0);
-  } else {
-    gl.clearColor(_classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][0], _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][1], _classPrivateFieldLooseBase(this, _backgroundColor)[_backgroundColor][2], 1.0);
-  }
-  gl.enable(gl.DEPTH_TEST);
-  gl.frontFace(gl.CCW);
-  gl.enable(gl.CULL_FACE);
-  gl.depthMask(true);
-  gl.lineWidth(1);
-  renderContext.lineWidth = 1;
-  var saoPossible = view.sao.possible;
-  if (_classPrivateFieldLooseBase(this, _saoEnabled)[_saoEnabled] && saoPossible) ; else {
-    renderContext.occlusionTexture = null;
-  }
-  if (params.clear !== false) {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  }
-  // Render normal opaque solids, defer others to subsequent bins, to render after
-  var normalDrawSAOBinLen = 0;
-  var edgesColorOpaqueBinLen = 0;
-  var normalFillTransparentBinLen = 0;
-  var edgesColorTransparentBinLen = 0;
-  var xrayedSilhouetteOpaqueBinLen = 0;
-  var xrayEdgesOpaqueBinLen = 0;
-  var xrayedSilhouetteTransparentBinLen = 0;
-  var xrayEdgesTransparentBinLen = 0;
-  var highlightedSilhouetteOpaqueBinLen = 0;
-  var highlightedEdgesOpaqueBinLen = 0;
-  var highlightedSilhouetteTransparentBinLen = 0;
-  var highlightedEdgesTransparentBinLen = 0;
-  var selectedSilhouetteOpaqueBinLen = 0;
-  var selectedEdgesOpaqueBinLen = 0;
-  var selectedSilhouetteTransparentBinLen = 0;
-  var selectedEdgesTransparentBinLen = 0;
-  for (var i = 0, len = _classPrivateFieldLooseBase(this, _layerList)[_layerList].length; i < len; i++) {
-    var layer = _classPrivateFieldLooseBase(this, _layerList)[_layerList][i];
-    var meshCounts = layer.meshCounts;
-    if (meshCounts.numCulled === meshCounts.numMeshes || meshCounts.numVisible === 0) {
-      continue;
-    }
-    if (meshCounts.numTransparent < meshCounts.numMeshes) {
-      if (_classPrivateFieldLooseBase(this, _saoEnabled)[_saoEnabled] && saoPossible && layer.rendererSceneModel.qualityRender) {
-        normalDrawSAOBin[normalDrawSAOBinLen++] = layer;
-      } else {
-        _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](layer, RENDER_PASSES.COLOR_OPAQUE, layer.rendererSceneModel.qualityRender);
-      }
-    }
-    if (_classPrivateFieldLooseBase(this, _transparentEnabled)[_transparentEnabled]) {
-      if (meshCounts.numTransparent) {
-        normalFillTransparentBin[normalFillTransparentBinLen++] = layer;
-      }
-    }
-    if (meshCounts.numXRayed > 0) {
-      if (view.xrayMaterial.fill) {
-        if (view.xrayMaterial.fillAlpha < 1.0) {
-          xrayedSilhouetteTransparentBin[xrayedSilhouetteTransparentBinLen++] = layer;
-        } else {
-          xrayedSilhouetteOpaqueBin[xrayedSilhouetteOpaqueBinLen++] = layer;
-        }
-      }
-    }
-    if (meshCounts.numHighlighted > 0) {
-      if (view.highlightMaterial.fill) {
-        if (view.highlightMaterial.fillAlpha < 1.0) {
-          highlightedSilhouetteTransparentBin[highlightedSilhouetteTransparentBinLen++] = layer;
-        } else {
-          highlightedSilhouetteOpaqueBin[highlightedSilhouetteOpaqueBinLen++] = layer;
-        }
-      }
-    }
-    if (meshCounts.numSelected > 0) {
-      if (view.selectedMaterial.fill) {
-        if (view.selectedMaterial.fillAlpha < 1.0) {
-          selectedSilhouetteTransparentBin[selectedSilhouetteTransparentBinLen++] = layer;
-        } else {
-          selectedSilhouetteOpaqueBin[selectedSilhouetteOpaqueBinLen++] = layer;
-        }
-      }
-    }
-    if (_classPrivateFieldLooseBase(this, _edgesEnabled)[_edgesEnabled] && _classPrivateFieldLooseBase(this, _view$9)[_view$9].edgeMaterial.edges) {
-      if (meshCounts.numEdges > 0) {
-        if (meshCounts.numTransparent < meshCounts.numMeshes) {
-          edgesColorOpaqueBin[edgesColorOpaqueBinLen++] = layer;
-        }
-        if (meshCounts.numTransparent > 0) {
-          edgesColorTransparentBin[edgesColorTransparentBinLen++] = layer;
-        }
-        if (view.selectedMaterial.edgeAlpha < 1.0) {
-          selectedEdgesTransparentBin[selectedEdgesTransparentBinLen++] = layer;
-        } else {
-          selectedEdgesOpaqueBin[selectedEdgesOpaqueBinLen++] = layer;
-        }
-        if (view.xrayMaterial.edgeAlpha < 1.0) {
-          xrayEdgesTransparentBin[xrayEdgesTransparentBinLen++] = layer;
-        } else {
-          xrayEdgesOpaqueBin[xrayEdgesOpaqueBinLen++] = layer;
-        }
-        if (view.highlightMaterial.edgeAlpha < 1.0) {
-          highlightedEdgesTransparentBin[highlightedEdgesTransparentBinLen++] = layer;
-        } else {
-          highlightedEdgesOpaqueBin[highlightedEdgesOpaqueBinLen++] = layer;
-        }
-      }
-    }
-  }
-  // Render deferred bins
-  if (normalDrawSAOBinLen > 0) {
-    renderContext.withSAO = true;
-  }
-  for (var _i2 = 0; _i2 < edgesColorOpaqueBinLen; _i2++) {
-    _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](edgesColorOpaqueBin[_i2], RENDER_PASSES.EDGES_COLOR_OPAQUE);
-  }
-  for (var _i3 = 0; _i3 < xrayedSilhouetteOpaqueBinLen; _i3++) {
-    _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](xrayedSilhouetteOpaqueBin[_i3], RENDER_PASSES.SILHOUETTE_XRAYED);
-  }
-  for (var _i4 = 0; _i4 < xrayEdgesOpaqueBinLen; _i4++) {
-    _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](xrayEdgesOpaqueBin[_i4], RENDER_PASSES.EDGES_XRAYED);
-  }
-  if (xrayedSilhouetteTransparentBinLen > 0 || xrayEdgesTransparentBinLen > 0 || normalFillTransparentBinLen > 0 || edgesColorTransparentBinLen > 0) {
-    gl.enable(gl.CULL_FACE);
-    gl.enable(gl.BLEND);
-    if (_classPrivateFieldLooseBase(this, _canvasTransparent)[_canvasTransparent]) {
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    } else {
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    }
-    renderContext.backfaces = false;
-    if (!_classPrivateFieldLooseBase(this, _alphaDepthMask)[_alphaDepthMask]) {
-      gl.depthMask(false);
-    }
-    for (var _i5 = 0; _i5 < xrayEdgesTransparentBinLen; _i5++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](xrayEdgesTransparentBin[_i5], RENDER_PASSES.EDGES_XRAYED);
-    }
-    for (var _i6 = 0; _i6 < xrayedSilhouetteTransparentBinLen; _i6++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](xrayedSilhouetteTransparentBin[_i6], RENDER_PASSES.SILHOUETTE_XRAYED);
-    }
-    if (normalFillTransparentBinLen > 0 || edgesColorTransparentBinLen > 0) {
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    }
-    for (var _i7 = 0; _i7 < edgesColorTransparentBinLen; _i7++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](edgesColorTransparentBin[_i7], RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
-    }
-    for (var _i8 = 0; _i8 < normalFillTransparentBinLen; _i8++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](normalFillTransparentBin[_i8], RENDER_PASSES.COLOR_TRANSPARENT);
-    }
-    gl.disable(gl.BLEND);
-    if (!_classPrivateFieldLooseBase(this, _alphaDepthMask)[_alphaDepthMask]) {
-      gl.depthMask(true);
-    }
-  }
-  if (highlightedSilhouetteOpaqueBinLen > 0 || highlightedEdgesOpaqueBinLen > 0) {
-    renderContext.lastProgramId = -1; // HACK
-    gl.clear(gl.DEPTH_BUFFER_BIT);
-    for (var _i9 = 0; _i9 < highlightedEdgesOpaqueBinLen; _i9++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](highlightedEdgesOpaqueBin[_i9], RENDER_PASSES.EDGES_HIGHLIGHTED);
-    }
-    for (var _i10 = 0; _i10 < highlightedSilhouetteOpaqueBinLen; _i10++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](highlightedSilhouetteOpaqueBin[_i10], RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
-    }
-  }
-  if (highlightedSilhouetteTransparentBinLen > 0 || highlightedEdgesTransparentBinLen > 0 || highlightedSilhouetteOpaqueBinLen > 0) {
-    renderContext.lastProgramId = -1;
-    gl.clear(gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.CULL_FACE);
-    gl.enable(gl.BLEND);
-    if (_classPrivateFieldLooseBase(this, _canvasTransparent)[_canvasTransparent]) {
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    } else {
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    }
-    for (var _i11 = 0; _i11 < highlightedEdgesTransparentBinLen; _i11++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](highlightedEdgesTransparentBin[_i11], RENDER_PASSES.EDGES_HIGHLIGHTED);
-    }
-    for (var _i12 = 0; _i12 < highlightedSilhouetteTransparentBinLen; _i12++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](highlightedSilhouetteTransparentBin[_i12], RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
-    }
-    gl.disable(gl.BLEND);
-  }
-  if (selectedSilhouetteOpaqueBinLen > 0 || selectedEdgesOpaqueBinLen > 0) {
-    renderContext.lastProgramId = -1;
-    gl.clear(gl.DEPTH_BUFFER_BIT);
-    for (var _i13 = 0; _i13 < selectedEdgesOpaqueBinLen; _i13++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](selectedEdgesOpaqueBin[_i13], RENDER_PASSES.EDGES_SELECTED);
-    }
-    for (var _i14 = 0; _i14 < selectedSilhouetteOpaqueBinLen; _i14++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](selectedSilhouetteOpaqueBin[_i14], RENDER_PASSES.SILHOUETTE_SELECTED);
-    }
-  }
-  if (selectedSilhouetteTransparentBinLen > 0 || selectedEdgesTransparentBinLen > 0) {
-    renderContext.lastProgramId = -1;
-    gl.clear(gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.CULL_FACE);
-    gl.enable(gl.BLEND);
-    if (_classPrivateFieldLooseBase(this, _canvasTransparent)[_canvasTransparent]) {
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    } else {
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    }
-    for (var _i15 = 0; _i15 < selectedEdgesTransparentBinLen; _i15++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](selectedEdgesTransparentBin[_i15], RENDER_PASSES.EDGES_SELECTED);
-    }
-    for (var _i16 = 0; _i16 < selectedSilhouetteTransparentBinLen; _i16++) {
-      _classPrivateFieldLooseBase(this, _drawLayer)[_drawLayer](selectedSilhouetteTransparentBin[_i16], RENDER_PASSES.SILHOUETTE_SELECTED);
-    }
-    gl.disable(gl.BLEND);
-  }
-  var numTextureUnits = WEBGL_INFO.MAX_TEXTURE_UNITS;
-  for (var ii = 0; ii < numTextureUnits; ii++) {
-    gl.activeTexture(gl.TEXTURE0 + ii);
-  }
-  gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  var numVertexAttribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; // Fixes https://github.com/xeokit/xeokit-sdk/issues/174
-  for (var _ii = 0; _ii < numVertexAttribs; _ii++) {
-    gl.disableVertexAttribArray(_ii);
-  }
-}
-function _drawLayer2(layer, renderPass, quality) {
-  if (quality === void 0) {
-    quality = true;
-  }
-  switch (layer.renderState.primitive) {
-    case TrianglesPrimitive:
-    case SurfacePrimitive:
-    case SolidPrimitive:
-      switch (renderPass) {
-        case RENDER_PASSES.COLOR_OPAQUE:
-          if (layer.meshCounts.numTransparent === layer.meshCounts.numMeshes || layer.meshCounts.numXRayed === layer.meshCounts.numMeshes) {
-            return;
-          }
-          if (quality) ; else {
-            _classPrivateFieldLooseBase(this, _layerRenderers)[_layerRenderers].colorTriangles.draw(layer);
-          }
-          break;
-        case RENDER_PASSES.COLOR_TRANSPARENT:
-          if (layer.meshCounts.numTransparent === 0) {
-            return;
-          }
-          if (quality) ; else {
-            _classPrivateFieldLooseBase(this, _layerRenderers)[_layerRenderers].colorTriangles.draw(layer);
-          }
-          break;
-      }
-      break;
-  }
-}
-
-/**
- * [![npm version](https://badge.fury.io/js/%40xeokit%2Fwebgl.svg)](https://badge.fury.io/js/%40xeokit%2Fwebgl)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/webglrenderer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/webglrenderer)
- *
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:100px;" src="media://images/xeokit_webgl_logo.svg"/>
- *
- * # xeokit WebGL2 Renderer
- *
- * ---
- *
- * ### *Configures a xeokit Viewer to use WebGL2 for graphics*
- *
- * ---
- *
- * * Plug a {@link WebGLRenderer} into a {@link @xeokit/viewer!Viewer} to use WebGL for model storage and rendering
- * * Compact texture-based model representation
- * * Fast full-precision rendering of large models
- * * Physically-based materials
- * * Multi-canvas
- * * Basis-compressed textures
- * * Compressed geometry
- *
- * ## Installation
- *
- * ````bash
- * npm install @xeokit/webglrenderer
- * ````
- *
- * ## Usage
- *
- * Configuring a {@link @xeokit/viewer!Viewer} with a {@link WebGLRenderer} to use the browser's WebGL
- * graphics API for storing and rendering models:
- *
- * ````javascript
- * import {Scene} from "@xeokit/scene";
- * import {Viewer} from "@xeokit/viewer";
- * import {WebGLRenderer} from "@xeokit/webglrenderer";
- *
- * const myViewer = new Viewer({
- *     id: "myViewer",
- *     scene: new Scene(),
- *     renderer: new WebGLRenderer({ // Mandatory
- *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
- *              transcoderPath: "./../dist/basis/" // <------ Path to BasisU transcoder module
- *          })
- *     })
- * });
- *
- * //...
- * ````
- *
- * @module @xeokit/webglrenderer
- */
-
 var index$3 = {
   __proto__: null,
-  WebGLRenderer: WebGLRenderer
+  KTX2TextureTranscoder: KTX2TextureTranscoder
 };
 
 var screenPos = createVec4();
@@ -37020,7 +31005,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
       longTapRadius: 5,
       active: true,
       keyboardLayout: "qwerty",
-      navMode: "orbit",
+      navMode: OrbitNavigationMode,
       planView: false,
       firstPerson: false,
       followPointer: true,
@@ -37263,7 +31248,13 @@ var CameraControl = /*#__PURE__*/function (_Component) {
     /**
      * Gets the current navigation mode.
      *
-     * @returns {String} The navigation mode: "orbit", "firstPerson" or "planView".
+     * Returned values are:
+     *
+     * * {@link @xeokit/constants!OrbitNavigationMode} - rotation orbits about the current target or pivot point,
+     * * {@link @xeokit/constants!FirstPersonNavigationMode} - rotation is about the current eye position,
+     * * {@link @xeokit/constants!PlanViewNavigationMode} - rotation is disabled.
+     *
+     * @returns {number} The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
      */
   }, {
     key: "navMode",
@@ -37275,22 +31266,22 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * Accepted values are:
      *
-     * * "orbit" - rotation orbits about the current target or pivot point,
-     * * "firstPerson" - rotation is about the current eye position,
-     * * "planView" - rotation is disabled.
+     * * {@link @xeokit/constants!OrbitNavigationMode} - rotation orbits about the current target or pivot point,
+     * * {@link @xeokit/constants!FirstPersonNavigationMode} - rotation is about the current eye position,
+     * * {@link @xeokit/constants!PlanViewNavigationMode} - rotation is disabled.
      *
      * See class comments for more info.
      *
-     * @param navMode The navigation mode: "orbit", "firstPerson" or "planView".
+     * @param navMode The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
      */,
     set: function set(navMode) {
-      navMode = navMode || "orbit";
-      if (navMode !== "firstPerson" && navMode !== "orbit" && navMode !== "planView") {
+      navMode = navMode || OrbitNavigationMode;
+      if (navMode !== FirstPersonNavigationMode && navMode !== OrbitNavigationMode && navMode !== PlanViewNavigationMode) {
         this.error("Unsupported value for navMode: " + navMode + " - supported values are 'orbit', 'firstPerson' and 'planView' - defaulting to 'orbit'");
-        navMode = "orbit";
+        navMode = OrbitNavigationMode;
       }
-      _classPrivateFieldLooseBase(this, _configs)[_configs].firstPerson = navMode === "firstPerson";
-      _classPrivateFieldLooseBase(this, _configs)[_configs].planView = navMode === "planView";
+      _classPrivateFieldLooseBase(this, _configs)[_configs].firstPerson = navMode === FirstPersonNavigationMode;
+      _classPrivateFieldLooseBase(this, _configs)[_configs].planView = navMode === PlanViewNavigationMode;
       if (_classPrivateFieldLooseBase(this, _configs)[_configs].firstPerson || _classPrivateFieldLooseBase(this, _configs)[_configs].planView) {
         _classPrivateFieldLooseBase(this, _controllers)[_controllers].pivotController.hidePivot();
         _classPrivateFieldLooseBase(this, _controllers)[_controllers].pivotController.endPivot();
@@ -37303,7 +31294,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      * Default is ````true````.
      *
      * Disabling mouse and touch input on ````CameraControl```` is desirable when we want to temporarily use mouse or
-     * touch input to interact with some other 3D control, without interfering with the {@link @xeokit/viewer!Camera} .
+     * touch input to interact with some other 3D control, without interfering with the {@link @xeokit/viewer!Camera}.
      *
      * @returns {Boolean} Returns ````true```` if mouse and touch input is enabled.
      */
@@ -37318,7 +31309,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      * Default is ````true````.
      *
      * Disabling mouse and touch input on ````CameraControl```` is useful when we want to temporarily use mouse or
-     * touch input to interact with some other 3D control, without disturbing the {@link @xeokit/viewer!Camera} .
+     * touch input to interact with some other 3D control, without disturbing the {@link @xeokit/viewer!Camera}.
      *
      * @param value Set ````true```` to enable mouse and touch input.
      */,
@@ -37504,7 +31495,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````FirstPersonNavigationMode````.
      *
      * Default is ````false````.
      *
@@ -37520,7 +31511,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````FirstPersonNavigationMode````.
      *
      * Default is ````false````.
      *
@@ -37578,7 +31569,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````PlanViewNavigationMode````, which disallows rotation.
      *
      * @returns {Number} The inertia factor.
      */
@@ -37588,7 +31579,8 @@ var CameraControl = /*#__PURE__*/function (_Component) {
       return _classPrivateFieldLooseBase(this, _configs)[_configs].rotationInertia;
     }
     /**
-     * Sets a factor in range ````[0..1]```` indicating how much the {@link @xeokit/viewer!Camera}  keeps moving after you finish rotating it.
+     * Sets a factor in range ````[0..1]```` indicating how much the {@link @xeokit/viewer!Camera}  keeps moving after you
+     * finish rotating it.
      *
      * A value of ````0.0```` causes it to immediately stop, ````0.5```` causes its movement to decay 50% on each tick,
      * while ````1.0```` causes no decay, allowing it to continue moving, by the current rate of rotation.
@@ -37599,7 +31591,8 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````PlanViewNavigationMode````,
+     * which disallows rotation.
      *
      * @param rotationInertia New inertial factor.
      */,
@@ -37657,7 +31650,7 @@ var CameraControl = /*#__PURE__*/function (_Component) {
       _classPrivateFieldLooseBase(this, _configs)[_configs].keyboardPanRate = keyboardPanRate !== null && keyboardPanRate !== undefined ? keyboardPanRate : 5.0;
     }
     /**
-     * Sets how many degrees per second the {@link @xeokit/viewer!Camera}  rotates/orbits with keyboard input.
+     * Sets how many degrees per second the {@link @xeokit/viewer!Camera} rotates/orbits with keyboard input.
      *
      * Default is ````90.0````.
      *
@@ -37695,7 +31688,8 @@ var CameraControl = /*#__PURE__*/function (_Component) {
     /**
      * Sets the current drag rotation rate.
      *
-     * This configures how many degrees the {@link @xeokit/viewer!Camera}  rotates/orbits for a full sweep of the canvas by mouse or touch dragging.
+     * This configures how many degrees the {@link @xeokit/viewer!Camera}  rotates/orbits for a full sweep of the canvas by mouse or
+     * touch dragging.
      *
      * For example, a value of ````360.0```` indicates that the ````Camera```` rotates/orbits ````360.0```` degrees horizontally
      * when we sweep the entire width of the canvas.
@@ -37928,13 +31922,15 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      * Gets whether smart default pivoting is enabled.
      *
      * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
-     * imaginary sphere that's centered at {@link @xeokit/viewer!Camera.eye | Camera.eye} and sized to the {@link @xeokit/scene!Scene} boundary.
+     * imaginary sphere that's centered at {@link @xeokit/viewer!Camera.eye | Camera.eye} and sized to the
+     * {@link @xeokit/scene!Scene} boundary.
      *
      * When ````false````, we'll pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * @returns {Boolean} Returns ````true```` when pivoting by default about the selected point on the virtual sphere, or ````false```` when pivoting by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
+     * @returns {Boolean} Returns ````true```` when pivoting by default about the selected point on the virtual
+     * sphere, or ````false```` when pivoting by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      */
   }, {
     key: "smartPivot",
@@ -37945,13 +31941,15 @@ var CameraControl = /*#__PURE__*/function (_Component) {
      * Sets whether smart default pivoting is enabled.
      *
      * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
-     * imaginary sphere that's centered at {@link @xeokit/viewer!Camera.eye | Camera.eye} and sized to the {@link @xeokit/scene!Scene} boundary.
+     * imaginary sphere that's centered at {@link @xeokit/viewer!Camera.eye | Camera.eye} and sized to
+     * the {@link @xeokit/scene!Scene} boundary.
      *
      * When ````false````, we'll pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      *
      * Default is ````false````.
      *
-     * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere, or ````false```` to pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
+     * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere,
+     * or ````false```` to pivot by default about {@link @xeokit/viewer!Camera.look | Camera.look}.
      */,
     set: function set(enabled) {
       _classPrivateFieldLooseBase(this, _configs)[_configs].smartPivot = enabled !== false;
@@ -38092,7 +32090,7 @@ CameraControl.AXIS_VIEW_BOTTOM = 17;
  *
  * * Use {@link CameraControl} to control a {@link @xeokit/viewer!Camera}, which belongs to a {@link @xeokit/viewer!View | View}, which belongs to a {@link @xeokit/viewer!Viewer | Viewer}.
  * * Reads touch, mouse and keyboard input
- * * Three navigation modes: "orbit", "firstPerson" and "planView"
+ * * Three navigation modes:  {@link @xeokit/constants!OrbitNavigationMode}, {@link @xeokit/constants!FirstPersonNavigationMode} and {@link @xeokit/constants!PlanViewNavigationMode}.
  * * Dynamic key mapping
  * * Smart-pivot
  * * Move-to-pointer
@@ -38177,7 +32175,7 @@ function saveBCFViewpoint(params) {
  *
  * ---
  *
- * The xeokit SDK uses the [BCF](/docs/pages/GLOSSARY.html#bcf) format to exchange bookmarks of Viewer state with other
+ * The xeokit SDK uses the [BCF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#bcf) format to exchange bookmarks of Viewer state with other
  * BIM software. BCF (Building Collaboration Format) is an open file format that enables data exchange and collaboration on 3D models and building
  * information. A *BCF viewpoint* is a snapshot of a specific issue related to a building project, containing information such as the
  * problem description, location, and proposed solutions. It is used to facilitate communication and collaboration among
@@ -38213,7 +32211,7 @@ function saveBCFViewpoint(params) {
  * * create a {@link @xeokit/scene!Scene | Scene} and a {@link @xeokit/data!Data | Data},
  * * initialize a Viewer with the Scene and a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer},
  * * create a new {@link @xeokit/viewer!View | View}, {@link @xeokit/scene!SceneModel | SceneModel} and {@link @xeokit/data!DataModel | DataModel},
- * * load an XKT file using the {@link @xeokit/xkt!loadXKT | loadXKT} function, and
+ * * load an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file using the {@link @xeokit/xkt!loadXKT | loadXKT} function, and
  * * build the Scene and Data models, rendering the 3D model in the web browser.
  *
  * ````javascript
@@ -38257,7 +32255,7 @@ function saveBCFViewpoint(params) {
  * });
  * ````
  *
- * When our XKT has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
+ * When our [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
  * and cause it to immediately appear in the View's canvas.
  *
  * That call will also trigger {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and
@@ -39764,7 +33762,7 @@ TreeView.GroupsHierarchy = void 0;
  * * {@link @xeokit/treeview!TreeView}
  * * Fast HTML tree view to navigate federated models in a {@link @xeokit/viewer!Viewer}
  * * Use with a {@link @xeokit/viewer!View | View} and a semantic {@link @xeokit/data!Data} model
- * * Supports Industry Foundation Classes (IFC)
+ * * Supports Industry Foundation Classes ([IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc))
  * * Supports any schema expressable as ER graph with aggregation relationships
  *
  * ## Installation
@@ -39853,5 +33851,5 @@ var index = {
   TreeView: TreeView
 };
 
-export { index$b as basictypes, index$1 as bcf, index$h as boundaries, index$2 as cameracontrol, index$8 as cityjson, index$a as cityjsontypes, index$i as compression, index$m as constants, index$n as core, index$f as curves, index$d as data, index$7 as dotbim, index$9 as ifctypes, index$4 as ktx2, index$e as locale, index$l as math, index$k as matrix, index$5 as mockrenderer, index$g as rtc, index$c as scene, index as treeview, index$j as utils, index$6 as viewer, index$3 as webglrenderer };
+export { index$a as basictypes, index$1 as bcf, index$g as boundaries, index$2 as cameracontrol, index$7 as cityjson, index$9 as cityjsontypes, index$h as compression, index$l as constants, index$m as core, index$e as curves, index$c as data, index$6 as dotbim, index$8 as ifctypes, index$3 as ktx2, index$d as locale, index$k as math, index$j as matrix, index$4 as mockrenderer, index$f as rtc, index$b as scene, index as treeview, index$i as utils, index$5 as viewer };
 //# sourceMappingURL=xeokit-bundle.js.map

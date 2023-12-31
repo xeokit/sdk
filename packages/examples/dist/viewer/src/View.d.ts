@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from "@xeokit/core";
+import { Component, EventEmitter, SDKError } from "@xeokit/core";
 import type { FloatArrayParam, IntArrayParam } from "@xeokit/math";
 import { ViewObject } from "./ViewObject";
 import { SectionPlane } from "./SectionPlane";
@@ -10,13 +10,18 @@ import { ViewLayer } from "./ViewLayer";
 import type { ViewLayerParams } from "./ViewLayerParams";
 import type { SectionPlaneParams } from "./SectionPlaneParams";
 import { EmphasisMaterial } from "./EmphasisMaterial";
-import { EdgeMaterial } from "./EdgeMaterial";
+import { Edges } from "./Edges";
 import { PointsMaterial } from "./PointsMaterial";
 import { Camera } from "./Camera";
 import type { PointLight } from "./PointLight";
 import { CameraFlightAnimation } from "./CameraFlightAnimation";
 import type { AmbientLight } from "./AmbientLight";
 import type { DirLight } from "./DirLight";
+import { PickParams } from "./PickParams";
+import { PickResult } from "./PickResult";
+import { SnapshotResult } from "./SnapshotResult";
+import { SnapshotParams } from "./SnapshotParams";
+import { ResolutionScale } from "./ResolutionScale";
 /**
  * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
  *
@@ -141,7 +146,11 @@ declare class View extends Component {
     /**
      * Configures the appearance of edges belonging to {@link @xeokit/viewer!ViewObject} in this View.
      */
-    readonly edgeMaterial: EdgeMaterial;
+    readonly edges: Edges;
+    /**
+     * Configures resolution scaling for this View.
+     */
+    readonly resolutionScale: ResolutionScale;
     /**
      * Configures the appearance of point primitives belonging to {@link @xeokit/viewer!ViewObject | ViewObjects} in this View .
      */
@@ -254,7 +263,7 @@ declare class View extends Component {
      *
      * When ````true```` (default), the View will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} as needed for each new
      * {@link RendererViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
-     * layerId. This default setting therefore ensures that a ViewObject is created in the View for every ViewerObject that is created.
+     * layerId. This default setting therefore ensures that a ViewObject is created in the View for every SceneObject that is created.
      *
      * If you set this ````false````, however, then the View will only create {@link @xeokit/viewer!ViewObject | ViewObjects} for {@link RendererViewObject | ViewerObjects} that have
      * a {@link RendererViewObject.layerId} that matches the ID of a {@link @xeokit/viewer!ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
@@ -337,6 +346,32 @@ declare class View extends Component {
      */
     initViewObjects(): void;
     /**
+     * Sets which rendering mode this View is in.
+     *
+     * Supported rendering modes are:
+     *
+     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+     *
+     * Default value is {@link @xeokit/constants!QualityRender | QualityRender}.
+     *
+     * @param renderMode The rendering mode
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * Rendering mode not supported.
+     */
+    setRenderMode(renderMode: number): SDKError | void;
+    /**
+     * Gets which rendering mode this View is in.
+     *
+     * Supported rendering modes are:
+     *
+     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+     *
+     * Default value is {@link @xeokit/constants!QualityRender | QualityRender}.
+     */
+    get renderMode(): number;
+    /**
      *
      */
     get aabb(): FloatArrayParam;
@@ -374,26 +409,6 @@ declare class View extends Component {
      * Default value is ````true````.
      */
     set backgroundColorFromAmbientLight(backgroundColorFromAmbientLight: boolean);
-    /**
-     * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
-     *
-     * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
-     * a performance boost.
-     *
-     * @returns  The resolution scale.
-     */
-    get resolutionScale(): number;
-    /**
-     * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
-     *
-     * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-     * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
-     * a performance boost.
-     *
-     * @param resolutionScale The resolution scale.
-     */
-    set resolutionScale(resolutionScale: number);
     /**
      * Gets the gamma factor.
      */
@@ -651,7 +666,7 @@ declare class View extends Component {
     /**
      * Iterates with a callback over the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this View.
      *
-     * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
+     * @param objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
      * @param callback Callback to execute on each {@link @xeokit/viewer!ViewObject}.
      * @returns True if any {@link @xeokit/viewer!ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
      */
@@ -669,6 +684,20 @@ declare class View extends Component {
      * @returns The new ViewLayer
      */
     createLayer(viewLayerParams: ViewLayerParams): ViewLayer;
+    /**
+     * Attempts to pick a {@link ViewObject} in this View.
+     *
+     * @param pickParams
+     * @param pickResult
+     */
+    pick(pickParams: PickParams, pickResult?: PickResult): PickResult | null;
+    /**
+     * Captures a snapshot image of this View.
+     *
+     * @param snapshotParams
+     * @param snapshotResult
+     */
+    getSnapshot(snapshotParams: SnapshotParams, snapshotResult?: SnapshotResult): SnapshotResult;
     /**
      * Destroys this View.
      *

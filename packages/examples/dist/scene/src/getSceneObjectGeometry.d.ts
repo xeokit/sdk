@@ -36,7 +36,7 @@ export interface GeometryView {
      */
     geometryBucketIndex: number;
     /**
-     * The total number of {@link @xeokit/scene!GeometryBucket | GeometryBuckets} within the current {@link @xeokit/scene!SceneObject}..
+     * The total number of {@link @xeokit/scene!GeometryBucket | GeometryBuckets} within the current {@link @xeokit/scene!SceneObject}.
      */
     readonly totalGeometryBuckets: number;
     /**

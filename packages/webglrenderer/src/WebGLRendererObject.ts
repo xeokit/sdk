@@ -5,7 +5,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import type {WebGLRendererMesh} from "./WebGLRendererMesh";
 import type {RendererViewObject} from "@xeokit/viewer";
-import type {RendererSceneModel, RendererSceneObject, SceneObject} from "@xeokit/scene";
+import type {RendererModel, RendererObject, SceneObject} from "@xeokit/scene";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
@@ -13,10 +13,10 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
  * TODO
  * @internal
  */
-export class WebGLRendererObject implements RendererSceneObject, RendererViewObject {
+export class WebGLRendererObject implements RendererObject, RendererViewObject {
 
     readonly id: string;
-    readonly rendererSceneModel: RendererSceneModel;
+    readonly rendererModel: RendererModel;
     readonly sceneObject: SceneObject;
     readonly layerId: string | null;
 
@@ -36,14 +36,14 @@ export class WebGLRendererObject implements RendererSceneObject, RendererViewObj
     constructor(params: {
         id: string,
         sceneObject: SceneObject,
-        rendererSceneModel: RendererSceneModel,
+        rendererModel: RendererModel,
         rendererMeshes: WebGLRendererMesh[],
         aabb: any,
         layerId?: string
     }) {
         this.id = params.id;
         this.sceneObject = params.sceneObject;
-        this.rendererSceneModel = params.rendererSceneModel;
+        this.rendererModel = params.rendererModel;
         this.rendererMeshes = params.rendererMeshes || [];
         this.#flags = 0;
         this.#aabb = params.aabb;
@@ -268,8 +268,8 @@ export class WebGLRendererObject implements RendererSceneObject, RendererViewObj
         // this.#offsetAABB[5] = this.#aabb[5] + this.#offset[2];
         // // this.scene.#aabbDirty = true;
         // // this.scene._objectOffsetUpdated(this, offset);
-        // // this.rendererSceneModel._aabbDirty = true;
-        // // this.rendererSceneModel.glRedraw();
+        // // this.rendererModel._aabbDirty = true;
+        // // this.rendererModel.glRedraw();
     }
 
     build(): void {

@@ -230,7 +230,8 @@ export declare function intersectFrustum3Triangles3(frustum: Frustum3, positions
  */
 export declare function intersectFrustum3Triangle3(frustum: Frustum3, a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam): boolean;
 /**
- * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given
+ * {@link @xeokit/constants!LinesPrimitive | LinesPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *
@@ -240,7 +241,8 @@ export declare function intersectFrustum3Triangle3(frustum: Frustum3, a: FloatAr
  */
 export declare function intersectFrustum3Lines3(frustum: Frustum3, positions: FloatArrayParam, indices: IntArrayParam): boolean;
 /**
- * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
+ * Tests if the given {@link @xeokit/boundaries!Frustum3 | Frustum3} intersects the
+ * given {@link @xeokit/constants!PointsPrimitive | PointsPrimitive} geometry.
  *
  * Returns ```` true```` if intersection else ````false````.
  *

@@ -344,6 +344,8 @@ class ViewLayer extends Component {
      */
     readonly onObjectVisibility: EventEmitter<ViewLayer, ViewObject>;
 
+    #renderModes: number[];
+
     #numObjects: number;
     #objectIds: string[] | null;
     #numVisibleObjects: number;
@@ -397,6 +399,8 @@ class ViewLayer extends Component {
 
         this.#qualityRender = !!options.qualityRender;
 
+        this.#renderModes = [];
+
         this.onObjectVisibility = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
 
         this.#initViewObjects();
@@ -410,25 +414,22 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Sets whether quality rendering is enabled for this ViewLayer.
+     * Sets which rendering modes in which to render the {@linkk ViewObject | ViewObjects} in this ViewLayer.
      *
-     * Default is ````false````.
+     * Default value is [].
      */
-    set qualityRender(value: boolean) {
-        if (this.#qualityRender === value) {
-            return;
-        }
-        this.#qualityRender = value;
-        this.redraw();
+    set renderModes(value: number[]) {
+        this.#renderModes = value;
+        this.view.redraw();
     }
 
     /**
-     * Gets whether quality rendering is enabled for this ViewLayer.
+     * Gets which rendering modes in which to render the {@linkk ViewObject | ViewObjects} in this ViewLayer.
      *
-     * Default is ````false````.
+     * Default value is [].
      */
-    get qualityRender(): boolean {
-        return this.#qualityRender;
+    get renderModes(): number[] {
+        return this.#renderModes;
     }
 
     /**

@@ -8,7 +8,8 @@ export interface ViewParams {
      */
     id?: string;
     /**
-     * The Real-space 3D origin, in Real-space units, at which the {@link @xeokit/viewer!View}'s World-space coordinate origin ````[0,0,0]```` sits.
+     * The Real-space 3D origin, in Real-space units, at which the {@link @xeokit/viewer!View}'s World-space
+     * coordinate origin ````[0,0,0]```` sits.
      */
     origin?: FloatArrayParam;
     /**
@@ -19,8 +20,10 @@ export interface ViewParams {
      */
     scale?: number;
     /**
-     * The unit of measurement for the {@link @xeokit/viewer!View}. Accepted values are {@link @xeokit/constants!MetersUnit}, {@link @xeokit/constants!CentimetersUnit},
-     * {@link @xeokit/constants!MillimetersUnit}, {@link @xeokit/constants!YardsUnit}, {@link @xeokit/constants!FeetUnit} and {@link @xeokit/constants!InchesUnit}.
+     * The unit of measurement for the {@link @xeokit/viewer!View}. Accepted values are {@link @xeokit/constants!MetersUnit},
+     * {@link @xeokit/constants!CentimetersUnit}, {@link @xeokit/constants!MillimetersUnit}, {@link @xeokit/constants!YardsUnit},
+     * {@link @xeokit/constants!FeetUnit}
+     * and {@link @xeokit/constants!InchesUnit}.
      */
     units?: number;
     /**

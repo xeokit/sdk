@@ -6,7 +6,8 @@ import type { GeometryBucketParams } from "./GeometryBucketParams";
  * ## Summary
  *
  * * Created from {@link @xeokit/scene!GeometryParams|GeometryParams} using {@link @xeokit/scene!compressGeometryParams}
- * * Used with {@link @xeokit/scene!SceneModel.createGeometryCompressed | Model.createGeometryCompressed} and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
+ * * Used with {@link @xeokit/scene!SceneModel.createGeometryCompressed | Model.createGeometryCompressed}
+ * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)
@@ -29,7 +30,7 @@ export interface GeometryCompressedParams {
     /**
      * Matrix to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}.
      *
-     * The Viewer uses this matrix internally to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}.
+     * The Viewer uses this matrix internally to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed | GeometryBucketParams.positionsCompressed}.
      */
     positionsDecompressMatrix: FloatArrayParam;
     /**

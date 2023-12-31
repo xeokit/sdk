@@ -24,24 +24,24 @@ export declare class Data extends Component {
         [key: string]: PropertySet;
     };
     /**
-     * The {@link @xeokit/data!DataObject | DataObjects} in this Data, mapped to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} in this Data, mapped to {@link @xeokit/data!DataObject.id | DataObject.id}.
      */
     readonly objects: {
         [key: string]: DataObject;
     };
     /**
-     * The root {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id | DataObject.id}.
+     * The root {@link @xeokit/data!DataObject | DataObjects} belonging to this Data, each keyed to its {@link @xeokit/data!DataObject.id | DataObject.id}.
      *
      * * This is the set of DataObjects in the DataModels within this Data that are not the *related* participant in
      * any {@link @xeokit/data!Relationship | Relationships}, where they have no incoming Relationships and
-     * their {@link DataObject.relating} property is empty.
+     * their {@link @xeokit/data!DataObject.relating} property is empty.
      */
     readonly rootObjects: {
         [key: string]: DataObject;
     };
     /**
-     * The {@link DataObject | DataObjects} belonging to this Data, each map keyed to {@link DataObject.type | DataObject.type},
-     * containing {@link DataObject | DataObjects} keyed to {@link DataObject.id | DataObject.id}.
+     * The {@link @xeokit/data!DataObject | DataObjects} belonging to this Data, each map keyed to {@link @xeokit/data!DataObject.type | DataObject.type},
+     * containing {@link @xeokit/data!DataObject | DataObjects} keyed to {@link @xeokit/data!DataObject.id | DataObject.id}.
      */
     readonly objectsByType: {
         [key: string]: {
@@ -49,7 +49,7 @@ export declare class Data extends Component {
         };
     };
     /**
-     * Tracks number of {@link DataObject | DataObjects} of each type in this Data.
+     * Tracks number of {@link @xeokit/data!DataObject | DataObjects} of each type in this Data.
      */
     readonly typeCounts: {
         [key: string]: number;
@@ -67,13 +67,13 @@ export declare class Data extends Component {
      */
     readonly onModelDestroyed: EventEmitter<Data, DataModel>;
     /**
-     * Emits an event each time a {@link DataObject} is created within this Data.
+     * Emits an event each time a {@link @xeokit/data!DataObject} is created within this Data.
      *
      * @event
      */
     readonly onObjectCreated: EventEmitter<Data, DataObject>;
     /**
-     * Emits an event each time a {@link DataObject} is destroyed within this Data.
+     * Emits an event each time a {@link @xeokit/data!DataObject} is destroyed within this Data.
      *
      * @event
      */
@@ -87,24 +87,24 @@ export declare class Data extends Component {
     /**
      * Creates a new {@link @xeokit/data!DataModel} in this Data.
      *
-     * Remember to call {@link DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
-     * fire events via {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}, to
+     * Remember to call {@link @xeokit/data!DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
+     * fire events via {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated} and {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt}, to
      * indicate to any subscribers that the DataModel is built and ready for use.
      *
-     * Note that while we're building/loading the SceneModel, each call that we make to {@link DataModel.createObject | DataModel.createObject}
-     * will create a new {@link DataObject}
-     * in {@link Data.objects | Data.objects} and {@link DataModel.objects | DataModel.objects}, and will also fire an event
-     * via {@link Data.onObjectCreated | Data.onObjectCreated}. However,
-     * only when we've received the {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}
+     * Note that while we're building/loading the SceneModel, each call that we make to {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
+     * will create a new {@link @xeokit/data!DataObject}
+     * in {@link @xeokit/data!Data.objects | Data.objects} and {@link @xeokit/data!DataModel.objects | DataModel.objects}, and will also fire an event
+     * via {@link @xeokit/data!Data.onObjectCreated | Data.onObjectCreated}. However,
+     * only when we've received the {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated} and {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt}
      * events can we actually consider the DataModel to be fully constructed.
      *
      * See {@link "@xeokit/data"} for more details on usage.
      *
      * @param  dataModelParams Creation parameters for the new {@link @xeokit/data!DataModel}.
      * @param [options] Options for creating the {@link @xeokit/data!DataModel}.
-     * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
-     * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
-     * @returns {@link DataModel}
+     * @param [options.includeTypes] When provided, only create {@link @xeokit/data!DataObject | DataObjects} with types in this list.
+     * @param  [options.excludeRelating] When provided, never create {@link @xeokit/data!DataObject | DataObjects} with types in this list.
+     * @returns {@link @xeokit/data!DataModel}
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * This Data has already been destroyed.
@@ -115,7 +115,7 @@ export declare class Data extends Component {
         excludeRelating?: string[];
     }): DataModel | SDKError;
     /**
-     * Gets the {@link DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
+     * Gets the {@link @xeokit/data!DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
      *
      * See {@link "@xeokit/data"} for usage.
      *

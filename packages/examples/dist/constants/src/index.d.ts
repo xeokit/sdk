@@ -339,13 +339,13 @@ export declare const SolidPrimitive = 20003;
  */
 export declare const SurfacePrimitive = 20004;
 /**
- * Quality rendering mode.
- */
-export declare const QualityRender = 30000;
-/**
  * Fast rendering mode.
  */
 export declare const FastRender = 300001;
+/**
+ * Quality rendering mode.
+ */
+export declare const QualityRender = 30000;
 /**
  * Meters unit of measurement.
  */
@@ -386,3 +386,15 @@ export declare const FrustumProjectionType = 500002;
  * Custom projection type.
  */
 export declare const CustomProjectionType = 500003;
+/**
+ * Orbit navigation mode.
+ */
+export declare const OrbitNavigationMode = 600001;
+/**
+ * First-person navigation mode.
+ */
+export declare const FirstPersonNavigationMode = 600002;
+/**
+ * Plan view navigation mode.
+ */
+export declare const PlanViewNavigationMode = 600003;

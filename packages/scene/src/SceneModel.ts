@@ -10,7 +10,7 @@ import {SceneObject} from "./SceneObject";
 import {TextureSet} from "./TextureSet";
 import {Texture} from "./Texture";
 import {Mesh} from "./Mesh";
-import type {RendererSceneModel} from "./RendererSceneModel";
+import type {RendererModel} from "./RendererModel";
 import type {TransformParams} from "./TransformParams";
 import type {TextureSetParams} from "./TextureSetParams";
 import type {GeometryParams} from "./GeometryParams";
@@ -78,11 +78,11 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  *
  * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene}.
  * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries} and {@link @xeokit/scene!Texture | Textures}.
- * * Compresses textures using [Basis](/docs/pages/GLOSSARY.html#basis)
- * * Compresses geometry using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
+ * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
+ * * Compresses geometry using [bucketing](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
  * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/xkt!loadXKT} (etc)
- * * Exportable to [XKT](/docs/pages/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}
+ * * Exportable to [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}
  * * Programmatically buildable using builder methods
  *
  * See {@link "@xeokit/scene"} for usage.
@@ -126,7 +126,7 @@ export class SceneModel extends Component {
     declare readonly destroyed: boolean;
 
     /**
-     * The edge threshold for automatic [edge primitive generation](/docs/pages/GLOSSARY.html#geometry-edge-generation).
+     * The edge threshold for automatic [edge primitive generation](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-edge-generation).
      */
     public readonly edgeThreshold: number;
 
@@ -196,7 +196,7 @@ export class SceneModel extends Component {
      *
      * @internal
      */
-    public rendererSceneModel: RendererSceneModel | null;
+    public rendererModel: RendererModel | null;
 
     /**
      * Statistics on this SceneModel.
@@ -234,7 +234,7 @@ export class SceneModel extends Component {
         this.objects = {};
         this.aabb = createAABB3();
         this.built = false;
-        this.rendererSceneModel = null;
+        this.rendererModel = null;
 
         this.stats = {
             numGeometries: 0,

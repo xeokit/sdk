@@ -1,6 +1,6 @@
 import type {Mesh} from "./Mesh";
 import type {FloatArrayParam} from "@xeokit/math";
-import type {RendererSceneObject} from "./RendererSceneObject";
+import type {RendererObject} from "./RendererObject";
 import type {Scene} from "./Scene";
 import type {SceneModel} from "./SceneModel";
 import {collapseAABB3, createAABB3, expandAABB3Points3} from "@xeokit/boundaries";
@@ -46,7 +46,7 @@ export class SceneObject {
      *
      * @internal
      */
-    rendererSceneObject: RendererSceneObject | null;
+    rendererObject: RendererObject | null;
 
     #aabb: FloatArrayParam;
     #aabbDirty: boolean;
@@ -65,7 +65,7 @@ export class SceneObject {
         this.meshes = cfg.meshes;
         this.#aabb = createAABB3();
         this.#aabbDirty = true;
-        this.rendererSceneObject = null;
+        this.rendererObject = null;
     }
 
     /**

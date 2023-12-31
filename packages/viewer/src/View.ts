@@ -1,7 +1,7 @@
 import {EventDispatcher} from "strongly-typed-events";
-import {Component, EventEmitter} from "@xeokit/core";
+import {Component, EventEmitter, SDKError} from "@xeokit/core";
 import {createUUID} from "@xeokit/utils";
-import {QualityRender} from "@xeokit/constants";
+import {FastRender, QualityRender} from "@xeokit/constants";
 import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 import {createVec3} from "@xeokit/matrix";
 import type {Scene, SceneModel} from "@xeokit/scene";
@@ -352,6 +352,8 @@ class View extends Component {
 
     #onTick: () => void;
 
+    #renderMode: number = QualityRender;
+
     #backgroundColor: FloatArrayParam;
     #backgroundColorFromAmbientLight: boolean;
     #numObjects: number;
@@ -532,7 +534,7 @@ class View extends Component {
                 }
 
                 if (newResolutionScale) {
-                 //   lastResolutionScale = this.#resolutionScale;
+                    //   lastResolutionScale = this.#resolutionScale;
                 }
                 if (newWindowSize) {
                     lastWindowWidth = window.innerWidth;
@@ -596,6 +598,12 @@ class View extends Component {
             edgeWidth: 1,
             enabled: true,
             renderModes: [QualityRender],
+        });
+
+        this.resolutionScale = new ResolutionScale(this, {
+            enabled: true,
+            renderModes: [FastRender],
+            resolutionScale: 0.5
         });
 
         this.pointsMaterial = new PointsMaterial(this, {
@@ -696,6 +704,41 @@ class View extends Component {
             viewLayer.registerViewObject(viewObject);
             this.registerViewObject(viewObject);
         }
+    }
+
+    /**
+     * Sets which rendering mode this View is in.
+     *
+     * Supported rendering modes are:
+     *
+     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+     *
+     * Default value is {@link @xeokit/constants!QualityRender | QualityRender}.
+     *
+     * @param renderMode The rendering mode
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * Rendering mode not supported.
+     */
+    setRenderMode(renderMode: number): SDKError | void {
+        if (renderMode !== QualityRender && renderMode !== FastRender) {
+            return new SDKError(`Failed to set render mode for View - unsupported mode - supported modes are FastRender and QualityRender`);
+        }
+        this.#renderMode = renderMode;
+    }
+
+    /**
+     * Gets which rendering mode this View is in.
+     *
+     * Supported rendering modes are:
+     *
+     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+     *
+     * Default value is {@link @xeokit/constants!QualityRender | QualityRender}.
+     */
+    get renderMode(): number {
+        return this.#renderMode;
     }
 
     /**

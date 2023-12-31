@@ -12,17 +12,17 @@ export declare class Relationship {
      */
     readonly type: number;
     /**
-     * The relating {@link DataObject} in this Relationship.
+     * The relating {@link @xeokit/data!DataObject} in this Relationship.
      *
-     * This Relationship will be stored by {@link DataObject.type | DataObject.type}
-     * in the DataObject's {@link DataObject.related | DataObject.related} attribute.
+     * This Relationship will be stored by {@link @xeokit/data!DataObject.type | DataObject.type}
+     * in the DataObject's {@link @xeokit/data!DataObject.related | DataObject.related} attribute.
      */
     readonly relatingObject: DataObject;
     /**
-     * The related {@link DataObject} in this Relationship.
+     * The related {@link @xeokit/data!DataObject} in this Relationship.
      *
-     * This Relationship will be stored by {@link DataObject.type | DataObject.type} in
-     * the DataObject's {@link DataObject.relating | DataObject.relating} attribute.
+     * This Relationship will be stored by {@link @xeokit/data!DataObject.type | DataObject.type} in
+     * the DataObject's {@link @xeokit/data!DataObject.relating | DataObject.relating} attribute.
      */
     readonly relatedObject: DataObject;
     /**

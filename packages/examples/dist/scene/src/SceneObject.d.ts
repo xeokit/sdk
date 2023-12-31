@@ -19,7 +19,8 @@ export declare class SceneObject {
     /**
      * Unique ID of this SceneObject.
      *
-     * SceneObjects are stored by ID in {@link @xeokit/scene!Scene.objects | Scene.objects} and {@link @xeokit/scene!SceneModel.objects | SceneModel.objects}.
+     * SceneObjects are stored by ID in {@link @xeokit/scene!Scene.objects | Scene.objects}
+     * and {@link @xeokit/scene!SceneModel.objects | SceneModel.objects}.
      */
     readonly id: string;
     /**
@@ -37,7 +38,7 @@ export declare class SceneObject {
      *
      * @internal
      */
-    rendererSceneObject: RendererObject | null;
+    rendererObject: RendererObject | null;
     /**
      * @private
      */

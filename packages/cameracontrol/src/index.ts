@@ -14,7 +14,7 @@
  *
  * * Use {@link CameraControl} to control a {@link @xeokit/viewer!Camera}, which belongs to a {@link @xeokit/viewer!View | View}, which belongs to a {@link @xeokit/viewer!Viewer | Viewer}.
  * * Reads touch, mouse and keyboard input
- * * Three navigation modes: "orbit", "firstPerson" and "planView"
+ * * Three navigation modes:  {@link @xeokit/constants!OrbitNavigationMode}, {@link @xeokit/constants!FirstPersonNavigationMode} and {@link @xeokit/constants!PlanViewNavigationMode}.
  * * Dynamic key mapping
  * * Smart-pivot
  * * Move-to-pointer

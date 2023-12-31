@@ -3,7 +3,7 @@ import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "@xeokit/constants";
 
 /**
- * Creates a cylinder-shaped {@link @xeokit/scene!GeometryBucketHandle}.
+ * Creates a cylinder-shaped geometry.
  *
  * ## Usage
  *
@@ -13,32 +13,6 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * ````javascript
  *
- * import {Viewer, Mesh, buildCylinderGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
- *
- * const viewer = new Viewer({
- *      canvasId: "myView"
- *  });
- *
- * viewer.camera.eye = [0, 0, 5];
- * viewer.camera.look = [0, 0, 0];
- * viewer.camera.up = [0, 1, 0];
- *
- * new Mesh(viewer.scene, {
- *      geometry: new ReadableGeometry(viewer.scene, buildCylinderGeometry({
- *          center: [0,0,0],
- *          radiusTop: 2.0,
- *          radiusBottom: 2.0,
- *          height: 5.0,
- *          radialSegments: 20,
- *          heightSegments: 1,
- *          openEnded: false
- *      }),
- *      material: new PhongMaterial(viewer.scene, {
- *         diffuseMap: new Texture(viewer.scene, {
- *             src: "textures/diffuse/uvGrid2.jpg"
- *         })
- *      })
- * });
  * ````
  *
  * @function buildCylinderGeometry

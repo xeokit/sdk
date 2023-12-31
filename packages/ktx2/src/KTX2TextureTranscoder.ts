@@ -61,7 +61,7 @@ const EngineFormat = {
 };
 
 /**
- * [KTX2](/docs/pages/GLOSSARY.html#ktx2) texture decompression strategy.
+ * [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture decompression strategy.
  *
  * See {@link @xeokit/ktx2} for usage.
  */

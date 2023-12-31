@@ -48,12 +48,11 @@ export class WebGLRenderer implements Renderer {
     #saoEnabled: boolean;
     #pbrEnabled: boolean;
     #backgroundColor: FloatArrayParam;
-    #rendererSceneModels: { [key: string]: WebGLRendererModel };
+    #rendererModels: { [key: string]: WebGLRendererModel };
     #layerList: Layer[];
     #layerListDirty: boolean;
     #stateSortDirty: boolean;
     #pickIDs = new Map({});
-    #saoDepthRenderBuffer: GLRenderBuffer;
     // #renderBufferManager: GLRenderBufferManager;
     #extensionHandles: any;
     #logarithmicDepthBufferEnabled: boolean;
@@ -79,9 +78,9 @@ export class WebGLRenderer implements Renderer {
      Creates a WebGLRenderer.
 
      @param params Configs
-     @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererSceneModel.createTexture}
+     @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
      to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-     to {@link rendererSceneModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererSceneModel````
+     to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
      will then be in a format supported by this transcoder.
      */
     constructor(params: {
@@ -111,7 +110,7 @@ export class WebGLRenderer implements Renderer {
         // this.#saoDepthRenderBuffer = null;
         // this.#renderBufferManager = null;
         this.#logarithmicDepthBufferEnabled = false;
-        this.#rendererSceneModels = {};
+        this.#rendererModels = {};
         this.#viewMatrixDirty = true;
     }
 
@@ -209,7 +208,7 @@ export class WebGLRenderer implements Renderer {
         if (!this.#renderContext) {
             throw new SDKError("Must attach a View before you attach a SceneModel");
         }
-        const rendererSceneModel = new WebGLRendererModel({
+        const rendererModel = new WebGLRendererModel({
             id: sceneModel.id,
             sceneModel,
             view: this.#view,
@@ -217,16 +216,16 @@ export class WebGLRenderer implements Renderer {
             webglRenderer: this,
             renderContext: this.#renderContext
         });
-        this.#rendererSceneModels[rendererSceneModel.id] = rendererSceneModel;
-        this.#attachRendererViewObjects(rendererSceneModel);
+        this.#rendererModels[rendererModel.id] = rendererModel;
+        this.#attachRendererViewObjects(rendererModel);
         this.#layerListDirty = true;
-        rendererSceneModel.onDestroyed.one((component: Component) => {
-            const rendererSceneModel = this.#rendererSceneModels[component.id];
-            delete this.#rendererSceneModels[component.id];
-            this.#detachRendererViewObjects(rendererSceneModel);
+        rendererModel.onDestroyed.one((component: Component) => {
+            const rendererModel = this.#rendererModels[component.id];
+            delete this.#rendererModels[component.id];
+            this.#detachRendererViewObjects(rendererModel);
             this.#layerListDirty = true;
         });
-        sceneModel.rendererSceneModel = rendererSceneModel;
+        sceneModel.rendererModel = rendererModel;
     }
 
     /**
@@ -234,24 +233,24 @@ export class WebGLRenderer implements Renderer {
      * @internal
      */
     detachSceneModel(sceneModel:SceneModel): void {
-        if (this.#rendererSceneModels[sceneModel.id]) {
-            const rendererSceneModel = this.#rendererSceneModels[sceneModel.id];
-            delete this.#rendererSceneModels[sceneModel.id];
-            this.#detachRendererViewObjects(rendererSceneModel);
+        if (this.#rendererModels[sceneModel.id]) {
+            const rendererModel = this.#rendererModels[sceneModel.id];
+            delete this.#rendererModels[sceneModel.id];
+            this.#detachRendererViewObjects(rendererModel);
             this.#layerListDirty = true;
-            sceneModel.rendererSceneModel = null;
+            sceneModel.rendererModel = null;
         }
     }
 
-    #attachRendererViewObjects(rendererSceneModel: WebGLRendererModel) {
-        const rendererViewObjects = rendererSceneModel.rendererViewObjects;
+    #attachRendererViewObjects(rendererModel: WebGLRendererModel) {
+        const rendererViewObjects = rendererModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             this.rendererViewObjects[id] = rendererViewObjects[id];
         }
     }
 
-    #detachRendererViewObjects(rendererSceneModel: WebGLRendererModel) {
-        const rendererViewObjects = rendererSceneModel.rendererViewObjects;
+    #detachRendererViewObjects(rendererModel: WebGLRendererModel) {
+        const rendererViewObjects = rendererModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             delete this.rendererViewObjects[id];
         }
@@ -411,8 +410,8 @@ export class WebGLRenderer implements Renderer {
 
     #buildLayerList() {
         let lenDrawableList = 0;
-        for (let id in this.#rendererSceneModels) {
-            const webGLSceneModelRenderer = this.#rendererSceneModels[id];
+        for (let id in this.#rendererModels) {
+            const webGLSceneModelRenderer = this.#rendererModels[id];
             for (let i = 0, len = webGLSceneModelRenderer.layerList.length; i < len; i++) {
                 this.#layerList[lenDrawableList++] = webGLSceneModelRenderer.layerList[i];
             }
@@ -595,10 +594,10 @@ export class WebGLRenderer implements Renderer {
             }
 
             if (meshCounts.numTransparent < meshCounts.numMeshes) {
-                if (this.#saoEnabled && saoPossible && layer.rendererSceneModel.qualityRender) {
+                if (this.#saoEnabled && saoPossible && layer.rendererModel.qualityRender) {
                     normalDrawSAOBin[normalDrawSAOBinLen++] = layer;
                 } else {
-                    this.#drawLayer(layer, RENDER_PASSES.COLOR_OPAQUE, layer.rendererSceneModel.qualityRender);
+                    this.#drawLayer(layer, RENDER_PASSES.COLOR_OPAQUE, layer.rendererModel.qualityRender);
                 }
             }
 
@@ -638,7 +637,7 @@ export class WebGLRenderer implements Renderer {
                 }
             }
 
-            if (this.#edgesEnabled && this.#view.edgeMaterial.edges) {
+            if (this.#edgesEnabled && this.#view.edges.enabled) {
                 if (meshCounts.numEdges > 0) {
                     if (meshCounts.numTransparent < meshCounts.numMeshes) {
                         edgesColorOpaqueBin[edgesColorOpaqueBinLen++] = layer;
@@ -670,7 +669,7 @@ export class WebGLRenderer implements Renderer {
         if (normalDrawSAOBinLen > 0) {
             renderContext.withSAO = true;
             for (let i = 0; i < normalDrawSAOBinLen; i++) {
-                //    this.#drawLayer(normalDrawSAOBin[i], RENDER_PASSES.COLOR_OPAQUE, layer.rendererSceneModel.qualityRender);
+                //    this.#drawLayer(normalDrawSAOBin[i], RENDER_PASSES.COLOR_OPAQUE, layer.rendererModel.qualityRender);
                 //    normalDrawSAOBin[i].drawColorOpaque(renderContext);
             }
         }

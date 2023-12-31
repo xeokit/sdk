@@ -47,9 +47,9 @@ class Textures extends Component {
     /**
      * Sets which rendering modes in which to render textures.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link QualityRender}].
+     * Default value is [{@link @xeokit/constants!QualityRender}].
      */
     set renderModes(value: number[]) {
         this.#state.renderModes = value;
@@ -59,9 +59,9 @@ class Textures extends Component {
     /**
      * Gets which rendering modes in which to render textures.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link QualityRender}].
+     * Default value is [{@link @xeokit/constants!QualityRender}].
      */
     get renderModes(): number[] {
         return this.#state.renderModes;
@@ -87,6 +87,25 @@ class Textures extends Component {
      */
     get enabled(): boolean {
         return this.#state.enabled;
+    }
+
+    /**
+     * Gets if textures are currently applied.
+     *
+     * This is `true` when {@link Textures.enabled | Textures.enabled} is `true`
+     * and {@link View.renderMode | View.renderMode} is
+     * in {@link Textures.renderModes | Textures.renderModes}.
+     */
+    get applied(): boolean {
+        if (!this.#state.enabled) {
+            return false;
+        }
+        for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
+            if (this.view.renderMode === this.#state.renderModes[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

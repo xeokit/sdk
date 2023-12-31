@@ -75,7 +75,7 @@ export interface LayerRenderState { // What a LayerRenderer needs to render this
  */
 export class Layer {
 
-    rendererSceneModel: WebGLRendererModel;
+    rendererModel: WebGLRendererModel;
     layerIndex: number;
     meshCounts: MeshCounts;
     renderState: LayerRenderState;
@@ -94,7 +94,7 @@ export class Layer {
 
         this.meshCounts = new MeshCounts();
         this.layerIndex = layerParams.layerIndex;
-        this.rendererSceneModel = layerParams.rendererSceneModel;
+        this.rendererModel = layerParams.rendererModel;
 
         this.renderState = <LayerRenderState>{
             primitive: layerParams.primitive,

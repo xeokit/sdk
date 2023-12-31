@@ -11,7 +11,7 @@
  * * {@link @xeokit/treeview!TreeView}
  * * Fast HTML tree view to navigate federated models in a {@link @xeokit/viewer!Viewer}
  * * Use with a {@link @xeokit/viewer!View | View} and a semantic {@link @xeokit/data!Data} model
- * * Supports Industry Foundation Classes (IFC)
+ * * Supports Industry Foundation Classes ([IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc))
  * * Supports any schema expressable as ER graph with aggregation relationships
  *
  * ## Installation

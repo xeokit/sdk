@@ -140,7 +140,7 @@ class PickResult {
      * Only defined when an object and triangle was picked.
      */
     get indices(): Int32Array | null {
-        return this.#viewObject && this.#gotIndices ? this.#indices : null;
+        return this.#viewObject !== null && this.#gotIndices ? this.#indices : null;
     }
 
     /**
@@ -162,7 +162,7 @@ class PickResult {
      * Only defined when an object and a point on its surface was picked.
      */
     get localPos(): FloatArrayParam | null {
-        return this.#viewObject && this.#gotLocalPos ? this.#localPos : null;
+        return this.#viewObject!== null && this.#gotLocalPos ? this.#localPos : null;
     }
 
     /**
@@ -228,7 +228,7 @@ class PickResult {
      * Only defined when an object and a point on its surface was picked.
      */
     get worldNormal(): FloatArrayParam | null {
-        return this.#viewObject && this.#gotWorldNormal ? this.#worldNormal : null;
+        return this.#viewObject !== null&& this.#gotWorldNormal ? this.#worldNormal : null;
     }
 
     /**
@@ -250,7 +250,7 @@ class PickResult {
      * Only defined when an object and a point on its surface was picked.
      */
     get uv(): FloatArrayParam | null {
-        return this.#viewObject && this.#gotUV ? this.#uv : null;
+        return this.#viewObject !== null&& this.#gotUV ? this.#uv : null;
     }
 
     /**
@@ -271,7 +271,7 @@ class PickResult {
      * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
      */
     get snappedToVertex(): boolean {
-        return this.#viewObject && this.#snappedToVertex;
+        return this.#viewObject !== null&& this.#snappedToVertex;
     }
 
     /**
@@ -286,7 +286,7 @@ class PickResult {
      * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
      */
     get snappedToEdge(): boolean {
-        return this.#viewObject && this.#snappedToEdge;
+        return this.#viewObject !== null&& this.#snappedToEdge;
     }
 
     set snappedToEdge(value: boolean) {

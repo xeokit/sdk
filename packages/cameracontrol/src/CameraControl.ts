@@ -17,6 +17,7 @@ import {MouseMiscHandler} from "./MouseMiscHandler";
 import {TouchPanRotateAndDollyHandler} from "./TouchPanRotateAndDollyHandler";
 import {TouchPickHandler} from "./TouchPickHandler";
 import * as keycodes from "./keycodes";
+import {FirstPersonNavigationMode, OrbitNavigationMode, PlanViewNavigationMode} from "@xeokit/constants";
 
 class HoverEvent {
 }
@@ -41,7 +42,7 @@ interface CameraControlParams {
     keyboardLayout?: any;
     constrainVertical?: boolean;
     planView?: any;
-    navMode?: string;
+    navMode?: number;
     doublePickFlyTo?: boolean;
     keyboardEnabled?: boolean;
 }
@@ -183,7 +184,7 @@ export class CameraControl extends Component {
         panInertia: number;
         followPointer: boolean;
         showPivot: boolean;
-        navMode: string;
+        navMode: number;
         longTapTimeout: number;
         keyboardDollyRate: number;
         dollyInertia: number;
@@ -343,7 +344,7 @@ export class CameraControl extends Component {
             longTapRadius: 5, // Pixels
             active: true,
             keyboardLayout: "qwerty",
-            navMode: "orbit",
+            navMode: OrbitNavigationMode,
             planView: false,
             firstPerson: false,
             followPointer: true,
@@ -569,9 +570,15 @@ export class CameraControl extends Component {
     /**
      * Gets the current navigation mode.
      *
-     * @returns {String} The navigation mode: "orbit", "firstPerson" or "planView".
+     * Returned values are:
+     *
+     * * {@link @xeokit/constants!OrbitNavigationMode} - rotation orbits about the current target or pivot point,
+     * * {@link @xeokit/constants!FirstPersonNavigationMode} - rotation is about the current eye position,
+     * * {@link @xeokit/constants!PlanViewNavigationMode} - rotation is disabled.
+     *
+     * @returns {number} The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
      */
-    get navMode(): string {
+    get navMode(): number {
         return this.#configs.navMode;
     }
 
@@ -580,22 +587,22 @@ export class CameraControl extends Component {
      *
      * Accepted values are:
      *
-     * * "orbit" - rotation orbits about the current target or pivot point,
-     * * "firstPerson" - rotation is about the current eye position,
-     * * "planView" - rotation is disabled.
+     * * {@link @xeokit/constants!OrbitNavigationMode} - rotation orbits about the current target or pivot point,
+     * * {@link @xeokit/constants!FirstPersonNavigationMode} - rotation is about the current eye position,
+     * * {@link @xeokit/constants!PlanViewNavigationMode} - rotation is disabled.
      *
      * See class comments for more info.
      *
-     * @param navMode The navigation mode: "orbit", "firstPerson" or "planView".
+     * @param navMode The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
      */
-    set navMode(navMode: string | undefined) {
-        navMode = navMode || "orbit";
-        if (navMode !== "firstPerson" && navMode !== "orbit" && navMode !== "planView") {
+    set navMode(navMode: number | undefined) {
+        navMode = navMode || OrbitNavigationMode;
+        if (navMode !== FirstPersonNavigationMode && navMode !== OrbitNavigationMode && navMode !== PlanViewNavigationMode) {
             this.error("Unsupported value for navMode: " + navMode + " - supported values are 'orbit', 'firstPerson' and 'planView' - defaulting to 'orbit'");
-            navMode = "orbit";
+            navMode = OrbitNavigationMode;
         }
-        this.#configs.firstPerson = (navMode === "firstPerson");
-        this.#configs.planView = (navMode === "planView");
+        this.#configs.firstPerson = (navMode === FirstPersonNavigationMode);
+        this.#configs.planView = (navMode === PlanViewNavigationMode);
         if (this.#configs.firstPerson || this.#configs.planView) {
             this.#controllers.pivotController.hidePivot();
             this.#controllers.pivotController.endPivot();
@@ -810,7 +817,7 @@ export class CameraControl extends Component {
      *
      * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````FirstPersonNavigationMode````.
      *
      * Default is ````false````.
      *
@@ -825,7 +832,7 @@ export class CameraControl extends Component {
      *
      * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````FirstPersonNavigationMode````.
      *
      * Default is ````false````.
      *
@@ -884,7 +891,7 @@ export class CameraControl extends Component {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````PlanViewNavigationMode````, which disallows rotation.
      *
      * @returns {Number} The inertia factor.
      */
@@ -905,7 +912,7 @@ export class CameraControl extends Component {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````,
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````PlanViewNavigationMode````,
      * which disallows rotation.
      *
      * @param rotationInertia New inertial factor.

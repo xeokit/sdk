@@ -46,7 +46,7 @@ export declare class Scene extends Component {
      */
     get center(): Float64Array;
     /**
-     * Gets the collective World-space 3D [axis-aligned boundary](/docs/pages/GLOSSARY.html#aabb) of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
+     * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link @xeokit/scene!SceneModel | SceneModels} in this Scene.
      *
      * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
      */
@@ -54,7 +54,8 @@ export declare class Scene extends Component {
     /**
      * Creates a new {@link @xeokit/scene!SceneModel} in this Scene.
      *
-     * Remember to call {@link @xeokit/scene!SceneModel.build | SceneModel.build} when you've finished building or loading the SceneModel. That will
+     * Remember to call {@link @xeokit/scene!SceneModel.build | SceneModel.build} when you've finished building or
+     * loading the SceneModel. That will
      * fire events via {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated} and {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt}, to
      * indicate to any subscribers that the SceneModel is built and ready for use.
      *
@@ -75,8 +76,8 @@ export declare class Scene extends Component {
     /**
      * Destroys all contained {@link @xeokit/scene!SceneModel | SceneModels}.
      *
-     * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
-     * for each existing SceneModel in this Scene.
+     * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and
+     * {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
      *
      * See {@link "@xeokit/scene"} for usage.
      * @returns *void*

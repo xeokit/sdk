@@ -1,5 +1,5 @@
 import type {View} from "./View";
-import {Component} from "@xeokit/core";
+import {Component, SDKError} from "@xeokit/core";
 import {CustomProjectionType, FastRender, FrustumProjectionType, QualityRender} from "@xeokit/constants";
 
 /**
@@ -49,30 +49,46 @@ export class SAO extends Component {
     }
 
     /**
+     * Sets which rendering modes in which to render SAO.
+     *
+     * Supported rendering modes are:
+     *
+     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+     *
+     * Default value is [{@link @xeokit/constants!QualityRender | QualityRender}].
+     *
+     * @param renderModes The rendering modes
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * Rendering mode not supported.
+     */
+    setRenderModes(renderModes: number[]): SDKError | void {
+        for (let i = 0, len = renderModes.length; i < len; i++) {
+            const renderMode = renderModes[i];
+            if (renderMode !== QualityRender && renderMode !== FastRender) {
+                return new SDKError(`Failed to set render modes for SAO - unsupported mode - supported modes are FastRender and QualityRender`);
+            }
+        }
+        this.#state.renderModes = renderModes;
+        this.view.redraw();
+    }
+
+    /**
      * Gets which rendering modes in which to render SAO.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Supported rendering modes are:
      *
-     * Default value is [{@link QualityRender}].
+     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
+     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
+     *
+     * Default value is [{@link @xeokit/constants!QualityRender | QualityRender}].
      */
     get renderModes(): number[] {
         return this.#state.renderModes;
     }
 
     /**
-     * Sets which rendering modes in which to render SAO.
-     *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
-     *
-     * Default value is [{@link QualityRender}].
-     */
-    set renderModes(value: number[]) {
-        this.#state.renderModes = value;
-        this.view.redraw();
-    }
-
-    /**
-     * Gets whether or not SAO is supported by this browser and GPU.
+     * Gets whether SAO is supported by this browser and GPU.
      *
      * Even when enabled, SAO will only work if supported.
      */
@@ -360,6 +376,25 @@ export class SAO extends Component {
         }
         this.#state.blendFactor = value;
         this.view.redraw();
+    }
+
+    /**
+     * Gets if SAO is currently applied.
+     *
+     * This is `true` when {@link SAO.enabled | SAO.enabled} is `true`
+     * and {@link View.renderMode | View.renderMode} is
+     * in {@link SAO.renderModes | SAO.renderModes}.
+     */
+    get applied(): boolean {
+        if (!this.#state.enabled) {
+            return false;
+        }
+        for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
+            if (this.view.renderMode === this.#state.renderModes[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

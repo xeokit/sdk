@@ -4,7 +4,7 @@ import type {SceneObject} from "./SceneObject";
  * Interface through which a {@link @xeokit/scene!SceneObject | SceneObject} loads attribute updates (geometry, colors etc)
  * into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/viewer!Renderer | Renderer}.
  *
- *  An instance of this class is set on each {@link @xeokit/scene!SceneObject.rendererSceneObject | SceneObject.rendererSceneObject}
+ *  An instance of this class is set on each {@link @xeokit/scene!SceneObject.rendererObject | SceneObject.rendererObject}
  *  when the SceneObject's {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Renderer | Renderer}.
  *
  *  These property updates are changes to the {@link @xeokit/scene!SceneObject} content itself, ie. not specific to any
@@ -15,5 +15,5 @@ import type {SceneObject} from "./SceneObject";
  *
  * @internal
  */
-export interface RendererSceneObject {
+export interface RendererObject {
 }

@@ -6,8 +6,8 @@
  *
  * ## xeokit SDK Core Components
  *
- * * a {@link @xeokit/core!Component} base class
- * * Various kdtree3 nterfaces that are implemented throughout the SDK.
+ * * {@link @xeokit/core!Component} base class
+ * * Various interfaces that are implemented throughout the SDK.
  *
  * ## Installation
  *

@@ -21,11 +21,11 @@ export class MockRenderer implements Renderer {
      */
     rendererViewObjects: { [key: string]: RendererViewObject };
 
-    #view: View;
+    #view: View|null;
     #viewMatrixDirty: boolean;
-    #rendererSceneModels: any;
-    #viewer: Viewer;
-    #onViewMat: () => void;
+    #rendererModels: any;
+    #viewer: Viewer|null;
+    #onViewMat: any;
 
     /**
      * Creates a MockRenderer.
@@ -34,6 +34,7 @@ export class MockRenderer implements Renderer {
      */
     constructor(params: {}) {
         this.rendererViewObjects = {};
+        this.#rendererModels = {};
     }
 
     /**
@@ -87,27 +88,28 @@ export class MockRenderer implements Renderer {
         if (!this.#view) {
             return new SDKError("No View is currently attached to this Renderer");
         }
-        if (!sceneModel.rendererSceneModel) {
-            return new SDKError("SceneModel not attached to any Renderer");
+        if (sceneModel.rendererModel) {
+            if (this.#rendererModels[sceneModel.id]) {
+                return new SDKError("SceneModel not attached to this Renderer");
+            } else {
+                return new SDKError("SceneModel already attached to another Renderer");
+            }
         }
-        if (!this.#rendererSceneModels[sceneModel.id]) {
-            return new SDKError("SceneModel not attached to this Renderer");
-        }
-        const rendererSceneModel = new MockRendererModel({
+        const rendererModel = new MockRendererModel({
             qualityRender: false,
             id: sceneModel.id,
             sceneModel,
             view: this.#view,
             mockRenderer: this
         });
-        this.#rendererSceneModels[rendererSceneModel.id] = rendererSceneModel;
-        this.#attachRendererViewObjects(rendererSceneModel);
-        rendererSceneModel.onDestroyed.one((component: Component) => {
-            const rendererSceneModel = this.#rendererSceneModels[component.id];
-            delete this.#rendererSceneModels[component.id];
-            this.#detachRendererViewObjects(rendererSceneModel);
+        this.#rendererModels[rendererModel.id] = rendererModel;
+        this.#attachRendererViewObjects(rendererModel);
+        rendererModel.onDestroyed.one((component: Component) => {
+            const rendererModel = this.#rendererModels[component.id];
+            delete this.#rendererModels[component.id];
+            this.#detachRendererViewObjects(rendererModel);
         });
-        sceneModel.rendererSceneModel = rendererSceneModel;
+        sceneModel.rendererModel = rendererModel;
     }
 
     /**
@@ -117,16 +119,16 @@ export class MockRenderer implements Renderer {
         if (!this.#view) {
             return new SDKError("No View is currently attached to this Renderer");
         }
-        if (!sceneModel.rendererSceneModel) {
+        if (!sceneModel.rendererModel) {
             return new SDKError("SceneModel not attached to any Renderer");
         }
-        if (!this.#rendererSceneModels[sceneModel.id]) {
+        if (!this.#rendererModels[sceneModel.id]) {
             return new SDKError("SceneModel not attached to this Renderer");
         }
-        const rendererSceneModel = this.#rendererSceneModels[sceneModel.id];
-        delete this.#rendererSceneModels[sceneModel.id];
-        this.#detachRendererViewObjects(rendererSceneModel);
-        sceneModel.rendererSceneModel = null;
+        const rendererModel = this.#rendererModels[sceneModel.id];
+        delete this.#rendererModels[sceneModel.id];
+        this.#detachRendererViewObjects(rendererModel);
+        sceneModel.rendererModel = null;
     }
 
     /**
@@ -272,15 +274,15 @@ export class MockRenderer implements Renderer {
         return null;
     };
 
-    #detachRendererViewObjects(rendererSceneModel: any) {
-        const rendererViewObjects = rendererSceneModel.rendererViewObjects;
+    #detachRendererViewObjects(rendererModel: any) {
+        const rendererViewObjects = rendererModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             delete this.rendererViewObjects[id];
         }
     }
 
-    #attachRendererViewObjects(rendererSceneModel: MockRendererModel) {
-        const rendererViewObjects = rendererSceneModel.rendererViewObjects;
+    #attachRendererViewObjects(rendererModel: MockRendererModel) {
+        const rendererViewObjects = rendererModel.rendererViewObjects;
         for (let id in rendererViewObjects) {
             this.rendererViewObjects[id] = rendererViewObjects[id];
         }

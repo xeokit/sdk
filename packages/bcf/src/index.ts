@@ -12,7 +12,7 @@
  *
  * ---
  *
- * The xeokit SDK uses the [BCF](/docs/pages/GLOSSARY.html#bcf) format to exchange bookmarks of Viewer state with other
+ * The xeokit SDK uses the [BCF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#bcf) format to exchange bookmarks of Viewer state with other
  * BIM software. BCF (Building Collaboration Format) is an open file format that enables data exchange and collaboration on 3D models and building
  * information. A *BCF viewpoint* is a snapshot of a specific issue related to a building project, containing information such as the
  * problem description, location, and proposed solutions. It is used to facilitate communication and collaboration among
@@ -48,7 +48,7 @@
  * * create a {@link @xeokit/scene!Scene | Scene} and a {@link @xeokit/data!Data | Data},
  * * initialize a Viewer with the Scene and a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer},
  * * create a new {@link @xeokit/viewer!View | View}, {@link @xeokit/scene!SceneModel | SceneModel} and {@link @xeokit/data!DataModel | DataModel},
- * * load an [XKT](/docs/pages/GLOSSARY.html#xkt) file using the {@link @xeokit/xkt!loadXKT | loadXKT} function, and
+ * * load an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file using the {@link @xeokit/xkt!loadXKT | loadXKT} function, and
  * * build the Scene and Data models, rendering the 3D model in the web browser.
  *
  * ````javascript
@@ -92,7 +92,7 @@
  * });
  * ````
  *
- * When our [XKT](/docs/pages/GLOSSARY.html#xkt) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
+ * When our [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
  * and cause it to immediately appear in the View's canvas.
  *
  * That call will also trigger {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and

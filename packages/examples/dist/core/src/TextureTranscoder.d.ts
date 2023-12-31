@@ -13,7 +13,8 @@ export interface TextureTranscoder {
     /**
      * Transcodes texture data from transcoded buffers.
      *
-     * @param {ArrayBuffer[]} buffers Transcoded input texture data. Given as an array of buffers so that we can support multi-image textures, such as cube maps.
+     * @param {ArrayBuffer[]} buffers Transcoded input texture data. Given as an array of buffers so that we can
+     * support multi-image textures, such as cube maps.
      * @param {*} config Transcoding options.
      * @returns {Promise<TextureCompressedParams>} Transcoded output texture data.
      */

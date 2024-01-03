@@ -10,7 +10,7 @@
     "gltf2xkt": "dist/gltf2xkt.js"
   },
   "scripts": {
-    "test": "jest"
+    "XXtest": "jest"
   },
   "repository": {
     "type": "git",

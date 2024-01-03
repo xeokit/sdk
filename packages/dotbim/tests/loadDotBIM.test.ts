@@ -10,7 +10,6 @@ describe('loadDotBIM Test', () => {
     const scene = new Scene();
     let dataModel;
     let sceneModel;
-    let geometry;
 
     it('loadDotBIM Test', () => {
 
@@ -36,11 +35,10 @@ describe('loadDotBIM Test', () => {
             const meshGeometryArrays = {}
 
             loadDotBIM({
-                data: fileData,
+                fileData,
                 sceneModel,
                 dataModel
             }, {
-                rotateX: true
             }).then(() => {
 
                 sceneModel.build().then(() => {

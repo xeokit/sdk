@@ -1,4 +1,4 @@
-import {buildVectorTextGeometry} from "../src/geometry";
+import {buildVectorTextGeometry} from "../src/index";
 import {LinesPrimitive} from "@xeokit/constants";
 import {truncate} from "./testUtils";
 

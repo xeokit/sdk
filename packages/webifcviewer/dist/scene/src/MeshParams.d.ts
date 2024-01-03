@@ -42,7 +42,7 @@ export interface MeshParams {
      *
      * * This is a continuous factor in the range ````[0,1]````, where 0 is fully non-metallic and 1 is fully metallic.
      * * Default is 0.
-     * * See [*Physically-Based Rendering*](/docs/pages/GLOSSARY.html#physically-based-rendering)
+     * * See [*Physically-Based Rendering*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#physically-based-rendering)
      */
     metallic?: number;
     /**
@@ -50,7 +50,7 @@ export interface MeshParams {
      *
      * * This is a continuous factor in the range ````[0,1]````, where 0 is fully rough and 1 is perfectly smooth.
      * * Default is 1.
-     * * See [*Physically-Based Rendering*](/docs/pages/GLOSSARY.html#physically-based-rendering)
+     * * See [*Physically-Based Rendering*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#physically-based-rendering)
      */
     roughness?: number;
     /**

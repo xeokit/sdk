@@ -1,0 +1,8 @@
+{
+  "pipeline": {
+    "test": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

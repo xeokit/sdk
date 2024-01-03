@@ -375,7 +375,7 @@
  * ### Texture Compression
  *
  * The {@link Texture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
- * method uses [Basis](/docs/pages/GLOSSARY.html#basis) to compress the Texture to KTX2. We can now read that transcoded data
+ * method uses [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis) to compress the Texture to KTX2. We can now read that transcoded data
  * back from {@link @Texture.buffers | Texture.buffers}:
  *
  * ````javascript

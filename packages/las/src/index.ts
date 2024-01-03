@@ -14,7 +14,7 @@
  *
  * ---
  *
- * The xeokit SDK allows us to import 3D models from [LAS](/docs/pages/GLOSSARY.html#las), a
+ * The xeokit SDK allows us to import 3D models from [LAS](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#las), a
  * file format for the interchange of 3-dimensional point cloud data.
  *
  * The LAS file format is a standardized binary format used for storing and sharing 3D point cloud data from LiDAR

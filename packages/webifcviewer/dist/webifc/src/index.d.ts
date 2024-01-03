@@ -12,7 +12,7 @@
  *
  * ---
  *
- * The xeokit SDK can import 3D building models from  Industry Foundation Classes ([IFC](/docs/pages/GLOSSARY.html#ifc)) files,
+ * The xeokit SDK can import 3D building models from  Industry Foundation Classes ([IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc)) files,
  * a standard file format used in the field of Building Information Modeling (BIM) to exchange information between
  * different software applications used in the construction and building industries.
  *

@@ -1,4 +1,4 @@
-import {buildBoxGeometry} from "../src/geometry";
+import {buildBoxGeometry} from "../src/index";
 import {TrianglesPrimitive} from "@xeokit/constants";
 
 describe('Test Generators', function () {

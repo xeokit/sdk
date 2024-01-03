@@ -12,7 +12,7 @@
  *
  * ---
  *
- * The xeokit SDK allows us to import CAD models from [3DXML](/docs/pages/GLOSSARY.html#3dxml), a proprietary 3D file
+ * The xeokit SDK allows us to import CAD models from [3DXML](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#3dxml), a proprietary 3D file
  * format developed by Dassault Systemes.
  *
  * To import a 3DXML model into xeokit, simply use the {@link load3DXML} function, which will load the file into both

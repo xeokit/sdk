@@ -193,7 +193,7 @@ export declare class DataModel extends Component {
      * * Fires an event via {@link Data.onObjectCreated | Data.onObjectCreated}.
      * * Note that DataObject IDs are globally unique. DataObject instances are automatically reused and shared among DataModels when
      * IDs given to {@link DataModel.createObject | DataModel.createObject} match existing DataObject instances in the same
-     * Data. This feature is part of how xeokit supports [*federated data models*](/docs/pages/GLOSSARY.html#federated-models).
+     * Data. This feature is part of how xeokit supports [*federated data models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
      *
      * ### Usage
      *
@@ -244,7 +244,7 @@ export declare class DataModel extends Component {
      * * A Relationship involves a *relating* DataObject and a *related* DataObject.
      * * The *relating* and *related* DataObjects can exist within different DataModels,
      * as long as the DataModels both exist in the same {@link Data}. This feature is part of
-     * how xeokit supports the viewing of [*federated models*](/docs/pages/GLOSSARY.html#federated-models).
+     * how xeokit supports the viewing of [*federated models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
      * * The new Relationship will be stored in
      *   - {@link DataModel.relationships | DataModel.relationships},
      *   - {@link DataObject.related | DataObject.related} on the *relating* DataObject, and

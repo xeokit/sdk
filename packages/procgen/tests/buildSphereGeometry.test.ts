@@ -1,4 +1,4 @@
-import {buildSphereGeometry} from "../src/geometry";
+import {buildSphereGeometry} from "../src/index";
 import {TrianglesPrimitive} from "@xeokit/constants";
 import {truncate} from "./testUtils";
 

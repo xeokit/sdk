@@ -19,8 +19,8 @@ import type { Scene } from "./Scene";
  *
  * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene}.
  * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries} and {@link Texture | Textures}.
- * * Compresses textures using [Basis](/docs/pages/GLOSSARY.html#basis)
- * * Compresses geometry using [bucketing](/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](/docs/pages/GLOSSARY.html#geometry-quantization)
+ * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
+ * * Compresses geometry using [bucketing](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
  * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/xkt!loadXKT} (etc)
  * * Exportable to XKT format using {@link @xeokit/xkt!saveXKT}
@@ -61,7 +61,7 @@ export declare class SceneModel extends Component {
      */
     readonly destroyed: boolean;
     /**
-     * The edge threshold for automatic [edge primitive generation](/docs/pages/GLOSSARY.html#geometry-edge-generation).
+     * The edge threshold for automatic [edge primitive generation](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-edge-generation).
      */
     readonly edgeThreshold: number;
     /**
@@ -132,7 +132,7 @@ export declare class SceneModel extends Component {
      *
      * @internal
      */
-    rendererSceneModel: RendererModel | null;
+    rendererModel: RendererModel | null;
     /**
      * @private
      */

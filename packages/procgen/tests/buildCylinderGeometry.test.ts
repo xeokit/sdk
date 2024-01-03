@@ -1,4 +1,4 @@
-import {buildCylinderGeometry} from "../src/geometry";
+import {buildCylinderGeometry} from "../src/index";
 import {TrianglesPrimitive} from "@xeokit/constants";
 import {truncate} from "./testUtils";
 

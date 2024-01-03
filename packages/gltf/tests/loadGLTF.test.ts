@@ -24,15 +24,14 @@ describe('loadGLTF Test', () => {
 
         fs.readFile("./tests/assets/HousePlan.glb",  (err, buffer) => {
 
-
-            const arraybuffer = toArrayBuffer(buffer);
+            const fileData = toArrayBuffer(buffer);
 
             expect(sceneModel.built).toBe(false);
 
          //   console.log(arraybuffer)
 
             loadGLTF({
-                data: arraybuffer,
+                fileData,
                 sceneModel,
                 dataModel
             }).then(() => {

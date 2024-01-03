@@ -25,7 +25,7 @@
  * * Each View also has it's own {@link @xeokit/viewer!Camera}, {@link @xeokit/viewer!DirLight | Lights} and {@link @xeokit/viewer!SectionPlane | SectionPlanes}.
  * * Each View can optionally organize its ViewObjects into {@link @xeokit/viewer!ViewLayer | ViewLayers}. These allow us to partition our ViewObjects into
  * different *bins* depending on what they represent in the View, and then conveniently focus our updates (toggle visibility, select, highlight, slice etc.)
- * eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer's [phycially-based](/docs/pages/GLOSSARY.html#pbr)
+ * eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer's [phycially-based](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#pbr)
  * quality rendering mode. This allows us to disable wasteful quality rendering for objects that are not supposed to appear realistic, such as grids and other 3D helper objects.
  *
  * <br>

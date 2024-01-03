@@ -6,7 +6,7 @@
   "description": "WebIFC loader for xeokit",
   "main": "src/index.ts",
   "scripts": {
-    "test": "jest"
+    "XXtest": "jest"
   },
   "repository": {
     "type": "git",

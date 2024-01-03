@@ -12,12 +12,13 @@
     "packages/*"
   ],
   "scripts": {
-    "dist": "lerna run dist",
+    "dev": "turbo run dev",
+    "dist": "turbo run dist",
     "watch": "lerna run watch --parallel --stream",
     "watch:debug": "lerna run watch:debug --parallel --stream",
     "clean:dist": "rm -rf packages/*/dist/**",
     "clean:deps": "rm -rf packages/*/node_modules/**",
-    "test": "lerna run test",
+    "test": "turbo run test  --concurrency 100",
     "docs": "typedoc",
     "publish": "npm publish --access public"
   },
@@ -36,7 +37,6 @@
     "eslint-config-prettier": "8.5.0",
     "http-server": "^14.1.1",
     "jest-environment-jsdom": "^29.5.0",
-    "lerna": "6.1.0",
     "microbundle": "^0.15.1",
     "mikktspace": "1.1.1",
     "mkdirp": "^3.0.1",

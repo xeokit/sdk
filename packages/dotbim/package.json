@@ -1,11 +1,12 @@
 {
   "name": "@xeokit/dotbim",
   "private": false,
-  "type": "module",
   "version": "1.0.1-alpha.0",
   "description": ".BIM loader for xeokit.",
   "main": "src/index.ts",
-  "scripts": {},
+  "scripts": {
+    "test": "jest"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"

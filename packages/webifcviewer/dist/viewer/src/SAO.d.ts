@@ -14,17 +14,17 @@ export declare class SAO extends Component {
     /**
      * Gets which rendering modes in which to render SAO.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link QualityRender}].
+     * Default value is [{@link @xeokit/constants!QualityRender}].
      */
     get renderModes(): number[];
     /**
      * Sets which rendering modes in which to render SAO.
      *
-     * Accepted modes are {@link QualityRender} and {@link FastRender}.
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * Default value is [{@link QualityRender}].
+     * Default value is [{@link @xeokit/constants!QualityRender}].
      */
     set renderModes(value: number[]);
     /**

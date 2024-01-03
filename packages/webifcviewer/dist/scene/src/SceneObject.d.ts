@@ -37,7 +37,7 @@ export declare class SceneObject {
      *
      * @internal
      */
-    rendererSceneObject: RendererObject | null;
+    rendererObject: RendererObject | null;
     /**
      * @private
      */

@@ -238,7 +238,7 @@ export declare class CameraControl extends Component {
     /**
      * Gets the current navigation mode.
      *
-     * @returns {String} The navigation mode: "orbit", "firstPerson" or "planView".
+     * @returns {String} The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
      */
     get navMode(): string;
     /**
@@ -246,13 +246,13 @@ export declare class CameraControl extends Component {
      *
      * Accepted values are:
      *
-     * * "orbit" - rotation orbits about the current target or pivot point,
-     * * "firstPerson" - rotation is about the current eye position,
-     * * "planView" - rotation is disabled.
+     * * OrbitNavigationMode - rotation orbits about the current target or pivot point,
+     * * FirstPersonNavigationMode - rotation is about the current eye position,
+     * * PlanViewNavigationMode - rotation is disabled.
      *
      * See class comments for more info.
      *
-     * @param navMode The navigation mode: "orbit", "firstPerson" or "planView".
+     * @param navMode The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
      */
     set navMode(navMode: string | undefined);
     /**
@@ -402,7 +402,7 @@ export declare class CameraControl extends Component {
      *
      * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````FirstPersonNavigationMode````.
      *
      * Default is ````false````.
      *
@@ -414,7 +414,7 @@ export declare class CameraControl extends Component {
      *
      * When set ````true````, this constrains {@link @xeokit/viewer!Camera.eye | Camera.eye} to its current vertical position.
      *
-     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"firstPerson"````.
+     * Only applies when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````FirstPersonNavigationMode````.
      *
      * Default is ````false````.
      *
@@ -458,7 +458,7 @@ export declare class CameraControl extends Component {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````PlanViewNavigationMode````, which disallows rotation.
      *
      * @returns {Number} The inertia factor.
      */
@@ -475,7 +475,7 @@ export declare class CameraControl extends Component {
      *
      * Default is ````0.0````.
      *
-     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````"planView"````, which disallows rotation.
+     * Does not apply when {@link @xeokit/cameracontrol!CameraControl.navMode | CameraControl.navMode} is ````PlanViewNavigationMode````, which disallows rotation.
      *
      * @param rotationInertia New inertial factor.
      */

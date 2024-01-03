@@ -1,11 +1,11 @@
 import type { FloatArrayParam } from "@xeokit/math";
 import type { RendererMeshImpl } from "./RendererMeshImpl";
 import type { RendererViewObject } from "@xeokit/viewer";
-import type { RendererSceneModel, RendererSceneObject, SceneModel, SceneObject } from "@xeokit/scene";
+import type { RendererModel, RendererObject, SceneModel, SceneObject } from "@xeokit/scene";
 /**
  * @private
  */
-export declare class RendererObjectImpl implements RendererSceneObject, RendererViewObject {
+export declare class RendererObjectImpl implements RendererObject, RendererViewObject {
     #private;
     readonly id: string;
     readonly model: SceneModel;
@@ -14,7 +14,7 @@ export declare class RendererObjectImpl implements RendererSceneObject, Renderer
     readonly rendererMeshes: RendererMeshImpl[];
     constructor(params: {
         id: string;
-        rendererSceneModel: RendererSceneModel;
+        rendererModel: RendererModel;
         rendererMeshes: RendererMeshImpl[];
         aabb: any;
         layerId?: string;

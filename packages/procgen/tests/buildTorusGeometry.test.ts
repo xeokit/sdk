@@ -1,4 +1,4 @@
-import {buildTorusGeometry} from "../src/geometry";
+import {buildTorusGeometry} from "../src/index";
 import {TrianglesPrimitive} from "@xeokit/constants";
 import {truncate} from "./testUtils";
 

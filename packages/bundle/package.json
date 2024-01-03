@@ -9,7 +9,9 @@
   "homepage": "https://xeokit.github.io/sdk/packages/bundle/",
   "description": "xeokit SDK bundle",
   "main": "src/index.ts",
-  "scripts": {},
+  "scripts": {
+    "dist": "tsc"
+  },
   "author": "Lindsay Kay",
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {

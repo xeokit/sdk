@@ -4,7 +4,7 @@ import {EventEmitter} from "@xeokit/core";
 /**
  * The localization service for a {@link @xeokit/viewer!Viewer}.
  *
- * See {@link "@xeokit/localization"} for usage.
+ * See {@link "@xeokit/locale"} for usage.
  */
 class LocaleService {
 

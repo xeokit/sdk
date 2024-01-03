@@ -6,7 +6,7 @@ import {modelToXKT} from "./modelToXKT";
 import {packXKT} from "./packXKT";
 
 /**
- * Exports a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel} to an ArrayBuffer
+ * Exports a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel} to an ArrayBuffer
  * containing [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data.
  *
  * See {@link "@xeokit/xkt"} for usage.

@@ -1583,9 +1583,7 @@ const letters = {
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/scene!Mesh} with vector text {@link ReadableGeometry} :
- *
- * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildVectorTextGeometry)]
+ * Creating a {@link @xeokit/scene!Mesh} with vector text {@link @xeokit/scene!Geometry}:
  *
  * ````javascript
  *

@@ -3,13 +3,11 @@ import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "@xeokit/constants";
 
 /**
- * Creates a sphere-shaped {@link @xeokit/scene!GeometryBucketHandle}.
+ * Creates a sphere-shaped {@link @xeokit/scene!Geometry}.
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/scene!Mesh} with a sphere-shaped {@link @xeokit/scene!GeometryBucketHandle} :
- *
- * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildSphereGeometry)]
+ * Creating a {@link @xeokit/scene!Mesh} with a sphere-shaped {@link @xeokit/scene!Geometry}: :
  *
  * ````javascript
  * import {Viewer, Mesh, buildSphereGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
@@ -39,12 +37,12 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * @function buildSphereGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!GeometryBucketHandle}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!Geometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.radius=1]  Radius.
  * @param [cfg.heightSegments=24] Number of latitudinal bands.
  * @param  {Number} [cfg.widthSegments=18] Number of longitudinal bands.
- * @returns {Object} Configuration for a {@link @xeokit/scene!GeometryBucketHandle} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
  */
 export function buildSphereGeometry(cfg: {
     center: number[];

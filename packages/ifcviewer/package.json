@@ -1,0 +1,73 @@
+{
+  "name": "@xeokit/ifcviewer",
+  "private": true,
+  "version": "1.0.1-alpha.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xeokit/sdk.git"
+  },
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_ifcviewer.html",
+  "description": "A mimimal IFC model viewer, built with xeokit SDK components",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "exports": "./dist/index.modern.mjs",
+  "source": "src/index.ts",
+  "scripts": {
+    "clean": "rimraf dist && mkdirp dist"
+  },
+  "author": "Lindsay Kay",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/xeokit/sdk/issues"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "README.md",
+    "package.json"
+  ],
+  "keywords": [],
+  "dependencies": {
+    "@xeokit/cityjson2xkt": "^1.0.1-alpha.0"
+  },
+  "devDependencies": {
+    "@xeokit/basictypes": "^1.0.1-alpha.0",
+    "@xeokit/bcf": "^1.0.1-alpha.0",
+    "@xeokit/boundaries": "^1.0.1-alpha.0",
+    "@xeokit/cameracontrol": "^1.0.1-alpha.0",
+    "@xeokit/cityjson": "^1.0.1-alpha.0",
+    "@xeokit/cityjson2xkt": "^1.0.1-alpha.0",
+    "@xeokit/cityjsontypes_1_1_3": "^1.0.1-alpha.0",
+    "@xeokit/compression": "^1.0.1-alpha.0",
+    "@xeokit/constants": "^1.0.1-alpha.0",
+    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/curves": "^1.0.1-alpha.0",
+    "@xeokit/data": "^1.0.1-alpha.0",
+    "@xeokit/dotbim": "^1.0.1-alpha.0",
+    "@xeokit/gltf": "^1.0.1-alpha.0",
+    "@xeokit/gltf2xkt": "^1.0.1-alpha.0",
+    "@xeokit/ifc2xkt": "^1.0.1-alpha.0",
+    "@xeokit/ifctypes": "^1.0.1-alpha.0",
+    "@xeokit/kdtree2": "^1.0.1-alpha.0",
+    "@xeokit/kdtree3": "^1.0.1-alpha.0",
+    "@xeokit/ktx2": "^1.0.1-alpha.0",
+    "@xeokit/las": "^1.0.1-alpha.0",
+    "@xeokit/las2xkt": "^1.0.1-alpha.0",
+    "@xeokit/locale": "^1.0.1-alpha.0",
+    "@xeokit/math": "^1.0.1-alpha.0",
+    "@xeokit/matrix": "^1.0.1-alpha.0",
+    "@xeokit/pick": "^1.0.1-alpha.0",
+    "@xeokit/procgen": "^1.0.1-alpha.0",
+    "@xeokit/rtc": "^1.0.1-alpha.0",
+    "@xeokit/scene": "^1.0.1-alpha.0",
+    "@xeokit/treeview": "^1.0.1-alpha.0",
+    "@xeokit/utils": "^1.0.1-alpha.0",
+    "@xeokit/viewer": "^1.0.1-alpha.0",
+    "@xeokit/webglrenderer": "^1.0.1-alpha.0",
+    "@xeokit/webglutils": "^1.0.1-alpha.0",
+    "@xeokit/webgpurenderer": "^1.0.1-alpha.0",
+    "@xeokit/webifc": "^1.0.1-alpha.0",
+    "@xeokit/xkt": "^1.0.1-alpha.0",
+    "web-ifc": "^0.0.35"
+  }
+}

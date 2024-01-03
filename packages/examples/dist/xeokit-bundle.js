@@ -11352,7 +11352,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/scene"} for more usage info.
    *
    * @param geometryParams Non-compressed geometry parameters.
-   * @returns *{Geometry}*
+   * @returns *{@link @xeokit/scene!Geometry}*
    *  * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been destroyed.
@@ -32873,7 +32873,7 @@ var TreeView = /*#__PURE__*/function (_Component) {
    *
    * Within the DOM, the node is represented by an ````<li>```` element. This method will add a ````.highlighted-node```` class to
    * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
-   * in the TreeView webifcviewer for an example of that class.
+   * in the TreeView ifcviewer for an example of that class.
    *
    * @param {String} objectId ID of the {@link viewObject}.
    */

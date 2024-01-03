@@ -7,7 +7,7 @@ import type {KdItem3D} from "./KdItem3";
  * Queries a {@link KdTree3} for {@link KdItem3D | KDItems} that intersect
  * a 3D {@link @xeokit/boundaries!Frustum3}.
  *
- * See {@link "@xeokit/collison/kdtree3"} for usage.
+ * See {@link "@xeokit/kdtree3"} for usage.
  */
 export function searchKdTree3WithFrustum(params: {
     kdTree: KdTree3,

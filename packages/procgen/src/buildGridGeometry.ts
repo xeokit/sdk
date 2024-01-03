@@ -2,13 +2,11 @@ import * as utils from "@xeokit/utils";
 import type {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a grid-shaped {@link @xeokit/scene!GeometryBucketHandle}.
+ * Creates a grid-shaped {@link @xeokit/scene!Geometry}.
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/scene!Mesh} with a GridGeometry and a {@link PhongMaterial}:
- *
- * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildGridGeometry)]
+ * Creating a {@link @xeokit/scene!Mesh} with a grid-shaped {@link @xeokit/scene!Geometry}:
  *
  * ````javascript
 
@@ -16,10 +14,10 @@ import type {GeometryArrays} from "./GeometryArrays";
  *
  * @function buildGridGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!GeometryBucketHandle}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!Geometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
  * @param [cfg.size=1] Dimension on the X and Z-axis.
  * @param [cfg.divisions=1] Number of divisions on X and Z axis..
- * @returns {Object} Configuration for a {@link @xeokit/scene!GeometryBucketHandle} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
  */
 export function buildGridGeometry(cfg = {
     size: 1,

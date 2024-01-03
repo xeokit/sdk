@@ -2,13 +2,11 @@ import * as utils from "@xeokit/utils";
 import type {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a plane-shaped {@link @xeokit/scene!GeometryBucketHandle}.
+ * Creates a plane-shaped {@link @xeokit/scene!Geometry}.
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/scene!Mesh} with a PlaneGeometry and a {@link PhongMaterial} with diffuse {@link @xeokit/scene!Texture}:
- *
- * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildPlaneGeometry)]
+ * Creating a {@link @xeokit/scene!Mesh} with a plane-shaped {@link @xeokit/scene!Geometry}:
  *
  * ````javascript
  * import {Viewer, Mesh, buildPlaneGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
@@ -40,12 +38,12 @@ import type {GeometryArrays} from "./GeometryArrays";
  * @function buildPlaneGeometry
  * @param cfg Configs
  * @param [cfg.center]  3D point indicating the center position.
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!GeometryBucketHandle}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!Geometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
  * @param [cfg.xSize=1] Dimension on the X-axis.
  * @param [cfg.zSize=1] Dimension on the Z-axis.
  * @param [cfg.xSegments=1] Number of segments on the X-axis.
  * @param [cfg.zSegments=1] Number of segments on the Z-axis.
- * @returns {Object} Configuration for a {@link @xeokit/scene!GeometryBucketHandle} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
  */
 export function buildPlaneGeometry(cfg = {
     xSize: 0,

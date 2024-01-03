@@ -9,9 +9,7 @@ import type {GeometryArrays} from "./GeometryArrays";
  *
  * ## Usage
  *
- * In the example below we'll create a {@link @xeokit/scene!Mesh} with a box-shaped {@link ReadableGeometry} that has lines primitives.
- *
- * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildBoxLinesGeometry)]
+ * Creating a {@link @xeokit/scene!Mesh} with a box-shaped wireframe {@link @xeokit/scene!Geometry}:
  *
  * ````javascript
  * TODO

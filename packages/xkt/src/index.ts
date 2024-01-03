@@ -90,3 +90,4 @@
  */
 export * from "./loadXKT";
 export * from "./saveXKT";
+export * from "./XKTData";

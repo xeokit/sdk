@@ -5,12 +5,10 @@ import {TrianglesPrimitive} from "@xeokit/constants";
 
 
 /**
- * Creates a torus-shaped {@link @xeokit/scene!GeometryBucketHandle}.
+ * Creates a torus-shaped {@link @xeokit/scene!Geometry}.
  *
  * ## Usage
- * Creating a {@link @xeokit/scene!Mesh} with a torus-shaped {@link @xeokit/scene!GeometryBucketHandle} :
- *
- * [[Run this example](http://xeokit.github.io/xeokit-sdk/examples/#geometry_builders_buildTorusGeometry)]
+ * Creating a {@link @xeokit/scene!Mesh} with a torus-shaped {@link @xeokit/scene!Geometry}:
  *
  * ````javascript
  * import {Viewer, Mesh, buildTorusGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
@@ -42,14 +40,14 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * @function buildTorusGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!GeometryBucketHandle}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!Geometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
  * @param [cfg.center] 3D point indicating the center position.
  * @param [cfg.radius=1] The overall radius.
  * @param [cfg.tube=0.3] The tube radius.
  * @param [cfg.radialSegments=32] The number of radial segments.
  * @param [cfg.tubeSegments=24] The number of tubular segments.
  * @param [cfg.arc=Math.PI*0.5] The length of the arc in radians, where Math.PI*2 is a closed torus.
- * @returns {Object} Configuration for a {@link @xeokit/scene!GeometryBucketHandle} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
  */
 export function buildTorusGeometry(cfg: {
     tube?: number;

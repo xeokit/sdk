@@ -526,7 +526,7 @@ export class TreeView extends Component {
      *
      * Within the DOM, the node is represented by an ````<li>```` element. This method will add a ````.highlighted-node```` class to
      * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
-     * in the TreeView webifcviewer for an example of that class.
+     * in the TreeView ifcviewer for an example of that class.
      *
      * @param {String} objectId ID of the {@link viewObject}.
      */

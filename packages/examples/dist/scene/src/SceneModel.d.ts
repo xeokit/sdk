@@ -285,7 +285,7 @@ export declare class SceneModel extends Component {
      * See {@link "@xeokit/scene"} for more usage info.
      *
      * @param geometryParams Non-compressed geometry parameters.
-     * @returns *{Geometry}*
+     * @returns *{@link @xeokit/scene!Geometry}*
      *  * On success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * If this SceneModel has already been destroyed.

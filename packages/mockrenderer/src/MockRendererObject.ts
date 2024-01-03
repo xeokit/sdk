@@ -37,91 +37,91 @@ export class MockRendererObject implements RendererObject, RendererViewObject {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     get aabb(): FloatArrayParam {
         return this.sceneObject.aabb;
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setVisible(viewIndex: number, visible: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setHighlighted(viewIndex: number, highlighted: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setXRayed(viewIndex: number, xrayed: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setSelected(viewIndex: number, selected: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setEdges(viewIndex: number, edges: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setCulled(viewIndex: number, culled: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setClippable(viewIndex: number, clippable: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setCollidable(viewIndex: number, collidable: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setPickable(viewIndex: number, pickable: boolean): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setColorize(viewIndex: number, color?: FloatArrayParam): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setOpacity(viewIndex: number, opacity?: number): void | SDKError {
 
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setOffset(viewIndex: number, offset: FloatArrayParam): void | SDKError {
 

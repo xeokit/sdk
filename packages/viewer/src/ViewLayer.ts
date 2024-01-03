@@ -269,7 +269,7 @@ class ViewLayer extends Component {
     /**
      * Map of the all {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
-     * These are the ViewObjects for which {@link @xeokit/viewer!ViewObject.layerId | ViewObject.layerId} has the same value as {@link @xeokit/view!ViewLayer.id}.
+     * These are the ViewObjects for which {@link @xeokit/viewer!ViewObject.layerId | ViewObject.layerId} has the same value as {@link @xeokit/viewer!ViewLayer.id}.
      *
      * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      *
@@ -338,7 +338,7 @@ class ViewLayer extends Component {
     /**
      * Emits an event each time the visibility of a {@link @xeokit/viewer!ViewObject} changes.
      *
-     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link @xeokit/view!ViewLayer.setObjectsVisible} or {@link @xeokit/viewer!ViewObject.visible}.
+     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link @xeokit/viewer!ViewLayer.setObjectsVisible} or {@link @xeokit/viewer!ViewObject.visible}.
      *
      * @event
      */
@@ -414,7 +414,7 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Sets which rendering modes in which to render the {@linkk ViewObject | ViewObjects} in this ViewLayer.
+     * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
      *
      * Default value is [].
      */
@@ -424,7 +424,7 @@ class ViewLayer extends Component {
     }
 
     /**
-     * Gets which rendering modes in which to render the {@linkk ViewObject | ViewObjects} in this ViewLayer.
+     * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
      *
      * Default value is [].
      */
@@ -679,7 +679,7 @@ class ViewLayer extends Component {
      * Updates the visibility of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
      * - Updates {@link @xeokit/viewer!ViewObject.visible} on the Objects with the given IDs.
-     * - Updates {@link @xeokit/view!ViewLayer.visibleObjects} and {@link @xeokit/view!ViewLayer.numVisibleObjects}.
+     * - Updates {@link @xeokit/viewer!ViewLayer.visibleObjects} and {@link @xeokit/viewer!ViewLayer.numVisibleObjects}.
      *
      * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
      * @param visible Whether or not to cull.
@@ -731,7 +731,7 @@ class ViewLayer extends Component {
      * Selects or deselects the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
      * - Updates {@link @xeokit/viewer!ViewObject.selected} on the Objects with the given IDs.
-     * - Updates {@link @xeokit/view!ViewLayer.selectedObjects} and {@link @xeokit/view!ViewLayer.numSelectedObjects}.
+     * - Updates {@link @xeokit/viewer!ViewLayer.selectedObjects} and {@link @xeokit/viewer!ViewLayer.numSelectedObjects}.
      *
      * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
      * @param selected Whether or not to select.
@@ -749,7 +749,7 @@ class ViewLayer extends Component {
      * Highlights or un-highlights the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
      * - Updates {@link @xeokit/viewer!ViewObject.highlighted} on the Objects with the given IDs.
-     * - Updates {@link @xeokit/view!ViewLayer.highlightedObjects} and {@link @xeokit/view!ViewLayer.numHighlightedObjects}.
+     * - Updates {@link @xeokit/viewer!ViewLayer.highlightedObjects} and {@link @xeokit/viewer!ViewLayer.numHighlightedObjects}.
      *
      * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
      * @param highlighted Whether or not to highlight.
@@ -767,7 +767,7 @@ class ViewLayer extends Component {
      * Applies or removes X-ray rendering for the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
      * - Updates {@link @xeokit/viewer!ViewObject.xrayed} on the Objects with the given IDs.
-     * - Updates {@link @xeokit/view!ViewLayer.xrayedObjects} and {@link @xeokit/view!ViewLayer.numXRayedObjects}.
+     * - Updates {@link @xeokit/viewer!ViewLayer.xrayedObjects} and {@link @xeokit/viewer!ViewLayer.numXRayedObjects}.
      *
      * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
      * @param xrayed Whether or not to xray.
@@ -787,7 +787,7 @@ class ViewLayer extends Component {
      * Colorizes the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
      * - Updates {@link @xeokit/viewer!ViewObject.colorize} on the Objects with the given IDs.
-     * - Updates {@link @xeokit/view!ViewLayer.colorizedObjects} and {@link @xeokit/view!ViewLayer.numColorizedObjects}.
+     * - Updates {@link @xeokit/viewer!ViewLayer.colorizedObjects} and {@link @xeokit/viewer!ViewLayer.numColorizedObjects}.
      *
      * @param  objectIds One or more {@link @xeokit/viewer!ViewObject.id} values.
      * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
@@ -803,7 +803,7 @@ class ViewLayer extends Component {
      * Sets the opacity of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
      * - Updates {@link @xeokit/viewer!ViewObject.opacity} on the Objects with the given IDs.
-     * - Updates {@link @xeokit/view!ViewLayer.opacityObjects} and {@link @xeokit/view!ViewLayer.numOpacityObjects}.
+     * - Updates {@link @xeokit/viewer!ViewLayer.opacityObjects} and {@link @xeokit/viewer!ViewLayer.numOpacityObjects}.
      *
      * @param  objectIds - One or more {@link @xeokit/viewer!ViewObject.id} values.
      * @param opacity - Opacity factor in range ````[0..1]````.
@@ -823,7 +823,7 @@ class ViewLayer extends Component {
      * Sets the pickability of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
      * - Updates {@link @xeokit/viewer!ViewObject.pickable} on the Objects with the given IDs.
-     * - Enables or disables the ability to pick the given Objects with {@link @xeokit/view!ViewLayer.pick}.
+     * - Enables or disables the ability to pick the given Objects with {@link @xeokit/viewer!View.pick}.
      *
      * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
      * @param pickable Whether or not to set pickable.
@@ -843,7 +843,7 @@ class ViewLayer extends Component {
      * Sets the clippability of the given {@link @xeokit/viewer!ViewObject | ViewObjects} in this ViewLayer.
      *
      * - Updates {@link @xeokit/viewer!ViewObject.clippable} on the Objects with the given IDs.
-     * - Enables or disables the ability to pick the given Objects with {@link @xeokit/view!ViewLayer.pick}.
+     * - Enables or disables the ability to pick the given Objects with {@link @xeokit/viewer!View.pick}.
      *
      * @param {String[]} objectIds Array of {@link @xeokit/viewer!ViewObject.id} values.
      * @param clippable Whether or not to set clippable.

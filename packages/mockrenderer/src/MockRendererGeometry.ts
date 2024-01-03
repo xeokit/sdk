@@ -2,7 +2,7 @@ import type {Geometry, RendererGeometry} from "@xeokit/scene";
 
 /**
  * @internal
- * @inheritdoc
+ * @Inheritdoc
  */
 export class MockRendererGeometry implements RendererGeometry {
 

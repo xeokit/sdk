@@ -44,7 +44,7 @@ module.exports = {
         "@xeokit/webgpu(.*)$": path.join(__dirname, "../webgpu/src/$1"),
         "@xeokit/webgpurenderer(.*)$": path.join(__dirname, "../webgpurenderer/src/$1"),
         "@xeokit/webifc(.*)$": path.join(__dirname, "../webifc/src/$1"),
-        "@xeokit/webifcviewer(.*)$": path.join(__dirname, "../webifcviewer/src/$1")
+        "@xeokit/ifcviewer(.*)$": path.join(__dirname, "../ifcviewer/src/$1")
     },
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     resolver: undefined,

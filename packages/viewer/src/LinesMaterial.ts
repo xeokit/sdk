@@ -3,7 +3,7 @@ import type {View} from "./View";
 
 
 /**
- * Configures the shape of "lines" geometry primitives.
+ * Configures the appearance of "lines" geometry primitives.
  *
  * * Located at {@link View#linesMaterial}.
  */

@@ -21,58 +21,58 @@ export class MockRendererMesh implements RendererMesh, Pickable {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     delegatePickedEntity(): SceneObject {
         throw new Error("Method not implemented.");
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setMatrix(matrix: FloatArrayParam): void {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setMetallic(metallic: number): void {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setRoughness(roughness: number): void {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setColor(color: FloatArrayParam) {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     canPickTriangle(): boolean {
         return false;
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     canPickWorldPos(): boolean {
         return false;
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     pickTriangleSurface(pickResult: PickResult): void {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     destroy() {
 

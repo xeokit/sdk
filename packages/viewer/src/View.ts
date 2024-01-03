@@ -11,6 +11,7 @@ import {SectionPlane} from "./SectionPlane";
 import type {Viewer} from "./Viewer";
 import {Metrics} from "./Metriqs";
 import {SAO} from "./SAO";
+import {Texturing} from "./Texturing";
 import {LinesMaterial} from "./LinesMaterial";
 import {ViewLayer} from "./ViewLayer";
 import type {ViewLayerParams} from "./ViewLayerParams";
@@ -52,7 +53,7 @@ import {ResolutionScale} from "./ResolutionScale";
  * * Create light sources with {@link View.createLightSource}
  * * Create slicing planes with {@link View createSectionPlane}
  * * Each View automatically has a {@link @xeokit/viewer!ViewObject} for every {@link RendererViewObject}
- * * Uses {@link @xeokit/view!ViewLayer | ViewLayers} to organize ViewObjects into layers
+ * * Uses {@link @xeokit/viewer!ViewLayer | ViewLayers} to organize ViewObjects into layers
  * * Optionally uses ViewLayers to mask which ViewObjects are automatically maintained
  * * Control the visibility of ViewObjects with {@link View.setObjectsVisible}
  * * Emphasise ViewObjects with {@link View.setObjectsHighlighted}, {@link View.setObjectsSelected}, {@link View.setObjectsXRayed} and {@link View.setObjectsColorized}
@@ -139,6 +140,11 @@ class View extends Component {
      * Configures Scalable Ambient Obscurance (SAO) for this View.
      */
     readonly sao: SAO;
+
+    /**
+     * Configures when textures are rendered for this View.
+     */
+    readonly texturing: Texturing;
 
     /**
      * Flies or jumps the View's {@link @xeokit/viewer!Camera}  to given positions.
@@ -272,15 +278,15 @@ class View extends Component {
     /**
      * Map of the all {@link @xeokit/viewer!ViewLayer}s in this View.
      *
-     * Each {@link @xeokit/viewer!ViewLayer} is mapped here by {@link @xeokit/view!ViewLayer.id}.
+     * Each {@link @xeokit/viewer!ViewLayer} is mapped here by {@link @xeokit/viewer!ViewLayer.id}.
      */
     readonly layers: { [key: string]: ViewLayer };
 
     /**
-     * Whether the View will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} on-demand
+     * Whether the View will automatically create {@link @xeokit/viewer!ViewLayer | ViewLayers} on-demand
      * as {@link RendererViewObject | ViewerObjects} are created.
      *
-     * When ````true```` (default), the View will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} as needed for each new
+     * When ````true```` (default), the View will automatically create {@link @xeokit/viewer!ViewLayer | ViewLayers} as needed for each new
      * {@link RendererViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
      * layerId. This default setting therefore ensures that a ViewObject is created in the View for every SceneObject that is created.
      *
@@ -303,7 +309,7 @@ class View extends Component {
     /**
      * Emits an event each time the visibility of a {@link @xeokit/viewer!ViewObject} changes in this View.
      *
-     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link @xeokit/view!ViewLayer.setObjectsVisible} or {@link @xeokit/viewer!ViewObject.visible}.
+     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link @xeokit/viewer!ViewLayer.setObjectsVisible} or {@link @xeokit/viewer!ViewObject.visible}.
      *
      * @event
      */
@@ -312,7 +318,7 @@ class View extends Component {
     /**
      * Emits an event each time the X-ray state of a {@link @xeokit/viewer!ViewObject} changes in this View.
      *
-     * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link @xeokit/view!ViewLayer.setObjectsXRayed} or {@link @xeokit/viewer!ViewObject.xrayed}.
+     * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link @xeokit/viewer!ViewLayer.setObjectsXRayed} or {@link @xeokit/viewer!ViewObject.xrayed}.
      *
      * @event
      */
@@ -330,7 +336,7 @@ class View extends Component {
     /**
      * Emits an event each time a {@link @xeokit/viewer!ViewLayer} in this View is destroyed.
      *
-     * ViewLayers are destroyed explicitly with {@link @xeokit/view!ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
+     * ViewLayers are destroyed explicitly with {@link @xeokit/viewer!ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
      *
      * @event
      */
@@ -551,6 +557,8 @@ class View extends Component {
         this.camera = new Camera(this);
 
         this.sao = new SAO(this, {});
+
+        this.texturing = new Texturing(this, {});
 
         this.cameraFlight = new CameraFlightAnimation(this, {
             duration: 0.5,
@@ -1432,7 +1440,7 @@ class View extends Component {
      *
      * The ViewLayer is then registered in {@link View.layers}.
      *
-     * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link @xeokit/view!ViewLayer.destroy}
+     * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link @xeokit/viewer!ViewLayer.destroy}
      * is called, or the {@link @xeokit/viewer!View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
      * returns that existing ViewLayer. The method will also ensure that the existing ViewLayer likewise persists.
      *

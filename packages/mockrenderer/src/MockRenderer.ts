@@ -17,7 +17,7 @@ import {MockRendererModel} from "./MockRendererModel";
 export class MockRenderer implements Renderer {
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     rendererViewObjects: { [key: string]: RendererViewObject };
 
@@ -38,7 +38,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     getCapabilities(capabilities: Capabilities): void {
         capabilities.maxViews = 1;
@@ -46,7 +46,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     attachViewer(viewer: Viewer): void | SDKError {
         if (this.#viewer) {
@@ -56,7 +56,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     attachView(view: View): number | SDKError {
         if (this.#view) {
@@ -70,7 +70,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     detachView(viewIndex: number): SDKError | void {
         if (!this.#view) {
@@ -82,7 +82,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     attachSceneModel(sceneModel: SceneModel): SDKError | void {
         if (!this.#view) {
@@ -113,7 +113,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     detachSceneModel(sceneModel: SceneModel): SDKError | void {
         if (!this.#view) {
@@ -132,7 +132,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setImageDirty(viewIndex?: number): SDKError | void {
         if (!this.#view) {
@@ -144,7 +144,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setBackgroundColor(viewIndex: number, color: FloatArrayParam): SDKError | void { // @ts-ignore
         if (!this.#view) {
@@ -156,7 +156,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setEdgesEnabled(viewIndex: number, enabled: boolean): SDKError | void {
         if (!this.#view) {
@@ -168,7 +168,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setPBREnabled(viewIndex: number, enabled: boolean): SDKError | void {
         if (!this.#view) {
@@ -180,14 +180,14 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     getSAOSupported(): boolean {
         return false;
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setSAOEnabled(viewIndex: number, enabled: boolean): SDKError | void {
         if (!this.#view) {
@@ -199,7 +199,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     setTransparentEnabled(viewIndex: number, enabled: boolean): SDKError | void {
         if (!this.#view) {
@@ -211,7 +211,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     clear(viewIndex: number): SDKError | void {
         if (!this.#view) {
@@ -223,7 +223,7 @@ export class MockRenderer implements Renderer {
     };
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     needsRebuild(viewIndex?: number): SDKError | void {
         if (!this.#view) {
@@ -235,7 +235,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     needsRender(viewIndex?: number): SDKError | boolean {
         if (!this.#view) {
@@ -248,7 +248,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     render(viewIndex: number, params: {
         force?: boolean;
@@ -262,7 +262,7 @@ export class MockRenderer implements Renderer {
     }
 
     /**
-     * @inheritdoc
+     * @Inheritdoc
      */
     pickViewObject(viewIndex: number, params: {}): ViewObject | null | SDKError {
         if (!this.#view) {

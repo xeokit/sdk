@@ -55,10 +55,10 @@ export interface ViewParams {
     colorTextureEnabled?: boolean;
 
     /**
-     * Whether the {@link @xeokit/viewer!View} will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} on-demand
+     * Whether the {@link @xeokit/viewer!View} will automatically create {@link @xeokit/viewer!ViewLayer | ViewLayers} on-demand
      * as {@link @xeokit/viewer!ViewObject | ViewObjects} are created.
      *
-     * When ````true```` (default), the {@link @xeokit/viewer!View} will automatically create {@link @xeokit/view!ViewLayer | ViewLayers} as needed for each new
+     * When ````true```` (default), the {@link @xeokit/viewer!View} will automatically create {@link @xeokit/viewer!ViewLayer | ViewLayers} as needed for each new
      * {@link @xeokit/viewer!ViewObject.layerId | ViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
      * layerId. This default setting therefore ensures that a ViewObject is created in the {@link @xeokit/viewer!View} for every ViewerObject that is created.
      *

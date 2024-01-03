@@ -9,9 +9,9 @@ import {scheduler} from "./scheduler";
 import type {Renderer} from "./Renderer";
 
 import type {ViewParams} from "./ViewParams";
+import {TickParams} from "./TickParams";
 
-class TickParams {
-}
+
 
 /**
  * A Browser-based 2D/3D model viewer.

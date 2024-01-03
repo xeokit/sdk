@@ -5,6 +5,9 @@ import type {Capabilities} from "./Capabilities";
 import type {TextureCompressedParams} from "./TextureCompressedParams";
 
 
+/**
+ * Defines the interface for xeokit texture decompression strategies.
+ */
 export interface TextureTranscoder {
 
     /**

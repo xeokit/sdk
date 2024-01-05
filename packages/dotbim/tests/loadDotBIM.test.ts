@@ -4,54 +4,47 @@ import {loadDotBIM} from "../src";
 
 const fs = require('fs');
 
-describe('loadDotBIM Test', () => {
+describe('loadDotBIM', () => {
 
     const data = new Data();
     const scene = new Scene();
+
     let dataModel;
     let sceneModel;
 
-    it('loadDotBIM Test', () => {
+    dataModel = data.createModel({
+        id: "theModel"
+    });
 
-        dataModel = data.createModel({
-            id: "theModel"
-        });
+    sceneModel = scene.createModel({
+        id: "theModel"
+    });
 
-        sceneModel = scene.createModel({
-            id: "theModel"
-        });
+    const fileData = JSON.parse(fs.readFileSync("./tests/assets/SmallHouse.bim", 'utf8'));
 
-        fs.readFile("./tests/assets/SmallHouse.bim", 'utf8', (err, dat) => {
 
-            if (err) {
-                console.error(err);
-                return;
-            }
+    test("the DotBIM data loads into a SceneModel and DataModel without error", async () => {
+        await loadDotBIM({fileData, sceneModel, dataModel});
+    });
 
-            const fileData = JSON.parse(dat);
+    test("the SceneModel builds without error", async () => {
+        await sceneModel.build();
+        expect(sceneModel.built).toBe(true);
+    });
 
-            expect(sceneModel.built).toBe(false);
+    test("the DataModel builds without error", () => {
+        dataModel.build();
+        expect(dataModel.built).toBe(true);
+    });
 
-            const meshGeometryArrays = {}
+    test("the SceneModel has the expected components", () => {
+        const sceneModelJSON = JSON.parse(fs.readFileSync("./tests/assets/SmallHouse_SceneModel.json", 'utf8'));
+        expect(sceneModel.getJSON()).toEqual(sceneModelJSON);
+    });
 
-            loadDotBIM({
-                fileData,
-                sceneModel,
-                dataModel
-            }, {
-            }).then(() => {
-
-                sceneModel.build().then(() => {
-
-                    expect(sceneModel.built).toBe(true);
-
-                    dataModel.build();
-
-                    expect(dataModel.built).toBe(true);
-
-                    // TODO: Test content is loaded, like we do with CityJSON
-                });
-            });
-        });
+    test("the DataModel has the expected components", () => {
+        const dataModelJSON = JSON.parse(fs.readFileSync("./tests/assets/SmallHouse_DataModel.json", 'utf8'));
+        expect(dataModel.getJSON()).toEqual(dataModelJSON);
     });
 });
+

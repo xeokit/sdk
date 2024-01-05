@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/bundle",
-  "private": true,
+  "private": false,
   "version": "1.0.1-alpha.0",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   "description": "xeokit SDK bundle",
   "main": "src/index.ts",
   "scripts": {
-    "dist": "tsc"
+    "build": "tsc"
   },
   "author": "Lindsay Kay",
   "license": "SEE LICENSE IN LICENSE.md",

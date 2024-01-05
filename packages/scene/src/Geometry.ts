@@ -1,5 +1,5 @@
 import type {FloatArrayParam} from "@xeokit/math";
-import {GeometryBucket} from "./GeometryBucket";
+import  {GeometryBucket} from "./GeometryBucket";
 import type {GeometryCompressedParams} from "./GeometryCompressedParams";
 import type {RendererGeometry} from "./RendererGeometry";
 
@@ -73,5 +73,38 @@ export class Geometry {
         this.id = params.id;
         this.positionsDecompressMatrix = params.positionsDecompressMatrix;
         this.primitive = params.primitive;
+    }
+
+    /**
+     * Gets this Geometry as JSON.
+     */
+    getJSON(): GeometryCompressedParams {
+        const geometryParams = <GeometryCompressedParams>{
+            id: this.id,
+            primitive: this.primitive,
+            positionsDecompressMatrix: Array.from(this.positionsDecompressMatrix),
+            geometryBuckets: []
+        };
+        for (let i = 0, len = this.geometryBuckets.length; i < len; i++) {
+            const geometryBucket = this.geometryBuckets[i];
+            const geometryBucketJSON: any = {};
+            if (geometryBucket.positionsCompressed) {
+                geometryBucketJSON.positionsCompressed = Array.from(geometryBucket.positionsCompressed);
+            }
+            if (geometryBucket.uvsCompressed) {
+                geometryBucketJSON.uvsCompressed = Array.from(geometryBucket.uvsCompressed);
+            }
+            if (geometryBucket.colorsCompressed) {
+                geometryBucketJSON.colorsCompressed = Array.from(geometryBucket.colorsCompressed);
+            }
+            if (geometryBucket.indices) {
+                geometryBucketJSON.indices = Array.from(geometryBucket.indices);
+            }
+            if (geometryBucket.edgeIndices) {
+                geometryBucketJSON.edgeIndices = Array.from(geometryBucket.edgeIndices);
+            }
+            geometryParams.geometryBuckets.push(geometryBucketJSON);
+        }
+        return geometryParams;
     }
 }

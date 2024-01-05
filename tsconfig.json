@@ -28,6 +28,7 @@
   "baseUrl": "./packages",
   "paths": {
     "@xeokit/basictypes":["./packages/basictypes/"],
+    "@xeokit/bundle":["./packages/bundle/"],
     "@xeokit/bcf":["./packages/bcf/"],
     "@xeokit/boundaries":["./packages/boundaries/"],
     "@xeokit/cameracontrol":["./packages/cameracontrol/"],

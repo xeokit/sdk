@@ -2,12 +2,12 @@ import {Data} from "../src";
 import {BasicAggregation, BasicEntity} from "@xeokit/basictypes";
 import {SDKError} from "@xeokit/core";
 
-describe('build', function () {
+describe('DataModel', function () {
 
     const data = new Data();
     let dataModel;
 
-    it('create data model', () => {
+    it('it supports creation of objects, property sets and relations using builder methods', () => {
 
         const dataModel = data.createModel({
             id: "myTableModel"

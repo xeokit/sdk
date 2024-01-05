@@ -1,7 +1,7 @@
 import {Component, EventEmitter, SDKError} from "@xeokit/core";
 
 import {DataModel} from "./DataModel";
-import type {DataObject} from "./DataObject";
+import {DataObject} from "./DataObject";
 import type {PropertySet} from "./PropertySet";
 import type {DataModelParams} from "./DataModelParams";
 import {EventDispatcher} from "strongly-typed-events";
@@ -219,6 +219,7 @@ export class Data extends Component {
                     searchParams.resultObjects.push(dataObject);
                 } else if (searchParams.resultCallback) {
                     if (searchParams.resultCallback(dataObject)) {
+                        return; // Stop searching
                     }
                 }
             }

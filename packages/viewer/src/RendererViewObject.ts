@@ -1,7 +1,7 @@
 
 import type {FloatArrayParam} from "@xeokit/math";
 import type { RendererModel} from "@xeokit/scene";
-import {SDKError} from "@xeokit/core";
+import type {SDKError} from "@xeokit/core";
 
 
 /**

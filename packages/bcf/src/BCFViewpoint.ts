@@ -14,34 +14,67 @@
 export interface BCFViewpoint {
 
     /**
+     * BCF orthogonal camera.
+     */
+    orthogonal_camera?: BCFOrthogonalCamera;
+
+    /**
      * BCF perspective camera.
      */
-    "perspective_camera"?: BCFPerspectiveCamera,
+    perspective_camera?: BCFPerspectiveCamera;
 
     /**
      * BCF line segments.
      */
-    "lines"?: BCFLine[],
+    lines?: BCFLine[];
 
     /**
      * BCF bitmaps.
      */
-    "bitmaps"?: BCFBitmap[],
+    bitmaps?: BCFBitmap[];
 
     /**
      * BCF clipping planes.
      */
-    "clipping_planes"?: BCFClippingPlane[],
+    clipping_planes?: BCFClippingPlane[];
 
     /**
      * BCF snapshot.
      */
-    "snapshot"?: BCFSnapshot,
+    snapshot?: BCFSnapshot;
 
     /**
      * BCF components.
      */
-    "components"?: BCFComponents
+    components?: BCFComponents;
+}
+
+
+/**
+ * BCF orthogonal camera.
+ */
+export interface BCFOrthogonalCamera {
+
+    /**
+     * BCF orthogonal camera viewpoint.
+     */
+    camera_view_point: BCFVector;
+
+    /**
+     * BCF orthogonal camera direction.
+     */
+    camera_direction: BCFVector;
+
+    /**
+     * BCF orthogonal camera "up".
+     */
+    camera_up_vector: BCFVector;
+
+    /**
+     * BCF orthogonal camera view-to-world scale.
+     */
+    view_to_world_scale: number;
+
 }
 
 /**
@@ -50,24 +83,24 @@ export interface BCFViewpoint {
 export interface BCFPerspectiveCamera {
 
     /**
-     * BCF camera viewpoint.
+     * BCF perspective camera viewpoint.
      */
-    "camera_view_point": BCFVector,
+    camera_view_point: BCFVector,
 
     /**
-     * BCF camera direction.
+     * BCF perspective camera direction.
      */
-    "camera_direction": BCFVector,
+    camera_direction: BCFVector,
 
     /**
-     * BCF camera "up".
+     * BCF perspective camera "up".
      */
-    "camera_up_vector": BCFVector,
+    camera_up_vector: BCFVector,
 
     /**
-     * BCF camera field-of-view.
+     * BCF perspective camera field-of-view.
      */
-    "field_of_view": number
+    field_of_view: number
 }
 
 /**
@@ -78,17 +111,17 @@ export interface BCFVector {
     /**
      * BCF vector X component.
      */
-    "x": number,
+    x: number,
 
     /**
      * BCF vector Y component.
      */
-    "y": number,
+    y: number,
 
     /**
      * BCF vector Z component.
      */
-    "z": number
+    z: number
 }
 
 /**
@@ -115,32 +148,32 @@ export interface BCFBitmap {
     /**
      * BCF bitmap type.
      */
-    "bitmap_type": string,
+    bitmap_type: string,
 
     /**
      * BCF bitmap data.
      */
-    "bitmap_data": string,
+    bitmap_data: string,
 
     /**
      * BCF bitmap location.
      */
-    "location": BCFVector,
+    location: BCFVector,
 
     /**
      * BCF bitmap normal direction.
      */
-    "normal": { "x": 0, "y": 0, "z": -1 },
+    normal: { x: 0, y: 0, z: -1 },
 
     /**
-     * BCF bitmap "up" direction.
+     * BCF bitmap up direction.
      */
-    "up": { "x": 0, "y": -1, "z": 0 },
+    up: { x: 0, y: -1, z: 0 },
 
     /**
      * BCF bitmap height.
      */
-    "height": 24
+    height: 24
 }
 
 /**
@@ -151,64 +184,190 @@ export interface BCFClippingPlane {
     /**
      * BCF clipping plane bitmap MIME type.
      */
-    "bitmap_type"?: string,
+    bitmap_type?: string,
 
     /**
      * BCF clipping plane bitmap data.
      */
-    "bitmap_data"?: string,
+    bitmap_data?: string,
 
     /**
      * BCF clipping plane location.
      */
-    "location": BCFVector,
+    location: BCFVector,
 
     /**
      * BCF clipping plane direction.
      */
-    "normal": BCFVector,
+    direction: BCFVector,
 
     /**
-     * BCF clipping plane "up" direction.
+     * BCF clipping plane up direction.
      */
-    "up": BCFVector,
+    up: BCFVector,
 
     /**
      * BCF clipping plane height.
      */
-    "height": number
+    height: number
 }
 
 /**
  * TODO
  */
 export interface BCFSnapshot {
-    "snapshot_type": "png",
-    "snapshot_data": "data:image/png;base64,......"
+
+    /**
+     * TODO
+     */
+    snapshot_type: "png" | "jpeg",
+
+    /**
+     * TODO
+     */
+    snapshot_data: string
 }
+
 
 /**
  * TODO
  */
 export interface BCFComponents {
-    "visibility"?: BCFVisibilityComponent,
-    "selection"?: BCFSelectionComponent
+
+    /**
+     * TODO
+     */
+    coloring: BCFColoringComponent[];
+
+    /**
+     * TODO
+     */
+    visibility?: BCFVisibilityComponent;
+
+    /**
+     * TODO
+     */
+    selection?: BCFComponent[];
+
+    /**
+     * TODO
+     */
+    translucency: BCFComponent[];
+}
+
+/**
+ * TODO
+ */
+export interface BCFViewSetupHints {
+
+    /**
+     * TODO
+     */
+    openings_translucent: boolean;
+
+    /**
+     * TODO
+     */
+    space_boundaries_translucent: boolean;
+
+    /**
+     * TODO
+     */
+    openings_visible: boolean;
+
+    /**
+     * TODO
+     */
+    space_boundaries_visible: boolean;
+
+    /**
+     * TODO
+     */
+    spaces_translucent: boolean;
+
+    /**
+     * TODO
+     */
+    spaces_visible: boolean;
+}
+
+/**
+ * TODO
+ */
+export interface BCFColoringComponent {
+
+    /**
+     * TODO
+     */
+    components: BCFComponent[];
+
+    /**
+     * TODO
+     */
+    color: string;
+
 }
 
 /**
  * TODO
  */
 export interface BCFVisibilityComponent {
-    "default_visibility": boolean,
-    "exceptions": BCFComponent[]
+
+    /**
+     * TODO
+     */
+    view_setup_hints: BCFViewSetupHints;
+
+    /**
+     * TODO
+     */
+    default_visibility: boolean,
+
+    /**
+     * TODO
+     */
+    exceptions: BCFComponent[]
+}
+
+/**
+ * TODO
+ */
+export interface BCFTranslucencyComponent {
+
+    /**
+     * TODO
+     */
+    view_setup_hints: BCFViewSetupHints;
+
+    /**
+     * TODO
+     */
+    default_translucency: boolean,
+
+    /**
+     * TODO
+     */
+    exceptions: BCFComponent[]
 }
 
 /**
  * TODO
  */
 export interface BCFComponent {
+
+    /**
+     * TODO
+     */
     "ifc_guid": string,
+
+    /**
+     * TODO
+     */
     "originating_system"?: string,
+
+    /**
+     * TODO
+     */
     "authoring_tool_id"?: string
 }
 
@@ -216,6 +375,14 @@ export interface BCFComponent {
  * TODO
  */
 export interface BCFSelectionComponent {
-    "default_selection": boolean,
-    "exceptions": BCFComponent[]
+
+    /**
+     * TODO
+     */
+    default_selection: boolean,
+
+    /**
+     * TODO
+     */
+    exceptions: BCFComponent[]
 }

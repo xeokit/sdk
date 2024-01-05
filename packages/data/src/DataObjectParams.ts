@@ -25,6 +25,11 @@ export interface DataObjectParams {
     name: string;
 
     /**
+     * Human-readable description for the DataObject.
+     */
+    description?: string;
+
+    /**
      * IDs of associated{@link @xeokit/data!PropertySet | PropertySets}, if any.
      */
     propertySetIds?: string[];

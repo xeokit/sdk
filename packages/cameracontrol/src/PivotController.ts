@@ -178,7 +178,7 @@ class PivotController {
     setCanvasPivotPos(canvasPos: FloatArrayParam) {
         const camera = this.#view.camera;
         const pivotShereRadius = Math.abs(distVec3(getAABB3Center(this.#view.aabb), camera.eye));
-        const transposedProjectMat = camera.project.transposedProjMatrix;
+        const transposedProjectMat = camera.projection.transposedProjMatrix;
         // @ts-ignore
         const Pt3 = transposedProjectMat.subarray(8, 12);
         // @ts-ignore
@@ -186,7 +186,7 @@ class PivotController {
         const D = [0, 0, -1.0, 1];
         const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
         const worldPos = tempVec4a;
-        camera.project.unproject(canvasPos, screenZ, tempVec4b, tempVec4c, worldPos);
+        camera.projection.unproject(canvasPos, screenZ, tempVec4b, tempVec4c, worldPos);
         const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a));
         const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3b), tempVec3c);
         this.setPivotPos(posOnSphere);

@@ -25,10 +25,10 @@ import {CameraFlightAnimation} from "./CameraFlightAnimation";
 import type {AmbientLight} from "./AmbientLight";
 import type {DirLight} from "./DirLight";
 import type {RendererViewObject} from "./RendererViewObject";
-import {PickParams} from "./PickParams";
-import {PickResult} from "./PickResult";
+import type {PickParams} from "./PickParams";
+import type {PickResult} from "./PickResult";
 import {SnapshotResult} from "./SnapshotResult";
-import {SnapshotParams} from "./SnapshotParams";
+import type {SnapshotParams} from "./SnapshotParams";
 import {ResolutionScale} from "./ResolutionScale";
 
 /**

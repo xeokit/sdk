@@ -1,0 +1,1079 @@
+{
+  "id": "theModel",
+  "propertySets": [],
+  "objects": [
+    {
+      "id": "UUID_bd865e62-18de-40ff-85da-883709a86f0f",
+      "type": 2026,
+      "name": "TunnelInstallation : UUID_bd865e62-18de-40ff-85da-883709a86f0f",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_106e0075-dbba-40aa-b262-7c53471ebc9c",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_106e0075-dbba-40aa-b262-7c53471ebc9c",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0443764_1492_9667",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0443764_1492_9667",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_f488e8ce-b953-4b35-a3fe-a394fb203868",
+      "type": 2015,
+      "name": "CityObjectGroup : UUID_f488e8ce-b953-4b35-a3fe-a394fb203868",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_f86096c0-8f2c-480c-8735-912b9848bacc",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_f86096c0-8f2c-480c-8735-912b9848bacc",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_6162422_289094_1279",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_6162422_289094_1279",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_2e4e9e2a-d7d4-4e54-a0f2-63dba785e1dd",
+      "type": 2026,
+      "name": "TunnelInstallation : UUID_2e4e9e2a-d7d4-4e54-a0f2-63dba785e1dd",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_473e6b54-b1bf-4b1f-9cac-9f140d281f68",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_473e6b54-b1bf-4b1f-9cac-9f140d281f68",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_7d5856e0-4b1a-47c9-b42e-62cb97d4c19b",
+      "type": 2026,
+      "name": "TunnelInstallation : UUID_7d5856e0-4b1a-47c9-b42e-62cb97d4c19b",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_a36e82c0-15bd-4ce0-9835-073afc80a8d2",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_a36e82c0-15bd-4ce0-9835-073afc80a8d2",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_bc1947a4-3112-4802-82c3-e222c6057654",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_bc1947a4-3112-4802-82c3-e222c6057654",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI336993_213_9312",
+      "type": 2024,
+      "name": "Tunnel : GMLID_BUI336993_213_9312",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_3c683328-d725-4d17-98dd-76b1f9add1a3",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_3c683328-d725-4d17-98dd-76b1f9add1a3",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_860899b8-285a-4664-8355-96fa06448d8b",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_860899b8-285a-4664-8355-96fa06448d8b",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_7ea9cd57-6261-4ee9-9623-54125e39189a",
+      "type": 2026,
+      "name": "TunnelInstallation : UUID_7ea9cd57-6261-4ee9-9623-54125e39189a",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0286258_965_2893",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0286258_965_2893",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_fb5abb23-6094-4494-92a2-3ec7d0adb941",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_fb5abb23-6094-4494-92a2-3ec7d0adb941",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_46150217_194492_1237",
+      "type": 2022,
+      "name": "Railway : GMLID_46150217_194492_1237",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI46739_1739_10911",
+      "type": 2006,
+      "name": "Building : GMLID_BUI46739_1739_10911",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_2108434_31807_876",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_2108434_31807_876",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_0598627_75956_700",
+      "type": 0,
+      "name": "GenericCityObject : GMLID_0598627_75956_700",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_1381455_184173_656",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_1381455_184173_656",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI289877_1911_4122",
+      "type": 2024,
+      "name": "Tunnel : GMLID_BUI289877_1911_4122",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_3a542054-54d1-4167-8551-46f5b207514f",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_3a542054-54d1-4167-8551-46f5b207514f",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_bcd89703-20ef-4187-9471-c28a718831b2",
+      "type": 2002,
+      "name": "BridgeInstallation : UUID_bcd89703-20ef-4187-9471-c28a718831b2",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_48290571_3377_526",
+      "type": 2022,
+      "name": "Railway : GMLID_48290571_3377_526",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_3313190_307178_612",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_3313190_307178_612",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_e7a2aa1b-699a-40e1-9701-dc11295f6926",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_e7a2aa1b-699a-40e1-9701-dc11295f6926",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_55518178_9051_1323",
+      "type": 2022,
+      "name": "Railway : GMLID_55518178_9051_1323",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_68137f34-512a-4de2-8a5c-d4e01b0568a3",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_68137f34-512a-4de2-8a5c-d4e01b0568a3",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_b3e0f61a-7f68-4d2b-8a33-5ac6cca64be4",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_b3e0f61a-7f68-4d2b-8a33-5ac6cca64be4",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI184698_512_898",
+      "type": 2006,
+      "name": "Building : GMLID_BUI184698_512_898",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_5c9d78e9-1243-4b47-8959-3a180ad0295d",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_5c9d78e9-1243-4b47-8959-3a180ad0295d",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_04c7ddba-f27e-4ebf-9536-eab328fa46ad",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_04c7ddba-f27e-4ebf-9536-eab328fa46ad",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_3edf315d-799b-424a-8708-f99a2d2d5943",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_3edf315d-799b-424a-8708-f99a2d2d5943",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_32ec33ab-c4f9-4661-ac6c-3e7a77cc875b",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_32ec33ab-c4f9-4661-ac6c-3e7a77cc875b",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_7431654_78949_792",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_7431654_78949_792",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_322168b3-be85-4a50-ae74-1bc4ad115020",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_322168b3-be85-4a50-ae74-1bc4ad115020",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_5361967_192822_672",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_5361967_192822_672",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_8eaba6cb-231c-4b2a-9e82-283fff695f4c",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_8eaba6cb-231c-4b2a-9e82-283fff695f4c",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_3011b616-0c46-4a5e-baa5-625553cfb0dc",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_3011b616-0c46-4a5e-baa5-625553cfb0dc",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_0632464_192141_968",
+      "type": 2022,
+      "name": "Railway : GMLID_0632464_192141_968",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_d96effed-08fe-4f74-b134-05b194aa3cff",
+      "type": 2020,
+      "name": "TINRelief : UUID_d96effed-08fe-4f74-b134-05b194aa3cff",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI51891_765_738",
+      "type": 2000,
+      "name": "Bridge : GMLID_BUI51891_765_738",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0200811_525_4986",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0200811_525_4986",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_53596160_235206_887",
+      "type": 2022,
+      "name": "Railway : GMLID_53596160_235206_887",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_855011_330784_753",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_855011_330784_753",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0283142_1335_8999",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0283142_1335_8999",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_99c687c3-a7e5-4eff-ba96-f59ab3eca38f",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_99c687c3-a7e5-4eff-ba96-f59ab3eca38f",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_0314272_32937_848",
+      "type": 2030,
+      "name": "WaterBody : GMLID_0314272_32937_848",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI100628_817_8083",
+      "type": 2000,
+      "name": "Bridge : GMLID_BUI100628_817_8083",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_18468614_329001_318",
+      "type": 2022,
+      "name": "Railway : GMLID_18468614_329001_318",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_11334c5a-e455-4fbb-80d4-bd8af9164a27",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_11334c5a-e455-4fbb-80d4-bd8af9164a27",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_21663c37-b7c5-4a60-8e4f-213f2e4dc066",
+      "type": 0,
+      "name": "BridgeConstructionElement : UUID_21663c37-b7c5-4a60-8e4f-213f2e4dc066",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_7bffc33f-c817-4210-9cdf-3cf2d0b9959c",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_7bffc33f-c817-4210-9cdf-3cf2d0b9959c",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_7df5cbed-7b47-4c14-9b1a-80e4435f0780",
+      "type": 2026,
+      "name": "TunnelInstallation : UUID_7df5cbed-7b47-4c14-9b1a-80e4435f0780",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_e657e929-1ea2-446b-9f97-6de4916cd86c",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_e657e929-1ea2-446b-9f97-6de4916cd86c",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_38df85c5-705b-4ecf-8e60-a7c47c56ad29",
+      "type": 2002,
+      "name": "BridgeInstallation : UUID_38df85c5-705b-4ecf-8e60-a7c47c56ad29",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_b8cfb726-826b-410d-9439-fa61750d5201",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_b8cfb726-826b-410d-9439-fa61750d5201",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_bb85a20e-9a54-4744-bce2-7a0e564943c1",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_bb85a20e-9a54-4744-bce2-7a0e564943c1",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_aa821ebf-c870-4fa4-af90-9dec0647a25a",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_aa821ebf-c870-4fa4-af90-9dec0647a25a",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_21614432_375009_394",
+      "type": 2022,
+      "name": "Railway : GMLID_21614432_375009_394",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_8e5673a8-c1f2-406d-96df-12e75259bdf7",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_8e5673a8-c1f2-406d-96df-12e75259bdf7",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_3f2a5070-f4b3-4948-b3dc-622159041598",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_3f2a5070-f4b3-4948-b3dc-622159041598",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_0574825_29536_285",
+      "type": 0,
+      "name": "GenericCityObject : GMLID_0574825_29536_285",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_389a52f7-b97b-4162-bafd-3af49c30c328",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_389a52f7-b97b-4162-bafd-3af49c30c328",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_f3bdd9e9-6394-4347-b232-50146cb76ee8",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_f3bdd9e9-6394-4347-b232-50146cb76ee8",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0158953_776_12462",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0158953_776_12462",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO092422_3593_9527",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO092422_3593_9527",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_d6799e54-49a2-46b4-b542-b9aaebe1c452",
+      "type": 0,
+      "name": "BridgeConstructionElement : UUID_d6799e54-49a2-46b4-b542-b9aaebe1c452",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_93e9b87b-80a8-4a95-a845-daeb7bc6caa4",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_93e9b87b-80a8-4a95-a845-daeb7bc6caa4",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_10415082_319158_1266",
+      "type": 2022,
+      "name": "Railway : GMLID_10415082_319158_1266",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0321978_1466_7441",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0321978_1466_7441",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_2633647_39464_319",
+      "type": 2022,
+      "name": "Railway : GMLID_2633647_39464_319",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_5b4e50b3-9510-4672-95c6-197610d41543",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_5b4e50b3-9510-4672-95c6-197610d41543",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_108a2ac4-a6b2-46ea-bf05-8121367b012f",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_108a2ac4-a6b2-46ea-bf05-8121367b012f",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_eec9c436-b19b-4882-98d4-28eed8f3c33d",
+      "type": 2026,
+      "name": "TunnelInstallation : UUID_eec9c436-b19b-4882-98d4-28eed8f3c33d",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_0373494_301709_129",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_0373494_301709_129",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_34d08703-26dd-4ae1-abb8-5b291fbcda56",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_34d08703-26dd-4ae1-abb8-5b291fbcda56",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_a9dc1034-35cd-459a-b26c-a660da8b67ce",
+      "type": 0,
+      "name": "BridgeConstructionElement : UUID_a9dc1034-35cd-459a-b26c-a660da8b67ce",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_0df6a3b1-84c5-451d-9c1c-41a1e6296637",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_0df6a3b1-84c5-451d-9c1c-41a1e6296637",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO086970_1053_8814",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO086970_1053_8814",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI180021_673_14143",
+      "type": 2024,
+      "name": "Tunnel : GMLID_BUI180021_673_14143",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_1429491_351612_1485",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_1429491_351612_1485",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_31070f32-ea4d-43df-9b01-0347d1ca8314",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_31070f32-ea4d-43df-9b01-0347d1ca8314",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_43172916_275975_492",
+      "type": 2022,
+      "name": "Railway : GMLID_43172916_275975_492",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_6f46b97c-5e31-4615-9e0b-32e3e2721ccd",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_6f46b97c-5e31-4615-9e0b-32e3e2721ccd",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_92b30e57-ec96-4dff-8496-acb13bd95379",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_92b30e57-ec96-4dff-8496-acb13bd95379",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_4323540_367099_910",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_4323540_367099_910",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO015374_872_14131",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO015374_872_14131",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI130363_1235_6047",
+      "type": 2006,
+      "name": "Building : GMLID_BUI130363_1235_6047",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_78c5fbf8-dded-4681-80c9-b4e3ba9396da",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_78c5fbf8-dded-4681-80c9-b4e3ba9396da",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_224b5dc5-152d-4164-84e0-9187f9693b5c",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_224b5dc5-152d-4164-84e0-9187f9693b5c",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_0bd23c77-fe8f-4433-8257-d94d5ba7bdcb",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_0bd23c77-fe8f-4433-8257-d94d5ba7bdcb",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_70e63734-f6d0-43a8-b2bf-a317a72f6c97",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_70e63734-f6d0-43a8-b2bf-a317a72f6c97",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0124800_3522_13577",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0124800_3522_13577",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_ff6d361e-089f-4c0d-a8ed-d72ddedf2409",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_ff6d361e-089f-4c0d-a8ed-d72ddedf2409",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_eb7c7f5d-5c89-4ce6-a742-491ceaf3e7ae",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_eb7c7f5d-5c89-4ce6-a742-491ceaf3e7ae",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_f78662ba-0202-4620-bdce-24b286884f13",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_f78662ba-0202-4620-bdce-24b286884f13",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO081792_2341_11961",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO081792_2341_11961",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_256fb971-599a-4a4a-8d1a-b2a56ca80312",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_256fb971-599a-4a4a-8d1a-b2a56ca80312",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_258502a2-666e-4dc9-8c58-f0755bf47962",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_258502a2-666e-4dc9-8c58-f0755bf47962",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_0528986_170479_94",
+      "type": 2014,
+      "name": "CityFurniture : GMLID_0528986_170479_94",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI142242_863_347",
+      "type": 2024,
+      "name": "Tunnel : GMLID_BUI142242_863_347",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_2dd21071-e90f-4a45-a31f-d6e1d89e3653",
+      "type": 2026,
+      "name": "TunnelInstallation : UUID_2dd21071-e90f-4a45-a31f-d6e1d89e3653",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0400934_2926_3381",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0400934_2926_3381",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_ee7d3a2f-b2fd-4f04-bf74-44f0c05f62b1",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_ee7d3a2f-b2fd-4f04-bf74-44f0c05f62b1",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0410128_214_10515",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0410128_214_10515",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_825e880c-0eb5-4e5a-a908-e980d3364a76",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_825e880c-0eb5-4e5a-a908-e980d3364a76",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0107241_3793_12555",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0107241_3793_12555",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_883ba233-07bf-4ecf-89c3-0d552d8575c2",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_883ba233-07bf-4ecf-89c3-0d552d8575c2",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_31689e39-de68-44f1-a882-cd2574ffd67f",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_31689e39-de68-44f1-a882-cd2574ffd67f",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI30683_572_6686",
+      "type": 2000,
+      "name": "Bridge : GMLID_BUI30683_572_6686",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_1ab6c2c9-8d55-4fc8-b30b-be30307238ab",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_1ab6c2c9-8d55-4fc8-b30b-be30307238ab",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_fdbb45f7-05b7-4a13-98cd-94161ed115d0",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_fdbb45f7-05b7-4a13-98cd-94161ed115d0",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_cc4847f1-a95c-4dd4-b374-2b5ab912fd9f",
+      "type": 2026,
+      "name": "TunnelInstallation : UUID_cc4847f1-a95c-4dd4-b374-2b5ab912fd9f",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_5c4873cc-c590-4841-a9d5-176d9b66e434",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_5c4873cc-c590-4841-a9d5-176d9b66e434",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_SO0260143_1214_1315",
+      "type": 2019,
+      "name": "SolitaryVegetationObject : GMLID_SO0260143_1214_1315",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_e2958d70-5ebd-4426-a77d-1bef0175e3b7",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_e2958d70-5ebd-4426-a77d-1bef0175e3b7",
+      "propertySetIds": []
+    },
+    {
+      "id": "UUID_e8183cbd-c339-4472-926a-32bbe4527b44",
+      "type": 2008,
+      "name": "BuildingInstallation : UUID_e8183cbd-c339-4472-926a-32bbe4527b44",
+      "propertySetIds": []
+    },
+    {
+      "id": "GMLID_BUI205585_1385_1373",
+      "type": 2000,
+      "name": "Bridge : GMLID_BUI205585_1385_1373",
+      "propertySetIds": []
+    }
+  ],
+  "relationships": [
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI142242_863_347",
+      "relatedObjectId": "UUID_bd865e62-18de-40ff-85da-883709a86f0f"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_106e0075-dbba-40aa-b262-7c53471ebc9c"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_f86096c0-8f2c-480c-8735-912b9848bacc"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI289877_1911_4122",
+      "relatedObjectId": "UUID_2e4e9e2a-d7d4-4e54-a0f2-63dba785e1dd"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_473e6b54-b1bf-4b1f-9cac-9f140d281f68"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI142242_863_347",
+      "relatedObjectId": "UUID_7d5856e0-4b1a-47c9-b42e-62cb97d4c19b"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_a36e82c0-15bd-4ce0-9835-073afc80a8d2"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_bc1947a4-3112-4802-82c3-e222c6057654"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_3c683328-d725-4d17-98dd-76b1f9add1a3"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_860899b8-285a-4664-8355-96fa06448d8b"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI180021_673_14143",
+      "relatedObjectId": "UUID_7ea9cd57-6261-4ee9-9623-54125e39189a"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_fb5abb23-6094-4494-92a2-3ec7d0adb941"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_3a542054-54d1-4167-8551-46f5b207514f"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI30683_572_6686",
+      "relatedObjectId": "UUID_bcd89703-20ef-4187-9471-c28a718831b2"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_e7a2aa1b-699a-40e1-9701-dc11295f6926"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_68137f34-512a-4de2-8a5c-d4e01b0568a3"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_b3e0f61a-7f68-4d2b-8a33-5ac6cca64be4"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_5c9d78e9-1243-4b47-8959-3a180ad0295d"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_04c7ddba-f27e-4ebf-9536-eab328fa46ad"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_3edf315d-799b-424a-8708-f99a2d2d5943"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_32ec33ab-c4f9-4661-ac6c-3e7a77cc875b"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_322168b3-be85-4a50-ae74-1bc4ad115020"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_8eaba6cb-231c-4b2a-9e82-283fff695f4c"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_3011b616-0c46-4a5e-baa5-625553cfb0dc"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_99c687c3-a7e5-4eff-ba96-f59ab3eca38f"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_11334c5a-e455-4fbb-80d4-bd8af9164a27"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI30683_572_6686",
+      "relatedObjectId": "UUID_21663c37-b7c5-4a60-8e4f-213f2e4dc066"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_7bffc33f-c817-4210-9cdf-3cf2d0b9959c"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI336993_213_9312",
+      "relatedObjectId": "UUID_7df5cbed-7b47-4c14-9b1a-80e4435f0780"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_e657e929-1ea2-446b-9f97-6de4916cd86c"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI51891_765_738",
+      "relatedObjectId": "UUID_38df85c5-705b-4ecf-8e60-a7c47c56ad29"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_b8cfb726-826b-410d-9439-fa61750d5201"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI46739_1739_10911",
+      "relatedObjectId": "UUID_bb85a20e-9a54-4744-bce2-7a0e564943c1"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_aa821ebf-c870-4fa4-af90-9dec0647a25a"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_8e5673a8-c1f2-406d-96df-12e75259bdf7"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_3f2a5070-f4b3-4948-b3dc-622159041598"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_389a52f7-b97b-4162-bafd-3af49c30c328"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_f3bdd9e9-6394-4347-b232-50146cb76ee8"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI30683_572_6686",
+      "relatedObjectId": "UUID_d6799e54-49a2-46b4-b542-b9aaebe1c452"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_93e9b87b-80a8-4a95-a845-daeb7bc6caa4"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_5b4e50b3-9510-4672-95c6-197610d41543"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_108a2ac4-a6b2-46ea-bf05-8121367b012f"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI180021_673_14143",
+      "relatedObjectId": "UUID_eec9c436-b19b-4882-98d4-28eed8f3c33d"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_34d08703-26dd-4ae1-abb8-5b291fbcda56"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI30683_572_6686",
+      "relatedObjectId": "UUID_a9dc1034-35cd-459a-b26c-a660da8b67ce"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_0df6a3b1-84c5-451d-9c1c-41a1e6296637"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_31070f32-ea4d-43df-9b01-0347d1ca8314"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI184698_512_898",
+      "relatedObjectId": "UUID_6f46b97c-5e31-4615-9e0b-32e3e2721ccd"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI46739_1739_10911",
+      "relatedObjectId": "UUID_92b30e57-ec96-4dff-8496-acb13bd95379"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_78c5fbf8-dded-4681-80c9-b4e3ba9396da"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_224b5dc5-152d-4164-84e0-9187f9693b5c"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_0bd23c77-fe8f-4433-8257-d94d5ba7bdcb"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_70e63734-f6d0-43a8-b2bf-a317a72f6c97"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI184698_512_898",
+      "relatedObjectId": "UUID_ff6d361e-089f-4c0d-a8ed-d72ddedf2409"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_eb7c7f5d-5c89-4ce6-a742-491ceaf3e7ae"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_f78662ba-0202-4620-bdce-24b286884f13"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_256fb971-599a-4a4a-8d1a-b2a56ca80312"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_258502a2-666e-4dc9-8c58-f0755bf47962"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI336993_213_9312",
+      "relatedObjectId": "UUID_2dd21071-e90f-4a45-a31f-d6e1d89e3653"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_ee7d3a2f-b2fd-4f04-bf74-44f0c05f62b1"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_825e880c-0eb5-4e5a-a908-e980d3364a76"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_883ba233-07bf-4ecf-89c3-0d552d8575c2"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_31689e39-de68-44f1-a882-cd2574ffd67f"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_1ab6c2c9-8d55-4fc8-b30b-be30307238ab"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_fdbb45f7-05b7-4a13-98cd-94161ed115d0"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI289877_1911_4122",
+      "relatedObjectId": "UUID_cc4847f1-a95c-4dd4-b374-2b5ab912fd9f"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_5c4873cc-c590-4841-a9d5-176d9b66e434"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_e2958d70-5ebd-4426-a77d-1bef0175e3b7"
+    },
+    {
+      "type": 1001,
+      "relatingObjectId": "GMLID_BUI130363_1235_6047",
+      "relatedObjectId": "UUID_e8183cbd-c339-4472-926a-32bbe4527b44"
+    }
+  ]
+}

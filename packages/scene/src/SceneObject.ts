@@ -5,6 +5,7 @@ import type {Scene} from "./Scene";
 import type {SceneModel} from "./SceneModel";
 import {collapseAABB3, createAABB3, expandAABB3Points3} from "@xeokit/boundaries";
 import {getSceneObjectGeometry} from "./getSceneObjectGeometry";
+import {SceneObjectParams} from "./SceneObjectParams";
 
 /**
  * An object in a {@link @xeokit/scene!SceneModel}.
@@ -88,5 +89,24 @@ export class SceneObject {
      */
     setAABBDirty() {
         this.#aabbDirty = true;
+    }
+
+    /**
+     * Gets this SceneObject as JSON.
+     */
+    getJSON(): SceneObjectParams {
+        const sceneObjectParams = <SceneObjectParams>{
+            id: this.id,
+            meshIds: []
+        };
+        if (this.layerId != undefined) {
+            sceneObjectParams.layerId = this.layerId;
+        }
+        if (this.meshes != undefined) {
+            for (let i = 0, len = this.meshes.length; i < len; i++) {
+                sceneObjectParams.meshIds.push(this.meshes[i].id);
+            }
+        }
+        return sceneObjectParams;
     }
 }

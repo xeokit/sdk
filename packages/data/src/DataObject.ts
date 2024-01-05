@@ -36,6 +36,11 @@ export class DataObject {
     public readonly name?: string;
 
     /**
+     * Human-readable description.
+     */
+    public readonly description?: string;
+
+    /**
      * DataObject's type.
      */
     public readonly type: number;
@@ -71,6 +76,7 @@ export class DataObject {
         model: DataModel,
         id: string,
         name: string,
+        description: string | undefined,
         type: number,
         propertySets?: PropertySet[]) {
 
@@ -78,6 +84,7 @@ export class DataObject {
         this.models = [model];
         this.id = id;
         this.name = name;
+        this.description = description;
         this.type = type;
         this.propertySets = propertySets || [];
         this.related = {};

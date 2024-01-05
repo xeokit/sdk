@@ -9,6 +9,7 @@ import {Relationship} from "./Relationship";
 import type {RelationshipParams} from "./RelationshipParams";
 import {EventDispatcher} from "strongly-typed-events";
 import type {PropertyParams} from "./PropertyParams";
+import {DataModelContentParams} from "./DataModelContentParams";
 
 /**
  * xeokit Semantic Data Model.
@@ -180,7 +181,7 @@ export class DataModel extends Component {
      * * A duplicate DataObject was already created in this DataModel.
      * * DataObjects were not found for a Relationship.
      */
-    fromJSON(dataModelParams: DataModelParams): void | SDKError {
+    fromJSON(dataModelParams: DataModelContentParams): void | SDKError {
         if (this.destroyed) {
             return new SDKError("Failed to add components to DataModel - DataModel already destroyed");
         }
@@ -352,7 +353,7 @@ export class DataModel extends Component {
                     }
                 }
             }
-            dataObject = new DataObject(this.data, this, id, dataObjectParams.name, dataObjectParams.type, propertySets);
+            dataObject = new DataObject(this.data, this, id, dataObjectParams.name, dataObjectParams.description, dataObjectParams.type, propertySets);
             this.objects[id] = dataObject;
             this.data.objects[id] = dataObject;
             if (!this.data.objectsByType[type]) {
@@ -555,6 +556,9 @@ export class DataModel extends Component {
                 name: object.name,
                 propertySetIds: []
             };
+            if (object.description !== undefined) {
+                objectParams.description = object.description;
+            }
             if (object.propertySets) {
                 for (let i = 0, len = object.propertySets.length; i < len; i++) {
                     const propertySet = object.propertySets[i];

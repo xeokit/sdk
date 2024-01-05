@@ -657,7 +657,7 @@ export function mat3ToMat4(mat3: FloatArrayParam, mat4?: FloatArrayParam) : Floa
  */
 export function createMat4(values?: FloatArrayParam): FloatArrayParam {
     // @ts-ignore
-    return newFloatArray(values || 16);
+    return new Float64Array(values || 16);
 }
 
 const tempMat4a = createMat4();
@@ -813,7 +813,7 @@ export function frustumMat4(
 /**
  * Returns a 4x4 identity matrix.
  */
-export function identityMat4(dest?: FloatArrayParam) {
+export function identityMat4(dest?: FloatArrayParam) : FloatArrayParam{
     if (!dest) {
         dest = createMat4();
     }
@@ -839,7 +839,7 @@ export function identityMat4(dest?: FloatArrayParam) {
 /**
  * Returns a 3x3 identity matrix.
  */
-export function identityMat3(dest?: FloatArrayParam) {
+export function identityMat3(dest?: FloatArrayParam) : FloatArrayParam{
     if (!dest) {
         dest = createMat4();
     }

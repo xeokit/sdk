@@ -1,14 +1,12 @@
 
-import type {PropertySetParams} from "./PropertySetParams";
-import type {DataObjectParams} from "./DataObjectParams";
-import type {RelationshipParams} from "./RelationshipParams";
+import {DataModelContentParams} from "./DataModelContentParams";
 
 /**
  * Parameters for creating a {@link @xeokit/data!DataModel} with {@link @xeokit/data!Data.createModel | Data.createModel}.
  *
  * See {@link "@xeokit/data"} for usage.
  */
-export interface DataModelParams {
+export interface DataModelParams extends DataModelContentParams {
 
     /**
      * Unique ID of the DataModel.
@@ -46,19 +44,4 @@ export interface DataModelParams {
      * The data model schema version, if available.
      */
     schema?: string;
-
-    /**
-     * The{@link @xeokit/data!PropertySet | PropertySets} in the DataModel.
-     */
-    propertySets?: PropertySetParams[];
-
-    /**
-     * The {@link @xeokit/data!DataObject | DataObjects} in the DataModel.
-     */
-    objects?: DataObjectParams[];
-
-    /**
-     * The {@link @xeokit/data!Relationship | Relationshipships} in the DataModel.
-     */
-    relationships?: RelationshipParams[];
 }

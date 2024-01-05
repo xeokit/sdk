@@ -1,12 +1,12 @@
 import {Data} from "../src";
 import * as testUtils from "./testUtils";
 
-describe('build', function () {
+describe('DataModel', function () {
 
     const data = new Data();
     let dataModel;
 
-    it('create data model', () => {
+    it('it supports creating objects, property sets and relations from JSON', () => {
 
         dataModel = data.createModel(testUtils.sampleDataModelJSON);
 
@@ -150,6 +150,9 @@ describe('build', function () {
         expect(tableTopAggregations[3].relatingObject.id).toBe("tableTop");
         expect(tableTopAggregations[3].relatedObject.id).toBe("yellowLeg");
 
+    });
+
+    it('it supports search by traversal along the given relationship types', () => {
 
         let resultObjectIds = [];
         data.searchObjects({
@@ -158,7 +161,6 @@ describe('build', function () {
             resultObjectIds
         });
         expect(resultObjectIds).toStrictEqual(['table', 'tableTop', 'redLeg', 'greenLeg', 'blueLeg', 'yellowLeg']);
-
 
         resultObjectIds = [];
         data.searchObjects({
@@ -169,7 +171,6 @@ describe('build', function () {
         });
         expect(resultObjectIds).toStrictEqual(['tableTop', 'redLeg', 'greenLeg', 'blueLeg', 'yellowLeg']);
 
-
         resultObjectIds = [];
         data.searchObjects({
             startObjectId: "tableTop",
@@ -179,7 +180,6 @@ describe('build', function () {
             resultObjectIds
         });
         expect(resultObjectIds).toStrictEqual(['redLeg', 'greenLeg', 'blueLeg', 'yellowLeg']);
-
         dataModel.destroy();
 
         expect(dataModel.destroyed).toBe(true);

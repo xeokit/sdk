@@ -1,5 +1,6 @@
 import type {View} from "@xeokit/viewer";
 import type {BCFViewpoint} from "./BCFViewpoint";
+import {Data} from "@xeokit/data";
 
 /**
  * Options for {@link @xeokit/bcf!loadBCFViewpoint}.
@@ -7,6 +8,15 @@ import type {BCFViewpoint} from "./BCFViewpoint";
  * See {@link "@xeokit/bcf"} for usage.
  */
 export interface LoadBCFViewpointParams {
+
+    duration?: number;
+    originatingSystem?: string;
+    updateCompositeObjects?: boolean;
+    reverseClippingPlanes?: boolean;
+    reset?: boolean;
+    immediate?: boolean;
+
+    rayCast?: boolean;
 
     /**
      * A BIM Collaboration Format (BCF) viewpoint to load.
@@ -24,6 +34,11 @@ export interface LoadBCFViewpointParams {
      * ViewObject in the target View.
      */
     view: View;
+
+    /**
+     * A {@link @xeokit/data!Data | Data} to classify the objects in the {@link @xeokit/viewer!View | View} we're loading the BCF viewpoint's component states into
+     */
+    data: Data;
 
     /**
      * Only load BCF viewpoint components if their corresponding {@link @xeokit/viewer!ViewObject | ViewObjects}

@@ -1,9 +1,10 @@
 import type {FloatArrayParam} from "@xeokit/math";
-import {createMat4, createVec3, identityMat4} from "@xeokit/matrix";
+import {createMat4, createVec3, identityMat4, isIdentityMat4} from "@xeokit/matrix";
 import type {RendererMesh} from "./RendererMesh";
 import type {Geometry} from "./Geometry";
 import type {TextureSet} from "./TextureSet";
 import type {SceneObject} from "./SceneObject";
+import type {MeshParams} from "./MeshParams";
 
 /**
  * A mesh in a {@link @xeokit/scene!SceneModel}.
@@ -231,5 +232,26 @@ export class Mesh {
         if (this.rendererMesh) {
             //       this.rendererMesh.setOpacity(this.#opacity);
         }
+    }
+
+    /**
+     * Gets this Mesh as JSON.
+     */
+    getJSON(): MeshParams {
+        const meshParams = <MeshParams>{
+            id: this.id,
+            geometryId: this.geometry.id,
+            color: Array.from(this.#color),
+            metallic: this.#metallic,
+            roughness:this.#roughness,
+            opacity: this.#opacity
+        };
+        if (!isIdentityMat4(this.#matrix)) {
+            meshParams.matrix = Array.from(this.#matrix);
+        }
+        if (this.textureSet !== undefined) {
+            meshParams.textureSetId = this.textureSet.id;
+        }
+        return meshParams;
     }
 }

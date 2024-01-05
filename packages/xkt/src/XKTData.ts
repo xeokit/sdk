@@ -157,7 +157,7 @@ export interface XKTData {
     /**
      * For each mesh, a pointer to its texture set in {@link XKTData.textureSets}.
      */
-    eachMeshTextureSet: Uint32Array;
+    eachMeshTextureSet: Int32Array; // Allow -1 values, to indicate no TextureSet
 
     /**
      * For each mesh, a set of sixe material attribute values.

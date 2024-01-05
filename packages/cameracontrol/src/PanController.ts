@@ -112,7 +112,7 @@ class PanController {
     #unproject(canvasPos: FloatArrayParam, worldPos: FloatArrayParam) {
 
         const camera = this.view.camera;
-        const transposedProjectMat = camera.project.transposedProjMatrix;
+        const transposedProjectMat = camera.projection.transposedProjMatrix;
         // @ts-ignore
         const Pt3 = transposedProjectMat.subarray(8, 12);
         // @ts-ignore
@@ -120,7 +120,7 @@ class PanController {
         const D = [0, 0, -1.0, 1];
         const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
 
-        camera.project.unproject(canvasPos, screenZ, screenPos, viewPos, worldPos);
+        camera.projection.unproject(canvasPos, screenZ, screenPos, viewPos, worldPos);
 
         return worldPos;
     }

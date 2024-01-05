@@ -13,11 +13,7 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "dist": "turbo run dist",
-    "watch": "lerna run watch --parallel --stream",
-    "watch:debug": "lerna run watch:debug --parallel --stream",
-    "clean:dist": "rm -rf packages/*/dist/**",
-    "clean:deps": "rm -rf packages/*/node_modules/**",
+    "build": "turbo run build",
     "test": "turbo run test  --concurrency 100",
     "docs": "typedoc",
     "publish": "npm publish --access public"

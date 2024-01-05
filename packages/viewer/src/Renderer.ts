@@ -2,7 +2,7 @@ import type {View} from "./View";
 import type {Viewer} from "./Viewer";
 import type {FloatArrayParam} from "@xeokit/math";
 import type {Capabilities} from "@xeokit/core";
-import {SDKError} from "@xeokit/core";
+import type {SDKError} from "@xeokit/core";
 import type {ViewObject} from "./ViewObject";
 import type {RendererViewObject} from "./RendererViewObject";
 import type {SceneModel} from "@xeokit/scene";

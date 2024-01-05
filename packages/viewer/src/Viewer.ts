@@ -9,7 +9,7 @@ import {scheduler} from "./scheduler";
 import type {Renderer} from "./Renderer";
 
 import type {ViewParams} from "./ViewParams";
-import {TickParams} from "./TickParams";
+import type {TickParams} from "./TickParams";
 
 
 

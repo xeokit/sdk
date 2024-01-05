@@ -23,6 +23,7 @@ import {compressGeometryParams} from "./compressGeometryParams";
 import type {SceneModelParams} from "./SceneModelParams";
 import type {Scene} from "./Scene";
 import type {SceneModelStats} from "./SceneModelStats";
+import {composeMat4, eulerToQuat, identityMat4, identityQuat} from "@xeokit/matrix";
 
 // XKT texture types
 
@@ -744,26 +745,26 @@ export class SceneModel extends Component {
         }
 
         // geometry.numInstances++;
-        // let matrix = meshParams.matrix;
-        // if (!matrix) {
-        //     const position = meshParams.position;
-        //     const scale = meshParams.scale;
-        //     const rotation = meshParams.rotation;
-        //     if (position || scale || rotation) {
-        //         matrix = identityMat4();
-        //         const quaternion = eulerToQuat(rotation || [0, 0, 0], "XYZ", identityQuat());
-        //         composeMat4(position || [0, 0, 0], quaternion, scale || [1, 1, 1], matrix)
-        //     } else {
-        //         matrix = identityMat4();
-        //     }
-        // }
+        let matrix = meshParams.matrix;
+        if (!matrix) {
+            const position = meshParams.position;
+            const scale = meshParams.scale;
+            const rotation = meshParams.rotation;
+            if (position || scale || rotation) {
+                matrix = identityMat4();
+                const quaternion = eulerToQuat(rotation || [0, 0, 0], "XYZ", identityQuat());
+                composeMat4(position || [0, 0, 0], quaternion, scale || [1, 1, 1], matrix)
+            } else {
+                matrix = identityMat4();
+            }
+        }
         // const meshIndex = this.meshesList.length;
 
         const mesh = new Mesh({
             id: meshParams.id,
             geometry,
             textureSet,
-            matrix: meshParams.matrix,
+            matrix,
             color: meshParams.color,
             opacity: meshParams.opacity,
             roughness: meshParams.roughness,
@@ -902,15 +903,47 @@ export class SceneModel extends Component {
                 throw new SDKError("Failed to build SceneModel - SceneModel already built");
             }
             this.#removeUnusedTextures();
-           // this.#compressTextures().then(() => {
-                this.built = true;
-                this.onBuilt.dispatch(this, null);
-                resolve(this);
+            // this.#compressTextures().then(() => {
+            this.built = true;
+            this.onBuilt.dispatch(this, null);
+            resolve(this);
             // }).catch((e) => {
             //     throw e;
             // });
         });
     }
+
+    /**
+     * Gets this SceneModel as JSON.
+     */
+    getJSON(): SceneModelParams {
+        const sceneModelParams = <SceneModelParams>{
+            id: this.id,
+            geometriesCompressed: [],
+            textures: [],
+            textureSets: [],
+            meshes: [],
+            objects: []
+        };
+
+        Object.entries(this.geometries).forEach(([key, value]) => {
+           sceneModelParams.geometriesCompressed.push((<Geometry>value).getJSON());
+        });
+        // Object.entries(this.textures).forEach(([key, value]) => {
+        //     sceneModelParams.textures[key] = (<Texture>value).getJSON();
+        // });
+        // Object.entries(this.textureSets).forEach(([key, value]) => {
+        //     sceneModelParams.textureSets[key] = (<TextureSet>value).getJSON();
+        // });
+        Object.entries(this.meshes).forEach(([key, value]) => {
+            sceneModelParams.meshes.push((<Mesh>value).getJSON());
+        });
+        Object.entries(this.objects).forEach(([key, value]) => {
+            sceneModelParams.objects.push((<SceneObject>value).getJSON());
+        });
+        return sceneModelParams;
+    }
+
 
     #removeUnusedTextures() {
         // let texturesList = [];

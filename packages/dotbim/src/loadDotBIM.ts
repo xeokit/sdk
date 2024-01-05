@@ -84,10 +84,14 @@ function parseDotBIM(ctx: any) {
         if (ctx.sceneModel) {
             const geometryId = element.mesh_id;
             const meshId = `${objectId}-mesh-${i}`;
+            const vector = element.vector;
+            const rotation = element.rotation;
             const mesh = ctx.sceneModel.createMesh({
                 id: meshId,
                 geometryId,
-                baseColor: element.color
+                baseColor: element.color,
+                quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : undefined,
+                position: vector ? [vector.x, vector.y, vector.z] : undefined
             });
             if (mesh instanceof SDKError) {
                 ctx.error(`[SceneModel.createMesh]: ${mesh.message}`);
@@ -104,9 +108,12 @@ function parseDotBIM(ctx: any) {
         }
         if (ctx.dataModel) {
             if (!ctx.dataModel.objects[element.guid]) {
+                const info = element.info;
                 const dataObject = ctx.dataModel.createObject({
                     id: objectId,
-                    type: element.type
+                    type: element.type,
+                    name: info.Name,
+                    description: info.Description
                 });
                 if (dataObject instanceof SDKError) {
                     ctx.error(`[SceneModel.createObject]: ${dataObject.message}`);

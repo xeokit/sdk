@@ -430,7 +430,7 @@ class Camera extends Component {
      *
      * @returns {PerspectiveProjection|OrthoProjection|FrustumProjection|CustomProjection} The currently active projection is active.
      */
-    get project(): PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection {
+    get projection(): PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection {
         return this.#activeProjection;
     }
 

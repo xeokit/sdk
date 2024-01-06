@@ -35,6 +35,8 @@ export function packXKT(deflatedData: XKTDataDeflated): ArrayBuffer {
         deflatedData.eachMeshMatricesPortion,
         deflatedData.eachMeshTextureSet,
         deflatedData.eachMeshMaterialAttributes,
+        deflatedData.eachGeometryId,
+        deflatedData.eachMeshId,
         deflatedData.eachObjectId,
         deflatedData.eachObjectMeshesPortion
     ]);

@@ -156,11 +156,11 @@ export function xktToModel(params: {
             const meshMetallic = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 4] / 255.0;
             const meshRoughness = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 5] / 255.0;
 
-            const meshId = `mesh-${nextMeshId++}`;
+            const meshId = xktData.eachMeshId[meshIndex];
             const meshMatrixIndex = xktData.eachMeshMatricesPortion[meshIndex];
             const meshMatrix = xktData.matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
 
-            const geometryId = `geometry.${geometryIndex}`;
+            const geometryId = xktData.eachGeometryId[geometryIndex];
 
             if (!geometryCreated[geometryId]) {
 
@@ -274,9 +274,9 @@ export function xktToModel(params: {
 const decompressColor = (function () {
     const floatColor = new Float32Array(3);
     return function (intColor: FloatArrayParam) {
-        floatColor[0] = intColor[0] / 255.0;
-        floatColor[1] = intColor[1] / 255.0;
-        floatColor[2] = intColor[2] / 255.0;
+        floatColor[0] = intColor[0] / 255;
+        floatColor[1] = intColor[1] / 255;
+        floatColor[2] = intColor[2] / 255;
         return floatColor;
     };
 })();

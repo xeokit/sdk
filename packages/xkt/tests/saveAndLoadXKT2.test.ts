@@ -15,14 +15,14 @@ describe('saveAndLoadXKT', () => {
 
     test("the SceneModel builds without error", async () => {
         sceneModel = scene.createModel(testUtils.sampleSceneModelJSON);
-        expect(scene.models["myTableModel"]).toBeDefined();
+        expect(scene.models["myModel"]).toBeDefined();
         await sceneModel.build();
         expect(sceneModel.built).toBe(true);
     });
 
     test("the DataModel builds without error", () => {
         dataModel = data.createModel(testUtils.sampleDataModelJSON);
-        expect(data.models["myTableModel"]).toBeDefined();
+        expect(data.models["myModel"]).toBeDefined();
         dataModel.build();
         expect(dataModel.built).toBe(true);
     });

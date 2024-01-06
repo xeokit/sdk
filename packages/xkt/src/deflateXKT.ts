@@ -38,6 +38,14 @@ export function deflateXKT(xktData: XKTData): XKTDataDeflated {
         eachMeshMatricesPortion: pako.deflate(xktData.eachMeshMatricesPortion.buffer),
         eachMeshTextureSet: pako.deflate(xktData.eachMeshTextureSet.buffer),
         eachMeshMaterialAttributes: pako.deflate(xktData.eachMeshMaterialAttributes.buffer),
+        eachGeometryId: pako.deflate(JSON.stringify(xktData.eachGeometryId)
+            .replace(/[\u007F-\uFFFF]/g, function (chr) { // Produce only ASCII-chars, so that the data can be inflated later
+                return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
+            })),
+        eachMeshId: pako.deflate(JSON.stringify(xktData.eachMeshId)
+            .replace(/[\u007F-\uFFFF]/g, function (chr) { // Produce only ASCII-chars, so that the data can be inflated later
+                return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
+            })),
         eachObjectId: pako.deflate(JSON.stringify(xktData.eachObjectId)
             .replace(/[\u007F-\uFFFF]/g, function (chr) { // Produce only ASCII-chars, so that the data can be inflated later
                 return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)

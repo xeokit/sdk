@@ -128,6 +128,8 @@ export function modelToXKT(params: {
         eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in xktData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
         eachMeshTextureSet: new Int32Array(numMeshes), // For each mesh, the index of its texture set in xktData.eachTextureSetTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set
         eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES), // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
+        eachGeometryId: [], // For each geometry, an ID string
+        eachMeshId: [], // For each mesh, an ID string
         eachObjectId: [], // For each object, an ID string
         eachObjectMeshesPortion: new Uint32Array(numObjects) // For each object, the index of the first element of meshes used by the object
     };
@@ -247,6 +249,7 @@ export function modelToXKT(params: {
         }
 
         geometryIndices[geometry.id] = geometryIndex;
+        xktData.eachGeometryId[geometryIndex] = geometry.id;
         geometryIndex++;
     }
 
@@ -306,6 +309,7 @@ export function modelToXKT(params: {
 
             const mesh = object.meshes[meshIndex];
 
+            xktData.eachMeshId[countMeshes] = mesh.id;
             xktData.eachMeshGeometriesPortion [countMeshes] = geometryIndices[mesh.geometry.id];
 
             xktData.eachMeshMatricesPortion [countMeshes] = matricesIndex;

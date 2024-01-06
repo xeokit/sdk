@@ -41,6 +41,8 @@ export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
         eachMeshMatricesPortion: new Uint32Array(inflate(xktDataDeflated.eachMeshMatricesPortion)),
         eachMeshTextureSet: new Int32Array(inflate(xktDataDeflated.eachMeshTextureSet)),
         eachMeshMaterialAttributes: new Uint8Array(inflate(xktDataDeflated.eachMeshMaterialAttributes)),
+        eachGeometryId: JSON.parse(pako.inflate(xktDataDeflated.eachGeometryId, {to: 'string'})),
+        eachMeshId: JSON.parse(pako.inflate(xktDataDeflated.eachMeshId, {to: 'string'})),
         eachObjectId: JSON.parse(pako.inflate(xktDataDeflated.eachObjectId, {to: 'string'})),
         eachObjectMeshesPortion: new Uint32Array(inflate(xktDataDeflated.eachObjectMeshesPortion)),
     };

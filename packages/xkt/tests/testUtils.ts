@@ -5,7 +5,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  * Mock JSON-encoded SceneModel definition.
  */
 export const sampleSceneModelJSON = {
-    id: "myTableModel",
+    id: "myModel",
     geometries: [
         {
             id: "myBoxGeometry",
@@ -107,7 +107,7 @@ export const sampleSceneModelJSON = {
  * Mock JSON-encoded DataModel definition.
  */
 export const sampleDataModelJSON = { // DataModel
-    id: "myTableModel",
+    id: "myModel",
     objects: [ // DataObject[]
         {
             id: "table",

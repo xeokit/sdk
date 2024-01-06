@@ -174,6 +174,16 @@ export interface XKTData {
     eachMeshMaterialAttributes: Uint8Array;
 
     /**
+     * For each geometry, a unique ID.
+     */
+    eachGeometryId: string[];
+
+    /**
+     * For each mesh, a unique ID.
+     */
+    eachMeshId: string[];
+
+    /**
      * For each object, a unique ID.
      */
     eachObjectId: string[];

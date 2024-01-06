@@ -50,6 +50,8 @@ export function unpackXKT(arrayBuffer: ArrayBuffer): XKTDataDeflated {
         eachMeshMatricesPortion: elements[i++],
         eachMeshTextureSet: elements[i++],
         eachMeshMaterialAttributes: elements[i++],
+        eachGeometryId: elements[i++],
+        eachMeshId: elements[i++],
         eachObjectId: elements[i++],
         eachObjectMeshesPortion: elements[i++]
     };

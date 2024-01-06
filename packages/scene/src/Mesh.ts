@@ -74,7 +74,7 @@ export class Mesh {
         this.textureSet = meshParams.textureSet;
         this.rendererMesh = null;
 
-        this.color = meshParams.color || createVec3([1, 1, 1]);
+        this.color = meshParams.color || new Float32Array([1, 1, 1]);
         this.metallic = (meshParams.metallic !== null && meshParams.metallic !== undefined) ? meshParams.metallic : 0;
         this.roughness = (meshParams.roughness !== null && meshParams.roughness !== undefined) ? meshParams.roughness : 1;
         this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;

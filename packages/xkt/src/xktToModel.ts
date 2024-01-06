@@ -1,4 +1,12 @@
-import {JPEGMediaType, LinesPrimitive, PNGMediaType, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
+import {
+    JPEGMediaType,
+    LinesPrimitive,
+    PNGMediaType,
+    PointsPrimitive,
+    SolidPrimitive,
+    SurfacePrimitive,
+    TrianglesPrimitive
+} from "@xeokit/constants";
 import type {DataModel, DataModelParams} from "@xeokit/data";
 import type {GeometryBucketParams, GeometryCompressedParams, SceneModel} from "@xeokit/scene";
 import type {XKTData} from "./XKTData";
@@ -20,8 +28,8 @@ export function xktToModel(params: {
     const dataModel = params.dataModel;
 
     if (dataModel) {
-        if (xktData.metadata) {
-            dataModel.fromJSON(<DataModelParams>xktData.metadata);
+        if (xktData.metadata && xktData.metadata.length > 0) {
+            dataModel.fromJSON(<DataModelParams>xktData.metadata[0]);
         }
     }
 
@@ -156,21 +164,40 @@ export function xktToModel(params: {
 
             if (!geometryCreated[geometryId]) {
 
-                const geometryParams = <any>{
+                const geometryCompressedParams = <any>{
+                    id: geometryId,
                     geometryBuckets: []
                 };
 
-                geometryParams.primitive = xktData.eachGeometryPrimitiveType[geometryIndex];
+                const primitiveType = xktData.eachGeometryPrimitiveType[geometryIndex];
+                switch (primitiveType) {
+                    case 0:
+                        geometryCompressedParams.primitive = TrianglesPrimitive;
+                        break;
+                    case 1:
+                        geometryCompressedParams.primitive = SolidPrimitive;
+                        break;
+                    case 2:
+                        geometryCompressedParams.primitive = SurfacePrimitive;
+                        break;
+                    case 3:
+                        geometryCompressedParams.primitive = LinesPrimitive;
+                        break;
+                    case 5:
+                        geometryCompressedParams.primitive = PointsPrimitive;
+                        break;
+                }
+
                 const geometryDecodeMatrixIndex = xktData.eachGeometryDecodeMatricesPortion[geometryIndex];
-                geometryParams.positionsDecompressMatrix = xktData.eachGeometryDecodeMatricesPortion.slice(geometryDecodeMatrixIndex, geometryDecodeMatrixIndex + 16);
+                geometryCompressedParams.positionsDecompressMatrix = xktData.decodeMatrices.slice(geometryDecodeMatrixIndex, geometryDecodeMatrixIndex + 16);
 
                 let geometryValid = false;
 
                 // Iterate each geometry's buckets
 
                 const firstBucketIndex = xktData.eachGeometryBucketPortion[geometryIndex];
-                const atLastBucket = (firstBucketIndex === (numBuckets - 1));
-                const lastBucketIndex = atLastBucket ? (xktData.eachMeshGeometriesPortion.length - 1) : (xktData.eachObjectMeshesPortion[objectIndex + 1] - 1);
+                const atLastGeometry = (geometryIndex === (numGeometries - 1));
+                const lastBucketIndex = atLastGeometry ? (xktData.eachBucketPositionsPortion.length - 1) : (xktData.eachGeometryBucketPortion[geometryIndex + 1] - 1);
 
                 for (let bucketIndex = firstBucketIndex; bucketIndex <= lastBucketIndex; bucketIndex++) {
 
@@ -179,43 +206,45 @@ export function xktToModel(params: {
                         indices: []
                     };
 
+                    const atLastBucketIndex = bucketIndex === lastBucketIndex;
+
                     const geometryIndicesBitness = xktData.eachBucketIndicesBitness[bucketIndex];
-                    const indices = geometryIndicesBitness === 8 ? xktData.indices8Bit : (geometryIndicesBitness === 16 ? xktData.indices16Bit : xktData.indices32Bit);
+                    const indices = geometryIndicesBitness === 0 ? xktData.indices8Bit : (geometryIndicesBitness === 1 ? xktData.indices16Bit : xktData.indices32Bit);
                     const edgeIndices = geometryIndicesBitness === 8 ? xktData.edgeIndices8Bit : (geometryIndicesBitness === 16 ? xktData.edgeIndices16Bit : xktData.edgeIndices32Bit);
 
                     let bucketValid = false;
 
-                    switch (geometryParams.primitive) {
+                    switch (geometryCompressedParams.primitive) {
 
                         case TrianglesPrimitive:
-                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
                             //   geometryBucketParams.uvsCompressed = xktData.uvs.subarray(xktData.eachBucketUVsPortion [bucketIndex], atLastBucket ? xktData.uvs.length : xktData.eachBucketUVsPortion [bucketIndex + 1]);
-                            geometryBucketParams.indices = indices.subarray(xktData.eachBucketIndicesPortion [bucketIndex], atLastBucket ? indices.length : xktData.eachBucketIndicesPortion [bucketIndex + 1]);
-                            geometryBucketParams.edgeIndices = edgeIndices.subarray(xktData.eachBucketEdgeIndicesPortion [bucketIndex], atLastBucket ? edgeIndices.length : xktData.eachBucketEdgeIndicesPortion [bucketIndex + 1]);
+                            geometryBucketParams.indices = indices.subarray(xktData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : xktData.eachBucketIndicesPortion [bucketIndex + 1]);
+                            geometryBucketParams.edgeIndices = edgeIndices.subarray(xktData.eachBucketEdgeIndicesPortion [bucketIndex], atLastBucketIndex ? edgeIndices.length : xktData.eachBucketEdgeIndicesPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
                             break;
 
                         case PointsPrimitive:
-                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
                             // geometryBucketParams.colorsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0);
                             break;
 
                         case LinesPrimitive:
-                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
-                            geometryBucketParams.indices = indices.subarray(xktData.eachBucketIndicesPortion [bucketIndex], atLastBucket ? indices.length : xktData.eachBucketIndicesPortion [bucketIndex + 1]);
+                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            geometryBucketParams.indices = indices.subarray(xktData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : xktData.eachBucketIndicesPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
                             break;
                         default:
                             continue;
                     }
                     if (bucketValid) {
-                        geometryParams.geometryBuckets.push(geometryBucketParams);
+                        geometryCompressedParams.geometryBuckets.push(geometryBucketParams);
                     }
                 }
 
-                if (geometryParams.geometryBuckets.length > 0) {
-                    sceneModel.createGeometryCompressed(<GeometryCompressedParams>geometryParams);
+                if (geometryCompressedParams.geometryBuckets.length > 0) {
+                    sceneModel.createGeometryCompressed(<GeometryCompressedParams>geometryCompressedParams);
                     geometryCreated[geometryId] = true;
                 }
             }

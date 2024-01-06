@@ -5,15 +5,9 @@ import * as pako from "pako";
 /**
  * @private
  */
-export function deflateXKT(xktData: XKTData, metaModelJSON?: any): XKTDataDeflated {
-    let metaModelBytes;
-    if (metaModelJSON) {
-        const deflatedJSON = deflateJSON(metaModelJSON);
-        metaModelBytes = pako.deflate(deflatedJSON)
-    } else {
-        const deflatedJSON = deflateJSON(["{}"]);
-        metaModelBytes = pako.deflate(deflatedJSON)
-    }
+export function deflateXKT(xktData: XKTData): XKTDataDeflated {
+    const deflatedJSON = deflateJSON([JSON.stringify(xktData.metadata)]);
+    const metaModelBytes = pako.deflate(deflatedJSON); // TODO
     return <XKTDataDeflated>{
         metadata: metaModelBytes,
         textureData: pako.deflate(xktData.textureData.buffer),

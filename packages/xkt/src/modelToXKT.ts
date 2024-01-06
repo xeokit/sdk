@@ -1,6 +1,12 @@
 import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
-import {ClampToEdgeWrapping, LinearMipmapLinearFilter} from "@xeokit/constants";
+import {
+    ClampToEdgeWrapping,
+    LinearMipmapLinearFilter,
+    LinesPrimitive,
+    PointsPrimitive, SolidPrimitive, SurfacePrimitive,
+    TrianglesPrimitive
+} from "@xeokit/constants";
 import {XKT_INFO} from "./XKT_INFO";
 import type {XKTData} from "./XKTData";
 
@@ -147,7 +153,25 @@ export function modelToXKT(params: {
         const geometry = sceneModel.geometries[geometryId];
         const geometryBuckets = geometry.geometryBuckets;
 
-        xktData.eachGeometryPrimitiveType [geometryIndex] = geometry.primitive;
+        let primitiveType;
+        switch (geometry.primitive) {
+            case TrianglesPrimitive:
+                primitiveType = 0;
+                break;
+            case SolidPrimitive:
+                primitiveType = 1;
+                break;
+            case SurfacePrimitive:
+                primitiveType = 2;
+                break;
+            case LinesPrimitive:
+                primitiveType = 3;
+                break;
+            case PointsPrimitive:
+                primitiveType = 4;
+                break;
+        }
+        xktData.eachGeometryPrimitiveType [geometryIndex] = primitiveType;
         xktData.eachGeometryBucketPortion [geometryIndex] = countBuckets;
         xktData.eachGeometryDecodeMatricesPortion [geometryIndex] = countDecodeMatrices;
 
@@ -173,17 +197,17 @@ export function modelToXKT(params: {
                 switch (bucketIndicesBitness) {
                     case 0:
                         xktData.indices8Bit.set(geometryBucket.indices, countIndices8Bit);
-                        xktData.eachBucketIndicesPortion [geometryIndex] = countIndices8Bit;
+                        xktData.eachBucketIndicesPortion [countBuckets] = countIndices8Bit;
                         countIndices8Bit += geometryBucket.indices.length;
                         break;
                     case 1:
                         xktData.indices16Bit.set(geometryBucket.indices, countIndices16Bit);
-                        xktData.eachBucketIndicesPortion [geometryIndex] = countIndices16Bit;
+                        xktData.eachBucketIndicesPortion [countBuckets] = countIndices16Bit;
                         countIndices16Bit += geometryBucket.indices.length;
                         break;
                     case 2:
                         xktData.indices32Bit.set(geometryBucket.indices, countIndices32Bit);
-                        xktData.eachBucketIndicesPortion [geometryIndex] = countIndices32Bit;
+                        xktData.eachBucketIndicesPortion [countBuckets] = countIndices32Bit;
                         countIndices32Bit += geometryBucket.indices.length;
                         break;
                 }
@@ -193,17 +217,17 @@ export function modelToXKT(params: {
                 switch (bucketIndicesBitness) {
                     case 0:
                         xktData.edgeIndices8Bit.set(geometryBucket.edgeIndices, countEdgeIndices8Bit);
-                        xktData.eachBucketEdgeIndicesPortion [geometryIndex] = countEdgeIndices8Bit;
+                        xktData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices8Bit;
                         countEdgeIndices8Bit += geometryBucket.edgeIndices.length;
                         break;
                     case 1:
                         xktData.edgeIndices16Bit.set(geometryBucket.edgeIndices, countEdgeIndices16Bit);
-                        xktData.eachBucketEdgeIndicesPortion [geometryIndex] = countEdgeIndices16Bit;
+                        xktData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices16Bit;
                         countEdgeIndices16Bit += geometryBucket.edgeIndices.length;
                         break;
                     case 2:
                         xktData.edgeIndices32Bit.set(geometryBucket.edgeIndices, countEdgeIndices32Bit);
-                        xktData.eachBucketEdgeIndicesPortion [geometryIndex] = countEdgeIndices32Bit;
+                        xktData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices32Bit;
                         countEdgeIndices32Bit += geometryBucket.edgeIndices.length;
                         break;
                 }
@@ -282,13 +306,13 @@ export function modelToXKT(params: {
 
             const mesh = object.meshes[meshIndex];
 
-            xktData.eachMeshGeometriesPortion [meshIndex] = geometryIndices[mesh.geometry.id];
+            xktData.eachMeshGeometriesPortion [countMeshes] = geometryIndices[mesh.geometry.id];
 
-            xktData.eachMeshMatricesPortion [meshIndex] = matricesIndex;
+            xktData.eachMeshMatricesPortion [countMeshes] = matricesIndex;
             xktData.matrices.set(mesh.matrix, matricesIndex); // TODO: only add matrix if different from what's already added
             matricesIndex += 16;
 
-            xktData.eachMeshTextureSet[meshIndex] = mesh.textureSet ? textureSetIndices[mesh.textureSet.id] : -1;
+            xktData.eachMeshTextureSet[countMeshes] = mesh.textureSet ? textureSetIndices[mesh.textureSet.id] : -1;
 
             xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[0] * 255); // Color RGB
             xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[1] * 255);
@@ -296,10 +320,10 @@ export function modelToXKT(params: {
             xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.opacity * 255); // Opacity
             xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.metallic * 255); // Metallic
             xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.roughness * 255); // Roughness
-        }
 
-        countMeshes += numObjectMeshes;
-    }
+            countMeshes++;
+        }
+ }
 
     return xktData;
 }

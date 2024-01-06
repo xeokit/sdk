@@ -10,7 +10,7 @@ export interface XKTData {
     /**
      * Arbitrary metadata JSON for the [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
      */
-    metadata: {};
+    metadata: any;
 
     /**
      * Combined data for all textures in the [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.

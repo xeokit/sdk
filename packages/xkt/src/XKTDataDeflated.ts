@@ -27,8 +27,10 @@ export interface XKTDataDeflated {
     eachGeometryBucketPortion: Buffer;
     eachGeometryDecodeMatricesPortion: Buffer;
     matrices: Buffer;
+    origins: Buffer;
     eachMeshGeometriesPortion: Buffer;
     eachMeshMatricesPortion: Buffer;
+    eachMeshOriginsPortion: Buffer;
     eachMeshTextureSet: Buffer;
     eachMeshMaterialAttributes: Buffer;
     eachGeometryId: Buffer;

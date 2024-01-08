@@ -4,7 +4,9 @@ import {
     ClampToEdgeWrapping,
     LinearMipmapLinearFilter,
     LinesPrimitive,
-    PointsPrimitive, SolidPrimitive, SurfacePrimitive,
+    PointsPrimitive,
+    SolidPrimitive,
+    SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/constants";
 import {XKT_INFO} from "./XKT_INFO";
@@ -124,8 +126,10 @@ export function modelToXKT(params: {
         eachGeometryBucketPortion: new Uint32Array(numGeometries), // TODO
         eachGeometryDecodeMatricesPortion: new Uint32Array(numGeometries), // Positions dequantization matrices
         matrices: new Float32Array(numMeshes * 16), // Modeling matrices
+        origins: new Float64Array(numMeshes * 16), // Modeling matrices
         eachMeshGeometriesPortion: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
         eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in xktData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
+        eachMeshOriginsPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in xktData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
         eachMeshTextureSet: new Int32Array(numMeshes), // For each mesh, the index of its texture set in xktData.eachTextureSetTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set
         eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES), // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
         eachGeometryId: [], // For each geometry, an ID string
@@ -295,7 +299,11 @@ export function modelToXKT(params: {
 
     let eachMeshMaterialAttributesIndex = 0;
     let matricesIndex = 0;
+    let originsIndex = 0;
     let countMeshes = 0;
+
+    const matrixLookup = {};
+    const originLookup = {};
 
     for (let objectIndex = 0; objectIndex < numObjects; objectIndex++) {
 
@@ -316,6 +324,18 @@ export function modelToXKT(params: {
             xktData.matrices.set(mesh.matrix, matricesIndex); // TODO: only add matrix if different from what's already added
             matricesIndex += 16;
 
+            const origin = mesh.origin;
+            const originHash = `${mesh.origin[0]}-${mesh.origin[1]}-${mesh.origin[2]}`;
+            let originLookupIndex = originLookup[originHash];
+            if (originLookupIndex === undefined) {
+                originLookupIndex = originsIndex;
+                originLookup[originHash] = originLookupIndex;
+                xktData.origins[originsIndex++] = origin[0];
+                xktData.origins[originsIndex++] = origin[1];
+                xktData.origins[originsIndex++] = origin[2];
+            }
+            xktData.eachMeshOriginsPortion [countMeshes] = originLookupIndex;
+
             xktData.eachMeshTextureSet[countMeshes] = mesh.textureSet ? textureSetIndices[mesh.textureSet.id] : -1;
 
             xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[0] * 255); // Color RGB
@@ -327,7 +347,7 @@ export function modelToXKT(params: {
 
             countMeshes++;
         }
- }
+    }
 
     return xktData;
 }

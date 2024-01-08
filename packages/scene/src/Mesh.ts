@@ -1,5 +1,5 @@
 import type {FloatArrayParam} from "@xeokit/math";
-import {createMat4, createVec3, identityMat4, isIdentityMat4} from "@xeokit/matrix";
+import {createMat4, identityMat4, isIdentityMat4} from "@xeokit/matrix";
 import type {RendererMesh} from "./RendererMesh";
 import type {Geometry} from "./Geometry";
 import type {TextureSet} from "./TextureSet";
@@ -55,6 +55,8 @@ export class Mesh {
     #roughness: number;
     #opacity: number;
 
+    readonly origin: FloatArrayParam;
+
     /**
      * @private
      */
@@ -67,17 +69,18 @@ export class Mesh {
         opacity?: number;
         roughness?: number;
         metallic?: number;
+        origin?: FloatArrayParam;
     }) {
         this.id = meshParams.id;
         this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
         this.geometry = meshParams.geometry;
         this.textureSet = meshParams.textureSet;
         this.rendererMesh = null;
-
         this.color = meshParams.color || new Float32Array([1, 1, 1]);
         this.metallic = (meshParams.metallic !== null && meshParams.metallic !== undefined) ? meshParams.metallic : 0;
         this.roughness = (meshParams.roughness !== null && meshParams.roughness !== undefined) ? meshParams.roughness : 1;
         this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
+        this.origin = new Float32Array(meshParams.origin !== undefined ? meshParams.origin : [0, 0, 0]);
     }
 
     /**
@@ -243,11 +246,14 @@ export class Mesh {
             geometryId: this.geometry.id,
             color: Array.from(this.#color),
             metallic: this.#metallic,
-            roughness:this.#roughness,
+            roughness: this.#roughness,
             opacity: this.#opacity
         };
         if (!isIdentityMat4(this.#matrix)) {
             meshParams.matrix = Array.from(this.#matrix);
+        }
+        if (this.origin !== undefined && (this.origin[0] !== 0 || this.origin[1] !== 0 || this.origin[2] !== 0)) {
+            meshParams.origin = Array.from(this.origin);
         }
         if (this.textureSet !== undefined) {
             meshParams.textureSetId = this.textureSet.id;

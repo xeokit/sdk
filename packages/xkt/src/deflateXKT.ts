@@ -6,7 +6,7 @@ import * as pako from "pako";
  * @private
  */
 export function deflateXKT(xktData: XKTData): XKTDataDeflated {
-    const deflatedJSON = deflateJSON([JSON.stringify(xktData.metadata)]);
+    const deflatedJSON = deflateJSON(xktData.metadata);
     const metaModelBytes = pako.deflate(deflatedJSON); // TODO
     return <XKTDataDeflated>{
         metadata: metaModelBytes,
@@ -34,8 +34,10 @@ export function deflateXKT(xktData: XKTData): XKTDataDeflated {
         eachGeometryBucketPortion: pako.deflate(xktData.eachGeometryBucketPortion.buffer),
         eachGeometryDecodeMatricesPortion: pako.deflate(xktData.eachGeometryDecodeMatricesPortion.buffer),
         matrices: pako.deflate(xktData.matrices.buffer),
+        origins: pako.deflate(xktData.origins.buffer),
         eachMeshGeometriesPortion: pako.deflate(xktData.eachMeshGeometriesPortion.buffer),
         eachMeshMatricesPortion: pako.deflate(xktData.eachMeshMatricesPortion.buffer),
+        eachMeshOriginsPortion: pako.deflate(xktData.eachMeshOriginsPortion.buffer),
         eachMeshTextureSet: pako.deflate(xktData.eachMeshTextureSet.buffer),
         eachMeshMaterialAttributes: pako.deflate(xktData.eachMeshMaterialAttributes.buffer),
         eachGeometryId: pako.deflate(JSON.stringify(xktData.eachGeometryId)

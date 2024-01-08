@@ -689,8 +689,7 @@ class View extends Component {
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
             const rendererViewObject = rendererViewObjects[id];
-            //     const layerId = viewerObject.layerId || "default";
-            const layerId = "default";
+            const layerId = sceneObject.layerId || "default";
             let viewLayer = this.layers[layerId];
             if (!viewLayer) {
                 if (!this.autoLayers) {
@@ -1529,8 +1528,7 @@ class View extends Component {
         const objects = sceneModel.objects;
         for (let id in objects) {
             const object = objects[id];
-            //     const layerId = object.layerId || "main";
-            const layerId = "default";
+            const layerId = object.layerId || "default";
             let viewLayer = this.layers[layerId];
             const viewObject = this.objects[object.id];
             this.deregisterViewObject(viewObject);

@@ -2,7 +2,8 @@ import type {DataModel} from "@xeokit/data";
 import type {SceneModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {decompressPoint3} from "@xeokit/compression";
-import {createVec3} from "@xeokit/matrix";
+import {createVec3, createVec4, decomposeMat4} from "@xeokit/matrix";
+import {typeNames} from "@xeokit/ifctypes";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -24,7 +25,7 @@ const tempVec3b = createVec3();
  */
 export function saveDotBIM(params: {
     sceneModel: SceneModel,
-    dataModel: DataModel
+    dataModel?: DataModel
 }): Object {
     const sceneModel = params.sceneModel
     const dataModel = params.dataModel;
@@ -47,8 +48,16 @@ export function saveDotBIM(params: {
 
 
 function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel }): Object {
+
+    const dotBim = {
+        meshes: [],
+        elements: []
+    };
+
     const geometries = Object.values(params.sceneModel.geometries);
-    const meshes = [];
+
+    const meshLookup = {};
+
     for (let i = 0, len = geometries.length; i < len; i++) {
         const geometry = geometries[i];
         const positionsDecompressMatrix = geometry.positionsDecompressMatrix;
@@ -71,30 +80,105 @@ function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel })
                     coordinates.push(tempVec3b[1]);
                     coordinates.push(tempVec3b[2]);
                 }
-                for (let k = 0, lenk = bucketIndices.length; k < lenj; k++) {
+                for (let k = 0, lenk = bucketIndices.length; k < lenk; k++) {
                     indices.push(offset + bucketIndices[k]);
                 }
             }
         }
-        meshes.push({
+        meshLookup[geometry.id] = {
             mesh_id: geometry.id,
             coordinates,
             indices
-        });
+        };
     }
 
     const sceneObjects = Object.values(params.sceneModel.objects);
 
-
-    const elements: never[] = [];
     for (let i = 0, len = sceneObjects.length; i < len; i++) {
         const sceneObject = sceneObjects[i];
-
-
+        const meshes = sceneObject.meshes;
+        let meshId;
+        let dbMesh;
+        if (meshes.length === 1) {
+            const mesh = meshes[0];
+            const geometry = mesh.geometry;
+            dbMesh = meshLookup[geometry.id];
+            dotBim.meshes.push(dbMesh);
+            meshId = geometry.id;
+        } else {
+            dbMesh = {
+                mesh_id: sceneObject.id,
+                coordinates: [],
+                indices: []
+            };
+            let indicesOffset = 0;
+            for (let j = 0, lenj = meshes.length; j < lenj; j++) {
+                const sceneMesh = meshes[j];
+                const geometry = sceneMesh.geometry;
+                const lookupGeometry = meshLookup[geometry.id];
+                const coordinates = lookupGeometry.coordinates;
+                for (let k = 0, lenk = coordinates.length; k < lenk; k++) {
+                    dbMesh.coordinates.push(coordinates[k]);
+                }
+                const indices = lookupGeometry.indices;
+                for (let k = 0, lenk = indices.length; k < lenk; k++) {
+                    dbMesh.indices.push(indices[k] + indicesOffset);
+                }
+                indicesOffset += coordinates.length / 3;
+            }
+            dotBim.meshes.push(dbMesh);
+            meshId = sceneObject.id;
+        }
+        const firstMesh = meshes[0];
+        const color = firstMesh.color;
+        const position = createVec3();
+        const quaternion = createVec4();
+        const scale = createVec3();
+        decomposeMat4(firstMesh.matrix, position, quaternion, scale);
+        const info: any = {
+            id: sceneObject.id,
+            Tag: "None"
+        };
+        let dataObject;
+        if (params.dataModel) {
+            dataObject = params.dataModel.objects[sceneObject.id];
+            if (dataObject) {
+                info.type = typeNames[dataObject.type];
+                info.Name = dataObject.name;
+                info.Description = dataObject.description;
+            }
+        }
+        if (!dataObject) {
+            info.type = "None";
+            info.Name = "None";
+            info.Description = "None";
+        }
+        dotBim.elements.push({
+            info,
+            mesh_id: dbMesh.mesh_id,
+            type: info.type,
+            color: {
+                r: color[0],
+                g: color[1],
+                b: color[2],
+                a: firstMesh.opacity
+            },
+            vector: {
+                x: position[0],
+                y: position[1],
+                z: position[2]
+            },
+            rotation: {
+                qx: quaternion[0],
+                qy: quaternion[0],
+                qz: quaternion[0],
+                qw: quaternion[0]
+            },
+            qy: quaternion[1],
+            qz: quaternion[2],
+            qw: quaternion[3]
+        });
     }
 
-    return {
-        meshes,
-        elements
-    }
+    return dotBim;
 }

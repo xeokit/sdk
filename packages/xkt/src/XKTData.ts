@@ -145,6 +145,11 @@ export interface XKTData {
     matrices: Float32Array;
 
     /**
+     * Combined list of all RTC coordinate origins in this [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     */
+    origins: Float64Array;
+
+    /**
      * For each mesh, a pointer to its portion of geometries in ````XKTData.eachGeometry*````
      */
     eachMeshGeometriesPortion: Uint32Array;
@@ -153,6 +158,11 @@ export interface XKTData {
      * For each mesh, a pointer to its matrix in {@link XKTData.matrices}.
      */
     eachMeshMatricesPortion: Uint32Array;
+
+    /**
+     * For each mesh, a pointer to its RTC origin in {@link XKTData.origins}.
+     */
+    eachMeshOriginsPortion: Uint32Array;
 
     /**
      * For each mesh, a pointer to its texture set in {@link XKTData.textureSets}.

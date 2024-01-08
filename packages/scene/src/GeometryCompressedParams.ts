@@ -62,5 +62,10 @@ export interface GeometryCompressedParams {
      * that are local to their bucket. This further optimizes memory use, by reducing the values of large indices to small
      * locally-offset values, which can reduce the number of bits they need.
      */
-    geometryBuckets: GeometryBucketParams[]
+    geometryBuckets: GeometryBucketParams[];
+
+    /**
+     * When the geometry positions are in RTC coordinates, this is the RTC coordinate origin.
+     */
+    origin?: FloatArrayParam;
 }

@@ -1,5 +1,6 @@
 // my-custom-environment
 const NodeEnvironment = require('jest-environment-node').TestEnvironment;
+require('jest-webgl-canvas-mock');
 
 class CustomEnvironment extends NodeEnvironment {
     constructor(config, context) {

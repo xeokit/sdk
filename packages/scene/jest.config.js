@@ -35,6 +35,7 @@ module.exports = {
         "@xeokit/procgen(.*)$": path.join(__dirname, "../procgen/src/$1"),
         "@xeokit/rtc(.*)$": path.join(__dirname, "../rtc/src/$1"),
         "@xeokit/scene(.*)$": path.join(__dirname, "../scene/src/$1"),
+        "@xeokit/testutils(.*)$": path.join(__dirname, "../testutils/src/$1"),
         "@xeokit/threedxml(.*)$": path.join(__dirname, "../threedxml/src/$1"),
         "@xeokit/treeview(.*)$": path.join(__dirname, "../treeview/src/$1"),
         "@xeokit/utils(.*)$": path.join(__dirname, "../utils/src/$1"),

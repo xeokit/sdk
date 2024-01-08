@@ -2,6 +2,7 @@ import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 import {SDKError} from "@xeokit/core";
 import {TrianglesPrimitive} from "@xeokit/constants";
+import {typeCodes} from "@xeokit/ifctypes";
 
 
 /**
@@ -80,16 +81,24 @@ function parseDotBIM(ctx: any) {
     const elements = fileData.elements;
     for (let i = 0, len = elements.length; i < len; i++) {
         const element = elements[i];
-        const objectId = "" + element.guid;
+        const info = element.info;
+        const objectId =
+            element.guid !== undefined
+                ? `${element.guid}`
+                : (info !== undefined && info.id !== undefined
+                    ? info.id
+                    : i);
         if (ctx.sceneModel) {
             const geometryId = element.mesh_id;
-            const meshId = `${objectId}-mesh-${i}`;
+            const meshId = `${objectId}-mesh`;
             const vector = element.vector;
             const rotation = element.rotation;
+            const color = element.color;
             const mesh = ctx.sceneModel.createMesh({
                 id: meshId,
                 geometryId,
-                baseColor: element.color,
+                color: color ? [color.r, color.g, color.b] : undefined,
+                opacity: color? color.a : 1.0,
                 quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : undefined,
                 position: vector ? [vector.x, vector.y, vector.z] : undefined
             });
@@ -108,10 +117,9 @@ function parseDotBIM(ctx: any) {
         }
         if (ctx.dataModel) {
             if (!ctx.dataModel.objects[element.guid]) {
-                const info = element.info;
                 const dataObject = ctx.dataModel.createObject({
                     id: objectId,
-                    type: element.type,
+                    type: typeCodes[element.type],
                     name: info.Name,
                     description: info.Description
                 });

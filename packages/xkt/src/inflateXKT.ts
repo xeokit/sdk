@@ -36,9 +36,11 @@ export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
         eachGeometryPrimitiveType: new Uint8Array(inflate(xktDataDeflated.eachGeometryPrimitiveType)),
         eachGeometryBucketPortion: new Uint32Array(inflate(xktDataDeflated.eachGeometryBucketPortion)),
         eachGeometryDecodeMatricesPortion: new Uint32Array(inflate(xktDataDeflated.eachGeometryDecodeMatricesPortion)),
-        matrices: new Float32Array(inflate(xktDataDeflated.matrices)), // Can be -1
+        matrices: new Float32Array(inflate(xktDataDeflated.matrices)),
+        origins: new Float64Array(inflate(xktDataDeflated.origins)),
         eachMeshGeometriesPortion: new Uint32Array(inflate(xktDataDeflated.eachMeshGeometriesPortion)),
         eachMeshMatricesPortion: new Uint32Array(inflate(xktDataDeflated.eachMeshMatricesPortion)),
+        eachMeshOriginsPortion: new Uint32Array(inflate(xktDataDeflated.eachMeshOriginsPortion)),
         eachMeshTextureSet: new Int32Array(inflate(xktDataDeflated.eachMeshTextureSet)),
         eachMeshMaterialAttributes: new Uint8Array(inflate(xktDataDeflated.eachMeshMaterialAttributes)),
         eachGeometryId: JSON.parse(pako.inflate(xktDataDeflated.eachGeometryId, {to: 'string'})),

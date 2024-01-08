@@ -23,7 +23,8 @@ import {compressGeometryParams} from "./compressGeometryParams";
 import type {SceneModelParams} from "./SceneModelParams";
 import type {Scene} from "./Scene";
 import type {SceneModelStats} from "./SceneModelStats";
-import {composeMat4, eulerToQuat, identityMat4, identityQuat} from "@xeokit/matrix";
+import {composeMat4, createVec3, eulerToQuat, identityMat4, identityQuat} from "@xeokit/matrix";
+import {worldToRTCPositions} from "@xeokit/rtc";
 
 // XKT texture types
 
@@ -768,7 +769,8 @@ export class SceneModel extends Component {
             color: meshParams.color,
             opacity: meshParams.opacity,
             roughness: meshParams.roughness,
-            metallic: meshParams.metallic
+            metallic: meshParams.metallic,
+            origin: meshParams.origin
         });
         this.meshes[meshParams.id] = mesh;
         this.stats.numMeshes++;

@@ -1,270 +1,136 @@
-/**
- * @jest-environment jsdom
- */
+import {View, Viewer} from "@xeokit/viewer";
+import {Scene, SceneModel} from "@xeokit/scene";
+import {sampleSceneModelParams} from "@xeokit/testutils";
+import {WebGLRenderer} from "@xeokit/webglrenderer";
 
-const jsdom = require("jsdom");
+document.body.innerHTML = '<canvas id="myCanvas" />';
 
+const scene = new Scene();
+const renderer = new WebGLRenderer({});
 
-import {CreateModelParams, Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
-import {RendererViewObject} from "../src/RendererViewObject";
-import {FloatArrayParam} from "@xeokit/src/math";
-import {Capabilities, SDKError} from "@xeokit/core";
-import {Scene} from "@xeokit/scene";
-import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/constants";
+let viewer;
+let view;
+let sceneModel;
+let viewLayer;
 
+describe('Viewer', () => {
 
-const {JSDOM} = jsdom;
-
-class MockRenderer implements Renderer {
-
-    registeredViews: {};
-    registeredModels: {};
-    registeredObjects: {};
-    rendererViewObjects: { [key: string]: RendererViewObject };
-    imageDirty: boolean;
-
-    constructor(params: {}) {
-        this.rendererViewObjects = {};
-        this.registeredViews = {};
-        this.registeredModels = {};
-        this.registeredObjects = {};
-        this.imageDirty = false;
-    }
-
-    registerViewer(viewer: Viewer): void {
-    }
-
-    getCapabilities(capabilities: Capabilities): void {
-        capabilities.maxViews = 1;
-    }
-
-    registerView(view: View): number {
-        this.registeredViews[view.id] = view;
-        return 0;
-    }
-
-    deregisterView(viewIndex: number): void { // Nop
-    }
-
-    addModel(params: CreateModelParams): void {
-        this.registeredModels[params.id] = params;
-    }
-
-    removeModel(modelId: string): void {
-        delete this.registeredModels[modelId];
-    }
-
-    setImageDirty(viewIndex?: number) {
-        this.imageDirty = true;
-    }
-
-    setBackgroundColor(viewIndex: number, color: FloatArrayParam): void { // @ts-ignore
-
-    }
-
-    setEdgesEnabled(viewIndex: number, enabled: boolean): void {
-
-    }
-
-    setPBREnabled(viewIndex: number, enabled: boolean): void {
-
-    }
-
-    getSAOSupported(): boolean {
-        return false;
-    }
-
-    setSAOEnabled(viewIndex: number, enabled: boolean): void {
-
-    }
-
-    setTransparentEnabled(viewIndex: number, enabled: boolean): void {
-
-    }
-
-    clear(viewIndex: number) {
-
-    };
-
-    needsRebuild(viewIndex?: number): void {
-
-    }
-
-    needsRender(viewIndex?: number): boolean {
-        return true;
-    }
-
-    render(viewIndex: number, params: { force?: boolean; }) {
-
-    }
-
-    pickViewObject(viewIndex: number, params: {}): ViewObject | null {
-        return null;
-    };
-}
-
-describe('Create and Destroy a Viewer', () => {
-
-    it('Create and Destroy a Viewer', () => {
-
-        const dom = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
-        console.log(dom.window.document.querySelector("p").textContent); // "Hello world"
-
-        const scene = new Scene();
-
-        const renderer = new MockRenderer({});
-
-        const viewer: Viewer = new Viewer({
+    it('Creates a Viewer with a Scene and a WebGLRenderer', () => {
+        viewer = new Viewer({
             id: "myViewer",
             scene,
             renderer
         });
+    });
 
-        const view1: View | SDKError = viewer.createView({
+    it('Creates a View for a canvas in the DOM', () => {
+        view = viewer.createView({
             id: "myView",
-            canvasId: "myView1"
+            canvasId: "myCanvas"
+        });
+        expect(view instanceof View).toBe(true);
+        expect(view.canvasElement instanceof HTMLCanvasElement).toBe(true);
+        expect(view.canvasElement.id).toBe("myCanvas");
+    });
+
+    it("View creates a `default` ViewLayer when SceneModel created in Scene", async () => {
+        let eventViewLayer;
+        view.onLayerCreated.subscribe((view, viewLayer) =>{
+            eventViewLayer = viewLayer;
         });
 
-        if (view1 instanceof SDKError) {
-            throw new Error("Failed to create new View with Viewer.createView()");
+        sceneModel = scene.createModel(sampleSceneModelParams);
+        expect(sceneModel instanceof SceneModel).toBe(true);
+        await sceneModel.build();
+        expect(sceneModel.built).toBe(true);
+
+        viewLayer = view.layers["default"];
+        expect(viewLayer).toBeDefined();
+
+        expect(eventViewLayer).toBeDefined();
+        expect(eventViewLayer.id).toEqual("default");
+    });
+
+    it('View contains a ViewObject for each SceneObject in the Scene', () => {
+        for (let id in scene.objects) {
+            const sceneObject = scene.objects[id];
+            const viewObject = view.objects[id];
+            expect(viewObject).toBeDefined();
+            expect(viewObject.id).toEqual(sceneObject.id);
+            expect(viewObject.sceneObject).toBeDefined();
+            expect(viewObject.sceneObject.id).toEqual(id);
+            const viewLayer = viewObject.layer;
+            expect(viewLayer).toBeDefined();
+            expect(viewLayer.id).toEqual("default");
         }
+    });
 
-        view1.camera.eye = [-3.933, 2.855, 27.018];
-        view1.camera.look = [4.400, 3.724, 8.899];
-        view1.camera.up = [-0.018, 0.999, 0.039];
-
-        const sceneModel = scene.createModel({
-            id: "myModel"
-        });
-
-        if (sceneModel instanceof SDKError) {
-            throw new Error("Failed to create new SceneModel with Scene.createModel()");
+    it('ViewLayer cotains a ViewObject for each SceneObject in the Scene', () => {
+        for (let id in scene.objects) {
+            const sceneObject = scene.objects[id]
+            const viewObject = viewLayer.objects[id];
+            expect(sceneObject).toBeDefined();
+            expect(viewObject).toBeDefined();
+            expect(viewObject.id).toEqual(sceneObject.id);
         }
+    });
 
-        sceneModel.createGeometry({
-            id: "theGeometry",
-            primitive: TrianglesPrimitive,
-            positions: [ // Floats
-                1, 1, 1, -1, 1, 1,
-                -1, -1, 1, 1, -1, 1, 1,
-                -1, -1, 1, 1, -1, -1, 1, -1, -1,
-                -1, -1
-            ],
-            indices: [
-                0, 1, 2, 0, 2, 3, 4, 5, 6, 4,
-                6, 7, 8, 9, 10, 8, 10, 11, 12,
-                13, 14, 12, 14, 15, 16, 17, 18,
-                16, 18, 19, 20, 21, 22, 20, 22, 23
-            ]
+    it('View.selectedObjects and ViewLayer.selectedObjects synchronize with ViewObject.selected', () => {
+        const redLegViewObject = view.objects["redLeg"];
+        expect(view.selectedObjectIds).toEqual([]);
+        expect(viewLayer.selectedObjectIds).toEqual([]);
+        redLegViewObject.selected = true;
+        expect(view.selectedObjectIds).toEqual(["redLeg"]);
+        expect(viewLayer.selectedObjectIds).toEqual(["redLeg"]);
+        redLegViewObject.selected = false;
+        expect(view.selectedObjectIds).toEqual([]);
+        expect(viewLayer.selectedObjectIds).toEqual([]);
+    });
+
+    it('View.highlightedObjects and ViewLayer.highlightedObjects synchronize with ViewObject.selected', () => {
+        const redLegViewObject = view.objects["redLeg"];
+        expect(view.highlightedObjectIds).toEqual([]);
+        expect(viewLayer.highlightedObjectIds).toEqual([]);
+        redLegViewObject.highlighted = true;
+        expect(view.highlightedObjectIds).toEqual(["redLeg"]);
+        expect(viewLayer.highlightedObjectIds).toEqual(["redLeg"]);
+        redLegViewObject.highlighted = false;
+        expect(view.highlightedObjectIds).toEqual([]);
+        expect(viewLayer.highlightedObjectIds).toEqual([]);
+    });
+
+    it('View.visibleObjects and ViewLayer.visibleObjects synchronize with ViewObject.visible', () => {
+        const redLegViewObject = viewLayer.objects["redLeg"];
+        expect(viewLayer.visibleObjectIds.sort()).toEqual(["redLeg", "greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
+        redLegViewObject.visible = false;
+        expect(viewLayer.visibleObjectIds.sort()).toEqual([ "greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
+        expect(view.visibleObjectIds.sort()).toEqual([ "greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
+        redLegViewObject.visible = true;
+        expect(viewLayer.visibleObjectIds.sort()).toEqual(["greenLeg", "blueLeg", "yellowLeg", "tableTop", "redLeg"].sort());
+        expect(view.visibleObjectIds.sort()).toEqual(["greenLeg", "blueLeg", "yellowLeg", "tableTop", "redLeg"].sort());
+    });
+
+    it('ViewLayer.onObjectVisibility fires on change to ViewObject.visible', () => {
+        let eventViewObject;
+        viewLayer.onObjectVisibility.subscribe((viewLayer, viewObject) =>{
+            eventViewObject = viewObject;
         });
+        const redLegViewObject = viewLayer.objects["redLeg"];
+        redLegViewObject.visible = false;
+        expect(eventViewObject).toBeDefined();
+        expect(eventViewObject.id).toEqual(redLegViewObject.id);
+        redLegViewObject.visible = true;
+    });
 
-        sceneModel.createTexture({
-            id: "colorTexture",
-            src: "./assets/sample_etc1s.ktx2",
-            preloadColor: [1, 0, 0, 1],
-            flipY: false,
-            encoding: LinearEncoding,
-            magFilter: LinearFilter,
-            minFilter: LinearFilter,
-            wrapR: ClampToEdgeWrapping,
-            wrapS: ClampToEdgeWrapping,
-            wrapT: ClampToEdgeWrapping,
+    it('View.onObjectVisibility fires on change to ViewObject.visible', () => {
+        let eventViewObject;
+        view.onObjectVisibility.subscribe((view, viewObject) =>{
+            eventViewObject = viewObject;
         });
-
-        sceneModel.createTextureSet({
-            id: "theTextureSet",
-            colorTextureId: "colorTexture"
-        });
-
-        sceneModel.createMesh({
-            id: "redLegMesh",
-            geometryId: "theGeometry",
-            position: [-4, -6, -4],
-            scale: [1, 3, 1],
-            rotation: [0, 0, 0],
-            color: [1, 0.3, 0.3],
-            textureSetId: "theTextureSet"
-        });
-
-        sceneModel.createMesh({
-            id: "greenLegMesh",
-            geometryId: "theGeometry",
-            position: [4, -6, -4],
-            scale: [1, 3, 1],
-            rotation: [0, 0, 0],
-            color: [0.3, 1.0, 0.3],
-            textureSetId: "theTextureSet"
-        });
-
-        sceneModel.createMesh({
-            id: "blueLegMesh",
-            geometryId: "theGeometry",
-            position: [4, -6, 4],
-            scale: [1, 3, 1],
-            rotation: [0, 0, 0],
-            color: [0.3, 0.3, 1.0],
-            textureSetId: "theTextureSet"
-        });
-
-        sceneModel.createMesh({
-            id: "yellowLegMesh",
-            geometryId: "theGeometry",
-            position: [-4, -6, 4],
-            scale: [1, 3, 1],
-            rotation: [0, 0, 0],
-            color: [1.0, 1.0, 0.0],
-            textureSetId: "theTextureSet"
-        });
-
-        sceneModel.createMesh({
-            id: "tableTopMesh",
-            geometryId: "theGeometry",
-            position: [0, -3, 0],
-            scale: [6, 0.5, 6],
-            rotation: [0, 0, 0],
-            color: [1.0, 0.3, 1.0],
-            textureSetId: "theTextureSet"
-        });
-
-        sceneModel.createObject({
-            id: "redLegObject",
-            meshIds: ["redLegMesh"]
-        });
-
-        sceneModel.createObject({
-            id: "greenLegObject",
-            meshIds: ["greenLegMesh"]
-        });
-
-        sceneModel.createObject({
-            id: "blueLegObject",
-            meshIds: ["blueLegMesh"]
-        });
-
-        sceneModel.createObject({
-            id: "yellowLegObject",
-            meshIds: ["yellowLegMesh"]
-        });
-
-        sceneModel.createObject({
-            id: "tableTopObject",
-            meshIds: ["tableTopMesh"]
-        });
-
-        sceneModel.build();
-
-        expect(renderer.registeredModels["myModel"]).toBeDefined();
-
-        const redLegObject = view1.objects["redLegObject"]
-        const greenLegObject = view1.objects["greenLegObject"]
-        const blueLegObject = view1.objects["greenLegObject"]
-        const yellowLegObject = view1.objects["greenLegObject"]
-        const tableTopObject = view1.objects["tableTopObject"]
-
-        expect(redLegObject).toBeDefined();
-        expect(greenLegObject).toBeDefined();
-        expect(blueLegObject).toBeDefined();
-        expect(yellowLegObject).toBeDefined();
-        expect(tableTopObject).toBeDefined();
+        const redLegViewObject = view.objects["redLeg"];
+        redLegViewObject.visible = false;
+        expect(eventViewObject).toBeDefined();
+        expect(eventViewObject.id).toEqual(redLegViewObject.id);
+        redLegViewObject.visible = true;
     });
 });

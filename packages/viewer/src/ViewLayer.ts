@@ -887,9 +887,9 @@ class ViewLayer extends Component {
         this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: SceneModel) => {
             this.#createViewObjects(model);
         });
-        this.viewer.scene.onModelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
-            this.#destroyViewObjects(model);
-        });
+        // this.viewer.scene.onModelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
+        //     this.#destroyViewObjects(model);
+        // });
     }
 
     #createViewObjects(model: SceneModel) {
@@ -898,10 +898,12 @@ class ViewLayer extends Component {
             const sceneObject = sceneObjects[id];
             const rendererViewObject = this.viewer.renderer.rendererViewObjects[id];
             if (rendererViewObject.layerId == this.id) {
-                const viewObject = new ViewObject(this, sceneObject, rendererViewObject);
-                this.objects[viewObject.id] = viewObject;
-                this.#numObjects++;
-                this.#objectIds = null; // Lazy regenerate
+               if (!this.objects[id]) {
+                   const viewObject = new ViewObject(this, sceneObject, rendererViewObject);
+                   this.objects[viewObject.id] = viewObject;
+                   this.#numObjects++;
+                   this.#objectIds = null; // Lazy regenerate
+               }
             }
         }
     }
@@ -911,9 +913,11 @@ class ViewLayer extends Component {
         for (let id in viewerObjects) {
             const viewerObject = viewerObjects[id];
             const viewObject = this.objects[viewerObject.id];
-            viewObject._destroy();
-            this.#numObjects--;
-            this.#objectIds = null; // Lazy regenerate
+            if (viewObject) {
+                viewObject._destroy();
+                this.#numObjects--;
+                this.#objectIds = null; // Lazy regenerate
+            }
         }
     }
 

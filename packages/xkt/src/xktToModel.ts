@@ -28,8 +28,8 @@ export function xktToModel(params: {
     const dataModel = params.dataModel;
 
     if (dataModel) {
-        if (xktData.metadata && xktData.metadata.length > 0) {
-            dataModel.fromJSON(<DataModelParams>xktData.metadata[0]);
+        if (xktData.metadata) {
+            dataModel.fromJSON(<DataModelParams>xktData.metadata);
         }
     }
 
@@ -160,6 +160,9 @@ export function xktToModel(params: {
             const meshMatrixIndex = xktData.eachMeshMatricesPortion[meshIndex];
             const meshMatrix = xktData.matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
 
+            const meshOriginsIndex = xktData.eachMeshOriginsPortion[meshIndex];
+            const meshOrigin = xktData.origins.slice(meshOriginsIndex, meshOriginsIndex + 3);
+
             const geometryId = xktData.eachGeometryId[geometryIndex];
 
             if (!geometryCreated[geometryId]) {
@@ -257,7 +260,8 @@ export function xktToModel(params: {
                 color: meshColor,
                 metallic: meshMetallic,
                 roughness: meshRoughness,
-                opacity: meshOpacity
+                opacity: meshOpacity,
+                origin: meshOrigin
             });
             meshIds.push(meshId);
         }

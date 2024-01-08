@@ -1,5 +1,5 @@
 {
-  "name": "@xeokit/scene",
+  "name": "@xeokit/testutils",
   "private": false,
   "version": "1.0.1-alpha.0",
   "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
@@ -24,17 +24,6 @@
   ],
   "keywords": [],
   "dependencies": {
-    "@loaders.gl/images": "^3.4.1",
-    "@loaders.gl/textures": "^3.4.1",
-    "@xeokit/boundaries": "^1.0.1-alpha.0",
-    "@xeokit/compression": "^1.0.1-alpha.0",
-    "@xeokit/constants": "^1.0.1-alpha.0",
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/math": "^1.0.1-alpha.0",
-    "@xeokit/matrix": "^1.0.1-alpha.0",
-    "strongly-typed-events": "3.0.7"
-  },
-  "devDependencies": {
-    "@xeokit/testutils": "^1.0.1-alpha.0"
+
   }
 }

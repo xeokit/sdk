@@ -55,6 +55,7 @@
     "@xeokit/procgen":["./packages/procgen/"],
     "@xeokit/rtc":["./packages/rtc/"],
     "@xeokit/scene":["./packages/scene/"],
+    "@xeokit/testutils":["./packages/testutils/"],
     "@xeokit/threedxml":["./packages/threedxml/"],
     "@xeokit/treeview":["./packages/treeview/"],
     "@xeokit/utils":["./packages/utils/"],

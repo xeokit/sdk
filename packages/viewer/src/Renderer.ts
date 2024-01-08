@@ -6,6 +6,7 @@ import type {SDKError} from "@xeokit/core";
 import type {ViewObject} from "./ViewObject";
 import type {RendererViewObject} from "./RendererViewObject";
 import type {SceneModel} from "@xeokit/scene";
+import {RendererModel} from "@xeokit/scene";
 
 /**
  * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
@@ -34,6 +35,11 @@ export interface Renderer {
      * configured on its {@link @xeokit/viewer!Viewer | Viewer}.
      */
     rendererViewObjects: { [key: string]: RendererViewObject }
+
+    /**
+     * TODO
+     */
+   //  rendererModels: { [key: string]: RendererModel };
 
     /**
      * Initializes this Renderer by attaching a {@link @xeokit/viewer!Viewer}.

@@ -76,3 +76,4 @@
  * @module @xeokit/dotbim
  */
 export * from "./loadDotBIM";
+export * from "./saveDotBIM";

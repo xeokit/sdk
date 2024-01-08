@@ -1,4 +1,4 @@
-import {createMat4} from "@xeokit/matrix";
+import {createMat4, createVec3} from "@xeokit/matrix";
 import {collapseAABB3, expandAABB3Points3} from "@xeokit/boundaries";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 import {quantizePositions3} from "@xeokit/compression";
@@ -9,6 +9,9 @@ import {rebucketPositions} from "./rebucketPositions";
 import type {GeometryParams} from "./GeometryParams";
 import type {GeometryCompressedParams} from "./GeometryCompressedParams";
 import type {IntArrayParam} from "@xeokit/math";
+import {worldToRTCPositions} from "@xeokit/rtc";
+
+const rtcCenter = createVec3();
 
 /**
  * Compresses a {@link @xeokit/scene!GeometryParams | GeometryParams} into a {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
@@ -19,6 +22,7 @@ import type {IntArrayParam} from "@xeokit/math";
  * @returns Compressed geometry params.
  */
 export function compressGeometryParams(geometryParams: GeometryParams): GeometryCompressedParams {
+   // const rtcNeeded = worldToRTCPositions(geometryParams.positions, geometryParams.positions, rtcCenter);
     const positionsDecompressMatrix = createMat4();
     const aabb = collapseAABB3();
     expandAABB3Points3(aabb, geometryParams.positions);
@@ -49,7 +53,7 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
         indices: uniqueIndices,
         edgeIndices: uniqueEdgeIndices,
     }, (numUniquePositions > (1 << 16)) ? 16 : 8);
-    return { // Assume that closed triangle mesh is decomposed into open surfaces
+    const geometryCompressedParams: GeometryCompressedParams = { // Assume that closed triangle mesh is decomposed into open surfaces
         id: geometryParams.id,
         primitive: (geometryParams.primitive === SolidPrimitive && geometryBuckets.length > 1) ? TrianglesPrimitive : geometryParams.primitive,
         aabb,
@@ -57,4 +61,8 @@ export function compressGeometryParams(geometryParams: GeometryParams): Geometry
         uvsDecompressMatrix: undefined,
         geometryBuckets
     };
+    // if (rtcNeeded) {
+    //     geometryCompressedParams.origin = createVec3(rtcCenter);
+    // }
+    return geometryCompressedParams;
 }

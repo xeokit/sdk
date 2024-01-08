@@ -92,4 +92,9 @@ export interface MeshParams {
      * and {@link @xeokit/scene!MeshParams.rotation | MeshParams.rotation}.
      */
     matrix?: FloatArrayParam;
+
+    /**
+     * Optional RTC coordinate origin for the new {@link @xeokit/scene!Mesh}.
+     */
+    origin?:FloatArrayParam;
 }

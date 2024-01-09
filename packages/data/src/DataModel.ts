@@ -353,7 +353,7 @@ export class DataModel extends Component {
                     }
                 }
             }
-            dataObject = new DataObject(this.data, this, id, dataObjectParams.name, dataObjectParams.description, dataObjectParams.type, propertySets);
+            dataObject = new DataObject(this.data, this, id, dataObjectParams.originalSystemId, dataObjectParams.name, dataObjectParams.description, dataObjectParams.type, propertySets);
             this.objects[id] = dataObject;
             this.data.objects[id] = dataObject;
             if (!this.data.objectsByType[type]) {
@@ -549,23 +549,24 @@ export class DataModel extends Component {
             dataModelParams.propertySets?.push(propertySetParams);
         }
         for (let id in this.objects) {
-            const object = this.objects[id];
-            const objectParams = <DataObjectParams>{
+            const dataObject = this.objects[id];
+            const dataObjectParams = <DataObjectParams>{
                 id,
-                type: object.type,
-                name: object.name,
+                originalSystemId: dataObject.originalSystemId,
+                type: dataObject.type,
+                name: dataObject.name,
                 propertySetIds: []
             };
-            if (object.description !== undefined) {
-                objectParams.description = object.description;
+            if (dataObject.description !== undefined) {
+                dataObjectParams.description = dataObject.description;
             }
-            if (object.propertySets) {
-                for (let i = 0, len = object.propertySets.length; i < len; i++) {
-                    const propertySet = object.propertySets[i];
-                    objectParams.propertySetIds?.push(propertySet.id);
+            if (dataObject.propertySets) {
+                for (let i = 0, len = dataObject.propertySets.length; i < len; i++) {
+                    const propertySet = dataObject.propertySets[i];
+                    dataObjectParams.propertySetIds?.push(propertySet.id);
                 }
             }
-            dataModelParams.objects?.push(objectParams);
+            dataModelParams.objects?.push(dataObjectParams);
         }
         for (let i = 0, len = this.relationships.length; i < len; i++) {
             const relationship = this.relationships[i];

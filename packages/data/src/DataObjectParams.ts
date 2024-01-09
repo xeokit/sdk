@@ -15,6 +15,12 @@ export interface DataObjectParams {
     id: string;
 
     /**
+     * ID of this DataObject within the originating system, is any. Defaults to the value of
+     * {@link @xeokit/data!DataObject.id | DataObject.id}.
+     */
+    originalSystemId?: string;
+
+    /**
      * The {@link @xeokit/data!DataObject} type.
      */
     type: number;

@@ -31,6 +31,12 @@ export class DataObject {
     public readonly id: string;
 
     /**
+     * ID of this DataObject within the originating system, is any. Defaults to the value of
+     * {@link @xeokit/data!DataObject.id | DataObject.id}.
+     */
+    originalSystemId?: string;
+
+    /**
      * Human-readable name.
      */
     public readonly name?: string;
@@ -75,6 +81,7 @@ export class DataObject {
         data: Data,
         model: DataModel,
         id: string,
+        originalSysteId: string,
         name: string,
         description: string | undefined,
         type: number,
@@ -83,6 +90,7 @@ export class DataObject {
         this.data = data;
         this.models = [model];
         this.id = id;
+        this.originalSystemId = originalSysteId || id;
         this.name = name;
         this.description = description;
         this.type = type;

@@ -34,8 +34,6 @@
     "strongly-typed-events": "3.0.7"
   },
   "devDependencies": {
-    "jest-environment-jsdom": "^29.7.0",
-    "jest-webgl-canvas-mock": "^2.5.3",
     "jest-electron": "^0.1.12",
     "@kayahr/jest-electron-runner": "^29.11.0"
   }

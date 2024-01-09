@@ -1,4 +1,4 @@
-import {View, Viewer} from "@xeokit/viewer";
+import {View, Viewer, ViewLayer} from "@xeokit/viewer";
 import {Scene, SceneModel} from "@xeokit/scene";
 import {sampleSceneModelParams_multipleViewLayers} from "@xeokit/testutils";
 import {WebGLRenderer} from "@xeokit/webglrenderer";
@@ -11,9 +11,10 @@ const renderer = new WebGLRenderer({});
 let viewer;
 let view;
 let sceneModel;
-let viewLayer;
+let viewLayerDefault;
+let viewLayer2;
 
-describe('Viewer', () => {
+describe('Viewer with autoLayers:false', () => {
 
     it('Creates a Viewer with a Scene and a WebGLRenderer', () => {
         viewer = new Viewer({
@@ -26,14 +27,15 @@ describe('Viewer', () => {
     it('Creates a View for a canvas in the DOM', () => {
         view = viewer.createView({
             id: "myView",
-            canvasId: "myCanvas"
+            canvasId: "myCanvas",
+            autoLayers: false
         });
         expect(view instanceof View).toBe(true);
         expect(view.canvasElement instanceof HTMLCanvasElement).toBe(true);
         expect(view.canvasElement.id).toBe("myCanvas");
     });
 
-    it("View contain ViewLayers for SceneModel", async () => {
+    it("Create ViewLayers", () => {
 
         const eventViewLayers = {};
 
@@ -41,16 +43,27 @@ describe('Viewer', () => {
             eventViewLayers[viewLayer.id] = viewLayer;
         });
 
+        viewLayerDefault = view.createLayer({
+            id: "default",
+            visible: true
+        })
+        expect(viewLayerDefault instanceof ViewLayer).toBe(true);
+
+        viewLayer2 = view.createLayer({
+            id: "viewLayer2",
+            visible: true
+        })
+        expect(viewLayer2 instanceof ViewLayer).toBe(true);
+        expect(eventViewLayers["default"]).toBeDefined();
+        expect(eventViewLayers["viewLayer2"]).toBeDefined();
+    });
+
+    it("Create SceneModel", async () => {
+
         sceneModel = scene.createModel(sampleSceneModelParams_multipleViewLayers);
         expect(sceneModel instanceof SceneModel).toBe(true);
         await sceneModel.build();
         expect(sceneModel.built).toBe(true);
-
-        expect(view.layers["default"]).toBeDefined();
-        expect(view.layers["viewLayer2"]).toBeDefined();
-
-        expect(eventViewLayers["default"]).toBeDefined();
-        expect(eventViewLayers["viewLayer2"]).toBeDefined();
     });
 
     it('ViewLayers contain ViewObjects for SceneObjects', () => {
@@ -62,7 +75,18 @@ describe('Viewer', () => {
         expect(viewLayer2.visibleObjectIds.sort()).toEqual(["greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
     });
 
-    it('ViewLayers contains no ViewLayers after SceneModel destroyed', () => {
+    it('View still contains the ViewLayers after SceneModel destroyed', () => {
+
+        sceneModel.destroy();
+
+        expect(scene.models["myModel"]).toBeUndefined();
+        expect(sceneModel.destroyed).toBe(true);
+
+        expect(view.layers["default"]).toBeDefined();
+        expect(view.layers["viewLayer2"]).toBeDefined();
+    });
+
+    it("View does not contain ViewLayers after they are destroyed", () => {
 
         const eventViewLayers = {};
 
@@ -70,10 +94,11 @@ describe('Viewer', () => {
             eventViewLayers[viewLayer.id] = viewLayer;
         });
 
-        sceneModel.destroy();
+        viewLayerDefault.destroy();
+        viewLayer2.destroy();
 
-        expect(scene.models["myModel"]).toBeUndefined();
-        expect(sceneModel.destroyed).toBe(true);
+        expect(viewLayerDefault.destroyed).toEqual(true);
+        expect(viewLayer2.destroyed).toEqual(true);
 
         expect(view.layers["default"]).toBeUndefined();
         expect(view.layers["viewLayer2"]).toBeUndefined();
@@ -81,5 +106,6 @@ describe('Viewer', () => {
         expect(eventViewLayers["default"]).toBeDefined();
         expect(eventViewLayers["viewLayer2"]).toBeDefined();
     });
+
 
 });

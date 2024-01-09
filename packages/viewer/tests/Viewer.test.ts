@@ -2,6 +2,7 @@ import {View, Viewer} from "@xeokit/viewer";
 import {Scene, SceneModel} from "@xeokit/scene";
 import {sampleSceneModelParams} from "@xeokit/testutils";
 import {WebGLRenderer} from "@xeokit/webglrenderer";
+import {SDKError} from "@xeokit/core";
 
 document.body.innerHTML = '<canvas id="myCanvas" />';
 
@@ -21,6 +22,12 @@ describe('Viewer', () => {
             scene,
             renderer
         });
+        expect(viewer.destroyed).toEqual(false);
+        expect(viewer.numViews).toEqual(0);
+        expect(viewer.viewList).toEqual([]);
+        expect(viewer.views).toEqual({});
+        expect(viewer.capabilities.maxViews).toEqual(1);
+        expect(viewer.capabilities.headless).toEqual(false);
     });
 
     it('Creates a View for a canvas in the DOM', () => {
@@ -29,9 +36,23 @@ describe('Viewer', () => {
             canvasId: "myCanvas"
         });
         expect(view instanceof View).toBe(true);
+        expect(viewer.numViews).toEqual(1);
+        expect(viewer.viewList.length).toEqual(1);
+        expect(viewer.viewList[0].id).toEqual(view.id);
         expect(view.canvasElement instanceof HTMLCanvasElement).toBe(true);
         expect(view.canvasElement.id).toBe("myCanvas");
     });
+
+    it('Prevent creating excess Views', () => {
+        const view2 = viewer.createView({
+            id: "myView2",
+            canvasId: "myCanvas"
+        });
+        expect(view2 instanceof SDKError).toBe(true);
+        expect(viewer.numViews).toEqual(1);
+        expect(viewer.viewList.length).toEqual(1);
+    });
+
 
     it("View creates a `default` ViewLayer when SceneModel created in Scene", async () => {
         let eventViewLayer;

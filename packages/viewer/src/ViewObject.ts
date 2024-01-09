@@ -33,6 +33,11 @@ export class ViewObject {
     public readonly id: string;
 
     /**
+     * ID of this ViewObject within the originating system.
+     */
+    public readonly originalSystemId: string;
+
+    /**
      * The ViewLayer to which this ViewObject belongs.
      */
     public readonly layer: ViewLayer;
@@ -69,6 +74,7 @@ export class ViewObject {
     constructor(layer: ViewLayer, sceneObject: SceneObject, rendererViewObject: RendererViewObject) {
 
         this.id = sceneObject.id;
+        this.originalSystemId = sceneObject.originalSystemId;
         this.layer = layer;
         this.sceneObject = sceneObject;
         this.#rendererViewObject = rendererViewObject;

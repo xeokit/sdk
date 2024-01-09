@@ -7,13 +7,24 @@ import type {View} from "@xeokit/viewer";
  */
 export interface SaveBCFViewpointParams {
 
+    defaultInvisible?: boolean;
+    snapshot?: boolean;
+    originatingSystem?: string;
+    reverseClippingPlanes?: boolean;
+    openings_translucent?: boolean;
+    space_boundaries_translucent?: boolean;
+    spaces_translucent?: boolean;
+    openingsVisible?: boolean;
+    spaceBoundariesVisible?: boolean;
+    spacesVisible?: boolean;
+
     /**
      * A {@link @xeokit/viewer!View | View} to save as a BCF viewpoint.
      *
      * This will save component states in the BCF (see {@link @xeokit/bcf!BCFComponents}) for all
      * {@link @xeokit/viewer!ViewObject | ViewObjects} in the given target View.
      */
-    view?: View;
+    view: View;
 
     /**
      * Only save BCF viewpoint components if their corresponding {@link @xeokit/viewer!ViewObject | ViewObjects}

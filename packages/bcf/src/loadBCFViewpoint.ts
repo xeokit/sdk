@@ -1,12 +1,13 @@
 import type {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
 import {addVec3, createVec3, negateVec3, subVec3} from "@xeokit/matrix";
-import {BCFComponent, BCFVector} from "./BCFViewpoint";
 import {View} from "@xeokit/viewer";
 import {Data, DataObject} from "@xeokit/data";
 import {OrthoProjectionType, PerspectiveProjectionType} from "@xeokit/constants";
 import {FloatArrayParam} from "@xeokit/math";
 import {IfcOpeningElement, IfcSpace} from "@xeokit/ifctypes";
 import {BasicAggregation} from "@xeokit/basictypes";
+import {BCFVector} from "./BCFVector";
+import {BCFComponent} from "./BCFComponent";
 
 const tempVec3 = createVec3();
 const tempVec3b = createVec3();
@@ -20,6 +21,9 @@ const tempVec3c = createVec3();
  * @param params BCF viewpoint loading paremeters.
  */
 export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
+
+    const includeViewLayers = params.includeLayerIds ? new Set(params.includeLayerIds) : null;
+    const excludeViewLayers = params.excludeLayerIds ? new Set(params.excludeLayerIds) : null;
 
     const view = params.view;
     const data = params.data;
@@ -124,10 +128,21 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
         }
     */
 
+    ///////////////////////////////////////////
+    // TODO
+    // Filter on layers
+    ///////////////////////////////////////////
+
     if (reset) {
         view.setObjectsXRayed(view.xrayedObjectIds, false);
         view.setObjectsHighlighted(view.highlightedObjectIds, false);
         view.setObjectsSelected(view.selectedObjectIds, false);
+    }
+
+    function filterViewObject(viewObject) {
+        return !viewObject.layer ||
+            ((!includeViewLayers || includeViewLayers.has(viewObject.layer.id)) &&
+            (!excludeViewLayers || !excludeViewLayers.has(viewObject.layer.id)));
     }
 
     if (bcfViewpoint.components) {
@@ -136,15 +151,24 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
                 view.setObjectsVisible(view.objectIds, false);
                 if (bcfViewpoint.components.visibility.exceptions) {
                     bcfViewpoint.components.visibility.exceptions.forEach(
-                        component => withBCFComponent(data, view, params, component,
-                            entity => entity.visible = true));
+                        component =>
+                            withBCFComponent(data, view, params, component,
+                                (viewObject) => {
+                                    if (filterViewObject(viewObject)) {
+                                        viewObject.visible = true;
+                                    }
+                                }));
                 }
             } else {
                 view.setObjectsVisible(view.objectIds, true);
                 if (bcfViewpoint.components.visibility.exceptions) {
                     bcfViewpoint.components.visibility.exceptions.forEach(
                         component => withBCFComponent(data, view, params, component,
-                            entity => entity.visible = false));
+                            (viewObject) => {
+                                if (filterViewObject(viewObject)) {
+                                    viewObject.visible = false;
+                                }
+                            }));
                 }
             }
             const view_setup_hints = bcfViewpoint.components.visibility.view_setup_hints;
@@ -154,7 +178,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
                         includeObjects: [IfcSpace],
                         resultCallback: (dataObject: DataObject): boolean => {
                             const viewObject = view.objects[dataObject.id];
-                            if (viewObject) {
+                            if (viewObject && filterViewObject(viewObject)) {
                                 viewObject.visible = false;
                             }
                             return false;
@@ -166,7 +190,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
                         includeObjects: [IfcSpace],
                         resultCallback: (dataObject: DataObject): boolean => {
                             const viewObject = view.objects[dataObject.id];
-                            if (viewObject) {
+                            if (viewObject && filterViewObject(viewObject)) {
                                 viewObject.xrayed = true;
                             }
                             return false;
@@ -181,7 +205,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
                         includeObjects: [IfcOpeningElement],
                         resultCallback: (dataObject: DataObject): boolean => {
                             const viewObject = view.objects[dataObject.id];
-                            if (viewObject) {
+                            if (viewObject && filterViewObject(viewObject)) {
                                 viewObject.visible = false;
                             }
                             return false;
@@ -196,7 +220,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
                         includeObjects: [IfcOpeningElement],
                         resultCallback: (dataObject: DataObject): boolean => {
                             const viewObject = view.objects[dataObject.id];
-                            if (viewObject) {
+                            if (viewObject && filterViewObject(viewObject)) {
                                 viewObject.xrayed = true;
                             }
                             return false;
@@ -210,14 +234,22 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
             view.setObjectsSelected(view.selectedObjectIds, false);
             bcfViewpoint.components.selection.forEach(
                 component => withBCFComponent(data, view, params, component,
-                    entity => entity.selected = true));
+                    (viewObject) => {
+                        if (filterViewObject(viewObject)) {
+                            viewObject.selected = true;
+                        }
+                    }));
 
         }
         if (bcfViewpoint.components.translucency) {
             view.setObjectsXRayed(view.xrayedObjectIds, false);
             bcfViewpoint.components.translucency.forEach(
                 component => withBCFComponent(data, view, params, component,
-                    entity => entity.xrayed = true));
+                    (viewObject) => {
+                        if (filterViewObject(viewObject)) {
+                            viewObject.xrayed = true;
+                        }
+                    }));
         }
         if (bcfViewpoint.components.coloring) {
             bcfViewpoint.components.coloring.forEach(coloring => {
@@ -238,12 +270,13 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
                     parseInt(color.substring(4, 6), 16) / 256
                 ];
                 coloring.components.map(component =>
-                    withBCFComponent(data, view, params, component, entity => {
-                        entity.colorize = colorize;
-                        if (alphaDefined) {
-                            entity.opacity = alpha;
-                        }
-                    }));
+                    withBCFComponent(data, view, params, component,
+                        (viewObject) => {
+                            viewObject.colorize = colorize;
+                            if (alphaDefined) {
+                                viewObject.opacity = alpha;
+                            }
+                        }));
             });
         }
     }
@@ -282,7 +315,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
 
         if (rayCast) {
             const hit = view.pick({
-                pickSurface: true,  // <<------ This causes picking to find the intersection point on the entity
+                pickSurface: true,  // <<------ This causes picking to find the intersection point on the viewObject
                 origin: eye,
                 direction: look
             });

@@ -213,8 +213,23 @@
  *
  * @module @xeokit/bcf
  */
-export * from "./loadBCFViewpoint";
-export * from "./saveBCFViewpoint";
-export * from "./SaveBCFViewpointParams";
-export * from "./LoadBCFViewpointParams";
-export * from "./BCFViewpoint";
+export {BCFOrthogonalCamera} from "./BCFOrthogonalCamera";
+export {BCFPerspectiveCamera} from "./BCFPerspectiveCamera";
+export {BCFVector} from "./BCFVector";
+export {BCFLine} from "./BCFLine";
+export {BCFBitmap} from "./BCFBitmap";
+export {BCFClippingPlane} from "./BCFClippingPlane";
+export {BCFSnapshot} from "./BCFSnapshot";
+export {BCFComponents} from "./BCFComponents";
+export {BCFViewSetupHints} from "./BCFViewSetupHints";
+export {BCFColoringComponent} from "./BCFColoringComponent";
+export {BCFVisibilityComponent} from "./BCFVisibilityComponent";
+export {BCFTranslucencyComponent} from "./BCFTranslucencyComponent";
+export {BCFComponent} from "./BCFComponent";
+export {BCFSelectionComponent} from "./BCFSelectionComponent";
+export {BCFViewpoint} from "./BCFViewpoint";
+export {loadBCFViewpoint} from "./loadBCFViewpoint";
+export {saveBCFViewpoint} from "./saveBCFViewpoint";
+export {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
+export {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
+

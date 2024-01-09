@@ -38,7 +38,7 @@ export interface LoadBCFViewpointParams {
     /**
      * A {@link @xeokit/data!Data | Data} to classify the objects in the {@link @xeokit/viewer!View | View} we're loading the BCF viewpoint's component states into
      */
-    data: Data;
+    data?: Data;
 
     /**
      * Only load BCF viewpoint components if their corresponding {@link @xeokit/viewer!ViewObject | ViewObjects}

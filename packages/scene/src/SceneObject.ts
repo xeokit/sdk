@@ -31,6 +31,11 @@ export class SceneObject {
     public readonly id: string;
 
     /**
+     * ID of this SceneObject within the originating system.
+     */
+    public readonly originalSystemId: string;
+
+    /**
      * The {@link @xeokit/scene!Mesh | Meshes} belonging to this SceneObject.
      */
     public readonly meshes: Mesh[];
@@ -59,9 +64,11 @@ export class SceneObject {
         model: SceneModel;
         meshes: Mesh[];
         id: string;
+        originallSystemId?:string;
         layerId?: string;
     }) {
         this.id = cfg.id;
+        this.originalSystemId = cfg.originallSystemId || this.id;
         this.layerId = cfg.layerId;
         this.meshes = cfg.meshes;
         this.#aabb = createAABB3();

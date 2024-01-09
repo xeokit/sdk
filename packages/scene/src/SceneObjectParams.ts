@@ -9,6 +9,12 @@ export interface SceneObjectParams {
     id: string;
 
     /**
+     * ID of this SceneObject within the originating system, is any. Defaults to the value of
+     * {@link @xeokit/scene!SceneObjectParams.id | SceneObjectParams.id}.
+     */
+    originalSystemId?: string;
+
+    /**
      * IDs of meshes previously created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
      */
     meshIds: string[];

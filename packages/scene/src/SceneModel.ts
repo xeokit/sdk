@@ -844,6 +844,7 @@ export class SceneModel extends Component {
         }
         const sceneObject = new SceneObject({
             id: objectParams.id,
+            originallSystemId: objectParams.originalSystemId,
             layerId: objectParams.layerId || this.layerId,
             model: this,
             meshes

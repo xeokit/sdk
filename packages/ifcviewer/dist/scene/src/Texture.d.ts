@@ -6,15 +6,15 @@ import type { TextureParams } from "./TextureParams";
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
  * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
- * * Referenced by {@link TextureSet.colorTexture | TextureSet.colorTexture},
- * {@link TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
- * {@link TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link TextureSet.emissiveTexture | TextureSet.emissiveTexture}
+ * * Referenced by {@link SceneTextureSet.colorTexture | SceneTextureSet.colorTexture},
+ * {@link SceneTextureSet.metallicRoughnessTexture | SceneTextureSet.metallicRoughnessTexture},
+ * {@link SceneTextureSet.occlusionTexture | SceneTextureSet.occlusionTexture} and {@link SceneTextureSet.emissiveTexture | SceneTextureSet.emissiveTexture}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
 export declare class Texture {
     /**
-     *  Internal interface through which this {@link Texture} can load property updates into a renderer.
+     *  Internal interface through which this {@link Texture} can load property updates into a renderers.
      *
      *  This is defined when the owner {@link @xeokit/viewer!Renderer} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
@@ -54,7 +54,7 @@ export declare class Texture {
      */
     compressed: boolean;
     /**
-     * Media type of this Texture.
+     * Media type of this SceneTexture.
      *
      * Supported values are {@link @xeokit/constants!GIFMediaType}, {@link @xeokit/constants!PNGMediaType} and {@link @xeokit/constants!JPEGMediaType}.
      *
@@ -101,11 +101,11 @@ export declare class Texture {
      */
     wrapR: number;
     /**
-     * Flips this Texture's source data along its vertical axis when ````true````.
+     * Flips this SceneTexture's source data along its vertical axis when ````true````.
      */
     flipY: boolean;
     /**
-     * Texture encoding format.
+     * SceneTexture encoding format.
      *
      * Supported values are {@link @xeokit/constants!LinearEncoding} and {@link @xeokit/constants!sRGBEncoding}.
      */

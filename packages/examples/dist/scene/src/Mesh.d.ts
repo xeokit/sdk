@@ -7,29 +7,29 @@ import type { SceneObject } from "./SceneObject";
  * A mesh in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
- * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
+ * * Created with {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh}
  * * Referenced by {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
-export declare class Mesh {
+export declare class SceneMesh {
     #private;
     /**
-     * Unique ID of this Mesh.
+     * Unique ID of this SceneMesh.
      *
-     * Mesh is stored by this ID in {@link @xeokit/scene!SceneModel.meshes}.
+     * SceneMesh is stored by this ID in {@link @xeokit/scene!SceneModel.meshes}.
      */
     id: string;
     /**
-     * {@link @xeokit/scene!Geometry} used by this Mesh.
+     * {@link @xeokit/scene!SceneGeometry} used by this SceneMesh.
      */
     geometry: Geometry;
     /**
-     * {@link @xeokit/scene!TextureSet} used by this Mesh.
+     * {@link @xeokit/scene!SceneTextureSet} used by this SceneMesh.
      */
     textureSet?: TextureSet;
     /**
-     *  Internal interface through which a {@link @xeokit/scene!Mesh} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!SceneMesh} can load property updates into a renderers.
      *
      *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to
      *  a {@link @xeokit/viewer!Viewer | Viewer}.
@@ -38,7 +38,7 @@ export declare class Mesh {
      */
     rendererMesh: RendererMesh | null;
     /**
-     * The {@link @xeokit/scene!SceneObject} that uses this Mesh.
+     * The {@link @xeokit/scene!SceneObject} that uses this SceneMesh.
      */
     object: SceneObject | null;
     /**
@@ -55,19 +55,19 @@ export declare class Mesh {
         metallic?: number;
     });
     /**
-     * Gets the RGB color for this Mesh.
+     * Gets the RGB color for this SceneMesh.
      *
      * Each element of the color is in range ````[0..1]````.
      */
     get color(): FloatArrayParam;
     /**
-     * Sets the RGB color for this Mesh.
+     * Sets the RGB color for this SceneMesh.
      *
      * Each element of the color is in range ````[0..1]````.
      */
     set color(value: FloatArrayParam);
     /**
-     * Gets this Mesh's local modeling transform matrix.
+     * Gets this SceneMesh's local modeling transform matrix.
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
@@ -75,7 +75,7 @@ export declare class Mesh {
      */
     get matrix(): FloatArrayParam;
     /**
-     * Updates this Mesh's local modeling transform matrix.
+     * Updates this SceneMesh's local modeling transform matrix.
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
@@ -83,9 +83,9 @@ export declare class Mesh {
      */
     set matrix(matrix: FloatArrayParam);
     /**
-     * Gets this Mesh's metallic factor.
+     * Gets this SceneMesh's metallic factor.
      *
-     * This is in the range ````[0..1]```` and indicates how metallic this Mesh is.
+     * This is in the range ````[0..1]```` and indicates how metallic this SceneMesh is.
      *
      * ````1```` is metal, ````0```` is non-metal.
      *
@@ -93,9 +93,9 @@ export declare class Mesh {
      */
     get metallic(): number;
     /**
-     * Sets this Mesh's metallic factor.
+     * Sets this SceneMesh's metallic factor.
      *
-     * This is in the range ````[0..1]```` and indicates how metallic this Mesh is.
+     * This is in the range ````[0..1]```` and indicates how metallic this SceneMesh is.
      *
      * ````1```` is metal, ````0```` is non-metal.
      *
@@ -103,7 +103,7 @@ export declare class Mesh {
      */
     set metallic(value: number);
     /**
-     * Gets this Mesh's roughness factor.
+     * Gets this SceneMesh's roughness factor.
      *
      * This factor is in the range ````[0..1]````, where ````0```` is fully smooth,````1```` is fully rough.
      *
@@ -111,7 +111,7 @@ export declare class Mesh {
      */
     get roughness(): number;
     /**
-     * Sets this Mesh's roughness factor.
+     * Sets this SceneMesh's roughness factor.
      *
      * This factor is in the range ````[0..1]````, where ````0```` is fully smooth,````1```` is fully rough.
      *
@@ -119,13 +119,13 @@ export declare class Mesh {
      */
     set roughness(value: number);
     /**
-     * Gets the opacity factor for this Mesh.
+     * Gets the opacity factor for this SceneMesh.
      *
      * This is a factor in range ````[0..1]````.
      */
     get opacity(): number;
     /**
-     * Sets the opacity factor for this Mesh.
+     * Sets the opacity factor for this SceneMesh.
      *
      * This is a factor in range ````[0..1]````.
      */

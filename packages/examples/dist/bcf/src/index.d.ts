@@ -65,7 +65,7 @@
  *
  * const viewer = new Viewer({
  *      scene,
- *      renderer: new WebGLRenderer()
+ *      renderers: new WebGLRenderer()
  * });
  *
  * const view = viewer.createView({
@@ -151,7 +151,7 @@
  * const viewer = new Viewer({
  *     id: "myViewer",
  *     scene,
- *     renderer: new WebGLRenderer({
+ *     renderers: new WebGLRenderer({
  *         //...
  *     })
  * });

@@ -1,16 +1,16 @@
 import type {SceneObject} from "./SceneObject";
-import type {Mesh} from "./Mesh";
+import type {SceneMesh} from "./SceneMesh";
 import {decompressPositions3} from "@xeokit/compression";
 import {transformPositions3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
-import type {Geometry} from "./Geometry";
-import type {GeometryBucket} from "./GeometryBucket";
+import type {SceneGeometry} from "./SceneGeometry";
+import type {SceneGeometryBucket} from "./SceneGeometryBucket";
 import {LinesPrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
 /**
  * The {@link getSceneObjectGeometry} passes an instance of GeometryView to its callback
- * for each {@link @xeokit/scene!GeometryBucket} it visits. The GeometryView provides the SceneObject, Mesh, Geometry and
- * GeometryBucket at the current state of iteration, along with accessors through which the caller can
+ * for each {@link @xeokit/scene!SceneGeometryBucket} it visits. The GeometryView provides the SceneObject, SceneMesh, SceneGeometry and
+ * SceneGeometryBucket at the current state of iteration, along with accessors through which the caller can
  * get various resources that the GeometryView lazy-computes on-demand, such as decompressed vertex positions, World-space
  * vertex positons, and decompressed vertex UV coordinates.
  */
@@ -22,37 +22,37 @@ export interface GeometryView {
     object: SceneObject;
 
     /**
-     * The current {@link @xeokit/scene!Mesh}.
+     * The current {@link @xeokit/scene!SceneMesh}.
      */
-    mesh: Mesh;
+    mesh: SceneMesh;
 
     /**
-     * The current {@link @xeokit/scene!Mesh | Mesh's} position in {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}.
+     * The current {@link @xeokit/scene!SceneMesh | SceneMesh's} position in {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}.
      */
     meshIndex: number;
 
     /**
-     * The current {@link @xeokit/scene!Geometry}.
+     * The current {@link @xeokit/scene!SceneGeometry}.
      */
-    geometry: Geometry;
+    geometry: SceneGeometry;
 
     /**
-     * The current {@link @xeokit/scene!GeometryBucket}.
+     * The current {@link @xeokit/scene!SceneGeometryBucket}.
      */
-    geometryBucket: GeometryBucket;
+    geometryBucket: SceneGeometryBucket;
 
     /**
-     * The current {@link @xeokit/scene!GeometryBucket | GeometryBucket's} position in {@link @xeokit/scene!Geometry.geometryBuckets | Geometry.geometryBuckets }.
+     * The current {@link @xeokit/scene!SceneGeometryBucket | SceneGeometryBucket's} position in {@link @xeokit/scene!SceneGeometry.geometryBuckets | SceneGeometry.geometryBuckets }.
      */
     geometryBucketIndex: number;
 
     /**
-     * The total number of {@link @xeokit/scene!GeometryBucket | GeometryBuckets} within the current {@link @xeokit/scene!SceneObject}.
+     * The total number of {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets} within the current {@link @xeokit/scene!SceneObject}.
      */
     readonly totalGeometryBuckets: number;
 
     /**
-     * The number of primitives in the current {@link @xeokit/scene!GeometryBucket}.
+     * The number of primitives in the current {@link @xeokit/scene!SceneGeometryBucket}.
      */
     readonly numPrimitives: number;
 
@@ -75,10 +75,10 @@ export interface GeometryView {
 class GeometryViewImpl {
 
     object: SceneObject | null;
-    mesh: Mesh | null;
+    mesh: SceneMesh | null;
     meshIndex: number;
-    geometry: Geometry | null;
-    geometryBucket: GeometryBucket | null;
+    geometry: SceneGeometry | null;
+    geometryBucket: SceneGeometryBucket | null;
     geometryBucketIndex: number;
     #positionsDecompressed: Float32Array | null;
     #positionsWorld: Float64Array | null;
@@ -105,15 +105,15 @@ class GeometryViewImpl {
     }
 
     get numPrimitives() {
-        const primitiveType = (<Geometry>this.geometry).primitive;
+        const primitiveType = (<SceneGeometry>this.geometry).primitive;
         const elementsPerPrimitiveType = (primitiveType === TrianglesPrimitive ? 3 : (primitiveType === LinesPrimitive ? 2 : 1));
-        return (<FloatArrayParam>(<GeometryBucket>this.geometryBucket).indices).length / elementsPerPrimitiveType;
+        return (<FloatArrayParam>(<SceneGeometryBucket>this.geometryBucket).indices).length / elementsPerPrimitiveType;
     }
 
     get positionsDecompressed(): FloatArrayParam {
         if (!this.#positionsDecompressed) {
-            this.#positionsDecompressed = new Float32Array((<GeometryBucket>this.geometryBucket).positionsCompressed.length);
-            decompressPositions3((<GeometryBucket>this.geometryBucket).positionsCompressed, (<Geometry>this.geometry).positionsDecompressMatrix, this.#positionsDecompressed);
+            this.#positionsDecompressed = new Float32Array((<SceneGeometryBucket>this.geometryBucket).positionsCompressed.length);
+            decompressPositions3((<SceneGeometryBucket>this.geometryBucket).positionsCompressed, (<SceneGeometry>this.geometry).positionsDecompressMatrix, this.#positionsDecompressed);
         }
         return this.#positionsDecompressed;
     }
@@ -122,7 +122,7 @@ class GeometryViewImpl {
         if (!this.#positionsWorld) {
             const positionsDecompressed = this.positionsDecompressed;
             this.#positionsWorld = new Float64Array(positionsDecompressed.length);
-            transformPositions3(positionsDecompressed, (<Mesh>this.mesh).matrix, this.#positionsWorld);
+            transformPositions3(positionsDecompressed, (<SceneMesh>this.mesh).matrix, this.#positionsWorld);
         }
         return this.#positionsWorld;
     }
@@ -140,8 +140,8 @@ class GeometryViewImpl {
 const geometryView = new GeometryViewImpl();
 
 /**
- * Gets the uncompressed, World-space geometry of each {@link @xeokit/scene!GeometryBucket} in each
- * {@link @xeokit/scene!Geometry} in each {@link @xeokit/scene!Mesh} in a {@link @xeokit/scene!SceneObject}.
+ * Gets the uncompressed, World-space geometry of each {@link @xeokit/scene!SceneGeometryBucket} in each
+ * {@link @xeokit/scene!SceneGeometry} in each {@link @xeokit/scene!SceneMesh} in a {@link @xeokit/scene!SceneObject}.
  *
  * If the callback returns ````true````, then this method immediately stops iterating and also returns ````true````.
  *

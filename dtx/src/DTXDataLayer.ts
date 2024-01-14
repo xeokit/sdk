@@ -76,21 +76,21 @@ export class DTXDataLayer {
     edgeIndices8Bits: Uint8Array;
     edgeIndices16Bits: Uint16Array;
     edgeIndices32Bits: Uint32Array;
-    perObjectColors: Uint8Array;
-    perObjectPickColors: Uint8Array;
-    perObjectSolid: Uint8Array;
+    perSubMeshColors: Uint8Array;
+    perSubMeshPickColors: Uint8Array;
+    perSubMeshSolidFlag: Uint8Array;
     perObjectOffsets: Uint32Array;
-    perObjectPositionsDecodeMatrices: Uint32Array;
-    perObjectInstancePositioningMatrices: Uint32Array;
-    perObjectVertexBases: Uint32Array;
-    perObjectIndexBaseOffsets: Uint32Array;
-    perObjectEdgeIndexBaseOffsets: Uint32Array;
-    perTriangleNumberPortionId8Bits: Uint32Array;
-    perTriangleNumberPortionId16Bits: Uint32Array;
-    perTriangleNumberPortionId32Bits: Uint32Array;
-    perEdgeNumberPortionId8Bits: Uint8Array;
-    perEdgeNumberPortionId16Bits: Uint16Array;
-    perEdgeNumberPortionId32Bits: Uint32Array;
+    perSubMeshDecodeMatrices: Uint32Array;
+    perSubMeshInstancingMatrices: Uint32Array;
+    perSubMeshVertexBases: Uint32Array;
+    perSubMeshIndicesBases: Uint32Array;
+    perSubMeshEdgeIndicesBases: Uint32Array;
+    perTriangleSubMesh8Bits: Uint32Array;
+    perTriangleSubMesh16Bits: Uint32Array;
+    perTriangleSubMesh32Bits: Uint32Array;
+    perEdgeSubMesh8Bits: Uint8Array;
+    perEdgeSubMesh16Bits: Uint16Array;
+    perEdgeSubMesh32Bits: Uint32Array;
     private _numEdgeIndices16Bits: number;
     private _numEdgeIndices32Bits: number;
 
@@ -309,8 +309,8 @@ export class DTXDataLayer {
         const buffer = this._buffer;
         const state = this._state;
 
-        buffer.perObjectPositionsDecodeMatrices.push(portionCfg.positionsDecodeMatrix);
-        buffer.perObjectInstancePositioningMatrices.push(meshMatrix || DEFAULT_MATRIX);
+        buffer.perSubMeshDecodeMatrices.push(portionCfg.positionsDecodeMatrix);
+        buffer.perSubMeshInstancingMatrices.push(meshMatrix || DEFAULT_MATRIX);
 
         if (meshMatrix) { // NB: SceneModel world matrix is used in shaders and SceneModelMesh.aabb
 
@@ -332,16 +332,16 @@ export class DTXDataLayer {
             expandAABB3(subPortionAABB, bucketGeometry.aabb);
         }
 
-        buffer.perObjectSolid.push(!!portionCfg.solid);
+        buffer.perSubMeshSolidFlag.push(!!portionCfg.solid);
 
         if (colors) {
-            buffer.perObjectColors.push([colors[0] * 255, colors[1] * 255, colors[2] * 255, 255]);
+            buffer.perSubMeshColors.push([colors[0] * 255, colors[1] * 255, colors[2] * 255, 255]);
         } else if (color) { // Color is pre-quantized by SceneModel
-            buffer.perObjectColors.push([color[0], color[1], color[2], opacity]);
+            buffer.perSubMeshColors.push([color[0], color[1], color[2], opacity]);
         }
 
-        buffer.perObjectPickColors.push(pickColor);
-        buffer.perObjectVertexBases.push(bucketGeometry.vertexBase);
+        buffer.perSubMeshPickColors.push(pickColor);
+        buffer.perSubMeshVertexBases.push(bucketGeometry.vertexBase);
 
         {
             let currentNumIndices;
@@ -352,7 +352,7 @@ export class DTXDataLayer {
             } else {
                 currentNumIndices = this._numIndices32Bits;
             }
-            buffer.perObjectIndexBaseOffsets.push(currentNumIndices / 3 - bucketGeometry.indicesBase);
+            buffer.perSubMeshIndicesBases.push(currentNumIndices / 3 - bucketGeometry.indicesBase);
         }
 
         {
@@ -364,7 +364,7 @@ export class DTXDataLayer {
             } else {
                 currentNumEdgeIndices = this._numEdgeIndices32Bits;
             }
-            buffer.perObjectEdgeIndexBaseOffsets.push(currentNumEdgeIndices / 2 - bucketGeometry.edgeIndicesBase);
+            buffer.perSubMeshEdgeIndicesBases.push(currentNumEdgeIndices / 2 - bucketGeometry.edgeIndicesBase);
         }
 
         const subPortionId = this._subPortions.length;
@@ -372,13 +372,13 @@ export class DTXDataLayer {
             let numIndices = bucketGeometry.numTriangles * 3;
             let indicesPortionIdBuffer;
             if (bucketGeometry.numVertices <= (1 << 8)) {
-                indicesPortionIdBuffer = buffer.perTriangleNumberPortionId8Bits;
+                indicesPortionIdBuffer = buffer.perTriangleSubMesh8Bits;
                 this._numIndices8Bits += numIndices;
             } else if (bucketGeometry.numVertices <= (1 << 16)) {
-                indicesPortionIdBuffer = buffer.perTriangleNumberPortionId16Bits;
+                indicesPortionIdBuffer = buffer.perTriangleSubMesh16Bits;
                 this._numIndices16Bits += numIndices;
             } else {
-                indicesPortionIdBuffer = buffer.perTriangleNumberPortionId32Bits;
+                indicesPortionIdBuffer = buffer.perTriangleSubMesh32Bits;
                 this._numIndices32Bits += numIndices;
             }
             for (let i = 0; i < bucketGeometry.numTriangles; i += INDICES_EDGE_INDICES_ALIGNEMENT_SIZE) {
@@ -390,13 +390,13 @@ export class DTXDataLayer {
             let numEdgeIndices = bucketGeometry.numEdges * 2;
             let edgeIndicesPortionIdBuffer;
             if (bucketGeometry.numVertices <= (1 << 8)) {
-                edgeIndicesPortionIdBuffer = buffer.perEdgeNumberPortionId8Bits;
+                edgeIndicesPortionIdBuffer = buffer.perEdgeSubMesh8Bits;
                 this._numEdgeIndices8Bits += numEdgeIndices;
             } else if (bucketGeometry.numVertices <= (1 << 16)) {
-                edgeIndicesPortionIdBuffer = buffer.perEdgeNumberPortionId16Bits;
+                edgeIndicesPortionIdBuffer = buffer.perEdgeSubMesh16Bits;
                 this._numEdgeIndices16Bits += numEdgeIndices;
             } else {
-                edgeIndicesPortionIdBuffer = buffer.perEdgeNumberPortionId32Bits;
+                edgeIndicesPortionIdBuffer = buffer.perEdgeSubMesh32Bits;
                 this._numEdgeIndices32Bits += numEdgeIndices;
             }
             for (let i = 0; i < bucketGeometry.numEdges; i += INDICES_EDGE_INDICES_ALIGNEMENT_SIZE) {
@@ -436,20 +436,20 @@ export class DTXDataLayer {
         const start = performance.now();
         textureState.texturePerObjectIdColorsAndFlags = this._dataTextureGenerator.generateTextureForColorsAndFlags(
             gl,
-            buffer.perObjectColors,
-            buffer.perObjectPickColors,
-            buffer.perObjectVertexBases,
-            buffer.perObjectIndexBaseOffsets,
-            buffer.perObjectEdgeIndexBaseOffsets,
-            buffer.perObjectSolid);
+            buffer.perSubMeshColors,
+            buffer.perSubMeshPickColors,
+            buffer.perSubMeshVertexBases,
+            buffer.perSubMeshIndicesBases,
+            buffer.perSubMeshEdgeIndicesBases,
+            buffer.perSubMeshSolidFlag);
 
         textureState.texturePerObjectIdOffsets
             = this._dataTextureGenerator.generateTextureForObjectOffsets(gl, this._numPortions);
 
         textureState.texturePerObjectIdPositionsDecodeMatrix = this._dataTextureGenerator.generateTextureForPositionsDecodeMatrices(
             gl,
-            buffer.perObjectPositionsDecodeMatrices,
-            buffer.perObjectInstancePositioningMatrices);
+            buffer.perSubMeshDecodeMatrices,
+            buffer.perSubMeshInstancingMatrices);
 
         const positionsCompressed = new Uint16Array(buffer.lenPositionsCompressed);
 
@@ -462,73 +462,73 @@ export class DTXDataLayer {
             k+=pc.length;
         }
 
-        textureState.texturePerVertexIdCoordinates = this._dataTextureGenerator.generateTextureForPositions(
+        textureState.positionsCompressedDataTexture = this._dataTextureGenerator.generateTextureForPositions(
             gl,
             positionsCompressed);
 
-        textureState.texturePerPolygonIdPortionIds8Bits = this._dataTextureGenerator.generateTextureForPackedPortionIds(
+        textureState.perTriangleSubMesh8BitsDataTexture = this._dataTextureGenerator.generateTextureForPackedPortionIds(
             gl,
-            buffer.perTriangleNumberPortionId8Bits);
+            buffer.perTriangleSubMesh8Bits);
 
-        textureState.texturePerPolygonIdPortionIds16Bits = this._dataTextureGenerator.generateTextureForPackedPortionIds(
+        textureState.perTriangleSubMesh16BitsDataTexture = this._dataTextureGenerator.generateTextureForPackedPortionIds(
             gl,
-            buffer.perTriangleNumberPortionId16Bits);
+            buffer.perTriangleSubMesh16Bits);
 
-        textureState.texturePerPolygonIdPortionIds32Bits = this._dataTextureGenerator.generateTextureForPackedPortionIds(
+        textureState.perTriangleSubMesh32BitsDataTexture = this._dataTextureGenerator.generateTextureForPackedPortionIds(
             gl,
-            buffer.perTriangleNumberPortionId32Bits);
+            buffer.perTriangleSubMesh32Bits);
 
-        if (buffer.perEdgeNumberPortionId8Bits.length > 0) {
-            textureState.texturePerEdgeIdPortionIds8Bits = this._dataTextureGenerator.generateTextureForPackedPortionIds(
+        if (buffer.perEdgeSubMesh8Bits.length > 0) {
+            textureState.perEdgeSubMesh8BitsDataTexture = this._dataTextureGenerator.generateTextureForPackedPortionIds(
                 gl,
-                buffer.perEdgeNumberPortionId8Bits);
+                buffer.perEdgeSubMesh8Bits);
         }
 
-        if (buffer.perEdgeNumberPortionId16Bits.length > 0) {
-            textureState.texturePerEdgeIdPortionIds16Bits = this._dataTextureGenerator.generateTextureForPackedPortionIds(
+        if (buffer.perEdgeSubMesh16Bits.length > 0) {
+            textureState.perEdgeSubMesh16BitsDataTexture = this._dataTextureGenerator.generateTextureForPackedPortionIds(
                 gl,
-                buffer.perEdgeNumberPortionId16Bits);
+                buffer.perEdgeSubMesh16Bits);
         }
 
 
-        if (buffer.perEdgeNumberPortionId32Bits.length > 0) {
-            textureState.texturePerEdgeIdPortionIds32Bits = this._dataTextureGenerator.generateTextureForPackedPortionIds(
+        if (buffer.perEdgeSubMesh32Bits.length > 0) {
+            textureState.perEdgeSubMesh32BitsDataTexture = this._dataTextureGenerator.generateTextureForPackedPortionIds(
                 gl,
-                buffer.perEdgeNumberPortionId32Bits);
+                buffer.perEdgeSubMesh32Bits);
         }
 
         if (buffer.indices8Bits.length > 0) {
-            textureState.texturePerPolygonIdIndices8Bits = this._dataTextureGenerator.generateTextureFor8BitIndices(
+            textureState.indices8BitsDataTexture = this._dataTextureGenerator.generateTextureFor8BitIndices(
                 gl,
                 buffer.indices8Bits);
         }
 
         if (buffer.indices16Bits.length > 0) {
-            textureState.texturePerPolygonIdIndices16Bits = this._dataTextureGenerator.generateTextureFor16BitIndices(
+            textureState.indices16BitsDataTexture = this._dataTextureGenerator.generateTextureFor16BitIndices(
                 gl,
                 buffer.indices16Bits);
         }
 
         if (buffer.indices32Bits.length > 0) {
-            textureState.texturePerPolygonIdIndices32Bits = this._dataTextureGenerator.generateTextureFor32BitIndices(
+            textureState.indices32BitsDataTexture = this._dataTextureGenerator.generateTextureFor32BitIndices(
                 gl,
                 buffer.indices32Bits);
         }
 
         if (buffer.edgeIndices8Bits.length > 0) {
-            textureState.texturePerPolygonIdEdgeIndices8Bits = this._dataTextureGenerator.generateTextureFor8BitsEdgeIndices(
+            textureState.edgeIndices8BitsDataTexture = this._dataTextureGenerator.generateTextureFor8BitsEdgeIndices(
                 gl,
                 buffer.edgeIndices8Bits);
         }
 
         if (buffer.edgeIndices16Bits.length > 0) {
-            textureState.texturePerPolygonIdEdgeIndices16Bits = this._dataTextureGenerator.generateTextureFor16BitsEdgeIndices(
+            textureState.edgeIndices16BitsDataTexture = this._dataTextureGenerator.generateTextureFor16BitsEdgeIndices(
                 gl,
                 buffer.edgeIndices16Bits);
         }
 
         if (buffer.edgeIndices32Bits.length > 0) {
-            textureState.texturePerPolygonIdEdgeIndices32Bits = this._dataTextureGenerator.generateTextureFor32BitsEdgeIndices(
+            textureState.edgeIndices32BitsDataTexture = this._dataTextureGenerator.generateTextureFor32BitsEdgeIndices(
                 gl,
                 buffer.edgeIndices32Bits);
         }

@@ -1,4 +1,4 @@
-import type {GeometryBucket, SceneObject} from "@xeokit/scene";
+import type {SceneGeometryBucket, SceneObject} from "@xeokit/scene";
 import type {KdTrianglePrim} from "./KdTrianglePrim";
 import type {KdPointPrim} from "./KdPointPrim";
 import type {KdLinePrim} from "./KdLinePrim";
@@ -9,6 +9,6 @@ import type {KdLinePrim} from "./KdLinePrim";
  */
 export interface KdSceneObjectPrim {
     sceneObject: SceneObject;
-    geometryBucket: GeometryBucket;
+    geometryBucket: SceneGeometryBucket;
     prim: KdTrianglePrim | KdPointPrim | KdLinePrim;
 }

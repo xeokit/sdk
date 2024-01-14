@@ -1,5 +1,5 @@
 //
-// import {GLArrayBuf} from "../../../webgl/GLArrayBuf";
+// import {WebGLArrayBuf} from "../../../webgl/WebGLArrayBuf";
 // import {math, Scene} from "../../../../viewer/index";
 //
 // class OcclusionLayer {
@@ -158,8 +158,8 @@
 //         const gl = this.scene.canvas.gl;
 //         const lenPositions = this.numMarkers * 3;
 //         const lenIndices = this.numMarkers;
-//         this.positionsBuf = new GLArrayBuf(gl, gl.ARRAY_BUFFER, new Float32Array(this.positions), lenPositions, 3, gl.STATIC_DRAW);
-//         this.indicesBuf = new GLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), lenIndices, 1, gl.STATIC_DRAW);
+//         this.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Float32Array(this.positions), lenPositions, 3, gl.STATIC_DRAW);
+//         this.indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), lenIndices, 1, gl.STATIC_DRAW);
 //         this.lenPositionsBuf = this.positions.length;
 //     }
 //

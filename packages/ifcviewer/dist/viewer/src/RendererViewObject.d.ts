@@ -6,15 +6,15 @@ import type { SceneModel } from "@xeokit/scene";
  */
 export interface RendererViewObject {
     /**
-     * Unique ID of this RendererViewObject.
+     * Unique ID of this RendererObject.
      */
     readonly id: string;
     /**
-     * The {@link @xeokit/scene!SceneModel | SceneModel} that contains this RendererViewObject.
+     * The {@link @xeokit/scene!SceneModel | SceneModel} that contains this RendererObject.
      */
     readonly model: SceneModel;
     /**
-     * The axis-aligned World-space 3D boundary of this RendererViewObject.
+     * The axis-aligned World-space 3D boundary of this RendererObject.
      */
     readonly aabb: FloatArrayParam;
     /**

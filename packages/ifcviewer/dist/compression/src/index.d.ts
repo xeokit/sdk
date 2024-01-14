@@ -4,7 +4,7 @@
  *
  * <img style="padding:20px" src="media://images/geometry_icon.png"/>
  *
- * # xeokit Geometry Compression / Decompression Utilities
+ * # xeokit SceneGeometry Compression / Decompression Utilities
  *
  * ---
  *
@@ -12,13 +12,13 @@
  *
  * ---
  *
- * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within SceneModel.createGeometry implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
+ * The xeokit SceneGeometry Compression/Decompression Utilities library provides functions used internally within SceneModel.createGeometry implementations to compress geometry. These functions are also provided for users who want to pre-compress their geometry "offline" and then use SceneModel.createGeometryCompressed to create compressed geometry directly.
 
  The compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC) coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
 
- To use the library, install it using npm install @xeokit/compression. An example usage includes compressing a GeometryParams into a GeometryCompressedParams using the compressGeometryParams function. In this example, the geometry is simple, and only one bucket is needed. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the bucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
+ To use the library, install it using npm install @xeokit/compression. An example usage includes compressing a SceneGeometryParams into a SceneGeometryCompressedParams using the compressGeometryParams function. In this example, the geometry is simple, and only one bucket is needed. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the bucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
 
- The resulting GeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are generated for the TrianglesPrimitive, and a positionsDecompressMatrix is included to de-quantize the positions within the Viewer.
+ The resulting SceneGeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are generated for the TrianglesPrimitive, and a positionsDecompressMatrix is included to de-quantize the positions within the Viewer.
 
  * This library provides a set of functions that are used internally within
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to
@@ -33,7 +33,7 @@
  * * Ignores normals (our shaders auto-generate them)
  * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
+ * * Splits geometry into {@link @xeokit/scene!SceneGeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
  * ### Aknowledgements
  *
@@ -48,12 +48,12 @@
  * ## Usage
  *
  * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams} to compress
- * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
- * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
+ * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
+ * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
  *
- * In this example, our geometry is very simple, and our GeometryCompressedParams only gets a single
- * {@link @xeokit/scene!GeometryBucketParams | GeometryBucketParams }. Note that if the
- * {@link @xeokit/scene!GeometryParams.positions | GeometryParams.positions} array was large enough to require
+ * In this example, our geometry is very simple, and our SceneGeometryCompressedParams only gets a single
+ * {@link @xeokit/scene!SceneGeometryBucketParams | SceneGeometryBucketParams }. Note that if the
+ * {@link @xeokit/scene!SceneGeometryParams.positions | SceneGeometryParams.positions} array was large enough to require
  * some of the indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would
  * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
@@ -87,7 +87,7 @@
  *  });
  * ````
  *
- * The value of our new {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams} is shown below.
+ * The value of our new {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams} is shown below.
  *
  * We can see that:
  *
@@ -132,8 +132,8 @@
  * ````
  *
  * In the next example, we'll again use {@link @xeokit/scene!compressGeometryParams} to compress
- * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
- * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
+ * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
+ * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}, which we'll then use to
  * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * ````javascript
@@ -156,7 +156,7 @@
  *
  * sceneModel.createGeometryCompressed(geometryCompressedParams);
  *
- * sceneModel.createMesh({ id: "myMesh", geometryId: "myGeometry" });
+ * sceneModel.createLayerMesh({ id: "myMesh", geometryId: "myGeometry" });
  *
  * sceneModel.createObject({ id: "myObject1", meshIds: ["myMesh"] });
  * sceneModel.createObject({ id: "myObject2", meshIds: ["myMesh"] });

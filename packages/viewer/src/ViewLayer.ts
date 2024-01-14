@@ -104,7 +104,7 @@ import type {Scene, SceneModel} from "@xeokit/scene";
  * });
  *
  * // (calls to SceneModel createGeometry and
- * // createMesh omitted for brevity)
+ * // createLayerMesh omitted for brevity)
  *
  * sceneModel.createObject({
  *      id: "ground",
@@ -202,7 +202,7 @@ import type {Scene, SceneModel} from "@xeokit/scene";
  * });
  *
  * // (calls to SceneModel createGeometry and
- * // createMesh omitted for brevity)
+ * // createLayerMesh omitted for brevity)
  *
  * sceneModel.createObject({
  *      id: "ground",
@@ -896,7 +896,7 @@ class ViewLayer extends Component {
         const sceneObjects = model.objects;
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
-            const rendererViewObject = this.viewer.renderer.rendererViewObjects[id];
+            const rendererViewObject = this.viewer.renderer.rendererObjects[id];
             if (rendererViewObject.layerId == this.id) {
                if (!this.objects[id]) {
                    const viewObject = new ViewObject(this, sceneObject, rendererViewObject);

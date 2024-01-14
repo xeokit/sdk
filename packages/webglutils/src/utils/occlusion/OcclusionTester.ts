@@ -1,4 +1,4 @@
-// import {GLProgram} from "../../../webgl/GLProgram";
+// import {WebGLProgram} from "../../../webgl/WebGLProgram";
 // import {OcclusionLayer} from "./OcclusionLayer";
 //
 //
@@ -278,7 +278,7 @@
 //         const scene = this.#scene;
 //         const gl = scene.canvas.gl;
 //         const sectionPlanesState = scene.#sectionPlanesState;
-//         this.#program = new GLProgram(gl, this._shaderSource);
+//         this.#program = new WebGLProgram(gl, this._shaderSource);
 //         if (this.#program.errors) {
 //             this.errors = this.#program.errors;
 //             return;

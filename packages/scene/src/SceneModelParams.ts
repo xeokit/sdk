@@ -1,11 +1,11 @@
 import type {FloatArrayParam} from "@xeokit/math";
 
-import type {GeometryCompressedParams} from "./GeometryCompressedParams";
-import type {TextureParams} from "./TextureParams";
-import type {TextureSetParams} from "./TextureSetParams";
+import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
+import type {SceneTextureParams} from "./SceneTextureParams";
+import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {SceneObject} from "./SceneObject";
-import type {MeshParams} from "./MeshParams";
-import type {GeometryParams} from "./GeometryParams";
+import type {SceneMeshParams} from "./SceneMeshParams";
+import type {SceneGeometryParams} from "./SceneGeometryParams";
 import type {SceneObjectParams} from "./SceneObjectParams";
 
 
@@ -51,29 +51,29 @@ export interface SceneModelParams {
     position?: FloatArrayParam;
 
     /**
-     * {@link @xeokit/scene!GeometryParams} in the SceneModel.
+     * {@link @xeokit/scene!SceneGeometryParams} in the SceneModel.
      */
-    geometries?: GeometryParams[];
+    geometries?: SceneGeometryParams[];
 
     /**
-     * {@link @xeokit/scene!GeometryCompressedParams} in the SceneModel.
+     * {@link @xeokit/scene!SceneGeometryCompressedParams} in the SceneModel.
      */
-    geometriesCompressed?: GeometryCompressedParams[];
+    geometriesCompressed?: SceneGeometryCompressedParams[];
 
     /**
-     * {@link @xeokit/scene!Texture | Textures} in the SceneModel.
+     * {@link @xeokit/scene!SceneTexture | Textures} in the SceneModel.
      */
-    textures?: TextureParams[];
+    textures?: SceneTextureParams[];
 
     /**
-     * {@link @xeokit/scene!TextureSet | TextureSets} in the SceneModel.
+     * {@link @xeokit/scene!SceneTextureSet | TextureSets} in the SceneModel.
      */
-    textureSets?: TextureSetParams[];
+    textureSets?: SceneTextureSetParams[];
 
     /**
-     * {@link @xeokit/scene!Mesh | Meshes} in the SceneModel.
+     * {@link @xeokit/scene!SceneMesh | Meshes} in the SceneModel.
      */
-    meshes?: MeshParams[];
+    meshes?: SceneMeshParams[];
 
     /**
      * {@link @xeokit/scene!SceneObject | SceneObjects} in the SceneModel.

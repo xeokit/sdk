@@ -98,7 +98,7 @@ import type { View } from "./View";
  * });
  *
  * // (calls to SceneModel createGeometry and
- * // createMesh omitted for brevity)
+ * // createLayerMesh omitted for brevity)
  *
  * sceneModel.createObject({
  *      id: "ground",
@@ -196,7 +196,7 @@ import type { View } from "./View";
  * });
  *
  * // (calls to SceneModel createGeometry and
- * // createMesh omitted for brevity)
+ * // createLayerMesh omitted for brevity)
  *
  * sceneModel.createObject({
  *      id: "ground",

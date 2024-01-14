@@ -1,6 +1,6 @@
 import {JPEGMediaType, LinesPrimitive, PNGMediaType, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
 import type {DataModel, DataModelParams} from "@xeokit/data";
-import type {GeometryBucketParams, GeometryCompressedParams, SceneModel} from "@xeokit/scene";
+import type {SceneGeometryBucketParams, SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
 import type {DTXData} from "./DTXData";
 import type {FloatArrayParam} from "@xeokit/math";
 
@@ -174,7 +174,7 @@ export function DTXToModel(params: {
 
                 for (let bucketIndex = firstBucketIndex; bucketIndex <= lastBucketIndex; bucketIndex++) {
 
-                    const geometryBucketParams = <GeometryBucketParams>{
+                    const geometryBucketParams = <SceneGeometryBucketParams>{
                         positionsCompressed: [],
                         indices: []
                     };
@@ -215,7 +215,7 @@ export function DTXToModel(params: {
                 }
 
                 if (geometryParams.geometryBuckets.length > 0) {
-                    sceneModel.createGeometryCompressed(<GeometryCompressedParams>geometryParams);
+                    sceneModel.createGeometryCompressed(<SceneGeometryCompressedParams>geometryParams);
                     geometryCreated[geometryId] = true;
                 }
             }

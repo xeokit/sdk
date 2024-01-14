@@ -7,7 +7,7 @@
  *
  *  These property updates are changes to the {@link @xeokit/scene!SceneObject} content itself, ie. not specific to any
  *  {@link @xeokit/viewer!View | View}. This interface is not to be confused with
- *  {@link @xeokit/viewer!RendererViewObject | RendererViewObject}, through which
+ *  {@link @xeokit/viewer!RendererObject | RendererObject}, through which
  *  a {@link @xeokit/viewer!ViewObject | ViewObject} loads updates to the way the SceneObject
  *  *appears* in a target {@link @xeokit/viewer!View | View}.
  *

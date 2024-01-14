@@ -1,7 +1,7 @@
 import {FloatArrayParam} from "@xeokit/math";
 
 import { Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
-import {RendererViewObject} from "@xeokit/viewer";
+import {RendererObject} from "@xeokit/viewer";
 import type {Pickable} from "./Pickable";
 import {Capabilities, SDKError, TextureTranscoder} from "@xeokit/core";
 import { SceneModel } from "@xeokit/scene";
@@ -47,7 +47,7 @@ export class WebGPURenderer implements Renderer {
         throw new Error("Method not implemented.");
     }
 
-    rendererViewObjects: { [key: string]: RendererViewObject; };
+    rendererObjects: { [key: string]: RendererObject; };
 
     getCapabilities(capabilities: Capabilities): void {
         // TODO

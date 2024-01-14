@@ -48,7 +48,7 @@ if (sceneModel instanceof xeokit.core.SDKError) {
         error(geometry.message);
     }
 
-    log("sceneModel.createMesh(..) x5");
+    log("sceneModel.createLayerMesh(..) x5");
 
     const redLegMesh = sceneModel.createMesh({
         id: "redLegMesh",
@@ -99,8 +99,8 @@ if (sceneModel instanceof xeokit.core.SDKError) {
         color: [1.0, 0.3, 1.0]
     });
 
-    // Create five SceneObjects, each using a Mesh.
-    // A Mesh belongs to exactly one SceneObject.
+    // Create five SceneObjects, each using a SceneMesh.
+    // A SceneMesh belongs to exactly one SceneObject.
 
     log("sceneModel.createObject(..) x5");
 

@@ -1,4 +1,4 @@
-import type { Mesh } from "./Mesh";
+import type { SceneMesh } from "./SceneMesh";
 import type { FloatArrayParam } from "@xeokit/math";
 import type { RendererObject } from "./RendererObject";
 import type { SceneModel } from "./SceneModel";
@@ -23,15 +23,15 @@ export declare class SceneObject {
      */
     readonly id: string;
     /**
-     * The {@link @xeokit/scene!Mesh | Meshes} belonging to this SceneObject.
+     * The {@link @xeokit/scene!SceneMesh | Meshes} belonging to this SceneObject.
      */
-    readonly meshes: Mesh[];
+    readonly meshes: SceneMesh[];
     /**
      * Optional layer ID for this SceneObject.
      */
     readonly layerId?: string;
     /**
-     *  Internal interface through which a {@link @xeokit/scene!SceneObject} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!SceneObject} can load property updates into a renderers.
      *
      *  This is defined while the owner {@link @xeokit/viewer!Renderer} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
@@ -43,7 +43,7 @@ export declare class SceneObject {
      */
     constructor(cfg: {
         model: SceneModel;
-        meshes: Mesh[];
+        meshes: SceneMesh[];
         id: string;
         layerId?: string;
     });

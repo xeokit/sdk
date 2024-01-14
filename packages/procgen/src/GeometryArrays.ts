@@ -1,5 +1,5 @@
 /**
- * GeometryBucketHandle data arrays.
+ * TrianglesLayerGeometryBucket data arrays.
  */
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 

@@ -90,7 +90,7 @@
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     scene,
- *     renderer: new WebGLRenderer({
+ *     renderers: new WebGLRenderer({
  *          textureTranscoder: new KTX2TextureTranscoder({  // Optional, this is the default
  *              transcoderPath: "./../dist/basis/" // Optional, defaults to CDN
  *          })
@@ -158,13 +158,13 @@
  *      colorTextureId: "myColorTexture"
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.createLayerMesh({
  *     id: "myMesh1",
  *     geometryId: "myGeometry",
  *     textureSetId: "myTextureSet"
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.createLayerMesh({
  *     id: "myMesh2",
  *     geometryId: "myGeometry",
  *     textureSetId: "myTextureSet"

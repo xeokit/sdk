@@ -1,5 +1,5 @@
 import type { View, Viewer } from "@xeokit/viewer";
-import { GLAbstractTexture, GLDataTexture } from "@xeokit/webglutils";
+import { WebGLAbstractTexture, WebGLDataTexture } from "@xeokit/webglutils";
 /**
  * Provides rendering context within a WebGLRenderer.
  */
@@ -16,7 +16,7 @@ export declare class RenderContext {
      * The WebGL rendering context.
      */
     gl: WebGL2RenderingContext;
-    viewMatrixDataTexture: GLDataTexture;
+    viewMatrixDataTexture: WebGLDataTexture;
     /**
      * Whether to render a quality representation for triangle surfaces.
      *
@@ -41,7 +41,7 @@ export declare class RenderContext {
      */
     frontface: boolean;
     /**
-     * The next available texture unit to bind a {@link GLAbstractTexture} to.
+     * The next available texture unit to bind a {@link WebGLAbstractTexture} to.
      */
     textureUnit: number;
     /**
@@ -49,29 +49,29 @@ export declare class RenderContext {
      */
     bindTexture: number;
     /**
-     * Indicates which pass the renderer is currently rendering.
+     * Indicates which pass the renderers is currently rendering.
      */
     renderPass: number;
     /**
-     * The 4x4 viewing transform matrix the renderer is currently using when rendering castsShadows.
+     * The 4x4 viewing transform matrix the renderers is currently using when rendering castsShadows.
      *
      * This sets the viewpoint to look from the point of view of each {@link DirLight}
      * or {@link PointLight} that casts a shadow.
      */
     shadowViewMatrix: any;
     /**
-     * The 4x4 viewing projection matrix the renderer is currently using when rendering shadows.
+     * The 4x4 viewing projection matrix the renderers is currently using when rendering shadows.
      */
     shadowProjMatrix: any;
     /**
-     * The 4x4 viewing transform matrix the renderer is currently using when rendering a ray-pick.
+     * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
      *
      * This sets the viewpoint to look along the ray given to {@link @xeokit/scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
      * when picking with a ray.
      */
     pickViewMatrix: any;
     /**
-     * The 4x4 orthographic projection transform matrix the renderer is currently using when rendering a ray-pick.
+     * The 4x4 orthographic projection transform matrix the renderers is currently using when rendering a ray-pick.
      */
     pickProjMatrix: any;
     /**
@@ -83,7 +83,7 @@ export declare class RenderContext {
      */
     pickZFar: number;
     /**
-     * Whether or not the renderer is currently picking invisible objects.
+     * Whether or not the renderers is currently picking invisible objects.
      */
     pickInvisible: boolean;
     /** The current line width.
@@ -96,10 +96,10 @@ export declare class RenderContext {
     /**
      * The occlusion rendering texture.
      */
-    occlusionTexture: GLAbstractTexture | null;
+    occlusionTexture: WebGLAbstractTexture | null;
     constructor(viewer: Viewer, view: View, gl: WebGL2RenderingContext);
     /**
-     * Called by the renderer before each frame.
+     * Called by the renderers before each frame.
      */
     reset(): void;
     /**

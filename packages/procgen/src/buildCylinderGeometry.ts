@@ -7,7 +7,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/scene!Mesh} with a cylinder-shaped {@link @xeokit/scene!Geometry}:
+ * Creating a {@link @xeokit/scene!SceneMesh} with a cylinder-shaped {@link @xeokit/scene!SceneGeometry}:
  *
  * ````javascript
  *
@@ -15,7 +15,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * @function buildCylinderGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!Geometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.radiusTop=1]  Radius of top.
  * @param [cfg.radiusBottom=1]  Radius of bottom.
@@ -23,7 +23,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  * @param [cfg.radialSegments=60]  Number of horizontal segments.
  * @param [cfg.heightSegments=1]  Number of vertical segments.
  * @param [cfg.openEnded=false]  Whether or not the cylinder has solid caps on the ends.
- * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!SceneGeometry} subtype.
  */
 export function buildCylinderGeometry(cfg: {
     radiusBottom: number;

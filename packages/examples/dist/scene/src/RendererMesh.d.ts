@@ -1,9 +1,9 @@
 import type { FloatArrayParam } from "@xeokit/math";
 /**
- * Interface through which a {@link @xeokit/scene!Mesh | Mesh} loads attribute updates
+ * Interface through which a {@link @xeokit/scene!SceneMesh | SceneMesh} loads attribute updates
  * into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/viewer!Renderer | Renderer}.
  *
- *  This exists at each {@link @xeokit/scene!Mesh.rendererMesh | Mesh.rendererMesh} when the
+ *  This exists at each {@link @xeokit/scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh} when the
  *  containing {@link @xeokit/scene!SceneModel} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.
  *
@@ -11,9 +11,9 @@ import type { FloatArrayParam } from "@xeokit/math";
  */
 export interface RendererMesh {
     /**
-     * Loads the {@link @xeokit/scene!Mesh | Mesh's} modeling matrix into the {@link @xeokit/viewer!Renderer}.
+     * Loads the {@link @xeokit/scene!SceneMesh | SceneMesh's} modeling matrix into the {@link @xeokit/viewer!Renderer}.
      *
-     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.matrix}.
+     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.matrix}.
      *
      * @internal
      */
@@ -21,7 +21,7 @@ export interface RendererMesh {
     /**
      * Loads a material color value into the {@link @xeokit/viewer!Renderer}.
      *
-     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.color}.
+     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.color}.
      *
      * @internal
      */
@@ -29,7 +29,7 @@ export interface RendererMesh {
     /**
      * Loads a material metalness value into the {@link @xeokit/viewer!Renderer}.
      *
-     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.metalness}.
+     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.metalness}.
      *
      * @internal
      */
@@ -37,7 +37,7 @@ export interface RendererMesh {
     /**
      * Loads a meterial roughness value into the {@link @xeokit/viewer!Renderer}.
      *
-     * {@link @xeokit/scene!Mesh} calls this when we update {@link @xeokit/scene!Mesh | Mesh.roughness}.
+     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.roughness}.
      *
      * @internal
      */

@@ -1,18 +1,18 @@
 import type { FloatArrayParam } from "@xeokit/math";
 /**
- * {@link @xeokit/scene!Mesh} creation parameters for {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
+ * {@link @xeokit/scene!SceneMesh} creation parameters for {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh}.
  */
 export interface MeshParams {
     /**
-     * ID for the new {@link @xeokit/scene!Mesh}, unique within the {@link @xeokit/scene!SceneModel}.
+     * ID for the new {@link @xeokit/scene!SceneMesh}, unique within the {@link @xeokit/scene!SceneModel}.
      */
     id: string;
     /**
-     * ID of a {@link @xeokit/scene!TextureSet} that was created previously with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
+     * ID of a {@link @xeokit/scene!SceneTextureSet} that was created previously with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
      */
     textureSetId?: string;
     /**
-     * ID of a {@link @xeokit/scene!Geometry} that was created previously with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} or {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
+     * ID of a {@link @xeokit/scene!SceneGeometry} that was created previously with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} or {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
      */
     geometryId: string;
     /**
@@ -20,25 +20,25 @@ export interface MeshParams {
      */
     transformId?: string;
     /**
-     * RGB base color of the new {@link @xeokit/scene!Mesh}.
+     * RGB base color of the new {@link @xeokit/scene!SceneMesh}.
      *
      * * Default is ````[1,1,1]````.
      */
     color?: FloatArrayParam;
     /**
-     * RGB pick color of the new {@link @xeokit/scene!Mesh}.
+     * RGB pick color of the new {@link @xeokit/scene!SceneMesh}.
      *
      * This is used internally within {@link @xeokit/scene!SceneModel}.
      */
     pickColor?: FloatArrayParam;
     /**
-     * Opacity of the new {@link @xeokit/scene!Mesh}.
+     * Opacity of the new {@link @xeokit/scene!SceneMesh}.
      *
      * Default is 1.
      */
     opacity?: number;
     /**
-     * The metallic-ness of new {@link @xeokit/scene!Mesh}.
+     * The metallic-ness of new {@link @xeokit/scene!SceneMesh}.
      *
      * * This is a continuous factor in the range ````[0,1]````, where 0 is fully non-metallic and 1 is fully metallic.
      * * Default is 0.
@@ -46,7 +46,7 @@ export interface MeshParams {
      */
     metallic?: number;
     /**
-     * The roughness of new {@link @xeokit/scene!Mesh}.
+     * The roughness of new {@link @xeokit/scene!SceneMesh}.
      *
      * * This is a continuous factor in the range ````[0,1]````, where 0 is fully rough and 1 is perfectly smooth.
      * * Default is 1.
@@ -72,7 +72,7 @@ export interface MeshParams {
     /**
      * Optional local 3D transform matrix.
      *
-     * Overrides {@link @xeokit/scene!MeshParams.position}, {@link @xeokit/scene!MeshParams.scale}, {@link @xeokit/scene!MeshParams.quaternion} and {@link @xeokit/scene!MeshParams.rotation}.
+     * Overrides {@link @xeokit/scene!SceneMeshParams.position}, {@link @xeokit/scene!SceneMeshParams.scale}, {@link @xeokit/scene!SceneMeshParams.quaternion} and {@link @xeokit/scene!SceneMeshParams.rotation}.
      */
     matrix?: FloatArrayParam;
 }

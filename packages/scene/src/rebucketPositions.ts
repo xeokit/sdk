@@ -62,9 +62,9 @@ export function rebucketPositions(
                 /**
                  * Flat array of compressed integer vertex colors.
                  *
-                 * Alternative to {@link @xeokit/scene!GeometryParams.colorsCompressed}.
+                 * Alternative to {@link @xeokit/scene!SceneGeometryParams.colorsCompressed}.
                  *
-                 * Ignored when {@link @xeokit/scene!GeometryParams.id} is defined.
+                 * Ignored when {@link @xeokit/scene!SceneGeometryParams.id} is defined.
                  */
             }
         }

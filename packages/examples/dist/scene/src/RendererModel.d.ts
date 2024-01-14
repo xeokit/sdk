@@ -1,6 +1,6 @@
 import type { RendererObject } from "./RendererObject";
 /**
- *  Internal interface through which a {@link @xeokit/scene!Scene} can load content updates into a renderer.
+ *  Internal interface through which a {@link @xeokit/scene!Scene} can load content updates into a renderers.
  *
  *  An instance of this class is set on {@link @xeokit/scene!SceneModel.rendererModel | SceneModel.rendererModel} when
  *  the {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.

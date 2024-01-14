@@ -1,12 +1,12 @@
 import type { SceneObject } from "./SceneObject";
-import type { Mesh } from "./Mesh";
+import type { SceneMesh } from "./SceneMesh";
 import type { FloatArrayParam } from "@xeokit/math";
 import type { Geometry } from "./Geometry";
 import type { GeometryBucket } from "./GeometryBucket";
 /**
  * The {@link getSceneObjectGeometry} passes an instance of GeometryView to its callback
- * for each {@link @xeokit/scene!GeometryBucket} it visits. The GeometryView provides the SceneObject, Mesh, Geometry and
- * GeometryBucket at the current state of iteration, along with accessors through which the caller can
+ * for each {@link @xeokit/scene!SceneGeometryBucket} it visits. The GeometryView provides the SceneObject, SceneMesh, SceneGeometry and
+ * SceneGeometryBucket at the current state of iteration, along with accessors through which the caller can
  * get various resources that the GeometryView lazy-computes on-demand, such as decompressed vertex positions, World-space
  * vertex positons, and decompressed vertex UV coordinates.
  */
@@ -16,31 +16,31 @@ export interface GeometryView {
      */
     object: SceneObject;
     /**
-     * The current {@link @xeokit/scene!Mesh}.
+     * The current {@link @xeokit/scene!SceneMesh}.
      */
-    mesh: Mesh;
+    mesh: SceneMesh;
     /**
-     * The current {@link @xeokit/scene!Mesh | Mesh's} position in {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}.
+     * The current {@link @xeokit/scene!SceneMesh | SceneMesh's} position in {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}.
      */
     meshIndex: number;
     /**
-     * The current {@link @xeokit/scene!Geometry}.
+     * The current {@link @xeokit/scene!SceneGeometry}.
      */
     geometry: Geometry;
     /**
-     * The current {@link @xeokit/scene!GeometryBucket}.
+     * The current {@link @xeokit/scene!SceneGeometryBucket}.
      */
     geometryBucket: GeometryBucket;
     /**
-     * The current {@link @xeokit/scene!GeometryBucket | GeometryBucket's} position in {@link @xeokit/scene!Geometry.geometryBuckets | Geometry.geometryBuckets }.
+     * The current {@link @xeokit/scene!SceneGeometryBucket | SceneGeometryBucket's} position in {@link @xeokit/scene!SceneGeometry.geometryBuckets | SceneGeometry.geometryBuckets }.
      */
     geometryBucketIndex: number;
     /**
-     * The total number of {@link @xeokit/scene!GeometryBucket | GeometryBuckets} within the current {@link @xeokit/scene!SceneObject}..
+     * The total number of {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets} within the current {@link @xeokit/scene!SceneObject}..
      */
     readonly totalGeometryBuckets: number;
     /**
-     * The number of primitives in the current {@link @xeokit/scene!GeometryBucket}.
+     * The number of primitives in the current {@link @xeokit/scene!SceneGeometryBucket}.
      */
     readonly numPrimitives: number;
     /**
@@ -57,8 +57,8 @@ export interface GeometryView {
     readonly uvsDecompressed: FloatArrayParam;
 }
 /**
- * Gets the uncompressed, World-space geometry of each {@link @xeokit/scene!GeometryBucket} in each
- * {@link @xeokit/scene!Geometry} in each {@link @xeokit/scene!Mesh} in a {@link @xeokit/scene!SceneObject}.
+ * Gets the uncompressed, World-space geometry of each {@link @xeokit/scene!SceneGeometryBucket} in each
+ * {@link @xeokit/scene!SceneGeometry} in each {@link @xeokit/scene!SceneMesh} in a {@link @xeokit/scene!SceneObject}.
  *
  * If the callback returns ````true````, then this method immediately stops iterating and also returns ````true````.
  *

@@ -7,9 +7,9 @@ export interface Capabilities {
      */
     maxViews: number;
     /**
-     * Does the renderer run headless?
+     * Does the renderers run headless?
      *
-     * This is `true` when the renderer is a "mock renderer", that works without rendering anything.
+     * This is `true` when the renderers is a "mock renderers", that works without rendering anything.
      */
     headless: boolean;
     /**

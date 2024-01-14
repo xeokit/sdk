@@ -1,4 +1,4 @@
-import {GeometryBucket, type GeometryView, getSceneObjectGeometry, SceneObject} from "@xeokit/scene";
+import {SceneGeometryBucket, type GeometryView, getSceneObjectGeometry, SceneObject} from "@xeokit/scene";
 import {KdTree3} from "./KdTree3";
 import type {FloatArrayParam} from "@xeokit/math";
 import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
@@ -21,7 +21,7 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
 
     const tempAABBInt16 = new Int16Array(6);
 
-    function insertPoint(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, kdTree: KdTree3) {
+    function insertPoint(sceneObject: SceneObject, geometryBucket: SceneGeometryBucket, positions: FloatArrayParam, a: number, kdTree: KdTree3) {
         const ax = positions[(a * 3)];
         const ay = positions[(a * 3) + 1];
         const az = positions[(a * 3) + 2];
@@ -32,7 +32,7 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
         kdTree.insertItem(<KdSceneObjectPrim>{sceneObject, geometryBucket, prim: {a}}, aabb);
     }
 
-    function insertLine(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3) {
+    function insertLine(sceneObject: SceneObject, geometryBucket: SceneGeometryBucket, positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3) {
         const ax = positions[(a * 3)];
         const ay = positions[(a * 3) + 1];
         const az = positions[(a * 3) + 2];
@@ -49,7 +49,7 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
         kdTree.insertItem(<KdSceneObjectPrim>{sceneObject, geometryBucket, prim: {a, b}}, aabb);
     }
 
-    function insertTriangle(sceneObject: SceneObject, geometryBucket: GeometryBucket, positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3) {
+    function insertTriangle(sceneObject: SceneObject, geometryBucket: SceneGeometryBucket, positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3) {
         const ax = positions[(a * 3)];
         const ay = positions[(a * 3) + 1];
         const az = positions[(a * 3) + 2];

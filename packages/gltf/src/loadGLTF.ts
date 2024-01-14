@@ -18,7 +18,7 @@ import {
 import {isString} from "@xeokit/utils";
 import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
-import type {GeometryParams, MeshParams, SceneModel, TextureSetParams} from "@xeokit/scene";
+import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 import {SDKError} from "@xeokit/core";
 
@@ -217,7 +217,7 @@ function parseMaterials(ctx: ParsingContext): void {
 function parseTextureSet(ctx: ParsingContext, material: any): null | string {
     // @ts-ignore
 
-    const textureSetCfg: TextureSetParams = {
+    const textureSetCfg: SceneTextureSetParams = {
         // @ts-ignore
         id: null,
         occlusionTextureId: undefined,
@@ -422,7 +422,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                     const geometryId = "geometry-" + ctx.nextId++;
 
 
-                    const geometryParams: GeometryParams = {
+                    const geometryParams: SceneGeometryParams = {
                         id: geometryId,
                         primitive: 0,
                         // @ts-ignore
@@ -473,7 +473,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                 }
 
                 const meshId = `${ctx.nextId++}`;
-                const meshParams: MeshParams = {
+                const meshParams: SceneMeshParams = {
                     id: meshId,
                     geometryId: primitive._geometryId,
                     matrix: matrix ? matrix.slice() : identityMat4(),

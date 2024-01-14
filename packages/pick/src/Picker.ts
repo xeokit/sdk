@@ -13,7 +13,7 @@ import type {MarqueePickResult} from "./MarqueePickResult";
 import {PickPrimsCache} from "./PickPrimsCache";
 import {decompressPositions3} from "@xeokit/compression";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
-import type {Geometry, GeometryBucket, SceneObject} from "@xeokit/scene";
+import type {SceneGeometry, SceneGeometryBucket, SceneObject} from "@xeokit/scene";
 import {MeshHit} from "./MeshHit";
 import {GeometryBucketHit} from "./GeometryBucketHit";
 import type {Frustum3} from "@xeokit/boundaries";
@@ -116,8 +116,8 @@ export class Picker {
 
     /**
      * Picks a {@link @xeokit/scene!SceneObjectsKdTree3} using a 2D marquee to obtain a {@link MarqueePickResult}
-     * containing picked {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh}, {@link @xeokit/scene!Geometry},
-     * {@link @xeokit/scene!GeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
+     * containing picked {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh}, {@link @xeokit/scene!SceneGeometry},
+     * {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
      * @param params
      */
     marqueePick(params: {
@@ -201,7 +201,7 @@ export class Picker {
         return marqueePickResult;
     }
 
-    #getPrimsKdTree3(geometry: Geometry, k: number, geometryBucket: GeometryBucket): any {
+    #getPrimsKdTree3(geometry: SceneGeometry, k: number, geometryBucket: SceneGeometryBucket): any {
         const kdTreeId = `${geometry.id}-${k}`;
         // @ts-ignore
         let primsKdTree3 = this.#pickPrimsCache[kdTreeId];

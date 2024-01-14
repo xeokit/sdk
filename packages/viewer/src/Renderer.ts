@@ -4,7 +4,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 import type {Capabilities} from "@xeokit/core";
 import type {SDKError} from "@xeokit/core";
 import type {ViewObject} from "./ViewObject";
-import type {RendererViewObject} from "./RendererViewObject";
+import type {RendererObject} from "@xeokit/scene/src/RendererObject";
 import type {SceneModel} from "@xeokit/scene";
 import {RendererModel} from "@xeokit/scene";
 
@@ -21,7 +21,7 @@ import {RendererModel} from "@xeokit/scene";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ }) // Or WebGPURenderer, MockRenderer etc.
+ *     renderers: new WebGLRenderer({ }) // Or WebGPURenderer, MockRenderer etc.
  * });
  * ````
  *
@@ -34,7 +34,7 @@ export interface Renderer {
      * its {@link @xeokit/scene!SceneObject | SceneObject} within the {@link @xeokit/viewer!Renderer | Renderer} that's
      * configured on its {@link @xeokit/viewer!Viewer | Viewer}.
      */
-    rendererViewObjects: { [key: string]: RendererViewObject }
+    rendererObjects: { [key: string]: RendererObject }
 
     /**
      * TODO
@@ -107,9 +107,9 @@ export interface Renderer {
      *
      * * Sets a {@link @xeokit/scene!RendererModel} on {@link @xeokit/scene!SceneModel | SceneModel.rendererModel}
      * * Sets a {@link @xeokit/scene!RendererObject} on each {@link @xeokit/scene!SceneObject | SceneObject.rendererObject}
-     * * Sets a {@link @xeokit/scene!RendererMesh} on each {@link @xeokit/scene!Mesh | Meshe.rendererMesh}
-     * * Sets a {@link @xeokit/scene!RendererTextureSet} on each {@link @xeokit/scene!TextureSet | TextureSet.rendererTextureSet}
-     * * Sets a {@link @xeokit/scene!RendererTexture} on each {@link @xeokit/scene!Texture | Texture.rendererTexture}
+     * * Sets a {@link @xeokit/scene!RendererMesh} on each {@link @xeokit/scene!SceneMesh | Meshe.rendererMesh}
+     * * Sets a {@link @xeokit/scene!RendererTextureSet} on each {@link @xeokit/scene!SceneTextureSet | SceneTextureSet.rendererTextureSet}
+     * * Sets a {@link @xeokit/scene!RendererTexture} on each {@link @xeokit/scene!SceneTexture | SceneTexture.rendererTexture}
      *
      * Then, when we make any state updates to those components, they will transfer the updates though the hooks into the Renderer.
      *
@@ -213,7 +213,7 @@ export interface Renderer {
     setBackgroundColor(viewHandle: number, color: FloatArrayParam): void | SDKError;
 
     /**
-     * Indicates that the renderer needs to render a new frame for the given View.
+     * Indicates that the renderers needs to render a new frame for the given View.
      *
      * @internal
      * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
@@ -226,7 +226,7 @@ export interface Renderer {
     setImageDirty(viewHandle?: number): void | SDKError;
 
     /**
-     * Clears this renderer for the given view.
+     * Clears this renderers for the given view.
      *
      * @internal
      * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.

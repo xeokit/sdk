@@ -12,7 +12,7 @@ export declare class GLDataTexture implements GLAbstractTexture {
     textureHeight?: number;
     textureData?: any;
     /**
-     * Constructs a new GLDataTexture.
+     * Constructs a new WebGLDataTexture.
      * @param params
      */
     constructor(params?: {
@@ -24,14 +24,14 @@ export declare class GLDataTexture implements GLAbstractTexture {
         onDestroyed?: Function;
     });
     /**
-     * Binds this GLDataTexture to the given {@link GLSampler}.
+     * Binds this WebGLDataTexture to the given {@link GLSampler}.
      * @param glProgram
      * @param sampler
      * @param unit
      */
     bindTexture(glProgram: GLProgram, sampler: GLSampler, unit: number): void;
     /**
-     * Unbinds this GLDataTexture from whichever {@link GLSampler} it's currently bound to, if any.
+     * Unbinds this WebGLDataTexture from whichever {@link GLSampler} it's currently bound to, if any.
      * @param unit
      */
     bind(unit: number): boolean;

@@ -195,8 +195,8 @@ describe('Create and Destroy a SceneModel', () => {
         expect(tableTopMesh.textureSet).toBeDefined();
         expect(tableTopMesh.textureSet.id).toStrictEqual(theTextureSet.id);
 
-        // Create five SceneObjects, each using a Mesh
-        // - A Mesh belongs to exactly one SceneObject
+        // Create five SceneObjects, each using a SceneMesh
+        // - A SceneMesh belongs to exactly one SceneObject
 
         const redLegSceneObject = sceneModel.createObject({
             id: "redLegSceneObject",

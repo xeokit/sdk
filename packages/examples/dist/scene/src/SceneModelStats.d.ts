@@ -8,19 +8,19 @@ export interface SceneModelStats {
      */
     numObjects: number;
     /**
-     * The number of {@link @xeokit/scene!Mesh | Meshes} in the {@link @xeokit/scene!SceneModel}.
+     * The number of {@link @xeokit/scene!SceneMesh | Meshes} in the {@link @xeokit/scene!SceneModel}.
      */
     numMeshes: number;
     /**
-     * The number of {@link @xeokit/scene!Geometry | Geometries} in the {@link @xeokit/scene!SceneModel}.
+     * The number of {@link @xeokit/scene!SceneGeometry | Geometries} in the {@link @xeokit/scene!SceneModel}.
      */
     numGeometries: number;
     /**
-     * The number of {@link @xeokit/scene!Texture | Textures} in the {@link @xeokit/scene!SceneModel}.
+     * The number of {@link @xeokit/scene!SceneTexture | Textures} in the {@link @xeokit/scene!SceneModel}.
      */
     numTextures: number;
     /**
-     * The number of {@link @xeokit/scene!TextureSet | TextureSets} in the {@link @xeokit/scene!SceneModel}.
+     * The number of {@link @xeokit/scene!SceneTextureSet | TextureSets} in the {@link @xeokit/scene!SceneModel}.
      */
     numTextureSets: number;
     /**

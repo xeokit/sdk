@@ -1,11 +1,11 @@
 import {TrianglesPrimitive} from "@xeokit/constants";
-import {compressGeometryParams, GeometryParams} from "../src";
+import {compressGeometryParams, SceneGeometryParams} from "../src";
 
-describe('Test Geometry Compression', () => {
+describe('Test SceneGeometry Compression', () => {
 
     it('compressGeometryParams', () => {
 
-        const geometryParams = <GeometryParams>{
+        const geometryParams = <SceneGeometryParams>{
             id: "myParams",
             primitive: TrianglesPrimitive,
             positions: [10.07, 0, 11.07, 9.58, 3.11, 11.07, 8.15, 5.92, 11.07, 5.92, 8.15, 11.07, 3.11, 9.58, 11.07, 0, 10.07, 11.07, -3.11,

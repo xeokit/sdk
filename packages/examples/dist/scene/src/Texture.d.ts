@@ -6,15 +6,15 @@ import type { TextureParams } from "./TextureParams";
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
  * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
- * * Referenced by {@link @xeokit/scene!TextureSet.colorTexture | TextureSet.colorTexture},
- * {@link @xeokit/scene!TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
- * {@link @xeokit/scene!TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link @xeokit/scene!TextureSet.emissiveTexture | TextureSet.emissiveTexture}
+ * * Referenced by {@link @xeokit/scene!SceneTextureSet.colorTexture | SceneTextureSet.colorTexture},
+ * {@link @xeokit/scene!SceneTextureSet.metallicRoughnessTexture | SceneTextureSet.metallicRoughnessTexture},
+ * {@link @xeokit/scene!SceneTextureSet.occlusionTexture | SceneTextureSet.occlusionTexture} and {@link @xeokit/scene!SceneTextureSet.emissiveTexture | SceneTextureSet.emissiveTexture}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
 export declare class Texture {
     /**
-     *  Internal interface through which this {@link @xeokit/scene!Texture} can load property updates into a renderer.
+     *  Internal interface through which this {@link @xeokit/scene!SceneTexture} can load property updates into a renderers.
      *
      *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
@@ -54,7 +54,7 @@ export declare class Texture {
      */
     compressed: boolean;
     /**
-     * Media type of this Texture.
+     * Media type of this SceneTexture.
      *
      * Supported values are {@link @xeokit/constants!GIFMediaType}, {@link @xeokit/constants!PNGMediaType} and {@link @xeokit/constants!JPEGMediaType}.
      *
@@ -101,11 +101,11 @@ export declare class Texture {
      */
     wrapR: number;
     /**
-     * Flips this Texture's source data along its vertical axis when ````true````.
+     * Flips this SceneTexture's source data along its vertical axis when ````true````.
      */
     flipY: boolean;
     /**
-     * Texture encoding format.
+     * SceneTexture encoding format.
      *
      * Supported values are {@link @xeokit/constants!LinearEncoding} and {@link @xeokit/constants!sRGBEncoding}.
      */

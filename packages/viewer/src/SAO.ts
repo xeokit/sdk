@@ -125,7 +125,7 @@ export class SAO extends Component {
 
     /**
      * Returns true if SAO is currently possible, where it is supported, enabled, and the current view state is compatible.
-     * Called internally by renderer logic.
+     * Called internally by renderers logic.
      * @private
      */
     get possible(): boolean {

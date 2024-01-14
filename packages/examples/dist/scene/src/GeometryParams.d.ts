@@ -5,7 +5,7 @@ import type { FloatArrayParam, IntArrayParam } from "@xeokit/math";
  * ## Summary
  *
  * * Contains uncompressed, human-readable geometry parameters for {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}
- * * Use {@link @xeokit/scene!compressGeometryParams} to compress {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}
+ * * Use {@link @xeokit/scene!compressGeometryParams} to compress {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}
  * for {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  *
  * See usage in:

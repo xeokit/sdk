@@ -1579,15 +1579,15 @@ const letters = {
 };
 
 /**
- * Creates wireframe vector text {@link @xeokit/scene!Geometry}.
+ * Creates wireframe vector text {@link @xeokit/scene!SceneGeometry}.
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/scene!Mesh} with vector text {@link @xeokit/scene!Geometry}:
+ * Creating a {@link @xeokit/scene!SceneMesh} with vector text {@link @xeokit/scene!SceneGeometry}:
  *
  * ````javascript
  *
- * import {Viewer, Mesh, buildVectorTextGeometry, ReadableGeometry, PhongMaterial} from "xeokit-viewer.es.js";
+ * import {Viewer, SceneMesh, buildVectorTextGeometry, ReadableGeometry, PhongMaterial} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myView"
@@ -1597,13 +1597,13 @@ const letters = {
  * viewer.camera.look = [0, 0, 0];
  * viewer.camera.up = [0, 1, 0];
  *
- * new Mesh(viewer.scene, {
+ * new SceneMesh(viewer.scene, {
  *      geometry: new ReadableGeometry(viewer.scene, buildVectorTextGeometry({
  *          origin: [0,0,0],
  *          text: "On the other side of the screen, it all looked so easy"
  *      }),
  *      material: new PhongMaterial(viewer.scene, {
- *         diffuseMap: new Texture(viewer.scene, {
+ *         diffuseMap: new SceneTexture(viewer.scene, {
  *             src: "textures/diffuse/uvGrid2.jpg"
  *         })
  *      })
@@ -1617,7 +1617,7 @@ const letters = {
  * @param [cfg.origin] 3D point indicating the top left corner.
  * @param [cfg.size=1] Size of each character.
  * @param [cfg.text=""] The text.
- * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!SceneGeometry} subtype.
  */
 export function buildVectorTextGeometry(cfg: {
     size: number;

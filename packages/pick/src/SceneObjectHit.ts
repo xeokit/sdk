@@ -14,7 +14,7 @@ export interface SceneObjectHit {
     sceneObject: SceneObject;
 
     /**
-     * Represents the {@link @xeokit/scene!Mesh | Meshes} within the picked {@link @xeokit/scene!SceneObject | SceneObject} that intersect the picking ray.
+     * Represents the {@link @xeokit/scene!SceneMesh | Meshes} within the picked {@link @xeokit/scene!SceneObject | SceneObject} that intersect the picking ray.
      */
     meshHits: MeshHit[];
 }

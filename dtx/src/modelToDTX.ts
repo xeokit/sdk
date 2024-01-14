@@ -106,7 +106,7 @@ export function modelToDTX(params: {
         edgeIndices8Bit: new Uint8Array(lenEdgeIndices8Bit),
         edgeIndices16Bit: new Uint16Array(lenEdgeIndices16Bit),
         edgeIndices32Bit: new Uint32Array(lenEdgeIndices32Bit),
-        eachTextureSetTextures: new Int32Array(numTextureSets * 5), // For each texture set, a set of five Texture indices [color, metal/roughness,normals,emissive,occlusion]; each index has value -1 if no texture
+        eachTextureSetTextures: new Int32Array(numTextureSets * 5), // For each texture set, a set of five SceneTexture indices [color, metal/roughness,normals,emissive,occlusion]; each index has value -1 if no texture
         decodeMatrices: new Float32Array(lenDecodeMatrices), // TODO
         eachBucketPositionsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in DTXData.positions. Every primitive type has positions.
         eachBucketColorsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in DTXData.colors. If the next geometry has the same index, then this geometry has no colors.
@@ -252,7 +252,7 @@ export function modelToDTX(params: {
         textureIndices[texture.id] = textureIndex;
     }
 
-    // Texture sets
+    // SceneTexture sets
 
     for (let textureSetIndex = 0, numTextureSets = textureSetsList.length, eachTextureSetTexturesIndex = 0; textureSetIndex < numTextureSets; textureSetIndex++) {
         const textureSet = textureSetsList[textureSetIndex];

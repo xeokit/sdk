@@ -5,7 +5,7 @@ import {SceneModel} from "./SceneModel";
 import type {SceneObject} from "./SceneObject";
 import type {SceneModelParams} from "./SceneModelParams";
 import {createAABB3} from "@xeokit/boundaries";
-import {Tile} from "./Tile";
+import {SceneTile} from "./SceneTile";
 
 /**
  * A scene representation.
@@ -26,9 +26,9 @@ export class Scene extends Component {
     public readonly objects: { [key: string]: SceneObject };
 
     /**
-     * The {@link @xeokit/scene!Tile | Tiles} in this Scene
+     * The {@link @xeokit/scene!SceneTile | Tiles} in this Scene
      */
-    public readonly tiles: { [key: string]: Tile };
+    public readonly tiles: { [key: string]: SceneTile };
 
     /**
      * Emits an event each time a {@link @xeokit/scene!SceneModel} is created in this Scene.
@@ -45,18 +45,18 @@ export class Scene extends Component {
     public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
 
     /**
-     * Emits an event each time a {@link @xeokit/scene!Tile} is created in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneTile} is created in this Scene.
      *
      * @event
      */
-    public readonly  onTileCreated:  EventEmitter<Scene, Tile>;
+    public readonly  onTileCreated:  EventEmitter<Scene, SceneTile>;
 
     /**
-     * Emits an event each time a {@link @xeokit/scene!Tile} is destroyed in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneTile} is destroyed in this Scene.
      *
      * @event
      */
-    public readonly  onTileDestroyed:  EventEmitter<Scene, Tile>;
+    public readonly  onTileDestroyed:  EventEmitter<Scene, SceneTile>;
 
     #onModelBuilts: { [key: string]: any };
     #onModelDestroys: { [key: string]: any };
@@ -273,13 +273,13 @@ export class Scene extends Component {
         this.#aabbDirty = true;
     }
 
-    #getTile(origin: FloatArrayParam):Tile {
+    #getTile(origin: FloatArrayParam):SceneTile {
         const tileId = `${origin[0]}-${origin[1]}-${origin[2]}`;
         let tile = this.tiles[tileId];
         if (tile) {
             tile.numObjects++;
         } else {
-            tile = new Tile(this, tileId, origin);
+            tile = new SceneTile(this, tileId, origin);
             tile.numObjects = 1;
             this.tiles[tileId] = tile;
             this.onTileCreated.dispatch(this, tile);
@@ -287,7 +287,7 @@ export class Scene extends Component {
         return tile;
     }
 
-    #putTile(tile: Tile): void {
+    #putTile(tile: SceneTile): void {
         if (this.tiles[tile.id] === undefined) {
             return;
         }

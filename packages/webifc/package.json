@@ -1,13 +1,11 @@
+
 {
   "name": "@xeokit/webifc",
-  "private": true,
-  "type": "module",
+  "private": false,
   "version": "1.0.1-alpha.0",
   "description": "WebIFC loader for xeokit",
   "main": "src/index.ts",
-  "scripts": {
-    "XXtest": "jest"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -17,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/xeokit/sdk/issues"
   },
-  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html",
+  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html",
   "files": [
     "src/",
     "README.md",
@@ -25,6 +23,7 @@
   ],
   "keywords": [],
   "dependencies": {
+    "@xeokit/viewer": "^1.0.1-alpha.0",
     "@xeokit/constants": "^1.0.1-alpha.0",
     "@xeokit/core": "^1.0.1-alpha.0",
     "@xeokit/data": "^1.0.1-alpha.0",
@@ -34,5 +33,9 @@
     "@xeokit/rtc": "^1.0.1-alpha.0",
     "@xeokit/scene": "^1.0.1-alpha.0",
     "web-ifc": "^0.0.35"
+  },
+  "devDependencies": {
+    "jest-electron": "^0.1.12",
+    "@kayahr/jest-electron-runner": "^29.11.0"
   }
 }

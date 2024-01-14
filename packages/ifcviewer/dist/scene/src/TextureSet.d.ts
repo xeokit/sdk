@@ -6,13 +6,13 @@ import type { RendererTextureSet } from "./RendererTextureSet";
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}
  * * Created with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}
- * * Referenced by {@link @xeokit/scene!Mesh.textureSet | Mesh.textureSet}
+ * * Referenced by {@link @xeokit/scene!SceneMesh.textureSet | SceneMesh.textureSet}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
 export declare class TextureSet {
     /**
-     * The ID of this TextureSet.
+     * The ID of this SceneTextureSet.
      */
     id: string;
     /**
@@ -32,7 +32,7 @@ export declare class TextureSet {
      */
     emissiveTexture?: Texture;
     /**
-     *  Internal interface through which a TextureSet can load property updates into a renderer.
+     *  Internal interface through which a SceneTextureSet can load property updates into a renderers.
      *
      *  This is defined while the owner {@link @xeokit/viewer!Renderer} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *

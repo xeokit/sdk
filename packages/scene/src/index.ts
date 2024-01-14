@@ -20,14 +20,14 @@
  * To elaborate further:
  *
  * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
- * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries}, {@link @xeokit/scene!GeometryBucket | GeometryBuckets}, and {@link @xeokit/scene!Texture | Textures}.
+ * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries}, {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets}, and {@link @xeokit/scene!SceneTexture | Textures}.
  * * Textures undergo compression to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) via the Basis Universal codec.
- * * Geometry undergoes compression through bucketing and quantization.
+ * * SceneGeometry undergoes compression through bucketing and quantization.
  * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
  * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/xkt" | loadXKT}.
  * * Export SceneModels to the native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format through {@link "@xeokit/xkt" | saveXKT}.
  * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel},
- * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
+ * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh},
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}. Add geometry
  * primitives using mesh generator functions like {@link @xeokit/procgen!buildBoxGeometry | buildBoxGeometry}, {@link @xeokit/procgen!buildSphereGeometry | buildSphereGeometry}, {@link @xeokit/procgen!buildTorusGeometry | buildTorusGeometry}, {@link @xeokit/procgen!buildCylinderGeometry | buildCylinderGeometry}, {@link @xeokit/procgen!buildPlaneGeometry | buildPlaneGeometry} and {@link @xeokit/procgen!buildVectorTextGeometry | buildVectorTextGeometry}.
  *
@@ -40,8 +40,8 @@
  * ### Notes
  *
  * * TextureSets are collections of textures that are shared among Meshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
- * * Geometries are arranged automatically into {@link @xeokit/scene!GeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.
- * * Each Mesh can be assigned to only one SceneObject, whereas each Geometry and TextureSet can be allocated to an unlimited number of Meshes.
+ * * Geometries are arranged automatically into {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.
+ * * Each SceneMesh can be assigned to only one SceneObject, whereas each SceneGeometry and SceneTextureSet can be allocated to an unlimited number of Meshes.
  * * The {@link getSceneObjectGeometry} function can be used to conveniently iterate the World-space geometry within each
  * {@link @xeokit/scene!SceneObject | SceneObject} - useful for building k-d trees, finding intersections etc.
  *
@@ -55,18 +55,18 @@
  *
  * * [Creating a SceneModel](#creating-a-scenemodel)
  * * [Reading the SceneModel](#reading-the-scenemodel)
- * * [Geometry Compression](#geometry-compression)
- * * [Texture Compression](#texture-compression)
+ * * [SceneGeometry Compression](#geometry-compression)
+ * * [SceneTexture Compression](#texture-compression)
  *
  * ### Creating a SceneModel
  *
  * In the example below, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} that will model the simple table furniture model
  * shown in the image above. Our SceneModel will get five
- * {@link @xeokit/scene!SceneObject | SceneObjects}, five {@link @xeokit/scene!Mesh | Meshes},
- * a {@link @xeokit/scene!Geometry | Geometry} and a {@link @xeokit/scene!Texture | Texture}.
+ * {@link @xeokit/scene!SceneObject | SceneObjects}, five {@link @xeokit/scene!SceneMesh | Meshes},
+ * a {@link @xeokit/scene!SceneGeometry | SceneGeometry} and a {@link @xeokit/scene!SceneTexture | SceneTexture}.
  *
  * When we've finished constructing our SceneModel, we'll call {@link @xeokit/scene!SceneModel.build | SceneModel.build}, which
- * (asynchronously) compresses our Texture.
+ * (asynchronously) compresses our SceneTexture.
  *
  * At that point, we can use the SceneModel. For example, we could export it to xeokit's native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt)
  * file format using {@link "@xeokit/xkt" | saveXKT}, or view it in the Browser using a {@link "@xeokit/viewer" | Viewer}.
@@ -142,7 +142,7 @@
  *          console.log(theTextureSet.message);
  *      }
  *
- *      const redLegMesh = sceneModel.createMesh({
+ *      const redLegMesh = sceneModel.createLayerMesh({
  *          id: "redLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [-4, -6, -4],
@@ -156,7 +156,7 @@
  *          console.log(redLegMesh.message);
  *      }
  *
- *      const greenLegMesh = sceneModel.createMesh({
+ *      const greenLegMesh = sceneModel.createLayerMesh({
  *          id: "greenLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [4, -6, -4],
@@ -166,7 +166,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const blueLegMesh = sceneModel.createMesh({
+ *      const blueLegMesh = sceneModel.createLayerMesh({
  *          id: "blueLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [4, -6, 4],
@@ -176,7 +176,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const yellowLegMesh = sceneModel.createMesh({
+ *      const yellowLegMesh = sceneModel.createLayerMesh({
  *          id: "yellowLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [-4, -6, 4],
@@ -186,7 +186,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const tableTopMesh = sceneModel.createMesh({
+ *      const tableTopMesh = sceneModel.createLayerMesh({
  *          id: "tableTopMesh",
  *          geometryId: "boxGeometry",
  *          position: [0, -3, 0],
@@ -196,8 +196,8 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      // Create five SceneObjects, each using a Mesh.
- *      // A Mesh belongs to exactly one SceneObject.
+ *      // Create five SceneObjects, each using a SceneMesh.
+ *      // A SceneMesh belongs to exactly one SceneObject.
  *
  *      const redLegSceneObject = sceneModel.createObject({
  *          id: "redLegObject",
@@ -249,7 +249,7 @@
  *
  * ### Reading the SceneModel
  *
- * Now that we've built our SceneModel, we can read all of its components. Note that the {@link @xeokit/scene!Texture} and {@link @xeokit/scene!Geometry}
+ * Now that we've built our SceneModel, we can read all of its components. Note that the {@link @xeokit/scene!SceneTexture} and {@link @xeokit/scene!SceneGeometry}
  * we just created will now be compressed.
  *
  * ````javascript
@@ -262,7 +262,7 @@
  * const theTableTopObjectAgain = theScene.objects["tableTopObject"];
  * ````
  *
- * ### Geometry Compression
+ * ### SceneGeometry Compression
  *
  * The geometry from our query example requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.createGeometry}
  * method uses the {@link @xeokit/scene!compressGeometryParams} function to compress the geometry and generate edge indices for
@@ -278,7 +278,7 @@
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
+ * * Splits geometry into {@link @xeokit/scene!SceneGeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
  * Our compressed geometry then looks like this:
  *
@@ -293,12 +293,12 @@
  * The bucketing technique was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.
  *
  * In the example below, we'll now use {@link @xeokit/scene!compressGeometryParams} to compress
- * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
- * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
+ * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
+ * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
  *
- * In this example, our geometry is very simple, and our GeometryCompressedParams only gets a single
- * {@link @xeokit/scene!GeometryBucketParams | GeometryBucketParams }. Note that if the
- * {@link @xeokit/scene!GeometryParams.positions | GeometryParams.positions} array was large enough to require
+ * In this example, our geometry is very simple, and our SceneGeometryCompressedParams only gets a single
+ * {@link @xeokit/scene!SceneGeometryBucketParams | SceneGeometryBucketParams }. Note that if the
+ * {@link @xeokit/scene!SceneGeometryParams.positions | SceneGeometryParams.positions} array was large enough to require
  * some indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would
  * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
@@ -324,7 +324,7 @@
  *  });
  * ````
  *
- * The value of our new {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams} is shown below.
+ * The value of our new {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams} is shown below.
  *
  * We can see that:
  *
@@ -367,11 +367,11 @@
  * }
  * ````
  *
- * ### Texture Compression
+ * ### SceneTexture Compression
  *
- * The {@link @xeokit/scene!Texture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
- * method uses [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis) to compress the Texture to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2). We can now read that transcoded data
- * back from {@link @xeokit/scene!Texture.buffers | Texture.buffers}:
+ * The {@link @xeokit/scene!SceneTexture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
+ * method uses [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis) to compress the SceneTexture to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2). We can now read that transcoded data
+ * back from {@link @xeokit/scene!SceneTexture.buffers | SceneTexture.buffers}:
  *
  * ````javascript
  * const theTexture = theSceneModel.textures["theColorTexture"];
@@ -386,11 +386,11 @@ export * from "./Scene";
 export * from "./SceneModel";
 export * from "./SceneModelStats";
 export * from "./SceneObject";
-export * from "./Texture";
-export * from "./TextureSet";
-export * from "./Geometry";
-export * from "./GeometryBucket";
-export * from "./Mesh";
+export * from "./SceneTexture";
+export * from "./SceneTextureSet";
+export * from "./SceneGeometry";
+export * from "./SceneGeometryBucket";
+export * from "./SceneMesh";
 
 export * from "./RendererGeometry";
 export * from "./RendererMesh";
@@ -399,14 +399,14 @@ export * from "./RendererModel";
 export * from "./RendererTexture";
 export * from "./RendererTextureSet";
 
-export * from "./MeshParams";
+export * from "./SceneMeshParams";
 export * from "./SceneObjectParams";
-export * from "./TextureParams";
-export * from "./TextureSetParams";
-export * from "./TransformParams";
-export * from "./GeometryBucketParams";
-export * from "./GeometryCompressedParams";
-export * from "./GeometryParams";
+export * from "./SceneTextureParams";
+export * from "./SceneTextureSetParams";
+export * from "./SceneTransformParams";
+export * from "./SceneGeometryBucketParams";
+export * from "./SceneGeometryCompressedParams";
+export * from "./SceneGeometryParams";
 export * from "./SceneModelParams";
 export * from "./compressGeometryParams";
 

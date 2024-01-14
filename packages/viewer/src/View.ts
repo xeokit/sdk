@@ -24,7 +24,7 @@ import type {PointLight} from "./PointLight";
 import {CameraFlightAnimation} from "./CameraFlightAnimation";
 import type {AmbientLight} from "./AmbientLight";
 import type {DirLight} from "./DirLight";
-import type {RendererViewObject} from "./RendererViewObject";
+import type {RendererObject} from "@xeokit/scene/src/RendererObject";
 import type {PickParams} from "./PickParams";
 import type {PickResult} from "./PickResult";
 import {SnapshotResult} from "./SnapshotResult";
@@ -38,7 +38,7 @@ import {ResolutionScale} from "./ResolutionScale";
  *
  * ## Overview
  *
- * A View is an independently-configurable view of the {@link RendererViewObject | ViewerObjects} existing within a Viewer, with
+ * A View is an independently-configurable view of the {@link RendererObject | ViewerObjects} existing within a Viewer, with
  * its own HTML canvas. A View automatically contains a {@link @xeokit/viewer!ViewObject} for each existing ViewerObject. ViewObjects
  * function as a kind of proxy for the ViewerObjects, through which we control their appearance
  * (show/hide/highlight etc.) within that particular View's canvas.
@@ -52,7 +52,7 @@ import {ResolutionScale} from "./ResolutionScale";
  * * Control the View's viewpoint and projection with {@link View.camera}
  * * Create light sources with {@link View.createLightSource}
  * * Create slicing planes with {@link View createSectionPlane}
- * * Each View automatically has a {@link @xeokit/viewer!ViewObject} for every {@link RendererViewObject}
+ * * Each View automatically has a {@link @xeokit/viewer!ViewObject} for every {@link RendererObject}
  * * Uses {@link @xeokit/viewer!ViewLayer | ViewLayers} to organize ViewObjects into layers
  * * Optionally uses ViewLayers to mask which ViewObjects are automatically maintained
  * * Control the visibility of ViewObjects with {@link View.setObjectsVisible}
@@ -197,7 +197,7 @@ class View extends Component {
      * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      *
      * The View automatically ensures that there is a {@link @xeokit/viewer!ViewObject} here for
-     * each {@link RendererViewObject} in the {@link @xeokit/viewer!Viewer}
+     * each {@link RendererObject} in the {@link @xeokit/viewer!Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
 
@@ -284,14 +284,14 @@ class View extends Component {
 
     /**
      * Whether the View will automatically create {@link @xeokit/viewer!ViewLayer | ViewLayers} on-demand
-     * as {@link RendererViewObject | ViewerObjects} are created.
+     * as {@link RendererObject | ViewerObjects} are created.
      *
      * When ````true```` (default), the View will automatically create {@link @xeokit/viewer!ViewLayer | ViewLayers} as needed for each new
-     * {@link RendererViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+     * {@link RendererObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
      * layerId. This default setting therefore ensures that a ViewObject is created in the View for every SceneObject that is created.
      *
-     * If you set this ````false````, however, then the View will only create {@link @xeokit/viewer!ViewObject | ViewObjects} for {@link RendererViewObject | ViewerObjects} that have
-     * a {@link RendererViewObject.layerId} that matches the ID of a {@link @xeokit/viewer!ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
+     * If you set this ````false````, however, then the View will only create {@link @xeokit/viewer!ViewObject | ViewObjects} for {@link RendererObject | ViewerObjects} that have
+     * a {@link RendererObject.layerId} that matches the ID of a {@link @xeokit/viewer!ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
      *
      * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
      * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
@@ -681,14 +681,14 @@ class View extends Component {
     }
 
     #createViewObjectsForSceneModel(sceneModel: SceneModel) {
-        // The Renderer has a RendererViewObject for each object, through which a ViewObject can
+        // The Renderer has a RendererObject for each object, through which a ViewObject can
         // push state changes into the Renderer for its object.
-        // The RendererViewObject
+        // The RendererObject
         const sceneObjects = sceneModel.objects;
-        const rendererViewObjects = this.viewer.renderer.rendererViewObjects;
+        const rendererObjects = this.viewer.renderer.rendererObjects;
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
-            const rendererViewObject = rendererViewObjects[id];
+            const rendererObject = rendererObjects[id];
             const layerId = sceneObject.layerId || "default";
             let viewLayer = this.layers[layerId];
             if (!viewLayer) {
@@ -707,7 +707,7 @@ class View extends Component {
                 });
                 this.onLayerCreated.dispatch(this, viewLayer);
             }
-            const viewObject = new ViewObject(viewLayer, sceneObject, rendererViewObject);
+            const viewObject = new ViewObject(viewLayer, sceneObject, rendererObject);
             viewLayer.registerViewObject(viewObject);
             this.registerViewObject(viewObject);
         }

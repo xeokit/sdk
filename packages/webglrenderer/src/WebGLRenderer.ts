@@ -3,19 +3,19 @@ import {createVec3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
-import type {Renderer, RendererViewObject, View, Viewer, ViewObject} from "@xeokit/viewer";
+import type {Renderer, RendererObject, View, Viewer, ViewObject} from "@xeokit/viewer";
 
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
-import {RenderContext} from "./RenderContext";
-import {FastColorTrianglesRenderer} from "./FastColorTrianglesRenderer";
-import {getExtension, GLRenderBuffer, WEBGL_INFO} from "@xeokit/webglutils";
-import {RENDER_PASSES} from "./RENDER_PASSES";
+import {RenderContext} from "./common/RenderContext";
+import {TrianglesFastColorLayerRenderer} from "./triangles/renderers/TrianglesFastColorLayerRenderer";
+import {getWebGLExtension, WEBGL_INFO} from "@xeokit/webglutils";
+import {RENDER_PASSES} from "./common/RENDER_PASSES";
 import type {Pickable} from "./Pickable";
 import {WebGLRendererModel} from "./WebGLRendererModel";
-import type {Layer} from "./Layer";
+import type {TrianglesRendererLayer} from "./triangles/TrianglesRendererLayer";
 import type {Capabilities, Component, TextureTranscoder} from "@xeokit/core";
 import {SDKError} from "@xeokit/core";
-import type {Scene, SceneModel} from "@xeokit/scene";
+import type {SceneModel} from "@xeokit/scene";
 import {WebGLTileManager} from "./WebGLTileManager";
 
 
@@ -30,10 +30,10 @@ const isSafari = (ua && ua[1].toLowerCase() === "safari");
 export class WebGLRenderer implements Renderer {
 
     /**
-     * A RendererViewObject is an interface through which a ViewObject can push updates
-     * to its object representation within the Renderer.
+     * A RendererObject is an interface through which a ViewObject can send updates
+     * for its SceneObject to the Renderer.
      */
-    rendererViewObjects: { [key: string]: RendererViewObject };
+    rendererObjects: { [key: string]: RendererObject };
 
     tileManager: WebGLTileManager | null;
 
@@ -49,7 +49,7 @@ export class WebGLRenderer implements Renderer {
     #pbrEnabled: boolean;
     #backgroundColor: FloatArrayParam;
     #rendererModels: { [key: string]: WebGLRendererModel };
-    #layerList: Layer[];
+    #layerList: TrianglesRendererLayer[];
     #layerListDirty: boolean;
     #stateSortDirty: boolean;
     #pickIDs = new Map({});
@@ -64,12 +64,12 @@ export class WebGLRenderer implements Renderer {
 
     // @ts-ignore
     #layerRenderers: {
-        // colorPoints: ColorPointsLayerRenderer;
-        colorTriangles: FastColorTrianglesRenderer;
-        // qualityColorTriangles: QualityColorTrianglesRenderer;
+        // colorPoints: PointsColorLayerRenderer;
+        trianglesFastColorLayerRenderer: TrianglesFastColorLayerRenderer;
+        // qualityColorTriangles: TrianglesQualityColorLayerRenderer;
         // colorLines: ColorLinesLayerRenderer;
-        // silhouettePoints: SilhouettePointsRenderer;
-        // silhouetteTriangles: SilhouetteTrianglesLayerRenderer;
+        // silhouettePoints: PointsSilhouetteLayerRenderer;
+        // silhouetteTriangles: TrianglesSilhouetteLayerRenderer;
         // silhouetteLines: SilhouetteLinesRenderer;
     };
     #viewMatrixDirty: boolean;
@@ -87,7 +87,7 @@ export class WebGLRenderer implements Renderer {
         textureTranscoder?: TextureTranscoder
     }) {
 
-        this.rendererViewObjects = {};
+        this.rendererObjects = {};
         this.tileManager = null;
 
         this.#sceneModels = {};
@@ -128,12 +128,12 @@ export class WebGLRenderer implements Renderer {
             console.error('Failed to get a WebGL context');
         }
         if (gl) {
-            capabilities.astcSupported = !!getExtension(gl, 'WEBGL_compressed_texture_astc');
+            capabilities.astcSupported = !!getWebGLExtension(gl, 'WEBGL_compressed_texture_astc');
             capabilities.etc1Supported = true; // WebGL
-            capabilities.etc2Supported = !!getExtension(gl, 'WEBGL_compressed_texture_etc');
-            capabilities.dxtSupported = !!getExtension(gl, 'WEBGL_compressed_texture_s3tc');
-            capabilities.bptcSupported = !!getExtension(gl, 'EXT_texture_compression_bptc');
-            capabilities.pvrtcSupported = !!(getExtension(gl, 'WEBGL_compressed_texture_pvrtc') || getExtension(gl, 'WEBKIT_WEBGL_compressed_texture_pvrtc'));
+            capabilities.etc2Supported = !!getWebGLExtension(gl, 'WEBGL_compressed_texture_etc');
+            capabilities.dxtSupported = !!getWebGLExtension(gl, 'WEBGL_compressed_texture_s3tc');
+            capabilities.bptcSupported = !!getWebGLExtension(gl, 'EXT_texture_compression_bptc');
+            capabilities.pvrtcSupported = !!(getWebGLExtension(gl, 'WEBGL_compressed_texture_pvrtc') || getWebGLExtension(gl, 'WEBKIT_WEBGL_compressed_texture_pvrtc'));
         }
     }
 
@@ -150,7 +150,7 @@ export class WebGLRenderer implements Renderer {
      * TODO
      * @internal
      */
-    attachView(view: View): number {
+    attachView(view: View): number | SDKError {
         if (this.#renderContext) {
             throw "Only one View allowed with WebGLRenderer (see WebViewerCapabilities.maxViews)";
         }
@@ -166,9 +166,7 @@ export class WebGLRenderer implements Renderer {
             }
         }
         if (!gl) {
-            console.error('Failed to get a WebGL2 context');
-            //  view.events.fire("webglContextFailed", true, true);
-            return 0;
+            return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.canvasElement.id}")`);
         }
         if (gl) {
             gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
@@ -179,12 +177,12 @@ export class WebGLRenderer implements Renderer {
             gl
         });
         this.#layerRenderers = {
-            //       colorPoints: new ColorPointsLayerRenderer(this.#renderContext),
-            colorTriangles: new FastColorTrianglesRenderer(this.#renderContext),
-            // qualityColorTriangles: new QualityColorTrianglesRenderer(this.#renderContext),
+            //       colorPoints: new PointsColorLayerRenderer(this.#renderContext),
+            trianglesFastColorLayerRenderer: new TrianglesFastColorLayerRenderer(this.#renderContext),
+            // qualityColorTriangles: new TrianglesQualityColorLayerRenderer(this.#renderContext),
             // colorLines: new ColorLinesLayerRenderer(this.#renderContext),
-            // silhouettePoints: new SilhouettePointsRenderer(this.#renderContext),
-            // silhouetteTriangles: new SilhouetteTrianglesLayerRenderer(this.#renderContext),
+            // silhouettePoints: new PointsSilhouetteLayerRenderer(this.#renderContext),
+            // silhouetteTriangles: new TrianglesSilhouetteLayerRenderer(this.#renderContext),
             // silhouetteLines: new SilhouetteLinesRenderer(this.#renderContext)
         };
         view.camera.onViewMatrix.sub(() => {
@@ -197,7 +195,7 @@ export class WebGLRenderer implements Renderer {
      * TODO
      * @internal
      */
-    detachView(viewIndex: number): SDKError | void{ // Nop
+    detachView(viewIndex: number): SDKError | void { // Nop
     }
 
     /**
@@ -217,12 +215,12 @@ export class WebGLRenderer implements Renderer {
             renderContext: this.#renderContext
         });
         this.#rendererModels[rendererModel.id] = rendererModel;
-        this.#attachRendererViewObjects(rendererModel);
+        this.#attachRendererObjects(rendererModel);
         this.#layerListDirty = true;
         rendererModel.onDestroyed.one((component: Component) => {
             const rendererModel = this.#rendererModels[component.id];
             delete this.#rendererModels[component.id];
-            this.#detachRendererViewObjects(rendererModel);
+            this.#detachRendererObjects(rendererModel);
             this.#layerListDirty = true;
         });
         sceneModel.rendererModel = rendererModel;
@@ -232,27 +230,27 @@ export class WebGLRenderer implements Renderer {
      * TODO
      * @internal
      */
-    detachSceneModel(sceneModel:SceneModel): void {
+    detachSceneModel(sceneModel: SceneModel): void {
         if (this.#rendererModels[sceneModel.id]) {
             const rendererModel = this.#rendererModels[sceneModel.id];
             delete this.#rendererModels[sceneModel.id];
-            this.#detachRendererViewObjects(rendererModel);
+            this.#detachRendererObjects(rendererModel);
             this.#layerListDirty = true;
             sceneModel.rendererModel = null;
         }
     }
 
-    #attachRendererViewObjects(rendererModel: WebGLRendererModel) {
-        const rendererViewObjects = rendererModel.rendererViewObjects;
-        for (let id in rendererViewObjects) {
-            this.rendererViewObjects[id] = rendererViewObjects[id];
+    #attachRendererObjects(rendererModel: WebGLRendererModel) {
+        const rendererObjects = rendererModel.rendererObjects;
+        for (let id in rendererObjects) {
+            this.rendererObjects[id] = rendererObjects[id];
         }
     }
 
-    #detachRendererViewObjects(rendererModel: WebGLRendererModel) {
-        const rendererViewObjects = rendererModel.rendererViewObjects;
-        for (let id in rendererViewObjects) {
-            delete this.rendererViewObjects[id];
+    #detachRendererObjects(rendererModel: WebGLRendererModel) {
+        const rendererObjects = rendererModel.rendererObjects;
+        for (let id in rendererObjects) {
+            delete this.rendererObjects[id];
         }
     }
 
@@ -511,22 +509,22 @@ export class WebGLRenderer implements Renderer {
         const renderContext = this.#renderContext;
         const gl = renderContext.gl;
 
-        const normalDrawSAOBin: Layer[] = [];
-        const edgesColorOpaqueBin: Layer[] = [];
-        const normalFillTransparentBin: Layer[] = [];
-        const edgesColorTransparentBin: Layer[] = [];
-        const xrayedSilhouetteOpaqueBin: Layer[] = [];
-        const xrayEdgesOpaqueBin: Layer[] = [];
-        const xrayedSilhouetteTransparentBin: Layer[] = [];
-        const xrayEdgesTransparentBin: Layer[] = [];
-        const highlightedSilhouetteOpaqueBin: Layer[] = [];
-        const highlightedEdgesOpaqueBin: Layer[] = [];
-        const highlightedSilhouetteTransparentBin: Layer[] = [];
-        const highlightedEdgesTransparentBin: Layer[] = [];
-        const selectedSilhouetteOpaqueBin: Layer[] = [];
-        const selectedEdgesOpaqueBin: Layer[] = [];
-        const selectedSilhouetteTransparentBin: Layer[] = [];
-        const selectedEdgesTransparentBin: Layer[] = [];
+        const normalDrawSAOBin: TrianglesRendererLayer[] = [];
+        const edgesColorOpaqueBin: TrianglesRendererLayer[] = [];
+        const normalFillTransparentBin: TrianglesRendererLayer[] = [];
+        const edgesColorTransparentBin: TrianglesRendererLayer[] = [];
+        const xrayedSilhouetteOpaqueBin: TrianglesRendererLayer[] = [];
+        const xrayEdgesOpaqueBin: TrianglesRendererLayer[] = [];
+        const xrayedSilhouetteTransparentBin: TrianglesRendererLayer[] = [];
+        const xrayEdgesTransparentBin: TrianglesRendererLayer[] = [];
+        const highlightedSilhouetteOpaqueBin: TrianglesRendererLayer[] = [];
+        const highlightedEdgesOpaqueBin: TrianglesRendererLayer[] = [];
+        const highlightedSilhouetteTransparentBin: TrianglesRendererLayer[] = [];
+        const highlightedEdgesTransparentBin: TrianglesRendererLayer[] = [];
+        const selectedSilhouetteOpaqueBin: TrianglesRendererLayer[] = [];
+        const selectedEdgesOpaqueBin: TrianglesRendererLayer[] = [];
+        const selectedSilhouetteTransparentBin: TrianglesRendererLayer[] = [];
+        const selectedEdgesTransparentBin: TrianglesRendererLayer[] = [];
 
         renderContext.reset();
         renderContext.withSAO = false;
@@ -796,7 +794,7 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
-    #drawLayer(layer: Layer, renderPass: number, quality: boolean = true) {
+    #drawLayer(layer: TrianglesRendererLayer, renderPass: number, quality: boolean = true) {
         switch (layer.renderState.primitive) {
             case TrianglesPrimitive:
             case SurfacePrimitive:
@@ -809,7 +807,7 @@ export class WebGLRenderer implements Renderer {
                         if (quality) {
                             //    this.#layerRenderers.qualityColorTriangles.draw(layer);
                         } else {
-                            this.#layerRenderers.colorTriangles.draw(layer);
+                            this.#layerRenderers.trianglesFastColorLayerRenderer.draw(layer);
                         }
                         break;
                     case RENDER_PASSES.COLOR_TRANSPARENT:
@@ -819,7 +817,7 @@ export class WebGLRenderer implements Renderer {
                         if (quality) {
                             //     this.#layerRenderers.qualityColorTriangles.draw(layer);
                         } else {
-                            this.#layerRenderers.colorTriangles.draw(layer);
+                            this.#layerRenderers.trianglesFastColorLayerRenderer.draw(layer);
                         }
                         break;
                     case RENDER_PASSES.SILHOUETTE_SELECTED:

@@ -18,15 +18,15 @@ import type { CreateModelParams } from "./CreateModelParams";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new MyRenderer({ })
+ *     renderers: new MyRenderer({ })
  * });
  * ````
  */
 export interface Renderer {
     /**
-     * A RenderObject for each object in the renderer.
+     * A RenderObject for each object in the renderers.
      */
-    rendererViewObjects: {
+    rendererObjects: {
         [key: string]: RendererViewObject;
     };
     /**
@@ -110,11 +110,11 @@ export interface Renderer {
      */
     setBackgroundColor(viewIndex: number, color: FloatArrayParam): void;
     /**
-     * Indicates that the renderer needs to render a new frame for the given View.
+     * Indicates that the renderers needs to render a new frame for the given View.
      */
     setImageDirty(viewIndex?: number): void;
     /**
-     * Clears this renderer,
+     * Clears this renderers,
      * @param viewIndex
      */
     clear(viewIndex: number): any;

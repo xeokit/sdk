@@ -50,8 +50,8 @@
  *
  * A primitive has one or more vertex indices, and the number of indices is determined by the primitive type. These
  * indices are used to access the compressed vertex coordinates of the primitive within
- * GeometryBucket.positionsCompressed. These coordinates can be decompressed using Geometry.positionsDecompressMatrix and
- * then transformed into the World-space coordinate system using Mesh.matrix to obtain the final coordinates of the primitive.
+ * SceneGeometryBucket.positionsCompressed. These coordinates can be decompressed using SceneGeometry.positionsDecompressMatrix and
+ * then transformed into the World-space coordinate system using SceneMesh.matrix to obtain the final coordinates of the primitive.
  *
  * To keep a low memory footprint, while being flexible and extensible, both the RayPickResult and xeokit's
  * scene graph have been designed in such a way that requires some boilerplate code to traverse and unpack them. This
@@ -92,27 +92,27 @@
  *         indices: [21, 0, 1, 1, 22, 21, 22, 1, 2, 2, 23, 22, 23, ..]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "redLegMesh", geometryId: "theGeometry",
  *         position: [-4, -6, -4], scale: [1, 3, 1], rotation: [0, 0, 0], color: [1, 0.3, 0.3]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "greenLegMesh", geometryId: "theGeometry", position: [4, -6, -4], scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [0.3, 1.0, 0.3]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "blueLegMesh", geometryId: "theGeometry", position: [4, -6, 4],  scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [0.3, 0.3, 1.0]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "yellowLegMesh",  geometryId: "theGeometry", position: [-4, -6, 4], scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [1.0, 1.0, 0.0]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "tableTopMesh", geometryId: "theGeometry", position: [0, -3, 0], scale: [6, 0.5, 6],
  *         rotation: [0, 0, 0], color: [1.0, 0.3, 1.0]
  *     });
@@ -150,14 +150,14 @@
  *                 const sceneObjectHit = rayPickResult.sceneObjectHits[i];
  *                 const sceneObject = sceneObjectHit.sceneObject;
  *
- *                 // Within each SceneObjectHit we get a MeshHit that wraps each Mesh that
+ *                 // Within each SceneObjectHit we get a MeshHit that wraps each SceneMesh that
  *                 // was picked in this SceneObject
  *
  *                 const meshHit = sceneObjectHit.meshHit;
  *                 const mesh = meshHit.mesh;
  *
  *                 // Within the MeshHit, a single GeometryHit that wraps
- *                 // the Geometry that was picked
+ *                 // the SceneGeometry that was picked
  *
  *                 const geometryHit = meshHit.geometryHit;
  *                 const geometry = geometryHit.geometry;
@@ -168,7 +168,7 @@
  *                 const geometryBucket = geometryBucketHit.geometryBucket;
  *
  *                 // And finally within the GeometryBucketHit, a PrimHit
- *                 // for each primitive that was hit within the GeometryBucket.
+ *                 // for each primitive that was hit within the SceneGeometryBucket.
  *
  *                 // Each PrimtHit wraps a single a single KdPointPrim, KdLinePrim or KdTrianglePrim,
  *                 // which represents a point, line or triangle primitive, respectively.
@@ -178,7 +178,7 @@
  *                     const primHit = geometryBucketHit.primHits[j];
  *                     const primitive = primHit.primitive;
  *
- *                     // We know the primitive type from the Geometry
+ *                     // We know the primitive type from the SceneGeometry
  *
  *                     switch (geometry.primitive) {
  *

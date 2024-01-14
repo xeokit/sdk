@@ -264,6 +264,7 @@ export class IFCViewer {
     loadBCF(bcfViewpoint: BCFViewpoint) {
         loadBCFViewpoint({
             bcfViewpoint,
+            data: this.data,
             view: this.view,
             includeLayerIds: [
                 this.modelsLayer.id

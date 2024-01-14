@@ -4,7 +4,7 @@
  *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="media://images/xeokit_ktx_logo.svg"/>
  *
- * # xeokit [KTX2](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#ktx2) Texture Transcoder
+ * # xeokit [KTX2](https://github.com/xeokit/sdk/blob/main/GLOSSARY.md#ktx2) SceneTexture Transcoder
  *
  * ---
  *
@@ -15,7 +15,7 @@
  * * Provides {@link KTX2TextureTranscoder}
  * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
  * * Then {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} can create textures from KTX2-encoded compressed textures
- * * Uses the [Basis Universal GPU Texture Codec](https://github.com/BinomialLLC/basis_universal) to
+ * * Uses the [Basis Universal GPU SceneTexture Codec](https://github.com/BinomialLLC/basis_universal) to
  * transcode [KTX2](https://github.khronos.org/KTX-Specification/) textures.
  * * Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/) by default, but can
  * also be configured to load the Codec from local files.
@@ -23,7 +23,7 @@
  *
  * ### What is KTX2?
  *
- * A [KTX2](https://github.khronos.org/KTX-Specification/) file stores GPU texture data in the Khronos Texture 2.0 (KTX2) container format. It contains image data for
+ * A [KTX2](https://github.khronos.org/KTX-Specification/) file stores GPU texture data in the Khronos SceneTexture 2.0 (KTX2) container format. It contains image data for
  * a texture asset compressed with Basis Universal (BasisU) supercompression that can be transcoded to different formats
  * depending on the support provided by the target devices. KTX2 provides a lightweight format for distributing texture
  * assets to GPUs. Due to BasisU compression, KTX2 files can store any image format supported by GPUs.
@@ -57,7 +57,7 @@
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ // Optional
+ *     renderers: new WebGLRenderer({ // Optional
  *          textureTranscoder: new KTX2TextureTranscoder({
  *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
@@ -103,7 +103,7 @@
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ // Optional
+ *     renderers: new WebGLRenderer({ // Optional
  *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
  *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
@@ -148,7 +148,7 @@
  *     indices: [0, 1, 2, ...],
  * });
  *
- * viewerModel.createMesh({
+ * viewerModel.createLayerMesh({
  *      id: "myMesh",
  *      textureSetId: "myTextureSet",
  *      geometryId: "myGeometry"
@@ -179,7 +179,7 @@
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ // Optional
+ *     renderers: new WebGLRenderer({ // Optional
  *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
  *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
@@ -228,7 +228,7 @@
  *                  indices: [0, 1, 2, ...],
  *              });
  *
- *              viewerModel.createMesh({
+ *              viewerModel.createLayerMesh({
  *                  id: "myMesh",
  *                  textureSetId: "myTextureSet",
  *                  geometryId: "myGeometry"

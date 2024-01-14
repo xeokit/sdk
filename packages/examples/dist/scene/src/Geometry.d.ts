@@ -8,7 +8,7 @@ import type { RendererGeometry } from "./RendererGeometry";
  * * Stored in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}
  * * Created with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}
  * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
- * * Referenced by {@link @xeokit/scene!Mesh.geometry | Mesh.geometry}
+ * * Referenced by {@link @xeokit/scene!SceneMesh.geometry | SceneMesh.geometry}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -26,7 +26,7 @@ export declare class Geometry {
      */
     primitive: number;
     /**
-     * Matrix to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}.
+     * Matrix to decompress {@link @xeokit/scene!SceneGeometryBucketParams.positionsCompressed}.
      */
     positionsDecompressMatrix: FloatArrayParam;
     /**
@@ -51,7 +51,7 @@ export declare class Geometry {
      */
     geometryBuckets: GeometryBucket[];
     /**
-     * Interface through which this Geometry can load any user-updated geometry arrays into the renderer.
+     * Interface through which this SceneGeometry can load any user-updated geometry arrays into the renderers.
      *
      * @internal
      */

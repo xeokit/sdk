@@ -27,15 +27,15 @@ export interface XKTData {
      *
      * The attributes for each texture are:
      *
-     * * Texture compressed? - 0 (no) or 1 (yes)
-     * * {@link @xeokit/scene!Texture.mediaType}
-     * * {@link @xeokit/scene!Texture.width}
-     * * {@link @xeokit/scene!Texture.height}
-     * * {@link @xeokit/scene!Texture.minFilter}
-     * * {@link @xeokit/scene!Texture.magFilter}
-     * * {@link @xeokit/scene!Texture.wrapS}
-     * * {@link @xeokit/scene!Texture.wrapT}
-     * * {@link @xeokit/scene!Texture.wrapR}
+     * * SceneTexture compressed? - 0 (no) or 1 (yes)
+     * * {@link @xeokit/scene!SceneTexture.mediaType}
+     * * {@link @xeokit/scene!SceneTexture.width}
+     * * {@link @xeokit/scene!SceneTexture.height}
+     * * {@link @xeokit/scene!SceneTexture.minFilter}
+     * * {@link @xeokit/scene!SceneTexture.magFilter}
+     * * {@link @xeokit/scene!SceneTexture.wrapS}
+     * * {@link @xeokit/scene!SceneTexture.wrapT}
+     * * {@link @xeokit/scene!SceneTexture.wrapR}
      */
     eachTextureAttributes: Uint16Array;
 
@@ -167,7 +167,7 @@ export interface XKTData {
     /**
      * For each mesh, a pointer to its texture set in {@link XKTData.textureSets}.
      */
-    eachMeshTextureSet: Int32Array; // Allow -1 values, to indicate no TextureSet
+    eachMeshTextureSet: Int32Array; // Allow -1 values, to indicate no SceneTextureSet
 
     /**
      * For each mesh, a set of sixe material attribute values.

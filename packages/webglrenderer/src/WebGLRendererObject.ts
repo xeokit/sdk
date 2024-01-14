@@ -2,9 +2,8 @@
 import {createAABB3} from "@xeokit/boundaries";
 import {createVec3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
-import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
+import {SCENE_OBJECT_FLAGS} from './common/SCENE_OBJECT_FLAGS';
 import type {WebGLRendererMesh} from "./WebGLRendererMesh";
-import type {RendererViewObject} from "@xeokit/viewer";
 import type {RendererModel, RendererObject, SceneObject} from "@xeokit/scene";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
@@ -13,7 +12,7 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
  * TODO
  * @internal
  */
-export class WebGLRendererObject implements RendererObject, RendererViewObject {
+export class WebGLRendererObject implements RendererObject, RendererObject {
 
     readonly id: string;
     readonly rendererModel: RendererModel;

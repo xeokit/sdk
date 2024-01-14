@@ -8,7 +8,7 @@ import {
     TrianglesPrimitive
 } from "@xeokit/constants";
 import type {DataModel, DataModelParams} from "@xeokit/data";
-import type {GeometryBucketParams, GeometryCompressedParams, SceneModel} from "@xeokit/scene";
+import type {SceneGeometryBucketParams, SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
 import type {XKTData} from "./XKTData";
 import type {FloatArrayParam} from "@xeokit/math";
 
@@ -204,7 +204,7 @@ export function xktToModel(params: {
 
                 for (let bucketIndex = firstBucketIndex; bucketIndex <= lastBucketIndex; bucketIndex++) {
 
-                    const geometryBucketParams = <GeometryBucketParams>{
+                    const geometryBucketParams = <SceneGeometryBucketParams>{
                         positionsCompressed: [],
                         indices: []
                     };
@@ -247,7 +247,7 @@ export function xktToModel(params: {
                 }
 
                 if (geometryCompressedParams.geometryBuckets.length > 0) {
-                    sceneModel.createGeometryCompressed(<GeometryCompressedParams>geometryCompressedParams);
+                    sceneModel.createGeometryCompressed(<SceneGeometryCompressedParams>geometryCompressedParams);
                     geometryCreated[geometryId] = true;
                 }
             }

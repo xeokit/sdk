@@ -2,7 +2,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 
 import type {ViewLayer} from "./ViewLayer";
 import type {SceneObject} from "@xeokit/scene";
-import type {RendererViewObject} from "./RendererViewObject";
+import type {RendererObject} from "@xeokit/scene/src/RendererObject";
 import {SDKError} from "@xeokit/core";
 
 /**
@@ -48,10 +48,10 @@ export class ViewObject {
     public readonly sceneObject: SceneObject;
 
     /**
-     * The corresponding {@link RendererViewObject}.
+     * The corresponding {@link RendererObject}.
      * @internal
      */
-    #rendererViewObject: RendererViewObject;
+    #rendererObject: RendererObject;
 
     #state: {
         visible: boolean;
@@ -71,13 +71,13 @@ export class ViewObject {
     /**
      * @private
      */
-    constructor(layer: ViewLayer, sceneObject: SceneObject, rendererViewObject: RendererViewObject) {
+    constructor(layer: ViewLayer, sceneObject: SceneObject, rendererObject: RendererObject) {
 
         this.id = sceneObject.id;
         this.originalSystemId = sceneObject.originalSystemId;
         this.layer = layer;
         this.sceneObject = sceneObject;
-        this.#rendererViewObject = rendererViewObject;
+        this.#rendererObject = rendererObject;
 
         this.#state = {
             visible: true,
@@ -94,7 +94,7 @@ export class ViewObject {
             opacityUpdated: false,
         };
 
-        this.#rendererViewObject.setVisible(this.layer.view.viewIndex, this.#state.visible);
+        this.#rendererObject.setVisible(this.layer.view.viewIndex, this.#state.visible);
         this.layer.objectVisibilityUpdated(this, this.#state.visible, true);
     }
 
@@ -129,7 +129,7 @@ export class ViewObject {
             return;
         }
         this.#state.visible = visible;
-        const result = this.#rendererViewObject.setVisible(this.layer.view.viewIndex, visible);
+        const result = this.#rendererObject.setVisible(this.layer.view.viewIndex, visible);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -158,7 +158,7 @@ export class ViewObject {
             return;
         }
         this.#state.xrayed = xrayed;
-        const result = this.#rendererViewObject.setXRayed(this.layer.view.viewIndex, xrayed);
+        const result = this.#rendererObject.setXRayed(this.layer.view.viewIndex, xrayed);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -181,7 +181,7 @@ export class ViewObject {
             return;
         }
         this.#state.edges = edges;
-        const result =  this.#rendererViewObject.setEdges(this.layer.view.viewIndex, edges);
+        const result = this.#rendererObject.setEdges(this.layer.view.viewIndex, edges);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -209,7 +209,7 @@ export class ViewObject {
             return;
         }
         this.#state.highlighted = highlighted;
-        const result = this.#rendererViewObject.setHighlighted(this.layer.view.viewIndex, highlighted);
+        const result = this.#rendererObject.setHighlighted(this.layer.view.viewIndex, highlighted);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -238,7 +238,7 @@ export class ViewObject {
             return;
         }
         this.#state.selected = selected;
-      const result =   this.#rendererViewObject.setSelected(this.layer.view.viewIndex, selected);
+        const result = this.#rendererObject.setSelected(this.layer.view.viewIndex, selected);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -266,7 +266,7 @@ export class ViewObject {
         if (culled === this.#state.culled) {
             return;
         }
-        const result = this.#rendererViewObject.setCulled(this.layer.view.viewIndex, culled);
+        const result = this.#rendererObject.setCulled(this.layer.view.viewIndex, culled);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -294,7 +294,7 @@ export class ViewObject {
         if (clippable === this.#state.clippable) {
             return;
         }
-        const result = this.#rendererViewObject.setCulled(this.layer.view.viewIndex, clippable);
+        const result = this.#rendererObject.setCulled(this.layer.view.viewIndex, clippable);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -324,7 +324,7 @@ export class ViewObject {
         if (collidable === this.#state.collidable) {
             return;
         }
-        const result = this.#rendererViewObject.setCollidable(this.layer.view.viewIndex, collidable);
+        const result = this.#rendererObject.setCollidable(this.layer.view.viewIndex, collidable);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -353,7 +353,7 @@ export class ViewObject {
         if (this.#state.pickable === pickable) {
             return;
         }
-        const result = this.#rendererViewObject.setPickable(this.layer.view.viewIndex, pickable);
+        const result = this.#rendererObject.setPickable(this.layer.view.viewIndex, pickable);
         if (result instanceof SDKError) {
             throw result;
         }
@@ -392,7 +392,7 @@ export class ViewObject {
             colorize[1] = 1;
             colorize[2] = 1;
         }
-        const result = this.#rendererViewObject.setColorize(this.layer.view.viewIndex, colorize);
+        const result = this.#rendererObject.setColorize(this.layer.view.viewIndex, colorize);
         if (result instanceof SDKError) {
             throw result;
         }

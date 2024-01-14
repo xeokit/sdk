@@ -73,27 +73,27 @@
  *         indices: [21, 0, 1, 1, 22, 21, 22, 1, 2, 2, 23, 22, 23, ..]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "redLegMesh", geometryId: "theGeometry",
  *         position: [-4, -6, -4], scale: [1, 3, 1], rotation: [0, 0, 0], color: [1, 0.3, 0.3]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "greenLegMesh", geometryId: "theGeometry", position: [4, -6, -4], scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [0.3, 1.0, 0.3]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "blueLegMesh", geometryId: "theGeometry", position: [4, -6, 4],  scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [0.3, 0.3, 1.0]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "yellowLegMesh",  geometryId: "theGeometry", position: [-4, -6, 4], scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [1.0, 1.0, 0.0]
  *     });
  *
- *     sceneModel.createMesh({
+ *     sceneModel.createLayerMesh({
  *         id: "tableTopMesh", geometryId: "theGeometry", position: [0, -3, 0], scale: [6, 0.5, 6],
  *         rotation: [0, 0, 0], color: [1.0, 0.3, 1.0]
  *     });

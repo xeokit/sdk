@@ -2182,62 +2182,62 @@ var index$m = {
  * @module @xeokit/constants
  */
 /**
- * Texture wrapping mode in which the texture repeats to infinity.
+ * SceneTexture wrapping mode in which the texture repeats to infinity.
  */
 var RepeatWrapping = 1000;
 /**
- * Texture wrapping mode in which the last pixel of the texture stretches to the edge of the mesh.
+ * SceneTexture wrapping mode in which the last pixel of the texture stretches to the edge of the mesh.
  */
 var ClampToEdgeWrapping = 1001;
 /**
- * Texture wrapping mode in which the texture repeats to infinity, mirroring on each repeat.
+ * SceneTexture wrapping mode in which the texture repeats to infinity, mirroring on each repeat.
  */
 var MirroredRepeatWrapping = 1002;
 /**
- * Texture magnification and minification filter that returns the nearest texel to the given sample coordinates.
+ * SceneTexture magnification and minification filter that returns the nearest texel to the given sample coordinates.
  */
 var NearestFilter = 1003;
 /**
- * Texture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and returns the nearest texel to the given sample coordinates.
+ * SceneTexture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and returns the nearest texel to the given sample coordinates.
  */
 var NearestMipMapNearestFilter = 1004;
 /**
- * Texture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured
+ * SceneTexture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured
  * and returns the nearest texel to the given sample coordinates.
  */
 var NearestMipmapNearestFilter = 1004;
 /**
- * Texture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured
+ * SceneTexture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured
  * and returns the nearest texel to the center of the pixel at the given sample coordinates.
  */
 var NearestMipmapLinearFilter = 1005;
 /**
- * Texture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured
+ * SceneTexture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured
  * and returns the nearest texel to the center of the pixel at the given sample coordinates.
  */
 var NearestMipMapLinearFilter = 1005;
 /**
- * Texture magnification and minification filter that returns the weighted average of the four nearest texels to the given sample coordinates.
+ * SceneTexture magnification and minification filter that returns the weighted average of the four nearest texels to the given sample coordinates.
  */
 var LinearFilter = 1006;
 /**
- * Texture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and
+ * SceneTexture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and
  * returns the weighted average of the four nearest texels to the given sample coordinates.
  */
 var LinearMipmapNearestFilter = 1007;
 /**
- * Texture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and
+ * SceneTexture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and
  * returns the weighted average of the four nearest texels to the given sample coordinates.
  */
 var LinearMipMapNearestFilter = 1007;
 /**
- * Texture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured,
+ * SceneTexture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured,
  * finds within each mipmap the weighted average of the nearest texel to the center of the pixel, then returns the
  * weighted average of those two values.
  */
 var LinearMipmapLinearFilter = 1008;
 /**
- * Texture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured,
+ * SceneTexture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured,
  * finds within each mipmap the weighted average of the nearest texel to the center of the pixel, then returns the
  * weighted average of those two values.
  */
@@ -2275,11 +2275,11 @@ var FloatType = 1015;
  */
 var HalfFloatType = 1016;
 /**
- * Texture packing mode in which each ````RGBA```` channel is packed into 4 bits, for a combined total of 16 bits.
+ * SceneTexture packing mode in which each ````RGBA```` channel is packed into 4 bits, for a combined total of 16 bits.
  */
 var UnsignedShort4444Type = 1017;
 /**
- * Texture packing mode in which the ````RGB```` channels are each packed into 5 bits, and the ````A```` channel is packed into 1 bit, for a combined total of 16 bits.
+ * SceneTexture packing mode in which the ````RGB```` channels are each packed into 5 bits, and the ````A```` channel is packed into 1 bit, for a combined total of 16 bits.
  */
 var UnsignedShort5551Type = 1018;
 /**
@@ -2287,186 +2287,186 @@ var UnsignedShort5551Type = 1018;
  */
 var UnsignedInt248Type = 1020;
 /**
- * Texture sampling mode that discards the ````RGBA```` components and just reads the ````A```` component.
+ * SceneTexture sampling mode that discards the ````RGBA```` components and just reads the ````A```` component.
  */
 var AlphaFormat = 1021;
 /**
- * Texture sampling mode that discards the ````A```` component and reads the ````RGB```` components.
+ * SceneTexture sampling mode that discards the ````A```` component and reads the ````RGB```` components.
  */
 var RGBFormat = 1022;
 /**
- * Texture sampling mode that reads the ````RGBA```` components.
+ * SceneTexture sampling mode that reads the ````RGBA```` components.
  */
 var RGBAFormat = 1023;
 /**
- * Texture sampling mode that reads each ````RGB```` texture component as a luminance value, converted to a float and clamped
+ * SceneTexture sampling mode that reads each ````RGB```` texture component as a luminance value, converted to a float and clamped
  * to ````[0,1]````, while always reading the ````A```` channel as ````1.0````.
  */
 var LuminanceFormat = 1024;
 /**
- * Texture sampling mode that reads each of the ````RGBA```` texture components as a luminance/alpha value, converted to a float and clamped to ````[0,1]````.
+ * SceneTexture sampling mode that reads each of the ````RGBA```` texture components as a luminance/alpha value, converted to a float and clamped to ````[0,1]````.
  */
 var LuminanceAlphaFormat = 1025;
 /**
- * Texture sampling mode that reads each element as a single depth value, converts it to a float and clamps to ````[0,1]````.
+ * SceneTexture sampling mode that reads each element as a single depth value, converts it to a float and clamps to ````[0,1]````.
  */
 var DepthFormat = 1026;
 /**
- * Texture sampling mode that
+ * SceneTexture sampling mode that
  */
 var DepthStencilFormat = 1027;
 /**
- * Texture sampling mode that discards the ````GBA```` components and just reads the ````R```` component.
+ * SceneTexture sampling mode that discards the ````GBA```` components and just reads the ````R```` component.
  */
 var RedFormat = 1028;
 /**
- * Texture sampling mode that discards the ````GBA```` components and just reads the ````R```` component, as an integer instead of as a float.
+ * SceneTexture sampling mode that discards the ````GBA```` components and just reads the ````R```` component, as an integer instead of as a float.
  */
 var RedIntegerFormat = 1029;
 /**
- * Texture sampling mode that discards the ````A```` and ````B```` components and just reads the ````R```` and ````G```` components.
+ * SceneTexture sampling mode that discards the ````A```` and ````B```` components and just reads the ````R```` and ````G```` components.
  */
 var RGFormat = 1030;
 /**
- * Texture sampling mode that discards the ````A```` and ````B```` components and just reads the ````R```` and ````G```` components, as integers instead of floats.
+ * SceneTexture sampling mode that discards the ````A```` and ````B```` components and just reads the ````R```` and ````G```` components, as integers instead of floats.
  */
 var RGIntegerFormat = 1031;
 /**
- * Texture sampling mode that reads the ````RGBA```` components as integers instead of floats.
+ * SceneTexture sampling mode that reads the ````RGBA```` components as integers instead of floats.
  */
 var RGBAIntegerFormat = 1033;
 /**
- * Texture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression">DXT1 compressed</a> ````RGB```` image.
+ * SceneTexture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression">DXT1 compressed</a> ````RGB```` image.
  */
 var RGB_S3TC_DXT1_Format = 33776;
 /**
- * Texture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression">DXT1 compressed</a> ````RGBA```` image.
+ * SceneTexture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression">DXT1 compressed</a> ````RGBA```` image.
  */
 var RGBA_S3TC_DXT1_Format = 33777;
 /**
- * Texture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression">DXT3 compressed</a> ````RGBA```` image.
+ * SceneTexture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression">DXT3 compressed</a> ````RGBA```` image.
  */
 var RGBA_S3TC_DXT3_Format = 33778;
 /**
- * Texture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression">DXT5 compressed</a> ````RGBA```` image.
+ * SceneTexture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression">DXT5 compressed</a> ````RGBA```` image.
  */
 var RGBA_S3TC_DXT5_Format = 33779;
 /**
- * Texture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/PVRTC">PVRTC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/PVRTC">PVRTC compressed</a>
  * image, with ````RGB```` compression in 4-bit mode and one block for each 4×4 pixels.
  */
 var RGB_PVRTC_4BPPV1_Format = 35840;
 /**
- * Texture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/PVRTC">PVRTC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/PVRTC">PVRTC compressed</a>
  * image, with ````RGB```` compression in 2-bit mode and one block for each 8×4 pixels.
  */
 var RGB_PVRTC_2BPPV1_Format = 35841;
 /**
- * Texture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/PVRTC">PVRTC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/PVRTC">PVRTC compressed</a>
  * image, with ````RGBA```` compression in 4-bit mode and one block for each 4×4 pixels.
  */
 var RGBA_PVRTC_4BPPV1_Format = 35842;
 /**
- * Texture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/PVRTC">PVRTC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as a <a href="https://en.wikipedia.org/wiki/PVRTC">PVRTC compressed</a>
  * image, with ````RGBA```` compression in 2-bit mode and one block for each 8×4 pixels.
  */
 var RGBA_PVRTC_2BPPV1_Format = 35843;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc1/">ETC1 compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc1/">ETC1 compressed</a>
  * ````RGB```` image.
  */
 var RGB_ETC1_Format = 36196;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc2/">ETC2 compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc2/">ETC2 compressed</a>
  * ````RGB```` image.
  */
 var RGB_ETC2_Format = 37492;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc2/">ETC2 compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc2/">ETC2 compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ETC2_EAC_Format = 37496;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_4x4_Format = 37808;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_5x4_Format = 37809;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_5x5_Format = 37810;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_6x5_Format = 37811;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_6x6_Format = 37812;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_8x5_Format = 37813;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_8x6_Format = 37814;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_8x8_Format = 37815;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_10x5_Format = 37816;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_10x6_Format = 37817;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_10x8_Format = 37818;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_10x10_Format = 37819;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_12x10_Format = 37820;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/">ATSC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_ASTC_12x12_Format = 37821;
 /**
- * Texture format mode in which the texture is formatted as an <a href="https://www.khronos.org/opengl/wiki/BPTC_Texture_Compression">BPTC compressed</a>
+ * SceneTexture format mode in which the texture is formatted as an <a href="https://www.khronos.org/opengl/wiki/BPTC_Texture_Compression">BPTC compressed</a>
  * ````RGBA```` image.
  */
 var RGBA_BPTC_Format = 36492;
 /**
- * Texture encoding mode in which the texture image is in linear color space.
+ * SceneTexture encoding mode in which the texture image is in linear color space.
  */
 var LinearEncoding = 3000;
 /**
- * Texture encoding mode in which the texture image is in sRGB color space.
+ * SceneTexture encoding mode in which the texture image is in sRGB color space.
  */
 var sRGBEncoding = 3001;
 /**
@@ -5830,7 +5830,7 @@ var index$i = {
  *
  * <img style="padding:20px" src="media://images/geometry_icon.png"/>
  *
- * # xeokit Geometry Compression / Decompression Utilities
+ * # xeokit SceneGeometry Compression / Decompression Utilities
  *
  * ---
  *
@@ -5838,7 +5838,7 @@ var index$i = {
  *
  * ---
  *
- * The xeokit Geometry Compression/Decompression Utilities library provides functions used internally within
+ * The xeokit SceneGeometry Compression/Decompression Utilities library provides functions used internally within
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry} implementations to compress geometry. These functions are also
  * provided for users who want to pre-compress their geometry "offline" and then
  * use {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
@@ -5849,13 +5849,13 @@ var index$i = {
  * coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use
  * the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
  *
- * An example usage includes compressing a GeometryParams into a {@link @xeokit/scene!GeometryCompressedParams} using the
+ * An example usage includes compressing a SceneGeometryParams into a {@link @xeokit/scene!SceneGeometryCompressedParams} using the
  * {@link @xeokit/scene!compressGeometryParams} function. In this example, the geometry is simple, and only one bucket is
  * needed. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the
  * bucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the
  * positions.
  *
- * The resulting GeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin
+ * The resulting SceneGeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin
  * and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are
  * generated for the {@link @xeokit/constants!TrianglesPrimitive}, and a positionsDecompressMatrix is included to de-quantize
  * the positions within the Viewer.
@@ -5873,7 +5873,7 @@ var index$i = {
  * * Ignores normals (our shaders auto-generate them)
  * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
+ * * Splits geometry into {@link @xeokit/scene!SceneGeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
  * ### Aknowledgements
  *
@@ -5888,12 +5888,12 @@ var index$i = {
  * ## Usage
  *
  * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams} to compress
- * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
- * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
+ * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
+ * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
  *
- * In this example, our geometry is very simple, and our GeometryCompressedParams only gets a single
- * {@link @xeokit/scene!GeometryBucketParams | GeometryBucketParams }. Note that if the
- * {@link @xeokit/scene!GeometryParams.positions | GeometryParams.positions} array was large enough to require
+ * In this example, our geometry is very simple, and our SceneGeometryCompressedParams only gets a single
+ * {@link @xeokit/scene!SceneGeometryBucketParams | SceneGeometryBucketParams }. Note that if the
+ * {@link @xeokit/scene!SceneGeometryParams.positions | SceneGeometryParams.positions} array was large enough to require
  * some of the indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would
  * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
@@ -5927,7 +5927,7 @@ var index$i = {
  *  });
  * ````
  *
- * The value of our new {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams} is shown below.
+ * The value of our new {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams} is shown below.
  *
  * We can see that:
  *
@@ -5972,8 +5972,8 @@ var index$i = {
  * ````
  *
  * In the next example, we'll again use {@link @xeokit/scene!compressGeometryParams} to compress
- * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
- * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}, which we'll then use to
+ * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
+ * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}, which we'll then use to
  * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * ````javascript
@@ -5996,7 +5996,7 @@ var index$i = {
  *
  * sceneModel.createGeometryCompressed(geometryCompressedParams);
  *
- * sceneModel.createMesh({ id: "myMesh", geometryId: "myGeometry" });
+ * sceneModel.createLayerMesh({ id: "myMesh", geometryId: "myGeometry" });
  *
  * sceneModel.createObject({ id: "myObject1", meshIds: ["myMesh"] });
  * sceneModel.createObject({ id: "myObject2", meshIds: ["myMesh"] });
@@ -9661,7 +9661,7 @@ var index$c = {
 };
 
 /**
- * A geometry bucket within {@link @xeokit/scene!Geometry.geometryBuckets | Geometry.geometryBuckets}.
+ * A geometry bucket within {@link @xeokit/scene!SceneGeometry.geometryBuckets | SceneGeometry.geometryBuckets}.
  *
  * See usage in:
  *
@@ -9670,31 +9670,31 @@ var index$c = {
  */
 var GeometryBucket = function GeometryBucket(geometryBucketParams) {
   /**
-   * GeometryBucket's 3D vertex positions, quantized as 16-bit integers.
+   * SceneGeometryBucket's 3D vertex positions, quantized as 16-bit integers.
    *
-   * Internally, the Viewer dequantizes these with {@link @xeokit/scene!Geometry.positionsDecompressMatrix | Geometry.positionsDecompressMatrix}.
+   * Internally, the Viewer dequantizes these with {@link @xeokit/scene!SceneGeometry.positionsDecompressMatrix | SceneGeometry.positionsDecompressMatrix}.
    *
    * Vertex positions are required for all primitive types.
    */
   this.positionsCompressed = void 0;
   /**
-   * GeometryBucket's UV coordinates, quantized as 16-bit integers.
+   * SceneGeometryBucket's UV coordinates, quantized as 16-bit integers.
    *
-   * Internally, the Viewer de-quantizes these with {@link @xeokit/scene!Geometry.uvsDecompressMatrix | Geometry.uvsDecompressMatrix}.
+   * Internally, the Viewer de-quantizes these with {@link @xeokit/scene!SceneGeometry.uvsDecompressMatrix | SceneGeometry.uvsDecompressMatrix}.
    */
   this.uvsCompressed = void 0;
   /**
-   * GeometryBucket's vertex RGB colors, quantized as 8-bit integers.
+   * SceneGeometryBucket's vertex RGB colors, quantized as 8-bit integers.
    */
   this.colorsCompressed = void 0;
   /**
-   * GeometryBucket's primitive indices.
+   * SceneGeometryBucket's primitive indices.
    *
    * This is either an array of 8-bit, 16-bit or 32-bit values.
    */
   this.indices = void 0;
   /**
-   * GeometryBucket's edge indices.
+   * SceneGeometryBucket's edge indices.
    *
    * This is either an array of 8-bit, 16-bit or 32-bit values.
    */
@@ -9712,7 +9712,7 @@ var GeometryBucket = function GeometryBucket(geometryBucketParams) {
  * * Stored in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}
  * * Created with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}
  * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
- * * Referenced by {@link @xeokit/scene!Mesh.geometry | Mesh.geometry}
+ * * Referenced by {@link @xeokit/scene!SceneMesh.geometry | SceneMesh.geometry}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -9730,7 +9730,7 @@ var Geometry = function Geometry(params) {
    */
   this.primitive = void 0;
   /**
-   * Matrix to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}.
+   * Matrix to decompress {@link @xeokit/scene!SceneGeometryBucketParams.positionsCompressed}.
    */
   this.positionsDecompressMatrix = void 0;
   /**
@@ -9755,7 +9755,7 @@ var Geometry = function Geometry(params) {
    */
   this.geometryBuckets = void 0;
   /**
-   * Interface through which this Geometry can load any user-updated geometry arrays into the renderer.
+   * Interface through which this SceneGeometry can load any user-updated geometry arrays into the renderers.
    *
    * @internal
    */
@@ -9848,8 +9848,8 @@ var GeometryViewImpl = /*#__PURE__*/function () {
 }();
 var geometryView = new GeometryViewImpl();
 /**
- * Gets the uncompressed, World-space geometry of each {@link @xeokit/scene!GeometryBucket} in each
- * {@link @xeokit/scene!Geometry} in each {@link @xeokit/scene!Mesh} in a {@link @xeokit/scene!SceneObject}.
+ * Gets the uncompressed, World-space geometry of each {@link @xeokit/scene!SceneGeometryBucket} in each
+ * {@link @xeokit/scene!SceneGeometry} in each {@link @xeokit/scene!SceneMesh} in a {@link @xeokit/scene!SceneObject}.
  *
  * If the callback returns ````true````, then this method immediately stops iterating and also returns ````true````.
  *
@@ -9903,7 +9903,7 @@ var SceneObject = /*#__PURE__*/function () {
      */
     this.id = void 0;
     /**
-     * The {@link @xeokit/scene!Mesh | Meshes} belonging to this SceneObject.
+     * The {@link @xeokit/scene!SceneMesh | Meshes} belonging to this SceneObject.
      */
     this.meshes = void 0;
     /**
@@ -9911,7 +9911,7 @@ var SceneObject = /*#__PURE__*/function () {
      */
     this.layerId = void 0;
     /**
-     *  Internal interface through which a {@link @xeokit/scene!SceneObject} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!SceneObject} can load property updates into a renderers.
      *
      *  This is defined while the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
@@ -9962,11 +9962,11 @@ var SceneObject = /*#__PURE__*/function () {
 }();
 
 /**
- * A set of {@link @xeokit/scene!Texture | Textures} in a {@link @xeokit/scene!SceneModel}.
+ * A set of {@link @xeokit/scene!SceneTexture | Textures} in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}
  * * Created with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}
- * * Referenced by {@link @xeokit/scene!Mesh.textureSet | Mesh.textureSet}
+ * * Referenced by {@link @xeokit/scene!SceneMesh.textureSet | SceneMesh.textureSet}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -9976,27 +9976,27 @@ var TextureSet =
  */
 function TextureSet(textureSetParams, textures) {
   /**
-   * The ID of this TextureSet.
+   * The ID of this SceneTextureSet.
    */
   this.id = void 0;
   /**
-   * The color {@link @xeokit/scene!Texture} in this set.
+   * The color {@link @xeokit/scene!SceneTexture} in this set.
    */
   this.colorTexture = void 0;
   /**
-   * The metallic-roughness {@link @xeokit/scene!Texture} in this set.
+   * The metallic-roughness {@link @xeokit/scene!SceneTexture} in this set.
    */
   this.metallicRoughnessTexture = void 0;
   /**
-   * The occlusion {@link @xeokit/scene!Texture} in this set.
+   * The occlusion {@link @xeokit/scene!SceneTexture} in this set.
    */
   this.occlusionTexture = void 0;
   /**
-   * The emissive {@link @xeokit/scene!Texture} in this set.
+   * The emissive {@link @xeokit/scene!SceneTexture} in this set.
    */
   this.emissiveTexture = void 0;
   /**
-   *  Internal interface through which a TextureSet can load property updates into a renderer.
+   *  Internal interface through which a SceneTextureSet can load property updates into a renderers.
    *
    *  This is defined while the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
    *
@@ -10016,9 +10016,9 @@ function TextureSet(textureSetParams, textures) {
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
  * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
- * * Referenced by {@link @xeokit/scene!TextureSet.colorTexture | TextureSet.colorTexture},
- * {@link @xeokit/scene!TextureSet.metallicRoughnessTexture | TextureSet.metallicRoughnessTexture},
- * {@link @xeokit/scene!TextureSet.occlusionTexture | TextureSet.occlusionTexture} and {@link @xeokit/scene!TextureSet.emissiveTexture | TextureSet.emissiveTexture}
+ * * Referenced by {@link @xeokit/scene!SceneTextureSet.colorTexture | SceneTextureSet.colorTexture},
+ * {@link @xeokit/scene!SceneTextureSet.metallicRoughnessTexture | SceneTextureSet.metallicRoughnessTexture},
+ * {@link @xeokit/scene!SceneTextureSet.occlusionTexture | SceneTextureSet.occlusionTexture} and {@link @xeokit/scene!SceneTextureSet.emissiveTexture | SceneTextureSet.emissiveTexture}
  *
  * See {@link "@xeokit/scene"} for usage.
  */
@@ -10028,7 +10028,7 @@ var Texture =
  */
 function Texture(params) {
   /**
-   *  Internal interface through which this {@link @xeokit/scene!Texture} can load property updates into a renderer.
+   *  Internal interface through which this {@link @xeokit/scene!SceneTexture} can load property updates into a renderers.
    *
    *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
    *
@@ -10068,7 +10068,7 @@ function Texture(params) {
    */
   this.compressed = void 0;
   /**
-   * Media type of this Texture.
+   * Media type of this SceneTexture.
    *
    * Supported values are {@link @xeokit/constants!GIFMediaType}, {@link @xeokit/constants!PNGMediaType} and {@link @xeokit/constants!JPEGMediaType}.
    *
@@ -10115,11 +10115,11 @@ function Texture(params) {
    */
   this.wrapR = void 0;
   /**
-   * Flips this Texture's source data along its vertical axis when ````true````.
+   * Flips this SceneTexture's source data along its vertical axis when ````true````.
    */
   this.flipY = void 0;
   /**
-   * Texture encoding format.
+   * SceneTexture encoding format.
    *
    * Supported values are {@link @xeokit/constants!LinearEncoding} and {@link @xeokit/constants!sRGBEncoding}.
    */
@@ -10151,7 +10151,7 @@ function Texture(params) {
  * A mesh in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
- * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
+ * * Created with {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh}
  * * Referenced by {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}
  *
  * See {@link "@xeokit/scene"} for usage.
@@ -10161,27 +10161,27 @@ var _matrix = /*#__PURE__*/_classPrivateFieldLooseKey("matrix");
 var _metallic = /*#__PURE__*/_classPrivateFieldLooseKey("metallic");
 var _roughness = /*#__PURE__*/_classPrivateFieldLooseKey("roughness");
 var _opacity = /*#__PURE__*/_classPrivateFieldLooseKey("opacity");
-var Mesh = /*#__PURE__*/function () {
+var SceneMesh = /*#__PURE__*/function () {
   /**
    * @private
    */
-  function Mesh(meshParams) {
+  function SceneMesh(meshParams) {
     /**
-     * Unique ID of this Mesh.
+     * Unique ID of this SceneMesh.
      *
-     * Mesh is stored by this ID in {@link @xeokit/scene!SceneModel.meshes}.
+     * SceneMesh is stored by this ID in {@link @xeokit/scene!SceneModel.meshes}.
      */
     this.id = void 0;
     /**
-     * {@link @xeokit/scene!Geometry} used by this Mesh.
+     * {@link @xeokit/scene!SceneGeometry} used by this SceneMesh.
      */
     this.geometry = void 0;
     /**
-     * {@link @xeokit/scene!TextureSet} used by this Mesh.
+     * {@link @xeokit/scene!SceneTextureSet} used by this SceneMesh.
      */
     this.textureSet = void 0;
     /**
-     *  Internal interface through which a {@link @xeokit/scene!Mesh} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/scene!SceneMesh} can load property updates into a renderers.
      *
      *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to
      *  a {@link @xeokit/viewer!Viewer | Viewer}.
@@ -10190,7 +10190,7 @@ var Mesh = /*#__PURE__*/function () {
      */
     this.rendererMesh = void 0;
     /**
-     * The {@link @xeokit/scene!SceneObject} that uses this Mesh.
+     * The {@link @xeokit/scene!SceneObject} that uses this SceneMesh.
      */
     this.object = void 0;
     Object.defineProperty(this, _color, {
@@ -10224,17 +10224,17 @@ var Mesh = /*#__PURE__*/function () {
     this.opacity = meshParams.opacity !== undefined && meshParams.opacity !== null ? meshParams.opacity : 1.0;
   }
   /**
-   * Gets the RGB color for this Mesh.
+   * Gets the RGB color for this SceneMesh.
    *
    * Each element of the color is in range ````[0..1]````.
    */
-  _createClass(Mesh, [{
+  _createClass(SceneMesh, [{
     key: "color",
     get: function get() {
       return _classPrivateFieldLooseBase(this, _color)[_color];
     }
     /**
-     * Sets the RGB color for this Mesh.
+     * Sets the RGB color for this SceneMesh.
      *
      * Each element of the color is in range ````[0..1]````.
      */,
@@ -10258,7 +10258,7 @@ var Mesh = /*#__PURE__*/function () {
       }
     }
     /**
-     * Gets this Mesh's local modeling transform matrix.
+     * Gets this SceneMesh's local modeling transform matrix.
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
@@ -10270,7 +10270,7 @@ var Mesh = /*#__PURE__*/function () {
       return _classPrivateFieldLooseBase(this, _matrix)[_matrix];
     }
     /**
-     * Updates this Mesh's local modeling transform matrix.
+     * Updates this SceneMesh's local modeling transform matrix.
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
@@ -10291,9 +10291,9 @@ var Mesh = /*#__PURE__*/function () {
       }
     }
     /**
-     * Gets this Mesh's metallic factor.
+     * Gets this SceneMesh's metallic factor.
      *
-     * This is in the range ````[0..1]```` and indicates how metallic this Mesh is.
+     * This is in the range ````[0..1]```` and indicates how metallic this SceneMesh is.
      *
      * ````1```` is metal, ````0```` is non-metal.
      *
@@ -10305,9 +10305,9 @@ var Mesh = /*#__PURE__*/function () {
       return _classPrivateFieldLooseBase(this, _metallic)[_metallic];
     }
     /**
-     * Sets this Mesh's metallic factor.
+     * Sets this SceneMesh's metallic factor.
      *
-     * This is in the range ````[0..1]```` and indicates how metallic this Mesh is.
+     * This is in the range ````[0..1]```` and indicates how metallic this SceneMesh is.
      *
      * ````1```` is metal, ````0```` is non-metal.
      *
@@ -10324,7 +10324,7 @@ var Mesh = /*#__PURE__*/function () {
       }
     }
     /**
-     * Gets this Mesh's roughness factor.
+     * Gets this SceneMesh's roughness factor.
      *
      * This factor is in the range ````[0..1]````, where ````0```` is fully smooth,````1```` is fully rough.
      *
@@ -10336,7 +10336,7 @@ var Mesh = /*#__PURE__*/function () {
       return _classPrivateFieldLooseBase(this, _roughness)[_roughness];
     }
     /**
-     * Sets this Mesh's roughness factor.
+     * Sets this SceneMesh's roughness factor.
      *
      * This factor is in the range ````[0..1]````, where ````0```` is fully smooth,````1```` is fully rough.
      *
@@ -10353,7 +10353,7 @@ var Mesh = /*#__PURE__*/function () {
       }
     }
     /**
-     * Gets the opacity factor for this Mesh.
+     * Gets the opacity factor for this SceneMesh.
      *
      * This is a factor in range ````[0..1]````.
      */
@@ -10363,7 +10363,7 @@ var Mesh = /*#__PURE__*/function () {
       return _classPrivateFieldLooseBase(this, _opacity)[_opacity];
     }
     /**
-     * Sets the opacity factor for this Mesh.
+     * Sets the opacity factor for this SceneMesh.
      *
      * This is a factor in range ````[0..1]````.
      */,
@@ -10375,7 +10375,7 @@ var Mesh = /*#__PURE__*/function () {
       _classPrivateFieldLooseBase(this, _opacity)[_opacity] = opacity;
     }
   }]);
-  return Mesh;
+  return SceneMesh;
 }();
 
 var uniquePositions = [];
@@ -10690,9 +10690,9 @@ function rebucketPositions(mesh, bitsPerBucket, checkResult) {
         /**
          * Flat array of compressed integer vertex colors.
          *
-         * Alternative to {@link @xeokit/scene!GeometryParams.colorsCompressed}.
+         * Alternative to {@link @xeokit/scene!SceneGeometryParams.colorsCompressed}.
          *
-         * Ignored when {@link @xeokit/scene!GeometryParams.id} is defined.
+         * Ignored when {@link @xeokit/scene!SceneGeometryParams.id} is defined.
          */
       }
     }
@@ -10881,7 +10881,7 @@ function doCheckResult(buckets, mesh) {
 }
 
 /**
- * Compresses a {@link @xeokit/scene!GeometryParams | GeometryParams} into a {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
+ * Compresses a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
  *
  * See {@link @xeokit/scene} for usage examples.
  *
@@ -10929,10 +10929,10 @@ var NORMALS_TEXTURE = 2;
 var EMISSIVE_TEXTURE = 3;
 var OCCLUSION_TEXTURE = 4;
 /**
- * xeokit Geometry and Materials Model.
+ * xeokit SceneGeometry and Materials Model.
  *
  * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene}.
- * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries} and {@link @xeokit/scene!Texture | Textures}.
+ * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries} and {@link @xeokit/scene!SceneTexture | Textures}.
  * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
  * * Compresses geometry using [bucketing](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
@@ -10982,28 +10982,28 @@ var SceneModel = /*#__PURE__*/function (_Component) {
      */
     _this.edgeThreshold = void 0;
     /**
-     * {@link @xeokit/scene!Geometry | Geometries} within this SceneModel, each mapped to {@link @xeokit/scene!Geometry.id | Geometry.id}.
+     * {@link @xeokit/scene!SceneGeometry | Geometries} within this SceneModel, each mapped to {@link @xeokit/scene!SceneGeometry.id | SceneGeometry.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}.
      */
     _this.geometries = void 0;
     /**
-     * {@link @xeokit/scene!Texture | Textures} within this SceneModel, each mapped to {@link @xeokit/scene!Texture.id | Texture.id}.
+     * {@link @xeokit/scene!SceneTexture | Textures} within this SceneModel, each mapped to {@link @xeokit/scene!SceneTexture.id | SceneTexture.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
      * * Compressed asynchronously in {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
      */
     _this.textures = void 0;
     /**
-     * {@link @xeokit/scene!TextureSet | TextureSets} within this SceneModel, each mapped to {@link @xeokit/scene!TextureSet.id | TextureSet.id}.
+     * {@link @xeokit/scene!SceneTextureSet | TextureSets} within this SceneModel, each mapped to {@link @xeokit/scene!SceneTextureSet.id | SceneTextureSet.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}.
      */
     _this.textureSets = void 0;
     /**
-     * {@link @xeokit/scene!Mesh | Meshes} within this SceneModel, each mapped to {@link @xeokit/scene!Mesh.id | Mesh.id}.
+     * {@link @xeokit/scene!SceneMesh | Meshes} within this SceneModel, each mapped to {@link @xeokit/scene!SceneMesh.id | SceneMesh.id}.
      *
-     * * Created by {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
+     * * Created by {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh}.
      */
     _this.meshes = void 0;
     /**
@@ -11027,7 +11027,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
      */
     _this.onBuilt = void 0;
     /**
-     *  Internal interface through which a SceneModel can load updated content into a renderer.
+     *  Internal interface through which a SceneModel can load updated content into a renderers.
      *
      * @internal
      */
@@ -11091,8 +11091,8 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been built.
    * * If this SceneModel has already been destroyed.
-   * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!Mesh},
-   * {@link @xeokit/scene!Geometry}, {@link @xeokit/scene!Texture} etc.) was already created within this SceneModel.
+   * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!SceneMesh},
+   * {@link @xeokit/scene!SceneGeometry}, {@link @xeokit/scene!SceneTexture} etc.) was already created within this SceneModel.
    */
   var _proto = SceneModel.prototype;
   _proto.fromJSON = function fromJSON(sceneModelParams) {
@@ -11162,9 +11162,9 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     //...
   }
   /**
-   * Creates a new {@link @xeokit/scene!Texture} within this SceneModel.
+   * Creates a new {@link @xeokit/scene!SceneTexture} within this SceneModel.
    *
-   * * Stores the new {@link @xeokit/scene!Texture} in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}.
+   * * Stores the new {@link @xeokit/scene!SceneTexture} in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}.
    * * Textures are compressed asynchronously by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
    *
    * ### Usage
@@ -11190,26 +11190,26 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    *
    * See {@link "@xeokit/scene"} for more usage info.
    *
-   * @param textureParams - Texture creation parameters.
-   * @returns *{@link @xeokit/scene!Texture}*
+   * @param textureParams - SceneTexture creation parameters.
+   * @returns *{@link @xeokit/scene!SceneTexture}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If SceneModel has already been built or destroyed.
-   * * Invalid TextureParams were given.
-   * * Texture with given ID already exists in this Scene.
+   * * Invalid SceneTextureParams were given.
+   * * SceneTexture with given ID already exists in this Scene.
    */;
   _proto.createTexture = function createTexture(textureParams) {
     if (this.destroyed) {
-      return new SDKError("Failed to create Texture in SceneModel - SceneModel already destroyed");
+      return new SDKError("Failed to create SceneTexture in SceneModel - SceneModel already destroyed");
     }
     if (this.built) {
-      return new SDKError("Failed to create Texture in SceneModel - SceneModel already built");
+      return new SDKError("Failed to create SceneTexture in SceneModel - SceneModel already built");
     }
     if (!textureParams.imageData && !textureParams.src && !textureParams.buffers) {
-      return new SDKError("Failed to create Texture in SceneModel - Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers");
+      return new SDKError("Failed to create SceneTexture in SceneModel - Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers");
     }
     if (this.textures[textureParams.id]) {
-      return new SDKError("Failed to create Texture in SceneModel - Texture already exists with this ID: " + textureParams.id);
+      return new SDKError("Failed to create SceneTexture in SceneModel - SceneTexture already exists with this ID: " + textureParams.id);
     }
     if (textureParams.src) {
       textureParams.src.split('.').pop();
@@ -11230,9 +11230,9 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     return texture;
   }
   /**
-   * Creates a new {@link @xeokit/scene!TextureSet} within this SceneModel.
+   * Creates a new {@link @xeokit/scene!SceneTextureSet} within this SceneModel.
    *
-   * * Stores the new {@link @xeokit/scene!TextureSet} in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}.
+   * * Stores the new {@link @xeokit/scene!SceneTextureSet} in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}.
    *
    * ### Usage
    *
@@ -11247,31 +11247,31 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    *
    * See {@link "@xeokit/scene"} for more usage info.
    *
-   * @param textureSetParams TextureSet creation parameters.
+   * @param textureSetParams SceneTextureSet creation parameters.
    *
-   * @returns *{@link @xeokit/scene!TextureSet}*
+   * @returns *{@link @xeokit/scene!SceneTextureSet}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If SceneModel has already been built or destroyed.
-   * * Invalid TextureSetParams were given.
-   * * TextureSet with given ID already exists in this SceneModel.
+   * * Invalid SceneTextureSetParams were given.
+   * * SceneTextureSet with given ID already exists in this SceneModel.
    * * One or more of the given Textures could not be found in this SceneModel.
    */;
   _proto.createTextureSet = function createTextureSet(textureSetParams) {
     if (this.destroyed) {
-      return new SDKError("Failed to create TextureSet in SceneModel - SceneModel already destroyed");
+      return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneModel already destroyed");
     }
     if (this.built) {
-      return new SDKError("Failed to create TextureSet in SceneModel - SceneModel already built");
+      return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneModel already built");
     }
     if (this.textureSets[textureSetParams.id]) {
-      return new SDKError("Failed to create TextureSet in SceneModel - TextureSet already exists with this ID: " + textureSetParams.id);
+      return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneTextureSet already exists with this ID: " + textureSetParams.id);
     }
     var colorTexture;
     if (textureSetParams.colorTextureId !== undefined && textureSetParams.colorTextureId !== null) {
       colorTexture = this.textures[textureSetParams.colorTextureId];
       if (!colorTexture) {
-        return new SDKError("Failed to create TextureSet in SceneModel - Texture not found: " + textureSetParams.colorTextureId + " - ensure that you create it first with createTexture()");
+        return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneTexture not found: " + textureSetParams.colorTextureId + " - ensure that you create it first with createTexture()");
       }
       colorTexture.channel = COLOR_TEXTURE;
     }
@@ -11279,7 +11279,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     if (textureSetParams.metallicRoughnessTextureId !== undefined && textureSetParams.metallicRoughnessTextureId !== null) {
       metallicRoughnessTexture = this.textures[textureSetParams.metallicRoughnessTextureId];
       if (!metallicRoughnessTexture) {
-        return new SDKError("Failed to create TextureSet in SceneModel - Texture not found: " + textureSetParams.metallicRoughnessTextureId + " - ensure that you create it first with createTexture()");
+        return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneTexture not found: " + textureSetParams.metallicRoughnessTextureId + " - ensure that you create it first with createTexture()");
       }
       metallicRoughnessTexture.channel = METALLIC_ROUGHNESS_TEXTURE;
     }
@@ -11287,7 +11287,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     if (textureSetParams.normalsTextureId !== undefined && textureSetParams.normalsTextureId !== null) {
       normalsTexture = this.textures[textureSetParams.normalsTextureId];
       if (!normalsTexture) {
-        return new SDKError("Failed to create TextureSet in SceneModel - Texture not found: " + textureSetParams.normalsTextureId + " - ensure that you create it first with createTexture()");
+        return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneTexture not found: " + textureSetParams.normalsTextureId + " - ensure that you create it first with createTexture()");
       }
       normalsTexture.channel = NORMALS_TEXTURE;
     }
@@ -11295,7 +11295,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     if (textureSetParams.emissiveTextureId !== undefined && textureSetParams.emissiveTextureId !== null) {
       emissiveTexture = this.textures[textureSetParams.emissiveTextureId];
       if (!emissiveTexture) {
-        return new SDKError("Failed to create TextureSet in SceneModel - Texture not found: " + textureSetParams.emissiveTextureId + " - ensure that you create it first with createTexture()");
+        return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneTexture not found: " + textureSetParams.emissiveTextureId + " - ensure that you create it first with createTexture()");
       }
       emissiveTexture.channel = EMISSIVE_TEXTURE;
     }
@@ -11303,7 +11303,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     if (textureSetParams.occlusionTextureId !== undefined && textureSetParams.occlusionTextureId !== null) {
       occlusionTexture = this.textures[textureSetParams.occlusionTextureId];
       if (!occlusionTexture) {
-        return new SDKError("Failed to create TextureSet in SceneModel - Texture not found: " + textureSetParams.occlusionTextureId + " - ensure that you create it first with createTexture()");
+        return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneTexture not found: " + textureSetParams.occlusionTextureId + " - ensure that you create it first with createTexture()");
       }
       occlusionTexture.channel = OCCLUSION_TEXTURE;
     }
@@ -11318,9 +11318,9 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     return textureSet;
   }
   /**
-   * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from non-compressed geometry parameters.
+   * Creates a new {@link @xeokit/scene!SceneGeometry} within this SceneModel, from non-compressed geometry parameters.
    *
-   * * Stores the new {@link @xeokit/scene!Geometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
+   * * Stores the new {@link @xeokit/scene!SceneGeometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
    *
    * ### Usage
    *
@@ -11352,13 +11352,13 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/scene"} for more usage info.
    *
    * @param geometryParams Non-compressed geometry parameters.
-   * @returns *{@link @xeokit/scene!Geometry}*
+   * @returns *{@link @xeokit/scene!SceneGeometry}*
    *  * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been destroyed.
    * * If this SceneModel has already been built.
-   * * Invalid GeometryParams were given.
-   * * Geometry of given ID already exists in this SceneModel.
+   * * Invalid SceneGeometryParams were given.
+   * * SceneGeometry of given ID already exists in this SceneModel.
    * * Unsupported primitive type given.
    * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
    * * Mandatory indices were not given for primitive type that is not {@link @xeokit/constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
@@ -11368,34 +11368,34 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    */;
   _proto.createGeometry = function createGeometry(geometryParams) {
     if (this.destroyed) {
-      return new SDKError("Failed to create Geometry in SceneModel - SceneModel already destroyed");
+      return new SDKError("Failed to create SceneGeometry in SceneModel - SceneModel already destroyed");
     }
     if (this.built) {
-      return new SDKError("Failed to create Geometry in SceneModel - SceneModel already built");
+      return new SDKError("Failed to create SceneGeometry in SceneModel - SceneModel already built");
     }
     if (!geometryParams) {
-      return new SDKError("Failed to create Geometry in SceneModel - Parameters expected: geometryParams");
+      return new SDKError("Failed to create SceneGeometry in SceneModel - Parameters expected: geometryParams");
     }
     if (geometryParams.id === null || geometryParams.id === undefined) {
-      return new SDKError("Failed to create Geometry in SceneModel - Parameter expected: geometryParams.id");
+      return new SDKError("Failed to create SceneGeometry in SceneModel - Parameter expected: geometryParams.id");
     }
     var geometryId = geometryParams.id;
     if (this.geometries[geometryId]) {
-      return new SDKError("Failed to create Geometry in SceneModel - Geometry with this ID already created: " + geometryId);
+      return new SDKError("Failed to create SceneGeometry in SceneModel - SceneGeometry with this ID already created: " + geometryId);
     }
     var primitive = geometryParams.primitive;
     if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
-      return new SDKError("Failed to create Geometry in SceneModel - Unsupported value for geometryParams.primitive: '" + primitive + "' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive");
+      return new SDKError("Failed to create SceneGeometry in SceneModel - Unsupported value for geometryParams.primitive: '" + primitive + "' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive");
     }
     if (!geometryParams.positions) {
-      return new SDKError("Failed to create Geometry in SceneModel - Param expected: geometryParams.positions");
+      return new SDKError("Failed to create SceneGeometry in SceneModel - Param expected: geometryParams.positions");
     }
     if (!geometryParams.indices && primitive !== PointsPrimitive) {
-      return new SDKError("Failed to create Geometry in SceneModel - Param expected: geometryParams.indices (required for primitive type)");
+      return new SDKError("Failed to create SceneGeometry in SceneModel - Param expected: geometryParams.indices (required for primitive type)");
     }
     if (geometryParams.uvs) {
       if (geometryParams.uvs.length / 2 !== geometryParams.positions.length / 3) {
-        return new SDKError("Failed to create Geometry in SceneModel - mismatch between given quantities of vertex positions and UVs");
+        return new SDKError("Failed to create SceneGeometry in SceneModel - mismatch between given quantities of vertex positions and UVs");
       }
     }
     if (geometryParams.indices) {
@@ -11403,12 +11403,12 @@ var SceneModel = /*#__PURE__*/function (_Component) {
       for (var i = 0, len = geometryParams.indices.length; i < len; i++) {
         var idx = geometryParams.indices[i];
         if (idx < 0 || idx >= lastPositionsIdx) {
-          return new SDKError("Failed to create Geometry in SceneModel - indices out of range of vertex positions");
+          return new SDKError("Failed to create SceneGeometry in SceneModel - indices out of range of vertex positions");
         }
         if (geometryParams.uvs) {
           var lastUVsIdx = geometryParams.uvs.length / 2;
           if (idx < 0 || idx >= lastUVsIdx) {
-            return new SDKError("Failed to create Geometry in SceneModel - indices out of range of vertex UVs");
+            return new SDKError("Failed to create SceneGeometry in SceneModel - indices out of range of vertex UVs");
           }
         }
       }
@@ -11429,11 +11429,11 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     return geometry;
   }
   /**
-   * Creates a new {@link @xeokit/scene!Geometry} within this SceneModel, from pre-compressed geometry parameters.
+   * Creates a new {@link @xeokit/scene!SceneGeometry} within this SceneModel, from pre-compressed geometry parameters.
    *
-   * * Stores the new {@link @xeokit/scene!Geometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
-   * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!GeometryParams | GeometryParams}
-   * into {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
+   * * Stores the new {@link @xeokit/scene!SceneGeometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
+   * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams}
+   * into {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
    *
    * ### Usage
    *
@@ -11473,13 +11473,13 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/scene"} for more usage info.
    *
    * @param geometryCompressedParams Pre-compressed geometry parameters.
-   * @returns *{@link @xeokit/scene!Geometry}*
+   * @returns *{@link @xeokit/scene!SceneGeometry}*
    * * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been destroyed.
    * * If this SceneModel has already been built.
-   * * Invalid GeometryParams were given.
-   * * Geometry of given ID already exists in this SceneModel.
+   * * Invalid SceneGeometryParams were given.
+   * * SceneGeometry of given ID already exists in this SceneModel.
    * * Unsupported primitive type given.
    * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
    * * Mandatory indices were not given for primitive type that is not {@link @xeokit/constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
@@ -11489,21 +11489,21 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    */;
   _proto.createGeometryCompressed = function createGeometryCompressed(geometryCompressedParams) {
     if (this.destroyed) {
-      return new SDKError("Failed to add compressed Geometry to SceneModel - SceneModel already destroyed");
+      return new SDKError("Failed to add compressed SceneGeometry to SceneModel - SceneModel already destroyed");
     }
     if (this.built) {
-      return new SDKError("Failed to add compressed Geometry to SceneModel - SceneModel already built");
+      return new SDKError("Failed to add compressed SceneGeometry to SceneModel - SceneModel already built");
     }
     if (!geometryCompressedParams) {
-      return new SDKError("Failed to add compressed Geometry to SceneModel - Parameters expected: geometryCompressedParams");
+      return new SDKError("Failed to add compressed SceneGeometry to SceneModel - Parameters expected: geometryCompressedParams");
     }
     var geometryId = geometryCompressedParams.id;
     if (this.geometries[geometryId]) {
-      return new SDKError("Failed to add compressed Geometry to SceneModel - Geometry with this ID already created: " + geometryId);
+      return new SDKError("Failed to add compressed SceneGeometry to SceneModel - SceneGeometry with this ID already created: " + geometryId);
     }
     var primitive = geometryCompressedParams.primitive;
     if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
-      return new SDKError("Failed to add compressed Geometry to SceneModel - Unsupported value for geometryCompressedParams.primitive: '" + primitive + "' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive");
+      return new SDKError("Failed to add compressed SceneGeometry to SceneModel - Unsupported value for geometryCompressedParams.primitive: '" + primitive + "' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive");
     }
     var geometry = new Geometry(geometryCompressedParams);
     this.geometries[geometryId] = geometry;
@@ -11511,15 +11511,15 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     return geometry;
   }
   /**
-   * Creates a new {@link @xeokit/scene!Mesh} within this SceneModel.
+   * Creates a new {@link @xeokit/scene!SceneMesh} within this SceneModel.
    *
-   * * Stores the new {@link @xeokit/scene!Mesh} in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}.
-   * * A {@link @xeokit/scene!Mesh} can be owned by one {@link @xeokit/scene!SceneObject}, which can own multiple {@link @xeokit/scene!Mesh}es.
+   * * Stores the new {@link @xeokit/scene!SceneMesh} in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}.
+   * * A {@link @xeokit/scene!SceneMesh} can be owned by one {@link @xeokit/scene!SceneObject}, which can own multiple {@link @xeokit/scene!SceneMesh}es.
    *
    * ### Usage
    *
    * ````javascript
-   * const redBoxMesh = sceneModel.createMesh({
+   * const redBoxMesh = sceneModel.createLayerMesh({
    *      id: "redBoxMesh",
    *      geometryId: "boxGeometry",
    *      textureSetId: "myTextureSet",
@@ -11539,33 +11539,33 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    * See {@link "@xeokit/scene"} for more usage info.
    *
    * @param meshParams Pre-compressed mesh parameters.
-   * @returns *{@link @xeokit/scene!Mesh}*
+   * @returns *{@link @xeokit/scene!SceneMesh}*
    *  * On success.
    * @returns *{@link @xeokit/core!SDKError}*
    * * If this SceneModel has already been destroyed.
    * * If this SceneModel has already been built.
-   * * Invalid MeshParams were given.
-   * * Mesh of given ID already exists in this SceneModel.
-   * * Specified Geometry could not be found in this SceneModel.
-   * * Specified TextureSet could not be found in this SceneModel.
+   * * Invalid SceneMeshParams were given.
+   * * SceneMesh of given ID already exists in this SceneModel.
+   * * Specified SceneGeometry could not be found in this SceneModel.
+   * * Specified SceneTextureSet could not be found in this SceneModel.
    */;
   _proto.createMesh = function createMesh(meshParams) {
     if (this.destroyed) {
-      return new SDKError("Failed to create Mesh in SceneModel - SceneModel already destroyed");
+      return new SDKError("Failed to create SceneMesh in SceneModel - SceneModel already destroyed");
     }
     if (this.built) {
-      return new SDKError("Failed to create Mesh in SceneModel - SceneModel already built");
+      return new SDKError("Failed to create SceneMesh in SceneModel - SceneModel already built");
     }
     if (this.meshes[meshParams.id]) {
-      return new SDKError("Failed to create Mesh in SceneModel - Mesh already exists with this ID: " + meshParams.id);
+      return new SDKError("Failed to create SceneMesh in SceneModel - SceneMesh already exists with this ID: " + meshParams.id);
     }
     var geometry = this.geometries[meshParams.geometryId];
     if (!geometry) {
-      return new SDKError("Failed to create Mesh in SceneModel - Geometry not found: " + meshParams.geometryId);
+      return new SDKError("Failed to create SceneMesh in SceneModel - SceneGeometry not found: " + meshParams.geometryId);
     }
     var textureSet = meshParams.textureSetId ? this.textureSets[meshParams.textureSetId] : undefined;
     if (meshParams.textureSetId && !textureSet) {
-      return new SDKError("Failed to create Mesh in SceneModel - TextureSet not found: " + meshParams.textureSetId);
+      return new SDKError("Failed to create SceneMesh in SceneModel - SceneTextureSet not found: " + meshParams.textureSetId);
     }
     // geometry.numInstances++;
     // let matrix = meshParams.matrix;
@@ -11582,7 +11582,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
     //     }
     // }
     // const meshIndex = this.meshesList.length;
-    var mesh = new Mesh({
+    var mesh = new SceneMesh({
       id: meshParams.id,
       geometry: geometry,
       textureSet: textureSet,
@@ -11601,7 +11601,7 @@ var SceneModel = /*#__PURE__*/function (_Component) {
    *
    * * Stores the new {@link @xeokit/scene!SceneObject} in {@link @xeokit/scene!SceneModel.objects | SceneModel.objects} and {@link @xeokit/scene!Scene.objects | Scene.objects}.
    * * Fires an event via {@link @xeokit/scene!Scene.onObjectCreated | Scene.onObjectCreated}.
-   * * Each {@link @xeokit/scene!Mesh} is allowed to belong to one SceneObject.
+   * * Each {@link @xeokit/scene!SceneMesh} is allowed to belong to one SceneObject.
    * * SceneObject IDs must be unique within the SceneModel's {@link @xeokit/scene!Scene}.
    *
    * ### Usage
@@ -11653,10 +11653,10 @@ var SceneModel = /*#__PURE__*/function (_Component) {
       var meshId = meshIds[meshIdIdx];
       var mesh = this.meshes[meshId];
       if (!mesh) {
-        return new SDKError("Failed to create SceneObject - Mesh not found: " + meshId);
+        return new SDKError("Failed to create SceneObject - SceneMesh not found: " + meshId);
       }
       if (_classPrivateFieldLooseBase(this, _meshUsedByObject)[_meshUsedByObject][meshId]) {
-        return new SDKError("Failed to create SceneObject - Mesh " + meshId + " already belongs to another SceneObject");
+        return new SDKError("Failed to create SceneObject - SceneMesh " + meshId + " already belongs to another SceneObject");
       }
       meshes.push(mesh);
       _classPrivateFieldLooseBase(this, _meshUsedByObject)[_meshUsedByObject][mesh.id] = true;
@@ -12038,14 +12038,14 @@ function _deregisterObjects2(model) {
  * To elaborate further:
  *
  * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
- * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!Mesh | Meshes}, {@link @xeokit/scene!Geometry | Geometries}, {@link @xeokit/scene!GeometryBucket | GeometryBuckets}, and {@link @xeokit/scene!Texture | Textures}.
+ * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries}, {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets}, and {@link @xeokit/scene!SceneTexture | Textures}.
  * * Textures undergo compression to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) via the Basis Universal codec.
- * * Geometry undergoes compression through bucketing and quantization.
+ * * SceneGeometry undergoes compression through bucketing and quantization.
  * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
  * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/xkt" | loadXKT}.
  * * Export SceneModels to the native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format through {@link "@xeokit/xkt" | saveXKT}.
  * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel},
- * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
+ * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh},
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}. Add geometry
  * primitives using mesh generator functions like {@link @xeokit/procgen!buildBoxGeometry | buildBoxGeometry}, {@link @xeokit/procgen!buildSphereGeometry | buildSphereGeometry}, {@link @xeokit/procgen!buildTorusGeometry | buildTorusGeometry}, {@link @xeokit/procgen!buildCylinderGeometry | buildCylinderGeometry}, {@link @xeokit/procgen!buildPlaneGeometry | buildPlaneGeometry} and {@link @xeokit/procgen!buildVectorTextGeometry | buildVectorTextGeometry}.
  *
@@ -12058,8 +12058,8 @@ function _deregisterObjects2(model) {
  * ### Notes
  *
  * * TextureSets are collections of textures that are shared among Meshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
- * * Geometries are arranged automatically into {@link @xeokit/scene!GeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.
- * * Each Mesh can be assigned to only one SceneObject, whereas each Geometry and TextureSet can be allocated to an unlimited number of Meshes.
+ * * Geometries are arranged automatically into {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.
+ * * Each SceneMesh can be assigned to only one SceneObject, whereas each SceneGeometry and SceneTextureSet can be allocated to an unlimited number of Meshes.
  * * The {@link getSceneObjectGeometry} function can be used to conveniently iterate the World-space geometry within each
  * {@link @xeokit/scene!SceneObject | SceneObject} - useful for building k-d trees, finding intersections etc.
  *
@@ -12073,18 +12073,18 @@ function _deregisterObjects2(model) {
  *
  * * [Creating a SceneModel](#creating-a-scenemodel)
  * * [Reading the SceneModel](#reading-the-scenemodel)
- * * [Geometry Compression](#geometry-compression)
- * * [Texture Compression](#texture-compression)
+ * * [SceneGeometry Compression](#geometry-compression)
+ * * [SceneTexture Compression](#texture-compression)
  *
  * ### Creating a SceneModel
  *
  * In the example below, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} that will model the simple table furniture model
  * shown in the image above. Our SceneModel will get five
- * {@link @xeokit/scene!SceneObject | SceneObjects}, five {@link @xeokit/scene!Mesh | Meshes},
- * a {@link @xeokit/scene!Geometry | Geometry} and a {@link @xeokit/scene!Texture | Texture}.
+ * {@link @xeokit/scene!SceneObject | SceneObjects}, five {@link @xeokit/scene!SceneMesh | Meshes},
+ * a {@link @xeokit/scene!SceneGeometry | SceneGeometry} and a {@link @xeokit/scene!SceneTexture | SceneTexture}.
  *
  * When we've finished constructing our SceneModel, we'll call {@link @xeokit/scene!SceneModel.build | SceneModel.build}, which
- * (asynchronously) compresses our Texture.
+ * (asynchronously) compresses our SceneTexture.
  *
  * At that point, we can use the SceneModel. For example, we could export it to xeokit's native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt)
  * file format using {@link "@xeokit/xkt" | saveXKT}, or view it in the Browser using a {@link "@xeokit/viewer" | Viewer}.
@@ -12160,7 +12160,7 @@ function _deregisterObjects2(model) {
  *          console.log(theTextureSet.message);
  *      }
  *
- *      const redLegMesh = sceneModel.createMesh({
+ *      const redLegMesh = sceneModel.createLayerMesh({
  *          id: "redLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [-4, -6, -4],
@@ -12174,7 +12174,7 @@ function _deregisterObjects2(model) {
  *          console.log(redLegMesh.message);
  *      }
  *
- *      const greenLegMesh = sceneModel.createMesh({
+ *      const greenLegMesh = sceneModel.createLayerMesh({
  *          id: "greenLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [4, -6, -4],
@@ -12184,7 +12184,7 @@ function _deregisterObjects2(model) {
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const blueLegMesh = sceneModel.createMesh({
+ *      const blueLegMesh = sceneModel.createLayerMesh({
  *          id: "blueLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [4, -6, 4],
@@ -12194,7 +12194,7 @@ function _deregisterObjects2(model) {
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const yellowLegMesh = sceneModel.createMesh({
+ *      const yellowLegMesh = sceneModel.createLayerMesh({
  *          id: "yellowLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [-4, -6, 4],
@@ -12204,7 +12204,7 @@ function _deregisterObjects2(model) {
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const tableTopMesh = sceneModel.createMesh({
+ *      const tableTopMesh = sceneModel.createLayerMesh({
  *          id: "tableTopMesh",
  *          geometryId: "boxGeometry",
  *          position: [0, -3, 0],
@@ -12214,8 +12214,8 @@ function _deregisterObjects2(model) {
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      // Create five SceneObjects, each using a Mesh.
- *      // A Mesh belongs to exactly one SceneObject.
+ *      // Create five SceneObjects, each using a SceneMesh.
+ *      // A SceneMesh belongs to exactly one SceneObject.
  *
  *      const redLegSceneObject = sceneModel.createObject({
  *          id: "redLegObject",
@@ -12267,7 +12267,7 @@ function _deregisterObjects2(model) {
  *
  * ### Reading the SceneModel
  *
- * Now that we've built our SceneModel, we can read all of its components. Note that the {@link @xeokit/scene!Texture} and {@link @xeokit/scene!Geometry}
+ * Now that we've built our SceneModel, we can read all of its components. Note that the {@link @xeokit/scene!SceneTexture} and {@link @xeokit/scene!SceneGeometry}
  * we just created will now be compressed.
  *
  * ````javascript
@@ -12280,7 +12280,7 @@ function _deregisterObjects2(model) {
  * const theTableTopObjectAgain = theScene.objects["tableTopObject"];
  * ````
  *
- * ### Geometry Compression
+ * ### SceneGeometry Compression
  *
  * The geometry from our query example requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.createGeometry}
  * method uses the {@link @xeokit/scene!compressGeometryParams} function to compress the geometry and generate edge indices for
@@ -12296,7 +12296,7 @@ function _deregisterObjects2(model) {
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
+ * * Splits geometry into {@link @xeokit/scene!SceneGeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
  * Our compressed geometry then looks like this:
  *
@@ -12311,12 +12311,12 @@ function _deregisterObjects2(model) {
  * The bucketing technique was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.
  *
  * In the example below, we'll now use {@link @xeokit/scene!compressGeometryParams} to compress
- * a {@link @xeokit/scene!GeometryParams | GeometryParams} into a
- * {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams}.
+ * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
+ * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
  *
- * In this example, our geometry is very simple, and our GeometryCompressedParams only gets a single
- * {@link @xeokit/scene!GeometryBucketParams | GeometryBucketParams }. Note that if the
- * {@link @xeokit/scene!GeometryParams.positions | GeometryParams.positions} array was large enough to require
+ * In this example, our geometry is very simple, and our SceneGeometryCompressedParams only gets a single
+ * {@link @xeokit/scene!SceneGeometryBucketParams | SceneGeometryBucketParams }. Note that if the
+ * {@link @xeokit/scene!SceneGeometryParams.positions | SceneGeometryParams.positions} array was large enough to require
  * some indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would
  * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
@@ -12342,7 +12342,7 @@ function _deregisterObjects2(model) {
  *  });
  * ````
  *
- * The value of our new {@link @xeokit/scene!GeometryCompressedParams | GeometryCompressedParams} is shown below.
+ * The value of our new {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams} is shown below.
  *
  * We can see that:
  *
@@ -12385,11 +12385,11 @@ function _deregisterObjects2(model) {
  * }
  * ````
  *
- * ### Texture Compression
+ * ### SceneTexture Compression
  *
- * The {@link @xeokit/scene!Texture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
- * method uses [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis) to compress the Texture to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2). We can now read that transcoded data
- * back from {@link @xeokit/scene!Texture.buffers | Texture.buffers}:
+ * The {@link @xeokit/scene!SceneTexture} from our query example also requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.build}
+ * method uses [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis) to compress the SceneTexture to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2). We can now read that transcoded data
+ * back from {@link @xeokit/scene!SceneTexture.buffers | SceneTexture.buffers}:
  *
  * ````javascript
  * const theTexture = theSceneModel.textures["theColorTexture"];
@@ -12409,7 +12409,7 @@ var index$b = {
   TextureSet: TextureSet,
   Geometry: Geometry,
   GeometryBucket: GeometryBucket,
-  Mesh: Mesh,
+  SceneMesh: SceneMesh,
   compressGeometryParams: compressGeometryParams,
   getSceneObjectGeometry: getSceneObjectGeometry
 };
@@ -12892,7 +12892,7 @@ var IfcBeamType = 1035;
  */
 var IfcBlobTexture = 1036;
 /**
- * The IfcBlock is a Construction Solid Geometry (CSG) 3D primitive. It is defined by a position and a positve distance along the three orthogonal axes. The inherited Position attribute has the IfcAxisPlacement3D type and provides:
+ * The IfcBlock is a Construction Solid SceneGeometry (CSG) 3D primitive. It is defined by a position and a positve distance along the three orthogonal axes. The inherited Position attribute has the IfcAxisPlacement3D type and provides:
  */
 var IfcBlock = 1037;
 /**
@@ -14520,7 +14520,7 @@ var IfcPreDefinedTextFont = 1442;
  */
 var IfcPresentationItem = 1443;
 /**
- * The presentation layer assignment provides the layer name (and optionally a description and an identifier) for a collection of geometric representation items. The IfcPresentationLayerAssignment corresponds to the term "CAD Layer" and is used mainly for grouping and visibility control.
+ * The presentation layer assignment provides the layer name (and optionally a description and an identifier) for a collection of geometric representation items. The IfcPresentationLayerAssignment corresponds to the term "CAD RendererLayer" and is used mainly for grouping and visibility control.
  */
 var IfcPresentationLayerAssignment = 1444;
 /**
@@ -14748,7 +14748,7 @@ var IfcRectangleHollowProfileDef = 1499;
  */
 var IfcRectangleProfileDef = 1500;
 /**
- * The IfcRectangularPyramid is a Construction Solid Geometry (CSG) 3D primitive. It is a solid with a rectangular base and a point called apex as the top. The tapers from the base to the top. The axis from the center of the base to the apex is perpendicular to the base. The inherited Position attribute defines the IfcAxisPlacement3D and provides the location and orientation of the pyramid:
+ * The IfcRectangularPyramid is a Construction Solid SceneGeometry (CSG) 3D primitive. It is a solid with a rectangular base and a point called apex as the top. The tapers from the base to the top. The axis from the center of the base to the apex is perpendicular to the base. The inherited Position attribute defines the IfcAxisPlacement3D and provides the location and orientation of the pyramid:
  */
 var IfcRectangularPyramid = 1501;
 /**
@@ -15040,11 +15040,11 @@ var IfcRevolvedAreaSolid = 1572;
  */
 var IfcRevolvedAreaSolidTapered = 1573;
 /**
- * The IfcRightCircularCone is a Construction Solid Geometry (CSG) 3D primitive. It is a solid with a circular base and a point called apex as the top. The tapers from the base to the top. The axis from the center of the circular base to the apex is perpendicular to the base. The inherited Position attribute defines the IfcAxisPlacement3D and provides the location and orientation of the cone:
+ * The IfcRightCircularCone is a Construction Solid SceneGeometry (CSG) 3D primitive. It is a solid with a circular base and a point called apex as the top. The tapers from the base to the top. The axis from the center of the circular base to the apex is perpendicular to the base. The inherited Position attribute defines the IfcAxisPlacement3D and provides the location and orientation of the cone:
  */
 var IfcRightCircularCone = 1574;
 /**
- * The IfcRightCircularCylinder is a Construction Solid Geometry (CSG) 3D primitive. It is a solid with a circular base and top. The cylindrical surface between if formed by points at a fixed distance from the axis of the cylinder. The inherited Position attribute defines the IfcAxisPlacement3D and provides:
+ * The IfcRightCircularCylinder is a Construction Solid SceneGeometry (CSG) 3D primitive. It is a solid with a circular base and top. The cylindrical surface between if formed by points at a fixed distance from the axis of the cylinder. The inherited Position attribute defines the IfcAxisPlacement3D and provides:
  */
 var IfcRightCircularCylinder = 1575;
 /**
@@ -15212,7 +15212,7 @@ var IfcSpatialZone = 1615;
  */
 var IfcSpatialZoneType = 1616;
 /**
- * The IfcSphere is a Construction Solid Geometry (CSG) 3D primitive. It is a solid where all points at the surface have the same distance from the center point. The inherited Position attribute defines the IfcAxisPlacement3D and provides:
+ * The IfcSphere is a Construction Solid SceneGeometry (CSG) 3D primitive. It is a solid where all points at the surface have the same distance from the center point. The inherited Position attribute defines the IfcAxisPlacement3D and provides:
  */
 var IfcSphere = 1617;
 /**
@@ -17806,7 +17806,7 @@ function parseDotBIM(ctx) {
         baseColor: element.color
       });
       if (_mesh instanceof SDKError) {
-        ctx.error("[SceneModel.createMesh]: " + _mesh.message);
+        ctx.error("[SceneModel.createLayerMesh]: " + _mesh.message);
         continue;
       }
       var sceneObject = ctx.sceneModel.createObject({
@@ -18942,7 +18942,7 @@ var SAO = /*#__PURE__*/function (_Component) {
     }
     /**
      * Returns true if SAO is currently possible, where it is supported, enabled, and the current view state is compatible.
-     * Called internally by renderer logic.
+     * Called internally by renderers logic.
      * @private
      */
   }, {
@@ -19353,7 +19353,7 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  * });
  *
  * // (calls to SceneModel createGeometry and
- * // createMesh omitted for brevity)
+ * // createLayerMesh omitted for brevity)
  *
  * sceneModel.createObject({
  *      id: "ground",
@@ -19451,7 +19451,7 @@ var LinesMaterial = /*#__PURE__*/function (_Component) {
  * });
  *
  * // (calls to SceneModel createGeometry and
- * // createMesh omitted for brevity)
+ * // createLayerMesh omitted for brevity)
  *
  * sceneModel.createObject({
  *      id: "ground",
@@ -20188,7 +20188,7 @@ function _createViewObjects2(model) {
   var sceneObjects = model.objects;
   for (var id in sceneObjects) {
     var sceneObject = sceneObjects[id];
-    var rendererViewObject = this.viewer.renderer.rendererViewObjects[id];
+    var rendererViewObject = this.viewer.renderer.rendererObjects[id];
     if (rendererViewObject.layerId == this.id) {
       var viewObject = new ViewObject(this, sceneObject, rendererViewObject);
       this.objects[viewObject.id] = viewObject;
@@ -25122,14 +25122,14 @@ var View = /*#__PURE__*/function (_Component) {
 }(Component);
 function _createViewObjectsForSceneModel2(sceneModel) {
   var _this5 = this;
-  // The Renderer has a RendererViewObject for each object, through which a ViewObject can
+  // The Renderer has a RendererObject for each object, through which a ViewObject can
   // push state changes into the Renderer for its object.
-  // The RendererViewObject
+  // The RendererObject
   var sceneObjects = sceneModel.objects;
-  var rendererViewObjects = this.viewer.renderer.rendererViewObjects;
+  var rendererObjects = this.viewer.renderer.rendererObjects;
   var _loop = function _loop() {
     var sceneObject = sceneObjects[id];
-    var rendererViewObject = rendererViewObjects[id];
+    var rendererViewObject = rendererObjects[id];
     //     const layerId = viewerObject.layerId || "default";
     var layerId = "default";
     var viewLayer = _this5.layers[layerId];
@@ -25209,7 +25209,7 @@ var Viewer = /*#__PURE__*/function (_Component) {
    Creates a Viewer.
     @param params - Viewer configuration.
    @param params.scene - Contains model representations.
-   @param params.renderer - Manages rendering of models.
+   @param params.renderers - Manages rendering of models.
    @param params.id - ID for this Viewer, automatically generated by default.
    @param params.units - The measurement unit type. Accepted values are ````"meters"````, ````"metres"````, , ````"centimeters"````, ````"centimetres"````, ````"millimeters"````,  ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
    @param params.scale - The number of Real-space units in each World-space coordinate system unit.
@@ -25379,7 +25379,7 @@ var Viewer = /*#__PURE__*/function (_Component) {
       _this2.renderer.detachView(view.viewIndex);
       _this2.onViewDestroyed.dispatch(_this2, view);
     });
-    // Renderer.attachSceneModel creates RendererViewObjects in Renderer.rendererViewObjects,
+    // Renderer.attachSceneModel creates RendererObjects in Renderer.rendererObjects,
     // which are then expected by View.initViewObjects
     // TODO: assumes one View
     this.scene.onModelCreated.subscribe(function (scene, sceneModel) {
@@ -26452,7 +26452,7 @@ var PickResult = /*#__PURE__*/function () {
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     scene,
- *     renderer: new WebGLRenderer({
+ *     renderers: new WebGLRenderer({
  *          textureTranscoder: new KTX2TextureTranscoder({  // Optional, this is the default
  *              transcoderPath: "./../dist/basis/" // Optional, defaults to CDN
  *          })
@@ -26520,13 +26520,13 @@ var PickResult = /*#__PURE__*/function () {
  *      colorTextureId: "myColorTexture"
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.createLayerMesh({
  *     id: "myMesh1",
  *     geometryId: "myGeometry",
  *     textureSetId: "myTextureSet"
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.createLayerMesh({
  *     id: "myMesh2",
  *     geometryId: "myGeometry",
  *     textureSetId: "myTextureSet"
@@ -26828,7 +26828,7 @@ var MockRendererTexture = /*#__PURE__*/function () {
 var MockRendererGeometry = function MockRendererGeometry() {};
 
 /**
- * Mock rendering strategy for a {@link @xeokit/scene!Mesh | Mesh}.
+ * Mock rendering strategy for a {@link @xeokit/scene!SceneMesh | SceneMesh}.
  *
  * See {@link @xeokit/mockrenderer} for usage.
  */
@@ -26908,7 +26908,7 @@ var defaultEmissiveTextureId = "defaultEmissiveTexture";
 var defaultOcclusionTextureId = "defaultOcclusionTexture";
 var defaultTextureSetId = "defaultTextureSet";
 /**
- * Mock rendering strategy for a {@link @xeokit/scene!Mesh | Mesh}.
+ * Mock rendering strategy for a {@link @xeokit/scene!SceneMesh | SceneMesh}.
  *
  * See {@link @xeokit/mockrenderer} for usage.
  */
@@ -26953,7 +26953,7 @@ var MockRendererModel = /*#__PURE__*/function (_Component) {
     _this.rendererMeshes = void 0;
     _this.rendererObjects = void 0;
     _this.rendererObjectsList = void 0;
-    _this.rendererViewObjects = void 0;
+    _this.rendererObjects = void 0;
     _this.onBuilt = void 0;
     _this.id = params.id;
     _this.sceneModel = params.sceneModel;
@@ -26964,7 +26964,7 @@ var MockRendererModel = /*#__PURE__*/function (_Component) {
     _this.rendererMeshes = {};
     _this.rendererObjects = {};
     _this.rendererObjectsList = [];
-    _this.rendererViewObjects = {};
+    _this.rendererObjects = {};
     _this.built = false;
     _this.qualityRender = params.qualityRender !== false;
     _this.onBuilt = new EventEmitter(new dist.EventDispatcher());
@@ -26982,7 +26982,7 @@ var MockRendererModel = /*#__PURE__*/function (_Component) {
     this.rendererTextures = {};
     this.rendererTextureSets = {};
     this.rendererMeshes = {};
-    this.rendererViewObjects = {};
+    this.rendererObjects = {};
     this.onBuilt.clear();
     _Component.prototype.destroy.call(this);
   };
@@ -27068,7 +27068,7 @@ function _attachMesh2(mesh) {
   var textureSetId = mesh.textureSet ? mesh.textureSet.id : defaultTextureSetId;
   var rendererTextureSet = this.rendererTextureSets[textureSetId];
   if (!rendererTextureSet) {
-    throw new SDKError("TextureSet not found");
+    throw new SDKError("SceneTextureSet not found");
   }
   var meshRenderer = new MockRendererMesh({
     id: mesh.id,
@@ -27106,13 +27106,13 @@ function _attachSceneObject2(sceneObject) {
   });
   this.rendererObjectsList.push(rendererObject);
   this.rendererObjects[objectId] = rendererObject; // <RendererObject>
-  this.rendererViewObjects[objectId] = rendererObject; // <RendererViewObject>
+  this.rendererObjects[objectId] = rendererObject; // <RendererObject>
 }
 
 /**
  * Mock rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
  *
- * Plug a MockRenderer into a Viewer to effectively make it think it has a renderer, but not
+ * Plug a MockRenderer into a Viewer to effectively make it think it has a renderers, but not
  * actually render anything. This is useful for testing, and to demonstrate the API contract
  * to help you implement your own rendering strategies.
  *
@@ -27123,8 +27123,8 @@ var _viewMatrixDirty = /*#__PURE__*/_classPrivateFieldLooseKey("viewMatrixDirty"
 var _rendererModels = /*#__PURE__*/_classPrivateFieldLooseKey("rendererModels");
 var _viewer$1 = /*#__PURE__*/_classPrivateFieldLooseKey("viewer");
 var _onViewMat = /*#__PURE__*/_classPrivateFieldLooseKey("onViewMat");
-var _detachRendererViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("detachRendererViewObjects");
-var _attachRendererViewObjects = /*#__PURE__*/_classPrivateFieldLooseKey("attachRendererViewObjects");
+var _detachRendererObjects = /*#__PURE__*/_classPrivateFieldLooseKey("detachRendererObjects");
+var _attachRendererObjects = /*#__PURE__*/_classPrivateFieldLooseKey("attachRendererObjects");
 var MockRenderer = /*#__PURE__*/function () {
   /**
    * Creates a MockRenderer.
@@ -27132,16 +27132,16 @@ var MockRenderer = /*#__PURE__*/function () {
    * @param params Configs
    */
   function MockRenderer(params) {
-    Object.defineProperty(this, _attachRendererViewObjects, {
-      value: _attachRendererViewObjects2
+    Object.defineProperty(this, _attachRendererObjects, {
+      value: _attachRendererObjects2
     });
-    Object.defineProperty(this, _detachRendererViewObjects, {
-      value: _detachRendererViewObjects2
+    Object.defineProperty(this, _detachRendererObjects, {
+      value: _detachRendererObjects2
     });
     /**
      * @inheritdoc
      */
-    this.rendererViewObjects = void 0;
+    this.rendererObjects = void 0;
     Object.defineProperty(this, _view$9, {
       writable: true,
       value: void 0
@@ -27162,7 +27162,7 @@ var MockRenderer = /*#__PURE__*/function () {
       writable: true,
       value: void 0
     });
-    this.rendererViewObjects = {};
+    this.rendererObjects = {};
     _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels] = {};
   }
   /**
@@ -27230,11 +27230,11 @@ var MockRenderer = /*#__PURE__*/function () {
       mockRenderer: this
     });
     _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][rendererModel.id] = rendererModel;
-    _classPrivateFieldLooseBase(this, _attachRendererViewObjects)[_attachRendererViewObjects](rendererModel);
+    _classPrivateFieldLooseBase(this, _attachRendererObjects)[_attachRendererObjects](rendererModel);
     rendererModel.onDestroyed.one(function (component) {
       var rendererModel = _classPrivateFieldLooseBase(_this2, _rendererModels)[_rendererModels][component.id];
       delete _classPrivateFieldLooseBase(_this2, _rendererModels)[_rendererModels][component.id];
-      _classPrivateFieldLooseBase(_this2, _detachRendererViewObjects)[_detachRendererViewObjects](rendererModel);
+      _classPrivateFieldLooseBase(_this2, _detachRendererObjects)[_detachRendererObjects](rendererModel);
     });
     sceneModel.rendererModel = rendererModel;
   }
@@ -27253,7 +27253,7 @@ var MockRenderer = /*#__PURE__*/function () {
     }
     var rendererModel = _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][sceneModel.id];
     delete _classPrivateFieldLooseBase(this, _rendererModels)[_rendererModels][sceneModel.id];
-    _classPrivateFieldLooseBase(this, _detachRendererViewObjects)[_detachRendererViewObjects](rendererModel);
+    _classPrivateFieldLooseBase(this, _detachRendererObjects)[_detachRendererObjects](rendererModel);
     sceneModel.rendererModel = null;
   }
   /**
@@ -27387,16 +27387,16 @@ var MockRenderer = /*#__PURE__*/function () {
   };
   return MockRenderer;
 }();
-function _detachRendererViewObjects2(rendererModel) {
-  var rendererViewObjects = rendererModel.rendererViewObjects;
-  for (var id in rendererViewObjects) {
-    delete this.rendererViewObjects[id];
+function _detachRendererObjects2(rendererModel) {
+  var rendererObjects = rendererModel.rendererObjects;
+  for (var id in rendererObjects) {
+    delete this.rendererObjects[id];
   }
 }
-function _attachRendererViewObjects2(rendererModel) {
-  var rendererViewObjects = rendererModel.rendererViewObjects;
-  for (var id in rendererViewObjects) {
-    this.rendererViewObjects[id] = rendererViewObjects[id];
+function _attachRendererObjects2(rendererModel) {
+  var rendererObjects = rendererModel.rendererObjects;
+  for (var id in rendererObjects) {
+    this.rendererObjects[id] = rendererObjects[id];
   }
 }
 
@@ -27410,11 +27410,11 @@ function _attachRendererViewObjects2(rendererModel) {
  *
  * ---
  *
- * ### *Configures a xeokit Viewer with a mock renderer*
+ * ### *Configures a xeokit Viewer with a mock renderers*
  *
  * ---
  *
- * * Plug a {@link MockRenderer} into a {@link @xeokit/viewer!Viewer} to use a mock renderer for model storage and rendering
+ * * Plug a {@link MockRenderer} into a {@link @xeokit/viewer!Viewer} to use a mock renderers for model storage and rendering
  * * Does not render anything
  * * Used for testing the Viewer
  * * Used to guide the development of custom renderers
@@ -27438,7 +27438,7 @@ function _attachRendererViewObjects2(rendererModel) {
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     scene: new Scene(),
- *     renderer: new MockRenderer()
+ *     renderers: new MockRenderer()
  * });
  *
  * //...
@@ -27899,7 +27899,7 @@ var BasisWorker = function BasisWorker() {
  *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="media://images/xeokit_ktx_logo.svg"/>
  *
- * # xeokit KTX2 Texture Transcoder
+ * # xeokit KTX2 SceneTexture Transcoder
  *
  * ---
  *
@@ -27910,7 +27910,7 @@ var BasisWorker = function BasisWorker() {
  * * Provides {@link KTX2TextureTranscoder}
  * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
  * * Then a Viewer is able to view a {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} that has KTX2-encoded compressed textures
- * * Uses the [Basis Universal GPU Texture Codec](https://github.com/BinomialLLC/basis_universal) to
+ * * Uses the [Basis Universal GPU SceneTexture Codec](https://github.com/BinomialLLC/basis_universal) to
  * transcode [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures.
  * * Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/) by default, but can
  * also be configured to load the Codec from local files.
@@ -27918,7 +27918,7 @@ var BasisWorker = function BasisWorker() {
  *
  * ### What is KTX2?
  *
- * A [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) file stores GPU texture data in the Khronos Texture 2.0 (KTX2) container format. It contains image data for
+ * A [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) file stores GPU texture data in the Khronos SceneTexture 2.0 (KTX2) container format. It contains image data for
  * a texture asset compressed with Basis Universal (BasisU) supercompression that can be transcoded to different formats
  * depending on the support provided by the target devices. [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) provides a lightweight format for distributing texture
  * assets to GPUs. Due to BasisU compression, [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) files can store any image format supported by GPUs.
@@ -27952,7 +27952,7 @@ var BasisWorker = function BasisWorker() {
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ // Optional
+ *     renderers: new WebGLRenderer({ // Optional
  *          textureTranscoder: new KTX2TextureTranscoder({
  *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
@@ -27998,7 +27998,7 @@ var BasisWorker = function BasisWorker() {
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ // Optional
+ *     renderers: new WebGLRenderer({ // Optional
  *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
  *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
@@ -28043,7 +28043,7 @@ var BasisWorker = function BasisWorker() {
  *     indices: [0, 1, 2, ...],
  * });
  *
- * viewerModel.createMesh({
+ * viewerModel.createLayerMesh({
  *      id: "myMesh",
  *      textureSetId: "myTextureSet",
  *      geometryId: "myGeometry"
@@ -28074,7 +28074,7 @@ var BasisWorker = function BasisWorker() {
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ // Optional
+ *     renderers: new WebGLRenderer({ // Optional
  *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
  *              transcoderPath: "./../dist/basis/" // Optional, path to BasisU transcoder module
  *          })
@@ -28123,7 +28123,7 @@ var BasisWorker = function BasisWorker() {
  *                  indices: [0, 1, 2, ...],
  *              });
  *
- *              viewerModel.createMesh({
+ *              viewerModel.createLayerMesh({
  *                  id: "myMesh",
  *                  textureSetId: "myTextureSet",
  *                  geometryId: "myGeometry"
@@ -32114,7 +32114,7 @@ CameraControl.AXIS_VIEW_BOTTOM = 17;
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({
+ *     renderers: new WebGLRenderer({
  *         //...
  *     })
  * });
@@ -32228,7 +32228,7 @@ function saveBCFViewpoint(params) {
  *
  * const viewer = new Viewer({
  *      scene,
- *      renderer: new WebGLRenderer()
+ *      renderers: new WebGLRenderer()
  * });
  *
  * const view = viewer.createView({
@@ -32314,7 +32314,7 @@ function saveBCFViewpoint(params) {
  * const viewer = new Viewer({
  *     id: "myViewer",
  *     scene,
- *     renderer: new WebGLRenderer({
+ *     renderers: new WebGLRenderer({
  *         //...
  *     })
  * });
@@ -33789,7 +33789,7 @@ TreeView.GroupsHierarchy = void 0;
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ })
+ *     renderers: new WebGLRenderer({ })
  * });
  * ````
  *

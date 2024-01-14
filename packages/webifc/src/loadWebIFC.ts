@@ -1,7 +1,8 @@
 import {createMat4, createVec3, transformPositions3} from "@xeokit/matrix";
 import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
-import * as WebIFC from "web-ifc/web-ifc-api-node";
+//import * as WebIFC from "web-ifc/web-ifc-api-node";
+import * as WebIFC from "web-ifc";
 import {IfcRelAggregates} from "@xeokit/ifctypes";
 import {worldToRTCPositions} from "@xeokit/rtc";
 import {TrianglesPrimitive} from "@xeokit/constants";

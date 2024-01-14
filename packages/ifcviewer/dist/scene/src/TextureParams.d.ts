@@ -63,11 +63,11 @@ export interface TextureParams {
      */
     wrapR?: number;
     /**
-     * Flips this Texture's source data along its vertical axis when ````true````.
+     * Flips this SceneTexture's source data along its vertical axis when ````true````.
      */
     flipY?: boolean;
     /**
-     * Texture encoding format.
+     * SceneTexture encoding format.
      *
      * Supported values are {@link @xeokit/constants!LinearEncoding} and {@link @xeokit/constants!sRGBEncoding}.
      */

@@ -1,6 +1,6 @@
 // import {CustomProjection, View} from "@xeokit/viewer";
 // import {inverseMat4, createMat4} from "@xeokit/matrix";
-// import {GLArrayBuf, GLAttribute, GLProgram, GLRenderBuffer, WEBGL_INFO} from "@xeokit/webglutils";
+// import {WebGLArrayBuf, WebGLAttribute, WebGLProgram, WebGLRenderBuffer, WEBGL_INFO} from "@xeokit/webglutils";
 //
 //
 //
@@ -19,18 +19,18 @@
 //
 //     readonly #view: View;
 //     readonly #gl: WebGL2RenderingContext;
-//     #program: GLProgram;
+//     #program: WebGLProgram;
 //     #programError: boolean;
-//     #aPosition: GLAttribute;
-//     #aUV: GLAttribute;
+//     #aPosition: WebGLAttribute;
+//     #aUV: WebGLAttribute;
 //     #uDepthTexture: string;
 //     #uOcclusionTexture: string;
 //     #uViewport: WebGLUniformLocation;
 //     #uCameraNear: WebGLUniformLocation;
 //     #uCameraFar: WebGLUniformLocation;
-//     #uvBuf: GLArrayBuf;
-//     #positionsBuf: GLArrayBuf;
-//     #indicesBuf: GLArrayBuf;
+//     #uvBuf: WebGLArrayBuf;
+//     #positionsBuf: WebGLArrayBuf;
+//     #indicesBuf: WebGLArrayBuf;
 //     #uDepthCutoff: WebGLUniformLocation;
 //     #uSampleOffsets: WebGLUniformLocation;
 //     #uSampleWeights: WebGLUniformLocation;
@@ -44,7 +44,7 @@
 //
 //     #registerViewer() {
 //         const gl = this.#gl;
-//         this.#program = new GLProgram(gl, {
+//         this.#program = new WebGLProgram(gl, {
 //             vertex: [
 //                 `#version 300 es
 //                 precision highp float;
@@ -186,9 +186,9 @@
 //         const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
 //         const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
 //         const indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
-//         this.#positionsBuf = new GLArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
-//         this.#uvBuf = new GLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
-//         this.#indicesBuf = new GLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
+//         this.#positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
+//         this.#uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
+//         this.#indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
 //         this.#program.bind();
 //         this.#uViewport = this.#program.getLocation("uViewport");
 //         this.#uCameraNear = this.#program.getLocation("uCameraNear");
@@ -204,7 +204,7 @@
 //         this.#uOcclusionTexture = "uOcclusionTexture";
 //     }
 //
-//     render(depthRenderBuffer: GLRenderBuffer, occlusionRenderBuffer: GLRenderBuffer, direction: number) {
+//     render(depthRenderBuffer: WebGLRenderBuffer, occlusionRenderBuffer: WebGLRenderBuffer, direction: number) {
 //         if (this.#programError) {
 //             return;
 //         }

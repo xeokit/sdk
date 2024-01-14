@@ -38,7 +38,7 @@
  * ````javascript
  * const myViewer = new Viewer({
  *     id: "myViewer",
- *     renderer: new WebGLRenderer({ })
+ *     renderers: new WebGLRenderer({ })
  * });
  * ````
  *
@@ -95,3 +95,7 @@
  * @module @xeokit/treeview
  */
 export * from "./TreeView";
+export {TreeViewParams} from "./TreeViewparams";
+export {TreeViewNode} from "./TreeViewNode";
+export {TreeViewNodeContextMenuEvent} from "./TreeViewNodeContextMenuEvent";
+export {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEvent";

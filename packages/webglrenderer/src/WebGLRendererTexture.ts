@@ -1,5 +1,5 @@
-import type {RendererTexture, Texture} from "@xeokit/scene";
-import type {GLTexture} from "@xeokit/webglutils";
+import type {RendererTexture, SceneTexture} from "@xeokit/scene";
+import type {WebGLTexture} from "@xeokit/webglutils";
 
 /**
  * TODO
@@ -7,13 +7,13 @@ import type {GLTexture} from "@xeokit/webglutils";
  */
 export class WebGLRendererTexture implements RendererTexture {
 
-    texture: Texture | null;
-    texture2D: GLTexture;
+    texture: SceneTexture | null;
+    texture2D: WebGLTexture;
 
     /**
      * @private
      */
-    constructor(texture: Texture | null, texture2D: GLTexture) {
+    constructor(texture: SceneTexture | null, texture2D: WebGLTexture) {
         this.texture = texture
         this.texture2D = texture2D;
     }

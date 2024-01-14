@@ -5,13 +5,13 @@ import {TrianglesPrimitive} from "@xeokit/constants";
 
 
 /**
- * Creates a torus-shaped {@link @xeokit/scene!Geometry}.
+ * Creates a torus-shaped {@link @xeokit/scene!SceneGeometry}.
  *
  * ## Usage
- * Creating a {@link @xeokit/scene!Mesh} with a torus-shaped {@link @xeokit/scene!Geometry}:
+ * Creating a {@link @xeokit/scene!SceneMesh} with a torus-shaped {@link @xeokit/scene!SceneGeometry}:
  *
  * ````javascript
- * import {Viewer, Mesh, buildTorusGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
+ * import {Viewer, SceneMesh, buildTorusGeometry, TrianglesLayerGeometryBucket, PhongMaterial, SceneTexture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      canvasId: "myView"
@@ -21,8 +21,8 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  * viewer.camera.look = [0, 0, 0];
  * viewer.camera.up = [0, 1, 0];
  *
- * new Mesh(viewer.scene, {
- *      geometry: new GeometryBucketHandle(viewer.scene, buildTorusGeometry({
+ * new SceneMesh(viewer.scene, {
+ *      geometry: new TrianglesLayerGeometryBucket(viewer.scene, buildTorusGeometry({
  *          center: [0,0,0],
  *          radius: 1.0,
  *          tube: 0.5,
@@ -31,7 +31,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *          arc: Math.PI * 2.0
  *      }),
  *      material: new PhongMaterial(viewer.scene, {
- *         diffuseMap: new Texture(viewer.scene, {
+ *         diffuseMap: new SceneTexture(viewer.scene, {
  *             src: "textures/diffuse/uvGrid2.jpg"
  *         })
  *      })
@@ -40,14 +40,14 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * @function buildTorusGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!Geometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
  * @param [cfg.center] 3D point indicating the center position.
  * @param [cfg.radius=1] The overall radius.
  * @param [cfg.tube=0.3] The tube radius.
  * @param [cfg.radialSegments=32] The number of radial segments.
  * @param [cfg.tubeSegments=24] The number of tubular segments.
  * @param [cfg.arc=Math.PI*0.5] The length of the arc in radians, where Math.PI*2 is a closed torus.
- * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!SceneGeometry} subtype.
  */
 export function buildTorusGeometry(cfg: {
     tube?: number;

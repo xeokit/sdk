@@ -24,16 +24,16 @@
  * @module @xeokit/webglutils
  */
 
-export * from "./GLArrayBuf";
-export * from "./GLAttribute";
-export * from "./GLDataTexture";
-export * from "./GLProgram";
-export * from "./GLRenderBuffer";
-export * from "./GLSampler";
-export * from "./GLShader";
-export * from "./GLAbstractTexture";
-export * from "./GLTexture";
-export * from "./getExtension";
+export * from "./WebGLArrayBuf";
+export * from "./WebGLAttribute";
+export * from "./WebGLDataTexture";
+export * from "./WebGLProgram";
+export * from "./WebGLRenderBuffer";
+export * from "./WebGLSampler";
+export * from "./WebGLShader";
+export * from "./WebGLAbstractTexture";
+export * from "./WebGLTexture";
+export * from "./getWebGLExtension";
 export * from "./canvas2image";
-export * from "./convertConstant";
+export * from "./convertWebGLConstant";
 export * from "./WEBGL_INFO";

@@ -30,7 +30,7 @@ module.exports = {
         "@xeokit/locale/(.*)$": path.join(__dirname, "../locale/src/$1"),
         "@xeokit/math(.*)$": path.join(__dirname, "../math/src/$1"),
         "@xeokit/matrix(.*)$": path.join(__dirname, "../matrix/src/$1"),
-        "@xeokit/mockrenderer(.*)$": path.join(__dirname, "../mockrenderer/src/$1"),
+        
         "@xeokit/pick(.*)$": path.join(__dirname, "../pick/src/$1"),
         "@xeokit/procgen(.*)$": path.join(__dirname, "../procgen/src/$1"),
         "@xeokit/rtc(.*)$": path.join(__dirname, "../rtc/src/$1"),

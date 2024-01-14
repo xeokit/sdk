@@ -40,11 +40,11 @@ export interface SceneModelParams {
      */
     position?: FloatArrayParam;
     /**
-     * {@link @xeokit/scene!GeometryParams} in the SceneModel.
+     * {@link @xeokit/scene!SceneGeometryParams} in the SceneModel.
      */
     geometries?: GeometryParams[];
     /**
-     * {@link @xeokit/scene!GeometryCompressedParams} in the SceneModel.
+     * {@link @xeokit/scene!SceneGeometryCompressedParams} in the SceneModel.
      */
     geometriesCompressed?: GeometryCompressedParams[];
     /**
@@ -56,7 +56,7 @@ export interface SceneModelParams {
      */
     textureSets?: TextureSetParams[];
     /**
-     * {@link @xeokit/scene!Mesh | Meshes} in the SceneModel.
+     * {@link @xeokit/scene!SceneMesh | Meshes} in the SceneModel.
      */
     meshes?: MeshParams[];
     /**

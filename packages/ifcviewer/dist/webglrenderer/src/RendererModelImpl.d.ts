@@ -7,7 +7,7 @@ import type { WebGLRenderer } from "./WebGLRenderer";
 import { Layer } from "./Layer";
 import type { RenderContext } from "./RenderContext";
 import { RendererObjectImpl } from "./RendererObjectImpl";
-import type { RendererViewObject } from "@xeokit/viewer";
+import type { RendererObject } from "@xeokit/viewer";
 /**
  * @private
  */
@@ -34,8 +34,8 @@ export declare class RendererModelImpl extends Component implements RendererMode
         [key: string]: RendererObjectImpl;
     };
     rendererObjectsList: RendererObjectImpl[];
-    rendererViewObjects: {
-        [key: string]: RendererViewObject;
+    rendererObjects: {
+        [key: string]: RendererObject;
     };
     readonly viewer: Viewer;
     layerList: Layer[];

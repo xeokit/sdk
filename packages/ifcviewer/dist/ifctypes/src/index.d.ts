@@ -170,7 +170,7 @@ export declare const IfcBeamType = 1035;
  */
 export declare const IfcBlobTexture = 1036;
 /**
- * The IfcBlock is a Construction Solid Geometry (CSG) 3D primitive. It is defined by a position and a positve distance along the three orthogonal axes. The inherited Position attribute has the IfcAxisPlacement3D type and provides:
+ * The IfcBlock is a Construction Solid SceneGeometry (CSG) 3D primitive. It is defined by a position and a positve distance along the three orthogonal axes. The inherited Position attribute has the IfcAxisPlacement3D type and provides:
  */
 export declare const IfcBlock = 1037;
 /**
@@ -1798,7 +1798,7 @@ export declare const IfcPreDefinedTextFont = 1442;
  */
 export declare const IfcPresentationItem = 1443;
 /**
- * The presentation layer assignment provides the layer name (and optionally a description and an identifier) for a collection of geometric representation items. The IfcPresentationLayerAssignment corresponds to the term "CAD Layer" and is used mainly for grouping and visibility control.
+ * The presentation layer assignment provides the layer name (and optionally a description and an identifier) for a collection of geometric representation items. The IfcPresentationLayerAssignment corresponds to the term "CAD RendererLayer" and is used mainly for grouping and visibility control.
  */
 export declare const IfcPresentationLayerAssignment = 1444;
 /**
@@ -2026,7 +2026,7 @@ export declare const IfcRectangleHollowProfileDef = 1499;
  */
 export declare const IfcRectangleProfileDef = 1500;
 /**
- * The IfcRectangularPyramid is a Construction Solid Geometry (CSG) 3D primitive. It is a solid with a rectangular base and a point called apex as the top. The tapers from the base to the top. The axis from the center of the base to the apex is perpendicular to the base. The inherited Position attribute defines the IfcAxisPlacement3D and provides the location and orientation of the pyramid:
+ * The IfcRectangularPyramid is a Construction Solid SceneGeometry (CSG) 3D primitive. It is a solid with a rectangular base and a point called apex as the top. The tapers from the base to the top. The axis from the center of the base to the apex is perpendicular to the base. The inherited Position attribute defines the IfcAxisPlacement3D and provides the location and orientation of the pyramid:
  */
 export declare const IfcRectangularPyramid = 1501;
 /**
@@ -2318,11 +2318,11 @@ export declare const IfcRevolvedAreaSolid = 1572;
  */
 export declare const IfcRevolvedAreaSolidTapered = 1573;
 /**
- * The IfcRightCircularCone is a Construction Solid Geometry (CSG) 3D primitive. It is a solid with a circular base and a point called apex as the top. The tapers from the base to the top. The axis from the center of the circular base to the apex is perpendicular to the base. The inherited Position attribute defines the IfcAxisPlacement3D and provides the location and orientation of the cone:
+ * The IfcRightCircularCone is a Construction Solid SceneGeometry (CSG) 3D primitive. It is a solid with a circular base and a point called apex as the top. The tapers from the base to the top. The axis from the center of the circular base to the apex is perpendicular to the base. The inherited Position attribute defines the IfcAxisPlacement3D and provides the location and orientation of the cone:
  */
 export declare const IfcRightCircularCone = 1574;
 /**
- * The IfcRightCircularCylinder is a Construction Solid Geometry (CSG) 3D primitive. It is a solid with a circular base and top. The cylindrical surface between if formed by points at a fixed distance from the axis of the cylinder. The inherited Position attribute defines the IfcAxisPlacement3D and provides:
+ * The IfcRightCircularCylinder is a Construction Solid SceneGeometry (CSG) 3D primitive. It is a solid with a circular base and top. The cylindrical surface between if formed by points at a fixed distance from the axis of the cylinder. The inherited Position attribute defines the IfcAxisPlacement3D and provides:
  */
 export declare const IfcRightCircularCylinder = 1575;
 /**
@@ -2490,7 +2490,7 @@ export declare const IfcSpatialZone = 1615;
  */
 export declare const IfcSpatialZoneType = 1616;
 /**
- * The IfcSphere is a Construction Solid Geometry (CSG) 3D primitive. It is a solid where all points at the surface have the same distance from the center point. The inherited Position attribute defines the IfcAxisPlacement3D and provides:
+ * The IfcSphere is a Construction Solid SceneGeometry (CSG) 3D primitive. It is a solid where all points at the surface have the same distance from the center point. The inherited Position attribute defines the IfcAxisPlacement3D and provides:
  */
 export declare const IfcSphere = 1617;
 /**

@@ -1,10 +1,10 @@
-import {createMatricesDataTexture} from "./dataTextures";
-import type {GLDataTexture} from "@xeokit/webglutils";
+import {createMatricesDataTexture} from "./common/dataTextures";
+import type {WebGLDataTexture} from "@xeokit/webglutils";
 import type {FloatArrayParam} from "@xeokit/math";
 import {createMat4, createVec3} from "@xeokit/matrix";
 import {createRTCViewMat, worldToRTCCenter} from "@xeokit/rtc";
 import type {Camera} from "@xeokit/viewer";
-import {TileManager} from "./TileManager";
+import type {TileManager} from "./common/TileManager";
 
 const NUM_TILES = 2000;
 
@@ -21,7 +21,7 @@ export class WebGLTileManager implements TileManager {
     #gl: WebGL2RenderingContext;
     #indexesUsed: boolean[];
     #tiles: { [key: string]: Tile };
-    #dataTexture: GLDataTexture;
+    #dataTexture: WebGLDataTexture;
     #camera: Camera;
     #lastFreeIndex: number;
     #numTiles: number;

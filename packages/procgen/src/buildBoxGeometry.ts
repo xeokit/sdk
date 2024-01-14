@@ -7,7 +7,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/scene!Mesh} with a box-shaped {@link @xeokit/scene!Geometry}:
+ * Creating a {@link @xeokit/scene!SceneMesh} with a box-shaped {@link @xeokit/scene!SceneGeometry}:
  *
  * ````javascript
  * TODO
@@ -20,7 +20,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  * @param [cfg.xSize=1.0]  Half-size on the X-axis.
  * @param [cfg.ySize=1.0]  Half-size on the Y-axis.
  * @param [cfg.zSize=1.0]  Half-size on the Z-axis.
- * @returns {Object} GeometryBucketHandle arrays.
+ * @returns {Object} TrianglesLayerGeometryBucket arrays.
  */
 export function buildBoxGeometry(cfg: {
     center?: number[],

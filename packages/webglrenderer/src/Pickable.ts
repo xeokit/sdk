@@ -24,8 +24,8 @@ export interface Pickable {
      *
      * Architecturally, this delegates collection of that Pickable-specific info to the Pickable, allowing it to provide whatever info it's able to.
      *
-     * @param {PickResult} pickResult The PickResult to augment with pick intersection information specific to this Mesh.
-     * @param [pickResult.primIndex] Index of the primitive that was picked on this Mesh.
+     * @param {PickResult} pickResult The PickResult to augment with pick intersection information specific to this SceneMesh.
+     * @param [pickResult.primIndex] Index of the primitive that was picked on this SceneMesh.
      * @param [pickResult.canvasPos] View coordinates, provided when picking through the View.
      * @param [pickResult.origin] World-space 3D ray origin, when ray picking.
      * @param [pickResult.direction] World-space 3D ray direction, provided when ray picking.

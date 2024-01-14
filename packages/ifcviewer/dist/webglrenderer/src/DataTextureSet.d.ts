@@ -1,36 +1,36 @@
 /**
  * @private
  */
-import type { GLDataTexture } from "@xeokit/webglutils";
+import type { WebGLDataTexture } from "@xeokit/webglutils";
 export declare class DataTextureSet {
     #private;
-    positions: GLDataTexture | null;
-    indices_8Bits: GLDataTexture | null;
-    indices_16Bits: GLDataTexture | null;
-    indices_32Bits: GLDataTexture | null;
-    edgeIndices_8Bits: GLDataTexture | null;
-    edgeIndices_16Bits: GLDataTexture | null;
-    edgeIndices_32Bits: GLDataTexture | null;
+    positions: WebGLDataTexture | null;
+    indices_8Bits: WebGLDataTexture | null;
+    indices_16Bits: WebGLDataTexture | null;
+    indices_32Bits: WebGLDataTexture | null;
+    edgeIndices_8Bits: WebGLDataTexture | null;
+    edgeIndices_16Bits: WebGLDataTexture | null;
+    edgeIndices_32Bits: WebGLDataTexture | null;
     indices: {
-        [key: number]: GLDataTexture | null;
+        [key: number]: WebGLDataTexture | null;
     };
     edgeIndices: {
-        [key: number]: GLDataTexture | null;
+        [key: number]: WebGLDataTexture | null;
     } | null;
-    eachMeshAttributes: GLDataTexture | null;
-    eachMeshMatrices: GLDataTexture | null;
-    eachEdgeOffset: GLDataTexture | null;
-    eachPrimitiveMesh_8Bits: GLDataTexture | null;
-    eachPrimitiveMesh_16Bits: GLDataTexture | null;
-    eachPrimitiveMesh_32Bits: GLDataTexture | null;
+    eachMeshAttributes: WebGLDataTexture | null;
+    eachMeshMatrices: WebGLDataTexture | null;
+    eachEdgeOffset: WebGLDataTexture | null;
+    eachPrimitiveMesh_8Bits: WebGLDataTexture | null;
+    eachPrimitiveMesh_16Bits: WebGLDataTexture | null;
+    eachPrimitiveMesh_32Bits: WebGLDataTexture | null;
     eachPrimitiveMesh: {
-        [key: number]: GLDataTexture | null;
+        [key: number]: WebGLDataTexture | null;
     } | null;
-    eachEdgeMesh_8Bits: GLDataTexture | null;
-    eachEdgeMesh_16Bits: GLDataTexture | null;
-    eachEdgeMesh_32Bits: GLDataTexture | null;
+    eachEdgeMesh_8Bits: WebGLDataTexture | null;
+    eachEdgeMesh_16Bits: WebGLDataTexture | null;
+    eachEdgeMesh_32Bits: WebGLDataTexture | null;
     eachEdgeMesh: {
-        [key: number]: GLDataTexture | null;
+        [key: number]: WebGLDataTexture | null;
     } | null;
     constructor();
     build(): void;

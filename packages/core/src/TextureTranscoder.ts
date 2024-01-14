@@ -1,5 +1,5 @@
 /**
- * Texture transcoder.
+ * SceneTexture transcoder.
  */
 import type {Capabilities} from "./Capabilities";
 import type {TextureCompressedParams} from "./TextureCompressedParams";

@@ -1,7 +1,7 @@
 import type { FloatArrayParam } from "@xeokit/math";
 import type { CreateModelParams, Renderer, View, Viewer, ViewObject } from "@xeokit/viewer";
 import type { Pickable } from "./Pickable";
-import type { RendererViewObject } from "@xeokit/viewer";
+import type { RendererObject } from "@xeokit/viewer";
 import type { Capabilities, TextureTranscoder } from "@xeokit/core";
 import { TileManager } from "./TileManager";
 /**
@@ -11,8 +11,8 @@ import { TileManager } from "./TileManager";
  */
 export declare class WebGLRenderer implements Renderer {
     #private;
-    rendererViewObjects: {
-        [key: string]: RendererViewObject;
+    rendererObjects: {
+        [key: string]: RendererObject;
     };
     tileManager: TileManager | null;
     /**
@@ -32,7 +32,7 @@ export declare class WebGLRenderer implements Renderer {
     registerView(view: View): number;
     deregisterView(viewIndex: number): void;
     /**
-     * Adds a SceneModel to this renderer.
+     * Adds a SceneModel to this renderers.
      */
     addModel(params: CreateModelParams): void;
     removeModel(modelId: string): void;

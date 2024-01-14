@@ -1,25 +1,9 @@
 import type { FloatArrayParam } from "@xeokit/math";
 import type { RendererModelImpl } from "./RendererModelImpl";
-import { DataTextureSet } from "./DataTextureSet";
 import { MeshCounts } from "./MeshCounts";
-import type { GeometryCompressedParams, MeshParams } from "@xeokit/scene";
-import type { RendererTextureSetImpl } from "./RendererTextureSetImpl";
+import type { SceneGeometryCompressedParams, SceneMeshParams } from "@xeokit/scene";
 import type { LayerParams } from "./LayerParams";
-/**
- * @private
- */
-export interface LayerRenderState {
-    materialTextureSet: RendererTextureSetImpl;
-    dataTextureSet: DataTextureSet;
-    primitive: number;
-    numIndices8Bits: number;
-    numIndices16Bits: number;
-    numIndices32Bits: number;
-    numEdgeIndices8Bits: number;
-    numEdgeIndices16Bits: number;
-    numEdgeIndices32Bits: number;
-    numVertices: number;
-}
+
 /**
  * @private
  */
@@ -28,13 +12,12 @@ export declare class Layer {
     rendererModel: RendererModelImpl;
     layerIndex: number;
     meshCounts: MeshCounts;
-    renderState: LayerRenderState;
     constructor(layerParams: LayerParams, renderers?: any);
     get hash(): string;
-    canCreateMesh(geometryCompressedParams: GeometryCompressedParams): boolean;
+    canCreateMesh(geometryCompressedParams: SceneGeometryCompressedParams): boolean;
     hasGeometry(geometryId: string): boolean;
-    createGeometryCompressed(geometryCompressedParams: GeometryCompressedParams): void;
-    createMesh(meshParams: MeshParams): number;
+    createGeometryCompressed(geometryCompressedParams: SceneGeometryCompressedParams): void;
+    createMesh(meshParams: SceneMeshParams): number;
     build(): void;
     isEmpty(): boolean;
     initFlags(meshIndex: number, flags: number, meshTransparent: boolean): void;

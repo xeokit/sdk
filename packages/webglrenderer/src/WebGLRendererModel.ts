@@ -5,33 +5,36 @@ import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
 import {composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4} from "@xeokit/matrix";
 
 import type {FloatArrayParam} from "@xeokit/math";
-import type {Camera, RendererViewObject, View, Viewer} from "@xeokit/viewer";
-import {GLTexture} from "@xeokit/webglutils";
+import type {Camera, View, Viewer} from "@xeokit/viewer";
+import {WebGLTexture} from "@xeokit/webglutils";
 import type {
-    Geometry,
-    GeometryCompressedParams,
-    Mesh,
     RendererGeometry,
     RendererMesh,
     RendererModel,
     RendererTexture,
     RendererTextureSet,
+    SceneGeometry,
+    SceneGeometryCompressedParams,
+    SceneMesh,
     SceneModel,
     SceneObject,
-    Texture,
-    TextureSet
+    SceneTexture,
+    SceneTextureSet
 } from "@xeokit/scene";
 import type {WebGLRenderer} from "./WebGLRenderer";
-import {Layer} from "./Layer";
-import type {RenderContext} from "./RenderContext";
+import {TrianglesRendererLayer} from "./triangles/TrianglesRendererLayer";
+import type {RenderContext} from "./common/RenderContext";
 import {WebGLRendererGeometry} from "./WebGLRendererGeometry";
 
 import {WebGLRendererTexture} from "./WebGLRendererTexture";
 import {WebGLRendererObject} from "./WebGLRendererObject";
 import {WebGLRendererMesh} from "./WebGLRendererMesh";
 import {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
-import type {LayerParams} from "./LayerParams";
+import type {LayerParams} from "./common/LayerParams";
 import type {WebGLTileManager} from "./WebGLTileManager";
+import {MeshCounts} from "./common/MeshCounts";
+import {RendererLayer} from "./common/RendererLayer";
+import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
 
 const tempVec3a = createVec3();
@@ -55,12 +58,11 @@ const defaultTextureSetId = "defaultTextureSet";
  */
 export class WebGLRendererModel extends Component implements RendererModel {
 
-    readonly qualityRender: boolean;
     declare readonly id: string;
-    declare readonly destroyed: boolean;
-    declare built: boolean;
-
+    readonly viewer: Viewer;
     sceneModel: SceneModel | null;
+    readonly qualityRender: boolean;
+    declare readonly destroyed: boolean;
 
     rendererGeometries: { [key: string]: RendererGeometry };
     rendererTextures: { [key: string]: RendererTexture };
@@ -69,13 +71,14 @@ export class WebGLRendererModel extends Component implements RendererModel {
     rendererObjects: { [key: string]: WebGLRendererObject };
     rendererObjectsList: WebGLRendererObject[];
 
-    rendererViewObjects: { [key: string]: RendererViewObject };
+    rendererLayerList: RendererLayer[];
+    #rendererLayers: { [key: string]: RendererLayer };
+    #currentRendererLayers: { [key: string]: any };
 
-    readonly viewer: Viewer;
+    meshCounts: MeshCounts;
 
-    layerList: Layer[];
-    readonly onBuilt: EventEmitter<RendererModel, null>;
     declare readonly onDestroyed: EventEmitter<Component, null>;
+
     #view: View;
     #webglRenderer: WebGLRenderer;
     #renderContext: RenderContext;
@@ -87,7 +90,6 @@ export class WebGLRendererModel extends Component implements RendererModel {
     #viewMatrix: FloatArrayParam;
     #colorTextureEnabled: boolean;
     #backfaces: boolean;
-    #layers: { [key: string]: Layer };
     #numGeometries: number;
     #numTriangles: number;
     #numLines: number;
@@ -96,12 +98,13 @@ export class WebGLRendererModel extends Component implements RendererModel {
     #textureTranscoder: TextureTranscoder;
     #aabbDirty: boolean;
     #edgeThreshold: number;
-    #currentLayers: { [key: string]: any };
     #aabb: FloatArrayParam;
     #viewMatrixDirty: boolean;
     #worldMatrixNonIdentity: boolean;
     #onCameraViewMatrix: () => void;
     #layerId: string | undefined;
+
+    numSubMeshes: number;
 
     constructor(params: {
         id: string;
@@ -126,6 +129,8 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.sceneModel = params.sceneModel
         this.viewer = params.view.viewer;
 
+        this.meshCounts = new MeshCounts();
+
         this.#view = params.view;
         this.#webglRenderer = params.webglRenderer;
         this.#renderContext = params.renderContext;
@@ -133,9 +138,9 @@ export class WebGLRendererModel extends Component implements RendererModel {
 
         this.#aabb = collapseAABB3();
         this.#aabbDirty = false;
-        this.#layers = {};
-        this.layerList = [];
-        this.#currentLayers = {};
+        this.#rendererLayers = {};
+        this.rendererLayerList = [];
+        this.#currentRendererLayers = {};
 
         this.rendererGeometries = {};
         this.rendererTextures = {};
@@ -144,7 +149,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.rendererObjects = {};
         this.rendererObjectsList = [];
 
-        this.rendererViewObjects = {};
+        this.rendererObjects = {};
 
         this.#numGeometries = 0;
         this.#numRendererObjects = 0;
@@ -154,7 +159,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.#numPoints = 0;
         this.#edgeThreshold = params.edgeThreshold || 10;
 
-        this.built = false;
+        this.numSubMeshes = 0;
 
         // Build static matrix
 
@@ -188,24 +193,26 @@ export class WebGLRendererModel extends Component implements RendererModel {
 
         this.#attachSceneModel(params.sceneModel);
 
-        // this.layerList.sort((a, b) => {
-        //     if (a.sortId < b.sortId) {
-        //         return -1;
-        //     }
-        //     if (a.sortId > b.sortId) {
-        //         return 1;
-        //     }
-        //     return 0;
-        // });
-        for (let i = 0, len = this.layerList.length; i < len; i++) {
-            const layer = this.layerList[i];
+        this.rendererLayerList.sort((a, b) => {
+            if (a.sortId < b.sortId) {
+                return -1;
+            }
+            if (a.sortId > b.sortId) {
+                return 1;
+            }
+            return 0;
+        });
+
+        for (let i = 0, len = this.rendererLayerList.length; i < len; i++) {
+            const layer = this.rendererLayerList[i];
             layer.layerIndex = i;
         }
-        this.#currentLayers = {};
-        this.built = true;
+        this.#currentRendererLayers = {};
+        this.#build();
+        //this.built = true;
         this.#webglRenderer.setImageDirty();
         //     this.#view.viewer.scene.setAABBDirty();
-        this.onBuilt.dispatch(this, null);
+      //  this.onBuilt.dispatch(this, null);
     }
 
     #attachSceneModel(sceneModel: SceneModel): void {
@@ -233,8 +240,8 @@ export class WebGLRendererModel extends Component implements RendererModel {
                 this.#attachSceneObject(objects[objectId]);
             }
         }
-        for (let layerId in this.#currentLayers) {
-            this.#currentLayers[layerId].build();
+        for (let layerId in this.#currentRendererLayers) {
+            this.#currentRendererLayers[layerId].build();
         }
         for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
             this.rendererObjectsList[i].build();
@@ -244,12 +251,12 @@ export class WebGLRendererModel extends Component implements RendererModel {
         }
     }
 
-    #attachTexture(texture: Texture): void {
+    #attachTexture(texture: SceneTexture): void {
         const textureId = texture.id;
         if (this.rendererTextures[textureId]) {
             throw new SDKError("RendererTexture already created: " + textureId);
         }
-        const glTexture = new GLTexture({gl: this.#renderContext.gl});
+        const glTexture = new WebGLTexture({gl: this.#renderContext.gl});
         if (texture.preloadColor) {
             glTexture.setPreloadColor(texture.preloadColor);
         }
@@ -321,7 +328,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.rendererTextures[textureId] = rendererTexture;
     }
 
-    #attachGeometry(geometry: Geometry): void {
+    #attachGeometry(geometry: SceneGeometry): void {
         const geometryId = geometry.id;
         if (this.rendererGeometries[geometryId]) {
             throw new SDKError(`RendererGeometry already created: ${geometryId}`);
@@ -332,22 +339,19 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.#numGeometries++;
     }
 
-    #attachMesh(mesh: Mesh): void {
+    #attachMesh(mesh: SceneMesh): void {
         const rendererGeometry = this.rendererGeometries[mesh.geometry.id];
         if (!rendererGeometry) {
             throw new SDKError("RendererGeometry not found");
         }
-        const textureSetId = mesh.textureSet ? (<TextureSet>mesh.textureSet).id : defaultTextureSetId;
+        const textureSetId = mesh.textureSet ? (<SceneTextureSet>mesh.textureSet).id : defaultTextureSetId;
         const rendererTextureSet = this.rendererTextureSets[textureSetId];
         if (!rendererTextureSet) {
-            throw new SDKError("TextureSet not found");
+            throw new SDKError("SceneTextureSet not found");
         }
         const layer = this.#getLayer(textureSetId, mesh.geometry);
         if (!layer) {
-            return;
-        }
-        if (!layer.hasGeometry(mesh.geometry.id)) {
-            layer.createGeometryCompressed(mesh.geometry)
+            return; // TODO
         }
         let meshMatrix;
         let worldMatrix = this.#worldMatrixNonIdentity ? this.#worldMatrix : null;
@@ -356,7 +360,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const opacity = (mesh.opacity !== undefined && mesh.opacity !== null) ? Math.floor(mesh.opacity * 255) : 255;
         const metallic = (mesh.metallic !== undefined && mesh.metallic !== null) ? Math.floor(mesh.metallic * 255) : 0;
         const roughness = (mesh.roughness !== undefined && mesh.roughness !== null) ? Math.floor(mesh.roughness * 255) : 255;
-        const meshRenderer = new WebGLRendererMesh({
+        const rendererMesh = new WebGLRendererMesh({
             tileManager: <WebGLTileManager>this.#webglRenderer.tileManager,
             id: mesh.id,
             layer,
@@ -369,41 +373,42 @@ export class WebGLRendererModel extends Component implements RendererModel {
             rendererGeometry,
             meshIndex: 0
         });
-        meshRenderer.pickId = this.#webglRenderer.attachPickable(meshRenderer);
-        const a = meshRenderer.pickId >> 24 & 0xFF;
-        const b = meshRenderer.pickId >> 16 & 0xFF;
-        const g = meshRenderer.pickId >> 8 & 0xFF;
-        const r = meshRenderer.pickId & 0xFF;
+        rendererMesh.pickId = this.#webglRenderer.attachPickable(rendererMesh);
+        const a = rendererMesh.pickId >> 24 & 0xFF;
+        const b = rendererMesh.pickId >> 16 & 0xFF;
+        const g = rendererMesh.pickId >> 8 & 0xFF;
+        const r = rendererMesh.pickId & 0xFF;
         const pickColor = new Uint8Array([r, g, b, a]); // Quantized pick color
-        collapseAABB3(meshRenderer.aabb);
-        const meshIndex = layer.createMesh({
-            id: mesh.id,
-            geometryId: mesh.geometry.id,
-            color,
-            opacity,
-            metallic,
-            roughness,
-            matrix: meshMatrix,
-            //     worldMatrix: worldMatrix,
-            //    aabb: mesh.aabb,
-            pickColor
-        });
+        collapseAABB3(rendererMesh.aabb);
+        // const meshIndex = layer.createLayerMesh({
+        //     id: mesh.id,
+        //     geometryId: mesh.geometry.id,
+        //     color,
+        //     opacity,
+        //     metallic,
+        //     roughness,
+        //     matrix: meshMatrix,
+        //     //     worldMatrix: worldMatrix,
+        //     //    aabb: mesh.aabb,
+        //     pickColor
+        // });
+        const meshIndex = layer.createLayerMesh({pickColor}, mesh);
         this.#numGeometries++;
-        expandAABB3(this.#aabb, meshRenderer.aabb);
-        meshRenderer.layer = layer;
-        meshRenderer.meshIndex = meshIndex;
-        this.rendererMeshes[mesh.id] = meshRenderer;
+        expandAABB3(this.#aabb, rendererMesh.aabb);
+        rendererMesh.layer = layer;
+        rendererMesh.meshIndex = meshIndex;
+        this.rendererMeshes[mesh.id] = rendererMesh;
     }
 
-    #getLayer(textureSetId: string, geometryCompressedParams: GeometryCompressedParams): Layer | undefined {
+    #getLayer(textureSetId: string, geometryCompressedParams: SceneGeometryCompressedParams): RendererLayer | undefined {
         const layerId = `${textureSetId}_${geometryCompressedParams.primitive}`;
-        let layer = this.#currentLayers[layerId];
+        let layer = this.#currentRendererLayers[layerId];
         if (layer) {
             if (layer.canCreateMesh(geometryCompressedParams)) {
                 return layer;
             } else {
                 layer.build();
-                delete this.#currentLayers[layerId];
+                delete this.#currentRendererLayers[layerId];
             }
         }
         let textureSet;
@@ -414,17 +419,26 @@ export class WebGLRendererModel extends Component implements RendererModel {
                 return;
             }
         }
-        layer = new Layer(<LayerParams>{
-            gl: this.#renderContext.gl,
-            view: this.#view,
-            rendererModel: this,
-            primitive: geometryCompressedParams.primitive,
-            textureSet,
-            layerIndex: 0
-        });
-        this.#layers[layerId] = layer;
-        this.layerList.push(layer);
-        this.#currentLayers[layerId] = layer;
+        switch (geometryCompressedParams.primitive) {
+            case TrianglesPrimitive:
+            case SolidPrimitive:
+            case SurfacePrimitive:
+                layer = new TrianglesRendererLayer(<LayerParams>{
+                    gl: this.#renderContext.gl,
+                    view: this.#view,
+                    rendererModel: this,
+                    primitive: geometryCompressedParams.primitive,
+                    textureSet,
+                    layerIndex: 0
+                });
+                break;
+            default:
+                this.error(`Primitive not supported: ${geometryCompressedParams.primitive}`);
+                return;
+        }
+        this.#rendererLayers[layerId] = layer;
+        this.rendererLayerList.push(layer);
+        this.#currentRendererLayers[layerId] = layer;
         return layer;
     }
 
@@ -456,7 +470,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         });
         this.rendererObjectsList.push(rendererObject);
         this.rendererObjects[objectId] = rendererObject; // <RendererObject>
-        this.rendererViewObjects[objectId] = rendererObject; // <RendererViewObject>
+        sceneObject.rendererObject = rendererObject;
         this.#numRendererObjects++;
     }
 
@@ -528,79 +542,6 @@ export class WebGLRendererModel extends Component implements RendererModel {
         return this.#numPoints;
     }
 
-    setVisible(viewIndex: number, visible: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setVisible(viewIndex, visible);
-        }
-        this.#webglRenderer.setImageDirty(viewIndex);
-    }
-
-    setXRayed(viewIndex: number, xrayed: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setXRayed(viewIndex, xrayed);
-        }
-        this.#webglRenderer.setImageDirty(viewIndex);
-    }
-
-    setHighlighted(viewIndex: number, highlighted: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setHighlighted(viewIndex, highlighted);
-        }
-        this.#webglRenderer.setImageDirty(viewIndex);
-    }
-
-    setSelected(viewIndex: number, selected: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setSelected(viewIndex, selected);
-        }
-        this.#webglRenderer.setImageDirty(viewIndex);
-    }
-
-    setEdges(viewIndex: number, edges: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setEdges(viewIndex, edges);
-        }
-        this.#webglRenderer.setImageDirty(viewIndex);
-    }
-
-    setCulled(viewIndex: number, culled: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setCulled(viewIndex, culled);
-        }
-        this.#webglRenderer.setImageDirty(viewIndex);
-    }
-
-    setClippable(viewIndex: number, clippable: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setClippable(viewIndex, clippable);
-        }
-        this.#webglRenderer.setImageDirty(viewIndex);
-    }
-
-    setCollidable(viewIndex: number, collidable: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setCollidable(viewIndex, collidable);
-        }
-    }
-
-    setPickable(viewIndex: number, pickable: boolean): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setPickable(viewIndex, pickable);
-        }
-    }
-
-    setColorize(viewIndex: number, colorize: FloatArrayParam): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setColorize(viewIndex, colorize);
-        }
-    }
-
-    setOpacity(viewIndex: number, opacity: number): void {
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].setOpacity(viewIndex, opacity);
-        }
-    }
-
     /*
     rebuildDrawFlags() {
         this.drawFlags.reset();
@@ -619,7 +560,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawColorOpaque(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawColorOpaque(drawFlags, renderContext);
         }
     }
 
@@ -630,7 +571,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawColorTransparent(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawColorTransparent(drawFlags, renderContext);
         }
     }
 
@@ -641,7 +582,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawDepth(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawDepth(drawFlags, renderContext);
         }
     }
 
@@ -652,7 +593,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawNormals(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawNormals(drawFlags, renderContext);
         }
     }
 
@@ -663,7 +604,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawSilhouetteXRayed(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawSilhouetteXRayed(drawFlags, renderContext);
         }
     }
 
@@ -674,7 +615,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawSilhouetteHighlighted(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawSilhouetteHighlighted(drawFlags, renderContext);
         }
     }
 
@@ -685,7 +626,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawSilhouetteSelected(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawSilhouetteSelected(drawFlags, renderContext);
         }
     }
 
@@ -696,7 +637,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesColorOpaque(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawEdgesColorOpaque(drawFlags, renderContext);
         }
     }
 
@@ -707,7 +648,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesColorTransparent(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawEdgesColorTransparent(drawFlags, renderContext);
         }
     }
 
@@ -718,7 +659,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesXRayed(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawEdgesXRayed(drawFlags, renderContext);
         }
     }
 
@@ -729,7 +670,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesHighlighted(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawEdgesHighlighted(drawFlags, renderContext);
         }
     }
 
@@ -740,7 +681,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawEdgesSelected(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawEdgesSelected(drawFlags, renderContext);
         }
     }
 
@@ -751,7 +692,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawOcclusion(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawOcclusion(drawFlags, renderContext);
         }
     }
 
@@ -762,7 +703,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawShadow(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawShadow(drawFlags, renderContext);
         }
     }
 
@@ -773,7 +714,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawPickMesh(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawPickMesh(drawFlags, renderContext);
         }
     }
 
@@ -784,7 +725,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawPickDepths(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawPickDepths(drawFlags, renderContext);
         }
     }
 
@@ -795,7 +736,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const drawFlags = this.drawFlags;
         for (let i = 0, len = drawFlags.visibleLayers.length; i < len; i++) {
             const layerIndex = drawFlags.visibleLayers[i];
-            this.layerList[layerIndex].drawPickNormals(drawFlags, renderContext);
+            this.rendererLayerList[layerIndex].drawPickNormals(drawFlags, renderContext);
         }
     }
 */
@@ -803,33 +744,33 @@ export class WebGLRendererModel extends Component implements RendererModel {
     #createDefaultTextureSet() {
         const defaultColorRendererTexture = new WebGLRendererTexture(
             null,
-            new GLTexture({
+            new WebGLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [1, 1, 1, 1] // [r, g, b, a]})
             }));
 
         const defaultMetalRoughRendererTexture = new WebGLRendererTexture(
             null,
-            new GLTexture({
+            new WebGLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 1, 1, 1] // [unused, roughness, metalness, unused]
             }));
         const defaultNormalsRendererTexture = new WebGLRendererTexture(
             null,
-            new GLTexture({
+            new WebGLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 0, 0, 0] // [x, y, z, unused] - these must be zeros
             }));
 
         const defaultEmissiveRendererTexture = new WebGLRendererTexture(
             null,
-            new GLTexture({
+            new WebGLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [0, 0, 0, 1] // [x, y, z, unused]
             }));
         const defaultOcclusionRendererTexture = new WebGLRendererTexture(
             null,
-            new GLTexture({
+            new WebGLTexture({
                 gl: this.#renderContext.gl,
                 preloadColor: [1, 1, 1, 1] // [x, y, z, unused]
             }));
@@ -879,10 +820,10 @@ export class WebGLRendererModel extends Component implements RendererModel {
 
         #updateDrawFlagsVisibleLayers() {
             const drawFlags = this.drawFlags;
-            drawFlags.numLayers = this.layerList.length;
+            drawFlags.numLayers = this.rendererLayerList.length;
             drawFlags.numVisibleLayers = 0;
-            for (let layerIndex = 0, len = this.layerList.length; layerIndex < len; layerIndex++) {
-                const layer = this.layerList[layerIndex];
+            for (let layerIndex = 0, len = this.rendererLayerList.length; layerIndex < len; layerIndex++) {
+                const layer = this.rendererLayerList[layerIndex];
                 const layerVisible = this.#getActiveSectionPlanesForLayer(layer);
                 if (layerVisible) {
                     drawFlags.visibleLayers[drawFlags.numVisibleLayers++] = layerIndex;
@@ -966,6 +907,9 @@ export class WebGLRendererModel extends Component implements RendererModel {
 
      */
 
+    #build() {
+
+    }
 
     // build() {
     //     if (this.destroyed) {
@@ -976,9 +920,9 @@ export class WebGLRendererModel extends Component implements RendererModel {
     //         this.log("rendererModel already built");
     //         return;
     //     }
-    //     for (let layerId in this.#currentLayers) {
-    //         if (this.#currentLayers.hasOwnProperty(layerId)) {
-    //             this.#currentLayers[layerId].build();
+    //     for (let layerId in this.#currentRendererLayers) {
+    //         if (this.#currentRendererLayers.hasOwnProperty(layerId)) {
+    //             this.#currentRendererLayers[layerId].build();
     //         }
     //     }
     //     for (let i = 0, len = this.objectList.length; i < len; i++) {
@@ -989,7 +933,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     //         const rendererObject = this.objectList[i];
     //         rendererObject.build2();
     //     }
-    //     // this.layerList.sort((a, b) => {
+    //     // this.rendererLayerList.sort((a, b) => {
     //     //     if (a.sortId < b.sortId) {
     //     //         return -1;
     //     //     }
@@ -998,11 +942,11 @@ export class WebGLRendererModel extends Component implements RendererModel {
     //     //     }
     //     //     return 0;
     //     // });
-    //     for (let i = 0, len = this.layerList.length; i < len; i++) {
-    //         const layer = this.layerList[i];
+    //     for (let i = 0, len = this.rendererLayerList.length; i < len; i++) {
+    //         const layer = this.rendererLayerList[i];
     //         layer.layerIndex = i;
     //     }
-    //     this.#currentLayers = {};
+    //     this.#currentRendererLayers = {};
     //     this.built = true;
     //     this.#webglRenderer.setImageDirty();
     //     //     this.#view.viewer.scene.setAABBDirty();
@@ -1055,13 +999,13 @@ export class WebGLRendererModel extends Component implements RendererModel {
         }
         this.#detachSceneModel();
         this.#view.camera.onViewMatrix.unsubscribe(this.#onCameraViewMatrix);
-        for (let layerId in this.#currentLayers) {
-            if (this.#currentLayers.hasOwnProperty(layerId)) {
-                this.#currentLayers[layerId].destroy();
+        for (let layerId in this.#currentRendererLayers) {
+            if (this.#currentRendererLayers.hasOwnProperty(layerId)) {
+                this.#currentRendererLayers[layerId].destroy();
             }
         }
-        for (let i = 0, len = this.layerList.length; i < len; i++) {
-            this.layerList[i].destroy();
+        for (let i = 0, len = this.rendererLayerList.length; i < len; i++) {
+            this.rendererLayerList[i].destroy();
         }
         for (let objectId in this.rendererObjects) {
             this.rendererObjects[objectId].destroy();
@@ -1069,16 +1013,15 @@ export class WebGLRendererModel extends Component implements RendererModel {
         for (let meshId in this.rendererMeshes) {
             //    this.#webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
         }
-        this.#currentLayers = {};
-        this.#layers = {};
-        this.layerList = [];
+        this.#currentRendererLayers = {};
+        this.#rendererLayers = {};
+        this.rendererLayerList = [];
         this.rendererGeometries = {};
         this.rendererTextures = {};
         this.rendererTextureSets = {};
         this.rendererMeshes = {};
-        this.rendererViewObjects = {};
+        this.rendererObjects = {};
         // this.#view.viewer.setAABBDirty();
-        this.onBuilt.clear();
         super.destroy();
     }
 

@@ -3,14 +3,14 @@ import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "@xeokit/constants";
 
 /**
- * Creates a sphere-shaped {@link @xeokit/scene!Geometry}.
+ * Creates a sphere-shaped {@link @xeokit/scene!SceneGeometry}.
  *
  * ## Usage
  *
- * Creating a {@link @xeokit/scene!Mesh} with a sphere-shaped {@link @xeokit/scene!Geometry}: :
+ * Creating a {@link @xeokit/scene!SceneMesh} with a sphere-shaped {@link @xeokit/scene!SceneGeometry}: :
  *
  * ````javascript
- * import {Viewer, Mesh, buildSphereGeometry, GeometryBucketHandle, PhongMaterial, Texture} from "xeokit-viewer.es.js";
+ * import {Viewer, SceneMesh, buildSphereGeometry, TrianglesLayerGeometryBucket, PhongMaterial, SceneTexture} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *     canvasId: "myView"
@@ -20,15 +20,15 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  * viewer.camera.look = [0, 0, 0];
  * viewer.camera.up = [0, 1, 0];
  *
- * new Mesh(viewer.scene, {
- *      geometry: new GeometryBucketHandle(viewer.scene, buildSphereGeometry({
+ * new SceneMesh(viewer.scene, {
+ *      geometry: new TrianglesLayerGeometryBucket(viewer.scene, buildSphereGeometry({
  *          center: [0,0,0],
  *          radius: 1.5,
  *          heightSegments: 60,
  *          widthSegments: 60
  *      }),
  *      material: new PhongMaterial(viewer.scene, {
- *         diffuseMap: new Texture(viewer.scene, {
+ *         diffuseMap: new SceneTexture(viewer.scene, {
  *             src: "textures/diffuse/uvGrid2.jpg"
  *         })
  *      })
@@ -37,12 +37,12 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * @function buildSphereGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!Geometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.radius=1]  Radius.
  * @param [cfg.heightSegments=24] Number of latitudinal bands.
  * @param  {Number} [cfg.widthSegments=18] Number of longitudinal bands.
- * @returns {Object} Configuration for a {@link @xeokit/scene!Geometry} subtype.
+ * @returns {Object} Configuration for a {@link @xeokit/scene!SceneGeometry} subtype.
  */
 export function buildSphereGeometry(cfg: {
     center: number[];

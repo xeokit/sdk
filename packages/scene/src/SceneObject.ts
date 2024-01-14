@@ -1,7 +1,6 @@
-import type {Mesh} from "./Mesh";
+import type {SceneMesh} from "./SceneMesh";
 import type {FloatArrayParam} from "@xeokit/math";
 import type {RendererObject} from "./RendererObject";
-import type {Scene} from "./Scene";
 import type {SceneModel} from "./SceneModel";
 import {collapseAABB3, createAABB3, expandAABB3Points3} from "@xeokit/boundaries";
 import {getSceneObjectGeometry} from "./getSceneObjectGeometry";
@@ -18,11 +17,6 @@ import {SceneObjectParams} from "./SceneObjectParams";
 export class SceneObject {
 
     /**
-     * The {@link @xeokit/scene!SceneModel} that contains this SceneObject.
-     */
-    public readonly model: SceneModel;
-
-    /**
      * Unique ID of this SceneObject.
      *
      * SceneObjects are stored by ID in {@link @xeokit/scene!Scene.objects | Scene.objects}
@@ -31,14 +25,19 @@ export class SceneObject {
     public readonly id: string;
 
     /**
+     * The {@link @xeokit/scene!SceneModel} that contains this SceneObject.
+     */
+    public readonly model: SceneModel;
+
+    /**
      * ID of this SceneObject within the originating system.
      */
     public readonly originalSystemId: string;
 
     /**
-     * The {@link @xeokit/scene!Mesh | Meshes} belonging to this SceneObject.
+     * The {@link @xeokit/scene!SceneMesh | Meshes} belonging to this SceneObject.
      */
-    public readonly meshes: Mesh[];
+    public readonly meshes: SceneMesh[];
 
     /**
      * Optional layer ID for this SceneObject.
@@ -46,9 +45,10 @@ export class SceneObject {
     public readonly layerId?: string;
 
     /**
-     *  Internal interface through which a {@link @xeokit/scene!SceneObject} can load property updates into a renderer.
+     *  Internal interface through which a {@link @xeokit/viewer!ViewObject | ViewObject} can load property updates
+     *  into a {@link @xeokit/viewer!Renderer | Renderer} for this SceneObject.
      *
-     *  This is defined while the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */
@@ -62,7 +62,7 @@ export class SceneObject {
      */
     constructor(cfg: {
         model: SceneModel;
-        meshes: Mesh[];
+        meshes: SceneMesh[];
         id: string;
         originallSystemId?:string;
         layerId?: string;

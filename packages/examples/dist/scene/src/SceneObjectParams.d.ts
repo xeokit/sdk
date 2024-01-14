@@ -7,7 +7,7 @@ export interface SceneObjectParams {
      */
     id: string;
     /**
-     * IDs of meshes previously created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
+     * IDs of meshes previously created with {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh}.
      */
     meshIds: string[];
     /**

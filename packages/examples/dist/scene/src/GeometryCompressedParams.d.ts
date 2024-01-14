@@ -5,7 +5,7 @@ import type { GeometryBucketParams } from "./GeometryBucketParams";
  *
  * ## Summary
  *
- * * Created from {@link @xeokit/scene!GeometryParams|GeometryParams} using {@link @xeokit/scene!compressGeometryParams}
+ * * Created from {@link @xeokit/scene!SceneGeometryParams|SceneGeometryParams} using {@link @xeokit/scene!compressGeometryParams}
  * * Used with {@link @xeokit/scene!SceneModel.createGeometryCompressed | Model.createGeometryCompressed}
  * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Simplifies geometry by combining duplicate positions and adjusting indices
@@ -13,7 +13,7 @@ import type { GeometryBucketParams } from "./GeometryBucketParams";
  * * Ignores normals (our shaders auto-generate them)
  * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/scene!GeometryBucketParams | buckets } to enable indices to use the minimum storage bits
+ * * Splits geometry into {@link @xeokit/scene!SceneGeometryBucketParams | buckets } to enable indices to use the minimum storage bits
  */
 export interface GeometryCompressedParams {
     /**
@@ -28,9 +28,9 @@ export interface GeometryCompressedParams {
      */
     primitive: number;
     /**
-     * Matrix to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed}.
+     * Matrix to decompress {@link @xeokit/scene!SceneGeometryBucketParams.positionsCompressed}.
      *
-     * The Viewer uses this matrix internally to decompress {@link @xeokit/scene!GeometryBucketParams.positionsCompressed | GeometryBucketParams.positionsCompressed}.
+     * The Viewer uses this matrix internally to decompress {@link @xeokit/scene!SceneGeometryBucketParams.positionsCompressed | SceneGeometryBucketParams.positionsCompressed}.
      */
     positionsDecompressMatrix: FloatArrayParam;
     /**

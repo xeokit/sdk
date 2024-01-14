@@ -1,11 +1,11 @@
-import type { RendererTexture, Texture } from "@xeokit/scene";
-import type { GLTexture } from "@xeokit/webglutils";
+import type { RendererTexture, SceneTexture } from "@xeokit/scene";
+import type { WebGLTexture } from "@xeokit/webglutils";
 /**
  * @private
  */
 export declare class RendererTextureImpl implements RendererTexture {
-    texture: Texture | null;
-    texture2D: GLTexture;
-    constructor(texture: Texture | null, texture2D: GLTexture);
+    texture: SceneTexture | null;
+    texture2D: WebGLTexture;
+    constructor(texture: SceneTexture | null, texture2D: WebGLTexture);
     destroy(): void;
 }

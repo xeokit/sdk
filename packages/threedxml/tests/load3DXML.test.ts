@@ -91,7 +91,7 @@ describe('load3DXML', () => {
 
                                         expect(mesh.id).toStrictEqual(meshId);
 
-                                        // Each Mesh should have the expected Geometry
+                                        // Each SceneMesh should have the expected SceneGeometry
 
                                         expect(geometry.id).toStrictEqual(railwayMeshGeometryIds[meshId]);
 

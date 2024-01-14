@@ -1,4 +1,4 @@
-import type {Geometry, RendererGeometry} from "@xeokit/scene";
+import type {SceneGeometry, RendererGeometry} from "@xeokit/scene";
 
 /**
  * TODO

@@ -13,17 +13,17 @@ import { SDKError } from "@xeokit/core";
  */
 export interface RendererViewObject {
     /**
-     * Unique ID of this RendererViewObject.
+     * Unique ID of this RendererObject.
      * @internal
      */
     readonly id: string;
     /**
-     * The {@link @xeokit/scene!RendererModel | RendererModel} that contains this RendererViewObject.
+     * The {@link @xeokit/scene!RendererModel | RendererModel} that contains this RendererObject.
      * @internal
      */
     readonly rendererModel: RendererModel;
     /**
-     * The axis-aligned World-space 3D boundary of this RendererViewObject.
+     * The axis-aligned World-space 3D boundary of this RendererObject.
      * @internal
      */
     readonly aabb: FloatArrayParam;

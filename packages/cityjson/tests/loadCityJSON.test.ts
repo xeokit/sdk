@@ -5,7 +5,7 @@ import {loadCityJSON} from "../src";
 import {railwayMeshGeometryIds, railwayObjectIds, railwayObjectMeshes} from "./assets/testUtils";
 import {BasicAggregation} from "@xeokit/cityjsontypes_1_1_3";
 
-const fs = require('fs');
+import fs from 'fs';
 
 describe('loadCityJSON', () => {
 
@@ -93,7 +93,7 @@ describe('loadCityJSON', () => {
 
                                         expect(mesh.id).toStrictEqual(meshId);
 
-                                        // Each Mesh should have the expected Geometry
+                                        // Each SceneMesh should have the expected SceneGeometry
 
                                         expect(geometry.id).toStrictEqual(railwayMeshGeometryIds[meshId]);
 
@@ -170,10 +170,10 @@ describe('loadCityJSON', () => {
                                         'UUID_e8183cbd-c339-4472-926a-32bbe4527b44'
                                     ]);
                                 }
-                            }).catch((sdkError: SDKError) => {
+                            }).catch((sdkError) => {
 
                         });
-                    }).catch((sdkError: SDKError) => {
+                    }).catch((sdkError) => {
 
                     });
 

@@ -1,22 +1,24 @@
-import {createVec3, createVec4, identityMat4} from "@xeokit/matrix";
+import {createVec3, identityMat4} from "@xeokit/matrix";
 import type {TickParams, View} from "@xeokit/viewer";
 import {Viewer} from "@xeokit/viewer";
 import type {FloatArrayParam} from "@xeokit/math";
 
 import type {WebGLRendererModel} from "../WebGLRendererModel";
 import {TrianglesDataTextureSet} from "./TrianglesDataTextureSet";
-import {MeshCounts} from "../common/MeshCounts";
-import {SCENE_OBJECT_FLAGS} from '../common/SCENE_OBJECT_FLAGS';
-import {RENDER_PASSES} from '../common/RENDER_PASSES';
+import {MeshCounts} from "../MeshCounts";
+import {SCENE_OBJECT_FLAGS} from '../SCENE_OBJECT_FLAGS';
+import {RENDER_PASSES} from '../RENDER_PASSES';
 import {SolidPrimitive} from "@xeokit/constants";
 import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
 import type {SceneGeometry, SceneGeometryBucket, SceneMesh} from "@xeokit/scene";
-import type {LayerParams} from "../common/LayerParams";
+import type {LayerParams} from "../LayerParams";
 import type {TrianglesLayerGeometryBucket} from "./TrianglesLayerGeometryBucket";
 import {TrianglesDataTextureBuffer} from "./TrianglesDataTextureBuffer";
 import {TrianglesLayerRenderState} from "./TrianglesLayerRenderState";
-import {LayerMeshParams} from "../common/LayerMeshParams";
-import {RendererLayer} from "../common/RendererLayer";
+import {LayerMeshParams} from "../LayerMeshParams";
+import {Layer} from "../Layer";
+import {RenderContext} from "../RenderContext";
+import {RendererSet} from "../RendererSet";
 
 const tempMat4a = <Float64Array>identityMat4();
 const tempUint8Array4 = new Uint8Array(4);
@@ -56,7 +58,7 @@ const DEFAULT_MATRIX = identityMat4();
 /**
  * @private
  */
-export class TrianglesRendererLayer implements RendererLayer {
+export class TrianglesLayer implements Layer {
 
     rendererModel: WebGLRendererModel;
     layerIndex: number;
@@ -915,239 +917,67 @@ export class TrianglesRendererLayer implements RendererLayer {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
+    draw(renderContext: RenderContext, rendererSet: RendererSet): void {
+        switch (renderContext.renderPass) {
+            case RENDER_PASSES.COLOR_OPAQUE:
+                if (this.meshCounts.numTransparent === this.meshCounts.numMeshes ||
+                    this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+                    return;
+                }
+                rendererSet.trianglesFastColorRenderer.drawTriangles(this);
+                break;
+            case RENDER_PASSES.COLOR_TRANSPARENT:
+                if (this.meshCounts.numTransparent === 0) {
+                    return;
+                }
+                rendererSet.trianglesFastColorRenderer.drawTriangles(this);
+                break;
+            case RENDER_PASSES.SILHOUETTE_SELECTED:
+                if (this.meshCounts.numSelected > 0) {
+                    rendererSet.trianglesSilhouetteRenderer.drawTriangles(this);
+                }
+                break;
+            case RENDER_PASSES.SILHOUETTE_HIGHLIGHTED:
+                if (this.meshCounts.numHighlighted > 0) {
+                    rendererSet.trianglesSilhouetteRenderer.drawTriangles(this);
+                }
+                break;
+            case RENDER_PASSES.SILHOUETTE_XRAYED:
+                if (this.meshCounts.numXRayed > 0) {
+                    rendererSet.trianglesSilhouetteRenderer.drawTriangles(this);
+                }
+                break;
+            case RENDER_PASSES.EDGES_COLOR_OPAQUE:
+                if (this.meshCounts.numTransparent === this.meshCounts.numMeshes ||
+                    this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+                    return;
+                }
+                rendererSet.trianglesEdgesColorRenderer.drawTriangles(this);
+                break;
+            case RENDER_PASSES.EDGES_COLOR_TRANSPARENT:
+                if (this.meshCounts.numTransparent === 0) {
+                    return;
+                }
+                rendererSet.trianglesFastColorRenderer.drawTriangles(this);
+                break;
+            case RENDER_PASSES.EDGES_SELECTED:
+                if (this.meshCounts.numSelected > 0) {
+                    rendererSet.trianglesSilhouetteRenderer.drawTriangles(this);
+                }
+                break;
+            case RENDER_PASSES.EDGES_HIGHLIGHTED:
+                if (this.meshCounts.numHighlighted > 0) {
+                    rendererSet.trianglesSilhouetteRenderer.drawTriangles(this);
+                }
+                break;
+            case RENDER_PASSES.EDGES_XRAYED:
+                if (this.meshCounts.numXRayed > 0) {
+                    rendererSet.trianglesSilhouetteRenderer.drawTriangles(this);
+                }
+                break;
 
-    // ---------------------- COLOR RENDERING -----------------------------------
-
-    drawColorOpaque(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numTransparentLayerPortions === this._numPortions || this._numXRayedLayerPortions === this._numPortions) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (frameCtx.withSAO && this.model.saoEnabled) {
-        //     if (this._renderers.colorRendererWithSAO) {
-        //         this._renderers.colorRendererWithSAO.drawLayer(frameCtx, this, RENDER_PASSES.COLOR_OPAQUE);
-        //     }
-        // } else {
-        //     if (this._renderers.colorRenderer) {
-        //         this._renderers.colorRenderer.drawLayer(frameCtx, this, RENDER_PASSES.COLOR_OPAQUE);
-        //     }
-        // }
+        }
     }
-
-    _updateBackfaceCull(renderFlags, frameCtx) {
-        // const backfaces = this.model.backfaces || renderFlags.sectioned;
-        // if (frameCtx.backfaces !== backfaces) {
-        //     const gl = frameCtx.gl;
-        //     if (backfaces) {
-        //         gl.disable(gl.CULL_FACE);
-        //     } else {
-        //         gl.enable(gl.CULL_FACE);
-        //     }
-        //     frameCtx.backfaces = backfaces;
-        // }
-    }
-
-    drawColorTransparent(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numTransparentLayerPortions === 0 || this._numXRayedLayerPortions === this._numPortions) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.colorRenderer) {
-        //     this._renderers.colorRenderer.drawLayer(frameCtx, this, RENDER_PASSES.COLOR_TRANSPARENT);
-        // }
-    }
-
-    // ---------------------- RENDERING SAO POST EFFECT TARGETS --------------
-
-    drawDepth(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numTransparentLayerPortions === this._numPortions || this._numXRayedLayerPortions === this._numPortions) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.depthRenderer) {
-        //     this._renderers.depthRenderer.drawLayer(frameCtx, this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
-        // }
-    }
-
-    drawNormals(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numTransparentLayerPortions === this._numPortions || this._numXRayedLayerPortions === this._numPortions) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.normalsRenderer) {
-        //     this._renderers.normalsRenderer.drawLayer(frameCtx, this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
-        // }
-    }
-
-    // ---------------------- SILHOUETTE RENDERING -----------------------------------
-
-    drawSilhouetteXRayed(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numXRayedLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.silhouetteRenderer) {
-        //     this._renderers.silhouetteRenderer.drawLayer(frameCtx, this, RENDER_PASSES.SILHOUETTE_XRAYED);
-        // }
-    }
-
-    drawSilhouetteHighlighted(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numHighlightedLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.silhouetteRenderer) {
-        //     this._renderers.silhouetteRenderer.drawLayer(frameCtx, this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
-        // }
-    }
-
-    drawSilhouetteSelected(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numSelectedLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.silhouetteRenderer) {
-        //     this._renderers.silhouetteRenderer.drawLayer(frameCtx, this, RENDER_PASSES.SILHOUETTE_SELECTED);
-        // }
-    }
-
-    // ---------------------- EDGES RENDERING -----------------------------------
-
-    drawEdgesColorOpaque(renderFlags, frameCtx) {
-        // if (this.model.scene.logarithmicDepthBufferEnabled) {
-        //     if (!this.model.scene._loggedWarning) {
-        //         console.log("Edge enhancement for SceneModel data texture layers currently disabled with logarithmic depth buffer");
-        //         this.model.scene._loggedWarning = true;
-        //     }
-        //     return;
-        // }
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numEdgesLayerPortions === 0) {
-        //     return;
-        // }
-        // if (this._renderers.edgesColorRenderer) {
-        //     this._renderers.edgesColorRenderer.drawLayer(frameCtx, this, RENDER_PASSES.EDGES_COLOR_OPAQUE);
-        // }
-    }
-
-    drawEdgesColorTransparent(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numEdgesLayerPortions === 0 || this._numTransparentLayerPortions === 0) {
-        //     return;
-        // }
-        // if (this._renderers.edgesColorRenderer) {
-        //     this._renderers.edgesColorRenderer.drawLayer(frameCtx, this, RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
-        // }
-    }
-
-    drawEdgesHighlighted(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numHighlightedLayerPortions === 0) {
-        //     return;
-        // }
-        // if (this._renderers.edgesRenderer) {
-        //     this._renderers.edgesRenderer.drawLayer(frameCtx, this, RENDER_PASSES.EDGES_HIGHLIGHTED);
-        // }
-    }
-
-    drawEdgesSelected(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numSelectedLayerPortions === 0) {
-        //     return;
-        // }
-        // if (this._renderers.edgesRenderer) {
-        //     this._renderers.edgesRenderer.drawLayer(frameCtx, this, RENDER_PASSES.EDGES_SELECTED);
-        // }
-    }
-
-    drawEdgesXRayed(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0 || this._numXRayedLayerPortions === 0) {
-        //     return;
-        // }
-        // if (this._renderers.edgesRenderer) {
-        //     this._renderers.edgesRenderer.drawLayer(frameCtx, this, RENDER_PASSES.EDGES_XRAYED);
-        // }
-    }
-
-    // ---------------------- OCCLUSION CULL RENDERING -----------------------------------
-
-    drawOcclusion(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.occlusionRenderer) {
-        //     this._renderers.occlusionRenderer.drawLayer(frameCtx, this, RENDER_PASSES.COLOR_OPAQUE);
-        // }
-    }
-
-    // ---------------------- SHADOW BUFFER RENDERING -----------------------------------
-
-    drawShadow(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.shadowRenderer) {
-        //     this._renderers.shadowRenderer.drawLayer(frameCtx, this, RENDER_PASSES.COLOR_OPAQUE);
-        // }
-    }
-
-    //---- PICKING ----------------------------------------------------------------------------------------------------
-
-    setPickMatrices(pickViewMatrix, pickProjMatrix) {
-        // if (this._numVisibleLayerPortions === 0) {
-        //     return;
-        // }
-        // this._dtxState.texturePickCameraMatrices.updateViewMatrix(pickViewMatrix, pickProjMatrix);
-    }
-
-    drawPickMesh(renderFlags, frameCtx) {
-        // if (this._numVisibleLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.pickMeshRenderer) {
-        //     this._renderers.pickMeshRenderer.drawLayer(frameCtx, this, RENDER_PASSES.PICK);
-        // }
-    }
-
-    drawPickDepths(renderFlags, frameCtx) {
-        // if (this._numVisibleLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.pickDepthRenderer) {
-        //     this._renderers.pickDepthRenderer.drawLayer(frameCtx, this, RENDER_PASSES.PICK);
-        // }
-    }
-
-    drawSnapInit(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.snapInitRenderer) {
-        //     this._renderers.snapInitRenderer.drawLayer(frameCtx, this, RENDER_PASSES.PICK);
-        // }
-    }
-
-    drawSnap(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.snapRenderer) {
-        //     this._renderers.snapRenderer.drawLayer(frameCtx, this, RENDER_PASSES.PICK);
-        // }
-    }
-
-    drawPickNormals(renderFlags, frameCtx) {
-        // if (this._numCulledLayerPortions === this._numPortions || this._numVisibleLayerPortions === 0) {
-        //     return;
-        // }
-        // this._updateBackfaceCull(renderFlags, frameCtx);
-        // if (this._renderers.pickNormalsRenderer) {
-        //     this._renderers.pickNormalsRenderer.drawLayer(frameCtx, this, RENDER_PASSES.PICK);
-        // }
-    }
-
 
     destroy() {
         this.rendererModel.viewer.onTick.unsubscribe(this.#onViewerTick);

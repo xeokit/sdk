@@ -4,7 +4,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 import {createMat4, createVec3} from "@xeokit/matrix";
 import {createRTCViewMat, worldToRTCCenter} from "@xeokit/rtc";
 import type {Camera} from "@xeokit/viewer";
-import type {TileManager} from "./common/TileManager";
+import type {TileManager} from "./TileManager";
 
 const NUM_TILES = 2000;
 

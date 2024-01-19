@@ -2,24 +2,23 @@ import {createVec4} from "@xeokit/matrix";
 import {OrthoProjectionType} from "@xeokit/constants";
 import {AmbientLight, DirLight, PerspectiveProjection, PointLight} from "@xeokit/viewer";
 
-import type {RenderContext} from "../common/RenderContext";
-import {RENDER_PASSES} from "../common/RENDER_PASSES";
-import type {TrianglesRendererLayer} from "./TrianglesRendererLayer";
+import type {RenderContext} from "../RenderContext";
+import {RENDER_PASSES} from "../RENDER_PASSES";
+import type {TrianglesLayer} from "./TrianglesLayer";
 import {WebGLProgram, WebGLSampler} from "@xeokit/webglutils";
+import {LayerRenderer} from "../LayerRenderer";
 
 const tempVec4 = createVec4();
 
 /**
  * @private
  */
-export abstract class TrianglesLayerRenderer {
+export abstract class TrianglesRenderer extends LayerRenderer {
 
     /**
      * Initialization error messages
      */
     errors: string[] | undefined;
-
-    protected renderContext: RenderContext;
 
     #hash: string;
     #program: WebGLProgram | null;
@@ -73,7 +72,8 @@ export abstract class TrianglesLayerRenderer {
     };
 
     protected constructor(renderContext: RenderContext) {
-        this.renderContext = renderContext;
+        super(renderContext);
+
         this.#needRebuild = true;
         this.#build();
     }
@@ -178,29 +178,14 @@ export abstract class TrianglesLayerRenderer {
     }
 
     /**
-     * Generates vertex shader GLSL for the current View state
-     */
-    protected abstract buildVertexShader(): string;
-
-    /**
-     * Generates fragment shader GLSL for the current View state
-     */
-    protected abstract buildFragmentShader(): string;
-
-    /**
-     * Gets a hash for the View's current configuration as pertaining to the TrianglesLayerRenderer.
-     */
-    protected abstract getHash(): string;
-
-    /**
-     * Indicates that the TrianglesLayerRenderer may need to rebuild shaders
+     * Indicates that the TrianglesRenderer may need to rebuild shaders
      */
     needRebuild() {
         this.#needRebuild = true;
     }
 
     /**
-     * Gets if this TrianglesLayerRenderer's configuration is still valid for the current View state.
+     * Gets if this TrianglesRenderer's configuration is still valid for the current View state.
      */
     #getValid() {
         if (!this.#needRebuild) {
@@ -211,11 +196,11 @@ export abstract class TrianglesLayerRenderer {
     };
 
     /**
-     * Draws the given TrianglesRendererLayer.
+     * Draws the given TrianglesLayer.
      *
-     * @param layer The TrianglesRendererLayer to draw
+     * @param trianglesLayer The TrianglesLayer to draw
      */
-    draw(layer: TrianglesRendererLayer) {
+    drawTriangles(trianglesLayer: TrianglesLayer) {
 
         if (this.#program && !this.#getValid()) {
             this.#program.destroy();
@@ -230,7 +215,7 @@ export abstract class TrianglesLayerRenderer {
             this.renderContext.lastProgramId = -1;
         }
 
-        const renderState = layer.renderState;
+        const renderState = trianglesLayer.renderState;
         const program = this.#program;
         const renderContext = this.renderContext;
         const renderPass = renderContext.renderPass;
@@ -251,7 +236,7 @@ export abstract class TrianglesLayerRenderer {
         }
 
         // if (uniforms.viewMatrix) {
-        //     //gl.uniformMatrix4fv(uniforms.viewMatrix, false, <Float32Array | GLfloat[]>layer.rtcViewMat.viewMatrix);
+        //     //gl.uniformMatrix4fv(uniforms.viewMatrix, false, <Float32Array | GLfloat[]>trianglesLayer.rtcViewMat.viewMatrix);
         //     gl.uniformMatrix4fv(uniforms.viewMatrix, false, <Float32Array | GLfloat[]>view.camera.viewMatrix);
         // }
 
@@ -260,7 +245,7 @@ export abstract class TrianglesLayerRenderer {
         }
 
         if (uniforms.worldMatrix) {
-            gl.uniformMatrix4fv(uniforms.worldMatrix, false, <Float32Array | GLfloat[]>layer.rendererModel.worldMatrix);
+            gl.uniformMatrix4fv(uniforms.worldMatrix, false, <Float32Array | GLfloat[]>trianglesLayer.rendererModel.worldMatrix);
         }
 
         if (uniforms.color) {
@@ -289,9 +274,9 @@ export abstract class TrianglesLayerRenderer {
 
         // if (view.sectionPlanesList.length) {
         //     const numSectionPlanes = view.sectionPlanesList.length;
-        //     const origin = layer.renderState.origin;
+        //     const origin = trianglesLayer.renderState.origin;
         //     const sectionPlanes = view.sectionPlanesList;
-        //     const baseIndex = layer.layerIndex * numSectionPlanes;
+        //     const baseIndex = trianglesLayer.layerIndex * numSectionPlanes;
         //     const drawFlags = rendererModel.drawFlags;
         //     for (let sectionPlaneIndex = 0; sectionPlaneIndex < numSectionPlanes; sectionPlaneIndex++) {
         //         const sectionPlaneUniforms = this.#uniforms.sectionPlanes[sectionPlaneIndex];
@@ -472,30 +457,8 @@ export abstract class TrianglesLayerRenderer {
                 uniform highp sampler2D sceneModelRendererMatrices;`;
     }
 
-    protected get vertLogDepthBufDefs(): string {
-        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return `uniform float logDepthBufFC;
-                    out float fragDepth;
-                    bool isPerspectiveMatrix(mat4 m) {
-                        return (m[2][3] == - 1.0);
-                    }
-                    out float isPerspective;`;
-        } else {
-            return ""
-        }
-    }
-
     protected get vertDataTextureSamples(): string {
         return "";
-    }
-
-    protected get vertLogDepthBufOutputs(): string {
-        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return `fragDepth = 1.0 + clipPos.w;
-                    isPerspective = float (isPerspectiveMatrix(projMatrix));`;
-        } else {
-            return ""
-        }
     }
 
     protected get fragmentShader(): string {
@@ -522,22 +485,6 @@ export abstract class TrianglesLayerRenderer {
         #endif`;
     }
 
-    protected get fragGammaDefs(): string {
-        return `uniform float gammaFactor;
-        vec4 linearToLinear( in vec4 value ) {
-            return value;
-        }
-        vec4 sRGBToLinear( in vec4 value ) {
-            return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.w );
-        }
-        vec4 gammaToLinear( in vec4 value) {
-            return vec4( pow( value.xyz, vec3( gammaFactor ) ), value.w );
-        }
-        vec4 linearToGamma( in vec4 value, in float gammaFactor ) {
-              return vec4( pow( value.xyz, vec3( 1.0 / gammaFactor ) ), value.w );");
-        }`;
-    }
-
     protected get fragLightDefs(): string {
         const view = this.renderContext.view;
         const src = [];
@@ -560,24 +507,6 @@ export abstract class TrianglesLayerRenderer {
             }
         }
         return src.join("\n");
-    }
-
-    protected get fragLogDepthBufDefs(): string {
-        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return `in float isPerspective;
-                    uniform float logDepthBufFC;
-                    in float fragDepth;`;
-        } else {
-            return ""
-        }
-    }
-
-    protected get fragLogDepthBufOutput(): string {
-        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return "gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;";
-        } else {
-            return ""
-        }
     }
 
     protected get fragLighting(): string {
@@ -645,19 +574,6 @@ export abstract class TrianglesLayerRenderer {
         return `outColor            = fragColor;`;
     }
 
-
-    protected get fragSectionPlaneDefs(): string {
-        const src = [];
-        src.push(`in vec4 worldPosition;
-                  in vec4 meshFlags2;`);
-        for (let i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
-            src.push(`uniform bool sectionPlaneActive${i};
-                      uniform vec3 sectionPlanePos${i};
-                      uniform vec3 sectionPlaneDir${i};`);
-        }
-        return src.join("\n");
-    }
-
     protected get fragLightSourceUniforms(): string {
         const src = [];
         src.push(`uniform vec4 lightAmbient;`);
@@ -677,27 +593,7 @@ export abstract class TrianglesLayerRenderer {
         return src.join("\n");
     }
 
-    protected get fragSectionPlanesSlice(): string {
-        const src = [];
-        const clipping = (this.renderContext.view.sectionPlanesList.length > 0);
-        if (clipping) {
-            src.push(`bool clippable = (float(meshFlags2.x) > 0.0);
-                      if (clippable) {
-                          float dist = 0.0;`);
-            for (let i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
-                src.push(`if (sectionPlaneActive${i}) {
-                              dist += clamp(dot(-sectionPlaneDir${i}.xyz, worldPosition.xyz - sectionPlanePos${i}.xyz), 0.0, 1000.0);
-                          }`);
-            }
-            src.push(`if (dist > 0.0) { 
-                          discard;
-                      }
-                  }`);
-        }
-        return src.join("\n");
-    }
-
-    protected get fragFlatShading(): string {
+    protected get fragTrianglesFlatShading(): string {
         const src = [];
         src.push("");
         return src.join("\n");

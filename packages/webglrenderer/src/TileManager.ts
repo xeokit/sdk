@@ -1,5 +1,5 @@
 import type {FloatArrayParam} from "@xeokit/math";
-import type {Tile} from "../WebGLTileManager";
+import type {Tile} from "./WebGLTileManager";
 
 export interface TileManager {
 

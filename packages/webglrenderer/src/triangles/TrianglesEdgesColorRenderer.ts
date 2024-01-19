@@ -1,7 +1,7 @@
-import {TrianglesLayerRenderer} from "../TrianglesLayerRenderer";
-import type {RenderContext} from "../../common/RenderContext";
+import {TrianglesRenderer} from "./TrianglesRenderer";
+import type {RenderContext} from "../RenderContext";
 
-export class TrianglesEdgesColorLayerRenderer extends TrianglesLayerRenderer {
+export class TrianglesEdgesColorRenderer extends TrianglesRenderer {
 
     constructor(renderContext: RenderContext) {
         super(renderContext);

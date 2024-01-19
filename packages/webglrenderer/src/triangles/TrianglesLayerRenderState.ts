@@ -5,7 +5,7 @@ import {FloatArrayParam} from "@xeokit/math";
 /**
  * @private
  */
-export interface TrianglesLayerRenderState { // What a TrianglesLayerRenderer needs to render this TrianglesRendererLayer
+export interface TrianglesLayerRenderState { // What a TrianglesRenderer needs to render this TrianglesLayer
     gl: WebGL2RenderingContext,
     origin: FloatArrayParam,
     materialTextureSet: WebGLRendererTextureSet; // Color, opacity, metal/roughness, ambient occlusion maps

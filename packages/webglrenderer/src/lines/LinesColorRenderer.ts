@@ -1,12 +1,8 @@
-import {TrianglesLayerRenderer} from "../../triangles/TrianglesLayerRenderer";
+import {TrianglesRenderer} from "../triangles/TrianglesRenderer";
 
-import type {RenderContext} from "../../common/RenderContext";
+import type {RenderContext} from "../RenderContext";
 
-/**
- * Renders triangles in a RendererLayer as a flat, uniformly-colored silhouette.
- * Used for X-ray, highlight and selection effects.
- */
-export class SilhouetteLinesRenderer extends TrianglesLayerRenderer {
+export class LinesColorRenderer extends TrianglesRenderer {
 
     constructor(renderContext: RenderContext) {
         super(renderContext);
@@ -18,32 +14,29 @@ export class SilhouetteLinesRenderer extends TrianglesLayerRenderer {
 
     buildVertexShader(): string {
         return `${this.vertHeader}   
-        
-                uniform int                 renderPass;   
-                        
+
+                uniform int                 renderPass;        
                 uniform highp   mat4        viewMatrix;
                 uniform highp   mat4        projMatrix;
                 uniform highp   mat4        worldMatrix;
-                
                 uniform mediump sampler2D   eachMeshMatrices;
                 uniform lowp    usampler2D  eachMeshAttributes;
                 uniform highp   sampler2D   eachMeshOffset;
                 uniform mediump usampler2D  positions;
-                uniform highp   usampler2D  indices;
-                uniform mediump usampler2D  eachPrimitiveMesh;
-                
-                uniform  float  logDepthBufFC;
-                 
+                uniform mediump usampler2D  colors;
+                uniform highp   usampler2D  indices;              
+                uniform mediump usampler2D  eachPrimitiveMesh;                
+                uniform  float              logDepthBufFC;
+                                 
                 out vec4        worldPosition;
-                flat out int    meshFlags2r;                       
-                out uvec4       meshColor;
+                flat out int    meshFlags2;                       
                 out float       fragDepth;
                 
                 bool isPerspectiveMatrix(mat4 m) {
                     return (m[2][3] == - 1.0);
                 }
                 
-                out float enableLogDepthBuf;
+                out float enableLogDepthBuf;                                
                     
                 void main(void) {
                                    
@@ -54,7 +47,7 @@ export class SilhouetteLinesRenderer extends TrianglesLayerRenderer {
                     
                     int meshIndex          = int(texelFetch(eachPrimitiveMesh, ivec2(hPackedMeshIdIndex, vPackedMeshIdIndex), 0).r);                   
                     uvec4 meshFlags        = texelFetch (eachMeshAttributes, ivec2(2, meshIndex), 0);
-                    
+
                     if (int(meshFlags.x) != renderPass) {
                         gl_Position = vec4(3.0, 3.0, 3.0, 1.0);
                         return;
@@ -82,18 +75,29 @@ export class SilhouetteLinesRenderer extends TrianglesLayerRenderer {
                     mat4 positionsDecompressMatrix = mat4 (texelFetch (eachMeshMatrices, ivec2(0, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(1, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(2, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(3, meshIndex), 0));
                     mat4 meshMatrix = mat4 (texelFetch (eachMeshMatrices, ivec2(4, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(5, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(6, meshIndex), 0), texelFetch (eachMeshMatrices, ivec2(7, meshIndex), 0));
 
+//-----------------------------------------------------------------------------------------
+// TODO:
+//        dont index using '3', since these are points, not triangles
+//        add a colors array to geometry
+//-----------------------------------------------------------------------------------------
+                    vec3 _positions[3];
                     _positions[0] = vec3(texelFetch(positions, ivec2(indexPositionH.r, indexPositionV.r), 0));
                     _positions[1] = vec3(texelFetch(positions, ivec2(indexPositionH.g, indexPositionV.g), 0));
-                    _positions[2] = vec3(texelFetch(positions, ivec2(indexPositionH.b, indexPositionV.b), 0));
-  
-                    vec3  position      = _positions[gl_VertexID % 3];
-                   
+                    _positions[2] = vec3(texelFetch(positions, ivec2(indexPositionH.b, indexPositionV.b), 0));                    
+                    vec3  position       = _positions[gl_VertexID % 3];                  
+                                                  
                     vec4  _worldPosition = worldMatrix * ((meshMatrix * positionsDecompressMatrix) * vec4(position, 1.0)); 
                     vec4  viewPosition   = viewMatrix * _worldPosition;                   
                     vec4 clipPos         = projMatrix * viewPosition;
 
-                    meshFlags2r     = meshFlags2.r;                     
-                    meshColor      = texelFetch (eachMeshAttributes, ivec2(0, meshIndex), 0);                          
+                    vec3 _colors[3];                   
+                    _colors[0] = vec3(texelFetch(colors, ivec2(indexPositionH.r, indexPositionV.r), 0));
+                    _colors[1] = vec3(texelFetch(colors, ivec2(indexPositionH.g, indexPositionV.g), 0));
+                    _colors[2] = vec3(texelFetch(colors, ivec2(indexPositionH.b, indexPositionV.b), 0));
+                    vec4 color = vec4(_colors[gl_VertexID % 3],1.0);
+                    
+                    meshFlags2     = meshFlags2.r;                     
+                    pointColor     = color;                          
                     fragDepth      = 1.0 + clipPos.w;");
                     enableLogDepthBuf  = float (isPerspectiveMatrix(projMatrix));
                     worldPosition  = _worldPosition;");                                                 
@@ -103,18 +107,18 @@ export class SilhouetteLinesRenderer extends TrianglesLayerRenderer {
 
     buildFragmentShader(): string {
         return `${this.fragHeader}                          
-                in uvec4       meshColor;
+                in uvec4       pointColor;
                 in float       fragDepth;
-                in float       enableLogDepthBuf;    
                 in vec4        worldPosition;
-                in int         meshFlags2r;                        
-                uniform vec4   colorize;      
+                in int         meshFlags2;          
+                
+                in float       enableLogDepthBuf;                                 
                 uniform float  logDepthBufFC;                                       
                 ${this.fragSectionPlaneDefs}                                
                 out vec4 outColor;            
                 void main(void) {                                    
                     ${this.fragSectionPlanesSlice}                                                                      
-                    outColor = vec4(meshColor.rgb, colorize.a);                   
+                    outColor = pointColor;                   
                     gl_FragDepth = enableLogDepthBuf == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;                        
                 }`;
     }

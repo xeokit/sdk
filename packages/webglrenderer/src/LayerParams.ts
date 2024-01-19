@@ -1,5 +1,5 @@
 import type {View} from "@xeokit/viewer";
-import type {WebGLRendererModel} from "../WebGLRendererModel";
+import type {WebGLRendererModel} from "./WebGLRendererModel";
 import type {RendererTextureSet} from "@xeokit/scene";
 import {FloatArrayParam} from "@xeokit/math";
 

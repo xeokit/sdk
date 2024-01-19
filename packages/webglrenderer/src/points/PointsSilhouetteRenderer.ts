@@ -1,12 +1,12 @@
-import {TrianglesLayerRenderer} from "../../triangles/TrianglesLayerRenderer";
+import {TrianglesRenderer} from "../triangles/TrianglesRenderer";
 
-import type {RenderContext} from "../../common/RenderContext";
+import type {RenderContext} from "../RenderContext";
 
 /**
- * Renders triangles in a RendererLayer as a flat, uniformly-colored silhouette.
+ * Renders triangles in a Layer as a flat, uniformly-colored silhouette.
  * Used for X-ray, highlight and selection effects.
  */
-export class PointsSilhouetteLayerRenderer extends TrianglesLayerRenderer {
+export class PointsSilhouetteRenderer extends TrianglesRenderer {
 
     constructor(renderContext: RenderContext) {
         super(renderContext);

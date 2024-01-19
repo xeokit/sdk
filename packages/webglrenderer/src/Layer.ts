@@ -4,11 +4,14 @@ import type { SceneGeometryCompressedParams, SceneMeshParams } from "@xeokit/sce
 import type { LayerParams } from "./LayerParams";
 import {LayerMeshParams} from "./LayerMeshParams";
 import {SceneMesh} from "@xeokit/scene";
+import {LayerRenderer} from "./LayerRenderer";
+import {RendererSet} from "./RendererSet";
+import {RenderContext} from "./RenderContext";
 
 /**
  * @private
  */
-export declare class RendererLayer {
+export declare class Layer {
     layerIndex: number;
     meshCounts: MeshCounts;
     sortId: string;
@@ -36,5 +39,8 @@ export declare class RendererLayer {
     setLayerMeshOffset(meshIndex: number, offset: FloatArrayParam): void;
     setLayerMeshMatrix(meshIndex: number, matrix: FloatArrayParam): void;
     //setLayerMeshViewMatrix(meshIndex: number, index: number): void;
+
+    draw(renderContext: RenderContext, rendererSet: RendererSet): void;
+
     destroy(): void;
 }

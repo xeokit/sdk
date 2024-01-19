@@ -2,11 +2,11 @@ import type {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet,
 import type {FloatArrayParam} from "@xeokit/math";
 import {createAABB3} from "@xeokit/boundaries";
 
-import type {RenderContext} from "./common/RenderContext";
+import type {RenderContext} from "./RenderContext";
 import type {Pickable} from "./Pickable";
 import {createMat4, mulMat4, transformPoint3, translationMat4c} from "@xeokit/matrix";
 import type {Tile, WebGLTileManager} from "./WebGLTileManager";
-import {RendererLayer} from "./common/RendererLayer";
+import {Layer} from "./Layer";
 
 const tempMat4a = createMat4();
 const tempMat4b = createMat4();
@@ -30,7 +30,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     tile: Tile;
     sceneObjectRenderer: RendererObject | null;
     aabb: FloatArrayParam;
-    layer: RendererLayer;
+    layer: Layer;
     meshIndex: number;
     colorize: FloatArrayParam;
     colorizing: boolean;
@@ -38,7 +38,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
 
     constructor(params: {
         tileManager: WebGLTileManager,
-        layer: RendererLayer,
+        layer: Layer,
         id: string,
         matrix: FloatArrayParam;
         metallic: number;

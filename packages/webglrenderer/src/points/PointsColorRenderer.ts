@@ -1,8 +1,10 @@
-import {TrianglesLayerRenderer} from "../../triangles/TrianglesLayerRenderer";
+import {TrianglesRenderer} from "../triangles/TrianglesRenderer";
+import type {RenderContext} from "../RenderContext";
 
-import type {RenderContext} from "../../common/RenderContext";
-
-export class ColorLinesLayerRenderer extends TrianglesLayerRenderer {
+/**
+ * @private
+ */
+export class PointsColorRenderer extends TrianglesRenderer {
 
     constructor(renderContext: RenderContext) {
         super(renderContext);
@@ -14,11 +16,13 @@ export class ColorLinesLayerRenderer extends TrianglesLayerRenderer {
 
     buildVertexShader(): string {
         return `${this.vertHeader}   
-
+        
                 uniform int                 renderPass;        
+           
                 uniform highp   mat4        viewMatrix;
                 uniform highp   mat4        projMatrix;
                 uniform highp   mat4        worldMatrix;
+                
                 uniform mediump sampler2D   eachMeshMatrices;
                 uniform lowp    usampler2D  eachMeshAttributes;
                 uniform highp   sampler2D   eachMeshOffset;
@@ -26,10 +30,9 @@ export class ColorLinesLayerRenderer extends TrianglesLayerRenderer {
                 uniform mediump usampler2D  colors;
                 uniform highp   usampler2D  indices;              
                 uniform mediump usampler2D  eachPrimitiveMesh;                
-                uniform  float              logDepthBufFC;
-                                 
+                uniform  float              logDepthBufFC;                                 
                 out vec4        worldPosition;
-                flat out int    meshFlags2;                       
+                flat out int    meshFlags2r;                       
                 out float       fragDepth;
                 
                 bool isPerspectiveMatrix(mat4 m) {
@@ -94,9 +97,9 @@ export class ColorLinesLayerRenderer extends TrianglesLayerRenderer {
                     _colors[0] = vec3(texelFetch(colors, ivec2(indexPositionH.r, indexPositionV.r), 0));
                     _colors[1] = vec3(texelFetch(colors, ivec2(indexPositionH.g, indexPositionV.g), 0));
                     _colors[2] = vec3(texelFetch(colors, ivec2(indexPositionH.b, indexPositionV.b), 0));
-                    vec4 color = vec4(_colors[gl_VertexID % 3],1.0);
+  vec4 color = vec4(_colors[gl_VertexID % 3],1.0);
                     
-                    meshFlags2     = meshFlags2.r;                     
+                    meshFlags2r     = meshFlags2.r;                     
                     pointColor     = color;                          
                     fragDepth      = 1.0 + clipPos.w;");
                     enableLogDepthBuf  = float (isPerspectiveMatrix(projMatrix));
@@ -110,14 +113,18 @@ export class ColorLinesLayerRenderer extends TrianglesLayerRenderer {
                 in uvec4       pointColor;
                 in float       fragDepth;
                 in vec4        worldPosition;
-                in int         meshFlags2;          
+                in int         meshFlags2r;          
                 
                 in float       enableLogDepthBuf;                                 
                 uniform float  logDepthBufFC;                                       
-                ${this.fragSectionPlaneDefs}                                
+                
+                ${this.fragSectionPlaneDefs}        
+                                        
                 out vec4 outColor;            
                 void main(void) {                                    
+                
                     ${this.fragSectionPlanesSlice}                                                                      
+                
                     outColor = pointColor;                   
                     gl_FragDepth = enableLogDepthBuf == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;                        
                 }`;

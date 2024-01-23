@@ -1,5 +1,5 @@
-import {createMatricesDataTexture} from "./common/dataTextures";
-import type {WebGLDataTexture} from "@xeokit/webglutils";
+
+import {WebGLDataTexture} from "@xeokit/webglutils";
 import type {FloatArrayParam} from "@xeokit/math";
 import {createMat4, createVec3} from "@xeokit/matrix";
 import {createRTCViewMat, worldToRTCCenter} from "@xeokit/rtc";
@@ -35,7 +35,7 @@ export class WebGLTileManager implements TileManager {
         this.#indexesUsed = [];
         this.#lastFreeIndex = 0;
         this.#tiles = {};
-        this.#dataTexture = createMatricesDataTexture(this.#gl, NUM_TILES);
+        this.#dataTexture = this.#createMatricesDataTexture(NUM_TILES);
         this.#numTiles = 0;
     }
 
@@ -127,5 +127,25 @@ export class WebGLTileManager implements TileManager {
         }
     }
 
-
+    #createMatricesDataTexture(numMatrices: number): WebGLDataTexture {
+        if (numMatrices === 0) {
+            throw "num instance matrices===0";
+        }
+        // in one row we can fit 512 matrices
+        const textureWidth = 512 * 4;
+        const textureHeight = Math.ceil(numMatrices / (textureWidth / 4));
+        const textureData = new Float32Array(4 * textureWidth * textureHeight);
+        // dataTextureRamStats.sizeDataPositionDecodeMatrices += textureData.byteLength;
+        const gl = this.#gl;
+        const texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, textureData, 0);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        return new WebGLDataTexture({gl, texture, textureWidth, textureHeight, textureData});
+    }
 }

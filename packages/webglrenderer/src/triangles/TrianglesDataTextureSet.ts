@@ -41,7 +41,7 @@ export class TrianglesDataTextureSet {
 
         // SceneMesh -> attributes lookup
 
-        this.perSubMeshAttributesDataTexture = this.#createperSubMeshAttributesDataTexture( // Flags (except for solid) are inserted later
+        this.perSubMeshAttributesDataTexture = this.#createPerSubMeshAttributesDataTexture( // Flags (except for solid) are inserted later
             trianglesDataTextureBuffer.perSubMeshColors,
             trianglesDataTextureBuffer.perSubMeshPickColors,
             trianglesDataTextureBuffer.perSubMeshVertexBases,
@@ -51,11 +51,11 @@ export class TrianglesDataTextureSet {
 
         // SceneMesh -> instancing matrix
 
-        this.perSubMeshInstancingMatricesDataTexture = this.#createperSubMeshInstancingMatricesDataTexture(trianglesDataTextureBuffer.perSubMeshInstancingMatrices);
+        this.perSubMeshInstancingMatricesDataTexture = this.#createPerSubMeshInstancingMatricesDataTexture(trianglesDataTextureBuffer.perSubMeshInstancingMatrices);
 
         // SceneMesh -> positions decompress matrix
 
-        this.perSubMeshDecodeMatricesDataTexture = this.#createperSubMeshDecodeMatricesDataTexture(trianglesDataTextureBuffer.perSubMeshDecodeMatrices);
+        this.perSubMeshDecodeMatricesDataTexture = this.#createPerSubMeshDecodeMatricesDataTexture(trianglesDataTextureBuffer.perSubMeshDecodeMatrices);
 
         // Vertex -> position
 
@@ -116,7 +116,7 @@ export class TrianglesDataTextureSet {
     //
     // }
 
-    #createperSubMeshAttributesDataTexture(
+    #createPerSubMeshAttributesDataTexture(
         colors: IntArrayParam[],
         pickColors: IntArrayParam[],
         vertexBases: IntArrayParam,
@@ -214,7 +214,7 @@ export class TrianglesDataTextureSet {
         return new WebGLDataTexture({gl, texture, textureWidth, textureHeight, textureData});
     }
 
-    #createperSubMeshInstancingMatricesDataTexture(instanceMatrices: FloatArrayParam[]): WebGLDataTexture {
+    #createPerSubMeshInstancingMatricesDataTexture(instanceMatrices: FloatArrayParam[]): WebGLDataTexture {
         const numMatrices = instanceMatrices.length;
         if (numMatrices === 0) {
             throw "num instance matrices===0";
@@ -240,7 +240,7 @@ export class TrianglesDataTextureSet {
         return new WebGLDataTexture({gl, texture, textureWidth, textureHeight, textureData});
     }
 
-    #createperSubMeshDecodeMatricesDataTexture(positionDecodeMatrices: FloatArrayParam[]): WebGLDataTexture {
+    #createPerSubMeshDecodeMatricesDataTexture(positionDecodeMatrices: FloatArrayParam[]): WebGLDataTexture {
         const numMatrices = positionDecodeMatrices.length;
         if (numMatrices === 0) {
             throw "num decode+entity matrices===0";

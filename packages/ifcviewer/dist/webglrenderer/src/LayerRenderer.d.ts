@@ -20,17 +20,17 @@ export declare abstract class LayerRenderer {
      */
     protected abstract buildFragmentShader(): string;
     /**
-     * Gets a hash for the View's current configuration as pertaining to the TrianglesLayerRenderer.
+     * Gets a hash for the View's current configuration as pertaining to the TrianglesRenderer.
      */
     protected abstract getHash(): string;
     /**
-     * Indicates that the TrianglesLayerRenderer may need to rebuild shaders
+     * Indicates that the TrianglesRenderer may need to rebuild shaders
      */
     needRebuild(): void;
     /**
-     * Draws the given RendererLayer.
+     * Draws the given Layer.
      *
-     * @param layer The RendererLayer to draw
+     * @param layer The Layer to draw
      */
     draw(layer: Layer): void;
     protected get vertHeader(): string;

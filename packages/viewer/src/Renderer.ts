@@ -30,6 +30,11 @@ import {RendererModel} from "@xeokit/scene";
 export interface Renderer {
 
     /**
+     * The Viewer this Renderer is currently attached to.
+     */
+    get viewer(): Viewer;
+
+    /**
      * Interfaces through which each {@link @xeokit/viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
      * its {@link @xeokit/scene!SceneObject | SceneObject} within the {@link @xeokit/viewer!Renderer | Renderer} that's
      * configured on its {@link @xeokit/viewer!Viewer | Viewer}.
@@ -45,13 +50,25 @@ export interface Renderer {
      * Initializes this Renderer by attaching a {@link @xeokit/viewer!Viewer}.
      *
      * @internal
-     * @param viewer Viewer to attach..
+     * @param viewer Viewer to attach.
+     * @returns *void*
+     * * Viewer successfully attached.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * A Viewer is already attached to this Renderer.
+     * * The given Viewer is already attached to another Renderer.
+     */
+    attachViewer(viewer: Viewer): void | SDKError;
+
+    /**
+     * Detaches the {@link @xeokit/viewer!Viewer} that is currently attached, if any.
+     *
+     * @internal
      * @returns *void*
      * * Viewer successfully detached.
      * @returns *{@link @xeokit/core!SDKError}*
-     * * A Viewer is already attached to this Renderer.
+     * * No Viewer is currently attached to this Renderer.
      */
-    attachViewer(viewer: Viewer): void | SDKError;
+    detachViewer(): SDKError | void;
 
     /**
      * Gets the capabilities of this Renderer.
@@ -81,37 +98,40 @@ export interface Renderer {
      * @returns *number*
      * * Handle to the View within this Renderer. Use this handle to update Renderer state for the View.
      * @returns *{@link @xeokit/core!SDKError}*
+     * * No Viewer is attached to this Renderer.
      * * Caller attempted to attach too many Views.
+     * * The WebGLRenderer failed to create a WebGLRenderingContext for the new View.
      */
-    attachView(view: View): SDKError | number;
+    attachView(view: View): SDKError | void;
 
     /**
-     * Detaches the {@link @xeokit/viewer!View} with the given handle from this Renderer.
+     * Detaches the given {@link @xeokit/viewer!View} from this Renderer.
      *
      * The Renderer will then cease rendering for that View.
      *
      * @internal
-     * @param viewHandle Handle to the View, which was returned by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param view The View to detach.
      * @returns *void*
      * * View successfully detached.
      * @returns *{@link @xeokit/core!SDKError}*
-     * * No View is currently attached for the given handle.
+     * * No Viewer is attached to this Renderer.
+     * * View is not currently attachedto this Renderer.
      */
-    detachView(viewHandle: number): SDKError | void;
+    detachView(view:View): SDKError | void;
 
     /**
      * Attaches a {@link @xeokit/scene!SceneModel | SceneModel} to this Renderer.
      *
-     * This method attaches various "hook objects" to the elements within the SceneModel, through which they can
-     * convey their state updates to the Renderer.
+     * This method attaches various hooks to the elements within the SceneModel, through which they can
+     * upload state updates to the Renderer.
      *
-     * * Sets a {@link @xeokit/scene!RendererModel} on {@link @xeokit/scene!SceneModel | SceneModel.rendererModel}
-     * * Sets a {@link @xeokit/scene!RendererObject} on each {@link @xeokit/scene!SceneObject | SceneObject.rendererObject}
-     * * Sets a {@link @xeokit/scene!RendererMesh} on each {@link @xeokit/scene!SceneMesh | Meshe.rendererMesh}
-     * * Sets a {@link @xeokit/scene!RendererTextureSet} on each {@link @xeokit/scene!SceneTextureSet | SceneTextureSet.rendererTextureSet}
-     * * Sets a {@link @xeokit/scene!RendererTexture} on each {@link @xeokit/scene!SceneTexture | SceneTexture.rendererTexture}
+     * * Sets a {@link @xeokit/scene!RendererModel} on {@link @xeokit/scene!SceneModel.rendererModel | SceneModel.rendererModel}
+     * * Sets a {@link @xeokit/scene!RendererObject} on each {@link @xeokit/scene!SceneObject.rendererObject | SceneObject.rendererObject}
+     * * Sets a {@link @xeokit/scene!RendererMesh} on each {@link @xeokit/scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
+     * * Sets a {@link @xeokit/scene!RendererTextureSet} on each {@link @xeokit/scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
+     * * Sets a {@link @xeokit/scene!RendererTexture} on each {@link @xeokit/scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
      *
-     * Then, when we make any state updates to those components, they will transfer the updates though the hooks into the Renderer.
+     * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
      *
      * You must first attach a View with {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView} before you can attach a SceneModel.
      *

@@ -1,4 +1,3 @@
-
 import {createAABB3} from "@xeokit/boundaries";
 import {createVec3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
@@ -9,10 +8,10 @@ import type {RendererModel, RendererObject, SceneObject} from "@xeokit/scene";
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
 /**
- * TODO
+ *
  * @internal
  */
-export class WebGLRendererObject implements RendererObject, RendererObject {
+export class WebGLRendererObject implements RendererObject {
 
     readonly id: string;
     readonly rendererModel: RendererModel;
@@ -247,39 +246,18 @@ export class WebGLRendererObject implements RendererObject, RendererObject {
      * @internal
      */
     setOffset(viewIndex: number, offset: FloatArrayParam): void {
-        // if (offset) {
-        //     this.#offset[0] = offset[0];
-        //     this.#offset[1] = offset[1];
-        //     this.#offset[2] = offset[2];
-        // } else {
-        //     this.#offset[0] = 0;
-        //     this.#offset[1] = 0;
-        //     this.#offset[2] = 0;
-        // }
-        // for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-        //     this.rendererMeshes[i].setOffset(this.#offset);
-        // }
-        // this.#offsetAABB[0] = this.#aabb[0] + this.#offset[0];
-        // this.#offsetAABB[1] = this.#aabb[1] + this.#offset[1];
-        // this.#offsetAABB[2] = this.#aabb[2] + this.#offset[2];
-        // this.#offsetAABB[3] = this.#aabb[3] + this.#offset[0];
-        // this.#offsetAABB[4] = this.#aabb[4] + this.#offset[1];
-        // this.#offsetAABB[5] = this.#aabb[5] + this.#offset[2];
-        // // this.scene.#aabbDirty = true;
-        // // this.scene._objectOffsetUpdated(this, offset);
-        // // this.rendererModel._aabbDirty = true;
-        // // this.rendererModel.glRedraw();
+        // TODO
     }
 
-    build(): void {
+    uploadRendererState(): void {
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].build(this.#flags);
+            this.rendererMeshes[i].uploadRendererState(this.#flags);
         }
     }
 
-    build2(): void {
+    commitRendererState(): void {
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].build2();
+            this.rendererMeshes[i].commitRendererState();
         }
     }
 

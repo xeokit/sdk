@@ -6,11 +6,18 @@ import {RendererModel} from "./RendererModel";
 
 /**
  * Interface through which a {@link @xeokit/viewer!ViewObject | ViewObject} controls the appearance of
- * its {@link @xeokit/scene!SceneObject | SceneObject} within the {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/viewer!Renderer | Renderer},
- * specifically within the {@link @xeokit/viewer!View | View} to shich it belongs.
+ * a {@link @xeokit/scene!SceneObject | SceneObject} in a {@link @xeokit/viewer!Viewer | Viewer}.
  *
- * Through this interface, the ViewObject controls the following aspects of the SceneObject's appearance: visibility,  highlight,  selection,
- * * X-ray effect and colorization.
+ * When a {@link @xeokit/scene!Scene | Scene} is attached to a {@link @xeokit/viewer!Viewer | Viewer}, the Viewer
+ * attaches a RendererObject to each of the Scene's {@link @xeokit/scene!SceneObject | SceneObjects}, to provide
+ * an interface through which the Viewer's {@link @xeokit/viewer!ViewObject | ViewObject} can control the appearance of
+ * the SceneObject within a {@link @xeokit/viewer!View | View}.
+ *
+ * Internally, the Viewer's {@link @xeokit/viewer!Renderer} attaches these
+ * to {@link @xeokit/scene!SceneObject.rendererObject | SceneObject.rendererObject} and
+ * {@link @xeokit/viewer!ViewObject.rendererObject | ViewObject.rendererObject}. When we update properties
+ * like {@link @xeokit/viewer!ViewObject.visible | ViewObject.visible}, this interface will upload those
+ * updates into the {@link @xeokit/viewer!Renderer}.
  *
  * @internal
  */
@@ -106,7 +113,7 @@ export interface RendererObject {
     setEdges(viewHandle: number, edges: boolean): void | SDKError;
 
     /**
-     * Sets whether the {@link @xeokit/viewer!ViewObject} is culled from the given {@link View}.
+     * Sets whether the {@link @xeokit/viewer!ViewObject} is visually culled from the given {@link View}.
      *
      * @internal
      * @param viewHandle Handle to the {@link View}, which was returned by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.

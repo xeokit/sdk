@@ -76,13 +76,12 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         this.sceneObjectRenderer = sceneObjectRenderer;
     }
 
-    build(flags: number) {
-        // @ts-ignore
-        this.layer.initFlags(this.meshIndex, flags, this.transparent);
+    uploadRendererState(flags: number) {
+        this.layer.setLayerMeshFlags(this.meshIndex, flags, this.transparent);
     }
 
-    build2() {
-        this.layer.flushInitFlags();
+    commitRendererState() {
+        this.layer.commitLayerMeshFlags();
     }
 
     setVisible(flags: any) {
@@ -107,7 +106,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
             ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b)
             : matrix);
         if (tileChanged) {
-            this.layer.setLayerMeshViewMatrixIndex(this.meshIndex, this.tile.index);
+         //   this.layer.setLayerMeshViewMatrixIndex(this.meshIndex, this.tile.index);
         }
     }
 

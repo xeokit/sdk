@@ -2,6 +2,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 import  {SceneGeometryBucket} from "./SceneGeometryBucket";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {RendererGeometry} from "./RendererGeometry";
+import {SceneMesh} from "./SceneMesh";
 
 /**
  * A geometry in a {@link @xeokit/scene!SceneModel}.
@@ -65,6 +66,11 @@ export class SceneGeometry {
      */
     rendererGeometry: RendererGeometry | null;
 
+    /**
+     * The count of {@link @xeokit/scene!SceneMesh | SceneMeshes} that reference this SceneGeometry.
+     */
+    numMeshes: number;
+
     constructor(params: SceneGeometryCompressedParams) {
         this.geometryBuckets = [];
         for (let i = 0, len = params.geometryBuckets.length; i < len; i++) {
@@ -73,6 +79,7 @@ export class SceneGeometry {
         this.id = params.id;
         this.positionsDecompressMatrix = params.positionsDecompressMatrix;
         this.primitive = params.primitive;
+        this.numMeshes = 0;
     }
 
     /**

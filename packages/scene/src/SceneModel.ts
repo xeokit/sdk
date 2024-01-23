@@ -757,7 +757,6 @@ export class SceneModel extends Component {
             }
         }
         // const meshIndex = this.meshesList.length;
-
         const mesh = new SceneMesh({
             id: meshParams.id,
             geometry,
@@ -769,6 +768,7 @@ export class SceneModel extends Component {
             metallic: meshParams.metallic,
             origin: meshParams.origin
         });
+        geometry.numMeshes++;
         this.meshes[meshParams.id] = mesh;
         this.stats.numMeshes++;
         return mesh;
@@ -902,7 +902,7 @@ export class SceneModel extends Component {
             if (this.built) {
                 throw new SDKError("Failed to build SceneModel - SceneModel already built");
             }
-            this.#removeUnusedTextures();
+            this.#removeUnusedComponents()
             // this.#compressTextures().then(() => {
             this.built = true;
             this.onBuilt.dispatch(this, null);
@@ -911,6 +911,33 @@ export class SceneModel extends Component {
             //     throw e;
             // });
         });
+    }
+
+    #removeUnusedComponents() {
+        for (let id in this.meshes) {
+            const mesh = this.meshes[id];
+            if (!mesh.object) {
+                mesh.geometry.numMeshes--;
+                delete this.meshes[id];
+            }
+        }
+        for (let id in this.geometries) {
+            if (this.geometries[id].numMeshes === 0) {
+                delete this.geometries[id];
+            }
+        }
+        // let texturesList = [];
+        // const textures = {};
+        // for (let i = 0, leni = this.texturesList.length; i < leni; i++) {
+        //     const texture = this.texturesList[i];
+        //     if (texture.channel !== null) {
+        //         texture.textureIndex = texturesList.length;
+        //         texturesList.push(texture);
+        //         textures[texture.id] = texture;
+        //     }
+        // }
+        // this.texturesList = texturesList;
+        // this.textures = textures;
     }
 
     /**
@@ -944,21 +971,6 @@ export class SceneModel extends Component {
         return sceneModelParams;
     }
 
-
-    #removeUnusedTextures() {
-        // let texturesList = [];
-        // const textures = {};
-        // for (let i = 0, leni = this.texturesList.length; i < leni; i++) {
-        //     const texture = this.texturesList[i];
-        //     if (texture.channel !== null) {
-        //         texture.textureIndex = texturesList.length;
-        //         texturesList.push(texture);
-        //         textures[texture.id] = texture;
-        //     }
-        // }
-        // this.texturesList = texturesList;
-        // this.textures = textures;
-    }
 
     // #compressTextures(): Promise<any> {
     //     let countTextures = this.#texturesList.length;

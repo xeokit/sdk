@@ -4,7 +4,6 @@ import type {FloatArrayParam} from "@xeokit/math";
 import type {Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {RenderContext} from "./RenderContext";
-import {TrianglesFastColorRenderer} from "./triangles/TrianglesFastColorRenderer";
 import {getWebGLExtension, WEBGL_INFO} from "@xeokit/webglutils";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import type {Pickable} from "./Pickable";
@@ -13,22 +12,14 @@ import type {Capabilities, TextureTranscoder} from "@xeokit/core";
 import {SDKError} from "@xeokit/core";
 import type {RendererObject, SceneModel} from "@xeokit/scene";
 import {WebGLTileManager} from "./WebGLTileManager";
-import {RendererSet} from "./RendererSet";
-import {TrianglesEdgesColorRenderer} from "./triangles/TrianglesEdgesColorRenderer";
-import {TrianglesSilhouetteRenderer} from "./triangles/TrianglesSilhouetteRenderer";
-import {TrianglesQualityColorRenderer} from "./triangles/TrianglesQualityColorRenderer";
 import {Layer} from "./Layer";
-import {PointsColorRenderer} from "./points/PointsColorRenderer";
-import {PointsSilhouetteRenderer} from "./points/PointsSilhouetteRenderer";
-import {LinesColorRenderer} from "./lines/LinesColorRenderer";
-import {LinesSilhouetteRenderer} from "./lines/LinesSilhouetteRenderer";
-
+import {RendererSet} from "./RendererSet";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
 
 /**
- * WebGL-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
+ * A WebGL-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * See {@link @xeokit/webglrenderer} for usage.
  */
@@ -38,7 +29,6 @@ export class WebGLRenderer implements Renderer {
 
     tileManager: WebGLTileManager | null;
 
-    #sceneModels: { [key: string]: SceneModel };
     #viewer: Viewer;
     #view: View;
     #renderContext: RenderContext;
@@ -62,8 +52,12 @@ export class WebGLRenderer implements Renderer {
     // #saoOcclusionRenderer: null | SAOOcclusionRenderer;
     // #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
     #textureTranscoder: TextureTranscoder;
-    #rendererSet: RendererSet;
+    //  #rendererSet: RendererSet;
     #viewMatrixDirty: boolean;
+    #rendererSet: RendererSet;
+    #destroyed: boolean;
+
+    #onViewCameraMatrix: () => void | null;
 
     /**
      Creates a WebGLRenderer.
@@ -80,8 +74,7 @@ export class WebGLRenderer implements Renderer {
 
         this.rendererObjects = {};
         this.tileManager = null;
-
-        this.#sceneModels = {};
+        this.#renderContext = null;
         this.#textureTranscoder = params.textureTranscoder || new KTX2TextureTranscoder({});
         this.#canvasTransparent = false;
         this.#alphaDepthMask = false;
@@ -103,10 +96,30 @@ export class WebGLRenderer implements Renderer {
         this.#logarithmicDepthBufferEnabled = false;
         this.#rendererModels = {};
         this.#viewMatrixDirty = true;
+        this.#destroyed = false;
     }
 
     /**
-     * TODO
+     * The Viewer this WebGLRenderer is currently attached to, if any.
+     */
+    get viewer(): Viewer {
+        return this.#viewer;
+    }
+
+    /**
+     * Gets the TextureTranscoder this WebGLRenderer was configured with, if any.
+     *
+     * @internal
+     */
+    get textureTranscoder(): void | TextureTranscoder {
+        return this.#textureTranscoder;
+    }
+
+    /**
+     * Gets the capabilities of this WebGLRenderer.
+     *
+     * @param capabilities Returns the capabilities of this WebGLRenderer.
+     *
      * @internal
      */
     getCapabilities(capabilities: Capabilities): void {
@@ -129,21 +142,84 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * TODO
+     * Initializes this WebGLRenderer by attaching a {@link @xeokit/viewer!Viewer}.
+     *
      * @internal
+     * @param viewer Viewer to attach.
+     * @returns *void*
+     * * Viewer successfully attached.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * A Viewer is already attached to this Renderer.
+     * * The given Viewer is already attached to another Renderer.
      */
     attachViewer(viewer: Viewer): void {
+        if (!this.#viewer) {
+            throw new SDKError("Can't attach Viewer to WebGLRenderer - a Viewer is already attached");
+        }
+        if (viewer.renderer) {
+            throw new SDKError("Can't attach Viewer to WebGLRenderer - given Viewer is already attached to another Renderer");
+        }
         this.#viewer = viewer;
         this.#textureTranscoder.init(this.#viewer.capabilities);
     }
 
     /**
-     * TODO
+     * Detaches the {@link @xeokit/viewer!Viewer} that is currently attached, if any.
+     *
      * @internal
+     * @returns *void*
+     * * Viewer successfully detached.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No Viewer is currently attached to this WebGLRenderer.
      */
-    attachView(view: View): number | SDKError {
-        if (this.#renderContext) {
-            return new SDKError("Only one View allowed with WebGLRenderer (see WebViewerCapabilities.maxViews)");
+    detachViewer(): SDKError | void {
+        if (this.#viewer) {
+            return new SDKError("Can't detach Viewer from WebGLRenderer - no Viewer is currently attached");
+        }
+        for (let id in this.#rendererModels) {
+            const rendererModel = this.#rendererModels[id];
+            this.#detachRendererObjects(rendererModel);
+            // Detaches WebGLRendererObjects, WebGLRendererMeshes,  WebGLRendererTexturesSets,
+            // WebGLRendererTextures etc. and destroys Layers
+            rendererModel.destroy();
+            delete this.#rendererModels[id];
+        }
+        this.#viewer = null;
+        this.#view = null;
+        this.#rendererSet.destroy();
+        this.#rendererSet = null;
+        this.#renderContext = null;
+        this.#layerList = [];
+        this.rendererObjects = {};
+        this.tileManager = null;
+    }
+
+    /**
+     * Attaches a {@link @xeokit/viewer!View} to this WebGLRenderer.
+     *
+     * The WebGLRenderer will then begin rendering each {@link @xeokit/scene!SceneModel | SceneModel} previously or subsequently
+     * created with {@link @xeokit/scene!Scene.createModel | Scene.createModel}, for the new View.
+     *
+     * You can only attach as many Views as indicated in {@link  @xeokit/core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
+     * {@link @xeokit/viewer!Renderer.getCapabilities | Renderer.getCapabilities}.
+     *
+     * You must attach a View before you can attach a SceneModel.
+     *
+     * @internal
+     * @param view The View to attach.
+     * @returns *void*
+     * * View successfully attached.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No Viewer is attached to this WebGLRenderer.
+     * * Caller attempted to attach too many Views.
+     * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
+     */
+    attachView(view: View): void | SDKError {
+        if (!this.#viewer) {
+            throw new SDKError("Can't attach View to WebGLRenderer - no Viewer is attached");
+        }
+        if (this.#view) {
+            return new SDKError("Can't attach additional View to WebGLRenderer - only one View may be attached to a WebViewerCapabilities (see WebViewerCapabilities.maxViews)");
         }
         this.#view = view;
         const WEBGL_CONTEXT_NAMES = ["webgl2"];
@@ -159,44 +235,89 @@ export class WebGLRenderer implements Renderer {
         if (!gl) {
             return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.canvasElement.id}")`);
         }
-        if (gl) {
-            gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
-        }
+        gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
         this.#renderContext = new RenderContext(this.#viewer, this.#view, gl);
-        this.tileManager = new WebGLTileManager({
-            camera: view.camera,
-            gl
-        });
-        this.#rendererSet = {
-            trianglesFastColorRenderer: new TrianglesFastColorRenderer(this.#renderContext),
-            trianglesQualityColorRenderer: new TrianglesQualityColorRenderer(this.#renderContext),
-            trianglesSilhouetteRenderer: new TrianglesSilhouetteRenderer(this.#renderContext),
-            trianglesEdgesColorRenderer: new TrianglesEdgesColorRenderer(this.#renderContext),
-            pointsColorRenderer: new PointsColorRenderer(this.#renderContext),
-            pointsSilhouetteRenderer: new PointsSilhouetteRenderer(this.#renderContext),
-            linesColorRenderer: new LinesColorRenderer(this.#renderContext),
-            linesSilhouetteRenderer: new LinesSilhouetteRenderer(this.#renderContext)
-        };
-        view.camera.onViewMatrix.subscribe(() => {
+        this.tileManager = new WebGLTileManager({camera: view.camera, gl});
+        this.#rendererSet = new RendererSet(this.#renderContext);
+        view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {
             this.#viewMatrixDirty = true;
         });
-        return 0;
+        view.viewIndex = 0;
     }
 
     /**
-     * TODO
+     * Detaches the given {@link @xeokit/viewer!View} from this Renderer.
+     *
+     * The Renderer will then cease rendering for that View.
+     *
      * @internal
+     * @param view The View to detach.
+     * @returns *void*
+     * * View successfully detached.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No Viewer is attached to this WebGLRenderer.
+     * * View is not currently attached to this WebGLRenderer.
      */
-    detachView(viewIndex: number): SDKError | void { // Nop
+    detachView(view: View): SDKError | void {
+        if (!this.#viewer) {
+            throw new SDKError("Can't detach View from WebGLRenderer - no Viewer is attached");
+        }
+        if (!this.#view) {
+            return new SDKError("Can't detach View from WebGLRenderer - no View is attached");
+        }
+        if (this.#view !== view) {
+            return new SDKError("Can't detach View from WebGLRenderer - given View is not attached to this WebGLRenderer");
+        }
+        view.camera.onViewMatrix.unsubscribe(this.#onViewCameraMatrix);
+        view.viewIndex = 0;
+        this.#onViewCameraMatrix = null;
+        for (let id in this.#rendererModels) {
+            const rendererModel = this.#rendererModels[id];
+            this.#detachRendererObjects(rendererModel);
+            // Detaches WebGLRendererObjects, WebGLRendererMeshes,  WebGLRendererTexturesSets,
+            // WebGLRendererTextures etc. and destroys Layers
+            rendererModel.destroy();
+            delete this.#rendererModels[id];
+        }
+        this.#view = null;
+        this.#rendererSet.destroy();
+        this.#rendererSet = null;
+        this.#renderContext = null;
+        this.#layerList = [];
+        this.rendererObjects = {};
+        this.tileManager = null;
     }
 
     /**
-     * TODO
+     * Attaches a {@link @xeokit/scene!SceneModel | SceneModel} to this WebGLRenderer.
+     *
+     * This method attaches various hooks to the elements within the SceneModel, through which they can
+     * upload state updates to the Renderer.
+     *
+     * * Sets a {@link @xeokit/scene!RendererModel} on {@link @xeokit/scene!SceneModel.rendererModel | SceneModel.rendererModel}
+     * * Sets a {@link @xeokit/scene!RendererObject} on each {@link @xeokit/scene!SceneObject.rendererObject | SceneObject.rendererObject}
+     * * Sets a {@link @xeokit/scene!RendererMesh} on each {@link @xeokit/scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
+     * * Sets a {@link @xeokit/scene!RendererTextureSet} on each {@link @xeokit/scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
+     * * Sets a {@link @xeokit/scene!RendererTexture} on each {@link @xeokit/scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
+     *
+     * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
+     *
+     * You must first attach a View with {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView} before you can attach a SceneModel.
+     *
+     * @param sceneModel
      * @internal
+     * @returns *void*
+     * * SceneModel successfully attached.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No View is currently attached to this WebGLRenderer.
+     * * SceneModel already attached to this WebGLRenderer, or to another Renderer.
      */
-    attachSceneModel(sceneModel: SceneModel): void {
-        if (!this.#renderContext) {
-            throw new SDKError("Must attach a View before you attach a SceneModel");
+    attachSceneModel(sceneModel: SceneModel): SDKError | void {
+        if (!this.#viewer) {
+            throw new SDKError("Can't detach SceneModel to WebGLRenderer - no Viewer and View is attached");
+        }
+        if (!this.#view) {
+            throw new SDKError("Can't detach SceneModel to WebGLRenderer - no View is attached");
         }
         const rendererModel = new WebGLRendererModel({
             id: sceneModel.id,
@@ -223,14 +344,28 @@ export class WebGLRenderer implements Renderer {
      * TODO
      * @internal
      */
-    detachSceneModel(sceneModel: SceneModel): void {
+    detachSceneModel(sceneModel: SceneModel): SDKError | void {
+        if (!this.#viewer) {
+            throw new SDKError("Can't detach SceneModel from WebGLRenderer - no Viewer and View is attached");
+        }
+        if (!this.#view) {
+            throw new SDKError("Can't detach SceneModel from WebGLRenderer - no View is attached");
+        }
+        if (this.#rendererModels[sceneModel.id] == undefined) {
+            return new SDKError(`Can't detach SceneModel from WebGLRenderer -no SceneModel with this ID ("${sceneModel.id}") has been attached to this WebGLRenderer`);
+        }
+        this.#detachSceneModel(sceneModel);
+    }
+
+    #detachSceneModel(sceneModel: SceneModel) {
         if (this.#rendererModels[sceneModel.id]) {
             const rendererModel = this.#rendererModels[sceneModel.id];
-            delete this.#rendererModels[sceneModel.id];
             this.#detachRendererObjects(rendererModel);
+            // Detaches WebGLRendererObjects, WebGLRendererMeshes,  WebGLRendererTexturesSets,
+            // WebGLRendererTextures etc. and destroys Layers
             rendererModel.destroy();
+            delete this.#rendererModels[sceneModel.id];
             this.#layerListDirty = true;
-            sceneModel.rendererModel = null;
         }
     }
 
@@ -321,6 +456,12 @@ export class WebGLRenderer implements Renderer {
      * @internal
      */
     clear(viewIndex: number) {
+        if (!this.#viewer) {
+            throw new SDKError("Can't clear canvas with WebGLRenderer - no Viewer and View is attached");
+        }
+        if (!this.#view) {
+            throw new SDKError("Can't clear canvas with WebGLRenderer - no View is attached");
+        }
         const gl = this.#renderContext.gl;
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         if (this.#canvasTransparent) {
@@ -336,10 +477,7 @@ export class WebGLRenderer implements Renderer {
      * @internal
      */
     needsRebuild(viewIndex?: number): void {
-        for (let rendererId in this.#rendererSet) {
-            // @ts-ignore
-            this.#rendererSet[rendererId].needRebuild();
-        }
+        this.#rendererSet.needRebuild();
     }
 
     /**
@@ -357,6 +495,12 @@ export class WebGLRenderer implements Renderer {
     render(viewIndex: number, params: {
         force?: boolean;
     }) {
+        if (!this.#viewer) {
+            throw new SDKError("Can't render with WebGLRenderer - no Viewer and View is attached");
+        }
+        if (!this.#view) {
+            throw new SDKError("Can't render with WebGLRenderer - no View is attached");
+        }
         params = params || {};
         if (params.force) {
             this.#imageDirty = true;
@@ -377,6 +521,12 @@ export class WebGLRenderer implements Renderer {
      * @internal
      */
     pickViewObject(viewIndex: number, params: {}): ViewObject | null {
+        if (!this.#viewer) {
+            throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
+        }
+        if (!this.#view) {
+            throw new SDKError("Can't pick object with WebGLRenderer - no View is attached");
+        }
         return null;
     };
 
@@ -778,6 +928,12 @@ export class WebGLRenderer implements Renderer {
     }
 
     destroy() {
-
+        if (this.#destroyed) {
+            return;
+        }
+        if (this.#viewer) {
+            this.detachViewer();
+        }
+        this.#destroyed = true;
     }
 }

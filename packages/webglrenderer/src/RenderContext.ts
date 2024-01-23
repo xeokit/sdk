@@ -14,6 +14,11 @@ export class RenderContext {
     public viewer: Viewer;
 
     /**
+     * @private
+     */
+    public rendererSets: {};
+
+    /**
      * The View we are rendering.
      */
     public view: View;

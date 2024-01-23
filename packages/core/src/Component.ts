@@ -75,8 +75,7 @@ export class Component {
      * @protected
      */
     log(message: string): void {
-        message = `[LOG] ${this.#prefixMessageWithID(message)}`;
-        console.log(message);
+        console.log(`[LOG] ${this.#prefixMessageWithID(message)}`);
     }
 
     /**
@@ -88,8 +87,7 @@ export class Component {
      * @protected
      */
     warn(message: string): void {
-        message = `[WARN] ${this.#prefixMessageWithID(message)}`;
-        console.warn(message);
+        console.warn(`[WARN] ${this.#prefixMessageWithID(message)}`);
     }
 
     /**
@@ -101,8 +99,7 @@ export class Component {
      @protected
      */
     error(message: string): void {
-        message = `[ERROR] ${this.#prefixMessageWithID(message)}`;
-        console.error(message);
+        console.error(`[ERROR] ${this.#prefixMessageWithID(message)}`);
     }
 
     /**

@@ -1,27 +1,37 @@
+/**
+ *
+ */
 import {TrianglesFastColorRenderer} from "./triangles/TrianglesFastColorRenderer";
 import {TrianglesSilhouetteRenderer} from "./triangles/TrianglesSilhouetteRenderer";
 import {TrianglesEdgesColorRenderer} from "./triangles/TrianglesEdgesColorRenderer";
-import {PointsColorRenderer} from "./points/PointsColorRenderer";
-import {PointsSilhouetteRenderer} from "./points/PointsSilhouetteRenderer";
-import {LinesColorRenderer} from "./lines/LinesColorRenderer";
-import {LinesSilhouetteRenderer} from "./lines/LinesSilhouetteRenderer";
+import {TrianglesQualityColorRenderer} from "./triangles/TrianglesQualityColorRenderer";
+import {RenderContext} from "./RenderContext";
 
-class TrianglesFastQualityColorRenderer {
-}
 
-/**
- * @private
- */
-export interface RendererSet {
-
+export class RendererSet {
     trianglesFastColorRenderer: TrianglesFastColorRenderer;
-    trianglesQualityColorRenderer: TrianglesFastQualityColorRenderer;
     trianglesSilhouetteRenderer: TrianglesSilhouetteRenderer;
     trianglesEdgesColorRenderer: TrianglesEdgesColorRenderer;
+    trianglesQualityColorRenderer: TrianglesQualityColorRenderer;
 
-    pointsColorRenderer: PointsColorRenderer;
-    pointsSilhouetteRenderer: PointsSilhouetteRenderer;
+    constructor(renderContext: RenderContext) {
+        this.trianglesFastColorRenderer = new TrianglesFastColorRenderer(renderContext);
+        this.trianglesSilhouetteRenderer = new TrianglesSilhouetteRenderer(renderContext);
+        this.trianglesEdgesColorRenderer = new TrianglesEdgesColorRenderer(renderContext);
+        this.trianglesQualityColorRenderer = new TrianglesQualityColorRenderer(renderContext);
+    }
 
-    linesColorRenderer: LinesColorRenderer;
-    linesSilhouetteRenderer: LinesSilhouetteRenderer;
+    needRebuild() {
+        this.trianglesFastColorRenderer.needRebuild();
+        this.trianglesSilhouetteRenderer.needRebuild();
+        this.trianglesEdgesColorRenderer.needRebuild();
+        this.trianglesQualityColorRenderer.needRebuild();
+    }
+
+    destroy() {
+        this.trianglesFastColorRenderer.destroy();
+        this.trianglesSilhouetteRenderer.destroy();
+        this.trianglesEdgesColorRenderer.destroy();
+        this.trianglesQualityColorRenderer.destroy();
+    }
 }

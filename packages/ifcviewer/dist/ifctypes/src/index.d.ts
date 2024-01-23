@@ -1798,7 +1798,7 @@ export declare const IfcPreDefinedTextFont = 1442;
  */
 export declare const IfcPresentationItem = 1443;
 /**
- * The presentation layer assignment provides the layer name (and optionally a description and an identifier) for a collection of geometric representation items. The IfcPresentationLayerAssignment corresponds to the term "CAD RendererLayer" and is used mainly for grouping and visibility control.
+ * The presentation layer assignment provides the layer name (and optionally a description and an identifier) for a collection of geometric representation items. The IfcPresentationLayerAssignment corresponds to the term "CAD Layer" and is used mainly for grouping and visibility control.
  */
 export declare const IfcPresentationLayerAssignment = 1444;
 /**

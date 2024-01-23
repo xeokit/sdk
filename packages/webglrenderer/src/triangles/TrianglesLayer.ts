@@ -86,7 +86,7 @@ export class TrianglesLayer implements Layer {
 
     #onViewerTick: () => void;
 
-    constructor(layerParams: LayerParams, renderers?: any) {
+    constructor(layerParams: LayerParams) {
 
         this.rendererModel = layerParams.rendererModel;
         this.layerIndex = layerParams.layerIndex;
@@ -383,7 +383,7 @@ export class TrianglesLayer implements Layer {
             throw new Error("Already built");
         }
         this.renderState.dataTextureSet = new TrianglesDataTextureSet(this.#gl, this.#trianglesDataTextureBuffer);
-        this.#deferredSetFlagsDirty = false; //
+        this.#deferredSetFlagsDirty = false;
         this.#onViewerTick = this.rendererModel.viewer.onTick.subscribe((viewer: Viewer, tickParams: TickParams) => {
             if (this.#deferredSetFlagsDirty) {
                 this.#uploadDeferredFlags();
@@ -400,7 +400,7 @@ export class TrianglesLayer implements Layer {
         return this.meshCounts.numMeshes == 0;
     }
 
-    initFlags(meshIndex: number, flags: number, meshTransparent: boolean) {
+    setLayerMeshFlags(meshIndex: number, flags: number, meshTransparent: boolean) {
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
             this.meshCounts.numVisible++;
             this.rendererModel.meshCounts.numVisible++;
@@ -442,9 +442,9 @@ export class TrianglesLayer implements Layer {
         this.#setMeshFlags2(meshIndex, flags, deferred);
     }
 
-    flushInitFlags() {
-        this.#setDeferredFlags();
-        this.#setDeferredFlags2();
+    commitLayerMeshFlags() {
+        this.#commitDeferredFlags();
+        this.#commitDeferredFlags2();
     }
 
     setLayerMeshVisible(meshIndex: number, flags: number, transparent: boolean) {
@@ -779,7 +779,7 @@ export class TrianglesLayer implements Layer {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    #setDeferredFlags() {
+    #commitDeferredFlags() {
     }
 
     #setMeshFlags2(meshIndex: number, flags: number, deferred = false) {
@@ -825,7 +825,7 @@ export class TrianglesLayer implements Layer {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    #setDeferredFlags2() {
+    #commitDeferredFlags2() {
     }
 
     setLayerMeshOffset(meshIndex: number, offset: FloatArrayParam) {

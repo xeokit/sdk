@@ -35,10 +35,6 @@ import {MeshCounts} from "./MeshCounts";
 import {Layer} from "./Layer";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
-
-const tempVec3a = createVec3();
-const tempMat4 = createMat4();
-
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);
 const defaultRotation = createVec3([0, 0, 0]);
@@ -66,7 +62,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     rendererGeometries: { [key: string]: RendererGeometry };
     rendererTextures: { [key: string]: RendererTexture };
     rendererTextureSets: { [key: string]: RendererTextureSet; };
-    rendererMeshes: { [key: string]: RendererMesh };
+    rendererMeshes: { [key: string]: WebGLRendererMesh };
     rendererObjects: { [key: string]: WebGLRendererObject };
     rendererObjectsList: WebGLRendererObject[];
 
@@ -90,6 +86,8 @@ export class WebGLRendererModel extends Component implements RendererModel {
     #colorTextureEnabled: boolean;
     #backfaces: boolean;
     #numGeometries: number;
+    #numTextures: number;
+    #numMeshes: number;
     #numTriangles: number;
     #numLines: number;
     #numPoints: number;
@@ -152,6 +150,8 @@ export class WebGLRendererModel extends Component implements RendererModel {
 
         this.#numGeometries = 0;
         this.#numRendererObjects = 0;
+        this.#numTextures = 0;
+        this.#numMeshes = 0;
 
         this.#numTriangles = 0;
         this.#numLines = 0;
@@ -196,10 +196,8 @@ export class WebGLRendererModel extends Component implements RendererModel {
         }
         this.#currentLayers = {};
         this.#build();
-        //this.built = true;
         this.#webglRenderer.setImageDirty();
         //     this.#view.viewer.scene.setAABBDirty();
-        //  this.onBuilt.dispatch(this, null);
     }
 
     #attachSceneModel(sceneModel: SceneModel): void {
@@ -230,18 +228,24 @@ export class WebGLRendererModel extends Component implements RendererModel {
         for (let layerId in this.#currentLayers) {
             this.#currentLayers[layerId].build();
         }
+        // Do a two-step commit and flush of all the flags and material attributes
+        // managed by the RendererObjects into their Layers. This enables efficient
+        // upload of that state into the data textures managed by those Layers. First
+        // step populates the data arrays for the data textures, second step loads the
+        // entire arrays into the textures, collapsing zillions of gl.texSubImage2D calls.
         for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].build();
+            this.rendererObjectsList[i].uploadRendererState();
         }
         for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            this.rendererObjectsList[i].build2();
+            this.rendererObjectsList[i].commitRendererState();
         }
     }
 
     #attachTexture(texture: SceneTexture): void {
+        // Attaches a WebGLRendererTexture to the given SceneTexture
         const textureId = texture.id;
         if (this.rendererTextures[textureId]) {
-            throw new SDKError("RendererTexture already created: " + textureId);
+            throw new SDKError(`WebGLRendererTexture with ID ${textureId} already created in WebGLRendererModel`);
         }
         const glTexture = new WebGLTexture({gl: this.#renderContext.gl});
         if (texture.preloadColor) {
@@ -316,9 +320,10 @@ export class WebGLRendererModel extends Component implements RendererModel {
     }
 
     #attachGeometry(geometry: SceneGeometry): void {
+        // Attaches a WebGLRendererGeometry to the given SceneGeometry
         const geometryId = geometry.id;
         if (this.rendererGeometries[geometryId]) {
-            throw new SDKError(`RendererGeometry already created: ${geometryId}`);
+            throw new SDKError(`RendererGeometry with ID ${geometryId} already created in WebGLRendererModel`);
         }
         const rendererGeometry = new WebGLRendererGeometry();
         this.rendererGeometries[geometryId] = rendererGeometry;
@@ -327,9 +332,10 @@ export class WebGLRendererModel extends Component implements RendererModel {
     }
 
     #attachMesh(mesh: SceneMesh): void {
+        // Attaches a WebGLRendererMesh to the given SceneMesh
         const rendererGeometry = this.rendererGeometries[mesh.geometry.id];
         if (!rendererGeometry) {
-            throw new SDKError("RendererGeometry not found");
+            throw new SDKError(`RendererGeometry with ID ${mesh.geometry.id} not found in WebGLRendererModel`);
         }
         const textureSetId = mesh.textureSet ? (<SceneTextureSet>mesh.textureSet).id : defaultTextureSetId;
         const rendererTextureSet = this.rendererTextureSets[textureSetId];
@@ -365,26 +371,14 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const b = rendererMesh.pickId >> 16 & 0xFF;
         const g = rendererMesh.pickId >> 8 & 0xFF;
         const r = rendererMesh.pickId & 0xFF;
-        const pickColor = new Uint8Array([r, g, b, a]); // Quantized pick color
+        const pickColor = new Uint8Array([r, g, b, a]);
         collapseAABB3(rendererMesh.aabb);
-        // const meshIndex = layer.createLayerMesh({
-        //     id: mesh.id,
-        //     geometryId: mesh.geometry.id,
-        //     color,
-        //     opacity,
-        //     metallic,
-        //     roughness,
-        //     matrix: meshMatrix,
-        //     //     worldMatrix: worldMatrix,
-        //     //    aabb: mesh.aabb,
-        //     pickColor
-        // });
         const meshIndex = layer.createLayerMesh({pickColor}, mesh);
-        this.#numGeometries++;
         expandAABB3(this.#aabb, rendererMesh.aabb);
         rendererMesh.layer = layer;
         rendererMesh.meshIndex = meshIndex;
         this.rendererMeshes[mesh.id] = rendererMesh;
+        this.#numMeshes++;
     }
 
     #getLayer(textureSetId: string, geometryCompressedParams: SceneGeometryCompressedParams): Layer | undefined {
@@ -402,7 +396,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         if (textureSetId) {
             textureSet = this.rendererTextureSets[textureSetId];
             if (!textureSet) {
-                this.error(`TextureSet not found: ${textureSetId} - ensure that you create it first with createTextureSet()`);
+                this.error(`TextureSet with ID "${textureSetId}" not found in WebGLRendererModel - ensure that you create it first with createTextureSet()`);
                 return;
             }
         }
@@ -418,9 +412,10 @@ export class WebGLRendererModel extends Component implements RendererModel {
                     textureSet,
                     layerIndex: 0
                 });
+                this.log(`Creating new TrianglesLayer`);
                 break;
             default:
-                this.error(`Primitive not supported: ${geometryCompressedParams.primitive}`);
+                this.error(`Primitive type not supported: ${geometryCompressedParams.primitive}`);
                 return;
         }
         this.#layers[layerId] = layer;
@@ -430,16 +425,17 @@ export class WebGLRendererModel extends Component implements RendererModel {
     }
 
     #attachSceneObject(sceneObject: SceneObject): void {
+        // Attaches a WebGLRendererObject to the given SceneObject
         let objectId = sceneObject.id;
         if (objectId === undefined) {
             objectId = createUUID();
         } else if (this.rendererObjects[objectId]) {
-            this.error("[createObject] rendererModel already has a ViewerObject with this ID: " + objectId + " - will assign random ID");
+            this.error("Already has a WebGLRenderObject with this ID: " + objectId + " - will assign random ID");
             objectId = createUUID();
         }
         const meshes = sceneObject.meshes;
         if (meshes === undefined) {
-            throw new SDKError("[createObject] Param expected: meshes");
+            throw new SDKError("SceneObject property expected: meshes");
         }
         const rendererMeshes: WebGLRendererMesh[] = [];
         for (let i = 0, len = meshes.length; i < len; i++) {
@@ -696,7 +692,11 @@ export class WebGLRendererModel extends Component implements RendererModel {
      */
 
     #build() {
-
+        for (let layerId in this.#currentLayers) {
+            let layer = this.#currentLayers[layerId];
+            layer.build();
+            delete this.#currentLayers[layerId];
+        }
     }
 
     // build() {
@@ -741,45 +741,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     //     this.onBuilt.dispatch(this, null);
     // }
     //
-    // addModel(params: {
-    //     id: string,
-    //     sceneModel: SceneModel
-    // }) {
-    //
-    //     const sceneModel = params.sceneModel;
-    //     const textures = sceneModel.textures;
-    //     const geometries = sceneModel.geometries;
-    //     const meshes = sceneModel.meshes;
-    //     const objects = sceneModel.objects;
-    //
-    //     if (textures) {
-    //         for (let textureId in textures) {
-    //             const texture = textures[textureId];
-    //             this.#attachTexture(texture);
-    //         }
-    //     }
-    //
-    //     if (geometries) {
-    //         for (let geometryId in geometries) {
-    //             const geometry = geometries[geometryId];
-    //             this.#attachGeometry(geometry);
-    //         }
-    //     }
-    //
-    //     if (meshes) {
-    //         for (let meshId in meshes) {
-    //             const mesh = meshes[meshId];
-    //             this.#attachMesh(mesh);
-    //         }
-    //     }
-    //
-    //     if (objects) {
-    //         for (let geometryId in objects) {
-    //             const object = objects[geometryId];
-    //             this.#attachSceneObject(object);
-    //         }
-    //     }
-    // }
+
 
     destroy() {
         if (this.destroyed) {
@@ -799,6 +761,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             this.rendererObjects[objectId].destroy();
         }
         for (let meshId in this.rendererMeshes) {
+            this.rendererMeshes[meshId].destroy();
             //    this.#webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
         }
         this.#currentLayers = {};

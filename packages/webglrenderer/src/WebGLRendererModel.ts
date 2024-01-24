@@ -385,7 +385,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const layerId = `${textureSetId}_${geometryCompressedParams.primitive}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {
-            if (layer.canCreateMesh(geometryCompressedParams)) {
+            if (layer.canCreateLayerMesh(geometryCompressedParams)) {
                 return layer;
             } else {
                 layer.build();

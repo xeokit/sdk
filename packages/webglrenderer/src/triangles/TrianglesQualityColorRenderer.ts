@@ -105,7 +105,7 @@ export class TrianglesQualityColorRenderer extends TrianglesRenderer {
                 in int          meshFlags2r;        
                 uniform float   logDepthBufFC;                        
     
-                ${this.fragSectionPlaneDefs}                  
+                ${this.fragSlicingDefs}                  
                 ${this.fragLightSourceUniforms}                                                             
     
                 out vec4 outColor;        
@@ -119,7 +119,7 @@ export class TrianglesQualityColorRenderer extends TrianglesRenderer {
                 // 
                 //  vec3 viewNormal = normalize( cross( xTangent, yTangent ) );        
     
-                    ${this.fragSectionPlanesSlice}                                    
+                    ${this.fragSlicing}                                    
                     ${this.fragTrianglesFlatShading}     
           
                     outColor = meshColor;                   

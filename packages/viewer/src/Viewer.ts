@@ -139,7 +139,7 @@ export class Viewer extends Component {
 
         this.log(`Creating Viewer (id = "${this.id}")`);
 
-        if (this.renderer.viewer !== undefined) {
+        if (params.renderer.viewer !== undefined) {
             throw new SDKError(`Failed to create Viewer - the given Renderer is currently attached to another Viewer`);
         }
 
@@ -165,9 +165,11 @@ export class Viewer extends Component {
         };
 
         this.scene = params.scene || new Scene();
+
+        params.renderer.attachViewer(this);
+        params.renderer.getCapabilities(this.capabilities);
+
         this.renderer = params.renderer;
-        this.renderer.getCapabilities(this.capabilities);
-        this.renderer.attachViewer(this);
 
         scheduler.registerViewer(this);
     }

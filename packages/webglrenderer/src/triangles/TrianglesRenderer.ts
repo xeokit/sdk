@@ -55,14 +55,14 @@ export abstract class TrianglesRenderer extends LayerRenderer {
 
     #samplers: {
         viewMatrices: WebGLSampler;
-        positions: WebGLSampler;
-        indices: WebGLSampler;
+        positionsCompressedDataTexture: WebGLSampler;
+        indicesDataTexture: WebGLSampler;
         edgeIndices: WebGLSampler;
-        eachMeshMatrices: WebGLSampler;
-        eachMeshAttributes: WebGLSampler;
+        perSubMeshInstancingMatricesDataTexture: WebGLSampler;
+        perSubMeshAttributesDataTexture: WebGLSampler;
         //    eachMeshOffsets: WebGLSampler;
         eachEdgeOffset: WebGLSampler;
-        eachPrimitiveMesh: WebGLSampler;
+        perTriangleSubMeshDataTexture: WebGLSampler;
         eachEdgeMesh: WebGLSampler;
         baseColorMap: WebGLSampler;
         metallicRoughMap: WebGLSampler;
@@ -152,13 +152,13 @@ export abstract class TrianglesRenderer extends LayerRenderer {
 
         this.#samplers = {
             viewMatrices: program.getSampler("viewMatrices"),
-            positions: program.getSampler("positions"),
-            indices: program.getSampler("indices"),
+            positionsCompressedDataTexture: program.getSampler("positionsCompressedDataTexture"),
+            indicesDataTexture: program.getSampler("indicesDataTexture"),
             edgeIndices: program.getSampler("edgeIndices"),
-            eachMeshAttributes: program.getSampler("eachMeshAttributes"),
-            eachMeshMatrices: program.getSampler("eachMeshMatrices"),
-            eachEdgeOffset: program.getSampler("eachMeshOffset"),
-            eachPrimitiveMesh: program.getSampler("eachMeshTriangleMesh"),
+            perSubMeshAttributesDataTexture: program.getSampler("perSubMeshAttributesDataTexture"),
+            perSubMeshInstancingMatricesDataTexture: program.getSampler("perSubMeshInstancingMatricesDataTexture"),
+            eachEdgeOffset: program.getSampler("perSubmeshOffsetDataTexture"),
+            perTriangleSubMeshDataTexture: program.getSampler("eachMeshTriangleMesh"),
             eachEdgeMesh: program.getSampler("eachEdgeMesh"),
             baseColorMap: program.getSampler("baseColorMap"),
             metallicRoughMap: program.getSampler("metallicRoughMap"),
@@ -297,42 +297,32 @@ export abstract class TrianglesRenderer extends LayerRenderer {
         //     }
         // }
 
-        if (samplers.viewMatrices) {
-            // @ts-ignore
-            renderState.dataTextureSet.viewMatrices.bindTexture(program, samplers.viewMatrices, renderContext.nextTextureUnit);
+        // if (samplers.viewMatrices) {
+        //     renderState.dataTextureSet.viewMatrices.bindTexture(program, samplers.viewMatrices, renderContext.nextTextureUnit);
+        // }
+        if (samplers.positionsCompressedDataTexture) {
+            renderState.dataTextureSet.positionsCompressedDataTexture.bindTexture(program, samplers.positionsCompressedDataTexture, renderContext.nextTextureUnit);
         }
-        if (samplers.positions) {
-            // @ts-ignore
-            renderState.dataTextureSet.positions.bindTexture(program, samplers.positions, renderContext.nextTextureUnit);
+        if (samplers.perSubMeshInstancingMatricesDataTexture) {
+            renderState.dataTextureSet.perSubMeshInstancingMatricesDataTexture.bindTexture(program, samplers.perSubMeshInstancingMatricesDataTexture, renderContext.nextTextureUnit);
         }
-        if (samplers.eachMeshMatrices) {
-            // @ts-ignore
-            renderState.dataTextureSet.eachMeshMatrices.bindTexture(program, samplers.eachMeshMatrices, renderContext.nextTextureUnit);
+        if (samplers.perSubMeshAttributesDataTexture) {
+            renderState.dataTextureSet.perSubMeshAttributesDataTexture.bindTexture(program, samplers.perSubMeshAttributesDataTexture, renderContext.nextTextureUnit);
         }
-        if (samplers.eachMeshAttributes) {
-            // @ts-ignore
-            renderState.dataTextureSet.eachMeshAttributes.bindTexture(program, samplers.eachMeshAttributes, renderContext.nextTextureUnit);
-        }
-        if (samplers.eachPrimitiveMesh) {
+        if (samplers.perTriangleSubMeshDataTexture) {
             if (renderState.numIndices8Bits > 0) {
-                // @ts-ignore
-                renderState.dataTextureSet.eachPrimitiveMesh_8Bits.bindTexture(program, samplers.eachPrimitiveMesh, renderContext.nextTextureUnit);
-                // @ts-ignore
-                renderState.dataTextureSet.indices_8Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.perTriangleSubMesh8BitsDataTexture.bindTexture(program, samplers.perTriangleSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.indices8BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices8Bits);
             }
             if (renderState.numIndices16Bits > 0) {
-                // @ts-ignore
-                renderState.dataTextureSet.eachPrimitiveMesh_16Bits.bindTexture(program, samplers.eachPrimitiveMesh, renderContext.nextTextureUnit);
-                // @ts-ignore
-                renderState.dataTextureSet.indices_16Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.perTriangleSubMesh16BitsDataTexture.bindTexture(program, samplers.perTriangleSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.indices16BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices16Bits);
             }
             if (renderState.numIndices32Bits > 0) {
-                // @ts-ignore
-                renderState.dataTextureSet.eachPrimitiveMesh_32Bits.bindTexture(program, samplers.eachPrimitiveMesh, renderContext.nextTextureUnit);
-                // @ts-ignore
-                renderState.dataTextureSet.indices_32Bits.bindTexture(program, samplers.indices, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.perTriangleSubMesh32BitsDataTexture.bindTexture(program, samplers.perTriangleSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.indices32BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices32Bits);
             }
         }
@@ -418,140 +408,139 @@ export abstract class TrianglesRenderer extends LayerRenderer {
         }
     }
 
-    // protected get vertexShader(): string {
-    //     return `${this.vertHeader}
-    //     ${this.vertDataTextureDefs}
-    //     ${this.vertLogDepthBufDefs}
-    //     void main(void) {
-    //             ${this.vertDataTextureSamples}
-    //             ${this.vertLogDepthBufOutputs}
-    //     }`;
-    // }
-
-    protected get vertHeader(): string {
-        return `#version 300 es
-                #ifdef GL_FRAGMENT_PRECISION_HIGH
-                precision highp float;
-                precision highp int;
-                precision highp usampler2D;
-                precision highp isampler2D;
-                precision highp sampler2D;
-                #else
-                precision mediump float;
-                precision mediump int;
-                precision mediump usampler2D;
-                precision mediump isampler2D;
-                precision mediump sampler2D;
-                uniform int renderPass;
-                #endif`;
-    }
-
-    protected get vertDataTextureDefs(): string {
-        return `uniform mediump sampler2D eachMeshMatrices;
-                uniform lowp usampler2D eachMeshAttributes;
-                uniform highp sampler2D eachMeshOffset;
-                uniform mediump usampler2D positions;
-                uniform highp usampler2D indices;
-                uniform mediump usampler2D eachPrimitiveMesh;
-                uniform highp sampler2D cameraMatrices;
-                uniform highp sampler2D sceneModelRendererMatrices;`;
-    }
-
-    protected get vertDataTextureSamples(): string {
-        return "";
-    }
-
-    protected get fragmentShader(): string {
-        return `${this.fragHeader}
-        ${this.fragGammaDefs}
-        ${this.fragSectionPlaneDefs}
-        ${this.fragLightDefs}
-        ${this.fragLogDepthBufDefs}
-        void main(void) {
-            ${this.fragSectionPlanesSlice}
-            ${this.fragLighting}
-            ${this.fragLogDepthBufOutput}
-        }`;
-    }
-
-    protected get fragHeader(): string {
-        return `#version 300 es
-        #ifdef GL_FRAGMENT_PRECISION_HIGH
-       precision highp float;
-        precision highp int;
-        #else
-        precision mediump float;
-        precision mediump int;
-        #endif`;
-    }
-
-    protected get fragLightDefs(): string {
-        const view = this.renderContext.view;
+    protected get vertLightingDefs(): string {
         const src = [];
-        src.push("uniform vec4 lightAmbient;");
-        for (let i = 0, len = view.lightsList.length; i < len; i++) {
-            const light: any = view.lightsList[i];
-            if (light.type === "ambient") {
+        src.push(`uniform vec4 lightAmbient;`);
+        for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
+            const light = this.renderContext.view.lightsList[i];
+            if (light instanceof AmbientLight) {
                 continue;
             }
-            src.push("uniform vec4 lightColor" + i + ";");
-            if (light.type === "dir") {
-                src.push("uniform vec3 lightDir" + i + ";");
+            src.push(`uniform vec4 lightColor${i};`);
+            if (light instanceof DirLight) {
+                src.push(`uniform vec3 lightDir${i};`);
             }
-            if (light.type === "point") {
-                src.push("uniform vec3 lightPos" + i + ";");
-            }
-            if (light.type === "spot") {
-                src.push("uniform vec3 lightPos" + i + ";");
-                src.push("uniform vec3 lightDir" + i + ";");
+            if (light instanceof PointLight) {
+                src.push(`uniform vec3 lightPos${i};`);
             }
         }
+        src.push("out vec4 vColor;");
         return src.join("\n");
     }
 
-    protected get fragLighting(): string {
+    protected get vertLighting(): string {
         const src = [];
-        src.push("vec4 viewPosition  = viewMatrix * worldPosition; ");
-        src.push("vec4 modelNormal = vec4(octDecode(normal.xy), 0.0); ");
-        src.push("vec4 worldNormal = worldNormalMatrix * vec4(dot(modelNormal, modelNormalMatrixCol0), dot(modelNormal, modelNormalMatrixCol1), dot(modelNormal, modelNormalMatrixCol2), 0.0);");
-        src.push("vec3 viewNormal = normalize(vec4(viewNormalMatrix * worldNormal).xyz);");
-        src.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);");
-        src.push("vec3 viewLightDir = vec3(0.0, 0.0, -1.0);");
-        src.push("float lambertian = 1.0;");
+        src.push("vec4      viewPosition    = viewMatrix * worldPosition; ");
+        src.push("vec4      modelNormal     = vec4(octDecode(normal.xy), 0.0); ");
+        src.push("vec4      worldNormal     = worldNormalMatrix * vec4(dot(modelNormal, modelNormalMatrixCol0), dot(modelNormal, modelNormalMatrixCol1), dot(modelNormal, modelNormalMatrixCol2), 0.0);");
+        src.push("vec3      viewNormal      = normalize(vec4(viewNormalMatrix * worldNormal).xyz);");
+        src.push("vec3      reflectedColor  = vec3(0.0, 0.0, 0.0);");
+        src.push("vec3      viewLightDir    = vec3(0.0, 0.0, -1.0);");
+        src.push("float     lambertian      = 1.0;");
 
         for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
             const light: any = this.renderContext.view.lightsList[i];
-            if (light.type === "ambient") {
+            if (light instanceof AmbientLight) {
                 continue;
             }
-            if (light.type === "dir") {
-                if (light.space === "view") {
-                    src.push("viewLightDir = normalize(lightDir" + i + ");");
-                } else {
-                    src.push("viewLightDir = normalize((viewMatrix * vec4(lightDir" + i + ", 0.0)).xyz);");
-                }
-            } else if (light.type === "point") {
-                if (light.space === "view") {
-                    src.push("viewLightDir = -normalize(lightPos" + i + " - viewPosition.xyz);");
-                } else {
-                    src.push("viewLightDir = -normalize((viewMatrix * vec4(lightPos" + i + ", 0.0)).xyz);");
-                }
-            } else if (light.type === "spot") {
-                if (light.space === "view") {
-                    src.push("viewLightDir = normalize(lightDir" + i + ");");
-                } else {
-                    src.push("viewLightDir = normalize((viewMatrix * vec4(lightDir" + i + ", 0.0)).xyz);");
-                }
-            } else {
-                continue;
+            if (light instanceof DirLight) {
+                src.push(`viewLightDir = normalize((viewMatrix * vec4(lightDir${i}, 0.0)).xyz);`);
+            }
+            if (light instanceof PointLight) {
+                src.push(`viewLightDir = -normalize((viewMatrix * vec4(lightPos${i}, 0.0)).xyz);`);
             }
             src.push("lambertian = max(dot(-viewNormal, viewLightDir), 0.0);");
             src.push("reflectedColor += lambertian * (lightColor" + i + ".rgb * lightColor" + i + ".a);");
         }
         src.push("vec3 rgb = (vec3(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0));");
-        src.push("meshColor =  vec4((lightAmbient.rgb * lightAmbient.a * rgb) + (reflectedColor * rgb), float(color.a) / 255.0);");
-
+        src.push("vColor =  vec4((lightAmbient.rgb * lightAmbient.a * rgb) + (reflectedColor * rgb), float(color.a) / 255.0);");
         return src.join("\n");
+    }
+
+    protected get vertTrianglesDataTextureDefs(): string {
+        return `uniform mediump usampler2D  perTriangleSubMeshDataTexture;                
+                uniform lowp    usampler2D  perSubMeshAttributesDataTexture; 
+                uniform mediump sampler2D   perSubMeshInstancingMatricesDataTexture; 
+                uniform mediump sampler2D   perSubMeshDecodeMatricesDataTexture;                
+                uniform highp   sampler2D   perSubmeshOffsetDataTexture;                           
+                uniform mediump usampler2D  positionsCompressedDataTexture; 
+                uniform highp   usampler2D  indicesDataTexture; 
+                uniform highp   usampler2D  edgeIndicesDataTexture;`;
+    }
+
+    protected get vertTriangleVertexPosition() {
+        return `int     polygonIndex                = gl_VertexID / 3;
+                int     h_packed_object_id_index    = (polygonIndex >> 3) & 4095;
+                int     v_packed_object_id_index    = (polygonIndex >> 3) >> 12;
+                int     objectIndex                 = int(texelFetch(perTriangleSubMeshDataTexture, ivec2(h_packed_object_id_index, v_packed_object_id_index), 0).r);
+                ivec2   objectIndexCoords           = ivec2(objectIndex % 512, objectIndex / 512);
+                uvec4   flags                       = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+2, objectIndexCoords.y), 0);
+                uvec4   flags2                      = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+3, objectIndexCoords.y), 0);
+                if (int(flags.z) != renderPass) {               
+                    gl_Position = vec4(3.0, 3.0, 3.0, 1.0);
+                    return;
+                } 
+                ivec4   packedVertexBase                = ivec4(texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+4, objectIndexCoords.y), 0));
+                ivec4   packedIndexBaseOffset           = ivec4(texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+5, objectIndexCoords.y), 0));
+                int     indexBaseOffset                 = (packedIndexBaseOffset.r << 24) + (packedIndexBaseOffset.g << 16) + (packedIndexBaseOffset.b << 8) + packedIndexBaseOffset.a;
+                int     h_index                         = (polygonIndex - indexBaseOffset) & 4095;
+                int     v_index                         = (polygonIndex - indexBaseOffset) >> 12;
+                ivec3   vertexIndices                   = ivec3(texelFetch(indicesDataTexture, ivec2(h_index, v_index), 0));
+                ivec3   uniqueVertexIndexes             = vertexIndices + (packedVertexBase.r << 24) + (packedVertexBase.g << 16) + (packedVertexBase.b << 8) + packedVertexBase.a;
+                ivec3   indexPositionH                  = uniqueVertexIndexes & 4095;
+                ivec3   indexPositionV                  = uniqueVertexIndexes >> 12;
+                mat4    objectInstanceMatrix            = mat4 (texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
+                mat4    objectDecodeAndInstanceMatrix   = objectInstanceMatrix * mat4 (texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
+                uint    solid                           = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+7, objectIndexCoords.y), 0).r;
+                        positions[0]                    = vec3(texelFetch(positionsCompressedDataTexture, ivec2(indexPositionH.r, indexPositionV.r), 0));
+                        positions[1]                    = vec3(texelFetch(positionsCompressedDataTexture, ivec2(indexPositionH.g, indexPositionV.g), 0));
+                        positions[2]                    = vec3(texelFetch(positionsCompressedDataTexture, ivec2(indexPositionH.b, indexPositionV.b), 0));
+                vec3    normal                          = normalize(cross(positions[2] - positions[0], positions[1] - positions[0]));
+                vec3    position                        = positions[gl_VertexID % 3];
+                vec3    viewNormal                      = -normalize((transpose(inverse(viewMatrix * objectDecodeAndInstanceMatrix)) * vec4(normal,1)).xyz);
+                if (solid != 1u) {
+                    if (isPerspectiveMatrix(projMatrix)) {
+                        vec3 uCameraEyeRtcInQuantizedSpace = (inverse(sceneModelMatrix * objectDecodeAndInstanceMatrix) * vec4(uCameraEyeRtc, 1)).xyz;
+                        if (dot(position.xyz - uCameraEyeRtcInQuantizedSpace, normal) < 0.0) {
+                            position = positions[2 - (gl_VertexID % 3)];
+                            viewNormal = -viewNormal;
+                        }
+                    } else {
+                        if (viewNormal.z < 0.0) {
+                            position = positions[2 - (gl_VertexID % 3)];
+                            viewNormal = -viewNormal;
+                        }
+                    }
+               }
+               vec4 worldPosition = sceneModelMatrix *  (objectDecodeAndInstanceMatrix * vec4(position, 1.0));
+               vec4 viewPosition = viewMatrix * worldPosition;
+               vec4 clipPos = projMatrix * viewPosition;
+               gl_Position = clipPos;`;
+    }
+
+    //----------------------------------------------------------------------------------------
+    // Fragment shader
+    //----------------------------------------------------------------------------------------
+
+    protected get fragHeader(): string {
+        return `#version 300 es
+        #ifdef GL_FRAGMENT_PRECISION_HIGH
+        precision highp     float;
+        precision highp     int;
+        #else
+        precision mediump   float;
+        precision mediump   int;
+        #endif`;
+    }
+
+    protected get fragLightingDefs(): string {
+        return `in vec4 vColor;
+                out vec4 outColor;`;
+    }
+
+    protected get fragColorDefs(): string {
+        return `uniform vec4 color;
+                out vec4 outColor;`;
     }
 
     protected get fragSAOOutput(): string {
@@ -570,33 +559,12 @@ export abstract class TrianglesRenderer extends LayerRenderer {
         }
     }
 
-    protected get fragOutput(): string {
-        return `outColor            = fragColor;`;
+    protected get fragLighting(): string {
+        return `outColor = vColor;`;
     }
 
-    protected get fragLightSourceUniforms(): string {
-        const src = [];
-        src.push(`uniform vec4 lightAmbient;`);
-        for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
-            const light = this.renderContext.view.lightsList[i];
-            if (light instanceof AmbientLight) {
-                continue;
-            }
-            src.push(`uniform vec4 lightColor${i};`);
-            if (light instanceof DirLight) {
-                src.push(`uniform vec3 lightDir${i};`);
-            }
-            if (light instanceof PointLight) {
-                src.push(`uniform vec3 lightPos${i};`);
-            }
-        }
-        return src.join("\n");
-    }
-
-    protected get fragTrianglesFlatShading(): string {
-        const src = [];
-        src.push("");
-        return src.join("\n");
+    protected get fragColor(): string {
+        return `outColor = color;`;
     }
 
     destroy() {

@@ -17,21 +17,21 @@ export class RendererSet {
     constructor(renderContext: RenderContext) {
         this.trianglesFastColorRenderer = new TrianglesFastColorRenderer(renderContext);
         this.trianglesSilhouetteRenderer = new TrianglesSilhouetteRenderer(renderContext);
-        this.trianglesEdgesColorRenderer = new TrianglesEdgesColorRenderer(renderContext);
-        this.trianglesQualityColorRenderer = new TrianglesQualityColorRenderer(renderContext);
+        // this.trianglesEdgesColorRenderer = new TrianglesEdgesColorRenderer(renderContext);
+        // this.trianglesQualityColorRenderer = new TrianglesQualityColorRenderer(renderContext);
     }
 
     needRebuild() {
         this.trianglesFastColorRenderer.needRebuild();
         this.trianglesSilhouetteRenderer.needRebuild();
-        this.trianglesEdgesColorRenderer.needRebuild();
-        this.trianglesQualityColorRenderer.needRebuild();
+        // this.trianglesEdgesColorRenderer.needRebuild();
+        // this.trianglesQualityColorRenderer.needRebuild();
     }
 
     destroy() {
         this.trianglesFastColorRenderer.destroy();
         this.trianglesSilhouetteRenderer.destroy();
-        this.trianglesEdgesColorRenderer.destroy();
-        this.trianglesQualityColorRenderer.destroy();
+        // this.trianglesEdgesColorRenderer.destroy();
+        // this.trianglesQualityColorRenderer.destroy();
     }
 }

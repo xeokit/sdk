@@ -118,13 +118,13 @@ export class PointsSilhouetteRenderer extends TrianglesRenderer {
                 uniform vec4   colorize;      
                 uniform float  logDepthBufFC;                                       
                 
-                ${this.fragSectionPlaneDefs}                                
+                ${this.fragSlicingDefs}                                
                 
                 out vec4 outColor;            
                 
                 void main(void) { 
                                                    
-                    ${this.fragSectionPlanesSlice}                                                                      
+                    ${this.fragSlicing}                                                                      
                 
                     outColor = vec4(meshColor.rgb, colorize.a);                   
                     gl_FragDepth = enableLogDepthBuf == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;                        

@@ -1,4 +1,5 @@
 import {RenderContext} from "./RenderContext";
+import {View} from "@xeokit/viewer";
 
 /**
  * @private
@@ -6,9 +7,11 @@ import {RenderContext} from "./RenderContext";
 export abstract class LayerRenderer {
 
     renderContext: RenderContext;
+    view: View;
 
     constructor(renderContext: RenderContext) {
         this.renderContext = renderContext;
+        this.view = renderContext.view;
     }
 
     protected abstract buildVertexShader(): string;
@@ -16,6 +19,76 @@ export abstract class LayerRenderer {
     protected abstract buildFragmentShader(): string;
 
     protected abstract getHash(): string;
+
+    //----------------------------------------------------------------------------
+    // Vertex shader
+    //----------------------------------------------------------------------------
+
+    protected get vertHeader(): string {
+        return `#version 300 es
+                #ifdef GL_FRAGMENT_PRECISION_HIGH
+                precision   highp       float;
+                precision   highp       int;
+                precision   highp       usampler2D;
+                precision   highp       isampler2D;
+                precision   highp       sampler2D;
+                #else
+                precision   mediump     float;
+                precision   mediump     int;
+                precision   mediump     usampler2D;
+                precision   mediump     isampler2D;
+                precision   mediump     sampler2D;
+                uniform     int         renderPass;
+                #endif`;
+    }
+
+    protected get vertCommonDefs(): string {
+        return `uniform         int         renderPass;
+                uniform         mat4        sceneModelMatrix;
+                uniform         mat4        viewMatrix;
+                uniform         mat4        projMatrix;
+                uniform         vec3        uCameraEyeRtc;
+                                vec3        positions[3];
+                
+                bool isPerspectiveMatrix(mat4 m) {
+                    return (m[2][3] == - 1.0);
+                }`;
+    }
+
+    protected get vertLogDepthBufDefs(): string {
+        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
+            return `uniform float logDepthBufFC;
+                    out float fragDepth;
+                    out float isPerspective;`;
+        } else {
+            return "";
+        }
+    }
+
+    protected get vertLogDepthBuf(): string {
+        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
+            return `fragDepth = 1.0 + clipPos.w;
+                    isPerspective = float (isPerspectiveMatrix(projMatrix));`;
+        } else {
+            return "";
+        }
+    }
+
+    protected get vertSlicingDefs(): string {
+        return "";
+        // return `vWorldPosition  = worldPosition;
+        //         vFlags2         = flags2.r;`;
+    }
+
+    protected get vertSlicing(): string {
+        return "";
+        // return `vWorldPosition  = worldPosition;
+        //         vFlags2         = flags2.r;`;
+    }
+
+    //----------------------------------------------------------------------------
+    // Fragment shader
+    //----------------------------------------------------------------------------
 
     protected get fragLogDepthBufDefs(): string {
         if (this.renderContext.view.logarithmicDepthBufferEnabled) {
@@ -27,7 +100,18 @@ export abstract class LayerRenderer {
         }
     }
 
-    protected get fragSectionPlaneDefs(): string {
+    protected get fragLogDepthBuf(): string {
+        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
+            return "gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;";
+        } else {
+            return "";
+        }
+    }
+
+    protected get fragSlicingDefs(): string {
+
+        return "";
+
         const src = [];
         src.push(`in vec4 worldPosition;
                   in vec4 meshFlags2;`);
@@ -39,7 +123,9 @@ export abstract class LayerRenderer {
         return src.join("\n");
     }
 
-    protected get fragSectionPlanesSlice(): string {
+    protected get fragSlicing(): string {
+        return "";
+
         const src = [];
         const clipping = (this.renderContext.view.sectionPlanesList.length > 0);
         if (clipping) {
@@ -59,28 +145,6 @@ export abstract class LayerRenderer {
         return src.join("\n");
     }
 
-    protected get vertLogDepthBufDefs(): string {
-        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return `uniform float logDepthBufFC;
-                    out float fragDepth;
-                    bool isPerspectiveMatrix(mat4 m) {
-                        return (m[2][3] == - 1.0);
-                    }
-                    out float isPerspective;`;
-        } else {
-            return ""
-        }
-    }
-
-    protected get vertLogDepthBufOutputs(): string {
-        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return `fragDepth = 1.0 + clipPos.w;
-                    isPerspective = float (isPerspectiveMatrix(projMatrix));`;
-        } else {
-            return ""
-        }
-    }
-
     protected get fragGammaDefs(): string {
         return `uniform float gammaFactor;
         vec4 linearToLinear( in vec4 value ) {
@@ -97,11 +161,7 @@ export abstract class LayerRenderer {
         }`;
     }
 
-    protected get fragLogDepthBufOutput(): string {
-        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return "gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;";
-        } else {
-            return ""
-        }
+    protected get fragGamma(): string {
+        return ``;
     }
 }

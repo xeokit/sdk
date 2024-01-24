@@ -11,10 +11,10 @@ export class TrianglesDataTextureSet {
 
     gl: WebGL2RenderingContext;
 
+    positionsCompressedDataTexture: WebGLDataTexture;
     perSubMeshAttributesDataTexture: WebGLDataTexture;
     perSubMeshInstancingMatricesDataTexture: WebGLDataTexture;
     perSubMeshDecodeMatricesDataTexture: WebGLDataTexture;
-    positionsCompressedDataTexture: WebGLDataTexture;
     perTriangleSubMesh8BitsDataTexture: WebGLDataTexture;
     perTriangleSubMesh16BitsDataTexture: WebGLDataTexture;
     perTriangleSubMesh32BitsDataTexture: WebGLDataTexture;

@@ -153,7 +153,7 @@ export class WebGLRenderer implements Renderer {
      * * The given Viewer is already attached to another Renderer.
      */
     attachViewer(viewer: Viewer): void {
-        if (!this.#viewer) {
+        if (this.#viewer) {
             throw new SDKError("Can't attach Viewer to WebGLRenderer - a Viewer is already attached");
         }
         if (viewer.renderer) {

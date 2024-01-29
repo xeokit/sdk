@@ -62,7 +62,17 @@
  *
  *      response.arrayBuffer().then(fileData => {
  *
- *          loadLAS({ fileData, dataModel, sceneModel }).then(()=>{
+ *          loadLAS({
+ *              fileData,
+ *              dataModel,
+ *              sceneModel,
+ *              fp64: false,
+ *              colorDepth: "auto",
+ *              skip: 1,
+ *              log: (msg) => {
+ *                  console.log(msg);
+ *              }
+ *          }).then(()=>{
  *              dataModel.build();
  *              sceneModel.build();
  *          });

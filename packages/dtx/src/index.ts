@@ -1,28 +1,28 @@
 /**
- * [![npm version](https://badge.fury.io/js/%40xeokit%2Fxkt.svg)](https://badge.fury.io/js/%40xeokit%2Fxkt)
- * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/xkt/badge)](https://www.jsdelivr.com/package/npm/@xeokit/xkt)
+ * [![npm version](https://badge.fury.io/js/%40xeokit%2Fdtx.svg)](https://badge.fury.io/js/%40xeokit%2Fdtx)
+ * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/dtx/badge)](https://www.jsdelivr.com/package/npm/@xeokit/dtx)
  *
  * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="media://images/xeokit_logo_mesh.png"/>
  *
- * # xeokit [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) Importer and Exporter
+ * # xeokit [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) Importer and Exporter
  *
  * ---
  *
- * ### *Import and export models as xeokit's native binary [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format*
+ * ### *Import and export models as xeokit's native binary [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format*
  *
  * ---
  *
- * The xeokit SDK allows us to import 3D models from [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt), which is xeokit's
+ * The xeokit SDK allows us to import 3D models from [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx), which is xeokit's
  * native runtime asset delivery format for model representations and semantics.
  *
- * The [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format compresses large double-precision model representations and semantic data to a compact payload that
+ * The [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format compresses large double-precision model representations and semantic data to a compact payload that
  * loads quickly over the Web into a xeokit viewer running in the browser.
  *
- * To import an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model into xeokit, use the {@link loadXKT} function, which will load the file into
+ * To import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) model into xeokit, use the {@link loadDTX} function, which will load the file into
  * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
  *
- * To export an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model from xeokit, use the {@link saveXKT} function, which will save a
- * {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel} to [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data.
+ * To export a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) model from xeokit, use the {@link saveDTX} function, which will save a
+ * {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel} to [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data.
  *
  * <br>
  *
@@ -33,19 +33,19 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/xkt
+ * npm install @xeokit/dtx
  * ````
  *
  * ## Usage
  *
- * In the example below, we'll use {@link loadXKT} to import an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file into a {@link @xeokit/data!DataModel | DataModel} and
+ * In the example below, we'll use {@link loadDTX} to import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file into a {@link @xeokit/data!DataModel | DataModel} and
  * a {@link @xeokit/scene!SceneModel | SceneModel}. The {@link @xeokit/core!SDKError} class
  * is used to handle errors that may occur during the process:
  *
  * ````javascript
  * import {Data} from "@xeokit/data";
  * import {Scene} from "@xeokit/scene";
- * import {loadXKT, saveXKT} from "@xeokit/xkt";
+ * import {loadDTX, saveDTX} from "@xeokit/dtx";
  *
  * const data = new Data();
  * const scene = new Scene();
@@ -63,11 +63,11 @@
  * } else if (sceneModel instanceof SDKError) {
  *      console.error(dataModel.message);
  * } else {
- *      fetch("myModel.xkt").then(response => {
+ *      fetch("myModel.dtx").then(response => {
  *
  *         response.arrayBuffer().then(data => {
  *
- *              loadXKT({ data, dataModel, sceneModel });
+ *              loadDTX({ data, dataModel, sceneModel });
  *
  *              dataModel.build();
  *              sceneModel.build();
@@ -76,18 +76,18 @@
  * });
  * ````
  *
- * Using {@link @xeokit/xkt!saveXKT} to export the {@link @xeokit/data!DataModel | DataModel} and {@link @xeokit/scene!SceneModel | SceneModel} to
- * [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data in an ArrayBuffer:
+ * Using {@link @xeokit/dtx!saveDTX} to export the {@link @xeokit/data!DataModel | DataModel} and {@link @xeokit/scene!SceneModel | SceneModel} to
+ * [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data in an ArrayBuffer:
  *
  * ````javascript
- * const arrayBuffer = saveXKT({
+ * const arrayBuffer = saveDTX({
  *     dataModel,
  *     sceneModel
  * });
  * ````
  *
- * @module @xeokit/xkt
+ * @module @xeokit/dtx
  */
-export * from "./loadXKT";
-export * from "./saveXKT";
-export * from "./XKTData";
+export * from "./loadDTX";
+export * from "./saveDTX";
+export * from "./DTXData";

@@ -1,13 +1,13 @@
-import type {XKTDataDeflated} from "./XKTDataDeflated";
+import type {DTXDataDeflated} from "./DTXDataDeflated";
 
 /**
  * @private
  */
-export function unpackXKT(arrayBuffer: ArrayBuffer): XKTDataDeflated {
+export function unpackDTX(arrayBuffer: ArrayBuffer): DTXDataDeflated {
 
     const dataView = new DataView(arrayBuffer);
     const dataArray = new Uint8Array(arrayBuffer);
-    const xktVersion = dataView.getUint32(0, true);
+    const dtxVersion = dataView.getUint32(0, true);
     const numElements = dataView.getUint32(4, true);
 
     const elements = [];
@@ -20,7 +20,7 @@ export function unpackXKT(arrayBuffer: ArrayBuffer): XKTDataDeflated {
 
     let i = 0;
 
-    return <XKTDataDeflated>{
+    return <DTXDataDeflated>{
         metadata: elements[i++],
         textureData: elements[i++],
         eachTextureDataPortion: elements[i++],

@@ -1,7 +1,7 @@
 /**
  * @private
  */
-export interface XKTDataDeflated {
+export interface DTXDataDeflated {
     metadata: Buffer;
     textureData: Buffer;
     eachTextureDataPortion: Buffer;

@@ -1,11 +1,11 @@
 import {Scene} from "@xeokit/scene";
 import * as testUtils from "./testUtils";
 import {Data} from "@xeokit/data";
-import {loadXKT, saveXKT} from "../src";
+import {loadDTX, saveDTX} from "../src";
 import {SDKError} from "@xeokit/core";
 import {roundSceneModelParams} from "@xeokit/testutils";
 
-describe('saveAndLoadXKT', () => {
+describe('saveAndLoadDTX', () => {
 
     const data = new Data();
     const scene = new Scene();
@@ -31,8 +31,8 @@ describe('saveAndLoadXKT', () => {
     let sceneModelJSON;
     let dataModelJSON;
 
-    test("saveXKT saves the DataModel and SceneModel to an XKT arraybuffer", () => {
-        fileData = saveXKT({sceneModel, dataModel});
+    test("saveDTX saves the DataModel and SceneModel to a DTX arraybuffer", () => {
+        fileData = saveDTX({sceneModel, dataModel});
 
         sceneModelJSON = roundSceneModelParams(sceneModel.getJSON());
         sceneModel.destroy();
@@ -45,7 +45,7 @@ describe('saveAndLoadXKT', () => {
     let sceneModel2;
     let dataModel2;
 
-    test("loadXKT loads the arrayBuffer into a second DataModel and SceneModel", async () => {
+    test("loadDTX loads the arrayBuffer into a second DataModel and SceneModel", async () => {
 
         sceneModel2 = scene.createModel({id: "myModel"});
         if (sceneModel2 instanceof SDKError) {
@@ -57,7 +57,7 @@ describe('saveAndLoadXKT', () => {
             throw sceneModel2;
         }
 
-        await loadXKT({fileData, sceneModel: sceneModel2, dataModel: dataModel2});
+        await loadDTX({fileData, sceneModel: sceneModel2, dataModel: dataModel2});
 
         await sceneModel2.build();
 

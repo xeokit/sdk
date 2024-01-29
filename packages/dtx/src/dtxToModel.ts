@@ -9,7 +9,7 @@ import {
 } from "@xeokit/constants";
 import type {DataModel, DataModelParams} from "@xeokit/data";
 import type {SceneGeometryBucketParams, SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
-import type {XKTData} from "./XKTData";
+import type {DTXData} from "./DTXData";
 import type {FloatArrayParam} from "@xeokit/math";
 
 const NUM_TEXTURE_ATTRIBUTES = 9;
@@ -17,28 +17,28 @@ const NUM_TEXTURE_ATTRIBUTES = 9;
 /**
  * @private
  */
-export function xktToModel(params: {
-    xktData: XKTData,
+export function dtxToModel(params: {
+    dtxData: DTXData,
     sceneModel: SceneModel,
     dataModel?: DataModel
 }): void {
 
-    const xktData = params.xktData;
+    const dtxData = params.dtxData;
     const sceneModel = params.sceneModel;
     const dataModel = params.dataModel;
 
     if (dataModel) {
-        if (xktData.metadata) {
-            dataModel.fromJSON(<DataModelParams>xktData.metadata);
+        if (dtxData.metadata) {
+            dataModel.fromJSON(<DataModelParams>dtxData.metadata);
         }
     }
 
-    const numTextures = xktData.eachTextureDataPortion.length;
-    const numTextureSets = xktData.eachTextureSetTextures.length / 5;
-    const numBuckets = xktData.eachBucketPositionsPortion.length;
-    const numMeshes = xktData.eachMeshGeometriesPortion.length;
-    const numObjects = xktData.eachObjectMeshesPortion.length;
-    const numGeometries = xktData.eachGeometryDecodeMatricesPortion.length;
+    const numTextures = dtxData.eachTextureDataPortion.length;
+    const numTextureSets = dtxData.eachTextureSetTextures.length / 5;
+    const numBuckets = dtxData.eachBucketPositionsPortion.length;
+    const numMeshes = dtxData.eachMeshGeometriesPortion.length;
+    const numObjects = dtxData.eachObjectMeshesPortion.length;
+    const numGeometries = dtxData.eachGeometryDecodeMatricesPortion.length;
 
     let nextMeshId = 0;
 
@@ -51,25 +51,25 @@ export function xktToModel(params: {
     for (let textureIndex = 0; textureIndex < numTextures; textureIndex++) {
 
         const atLastTexture = (textureIndex === (numTextures - 1));
-        const textureDataPortionStart = xktData.eachTextureDataPortion[textureIndex];
-        const textureDataPortionEnd = atLastTexture ? xktData.textureData.length : (xktData.eachTextureDataPortion[textureIndex + 1]);
+        const textureDataPortionStart = dtxData.eachTextureDataPortion[textureIndex];
+        const textureDataPortionEnd = atLastTexture ? dtxData.textureData.length : (dtxData.eachTextureDataPortion[textureIndex + 1]);
         const textureDataPortionSize = textureDataPortionEnd - textureDataPortionStart;
         const textureDataPortionExists = (textureDataPortionSize > 0);
         const textureAttrBaseIdx = (textureIndex * NUM_TEXTURE_ATTRIBUTES);
 
-        const compressed = (xktData.eachTextureAttributes[textureAttrBaseIdx] === 1);
-        const mediaType = xktData.eachTextureAttributes[textureAttrBaseIdx + 1];
-        const width = xktData.eachTextureAttributes[textureAttrBaseIdx + 2];
-        const height = xktData.eachTextureAttributes[textureAttrBaseIdx + 3];
-        const minFilter = xktData.eachTextureAttributes[textureAttrBaseIdx + 4];
-        const magFilter = xktData.eachTextureAttributes[textureAttrBaseIdx + 5]; // LinearFilter | NearestFilter
-        const wrapS = xktData.eachTextureAttributes[textureAttrBaseIdx + 6]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        const wrapT = xktData.eachTextureAttributes[textureAttrBaseIdx + 7]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        const wrapR = xktData.eachTextureAttributes[textureAttrBaseIdx + 8]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        const compressed = (dtxData.eachTextureAttributes[textureAttrBaseIdx] === 1);
+        const mediaType = dtxData.eachTextureAttributes[textureAttrBaseIdx + 1];
+        const width = dtxData.eachTextureAttributes[textureAttrBaseIdx + 2];
+        const height = dtxData.eachTextureAttributes[textureAttrBaseIdx + 3];
+        const minFilter = dtxData.eachTextureAttributes[textureAttrBaseIdx + 4];
+        const magFilter = dtxData.eachTextureAttributes[textureAttrBaseIdx + 5]; // LinearFilter | NearestFilter
+        const wrapS = dtxData.eachTextureAttributes[textureAttrBaseIdx + 6]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        const wrapT = dtxData.eachTextureAttributes[textureAttrBaseIdx + 7]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        const wrapR = dtxData.eachTextureAttributes[textureAttrBaseIdx + 8]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
 
         if (textureDataPortionExists) {
 
-            const imageDataSubarray = new Uint8Array(xktData.textureData.subarray(textureDataPortionStart, textureDataPortionEnd));
+            const imageDataSubarray = new Uint8Array(dtxData.textureData.subarray(textureDataPortionStart, textureDataPortionEnd));
             const arrayBuffer = imageDataSubarray.buffer;
             const textureId = `texture-${textureIndex}`;
 
@@ -114,11 +114,11 @@ export function xktToModel(params: {
 
         const eachTextureSetTexturesIndex = textureSetIndex * 5; // Five textures per set
         const textureSetId = `textureSet-${textureSetIndex}`;
-        const colorTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex];
-        const metallicRoughnessTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 1];
-        const normalsTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 2];
-        const emissiveTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
-        const occlusionTextureIndex = xktData.eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
+        const colorTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex];
+        const metallicRoughnessTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex + 1];
+        const normalsTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex + 2];
+        const emissiveTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
+        const occlusionTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
 
         sceneModel.createTextureSet({
             id: textureSetId,
@@ -134,11 +134,11 @@ export function xktToModel(params: {
 
     for (let objectIndex = 0; objectIndex <= numObjects; objectIndex++) {
 
-        const objectId = xktData.eachObjectId[objectIndex];
+        const objectId = dtxData.eachObjectId[objectIndex];
         const finalObjectIndex = (numObjects - 1);
         const atLastObject = (objectIndex === finalObjectIndex);
-        const firstMeshIndex = xktData.eachObjectMeshesPortion [objectIndex];
-        const lastMeshIndex = atLastObject ? (xktData.eachMeshGeometriesPortion.length - 1) : (xktData.eachObjectMeshesPortion[objectIndex + 1] - 1);
+        const firstMeshIndex = dtxData.eachObjectMeshesPortion [objectIndex];
+        const lastMeshIndex = atLastObject ? (dtxData.eachMeshGeometriesPortion.length - 1) : (dtxData.eachObjectMeshesPortion[objectIndex + 1] - 1);
 
         const meshIds = [];
 
@@ -146,24 +146,24 @@ export function xktToModel(params: {
 
         for (let meshIndex = firstMeshIndex; meshIndex <= lastMeshIndex; meshIndex++) {
 
-            const geometryIndex = xktData.eachMeshGeometriesPortion[meshIndex];
+            const geometryIndex = dtxData.eachMeshGeometriesPortion[meshIndex];
             const atLastGeometry = (geometryIndex === (numGeometries - 1));
-            const textureSetIndex = xktData.eachMeshTextureSet[meshIndex];
+            const textureSetIndex = dtxData.eachMeshTextureSet[meshIndex];
             const textureSetId = (textureSetIndex >= 0) ? `textureSet-${textureSetIndex}` : undefined;
 
-            const meshColor = decompressColor(xktData.eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
-            const meshOpacity = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;
-            const meshMetallic = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 4] / 255.0;
-            const meshRoughness = xktData.eachMeshMaterialAttributes[(meshIndex * 6) + 5] / 255.0;
+            const meshColor = decompressColor(dtxData.eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
+            const meshOpacity = dtxData.eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;
+            const meshMetallic = dtxData.eachMeshMaterialAttributes[(meshIndex * 6) + 4] / 255.0;
+            const meshRoughness = dtxData.eachMeshMaterialAttributes[(meshIndex * 6) + 5] / 255.0;
 
-            const meshId = xktData.eachMeshId[meshIndex];
-            const meshMatrixIndex = xktData.eachMeshMatricesPortion[meshIndex];
-            const meshMatrix = xktData.matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
+            const meshId = dtxData.eachMeshId[meshIndex];
+            const meshMatrixIndex = dtxData.eachMeshMatricesPortion[meshIndex];
+            const meshMatrix = dtxData.matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
 
-            const meshOriginsIndex = xktData.eachMeshOriginsPortion[meshIndex];
-            const meshOrigin = xktData.origins.slice(meshOriginsIndex, meshOriginsIndex + 3);
+            const meshOriginsIndex = dtxData.eachMeshOriginsPortion[meshIndex];
+            const meshOrigin = dtxData.origins.slice(meshOriginsIndex, meshOriginsIndex + 3);
 
-            const geometryId = xktData.eachGeometryId[geometryIndex];
+            const geometryId = dtxData.eachGeometryId[geometryIndex];
 
             if (!geometryCreated[geometryId]) {
 
@@ -172,7 +172,7 @@ export function xktToModel(params: {
                     geometryBuckets: []
                 };
 
-                const primitiveType = xktData.eachGeometryPrimitiveType[geometryIndex];
+                const primitiveType = dtxData.eachGeometryPrimitiveType[geometryIndex];
                 switch (primitiveType) {
                     case 0:
                         geometryCompressedParams.primitive = TrianglesPrimitive;
@@ -191,16 +191,16 @@ export function xktToModel(params: {
                         break;
                 }
 
-                const geometryDecodeMatrixIndex = xktData.eachGeometryDecodeMatricesPortion[geometryIndex];
-                geometryCompressedParams.positionsDecompressMatrix = xktData.decodeMatrices.slice(geometryDecodeMatrixIndex, geometryDecodeMatrixIndex + 16);
+                const geometryDecodeMatrixIndex = dtxData.eachGeometryDecodeMatricesPortion[geometryIndex];
+                geometryCompressedParams.positionsDecompressMatrix = dtxData.decodeMatrices.slice(geometryDecodeMatrixIndex, geometryDecodeMatrixIndex + 16);
 
                 let geometryValid = false;
 
                 // Iterate each geometry's buckets
 
-                const firstBucketIndex = xktData.eachGeometryBucketPortion[geometryIndex];
+                const firstBucketIndex = dtxData.eachGeometryBucketPortion[geometryIndex];
                 const atLastGeometry = (geometryIndex === (numGeometries - 1));
-                const lastBucketIndex = atLastGeometry ? (xktData.eachBucketPositionsPortion.length - 1) : (xktData.eachGeometryBucketPortion[geometryIndex + 1] - 1);
+                const lastBucketIndex = atLastGeometry ? (dtxData.eachBucketPositionsPortion.length - 1) : (dtxData.eachGeometryBucketPortion[geometryIndex + 1] - 1);
 
                 for (let bucketIndex = firstBucketIndex; bucketIndex <= lastBucketIndex; bucketIndex++) {
 
@@ -211,31 +211,31 @@ export function xktToModel(params: {
 
                     const atLastBucketIndex = bucketIndex === lastBucketIndex;
 
-                    const geometryIndicesBitness = xktData.eachBucketIndicesBitness[bucketIndex];
-                    const indices = geometryIndicesBitness === 0 ? xktData.indices8Bit : (geometryIndicesBitness === 1 ? xktData.indices16Bit : xktData.indices32Bit);
-                    const edgeIndices = geometryIndicesBitness === 8 ? xktData.edgeIndices8Bit : (geometryIndicesBitness === 16 ? xktData.edgeIndices16Bit : xktData.edgeIndices32Bit);
+                    const geometryIndicesBitness = dtxData.eachBucketIndicesBitness[bucketIndex];
+                    const indices = geometryIndicesBitness === 0 ? dtxData.indices8Bit : (geometryIndicesBitness === 1 ? dtxData.indices16Bit : dtxData.indices32Bit);
+                    const edgeIndices = geometryIndicesBitness === 8 ? dtxData.edgeIndices8Bit : (geometryIndicesBitness === 16 ? dtxData.edgeIndices16Bit : dtxData.edgeIndices32Bit);
 
                     let bucketValid = false;
 
                     switch (geometryCompressedParams.primitive) {
 
                         case TrianglesPrimitive:
-                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
-                            //   geometryBucketParams.uvsCompressed = xktData.uvs.subarray(xktData.eachBucketUVsPortion [bucketIndex], atLastBucket ? xktData.uvs.length : xktData.eachBucketUVsPortion [bucketIndex + 1]);
-                            geometryBucketParams.indices = indices.subarray(xktData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : xktData.eachBucketIndicesPortion [bucketIndex + 1]);
-                            geometryBucketParams.edgeIndices = edgeIndices.subarray(xktData.eachBucketEdgeIndicesPortion [bucketIndex], atLastBucketIndex ? edgeIndices.length : xktData.eachBucketEdgeIndicesPortion [bucketIndex + 1]);
+                            geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? dtxData.positions.length : dtxData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            //   geometryBucketParams.uvsCompressed = dtxData.uvs.subarray(dtxData.eachBucketUVsPortion [bucketIndex], atLastBucket ? dtxData.uvs.length : dtxData.eachBucketUVsPortion [bucketIndex + 1]);
+                            geometryBucketParams.indices = indices.subarray(dtxData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : dtxData.eachBucketIndicesPortion [bucketIndex + 1]);
+                            geometryBucketParams.edgeIndices = edgeIndices.subarray(dtxData.eachBucketEdgeIndicesPortion [bucketIndex], atLastBucketIndex ? edgeIndices.length : dtxData.eachBucketEdgeIndicesPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
                             break;
 
                         case PointsPrimitive:
-                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
-                            // geometryBucketParams.colorsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? dtxData.positions.length : dtxData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            // geometryBucketParams.colorsCompressed = dtxData.positions.subarray(dtxData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? dtxData.positions.length : dtxData.eachBucketPositionsPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0);
                             break;
 
                         case LinesPrimitive:
-                            geometryBucketParams.positionsCompressed = xktData.positions.subarray(xktData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? xktData.positions.length : xktData.eachBucketPositionsPortion [bucketIndex + 1]);
-                            geometryBucketParams.indices = indices.subarray(xktData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : xktData.eachBucketIndicesPortion [bucketIndex + 1]);
+                            geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? dtxData.positions.length : dtxData.eachBucketPositionsPortion [bucketIndex + 1]);
+                            geometryBucketParams.indices = indices.subarray(dtxData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : dtxData.eachBucketIndicesPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
                             break;
                         default:

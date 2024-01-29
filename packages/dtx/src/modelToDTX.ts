@@ -9,20 +9,20 @@ import {
     SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/constants";
-import {XKT_INFO} from "./XKT_INFO";
-import type {XKTData} from "./XKTData";
+import {DTX_INFO} from "./DTX_INFO";
+import type {DTXData} from "./DTXData";
 
-const XKT_VERSION = XKT_INFO.xktVersion;
+const DTX_VERSION = DTX_INFO.dtxVersion;
 const NUM_TEXTURE_ATTRIBUTES = 9;
 const NUM_MATERIAL_ATTRIBUTES = 6;
 
 /**
  * @private
  */
-export function modelToXKT(params: {
+export function modelToDTX(params: {
     sceneModel: SceneModel,
     dataModel?: DataModel
-}): XKTData {
+}): DTXData {
 
     const sceneModel = params.sceneModel;
     const dataModel = params.dataModel;
@@ -100,7 +100,7 @@ export function modelToXKT(params: {
 
     lenDecodeMatrices = numGeometries * 16;
 
-    const xktData: XKTData = {
+    const dtxData: DTXData = {
         metadata: dataModel ? dataModel.getJSON() : {},
         textureData: new Uint8Array(lenTextures), // All textures
         eachTextureDataPortion: new Uint32Array(numTextures), // For each texture, an index to its first element in textureData
@@ -116,11 +116,11 @@ export function modelToXKT(params: {
         edgeIndices32Bit: new Uint32Array(lenEdgeIndices32Bit),
         eachTextureSetTextures: new Int32Array(numTextureSets * 5), // For each texture set, a set of five SceneTexture indices [color, metal/roughness,normals,emissive,occlusion]; each index has value -1 if no texture
         decodeMatrices: new Float32Array(lenDecodeMatrices), // TODO
-        eachBucketPositionsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in xktData.positions. Every primitive type has positions.
-        eachBucketColorsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in xktData.colors. If the next geometry has the same index, then this geometry has no colors.
-        eachBucketUVsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in xktData.uvs. If the next geometry has the same index, then this geometry has no UVs.
-        eachBucketIndicesPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in xktData.indices. If the next geometry has the same index, then this geometry has no indices.
-        eachBucketEdgeIndicesPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in xktData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
+        eachBucketPositionsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.positions. Every primitive type has positions.
+        eachBucketColorsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.colors. If the next geometry has the same index, then this geometry has no colors.
+        eachBucketUVsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.uvs. If the next geometry has the same index, then this geometry has no UVs.
+        eachBucketIndicesPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.indices. If the next geometry has the same index, then this geometry has no indices.
+        eachBucketEdgeIndicesPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
         eachBucketIndicesBitness: new Uint8Array(lenBuckets), // TODO
         eachGeometryPrimitiveType: new Uint8Array(numGeometries), // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
         eachGeometryBucketPortion: new Uint32Array(numGeometries), // TODO
@@ -128,9 +128,9 @@ export function modelToXKT(params: {
         matrices: new Float32Array(numMeshes * 16), // Modeling matrices
         origins: new Float64Array(numMeshes * 16), // Modeling matrices
         eachMeshGeometriesPortion: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
-        eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in xktData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-        eachMeshOriginsPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in xktData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-        eachMeshTextureSet: new Int32Array(numMeshes), // For each mesh, the index of its texture set in xktData.eachTextureSetTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set
+        eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
+        eachMeshOriginsPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
+        eachMeshTextureSet: new Int32Array(numMeshes), // For each mesh, the index of its texture set in dtxData.eachTextureSetTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set
         eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES), // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
         eachGeometryId: [], // For each geometry, an ID string
         eachMeshId: [], // For each mesh, an ID string
@@ -177,11 +177,11 @@ export function modelToXKT(params: {
                 primitiveType = 4;
                 break;
         }
-        xktData.eachGeometryPrimitiveType [geometryIndex] = primitiveType;
-        xktData.eachGeometryBucketPortion [geometryIndex] = countBuckets;
-        xktData.eachGeometryDecodeMatricesPortion [geometryIndex] = countDecodeMatrices;
+        dtxData.eachGeometryPrimitiveType [geometryIndex] = primitiveType;
+        dtxData.eachGeometryBucketPortion [geometryIndex] = countBuckets;
+        dtxData.eachGeometryDecodeMatricesPortion [geometryIndex] = countDecodeMatrices;
 
-        xktData.decodeMatrices.set(geometry.positionsDecompressMatrix, countDecodeMatrices); // TODO: only add decode matrix if different from what's already added
+        dtxData.decodeMatrices.set(geometry.positionsDecompressMatrix, countDecodeMatrices); // TODO: only add decode matrix if different from what's already added
         countDecodeMatrices += 16;
 
         for (let i = 0, len = geometryBuckets.length; i < len; i++) {
@@ -191,29 +191,29 @@ export function modelToXKT(params: {
             const numBucketPositions = lenBucketPositions / 3;
             const bucketIndicesBitness: number = (numBucketPositions <= (1 << 8)) ? 0 : ((numBucketPositions <= (1 << 16)) ? 1 : 2);
 
-            xktData.eachBucketPositionsPortion [countBuckets] = countPositions;
-            xktData.eachBucketColorsPortion [countBuckets] = countColors;
-            xktData.eachBucketUVsPortion [countBuckets] = countUVs;
-            xktData.eachBucketIndicesBitness [countBuckets] = bucketIndicesBitness;
+            dtxData.eachBucketPositionsPortion [countBuckets] = countPositions;
+            dtxData.eachBucketColorsPortion [countBuckets] = countColors;
+            dtxData.eachBucketUVsPortion [countBuckets] = countUVs;
+            dtxData.eachBucketIndicesBitness [countBuckets] = bucketIndicesBitness;
 
-            xktData.positions.set(geometryBucket.positionsCompressed, countPositions);
+            dtxData.positions.set(geometryBucket.positionsCompressed, countPositions);
             countPositions += geometryBucket.positionsCompressed.length;
 
             if (geometryBucket.indices) {
                 switch (bucketIndicesBitness) {
                     case 0:
-                        xktData.indices8Bit.set(geometryBucket.indices, countIndices8Bit);
-                        xktData.eachBucketIndicesPortion [countBuckets] = countIndices8Bit;
+                        dtxData.indices8Bit.set(geometryBucket.indices, countIndices8Bit);
+                        dtxData.eachBucketIndicesPortion [countBuckets] = countIndices8Bit;
                         countIndices8Bit += geometryBucket.indices.length;
                         break;
                     case 1:
-                        xktData.indices16Bit.set(geometryBucket.indices, countIndices16Bit);
-                        xktData.eachBucketIndicesPortion [countBuckets] = countIndices16Bit;
+                        dtxData.indices16Bit.set(geometryBucket.indices, countIndices16Bit);
+                        dtxData.eachBucketIndicesPortion [countBuckets] = countIndices16Bit;
                         countIndices16Bit += geometryBucket.indices.length;
                         break;
                     case 2:
-                        xktData.indices32Bit.set(geometryBucket.indices, countIndices32Bit);
-                        xktData.eachBucketIndicesPortion [countBuckets] = countIndices32Bit;
+                        dtxData.indices32Bit.set(geometryBucket.indices, countIndices32Bit);
+                        dtxData.eachBucketIndicesPortion [countBuckets] = countIndices32Bit;
                         countIndices32Bit += geometryBucket.indices.length;
                         break;
                 }
@@ -222,30 +222,30 @@ export function modelToXKT(params: {
             if (geometryBucket.edgeIndices) {
                 switch (bucketIndicesBitness) {
                     case 0:
-                        xktData.edgeIndices8Bit.set(geometryBucket.edgeIndices, countEdgeIndices8Bit);
-                        xktData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices8Bit;
+                        dtxData.edgeIndices8Bit.set(geometryBucket.edgeIndices, countEdgeIndices8Bit);
+                        dtxData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices8Bit;
                         countEdgeIndices8Bit += geometryBucket.edgeIndices.length;
                         break;
                     case 1:
-                        xktData.edgeIndices16Bit.set(geometryBucket.edgeIndices, countEdgeIndices16Bit);
-                        xktData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices16Bit;
+                        dtxData.edgeIndices16Bit.set(geometryBucket.edgeIndices, countEdgeIndices16Bit);
+                        dtxData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices16Bit;
                         countEdgeIndices16Bit += geometryBucket.edgeIndices.length;
                         break;
                     case 2:
-                        xktData.edgeIndices32Bit.set(geometryBucket.edgeIndices, countEdgeIndices32Bit);
-                        xktData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices32Bit;
+                        dtxData.edgeIndices32Bit.set(geometryBucket.edgeIndices, countEdgeIndices32Bit);
+                        dtxData.eachBucketEdgeIndicesPortion [countBuckets] = countEdgeIndices32Bit;
                         countEdgeIndices32Bit += geometryBucket.edgeIndices.length;
                         break;
                 }
             }
 
             if (geometryBucket.colorsCompressed) {
-                xktData.colors.set(geometryBucket.colorsCompressed, countColors);
+                dtxData.colors.set(geometryBucket.colorsCompressed, countColors);
                 countColors += geometryBucket.colorsCompressed.length;
             }
 
             if (geometryBucket.uvsCompressed) {
-                xktData.uvs.set(geometryBucket.uvsCompressed, countUVs);
+                dtxData.uvs.set(geometryBucket.uvsCompressed, countUVs);
                 countUVs += geometryBucket.uvsCompressed.length;
             }
 
@@ -253,7 +253,7 @@ export function modelToXKT(params: {
         }
 
         geometryIndices[geometry.id] = geometryIndex;
-        xktData.eachGeometryId[geometryIndex] = geometry.id;
+        dtxData.eachGeometryId[geometryIndex] = geometry.id;
         geometryIndex++;
     }
 
@@ -264,21 +264,21 @@ export function modelToXKT(params: {
         const texture = texturesList[textureIndex];
         const imageData = texture.imageData;
 
-        xktData.textureData.set(imageData, portionIdx);
-        xktData.eachTextureDataPortion[textureIndex] = portionIdx;
+        dtxData.textureData.set(imageData, portionIdx);
+        dtxData.eachTextureDataPortion[textureIndex] = portionIdx;
 
         portionIdx += imageData.byteLength;
 
         let textureAttrIdx = textureIndex * NUM_TEXTURE_ATTRIBUTES;
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.compressed ? 1 : 0;
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.mediaType || 0; // GIFMediaType | PNGMediaType | JPEGMediaType
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.width;
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.height;
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.minFilter || LinearMipmapLinearFilter; // LinearMipmapLinearFilter | LinearMipMapNearestFilter | NearestMipMapNearestFilter | NearestMipMapLinearFilter | LinearMipMapLinearFilter
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.magFilter || LinearMipmapLinearFilter; // LinearFilter | NearestFilter
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapS || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapT || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        xktData.eachTextureAttributes[textureAttrIdx++] = texture.wrapR || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.compressed ? 1 : 0;
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.mediaType || 0; // GIFMediaType | PNGMediaType | JPEGMediaType
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.width;
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.height;
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.minFilter || LinearMipmapLinearFilter; // LinearMipmapLinearFilter | LinearMipMapNearestFilter | NearestMipMapNearestFilter | NearestMipMapLinearFilter | LinearMipMapLinearFilter
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.magFilter || LinearMipmapLinearFilter; // LinearFilter | NearestFilter
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.wrapS || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.wrapT || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
+        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.wrapR || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
 
         textureIndices[texture.id] = textureIndex;
     }
@@ -287,10 +287,10 @@ export function modelToXKT(params: {
 
     for (let textureSetIndex = 0, numTextureSets = textureSetsList.length, eachTextureSetTexturesIndex = 0; textureSetIndex < numTextureSets; textureSetIndex++) {
         const textureSet = textureSetsList[textureSetIndex];
-        xktData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.colorTexture ? textureIndices[textureSet.colorTexture.id] : -1; // Color map
-        xktData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.metallicRoughnessTexture ? textureIndices[textureSet.metallicRoughnessTexture.id] : -1; // Metal/rough map
-        xktData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.emissiveTexture ? textureIndices[textureSet.emissiveTexture.id] : -1; // Emissive map
-        xktData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.occlusionTexture ? textureIndices[textureSet.occlusionTexture.id] : -1; // Occlusion map
+        dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.colorTexture ? textureIndices[textureSet.colorTexture.id] : -1; // Color map
+        dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.metallicRoughnessTexture ? textureIndices[textureSet.metallicRoughnessTexture.id] : -1; // Metal/rough map
+        dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.emissiveTexture ? textureIndices[textureSet.emissiveTexture.id] : -1; // Emissive map
+        dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.occlusionTexture ? textureIndices[textureSet.occlusionTexture.id] : -1; // Occlusion map
 
         textureSetIndices[textureSet.id] = textureSetIndex;
     }
@@ -310,18 +310,18 @@ export function modelToXKT(params: {
         const object = objectsList[objectIndex];
         const numObjectMeshes = object.meshes.length;
 
-        xktData.eachObjectId[objectIndex] = object.id;
-        xktData.eachObjectMeshesPortion[objectIndex] = countMeshes;
+        dtxData.eachObjectId[objectIndex] = object.id;
+        dtxData.eachObjectMeshesPortion[objectIndex] = countMeshes;
 
         for (let meshIndex = 0; meshIndex < numObjectMeshes; meshIndex++) {
 
             const mesh = object.meshes[meshIndex];
 
-            xktData.eachMeshId[countMeshes] = mesh.id;
-            xktData.eachMeshGeometriesPortion [countMeshes] = geometryIndices[mesh.geometry.id];
+            dtxData.eachMeshId[countMeshes] = mesh.id;
+            dtxData.eachMeshGeometriesPortion [countMeshes] = geometryIndices[mesh.geometry.id];
 
-            xktData.eachMeshMatricesPortion [countMeshes] = matricesIndex;
-            xktData.matrices.set(mesh.matrix, matricesIndex); // TODO: only add matrix if different from what's already added
+            dtxData.eachMeshMatricesPortion [countMeshes] = matricesIndex;
+            dtxData.matrices.set(mesh.matrix, matricesIndex); // TODO: only add matrix if different from what's already added
             matricesIndex += 16;
 
             const origin = mesh.origin;
@@ -330,24 +330,24 @@ export function modelToXKT(params: {
             if (originLookupIndex === undefined) {
                 originLookupIndex = originsIndex;
                 originLookup[originHash] = originLookupIndex;
-                xktData.origins[originsIndex++] = origin[0];
-                xktData.origins[originsIndex++] = origin[1];
-                xktData.origins[originsIndex++] = origin[2];
+                dtxData.origins[originsIndex++] = origin[0];
+                dtxData.origins[originsIndex++] = origin[1];
+                dtxData.origins[originsIndex++] = origin[2];
             }
-            xktData.eachMeshOriginsPortion [countMeshes] = originLookupIndex;
+            dtxData.eachMeshOriginsPortion [countMeshes] = originLookupIndex;
 
-            xktData.eachMeshTextureSet[countMeshes] = mesh.textureSet ? textureSetIndices[mesh.textureSet.id] : -1;
+            dtxData.eachMeshTextureSet[countMeshes] = mesh.textureSet ? textureSetIndices[mesh.textureSet.id] : -1;
 
-            xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[0] * 255); // Color RGB
-            xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[1] * 255);
-            xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[2] * 255);
-            xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.opacity * 255); // Opacity
-            xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.metallic * 255); // Metallic
-            xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.roughness * 255); // Roughness
+            dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[0] * 255); // Color RGB
+            dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[1] * 255);
+            dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[2] * 255);
+            dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.opacity * 255); // Opacity
+            dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.metallic * 255); // Metallic
+            dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.roughness * 255); // Roughness
 
             countMeshes++;
         }
     }
 
-    return xktData;
+    return dtxData;
 }

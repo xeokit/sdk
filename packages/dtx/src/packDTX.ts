@@ -1,10 +1,10 @@
-import type {XKTDataDeflated} from "./XKTDataDeflated";
-import {XKT_INFO} from "./XKT_INFO";
+import type {DTXDataDeflated} from "./DTXDataDeflated";
+import {DTX_INFO} from "./DTX_INFO";
 
 /**
  * @private
  */
-export function packXKT(deflatedData: XKTDataDeflated): ArrayBuffer {
+export function packDTX(deflatedData: DTXDataDeflated): ArrayBuffer {
     return toArrayBuffer(<Buffer[]>[
         deflatedData.metadata,
         deflatedData.textureData,
@@ -46,7 +46,7 @@ export function packXKT(deflatedData: XKTDataDeflated): ArrayBuffer {
 
 function toArrayBuffer(elements: Buffer[]): ArrayBuffer {
     const indexData = new Uint32Array(elements.length + 2);
-    indexData[0] = XKT_INFO.xktVersion;
+    indexData[0] = DTX_INFO.dtxVersion;
     indexData [1] = elements.length;  // Stored Data 1.1: number of stored elements
     let dataLen = 0;    // Stored Data 1.2: length of stored elements
     for (let i = 0, len = elements.length; i < len; i++) {

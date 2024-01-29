@@ -1,24 +1,24 @@
 /**
- *  XKT file data.
+ *  DTX file data.
  *
- *  The elements of an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file, unpacked into a set of arrays for parsing.
+ *  The elements of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file, unpacked into a set of arrays for parsing.
  *
- *  This interface represents the structure of an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+ *  This interface represents the structure of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
  */
-export interface XKTData {
+export interface DTXData {
 
     /**
-     * Arbitrary metadata JSON for the [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Arbitrary metadata JSON for the [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     metadata: any;
 
     /**
-     * Combined data for all textures in the [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined data for all textures in the [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     textureData: Uint8Array;
 
     /**
-     * For each texture, a pointer to its portion in {@link XKTData.textureData}.
+     * For each texture, a pointer to its portion in {@link DTXData.textureData}.
      */
     eachTextureDataPortion: Uint32Array;
 
@@ -40,47 +40,47 @@ export interface XKTData {
     eachTextureAttributes: Uint16Array;
 
     /**
-     * Combined vertex positions array for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined vertex positions array for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     positions: Uint16Array;
 
     /**
-     * Combined vertex colors array for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined vertex colors array for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     colors: Uint8Array;
 
     /**
-     * Combined vertex UV coordinates for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined vertex UV coordinates for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     uvs: Float32Array;
 
     /**
-     * Combined 8-bit indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 8-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     indices8Bit: Uint8Array;
 
     /**
-     * Combined 16-bit indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 16-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     indices16Bit: Uint16Array;
 
     /**
-     * Combined 32-bit indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 32-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     indices32Bit: Uint32Array;
 
     /**
-     * Combined 8-bit edge indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 8-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     edgeIndices8Bit: Uint8Array;
 
     /**
-     * Combined 16-bit edge indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined 16-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     edgeIndices16Bit: Uint16Array;
 
     /**
-     * Combines 32-bit edge indices for entire [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combines 32-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     edgeIndices32Bit: Uint32Array;
 
@@ -95,27 +95,27 @@ export interface XKTData {
     decodeMatrices: Float32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link XKTData.positions}.
+     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.positions}.
      */
     eachBucketPositionsPortion: Uint32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link XKTData.colors}.
+     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.colors}.
      */
     eachBucketColorsPortion: Uint32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link XKTData.uvs}.
+     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.uvs}.
      */
     eachBucketUVsPortion: Uint32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link XKTData.indices8Bit}, {@link XKTData.indices16Bit} or {@link XKTData.indices32Bit}.
+     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.indices8Bit}, {@link DTXData.indices16Bit} or {@link DTXData.indices32Bit}.
      */
     eachBucketIndicesPortion: Uint32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link XKTData.edgeIndices8Bit}, {@link XKTData.edgeIndices16Bit} or {@link XKTData.edgeIndices32Bit}.
+     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.edgeIndices8Bit}, {@link DTXData.edgeIndices16Bit} or {@link DTXData.edgeIndices32Bit}.
      */
     eachBucketEdgeIndicesPortion: Uint32Array;
 
@@ -130,7 +130,7 @@ export interface XKTData {
     eachGeometryPrimitiveType: Uint8Array;
 
     /**
-     * For each geometry, a pointer to its first bucket in ````XKTData.eachBucket*````.
+     * For each geometry, a pointer to its first bucket in ````DTXData.eachBucket*````.
      */
     eachGeometryBucketPortion: Uint32Array;
 
@@ -140,32 +140,32 @@ export interface XKTData {
     eachGeometryDecodeMatricesPortion: Uint32Array;
 
     /**
-     * Combined list of all modeling transform matrices in this [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined list of all modeling transform matrices in this [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     matrices: Float32Array;
 
     /**
-     * Combined list of all RTC coordinate origins in this [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file.
+     * Combined list of all RTC coordinate origins in this [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     origins: Float64Array;
 
     /**
-     * For each mesh, a pointer to its portion of geometries in ````XKTData.eachGeometry*````
+     * For each mesh, a pointer to its portion of geometries in ````DTXData.eachGeometry*````
      */
     eachMeshGeometriesPortion: Uint32Array;
 
     /**
-     * For each mesh, a pointer to its matrix in {@link XKTData.matrices}.
+     * For each mesh, a pointer to its matrix in {@link DTXData.matrices}.
      */
     eachMeshMatricesPortion: Uint32Array;
 
     /**
-     * For each mesh, a pointer to its RTC origin in {@link XKTData.origins}.
+     * For each mesh, a pointer to its RTC origin in {@link DTXData.origins}.
      */
     eachMeshOriginsPortion: Uint32Array;
 
     /**
-     * For each mesh, a pointer to its texture set in {@link XKTData.textureSets}.
+     * For each mesh, a pointer to its texture set in {@link DTXData.textureSets}.
      */
     eachMeshTextureSet: Int32Array; // Allow -1 values, to indicate no SceneTextureSet
 
@@ -199,7 +199,7 @@ export interface XKTData {
     eachObjectId: string[];
 
     /**
-     * For each object, a pointer to its forst mesh in XKTata.eachMesh*
+     * For each object, a pointer to its forst mesh in DTXata.eachMesh*
      */
     eachObjectMeshesPortion: Uint32Array;
 }

@@ -1,13 +1,12 @@
-/**
- *
- */
 import {TrianglesFastColorRenderer} from "./triangles/TrianglesFastColorRenderer";
 import {TrianglesSilhouetteRenderer} from "./triangles/TrianglesSilhouetteRenderer";
 import {TrianglesEdgesColorRenderer} from "./triangles/TrianglesEdgesColorRenderer";
 import {TrianglesQualityColorRenderer} from "./triangles/TrianglesQualityColorRenderer";
 import {RenderContext} from "./RenderContext";
 
-
+/**
+ * @private
+ */
 export class RendererSet {
     trianglesFastColorRenderer: TrianglesFastColorRenderer;
     trianglesSilhouetteRenderer: TrianglesSilhouetteRenderer;

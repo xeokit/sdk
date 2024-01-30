@@ -48,8 +48,7 @@ const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
 
 /**
- * TODO
- * @internal
+ * @private
  */
 export class WebGLRendererModel extends Component implements RendererModel {
 

@@ -1,21 +1,36 @@
 import {TrianglesRenderer} from "./TrianglesRenderer";
-import type {RenderContext} from "../RenderContext";
 
+/**
+ * @private
+ */
 export class TrianglesEdgesColorRenderer extends TrianglesRenderer {
 
-    constructor(renderContext: RenderContext) {
-        super(renderContext);
-    }
-
-    buildFragmentShader(): string {
-        return "";
+    getHash(): string {
+        return `${this.renderContext.view.getSectionPlanesHash()}`;
     }
 
     buildVertexShader(): string {
-        return "";
+        return `${this.vertHeader}   
+            ${this.vertCommonDefs}
+            ${this.vertTrianglesDataTextureDefs}
+            ${this.vertSlicingDefs}
+            ${this.vertLogDepthBufDefs}       
+            void main(void) {
+                ${this.vertTriangleEdgesVertexPosition}
+                ${this.vertSlicing}
+                ${this.vertLogDepthBuf}                               
+            }`;
     }
 
-    getHash(): string {
-        return "";
+    buildFragmentShader(): string {
+        return `${this.fragHeader}                                    
+            ${this.fragSlicingDefs}                            
+            ${this.fragColorDefs}           
+            ${this.fragLogDepthBufDefs} 
+            void main(void) {                                                   
+                ${this.fragSlicing}                                                                                      
+                ${this.fragColor}                                       
+                ${this.fragLogDepthBuf}                        
+            }`;
     }
 }

@@ -1,5 +1,8 @@
 import {TrianglesRenderer} from "./TrianglesRenderer";
 
+/**
+ * @private
+ */
 export class TrianglesSilhouetteRenderer extends TrianglesRenderer {
 
     getHash(): string {

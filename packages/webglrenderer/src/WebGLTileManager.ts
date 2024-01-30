@@ -8,6 +8,9 @@ import type {TileManager} from "./TileManager";
 
 const NUM_TILES = 2000;
 
+/**
+ * @private
+ */
 export interface Tile {
     id: string;
     index: number;
@@ -16,6 +19,9 @@ export interface Tile {
     rtcViewMatrix: FloatArrayParam;
 }
 
+/**
+ * @private
+ */
 export class WebGLTileManager implements TileManager {
 
     #gl: WebGL2RenderingContext;

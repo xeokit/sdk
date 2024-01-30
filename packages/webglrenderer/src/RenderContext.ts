@@ -1,10 +1,8 @@
 import type {View, Viewer} from "@xeokit/viewer";
 import {type WebGLAbstractTexture, WebGLDataTexture, WEBGL_INFO} from "@xeokit/webglutils";
 
-
-
 /**
- * Provides rendering context within a WebGLRenderer.
+ * @private
  */
 export class RenderContext {
 

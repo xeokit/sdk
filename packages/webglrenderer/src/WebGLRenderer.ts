@@ -924,7 +924,7 @@ export class WebGLRenderer implements Renderer {
 
     #drawLayer(layer: Layer, renderPass: number): void {
         this.#renderContext.renderPass = renderPass;
-        layer.draw(this.#renderContext, this.#rendererSet);
+        layer.draw(this.#rendererSet);
     }
 
     destroy() {

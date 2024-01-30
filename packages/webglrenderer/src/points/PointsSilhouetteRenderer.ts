@@ -3,8 +3,7 @@ import {TrianglesRenderer} from "../triangles/TrianglesRenderer";
 import type {RenderContext} from "../RenderContext";
 
 /**
- * Renders triangles in a Layer as a flat, uniformly-colored silhouette.
- * Used for X-ray, highlight and selection effects.
+ * @private
  */
 export class PointsSilhouetteRenderer extends TrianglesRenderer {
 

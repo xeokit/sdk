@@ -1,10 +1,8 @@
 import type { RendererTextureSet} from "@xeokit/scene";
 import type {WebGLRendererTexture} from "./WebGLRendererTexture";
 
-
 /**
- * TODO
- * @internal
+ * @private
  */
 export class WebGLRendererTextureSet implements RendererTextureSet {
 

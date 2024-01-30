@@ -1,120 +1,120 @@
 import {WebGLDataTexture} from "@xeokit/webglutils";
-import {TrianglesDataTextureBuffer} from "./TrianglesDataTextureBuffer";
+import {DataTextureBuffer} from "./DataTextureBuffer";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 
 /**
  * @private
  */
-export class TrianglesDataTextureSet {
+export class DataTextureSet {
 
-    numPortions: number;
+     numPortions: number;
 
-    gl: WebGL2RenderingContext;
+    readonly gl: WebGL2RenderingContext;
 
-    positionsCompressedDataTexture: WebGLDataTexture;
-    perSubMeshAttributesDataTexture: WebGLDataTexture;
-    perSubMeshInstancingMatricesDataTexture: WebGLDataTexture;
-    perSubMeshDecodeMatricesDataTexture: WebGLDataTexture;
-    perTriangleSubMesh8BitsDataTexture: WebGLDataTexture;
-    perTriangleSubMesh16BitsDataTexture: WebGLDataTexture;
-    perTriangleSubMesh32BitsDataTexture: WebGLDataTexture;
-    perEdgeSubMesh8BitsDataTexture: WebGLDataTexture;
-    perEdgeSubMesh16BitsDataTexture: WebGLDataTexture;
-    perEdgeSubMesh32BitsDataTexture: WebGLDataTexture;
-    indices8BitsDataTexture: WebGLDataTexture;
-    indices16BitsDataTexture: WebGLDataTexture;
-    indices32BitsDataTexture: WebGLDataTexture;
-    edgeIndices8BitsDataTexture: WebGLDataTexture;
-    edgeIndices16BitsDataTexture: WebGLDataTexture;
-    edgeIndices32BitsDataTexture: WebGLDataTexture;
+    readonly positionsCompressedDataTexture: WebGLDataTexture;
+    readonly perSubMeshAttributesDataTexture: WebGLDataTexture;
+    readonly perSubMeshInstancingMatricesDataTexture: WebGLDataTexture;
+    readonly perSubMeshDecodeMatricesDataTexture: WebGLDataTexture;
 
-    constructor(gl: WebGL2RenderingContext, trianglesDataTextureBuffer: TrianglesDataTextureBuffer) {
+    readonly perPrimitiveSubMesh8BitsDataTexture: WebGLDataTexture;
+    readonly perPrimitiveSubMesh16BitsDataTexture: WebGLDataTexture;
+    readonly perPrimitiveSubMesh32BitsDataTexture: WebGLDataTexture;
+
+    readonly perEdgeSubMesh8BitsDataTexture: WebGLDataTexture;
+    readonly perEdgeSubMesh16BitsDataTexture: WebGLDataTexture;
+    readonly perEdgeSubMesh32BitsDataTexture: WebGLDataTexture;
+
+    readonly indices8BitsDataTexture: WebGLDataTexture;
+    readonly  indices16BitsDataTexture: WebGLDataTexture;
+    readonly  indices32BitsDataTexture: WebGLDataTexture;
+
+    readonly edgeIndices8BitsDataTexture: WebGLDataTexture;
+    readonly edgeIndices16BitsDataTexture: WebGLDataTexture;
+    readonly edgeIndices32BitsDataTexture: WebGLDataTexture;
+
+    readonly indices: { 16: WebGLDataTexture; 8: WebGLDataTexture; 32: WebGLDataTexture; };
+    readonly eachPrimitiveMesh: { 16: WebGLDataTexture; 8: WebGLDataTexture; 32: WebGLDataTexture };
+    readonly edgeIndices: { 16: WebGLDataTexture; 8: WebGLDataTexture; 32: WebGLDataTexture };
+    readonly eachEdgeMesh: { 16: WebGLDataTexture; 8: WebGLDataTexture; 32: WebGLDataTexture };
+
+    constructor(gl: WebGL2RenderingContext, dataTextureBuffer: DataTextureBuffer) {
 
         this.numPortions = 0;
         this.gl = gl;
 
-        // Triangle -> SceneMesh lookup
-
-        this.perTriangleSubMesh8BitsDataTexture = this.#createTextureForPackedPortionIds(trianglesDataTextureBuffer.perTriangleSubMesh8Bits);
-        this.perTriangleSubMesh16BitsDataTexture = this.#createTextureForPackedPortionIds(trianglesDataTextureBuffer.perTriangleSubMesh16Bits);
-        this.perTriangleSubMesh32BitsDataTexture = this.#createTextureForPackedPortionIds(trianglesDataTextureBuffer.perTriangleSubMesh32Bits);
+        // Primitive -> SceneMesh lookup
+        this.perPrimitiveSubMesh8BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perPrimitiveSubMesh8Bits);
+        this.perPrimitiveSubMesh16BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perPrimitiveSubMesh16Bits);
+        this.perPrimitiveSubMesh32BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perPrimitiveSubMesh32Bits);
 
         // SceneMesh -> attributes lookup
-
         this.perSubMeshAttributesDataTexture = this.#createPerSubMeshAttributesDataTexture( // Flags (except for solid) are inserted later
-            trianglesDataTextureBuffer.perSubMeshColors,
-            trianglesDataTextureBuffer.perSubMeshPickColors,
-            trianglesDataTextureBuffer.perSubMeshVertexBases,
-            trianglesDataTextureBuffer.perSubMeshIndicesBases,
-            trianglesDataTextureBuffer.perSubMeshEdgeIndicesBases,
-            trianglesDataTextureBuffer.perSubMeshSolidFlag);
+            dataTextureBuffer.perSubMeshColors,
+            dataTextureBuffer.perSubMeshPickColors,
+            dataTextureBuffer.perSubMeshVertexBases,
+            dataTextureBuffer.perSubMeshIndicesBases,
+            dataTextureBuffer.perSubMeshEdgeIndicesBases,
+            dataTextureBuffer.perSubMeshSolidFlag);
 
         // SceneMesh -> instancing matrix
-
-        this.perSubMeshInstancingMatricesDataTexture = this.#createPerSubMeshInstancingMatricesDataTexture(trianglesDataTextureBuffer.perSubMeshInstancingMatrices);
+        this.perSubMeshInstancingMatricesDataTexture = this.#createPerSubMeshInstancingMatricesDataTexture(dataTextureBuffer.perSubMeshInstancingMatrices);
 
         // SceneMesh -> positions decompress matrix
-
-        this.perSubMeshDecodeMatricesDataTexture = this.#createPerSubMeshDecodeMatricesDataTexture(trianglesDataTextureBuffer.perSubMeshDecodeMatrices);
+        this.perSubMeshDecodeMatricesDataTexture = this.#createPerSubMeshDecodeMatricesDataTexture(dataTextureBuffer.perSubMeshDecodeMatrices);
 
         // Vertex -> position
+        this.positionsCompressedDataTexture = this.#createTextureForPositions(dataTextureBuffer.positionsCompressed, dataTextureBuffer.lenPositionsCompressed);
 
-        this.positionsCompressedDataTexture = this.#createTextureForPositions(trianglesDataTextureBuffer.positionsCompressed, trianglesDataTextureBuffer.lenPositionsCompressed);
-
-        if (trianglesDataTextureBuffer.perEdgeSubMesh8Bits.length > 0) {
-            this.perEdgeSubMesh8BitsDataTexture = this.#createTextureForPackedPortionIds(trianglesDataTextureBuffer.perEdgeSubMesh8Bits);
+        if (dataTextureBuffer.perEdgeSubMesh8Bits.length > 0) {
+            this.perEdgeSubMesh8BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perEdgeSubMesh8Bits);
         }
-        if (trianglesDataTextureBuffer.perEdgeSubMesh16Bits.length > 0) {
-            this.perEdgeSubMesh16BitsDataTexture = this.#createTextureForPackedPortionIds(trianglesDataTextureBuffer.perEdgeSubMesh16Bits);
+        if (dataTextureBuffer.perEdgeSubMesh16Bits.length > 0) {
+            this.perEdgeSubMesh16BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perEdgeSubMesh16Bits);
         }
-        if (trianglesDataTextureBuffer.perEdgeSubMesh32Bits.length > 0) {
-            this.perEdgeSubMesh32BitsDataTexture = this.#createTextureForPackedPortionIds(trianglesDataTextureBuffer.perEdgeSubMesh32Bits);
+        if (dataTextureBuffer.perEdgeSubMesh32Bits.length > 0) {
+            this.perEdgeSubMesh32BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perEdgeSubMesh32Bits);
         }
 
-        if (trianglesDataTextureBuffer.lenIndices8Bits > 0) {
-            this.indices8BitsDataTexture = this.#createIndices8BitDataTexture(trianglesDataTextureBuffer.indices8Bits, trianglesDataTextureBuffer.lenIndices8Bits);
+        if (dataTextureBuffer.lenIndices8Bits > 0) {
+            this.indices8BitsDataTexture = this.#createIndices8BitDataTexture(dataTextureBuffer.indices8Bits, dataTextureBuffer.lenIndices8Bits);
         }
-        if (trianglesDataTextureBuffer.lenIndices16Bits > 0) {
-            this.indices16BitsDataTexture = this.#createIndices16BitDataTexture(trianglesDataTextureBuffer.indices16Bits, trianglesDataTextureBuffer.lenIndices16Bits);
+        if (dataTextureBuffer.lenIndices16Bits > 0) {
+            this.indices16BitsDataTexture = this.#createIndices16BitDataTexture(dataTextureBuffer.indices16Bits, dataTextureBuffer.lenIndices16Bits);
         }
-        if (trianglesDataTextureBuffer.lenIndices32Bits > 0) {
-            this.indices32BitsDataTexture = this.#createIndices32BitDataTexture(trianglesDataTextureBuffer.indices32Bits, trianglesDataTextureBuffer.lenIndices32Bits);
+        if (dataTextureBuffer.lenIndices32Bits > 0) {
+            this.indices32BitsDataTexture = this.#createIndices32BitDataTexture(dataTextureBuffer.indices32Bits, dataTextureBuffer.lenIndices32Bits);
         }
-        if (trianglesDataTextureBuffer.lenEdgeIndices8Bits > 0) {
-            this.edgeIndices8BitsDataTexture = this.#createEdgeIndices8BitDataTexture(trianglesDataTextureBuffer.edgeIndices8Bits, trianglesDataTextureBuffer.lenEdgeIndices8Bits);
+        if (dataTextureBuffer.lenEdgeIndices8Bits > 0) {
+            this.edgeIndices8BitsDataTexture = this.#createEdgeIndices8BitDataTexture(dataTextureBuffer.edgeIndices8Bits, dataTextureBuffer.lenEdgeIndices8Bits);
         }
-        if (trianglesDataTextureBuffer.lenEdgeIndices16Bits > 0) {
-            this.edgeIndices16BitsDataTexture = this.#createEdgeIndices16BitDataTexture(trianglesDataTextureBuffer.edgeIndices16Bits, trianglesDataTextureBuffer.lenEdgeIndices16Bits);
+        if (dataTextureBuffer.lenEdgeIndices16Bits > 0) {
+            this.edgeIndices16BitsDataTexture = this.#createEdgeIndices16BitDataTexture(dataTextureBuffer.edgeIndices16Bits, dataTextureBuffer.lenEdgeIndices16Bits);
         }
-        if (trianglesDataTextureBuffer.lenEdgeIndices32Bits > 0) {
-            this.edgeIndices32BitsDataTexture = this.#createEdgeIndices32BitDataTexture(trianglesDataTextureBuffer.edgeIndices32Bits, trianglesDataTextureBuffer.lenEdgeIndices32Bits);
+        if (dataTextureBuffer.lenEdgeIndices32Bits > 0) {
+            this.edgeIndices32BitsDataTexture = this.#createEdgeIndices32BitDataTexture(dataTextureBuffer.edgeIndices32Bits, dataTextureBuffer.lenEdgeIndices32Bits);
         }
+
+        this.indices = {
+            8: this.indices8BitsDataTexture,
+            16: this.indices16BitsDataTexture,
+            32: this.indices32BitsDataTexture,
+        };
+        this.eachPrimitiveMesh = {
+            8: this.perPrimitiveSubMesh8BitsDataTexture,
+            16: this.perPrimitiveSubMesh8BitsDataTexture,
+            32: this.perPrimitiveSubMesh8BitsDataTexture,
+        };
+        this.edgeIndices = {
+            8: this.edgeIndices8BitsDataTexture,
+            16: this.edgeIndices16BitsDataTexture,
+            32: this.edgeIndices32BitsDataTexture,
+        };
+        this.eachEdgeMesh = {
+            8: this.perEdgeSubMesh8BitsDataTexture,
+            16: this.perEdgeSubMesh16BitsDataTexture,
+            32: this.perEdgeSubMesh32BitsDataTexture,
+        };
     }
-
-    // build() {
-    //     this.indices = {
-    //         8: this.indices_8Bits,
-    //         16: this.indices_16Bits,
-    //         32: this.indices_32Bits,
-    //     };
-    //     this.eachPrimitiveMesh = {
-    //         8: this.eachPrimitiveMesh_8Bits,
-    //         16: this.eachPrimitiveMesh_16Bits,
-    //         32: this.eachPrimitiveMesh_32Bits,
-    //     };
-    //     this.edgeIndices = {
-    //         8: this.edgeIndices_8Bits,
-    //         16: this.edgeIndices_16Bits,
-    //         32: this.edgeIndices_32Bits,
-    //     };
-    //     this.eachEdgeMesh = {
-    //         8: this.eachEdgeMesh_8Bits,
-    //         16: this.eachEdgeMesh_16Bits,
-    //         32: this.eachEdgeMesh_32Bits,
-    //     };
-    //
-    //
-    // }
 
     #createPerSubMeshAttributesDataTexture(
         colors: IntArrayParam[],
@@ -497,9 +497,9 @@ export class TrianglesDataTextureSet {
         this.perSubMeshInstancingMatricesDataTexture.destroy();
         this.perSubMeshDecodeMatricesDataTexture.destroy();
         this.positionsCompressedDataTexture.destroy();
-        this.perTriangleSubMesh8BitsDataTexture.destroy();
-        this.perTriangleSubMesh16BitsDataTexture.destroy();
-        this.perTriangleSubMesh32BitsDataTexture.destroy();
+        this.perPrimitiveSubMesh8BitsDataTexture.destroy();
+        this.perPrimitiveSubMesh16BitsDataTexture.destroy();
+        this.perPrimitiveSubMesh32BitsDataTexture.destroy();
         if (this.perEdgeSubMesh8BitsDataTexture) {
             this.perEdgeSubMesh8BitsDataTexture.destroy();
         }

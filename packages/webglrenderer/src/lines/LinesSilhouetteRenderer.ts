@@ -1,16 +1,9 @@
 import {TrianglesRenderer} from "../triangles/TrianglesRenderer";
 
-import type {RenderContext} from "../RenderContext";
-
 /**
- * Renders triangles in a RendererLayer as a flat, uniformly-colored silhouette.
- * Used for X-ray, highlight and selection effects.
+ * @private
  */
 export class LinesSilhouetteRenderer extends TrianglesRenderer {
-
-    constructor(renderContext: RenderContext) {
-        super(renderContext);
-    }
 
     getHash(): string {
         return this.renderContext.view.getSectionPlanesHash();

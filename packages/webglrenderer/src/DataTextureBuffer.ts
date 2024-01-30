@@ -1,7 +1,7 @@
 /**
  * @private
  */
-export class TrianglesDataTextureBuffer {
+export class DataTextureBuffer {
      positionsCompressed: any[];
      lenPositionsCompressed: number;
      metallicRoughness: any[];
@@ -26,13 +26,12 @@ export class TrianglesDataTextureBuffer {
      perSubMeshVertexBases: any[];
      perSubMeshIndicesBases: any[];
      perSubMeshEdgeIndicesBases: number[];
-     perTriangleSubMesh8Bits: number[];
-     perTriangleSubMesh16Bits: number[];
-     perTriangleSubMesh32Bits: number[];
+     perPrimitiveSubMesh8Bits: number[];
+     perPrimitiveSubMesh16Bits: number[];
+     perPrimitiveSubMesh32Bits: number[];
      perEdgeSubMesh8Bits: number[];
      perEdgeSubMesh16Bits: number[];
      perEdgeSubMesh32Bits: number[];
-
 
     constructor() {
         this.positionsCompressed = [];
@@ -59,9 +58,9 @@ export class TrianglesDataTextureBuffer {
         this.perSubMeshVertexBases = [];
         this.perSubMeshIndicesBases = [];
         this.perSubMeshEdgeIndicesBases = [];
-        this.perTriangleSubMesh8Bits = [];
-        this.perTriangleSubMesh16Bits = [];
-        this.perTriangleSubMesh32Bits = [];
+        this.perPrimitiveSubMesh8Bits = [];
+        this.perPrimitiveSubMesh16Bits = [];
+        this.perPrimitiveSubMesh32Bits = [];
         this.perEdgeSubMesh8Bits = [];
         this.perEdgeSubMesh16Bits = [];
         this.perEdgeSubMesh32Bits = [];

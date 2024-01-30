@@ -11,7 +11,6 @@ import {Layer} from "./Layer";
 const tempMat4a = createMat4();
 const tempMat4b = createMat4();
 
-
 /**
  * @private
  */
@@ -88,13 +87,6 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         this.layer.setLayerMeshVisible(this.meshIndex, flags, this.transparent);
     }
 
-    /**
-     * Loads a modeling matrix into the {@link WebGLRenderer}.
-     *
-     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.matrix}.
-     *
-     * @internal
-     */
     setMatrix(matrix: FloatArrayParam): void {
         const center = transformPoint3(matrix, [0, 0, 0]);
         const oldTile = this.tile;
@@ -110,49 +102,22 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         }
     }
 
-    /**
-     * Loads a metalness value into the {@link WebGLRenderer}.
-     *
-     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.metalness}.
-     *
-     * @internal
-     */
     setMetallic(metallic: number): void {
     }
 
-    /**
-     * Loads a roughness value into the {@link WebGLRenderer}.
-     *
-     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.roughness}.
-     *
-     * @internal
-     */
     setRoughness(roughness: number): void {
     }
 
-    /**
-     * Loads a color value into the {@link WebGLRenderer}.
-     *
-     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.color}.
-     *
-     * @internal
-     */
     setColor(color: FloatArrayParam) {
+        const setOpacity = false;
         this.color[0] = color[0];
         this.color[1] = color[1];
         this.color[2] = color[2];
         if (!this.colorizing) {
-            this.layer.setLayerMeshColor(this.meshIndex, this.color);
+            this.layer.setLayerMeshColor(this.meshIndex, this.color, setOpacity);
         }
     }
 
-    /**
-     * Loads a roughness value into the {@link WebGLRenderer}.
-     *
-     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneObject | SceneObject.colorize}.
-     *
-     * @internal
-     */
     setColorize(colorize: FloatArrayParam | null) {
         const setOpacity = false;
         if (colorize) {
@@ -168,6 +133,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     }
 
     setOpacity(opacity: number, flags: number) {
+        const setOpacity = true;
         const newTransparent = (opacity < 255);
         const lastTransparent = this.transparent;
         const changingTransparency = (lastTransparent !== newTransparent);
@@ -175,9 +141,9 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         this.colorize[3] = opacity;
         this.transparent = newTransparent;
         if (this.colorizing) {
-            this.layer.setLayerMeshColor(this.meshIndex, this.colorize);
+            this.layer.setLayerMeshColor(this.meshIndex, this.colorize, setOpacity);
         } else {
-            this.layer.setLayerMeshColor(this.meshIndex, this.color);
+            this.layer.setLayerMeshColor(this.meshIndex, this.color, setOpacity);
         }
         if (changingTransparency) {
             this.layer.setLayerMeshTransparent(this.meshIndex, flags, newTransparent);

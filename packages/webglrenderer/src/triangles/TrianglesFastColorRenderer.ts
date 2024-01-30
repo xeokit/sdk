@@ -1,5 +1,8 @@
 import {TrianglesRenderer} from "./TrianglesRenderer";
 
+/**
+ * @private
+ */
 export class TrianglesFastColorRenderer extends TrianglesRenderer {
 
     getHash(): string {
@@ -11,12 +14,12 @@ export class TrianglesFastColorRenderer extends TrianglesRenderer {
             ${this.vertCommonDefs}
             ${this.vertTrianglesDataTextureDefs}
             ${this.vertSlicingDefs}
-            ${this.vertLightingDefs}
+            ${this.vertTrianglesLightingDefs}
             ${this.vertLogDepthBufDefs}                  
             void main(void) {
                 ${this.vertTriangleVertexPosition}                               
                 ${this.vertSlicing}
-                ${this.vertLighting}
+                ${this.vertTrianglesLighting}
                 ${this.vertLogDepthBuf} 
             }`;
     }
@@ -24,11 +27,11 @@ export class TrianglesFastColorRenderer extends TrianglesRenderer {
     buildFragmentShader(): string {
         return `${this.fragHeader}                                    
             ${this.fragSlicingDefs} 
-            ${this.fragLightingDefs}   
+            ${this.fragTrianglesLightingDefs}   
             ${this.fragLogDepthBufDefs} 
             void main(void) {                                                   
                 ${this.fragSlicing}                                                                                      
-                ${this.fragLighting}                                   
+                ${this.fragTrianglesLighting}                                   
                 ${this.fragLogDepthBuf}                        
             }`;
     }

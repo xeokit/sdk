@@ -1,6 +1,9 @@
 import type {FloatArrayParam} from "@xeokit/math";
 import type {Tile} from "./WebGLTileManager";
 
+/**
+ * @private
+ */
 export interface TileManager {
 
     getTile(center: FloatArrayParam): Tile;

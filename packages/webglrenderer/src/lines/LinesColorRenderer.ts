@@ -1,12 +1,9 @@
 import {TrianglesRenderer} from "../triangles/TrianglesRenderer";
 
-import type {RenderContext} from "../RenderContext";
-
+/**
+ * @private
+ */
 export class LinesColorRenderer extends TrianglesRenderer {
-
-    constructor(renderContext: RenderContext) {
-        super(renderContext);
-    }
 
     getHash(): string {
         return this.renderContext.view.getSectionPlanesHash();

@@ -371,9 +371,9 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const g = rendererMesh.pickId >> 8 & 0xFF;
         const r = rendererMesh.pickId & 0xFF;
         const pickColor = new Uint8Array([r, g, b, a]);
-        collapseAABB3(rendererMesh.aabb);
+    //    collapseAABB3(rendererMesh.aabb);
         const meshIndex = layer.createLayerMesh({pickColor}, mesh);
-        expandAABB3(this.#aabb, rendererMesh.aabb);
+      //  expandAABB3(this.#aabb, rendererMesh.aabb);
         rendererMesh.layer = layer;
         rendererMesh.meshIndex = meshIndex;
         this.rendererMeshes[mesh.id] = rendererMesh;

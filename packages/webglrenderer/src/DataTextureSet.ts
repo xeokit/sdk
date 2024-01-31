@@ -468,13 +468,13 @@ export class DataTextureSet {
 
     #createTextureForPackedPortionIds(portionIdsArray: IntArrayParam): WebGLDataTexture {
         if (portionIdsArray.length === 0) {
-            throw "num portions === 0";
+            return null;
         }
         const lenArray = portionIdsArray.length;
         const textureWidth = 4096;
         const textureHeight = Math.ceil(lenArray / textureWidth);
         if (textureHeight === 0) {
-            throw "texture height===0";
+            throw null;
         }
         const texArraySize = textureWidth * textureHeight;
         const textureData = new Uint16Array(texArraySize);

@@ -38,6 +38,13 @@ export abstract class TrianglesRenderer extends LayerRenderer {
 
     protected get vertTrianglesLightingDefs(): string {
         const src = [];
+        src.push(`vec3 octDecode(vec2 oct) {
+            vec3 v = vec3(oct.xy, 1.0 - abs(oct.x) - abs(oct.y));
+            if (v.z < 0.0) {
+                v.xy = (1.0 - abs(v.yx)) * vec2(v.x >= 0.0 ? 1.0 : -1.0, v.y >= 0.0 ? 1.0 : -1.0);
+            }
+            return normalize(v);
+        }`);
         src.push(`uniform vec4 lightAmbient;`);
         for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
             const light = this.renderContext.view.lightsList[i];
@@ -52,6 +59,7 @@ export abstract class TrianglesRenderer extends LayerRenderer {
                 src.push(`uniform vec3 lightPos${i};`);
             }
         }
+        src.push("uniform vec4 color;");
         src.push("out vec4 vColor;");
         return src.join("\n");
     }
@@ -59,9 +67,10 @@ export abstract class TrianglesRenderer extends LayerRenderer {
     protected get vertTrianglesLighting(): string {
         const src = [];
         src.push("vec4      viewPosition    = viewMatrix * worldPosition; ");
-        src.push("vec4      modelNormal     = vec4(octDecode(normal.xy), 0.0); ");
-        src.push("vec4      worldNormal     = worldNormalMatrix * vec4(dot(modelNormal, modelNormalMatrixCol0), dot(modelNormal, modelNormalMatrixCol1), dot(modelNormal, modelNormalMatrixCol2), 0.0);");
-        src.push("vec3      viewNormal      = normalize(vec4(viewNormalMatrix * worldNormal).xyz);");
+        // src.push("vec4      modelNormal     = vec4(octDecode(normal.xy), 0.0); ");
+        // src.push("vec4      worldNormal     = worldNormalMatrix * vec4(dot(modelNormal, modelNormalMatrixCol0), dot(modelNormal, modelNormalMatrixCol1), dot(modelNormal, modelNormalMatrixCol2), 0.0);");
+        // src.push("vec3      viewNormal      = normalize(vec4(viewNormalMatrix * worldNormal).xyz);");
+        src.push("vec3      viewNormal2      = vec3(1.0, 1.0, 1.0);");
         src.push("vec3      reflectedColor  = vec3(0.0, 0.0, 0.0);");
         src.push("vec3      viewLightDir    = vec3(0.0, 0.0, -1.0);");
         src.push("float     lambertian      = 1.0;");
@@ -76,7 +85,7 @@ export abstract class TrianglesRenderer extends LayerRenderer {
             if (light instanceof PointLight) {
                 src.push(`viewLightDir = -normalize((viewMatrix * vec4(lightPos${i}, 0.0)).xyz);`);
             }
-            src.push("lambertian = max(dot(-viewNormal, viewLightDir), 0.0);");
+            src.push("lambertian = max(dot(-viewNormal2, viewLightDir), 0.0);");
             src.push("reflectedColor += lambertian * (lightColor" + i + ".rgb * lightColor" + i + ".a);");
         }
         src.push("vec3 rgb = (vec3(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0));");
@@ -139,9 +148,8 @@ export abstract class TrianglesRenderer extends LayerRenderer {
                         }
                     }
                }
-               vec4 worldPosition = sceneModelMatrix *  (objectDecodeAndInstanceMatrix * vec4(position, 1.0));
-               vec4 viewPosition = viewMatrix * worldPosition;
-               vec4 clipPos = projMatrix * viewPosition;
+               vec4 worldPosition = sceneModelMatrix *  (objectDecodeAndInstanceMatrix * vec4(position, 1.0));            
+               vec4 clipPos = projMatrix * (viewMatrix * worldPosition);
                gl_Position = clipPos;`;
     }
 

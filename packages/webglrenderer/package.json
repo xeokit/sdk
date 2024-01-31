@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/webglrenderer",
-  "private": true,
+  "private": false,
   "type": "module",
   "version": "1.0.1-alpha.0",
   "description": "WebGL2 rendering strategy for a xeokit Viewer",

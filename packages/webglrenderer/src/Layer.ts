@@ -452,8 +452,8 @@ export abstract class Layer {
     }
 
     setLayerMeshVisible(meshIndex: number, flags: number, transparent: boolean) {
-        if (this.#built) {
-            throw new SDKError("Already built");
+        if (!this.#built) {
+            throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
             this.meshCounts.numVisible++;
@@ -466,8 +466,8 @@ export abstract class Layer {
     }
 
     setLayerMeshHighlighted(meshIndex: number, flags: number, transparent: boolean) {
-        if (this.#built) {
-            throw new SDKError("Already built");
+        if (!this.#built) {
+            throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
             this.meshCounts.numHighlighted++;
@@ -480,8 +480,8 @@ export abstract class Layer {
     }
 
     setLayerMeshXRayed(meshIndex: number, flags: number, transparent: boolean) {
-        if (this.#built) {
-            throw new SDKError("Already built");
+        if (!this.#built) {
+            throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
             this.meshCounts.numXRayed++;
@@ -494,8 +494,8 @@ export abstract class Layer {
     }
 
     setLayerMeshSelected(meshIndex: number, flags: number, transparent: boolean) {
-        if (this.#built) {
-            throw new SDKError("Already built");
+        if (!this.#built) {
+            throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
             this.meshCounts.numSelected++;
@@ -508,8 +508,8 @@ export abstract class Layer {
     }
 
     setLayerMeshEdges(meshIndex: number, flags: number, transparent: boolean) {
-        if (this.#built) {
-            throw new SDKError("Already built");
+        if (!this.#built) {
+            throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.EDGES) {
             this.meshCounts.numEdges++;
@@ -522,8 +522,8 @@ export abstract class Layer {
     }
 
     setLayerMeshClippable(meshIndex: number, flags: number) {
-        if (this.#built) {
-            throw new SDKError("Already built");
+        if (!this.#built) {
+            throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
             this.meshCounts.numClippable++;

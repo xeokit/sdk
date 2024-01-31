@@ -15,12 +15,12 @@ export class TrianglesFastColorRenderer extends TrianglesRenderer {
             ${this.vertTrianglesDataTextureDefs}
             ${this.vertSlicingDefs}
             ${this.vertTrianglesLightingDefs}
-            ${this.vertLogDepthBufDefs}                  
+            ${this.vertLogDepthBufDefs}                     
             void main(void) {
                 ${this.vertTriangleVertexPosition}                               
                 ${this.vertSlicing}
                 ${this.vertTrianglesLighting}
-                ${this.vertLogDepthBuf} 
+                ${this.vertLogDepthBuf}
             }`;
     }
 

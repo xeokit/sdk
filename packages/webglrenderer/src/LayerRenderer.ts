@@ -564,6 +564,15 @@ export abstract class LayerRenderer {
         //         vFlags2         = flags2.r;`;
     }
 
+    // protected get vertColorDefs(): string {
+    //     return `uniform vec4 color;
+    //             out vec4 vColor;`;
+    // }
+    //
+    // protected get vertColor(): string {
+    //     return `vColor = color;`;
+    // }
+
     //----------------------------------------------------------------------------
     // Fragment shader
     //----------------------------------------------------------------------------

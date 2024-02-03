@@ -1,67 +1,25 @@
-const path = require('path');
-
 module.exports = {
-    transform: {
-        "^.+\\.(t|j)sx?$": ["@swc/jest"],
-    },
-
-    moduleNameMapper: {
-        "@xeokit/basictypes/(.*)$": path.join(__dirname, "../basictypes/src/$1"),
-        "@xeokit/bcf/(.*)$": path.join(__dirname, "../bcf/src/$1"),
-        "@xeokit/boundaries/(.*)$": path.join(__dirname, "../boundaries/src/$1"),
-        "@xeokit/bundle/(.*)$": path.join(__dirname, "../bundle/src/$1"),
-        "@xeokit/cameracontrol/(.*)$": path.join(__dirname, "../cameracontrol/src/$1"),
-        "@xeokit/cityjson/(.*)$": path.join(__dirname, "../cityjson/src/$1"),
-        "@xeokit/cityjson2xkt/(.*)$": path.join(__dirname, "../cityjson2xkt/src/$1"),
-        "@xeokit/cityjsontypes_1_1_3/(.*)$": path.join(__dirname, "../cityjsontypes_1_1_3/src/$1"),
-        "@xeokit/compression(.*)$": path.join(__dirname, "../compression/src/$1"),
-        "@xeokit/constants(.*)$": path.join(__dirname, "../constants/src/$1"),
-        "@xeokit/core(.*)$": path.join(__dirname, "../core/src/$1"),
-        "@xeokit/curves(.*)$": path.join(__dirname, "../curves/src/$1"),
-        "@xeokit/data/(.*)$": path.join(__dirname, "../data/src/$1"),
-        "@xeokit/dotbim/(.*)$": path.join(__dirname, "../data/src/$1"),
-        "@xeokit/gltf/(.*)$": path.join(__dirname, "../gltf/src/$1"),
-        "@xeokit/gltf2xkt/(.*)$": path.join(__dirname, "../gltf2xkt/src/$1"),
-        "@xeokit/ifc2xkt/(.*)$": path.join(__dirname, "../ifc2xkt/src/$1"),
-        "@xeokit/kdtree2/(.*)$": path.join(__dirname, "../kdtree2/src/$1"),
-        "@xeokit/kdtree3/(.*)$": path.join(__dirname, "../kdtree3/src/$1"),
-        "@xeokit/ktx2/(.*)$": path.join(__dirname, "../ktx2/src/$1"),
-        "@xeokit/las/(.*)$": path.join(__dirname, "../las/src/$1"),
-        "@xeokit/las2xkt/(.*)$": path.join(__dirname, "../las2xkt/src/$1"),
-        "@xeokit/locale/(.*)$": path.join(__dirname, "../locale/src/$1"),
-        "@xeokit/math(.*)$": path.join(__dirname, "../math/src/$1"),
-        "@xeokit/matrix(.*)$": path.join(__dirname, "../matrix/src/$1"),
-        
-        "@xeokit/pick(.*)$": path.join(__dirname, "../pick/src/$1"),
-        "@xeokit/procgen(.*)$": path.join(__dirname, "../procgen/src/$1"),
-        "@xeokit/rtc(.*)$": path.join(__dirname, "../rtc/src/$1"),
-        "@xeokit/scene(.*)$": path.join(__dirname, "../scene/src/$1"),
-        "@xeokit/threedxml(.*)$": path.join(__dirname, "../threedxml/src/$1"),
-        "@xeokit/treeview(.*)$": path.join(__dirname, "../treeview/src/$1"),
-        "@xeokit/utils(.*)$": path.join(__dirname, "../utils/src/$1"),
-        "@xeokit/viewer(.*)$": path.join(__dirname, "../viewer/src/$1"),
-        "@xeokit/webglrenderer(.*)$": path.join(__dirname, "../webglrenderer/src/$1"),
-        "@xeokit/webglutils(.*)$": path.join(__dirname, "../webglutils/src/$1"),
-        "@xeokit/webgpu(.*)$": path.join(__dirname, "../webgpu/src/$1"),
-        "@xeokit/webgpurenderer(.*)$": path.join(__dirname, "../webgpurenderer/src/$1"),
-        "@xeokit/webifc(.*)$": path.join(__dirname, "../webifc/src/$1"),
-        "@xeokit/ifcviewer(.*)$": path.join(__dirname, "../ifcviewer/src/$1")
-    },
-    moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+    ...require('../../jest.config.common'),
+    displayName: '@xeokit/treeview Tests',
     resolver: undefined,
     silent: false,
 
-        "runner": "@kayahr/jest-electron-runner",
-        "testEnvironment": "@kayahr/jest-electron-runner/environment",
-        "testEnvironmentOptions": {
-            "electron": {
-                "options": [
-                    "no-sandbox",
-                    "ignore-certificate-errors",
-                    "force-device-scale-factor=1"
-                ],
-                "disableHardwareAcceleration": false
-            }
+    "runner": "@kayahr/jest-electron-runner",
+    "testEnvironment": "@kayahr/jest-electron-runner/environment",
+    "testEnvironmentOptions": {
+        "electron": {
+            "options": [
+                "no-sandbox",
+                "ignore-certificate-errors",
+                "force-device-scale-factor=1"
+            ],
+            "disableHardwareAcceleration": false
         }
-
+    },
+    "reporters": [
+        "default",
+        ["./../../node_modules/jest-html-reporter", {
+            "pageTitle": "@xeokit/viewer Test Report"
+        }]
+    ]
 };

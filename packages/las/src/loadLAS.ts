@@ -25,6 +25,8 @@ const MAX_VERTICES = 500000; // TODO: Rough estimate
  * @param params.fileData - LAS/LAZ file data
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
+ * @param params.center - Whether to center the points. Default is false.
+ * @param params.transform - Optional flattened 4x4 matrix to transform the points. Applied after centering, if specified.
  * @param params.skip - Option to oad every **n** points. Default is 1.
  * @param params.fp64 - Whether to assume that LAS positions are stored in 64-bit floats instead of 32-bit. Default is true.
  * @param params.colorDepth - Whether to assume that LAS colors are encoded using 8 or 16 bits. Accepted values are 8, 16 an "auto".
@@ -40,8 +42,8 @@ export function loadLAS(params: {
     sceneModel: SceneModel,
     dataModel?: DataModel,
     center?: boolean;
-    skip?: number;
     transform?: FloatArrayParam;
+    skip?: number;
     fp64?: boolean;
     colorDepth?: string | number,
     log?: Function

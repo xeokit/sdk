@@ -45,6 +45,8 @@ describe('loadLAS Test', () => {
 
                     expect(sceneModel.built).toBe(true);
 
+                    expect(sceneModel.geometries["geometry-0"].geometryBuckets[0].positionsCompressed.length).toEqual(1212063);
+
                     // expect(Object.keys(sceneModel.meshes)).toEqual(testData.meshIds)
                     // expect(Object.keys(sceneModel.geometries)).toEqual(testData.geometryIds)
                     // expect(Object.keys(sceneModel.textures)).toEqual(testData.textureIds)

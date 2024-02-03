@@ -63,13 +63,20 @@
  *      response.arrayBuffer().then(fileData => {
  *
  *          loadLAS({
- *              fileData,
- *              dataModel,
- *              sceneModel,
- *              fp64: false,
- *              colorDepth: "auto",
- *              skip: 1,
- *              log: (msg) => {
+ *              fileData,           // Load LAS/LAZ from this ArrayBuffer
+ *              dataModel,          // Save metadata in this DataModel (optional)
+ *              sceneModel,         // Load points into this SceneModel
+ *              fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+ *              colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+ *              skip: 1,            // Load every nth point (optional, default is 1)
+ *              center: false,      // Whether to center the points (optional)
+ *              transform: [        // Transform the points (optional)
+ *                  1,0,0,0,
+ *                  0,1,0,0,
+ *                  0,0,1,0,
+ *                  0,0,0,1
+ *              ],
+ *              log: (msg) => {     // Log loading progress (optional)
  *                  console.log(msg);
  *              }
  *          }).then(()=>{

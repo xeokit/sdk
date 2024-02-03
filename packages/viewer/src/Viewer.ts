@@ -87,6 +87,8 @@ export class Viewer extends Component {
      * List of all the Views in this Viewer.
      *
      * Each {@link @xeokit/viewer!View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
+     *
+     * @internal
      */
     readonly viewList: View[];
 

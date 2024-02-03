@@ -3,7 +3,7 @@ import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 //import * as WebIFC from "web-ifc/web-ifc-api-node";
 import * as WebIFC from "web-ifc";
-import {IfcRelAggregates} from "@xeokit/ifctypes";
+import {IfcElement, IfcRelAggregates, typeCodes} from "@xeokit/ifctypes";
 import {worldToRTCPositions} from "@xeokit/rtc";
 import {TrianglesPrimitive} from "@xeokit/constants";
 import {SDKError} from "@xeokit/core";
@@ -167,14 +167,17 @@ function createDataObject(ctx: ParsingContext, ifcElement: any, parentDataObject
     const id = ifcElement.GlobalId.value;
     const type = ifcElement.__proto__.constructor.name;
     const name = (ifcElement.Name && ifcElement.Name.value !== "") ? ifcElement.Name.value : type;
-    // @ts-ignore
+    let typeCode = typeCodes[type];
+    if (typeCode == undefined) {
+        typeCode = IfcElement;
+        // TODO: Log this
+    }
     ctx.dataModel.createObject({
         id,
         name,
-        type
+        type: typeCode
     });
     if (parentDataObjectId) {
-        // @ts-ignore
         ctx.dataModel.createRelationship({
             type: IfcRelAggregates,
             relatingObjectId: parentDataObjectId,

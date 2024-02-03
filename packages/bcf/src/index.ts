@@ -48,7 +48,7 @@
  * * create a {@link @xeokit/scene!Scene | Scene} and a {@link @xeokit/data!Data | Data},
  * * initialize a Viewer with the Scene and a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer},
  * * create a new {@link @xeokit/viewer!View | View}, {@link @xeokit/scene!SceneModel | SceneModel} and {@link @xeokit/data!DataModel | DataModel},
- * * load an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file using the {@link @xeokit/xkt!loadXKT | loadXKT} function, and
+ * * load a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file using the {@link @xeokit/dtx!loadDTX | loadDTX} function, and
  * * build the Scene and Data models, rendering the 3D model in the web browser.
  *
  * ````javascript
@@ -56,7 +56,7 @@
  * import {Data} from "@xeoki/data";
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
- * import {loadXKT} from "@xeokit/loadXKT";
+ * import {loadDTX} from "@xeokit/loadDTX";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
  * import * as ifcTypes from "@xeokit/ifctypes";
  *
@@ -81,10 +81,10 @@
  *     id: "myModel"
  * });
  *
- * fetch("myModel.xkt").then(response => {
+ * fetch("myModel.dtx").then(response => {
  *     response.arrayBuffer().then(data => {
  *
- *          loadXKT({ data, sceneModel, dataModel });
+ *          loadDTX({ data, sceneModel, dataModel });
  *
  *          sceneModel.build();
  *          dataModel.build();
@@ -92,7 +92,7 @@
  * });
  * ````
  *
- * When our [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
+ * When our [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
  * and cause it to immediately appear in the View's canvas.
  *
  * That call will also trigger {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and

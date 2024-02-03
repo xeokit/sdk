@@ -1,11 +1,11 @@
 {
   "name": "@xeokit/las",
-  "private": true,
+  "private": false,
   "version": "1.0.1-alpha.0",
   "description": "LAS tools for xeokit",
   "main": "src/index.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",

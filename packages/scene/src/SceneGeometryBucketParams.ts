@@ -13,7 +13,7 @@ import type {IntArrayParam} from "@xeokit/math";
 export interface SceneGeometryBucketParams {
 
     /**
-     * TrianglesLayerGeometryBucket bucket's 3D vertex positions, quantized as 16-bit integers.
+     * LayerGeometryBucket bucket's 3D vertex positions, quantized as 16-bit integers.
      *
      * Internally, the Viewer decompresses thses
      * with {@link @xeokit/scene!SceneGeometryCompressedParams.positionsDecompressMatrix | SceneGeometryCompressedParams.positionsDecompressMatrix}.
@@ -23,7 +23,7 @@ export interface SceneGeometryBucketParams {
     positionsCompressed: IntArrayParam,
 
     /**
-     * TrianglesLayerGeometryBucket bucket's UV coordinates, quantized as 16-bit integers.
+     * LayerGeometryBucket bucket's UV coordinates, quantized as 16-bit integers.
      *
      * Internally, the Viewer de-quantizes these
      * with {@link @xeokit/scene!SceneGeometryCompressedParams.uvsDecompressMatrix | SceneGeometryCompressedParams.uvsDecompressMatrix}.
@@ -31,19 +31,19 @@ export interface SceneGeometryBucketParams {
     uvsCompressed?: IntArrayParam,
 
     /**
-     * TrianglesLayerGeometryBucket bucket's vertex RGB colors, quantized as 8-bit integers.
+     * LayerGeometryBucket bucket's vertex RGB colors, quantized as 8-bit integers.
      */
     colorsCompressed?: IntArrayParam;
 
     /**
-     * TrianglesLayerGeometryBucket bucket's primitive indices.
+     * LayerGeometryBucket bucket's primitive indices.
      *
      * This is either an array of 8-bit, 16-bit or 32-bit values.
      */
     indices?: IntArrayParam,
 
     /**
-     * TrianglesLayerGeometryBucket bucket's edge indices.
+     * LayerGeometryBucket bucket's edge indices.
      *
      * This is either an array of 8-bit, 16-bit or 32-bit values.
      */

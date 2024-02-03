@@ -5,7 +5,7 @@
   "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
   "main": "src/index.ts",
   "scripts": {
-    "XXtest": "jest"
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",

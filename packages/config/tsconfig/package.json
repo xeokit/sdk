@@ -1,7 +1,7 @@
 {
   "name": "@xeokit/tsconfig",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
   "files": [
     "base.json",
     "library.json",

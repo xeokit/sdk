@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/cameracontrol",
-  "private": true,
+  "private": false,
   "type": "module",
   "version": "1.0.1-alpha.0",
   "description": "Camera navigation controls for a xeokit Viewer",

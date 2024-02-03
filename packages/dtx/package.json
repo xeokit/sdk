@@ -5,7 +5,7 @@
   "description": "Import and export models as xeokit's native binary DTX format",
   "main": "src/index.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",

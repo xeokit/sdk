@@ -1,5 +1,6 @@
+import  '@loaders.gl/polyfills';
 import {parse} from '@loaders.gl/core';
-import {GLTFLoader} from '@loaders.gl/gltf';
+import {GLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 
 import {
     ClampToEdgeWrapping,
@@ -75,8 +76,9 @@ export function loadGLTF(params: {
             }
         }
         parse(params.fileData, GLTFLoader, {}).then((gltfData) => {
+            const processedGLTF = postProcessGLTF(gltfData);
             const ctx: ParsingContext = {
-                gltfData,
+                gltfData: processedGLTF,
                 nextId: 0,
                 log: (params.log || function (msg: string) {
                 }),

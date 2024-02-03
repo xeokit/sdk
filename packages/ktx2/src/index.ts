@@ -45,15 +45,15 @@
  * ### Loading an XKT file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
  *
  * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
- * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadXKT} to
- * load an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
+ * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadDTX} to
+ * load a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
  * KTX2TextureTranscoder will transparently transcode the [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/ktx2";
- * import {loadXKT} from "@xeokit/xkt";
+ * import {loadDTX} from "@xeokit/dtx";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -77,10 +77,10 @@
  *     id: "myModel"
  * });
  *
- * fetch("myModelWithTextures.xkt") // <<-- [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file with KTX2 textures
+ * fetch("myModelWithTextures.dtx") // <<-- [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file with KTX2 textures
  *     .then(response => {
  *          if (response.ok) {
- *              loadXKT(response.arrayBuffer(), sceneModel);
+ *              loadDTX(response.arrayBuffer(), sceneModel);
  *              sceneModel.build();
  *          }
  *     });
@@ -99,7 +99,7 @@
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/ktx2";
- * import {loadXKT} from "@xeokit/xkt";
+ * import {loadDTX} from "@xeokit/dtx";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -175,7 +175,7 @@
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/ktx2";
- * import {loadXKT} from "@xeokit/xkt";
+ * import {loadDTX} from "@xeokit/dtx";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",

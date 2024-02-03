@@ -10,7 +10,7 @@ import type {SceneMeshParams} from "./SceneMeshParams";
  * A mesh in a {@link @xeokit/scene!SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
- * * Created with {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh}
+ * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
  * * Referenced by {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}
  *
  * See {@link "@xeokit/scene"} for usage.

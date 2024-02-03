@@ -80,8 +80,8 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
  * * Compresses geometry using [bucketing](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
- * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/xkt!loadXKT} (etc)
- * * Exportable to [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format using {@link @xeokit/xkt!saveXKT}
+ * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/dtx!loadDTX} (etc)
+ * * Exportable to [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format using {@link @xeokit/dtx!saveDTX}
  * * Programmatically buildable using builder methods
  *
  * See {@link "@xeokit/scene"} for usage.
@@ -154,7 +154,7 @@ export class SceneModel extends Component {
     /**
      * {@link @xeokit/scene!SceneMesh | Meshes} within this SceneModel, each mapped to {@link @xeokit/scene!SceneMesh.id | SceneMesh.id}.
      *
-     * * Created by {@link @xeokit/scene!SceneModel.createLayerMesh | SceneModel.createLayerMesh}.
+     * * Created by {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
      */
     public readonly meshes: { [key: string]: SceneMesh };
 

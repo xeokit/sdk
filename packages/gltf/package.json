@@ -1,11 +1,11 @@
 {
   "name": "@xeokit/gltf",
-  "private": true,
+  "private": false,
   "version": "1.0.1-alpha.0",
   "description": "glTF loader for xeokit",
   "main": "src/index.ts",
   "scripts": {
-    "XXtest": "jest"
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",
@@ -25,15 +25,19 @@
   "keywords": [],
   "dependencies": {
     "@jest/globals": "^29.5.0",
-    "@loaders.gl/core": "^3.2.6",
-    "@loaders.gl/gltf": "^3.2.6",
-    "@loaders.gl/polyfills": "^3.2.6",
-    "@loaders.gl/textures": "^3.2.6",
+    "@loaders.gl/core": "^4.0.4",
+    "@loaders.gl/math": "^4.0.4",
+    "@loaders.gl/gltf": "^4.0.4",
+    "@loaders.gl/polyfills": "^4.0.4",
+    "@loaders.gl/textures": "^4.0.4",
     "@xeokit/constants": "^1.0.1-alpha.0",
     "@xeokit/core": "^1.0.1-alpha.0",
     "@xeokit/data": "^1.0.1-alpha.0",
     "@xeokit/math": "^1.0.1-alpha.0",
     "@xeokit/matrix": "^1.0.1-alpha.0",
     "@xeokit/scene": "^1.0.1-alpha.0"
+  },
+  "devDependencies": {
+    "jest-html-reporter": "^3.10.2"
   }
 }

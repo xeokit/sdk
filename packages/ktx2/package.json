@@ -1,6 +1,6 @@
 {
   "name": "@xeokit/ktx2",
-  "private": true,
+  "private": false,
   "type": "module",
   "version": "1.0.1-alpha.0",
   "description": "xeokit KTX2 Texture Transcoder",

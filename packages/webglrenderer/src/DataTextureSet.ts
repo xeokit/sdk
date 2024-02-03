@@ -493,13 +493,27 @@ export class DataTextureSet {
     }
 
     destroy() {
-        this.perSubMeshAttributesDataTexture.destroy();
-        this.perSubMeshInstancingMatricesDataTexture.destroy();
-        this.perSubMeshDecodeMatricesDataTexture.destroy();
-        this.positionsCompressedDataTexture.destroy();
-        this.perPrimitiveSubMesh8BitsDataTexture.destroy();
-        this.perPrimitiveSubMesh16BitsDataTexture.destroy();
-        this.perPrimitiveSubMesh32BitsDataTexture.destroy();
+        if (this.perSubMeshAttributesDataTexture) {
+            this.perSubMeshAttributesDataTexture.destroy();
+        }
+        if (this.perSubMeshInstancingMatricesDataTexture) {
+            this.perSubMeshInstancingMatricesDataTexture.destroy();
+        }
+        if (this.perSubMeshDecodeMatricesDataTexture) {
+            this.perSubMeshDecodeMatricesDataTexture.destroy();
+        }
+        if (this.positionsCompressedDataTexture) {
+            this.positionsCompressedDataTexture.destroy();
+        }
+        if (this.perPrimitiveSubMesh8BitsDataTexture) {
+            this.perPrimitiveSubMesh8BitsDataTexture.destroy();
+        }
+        if (this.perPrimitiveSubMesh16BitsDataTexture) {
+            this.perPrimitiveSubMesh16BitsDataTexture.destroy();
+        }
+        if (this.perPrimitiveSubMesh32BitsDataTexture) {
+            this.perPrimitiveSubMesh32BitsDataTexture.destroy();
+        }
         if (this.perEdgeSubMesh8BitsDataTexture) {
             this.perEdgeSubMesh8BitsDataTexture.destroy();
         }

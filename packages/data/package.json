@@ -5,7 +5,8 @@
   "description": "An entity-relationship data graph composed of multiple federated data models.",
   "main": "src/index.ts",
   "scripts": {
-    "test": "jest --verbose "
+    "test": "jest --verbose ",
+    "build": "node build.js"
   },
   "repository": {
     "type": "git",

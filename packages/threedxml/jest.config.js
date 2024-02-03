@@ -28,7 +28,7 @@ module.exports = {
         "@xeokit/basictypes": path.join(__dirname, "../basictypes/src"),
         "@xeokit/ifctypes(.*)$": path.join(__dirname, "../ifctypes/src"),
         //
-        // "@xeokit/xkt": ["xkt/src"],
+        // "@xeokit/dtx": ["dtx/src"],
         // "@xeokit/las": ["las/src"],
         // "@xeokit/gltf": ["gltf/src"],
         // "@xeokit/locale": ["locale/src"],
@@ -42,5 +42,11 @@ module.exports = {
     },
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     resolver: undefined,
-    silent: false
+    silent: false,
+    "reporters": [
+        "default",
+        ["./../../node_modules/jest-html-reporter", {
+            "pageTitle": "Test Report"
+        }]
+    ]
 };

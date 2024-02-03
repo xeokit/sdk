@@ -30,7 +30,7 @@
  * import {Data} from "@xeokit/data";
  * import * as ifcTypes from "@xeokit/ifctypes";
  * import {TreeView} from "@xeokit/treeview!TreeView";
- * import {loadXKT} from "@xeokit/xkt";
+ * import {loadDTX} from "@xeokit/dtx";
  * ````
  *
  * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webglrenderer!WebGLRenderer}:
@@ -78,11 +78,11 @@
  *     id: "myModel"
  * });
  *
- * fetch("myModel.xkt").then(response => {
+ * fetch("myModel.dtx").then(response => {
  *
  *     response.arrayBuffer().then(data => {
  *
- *          loadXKT({ data, sceneModel, dataModel });
+ *          loadDTX({ data, sceneModel, dataModel });
  *
  *          sceneModel.build();
  *          dataModel.build();

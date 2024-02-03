@@ -24,8 +24,6 @@ import {RendererModel} from "@xeokit/scene";
  *     renderers: new WebGLRenderer({ }) // Or WebGPURenderer, MockRenderer etc.
  * });
  * ````
- *
- * @internal
  */
 export interface Renderer {
 
@@ -38,6 +36,8 @@ export interface Renderer {
      * Interfaces through which each {@link @xeokit/viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
      * its {@link @xeokit/scene!SceneObject | SceneObject} within the {@link @xeokit/viewer!Renderer | Renderer} that's
      * configured on its {@link @xeokit/viewer!Viewer | Viewer}.
+     *
+     * @internal
      */
     rendererObjects: { [key: string]: RendererObject }
 

@@ -128,6 +128,10 @@ that generates the final texture or terrain.
 
 <br>
 
+## DTX
+
+The SDK's native binary model file format. TODO
+
 ---
 # E
 ---
@@ -189,7 +193,7 @@ TODO
 
 <br>
 
-## Geometry Bucketing
+## SceneGeometry Bucketing
 
 TODO
 
@@ -198,9 +202,9 @@ TODO
 
 <br>
 
-## Geometry Quantization
+## SceneGeometry Quantization
 
-**Geometry quantization** is a process of reducing the precision of geometry values, while still
+**SceneGeometry quantization** is a process of reducing the precision of geometry values, while still
 retaining the most important information. This is done by mapping the original values of a value to a smaller set
 of discrete values.
 
@@ -236,7 +240,7 @@ The widespread adoption of glTF has made it a popular choice for sharing 3D cont
 
 ## KTX2
 
-**KTX2 (Khronos Texture 2)** is a texture container format developed by the Khronos Group, a non-profit consortium of 
+**KTX2 (Khronos SceneTexture 2)** is a texture container format developed by the Khronos Group, a non-profit consortium of 
 companies focused on the creation of open standards for graphics, media, and parallel computing.
 
 KTX2 is designed to be a more efficient replacement for the original KTX format, with better compression and faster 
@@ -360,7 +364,7 @@ The xeokit {@link Viewer} uses a *metallic-roughness* PBR shading model that has
 > *PBR is supported in the following xeokit modules:*
 > * *[@xeokit/viewer](https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html) - the xeokit Viewer, which supports PBR rendering*
 > * *[@xeokit/scene](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html) - the xeokit scene representation, which supports PBR materials*
-> * *[@xeokit/xkt](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html) - loads and saves XKT files, which have PBR materials*
+> * *[@xeokit/dtx](https://xeokit.github.io/sdk/docs/modules/_xeokit_dtx.html) - loads and saves DTX files, which have PBR materials*
 > * *[@xeokit/gltf](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html) - loads glTF with PBR materials into xeokit's scene representation* 
 
 <br>
@@ -612,8 +616,6 @@ development ecosystem going forwards.
 
 <br>
 
-## XKT
 
-The SDK's native binary model file format. TODO
 
-> *See: [@xeokit/xkt](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)*
+> *See: [@xeokit/dtx](https://xeokit.github.io/sdk/docs/modules/_xeokit_dtx.html)*

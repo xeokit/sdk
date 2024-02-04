@@ -35,7 +35,7 @@ import {WebGLRenderer} from "@xeokit/webglrenderer";
 
 const scene = new Scene(); // Scene graph
 
-const renderer = new WebGLRenderer({}); // WebGL renderer kernel
+const renderer = new WebGLRenderer({}); // WebGL renderers kernel
 
 const viewer = new Viewer({ // Browser-base viewer
     scene,
@@ -74,7 +74,7 @@ sceneModel.createTextureSet({
     colorTextureId: "boxColorTexture"
 });
 
-sceneModel.createMesh({
+sceneModel.createLayerMesh({
     id: "boxMesh",
     geometryId: "boxGeometry",
     color: [1, 1, 1],
@@ -142,7 +142,7 @@ import {loadGLTF} from "@xeokit/gltf";
 
 const scene = new Scene(); // Scene graph
 
-const renderer = new WebGLRenderer({}); // WebGL renderer kernel
+const renderer = new WebGLRenderer({}); // WebGL renderers kernel
 
 const viewer = new Viewer({ // Browser-base viewer
     scene,
@@ -204,7 +204,7 @@ First import the npm modules we need from the SDK. Note that we don't need the v
 npm install @xeokit/scene
 npm install @xeokit/core/constants
 npm install @xeokit/gltf
-npm install @xeokit/xkt
+npm install @xeokit/dtx
 ````
 
 Here's the JavaScript for our converter script.
@@ -214,7 +214,7 @@ import {Scene} from "@xeokit/scene";
 import {Data} from "@xeokit/data";
 import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/constants";
 import {loadGLTF} from "@xeokit/gltf";
-import {saveXKT} from "@xeokit/xkt";
+import {saveXKT} from "dtx";
 
 const fs = require('fs');
 
@@ -233,7 +233,7 @@ fs.readFile("./tests/assets/HousePlan.glb", (err, buffer) => {
     }).then(() => {
         sceneModel.build().then(() => { // Compresses textures, geometries etc.
             const arrayBuffer = saveXKT({ sceneModel, dataModel });
-            fs.writeFile('myModel.xkt', arrayBuffer, err => {});
+            fs.writeFile('myModel.dtx', arrayBuffer, err => {});
         });
     })
 });

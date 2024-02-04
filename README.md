@@ -74,7 +74,7 @@ various file formats into the viewer.
 
 | Package                                                              | Modules                                                                               | Description                |
 |----------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------------|
-| [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)           | [`@xeokit/xkt`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)           | Import and export XKT files |
+| [`@xeokit/dtx`](https://www.npmjs.com/package/@xeokit/dtx)           | [`@xeokit/dtx`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)           | Import and export XKT files |
 | [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)         | [`@xeokit/gltf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html)         | Import glTF files |
 | [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)           | [`@xeokit/las`](https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html)           | Import LAS pointcloud scans |
 | [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson) | [`@xeokit/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html) | Import CityJSON files      |
@@ -102,13 +102,13 @@ The SDK's internal and lower-level functionalities are mostly available as utili
 |                                                                          | [`@xeokit/ifctypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_ifcTypes.html)      | IFC data type constants  |
 | [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)             | [`@xeokit/math/math`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_math.html)               | General math definitions and constants               |
 |                                                                          | [`@xeokit/math/boundaries`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_boundaries.html)   | Boundaries math library                              |
-|                                                                          | [`@xeokit/math/compression`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html) | Geometry de/compression utilities library            |
+|                                                                          | [`@xeokit/math/compression`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html) | SceneGeometry de/compression utilities library            |
 |                                                                          | [`@xeokit/math/curves`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_curves.html)           | Spline curves math library                           |
-|                                                                          | [`@xeokit/math/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_geometry.html)       | Mesh generation functions                            |
+|                                                                          | [`@xeokit/math/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_geometry.html)       | SceneMesh generation functions                            |
 |                                                                          | [`@xeokit/math/matrix`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_matrix.html)           | Matrix and vector math utilities library             |
 |                                                                          | [`@xeokit/math/rtc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html)                 | Relative-to-center (RTC) coordinates math library    |
 | [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webglutils)      | [`@xeokit/webglutils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html)             | WebGL utilities library        |
-| [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html) | Geometry generation functions                     |
+| [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html) | SceneGeometry generation functions                     |
 | [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                         | Compressed texture support              |
 
 # Examples
@@ -150,7 +150,7 @@ import {WebGLRenderer} from "@xeokit/webglrenderer";
 
 const scene = new Scene(); // Scene graph
 
-const renderer = new WebGLRenderer({}); // WebGL renderer kernel
+const renderer = new WebGLRenderer({}); // WebGL renderers kernel
 
 const viewer = new Viewer({ // Browser-base viewer
     scene,
@@ -189,7 +189,7 @@ sceneModel.createTextureSet({
     colorTextureId: "boxColorTexture"
 });
 
-sceneModel.createMesh({
+sceneModel.createLayerMesh({
     id: "boxMesh",
     geometryId: "boxGeometry",
     color: [1, 1, 1],
@@ -245,7 +245,7 @@ import {loadGLTF} from "@xeokit/gltf";
 
 const scene = new Scene(); // Scene graph
 
-const renderer = new WebGLRenderer({}); // WebGL renderer kernel
+const renderer = new WebGLRenderer({}); // WebGL renderers kernel
 
 const viewer = new Viewer({ // Browser-base viewer
     scene,
@@ -299,7 +299,7 @@ First import the npm modules we need from the SDK. Note that we don't need the v
 npm install @xeokit/scene
 npm install @xeokit/core/constants
 npm install @xeokit/gltf
-npm install @xeokit/xkt
+npm install @xeokit/dtx
 ````
 
 Here's the JavaScript for our converter script.
@@ -309,7 +309,7 @@ import {Scene} from "@xeokit/scene";
 import {Data} from "@xeokit/data";
 import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
 import {loadGLTF} from "@xeokit/gltf";
-import {saveXKT} from "@xeokit/xkt";
+import {saveXKT} from "packages/dtx";
 
 const fs = require('fs');
 
@@ -328,7 +328,7 @@ fs.readFile("./tests/assets/HousePlan.glb", (err, buffer) => {
     }).then(() => {
         sceneModel.build().then(() => { // Compresses textures, geometries etc.
             const arrayBuffer = saveXKT({ sceneModel, dataModel });
-            fs.writeFile('myModel.xkt', arrayBuffer, err => {});
+            fs.writeFile('myModel.dtx', arrayBuffer, err => {});
         });
     })
 });

@@ -37,12 +37,11 @@
     "packages/viewer/src/index.ts",
     "packages/webglrenderer/src/index.ts",
     "packages/webglutils/src/index.ts",
-    "packages/webgpu/src/index.ts",
     "packages/webifc/src/index.ts",
-    "packages/xkt/src/index.ts"
+    "packages/dtx/src/index.ts"
   ],
   "out": "./docs",
-  "excludePrivate": false,
+  "excludePrivate": true,
   "excludeNotDocumented": true,
   "media": "./assets",
   "includes": "docs",

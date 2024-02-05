@@ -3,9 +3,12 @@
   "private": false,
   "version": "1.0.1-alpha.0",
   "description": "Import and export models as xeokit's native binary DTX format",
-  "main": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose"
+    "test": "jest --verbose",
+    "dist": "tsc"
   },
   "repository": {
     "type": "git",
@@ -25,6 +28,7 @@
   "keywords": [],
   "dependencies": {
     "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/constants": "^1.0.1-alpha.0",
     "@xeokit/data": "^1.0.1-alpha.0",
     "@xeokit/math": "^1.0.1-alpha.0",
     "@xeokit/scene": "^1.0.1-alpha.0",

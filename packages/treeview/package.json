@@ -4,8 +4,13 @@
   "type": "module",
   "version": "1.0.1-alpha.0",
   "description": "An HTML tree view to navigate xeokit data models.",
-  "main": "src/index.ts",
-  "scripts": {},
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "scripts": {
+    "test": "jest --verbose",
+    "dist": "tsc"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"

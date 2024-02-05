@@ -1,0 +1,56 @@
+// This is a base TS config for the individual packages, mainly for building .d.ts files
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "build": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "emitDeclarationOnly": false,
+    // Uncomment to debug
+     "listEmittedFiles": true
+  },
+  "references": [
+    {"path": "packages/basictypes"},
+    {"path": "packages/bcf"},
+    {"path": "packages/boundaries"},
+    {"path": "packages/cameraControl"},
+    {"path": "packages/cityjson"},
+    {"path": "packages/cityjsontypes_1_1_3"},
+    {"path": "packages/compression"},
+    {"path": "packages/constants"},
+    {"path": "packages/core"},
+    {"path": "packages/curves"},
+    {"path": "packages/data"},
+    {"path": "packages/dotbim"},
+    {"path": "packages/gltf"},
+    {"path": "packages/ifctypes"},
+    {"path": "packages/kdtree2"},
+    {"path": "packages/kdtree3"},
+    {"path": "packages/ktx2"},
+    {"path": "packages/las"},
+    {"path": "packages/locale"},
+    {"path": "packages/math"},
+    {"path": "packages/matrix"},
+    {"path": "packages/pick"},
+    {"path": "packages/procgen"},
+    {"path": "packages/rtc"},
+    {"path": "packages/scene"},
+    {"path": "packages/testutils"},
+    {"path": "packages/threedxml"},
+    {"path": "packages/treeview"},
+    {"path": "packages/utils"},
+    {"path": "packages/viewer"},
+    {"path": "packages/webglrenderer"},
+    {"path": "packages/webglutils"},
+    {"path": "packages/webifc"},
+    {"path": "packages/dtx"}
+  ],
+  "include": [
+    "packages/*/src"
+  ],
+  "exclude": [
+
+  ]
+}

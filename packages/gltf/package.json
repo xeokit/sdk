@@ -3,9 +3,12 @@
   "private": false,
   "version": "1.0.1-alpha.0",
   "description": "glTF loader for xeokit",
-  "main": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose"
+    "test": "jest --verbose ",
+    "dist":"tsc"
   },
   "repository": {
     "type": "git",

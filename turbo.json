@@ -3,6 +3,10 @@
     "test": {
       "cache": false,
       "persistent": true
+    },
+    "dist": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

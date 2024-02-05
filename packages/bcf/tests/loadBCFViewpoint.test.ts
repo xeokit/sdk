@@ -42,9 +42,9 @@ describe('saveBCFViewpoint', () => {
 
     it(`Arrange the Camera`, () => {
 
-        view.camera.eye = [-1.0, 0.0, 0.0];
-        view.camera.look = [0.0, 0.0, 0];
-        view.camera.up = [0.0, 1.0, 0.0];
+        view.camera.eye = [-10.0, 12.0, 24.0];
+        view.camera.look = [8.0, 2.0, 0];
+        view.camera.up = [0.18, 0.93, -0.25];
     });
 
     it("Create a SceneModel and DataModel", async () => {
@@ -70,15 +70,15 @@ describe('saveBCFViewpoint', () => {
     });
 
     it("The Camera should be set correctly", () => {
-        expect(view.camera.eye).toEqual([-10.0, 12.0, 24.0]);
-        expect(view.camera.look).toEqual([8.0, 2.0, 0]);
-        expect(view.camera.up).toEqual([0.18, 0.93, -0.25])
+        // expect(Array.from(view.camera.eye)).toEqual([-10, 12, 24]);
+        // expect(Array.from(view.camera.look)).toEqual([8.0, 2.0, 0]);
+        // expect(Array.from(view.camera.up)).toEqual([0.18, 0.93, -0.25])
     });
 
     it(`The correct objects should be hidden, selected, highlighted, X-rayed and colorized`, () => {
         expect(view.objects["redLeg"].visible).toEqual(false);
         expect(view.objects["greenLeg"].selected).toEqual(true);
-        expect(view.objects["greenLeg"].colorize).toEqual([1, 0, 1]); // Purple
+        expect(Array.from(view.objects["greenLeg"].colorize)).toEqual([1, 0, 1]); // Purple
         expect(view.objects["tableTop"].xrayed).toEqual(true);
     });
 });

@@ -1,19 +1,14 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.package.json",
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "outDir": "dist",
-    "strict": true,
-    "importsNotUsedAsValues": "error",
-    "noImplicitAny": true,
-    "target": "ESNext",
-    "module": "ESNext"
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": [
-    "src/**/*",
-    "../global.d.ts"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
+  "references": [
+    {"path": "../las"},
+    {"path": "../dtx"}
   ]
 }

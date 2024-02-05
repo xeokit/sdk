@@ -81,7 +81,7 @@ export class DataObject {
         data: Data,
         model: DataModel,
         id: string,
-        originalSysteId: string,
+        originalSystemId: string,
         name: string,
         description: string | undefined,
         type: number,
@@ -90,7 +90,7 @@ export class DataObject {
         this.data = data;
         this.models = [model];
         this.id = id;
-        this.originalSystemId = originalSysteId || id;
+        this.originalSystemId = originalSystemId;
         this.name = name;
         this.description = description;
         this.type = type;

@@ -4,8 +4,8 @@
     "moduleResolution": "node",
     "lib": ["es6", "dom"],
     "skipLibCheck": true, // https://stackoverflow.com/questions/66956030/apache-arrow-does-not-compile-with-typescript
-    "target": "ESNext",
-    "module": "ESNext",
+    "target": "esnext",
+    "module": "esnext",
     "stripInternal": false,
     "typeRoots": ["node_modules/@types"],
     "alwaysStrict": true,
@@ -16,6 +16,10 @@
     "declaration": true,
     "sourceMap": true,
     "baseUrl": "./packages",
+    "build": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
     "paths": {
       "@xeokit/basictypes":["./packages/basictypes/"],
       "@xeokit/bundle":["./packages/bundle/"],

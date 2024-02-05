@@ -2,7 +2,7 @@ import {Data} from "@xeokit/data";
 import {Scene} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {loadLAS} from "@xeokit/las";
-import {saveXKT} from "@xeokit/xkt";
+import {saveDTX} from "@xeokit/dtx";
 
 const commander = require('commander');
 const npmPackage = require('./package.json');
@@ -14,10 +14,10 @@ program.version(npmPackage.version, '-v, --version');
 
 program
     .option('-i, --source [file]', 'path to source LAS/LAZ file')
-    .option('-o, --output [file]', 'path to target XKT file');
+    .option('-o, --output [file]', 'path to target DTX file');
 
 program.on('--help', () => {
-    console.log(`\n\nXKT version: 10`);
+    console.log(`\n\nDTX version: 1`);
 });
 
 program.parse(process.argv);
@@ -55,12 +55,12 @@ if (dataModel instanceof SDKError) {
         loadLAS({fileData: sourceData, dataModel, sceneModel}).then(() => {
             sceneModel.build().then(() => {
                 dataModel.build();
-                const xktArrayBuffer = saveXKT({dataModel, sceneModel});
+                const dtxArrayBuffer = saveDTX({dataModel, sceneModel});
                 const outputDir = getBasePath(options.output).trim();
                 if (outputDir !== "" && !fs.existsSync(outputDir)) {
                     fs.mkdirSync(outputDir, {recursive: true});
                 }
-                fs.writeFileSync(options.output, Buffer.from(xktArrayBuffer));
+                fs.writeFileSync(options.output, Buffer.from(dtxArrayBuffer));
             }).catch((reason) => {
                 //..
             });

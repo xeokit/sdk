@@ -28,7 +28,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
     const view = params.view;
     const data = params.data;
     const camera = view.camera;
-    const rayCast = (params.rayCast !== false);
+    const rayCast = (!!params.rayCast);
     const immediate = (params.immediate !== false);
     const reset = (params.reset !== false);
     //const realWorldOffset = scene.realWorldOffset;

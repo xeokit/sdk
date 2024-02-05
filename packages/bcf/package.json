@@ -3,8 +3,13 @@
   "private": false,
   "version": "1.0.1-alpha.0",
   "description": "Loads and saves xeokit Viewer snapshots as JSON-encoded BIM Collaboration Format (BCF) Viewpoints",
-  "main": "src/index.ts",
-  "scripts": {},
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "scripts": {
+    "test": "jest --verbose ",
+    "dist":"tsc"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xeokit/sdk.git"
@@ -17,6 +22,7 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json"
   ],

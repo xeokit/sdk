@@ -2,14 +2,15 @@
   "name": "@xeokit/rtc",
   "private": false,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "0.1.0",
   "description": "xeokit RTC Coordinate Utilities",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
     "test": "jest --verbose",
-    "dist": "tsc"
+    "dist": "tsc",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -29,10 +30,8 @@
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/boundaries": "^1.0.1-alpha.0",
-    "@xeokit/compression": "^1.0.1-alpha.0",
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/math": "^1.0.1-alpha.0",
-    "@xeokit/matrix": "^1.0.1-alpha.0"
+    "@xeokit/boundaries": "^0.1.0",
+    "@xeokit/math": "^0.1.0",
+    "@xeokit/matrix": "^0.1.0"
   }
 }

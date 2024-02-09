@@ -8,6 +8,9 @@
     "outDir": "dist"
   },
   "references": [
-
+    {"path": "../core"},
+    {"path": "../kdtree3"},
+    {"path": "../math"},
+    {"path": "../scene"}
   ]
 }

@@ -3,7 +3,7 @@ import {Data} from "@xeokit/data";
 import {Scene} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {loadCityJSON} from "@xeokit/cityjson";
-import {saveXKT} from "dtx";
+import {saveDTX} from "dtx";
 
 const commander = require('commander');
 const npmPackage = require('./package.json');
@@ -15,10 +15,10 @@ program.version(npmPackage.version, '-v, --version');
 
 program
     .option('-i, --input [file]', 'path to input CityJSON file')
-    .option('-o, --output [file]', 'path to output XKT file');
+    .option('-o, --output [file]', 'path to output DTX file');
 
 program.on('--help', () => {
-    console.log(`\n\nXKT version: 10`);
+    console.log(`\n\nDTX version: 10`);
 });
 
 program.parse(process.argv);
@@ -32,7 +32,7 @@ if (options.input === undefined) {
 }
 
 if (options.output === undefined) {
-    console.error('[cityjson2dtx] Error: please specify output XKT file path (-o).');
+    console.error('[cityjson2dtx] Error: please specify output DTX file path (-o).');
     program.help();
     process.exit(1);
 }
@@ -78,13 +78,13 @@ async function main() {
             loadCityJSON({fileData, dataModel, sceneModel}).then(() => {
                 sceneModel.build().then(() => {
                     dataModel.build();
-                    const dtxArrayBuffer = saveXKT({dataModel, sceneModel});
+                    const dtxArrayBuffer = saveDTX({dataModel, sceneModel});
                     const outputDir = getBasePath(options.output).trim();
                     if (outputDir !== "" && !fs.existsSync(outputDir)) {
                         fs.mkdirSync(outputDir, {recursive: true});
                     }
                     fs.writeFileSync(options.output, Buffer.from(dtxArrayBuffer));
-                    log(`[cityjson2dtx] Created XKT file: ${options.output}`);
+                    log(`[cityjson2dtx] Created DTX file: ${options.output}`);
                     process.exit(0);
                 }).catch((err) => {
                     console.error(`[cityjson2dtx] Error converting CityJSON file: ${err}`);

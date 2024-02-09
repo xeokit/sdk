@@ -28,7 +28,7 @@ module.exports = {
         "@xeokit/basictypes/basicTypes": path.join(__dirname, "../datatypes/src/basicTypes"),
         "@xeokit/ifctypes(.*)$": path.join(__dirname, "../datatypes/src/ifcTypes"),
         //
-        // "@xeokit/xkt": ["xkt/src"],
+        // "@xeokit/dtx": ["dtx/src"],
         // "@xeokit/las": ["las/src"],
         // "@xeokit/gltf": ["gltf/src"],
         // "@xeokit/locale": ["locale/src"],

@@ -2,14 +2,15 @@
   "name": "@xeokit/ktx2",
   "private": false,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "0.1.0",
   "description": "xeokit KTX2 Texture Transcoder",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
     "test": "jest --verbose",
-    "dist": "tsc"
+    "dist": "tsc",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -23,13 +24,15 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json"
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/utils": "^1.0.1-alpha.0",
+    "@xeokit/core": "^0.1.0",
+    "@xeokit/constants": "^0.1.0",
+    "@xeokit/utils": "^0.1.0",
     "strongly-typed-events": "3.0.7"
   }
 }

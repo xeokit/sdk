@@ -8,6 +8,9 @@
     "outDir": "dist"
   },
   "references": [
-
+    {"path": "../constants"},
+    {"path": "../core"},
+    {"path": "../math"},
+    {"path": "../utils"}
   ]
 }

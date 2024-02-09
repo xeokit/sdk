@@ -27,7 +27,7 @@
  *
  * Various model file formats can be imported into DataModels using methods such as {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS},
  * {@link @xeokit/cityjson!loadCityJSON}, and {@link @xeokit/dtx!loadDTX},
- * while DataModels can be exported to the native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format using {@link @xeokit/dtx!saveDTX}.
+ * while DataModels can be exported to the native [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format using {@link @xeokit/dtx!saveDTX}.
  *
  * To programmatically build DataModels, builder methods
  * such as {@link @xeokit/data!Data.createModel | Data.createModel}, {@link @xeokit/data!DataModel.createObject | DataModel.createObject},

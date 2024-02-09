@@ -42,7 +42,7 @@
  *
  * ## Usage
  *
- * ### Loading an XKT file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
+ * ### Loading an DTX file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
  *
  * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadDTX} to
@@ -77,7 +77,7 @@
  *     id: "myModel"
  * });
  *
- * fetch("myModelWithTextures.dtx") // <<-- [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file with KTX2 textures
+ * fetch("myModelWithTextures.dtx") // <<-- [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file with KTX2 textures
  *     .then(response => {
  *          if (response.ok) {
  *              loadDTX(response.arrayBuffer(), sceneModel);

@@ -35,7 +35,7 @@
  *
  * @module @xeokit/boundaries
  */
-import type {FloatArrayParam, IntArrayParam} from "@xeokit/math";
+import type {FloatArrayParam, IntArrayParam, } from "@xeokit/math";
 import {MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "@xeokit/math";
 import {createMat4, createVec2, createVec3, lenVec3, mulMat4, subVec3} from "@xeokit/matrix";
 import {decompressPoint3} from "@xeokit/compression";

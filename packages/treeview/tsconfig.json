@@ -8,6 +8,8 @@
     "outDir": "dist"
   },
   "references": [
-
+    {"path": "../core"},
+    {"path": "../data"},
+    {"path": "../viewer"}
   ]
 }

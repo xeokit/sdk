@@ -25,7 +25,7 @@
  * * SceneGeometry undergoes compression through bucketing and quantization.
  * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
  * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/dtx" | loadDTX}.
- * * Export SceneModels to the native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format through {@link "@xeokit/dtx" | saveXKT}.
+ * * Export SceneModels to the native [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format through {@link "@xeokit/dtx" | saveDTX}.
  * * Create SceneModels programmatically using builder methods like {@link @xeokit/scene!Scene.createModel | Scene.createModel},
  * {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}, {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh},
  * {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}, and {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}. Add geometry
@@ -68,8 +68,8 @@
  * When we've finished constructing our SceneModel, we'll call {@link @xeokit/scene!SceneModel.build | SceneModel.build}, which
  * (asynchronously) compresses our SceneTexture.
  *
- * At that point, we can use the SceneModel. For example, we could export it to xeokit's native [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx)
- * file format using {@link "@xeokit/dtx" | saveXKT}, or view it in the Browser using a {@link "@xeokit/viewer" | Viewer}.
+ * At that point, we can use the SceneModel. For example, we could export it to xeokit's native [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx)
+ * file format using {@link "@xeokit/dtx" | saveDTX}, or view it in the Browser using a {@link "@xeokit/viewer" | Viewer}.
  *
  * ````javascript
  * import {Scene} from "@xeokit/scene";

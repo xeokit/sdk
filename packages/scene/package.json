@@ -1,14 +1,15 @@
 {
   "name": "@xeokit/scene",
   "private": false,
-  "version": "1.0.1-alpha.0",
+  "version": "0.1.0",
   "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
     "test": "jest --verbose",
-    "dist": "tsc"
+    "dist": "tsc",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json"
   ],
@@ -29,15 +31,16 @@
   "dependencies": {
     "@loaders.gl/images": "^3.4.1",
     "@loaders.gl/textures": "^3.4.1",
-    "@xeokit/boundaries": "^1.0.1-alpha.0",
-    "@xeokit/compression": "^1.0.1-alpha.0",
-    "@xeokit/constants": "^1.0.1-alpha.0",
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/math": "^1.0.1-alpha.0",
-    "@xeokit/matrix": "^1.0.1-alpha.0",
+
+    "@xeokit/boundaries": "^0.1.0",
+    "@xeokit/compression": "^0.1.0",
+    "@xeokit/constants": "^0.1.0",
+    "@xeokit/core": "^0.1.0",
+    "@xeokit/math": "^0.1.0",
+    "@xeokit/matrix": "^0.1.0",
     "strongly-typed-events": "3.0.7"
   },
   "devDependencies": {
-    "@xeokit/testutils": "^1.0.1-alpha.0"
+    "@xeokit/testutils": "^0.1.0"
   }
 }

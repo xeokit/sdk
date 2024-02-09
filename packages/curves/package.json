@@ -2,14 +2,15 @@
   "name": "@xeokit/curves",
   "private": false,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "0.1.0",
   "description": "xeokit Curves Math Library",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
     "test": "jest --verbose ",
-    "dist":"tsc"
+    "dist":"tsc",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_curves.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json"
   ],

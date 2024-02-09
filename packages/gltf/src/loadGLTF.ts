@@ -514,11 +514,11 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
     const nodeName = node.name;
     if (((nodeName !== undefined && nodeName !== null) || depth === 0) && deferredMeshIds.length > 0) {
         if (nodeName === undefined || nodeName === null) {
-            ctx.log(`Warning: 'name' properties not found on glTF scene nodes - will randomly-generate object IDs in XKT`);
+            ctx.log(`Warning: 'name' properties not found on glTF scene nodes - will randomly-generate object IDs in DTX`);
         }
         let objectId = nodeName; // Fall back on generated ID when `name` not found on glTF scene node(s)
         if (!!objectId && ctx.objectCreated[objectId]) {
-            ctx.log(`Warning: Two or more glTF nodes found with same 'name' attribute: '${nodeName} - will randomly-generating an object ID in XKT`);
+            ctx.log(`Warning: Two or more glTF nodes found with same 'name' attribute: '${nodeName} - will randomly-generating an object ID in DTX`);
         }
         while (!objectId || ctx.objectCreated[objectId]) {
             objectId = "object-" + ctx.nextId++;

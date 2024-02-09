@@ -2,14 +2,15 @@
   "name": "@xeokit/kdtree3",
   "private": false,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "0.1.0",
   "description": "xeokit 3D Collision Utilities",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
     "test": "jest --verbose",
-    "dist": "tsc"
+    "dist": "tsc",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -23,15 +24,16 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_kdtree3.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json"
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/boundaries": "^1.0.1-alpha.0",
-    "@xeokit/constants": "^1.0.1-alpha.0",
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/math": "^1.0.1-alpha.0",
-    "@xeokit/scene": "^1.0.1-alpha.0"
+    "@xeokit/boundaries": "^0.1.0",
+    "@xeokit/constants": "^0.1.0",
+    "@xeokit/core": "^0.1.0",
+    "@xeokit/math": "^0.1.0",
+    "@xeokit/scene": "^0.1.0"
   }
 }

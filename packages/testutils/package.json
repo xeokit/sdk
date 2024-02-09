@@ -1,7 +1,7 @@
 {
   "name": "@xeokit/testutils",
   "private": false,
-  "version": "1.0.1-alpha.0",
+  "version": "0.1.0",
   "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
   "main": "src/index.ts",
   "scripts": {

@@ -9,8 +9,6 @@
   },
   "references": [
     {"path": "../boundaries"},
-    {"path": "../compression"},
-    {"path": "../core"},
     {"path": "../math"},
     {"path": "../matrix"}
   ]

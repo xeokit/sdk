@@ -8,6 +8,10 @@
     "outDir": "dist"
   },
   "references": [
-
+    {"path": "../core"},
+    {"path": "../compression"},
+    {"path": "../data"},
+    {"path": "../matrix"},
+    {"path": "../scene"}
   ]
 }

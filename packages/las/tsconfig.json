@@ -8,6 +8,11 @@
     "outDir": "dist"
   },
   "references": [
-
+    {"path": "../constants"},
+    {"path": "../core"},
+    {"path": "../data"},
+    {"path": "../math"},
+    {"path": "../matrix"},
+    {"path": "../scene"}
   ]
 }

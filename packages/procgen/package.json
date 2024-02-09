@@ -2,14 +2,15 @@
   "name": "@xeokit/procgen",
   "private": false,
   "type": "module",
-  "version": "1.0.1-alpha.0",
+  "version": "0.1.0",
   "description": "xeokit Geometry Builder Functions",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
     "test": "jest --verbose",
-    "dist": "tsc"
+    "dist": "tsc",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -23,12 +24,13 @@
   "homepage": "https://xeokit.io",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json"
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^1.0.1-alpha.0",
+    "@xeokit/core": "^0.1.0",
     "strongly-typed-events": "3.0.7"
   }
 }

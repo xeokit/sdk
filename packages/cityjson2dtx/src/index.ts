@@ -8,7 +8,7 @@
  *
  * ## cityjson2dtx
  *
- * Node CLI tool to convert CityJSON files into [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) files.
+ * Node CLI tool to convert CityJSON files into [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) files.
  *
  * ## Features
  *

@@ -2,8 +2,8 @@
   "name": "@xeokit/cityjson2dtx",
   "private": false,
   "type": "module",
-  "version": "1.0.1-alpha.0",
-  "description": "NodeJS CLI tool to convert CityJSON to XKT.",
+  "version": "0.1.0",
+  "description": "NodeJS CLI tool to convert CityJSON to DTX.",
   "bin": {
     "cityjson2dtx": "dist/index.cjs"
   },
@@ -26,16 +26,17 @@
   "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson2dtx.html",
   "files": [
     "src/",
+    "dist/",
     "README.md",
     "package.json"
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/cityjson": "^1.0.1-alpha.0",
-    "@xeokit/core": "^1.0.1-alpha.0",
-    "@xeokit/data": "^1.0.1-alpha.0",
-    "@xeokit/scene": "^1.0.1-alpha.0",
-    "@xeokit/dtx": "^1.0.1-alpha.0",
+    "@xeokit/cityjson": "^0.1.0",
+    "@xeokit/core": "^0.1.0",
+    "@xeokit/data": "^0.1.0",
+    "@xeokit/scene": "^0.1.0",
+    "@xeokit/dtx": "^0.1.0",
     "strongly-typed-events": "3.0.7"
   }
 }

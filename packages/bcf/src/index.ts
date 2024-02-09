@@ -92,7 +92,7 @@
  * });
  * ````
  *
- * When our [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
+ * When our [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
  * and cause it to immediately appear in the View's canvas.
  *
  * That call will also trigger {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and
@@ -174,7 +174,7 @@
  *      layerId: "foreground"
  * });
  *
- * //...create some objects, load XKT etc
+ * //...create some objects, load DTX etc
  *
  * sceneModel.build();
  *
@@ -183,7 +183,7 @@
  *      layerId: "background"
  * });
  *
- * //...create some objects, load XKT etc
+ * //...create some objects, load DTX etc
  *
  * myOtherSceneModel.build();
  * ````

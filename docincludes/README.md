@@ -34,7 +34,7 @@
 | [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene) | [`@xeokit/scene`](./modules/_xeokit_model.html)                | Viewer-agnostic model representation                 |
 | [`@xeokit/viewer`](https://www.npmjs.com/package/@xeokit/viewer)         | [`@xeokit/viewer`](./modules/_xeokit_viewer.html)                     | Browser-based model viewer                           |
 | [`@xeokit/webglrenderer`](https://www.npmjs.com/package/@xeokit/webglrenderer)           | [`@xeokit/webglrenderer`](./modules/_xeokit_webgl.html)                       | Configures the viewer to use WebGL2                  |
-| [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)               | [`@xeokit/xkt`](./modules/_xeokit_xkt.html)                           | Import and export XKT files                          |
+| [`@xeokit/dtx`](https://www.npmjs.com/package/@xeokit/dtx)               | [`@xeokit/dtx`](./modules/_xeokit_dtx.html)                           | Import and export XKT files                          |
 | [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)             | [`@xeokit/gltf`](./modules/_xeokit_gltf.html)                         | Import and export glTF files                         |
 | [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)               | [`@xeokit/las`](./modules/_xeokit_las.html)                           | Import LAS pointcloud scans                          |
 | [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson)     | [`@xeokit/las`](./modules/_xeokit_cityjson.html)                      | Import CityJSON files                                |

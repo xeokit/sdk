@@ -42,7 +42,7 @@ npm manifest:
       "clean:deps": "rm -rf packages/*/node_modules/**",
       "test": "ts-node node_modules/tape/bin/tape packages/*/test/{*/,}*.triangleIntersectsAABB3.ts | tap-spec",
   
-      "docs": "typedoc --tsconfig ./tsconfig.json --options ./typedoc.json --includes ./docincludes packages/core/src/index.ts packages/core/src/index.ts packages/datatypes/src/index.ts packages/datatypes/src/index.ts packages/locale/src/index.ts packages/core/src/index.ts packages/math/src/index.ts packages/math/src/matrix.ts packages/math/src/rtc.ts packages/math/src/boundaries.ts packages/math/src/index.ts packages/compression/src/index.ts packages/procgen/src/geometry/index.ts packages/data/src/index.ts  packages/viewer/src/index.ts packages/webgl/src/index.ts packages/webgpu/src/index.ts packages/scratchmodel/src/index.ts  packages/xkt/src/index.ts  packages/gltf/src/index.ts  packages/las/src/index.ts packages/bcf/src/index.ts packages/controls/src/index.ts packages/ktx2/src/index.ts packages/treeview/src/index.ts --categorizeByGroup true --excludeInternal --excludeNotDocumented --media ./assets --includes docs --includeVersion --titleLink \"https://xeokit.io\" --searchInComments",
+      "docs": "typedoc --tsconfig ./tsconfig.json --options ./typedoc.json --includes ./docincludes packages/core/src/index.ts packages/core/src/index.ts packages/datatypes/src/index.ts packages/datatypes/src/index.ts packages/locale/src/index.ts packages/core/src/index.ts packages/math/src/index.ts packages/math/src/matrix.ts packages/math/src/rtc.ts packages/math/src/boundaries.ts packages/math/src/index.ts packages/compression/src/index.ts packages/procgen/src/geometry/index.ts packages/data/src/index.ts  packages/viewer/src/index.ts packages/webgl/src/index.ts packages/webgpu/src/index.ts packages/scratchmodel/src/index.ts  packages/dtx/src/index.ts  packages/gltf/src/index.ts  packages/las/src/index.ts packages/bcf/src/index.ts packages/controls/src/index.ts packages/ktx2/src/index.ts packages/treeview/src/index.ts --categorizeByGroup true --excludeInternal --excludeNotDocumented --media ./assets --includes docs --includeVersion --titleLink \"https://xeokit.io\" --searchInComments",
       "_publish": "npm publish --access public"
     },
     "devDependencies": {
@@ -4220,7 +4220,7 @@ Lockfile:
   convert-source-map@^2.0.0:
     version "2.0.0"
     resolved "https://registry.npmjs.org/convert-source-map/-/convert-source-map-2.0.0.tgz"
-    integrity sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==
+    integrity sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0dtxWwt+1HSYf3JZsTms3aRJg==
   
   core-js-compat@^3.25.1:
     version "3.26.1"
@@ -10190,7 +10190,7 @@ Lockfile:
   unicode-match-property-value-ecmascript@^2.1.0:
     version "2.1.0"
     resolved "https://registry.npmjs.org/unicode-match-property-value-ecmascript/-/unicode-match-property-value-ecmascript-2.1.0.tgz"
-    integrity sha512-qxkjQt6qjg/mYscYMC0XKRn3Rh0wFPlfxB0xkt9CfyTvpX1Ra0+rAmdX2QyAobptSEvuy4RtpPRui6XkV+8wjA==
+    integrity sha512-qxkjQt6qjg/mYscYMC0XKRn3Rh0wFPlfxB0dtx9CfyTvpX1Ra0+rAmdX2QyAobptSEvuy4RtpPRui6XkV+8wjA==
   
   unicode-property-aliases-ecmascript@^2.0.0:
     version "2.1.0"

@@ -88,7 +88,7 @@ various file formats into the viewer.
 
 | Package                                                              | Modules                                                                               | Description                |
 |----------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------------|
-| [`@xeokit/dtx`](https://www.npmjs.com/package/@xeokit/dtx)           | [`@xeokit/dtx`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)           | Import and export XKT files |
+| [`@xeokit/dtx`](https://www.npmjs.com/package/@xeokit/dtx)           | [`@xeokit/dtx`](https://xeokit.github.io/sdk/docs/modules/_xeokit_dtx.html)           | Import and export XKT files |
 | [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)         | [`@xeokit/gltf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html)         | Import glTF files |
 | [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)           | [`@xeokit/las`](https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html)           | Import LAS pointcloud scans |
 | [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson) | [`@xeokit/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html) | Import CityJSON files      |

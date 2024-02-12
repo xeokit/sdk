@@ -26,7 +26,6 @@
       "@xeokit/bcf":["./packages/bcf/"],
       "@xeokit/boundaries":["./packages/boundaries/"],
       "@xeokit/cameracontrol":["./packages/cameracontrol/"],
-      "@xeokit/cityjson":["./packages/cityjson/"],
       "@xeokit/cityjsontypes_1_1_3":["./packages/cityjsontypes_1_1_3/"],
       "@xeokit/compression":["./packages/compression/"],
       "@xeokit/constants":["./packages/constants/"],
@@ -55,7 +54,10 @@
       "@xeokit/webglrenderer":["./packages/webglrenderer/"],
       "@xeokit/webglutils":["./packages/webglutils/"],
       "@xeokit/webifc":["./packages/webifc/"],
-      "@xeokit/dtx":["./packages/dtx/"]
+      "@xeokit/dtx":["./packages/dtx/"],
+      "@xeokit/gltf2dtx":["./packages/gltf2dtx/"],
+      "@xeokit/las2dtx":["./packages/las2dtx/"],
+      "@xeokit/cityjson":["./packages/cityjson/"]
     }
   },
   "include": [

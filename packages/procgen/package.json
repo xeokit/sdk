@@ -30,7 +30,11 @@
   ],
   "keywords": [],
   "dependencies": {
-    "@xeokit/core": "^0.1.0",
+    "@xeokit/math": "workspace:*",
+    "@xeokit/utils": "workspace:*",
+    "@xeokit/constants": "workspace:*",
+    "@xeokit/matrix": "workspace:*",
+    "@xeokit/core": "workspace:*",
     "strongly-typed-events": "3.0.7"
   }
 }

@@ -30,6 +30,9 @@
   ],
   "keywords": [],
   "dependencies": {
+    "@xeokit/compression": "^0.1.0",
+    "@xeokit/constants": "^0.1.0",
+    "@xeokit/boundaries": "^0.1.0",
     "@xeokit/core": "^0.1.0",
     "@xeokit/kdtree3": "^0.1.0",
     "@xeokit/math": "^0.1.0",

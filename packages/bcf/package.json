@@ -28,6 +28,12 @@
   ],
   "keywords": [],
   "dependencies": {
+    "@xeokit/matrix": "^0.1.0",
+    "@xeokit/data": "^0.1.0",
+    "@xeokit/constants": "^0.1.0",
+    "@xeokit/math": "^0.1.0",
+    "@xeokit/ifctypes": "^0.1.0",
+    "@xeokit/basictypes": "^0.1.0",
     "@xeokit/viewer": "^0.1.0"
   },
   "devDependencies": {

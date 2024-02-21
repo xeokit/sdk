@@ -29,6 +29,10 @@
   ],
   "keywords": [],
   "dependencies": {
+    "@xeokit/scene": "^0.1.0",
+    "@xeokit/dtx": "^0.1.0",
+    "@xeokit/webifc": "^0.1.0",
+    "@xeokit/data": "^0.1.0",
     "@xeokit/core": "^0.1.0",
     "strongly-typed-events": "3.0.7"
   },

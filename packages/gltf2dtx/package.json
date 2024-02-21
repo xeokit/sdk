@@ -35,6 +35,7 @@
   "keywords": [],
 
   "dependencies": {
+    "@xeokit/dtx": "^0.1.0",
     "@xeokit/constants": "^0.1.0",
     "@xeokit/core": "^0.1.0",
     "@xeokit/data": "^0.1.0",

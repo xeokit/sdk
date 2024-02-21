@@ -36,6 +36,8 @@
     "@loaders.gl/polyfills": "^4.0.4",
     "@loaders.gl/textures": "^4.0.4",
 
+    "@xeokit/basictypes": "^0.1.0",
+    "@xeokit/utils": "^0.1.0",
     "@xeokit/constants": "^0.1.0",
     "@xeokit/core": "^0.1.0",
     "@xeokit/data": "^0.1.0",

@@ -1,11 +1,11 @@
-import {RenderContext} from "./RenderContext";
-import {PerspectiveProjection, View} from "@xeokit/viewer";
-import {WebGLProgram, WebGLSampler} from "@xeokit/webglutils";
-import {LinesPrimitive, OrthoProjectionType, TrianglesPrimitive} from "@xeokit/constants";
-import {createMat4, createVec3, createVec4, transformPoint3} from "@xeokit/matrix";
-import {createRTCViewMat} from "@xeokit/rtc";
-import {RENDER_PASSES} from "./RENDER_PASSES";
-import {Layer} from "./Layer";
+import { LinesPrimitive, OrthoProjectionType, TrianglesPrimitive } from "@xeokit/constants";
+import { createMat4, createVec3, createVec4, transformPoint3 } from "@xeokit/matrix";
+import { createRTCViewMat } from "@xeokit/rtc";
+import { PerspectiveProjection, View } from "@xeokit/viewer";
+import { WebGLProgram, WebGLSampler } from "@xeokit/webglutils";
+import { Layer } from "./Layer";
+import { RENDER_PASSES } from "./RENDER_PASSES";
+import { RenderContext } from "./RenderContext";
 
 const tempVec4 = createVec4();
 const tempVec3a = createVec3();
@@ -321,9 +321,9 @@ export abstract class LayerRenderer {
             rtcViewMatrix = camera.viewMatrix;
             rtcCameraEye = camera.eye;
         }
-        gl.uniformMatrix4fv(uniforms.sceneModelMatrix, false, rotationMatrixConjugate);
+        gl.uniformMatrix4fv(uniforms.sceneModelMatrix, false, rotationMatrixConjugate as Float32List);
         gl.uniformMatrix4fv(uniforms.viewMatrix, false, rtcViewMatrix);
-        gl.uniformMatrix4fv(uniforms.projMatrix, false, camera.projMatrix);
+        gl.uniformMatrix4fv(uniforms.projMatrix, false, camera.projMatrix as Float32List);
         gl.uniform3fv(uniforms.cameraEyeRtc, rtcCameraEye);
         gl.uniform1i(uniforms.renderPass, renderPass);
         if (uniforms.worldMatrix) {
@@ -397,9 +397,9 @@ export abstract class LayerRenderer {
             rtcCameraEye = camera.eye;
         }
 
-        gl.uniformMatrix4fv(uniforms.sceneModelMatrix, false, rotationMatrixConjugate);
+        gl.uniformMatrix4fv(uniforms.sceneModelMatrix, false, rotationMatrixConjugate as Float32List);
         gl.uniformMatrix4fv(uniforms.viewMatrix, false, rtcViewMatrix);
-        gl.uniformMatrix4fv(uniforms.projMatrix, false, camera.projMatrix);
+        gl.uniformMatrix4fv(uniforms.projMatrix, false, camera.projMatrix as Float32List);
         gl.uniform3fv(uniforms.cameraEyeRtc, rtcCameraEye);
         gl.uniform1i(uniforms.renderPass, renderPass);
 

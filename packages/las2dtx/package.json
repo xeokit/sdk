@@ -30,6 +30,7 @@
   ],
   "keywords": [],
   "dependencies": {
+    "@xeokit/scene": "^0.1.0",
     "@xeokit/core": "^0.1.0",
     "@xeokit/data": "^0.1.0",
     "@xeokit/las": "^0.1.0",

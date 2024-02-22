@@ -29,6 +29,8 @@
   ],
   "keywords": [],
   "dependencies": {
+    "@xeokit/constants": "^0.1.0",
+    "@xeokit/ifctypes": "^0.1.0",
     "@xeokit/compression": "^0.1.0",
     "@xeokit/core": "^0.1.0",
     "@xeokit/data": "^0.1.0",

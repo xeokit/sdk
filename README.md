@@ -12,7 +12,29 @@ Benefit from built-in support for multiple canvases, utility libraries with comp
 documentation, and the ability to import/export models as industry-standard AECO file formats. Collaborate with other BIM software 
 via BCF Viewpoints and bring your AECO models to life with xeokit.
 
-# Examples
+# Table of Contents
+
+1. [Usage Examples](#usage-examples)
+2. [Modules](#modules)
+   - [Scene Graph](#scene-graph)
+   - [Data Graph](#data-graph)
+   - [Model Viewer](#model-viewer)
+   - [Model Importers and Exporters](#model-importers-and-exporters)
+   - [Interoperating with BIM Software](#interoperating-with-bim-software)
+   - [Utility Libraries](#utility-libraries)
+3. [Examples](#examples)
+   - [Spinning Textured Box](#spinning-textured-box)
+   - [glTF Model Viewer](#gltf-model-viewer)
+   - [Convert a glTF file to XKT](#convert-a-gltf-file-to-xkt)
+4. [Project development](#project-development)
+   - [Preparing](#preparing)
+   - [Building](#building)
+5. [License](#license)
+6. [Credits](#credits)
+
+## Preparing the project:
+
+# Usage examples
 
 Work in progress;
 
@@ -342,6 +364,39 @@ function toArrayBuffer(buf) {
     return ab;
 }
 ````
+
+# Project development
+
+## Preparing:
+
+To start developing this project, you should first install it, preferably globally:
+
+```bash
+npm i pnpm -g
+pnpm install turbo --global
+```
+
+Then clone the repository:
+
+```bash
+git clone https://github.com/xeokit/sdk
+```
+
+Install the project using:
+
+```bash
+pnpm i
+```
+
+## Building:
+
+To build all packages and their dependencies use:
+
+```bash
+pnpm dist
+```
+
+This will automatically start all project building processes, a ```dist``` directory will be created in each package, this is a representation of the package's built source and its dependencies.
 
 # License
 

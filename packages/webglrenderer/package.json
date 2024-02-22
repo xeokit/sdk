@@ -30,6 +30,8 @@
   ],
   "keywords": [],
   "dependencies": {
+    "@xeokit/rtc": "^0.1.0",
+    "@xeokit/utils": "^0.1.0",
     "@xeokit/boundaries": "^0.1.0",
     "@xeokit/constants": "^0.1.0",
     "@xeokit/core": "^0.1.0",

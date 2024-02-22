@@ -1,1 +1,4 @@
-node_modules/
+node_modules
+tsconfig.tsbuildinfo
+dist
+.turbo

@@ -7,16 +7,12 @@
     "type": "git",
     "url": "git+https://github.com/xeokit/xeokit.git"
   },
-
   "license": "SEE LICENSE IN LICENSE.md",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "dist": "turbo run dist   --concurrency 100",
-    "test": "turbo run test  --concurrency 100",
+    "dist": "turbo run dist --concurrency 100",
+    "test": "turbo run test --concurrency 100",
     "docs": "typedoc --excludeInternal",
     "publish-packages": "turbo run build lint test && changeset version && changeset publish"
   },
@@ -55,7 +51,5 @@
     "@changesets/cli": "^2.27.1",
     "esbuild": "^0.20.0"
   },
-  "dependencies": {
-
-  }
+  "packageManager": "pnpm@8.7.6"
 }

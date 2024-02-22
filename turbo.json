@@ -5,8 +5,7 @@
       "persistent": true
     },
     "dist": {
-      "cache": false,
-      "persistent": true
+      "dependsOn": ["^dist"]
     }
   }
 }

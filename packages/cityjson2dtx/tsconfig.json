@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.package.json",
   "include": [
     "src/**/*",
     "../global.d.ts"

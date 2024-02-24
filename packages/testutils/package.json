@@ -23,7 +23,10 @@
     "package.json"
   ],
   "keywords": [],
-  "dependencies": {
-
-  }
+    "dependencies": {
+        "@xeokit/scene": "^0.1.0",
+        "@xeokit/matrix": "^0.1.0",
+        "@xeokit/basictypes": "^0.1.0",
+        "@xeokit/constants": "^0.1.0"
+    }
 }

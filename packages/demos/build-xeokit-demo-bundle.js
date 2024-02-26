@@ -9,7 +9,7 @@ const sharedConfig = {
         "./src/index.ts"
     ],
     bundle: true,
-    minify: true,
+    minify: false,
     sourcemap: true
     // only needed if you have dependencies
     // external: Object.keys(dependencies).concat(Object.keys(peerDependencies)),

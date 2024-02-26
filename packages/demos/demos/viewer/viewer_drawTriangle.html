@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+<canvas id="myCanvas"></canvas>
+<div class="slideout-sidebar">
+    <h1>Drawing a triangle with a Viewer configured with a WebGLRenderer</h1>
+    <p>In tis example, we're creating a Viewer configured with a WebGLRenderer and a Scene. Then we build a SceneModel
+        with a simple triangle geometry.</p>
+    <h3>Major components used</h3>
+    <ul>
+        <li>
+            <a href="../docs/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
+        </li>
+        <li>
+            <a href="../docs/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
+        </li>
+        <li>
+            <a href="../docs/classes/_xeokit_viewer.View.html" target="_other">View</a>
+        </li>
+        <li>
+            <a href="../docs/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
+        </li>
+        <li>
+            <a href="../docs/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script type="module">
+
+    import {log} from "../../js/logger.js";
+
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js";
+
+    const scene = new xeokit.scene.Scene();
+
+    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    const view = viewer.createView({
+        id: "myView",
+        canvasId: "myCanvas"
+    });
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    if (sceneModel instanceof xeokit.core.SDKError) {
+        log(`Error creating SceneModel: ${sceneModel.message}`);
+    } else {
+
+        sceneModel.createGeometry({
+            id: "boxGeometry",
+            primitive: xeokit.constants.TrianglesPrimitive,
+            positions: [
+                -0.5, 0.5, 0.0,
+                -0.5, -0.5, 0.0,
+                0.5, -0.5, 0.0,
+            ],
+            indices: [
+                0, 1, 2
+            ]
+        });
+
+        sceneModel.createMesh({
+            id: "triangleMesh",
+            geometryId: "boxGeometry",
+            position: [0, 0, 0],
+            scale: [1, 1, 1],
+            rotation: [0, 0, 0],
+            color: [1, 0.3, 0.3]
+        });
+
+        sceneModel.createObject({
+            id: "triangleObject",
+            meshIds: ["triangleMesh"]
+        });
+
+        sceneModel.build().then(() => {
+
+        }).catch((e) => {
+            log(`Error building SceneModel: ${e}`);
+            throw e;
+        });
+    }
+
+</script>
+
+</html>

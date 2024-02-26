@@ -347,7 +347,6 @@ export class Viewer extends Component {
         if (this.destroyed) {
             return;
         }
-        super.destroy();
         this.renderer.detachViewer();
         scheduler.deregisterViewer(this);
         for (let id in this.views) {
@@ -357,5 +356,6 @@ export class Viewer extends Component {
         this.onTick.clear();
         this.onViewCreated.clear();
         this.onViewDestroyed.clear();
+        super.destroy();
     }
 }

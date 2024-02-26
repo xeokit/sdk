@@ -347,6 +347,9 @@ importers:
       '@xeokit/webifc':
         specifier: ^0.1.0
         version: link:../webifc
+      earcut-typescript:
+        specifier: ^2.2.3
+        version: 2.2.3
       web-ifc:
         specifier: ^0.0.35
         version: 0.0.35
@@ -782,12 +785,21 @@ importers:
       strongly-typed-events:
         specifier: 3.0.7
         version: 3.0.7
-    devDependencies:
-      '@xeokit/testutils':
-        specifier: ^0.1.0
-        version: link:../testutils
 
-  packages/testutils: {}
+  packages/testutils:
+    dependencies:
+      '@xeokit/basictypes':
+        specifier: ^0.1.0
+        version: link:../basictypes
+      '@xeokit/constants':
+        specifier: ^0.1.0
+        version: link:../constants
+      '@xeokit/matrix':
+        specifier: ^0.1.0
+        version: link:../matrix
+      '@xeokit/scene':
+        specifier: ^0.1.0
+        version: link:../scene
 
   packages/threedxml:
     dependencies:
@@ -5954,6 +5966,10 @@ packages:
   /duplexer@0.1.2:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
     dev: true
+
+  /earcut-typescript@2.2.3:
+    resolution: {integrity: sha512-2o0ihgAWb9qOtllsd6pNqD+wM1sVK+KIXs19EMSZt+FzXUq+vABczHStvZoS0JZCXtUYJ9tU3KJLlYQ1caCETg==}
+    dev: false
 
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}

@@ -41,6 +41,6 @@
     "strongly-typed-events": "3.0.7"
   },
   "devDependencies": {
-    "@xeokit/testutils": "^0.1.0"
+
   }
 }

@@ -336,6 +336,20 @@ class ViewLayer extends Component {
     autoDestroy: boolean;
 
     /**
+     * Emits an event each time a {@link @xeokit/viewer!ViewObject} is created in this ViewLayer.
+     *
+     * @event
+     */
+    readonly onObjectCreated: EventEmitter<ViewLayer, ViewObject>;
+
+    /**
+     * Emits an event each time a {@link @xeokit/viewer!ViewObject} is destroyed in this ViewLayer.
+     *
+     * @event
+     */
+    readonly onObjectDestroyed: EventEmitter<ViewLayer, ViewObject>;
+
+    /**
      * Emits an event each time the visibility of a {@link @xeokit/viewer!ViewObject} changes.
      *
      * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link @xeokit/viewer!ViewLayer.setObjectsVisible} or {@link @xeokit/viewer!ViewObject.visible}.
@@ -401,6 +415,8 @@ class ViewLayer extends Component {
 
         this.#renderModes = [];
 
+        this.onObjectCreated = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
+        this.onObjectDestroyed = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
         this.onObjectVisibility = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
 
         this.#initViewObjects();
@@ -558,6 +574,7 @@ class ViewLayer extends Component {
         this.objects[viewObject.id] = viewObject;
         this.#numObjects++;
         this.#objectIds = null; // Lazy regenerate
+        this.onObjectCreated.dispatch(this, viewObject);
     }
 
     /**
@@ -573,6 +590,7 @@ class ViewLayer extends Component {
         delete this.opacityObjects[viewObject.id];
         this.#numObjects--;
         this.#objectIds = null; // Lazy regenerate
+        this.onObjectDestroyed.dispatch(this, viewObject);
     }
 
     /**
@@ -689,6 +707,9 @@ class ViewLayer extends Component {
         return this.withObjects(objectIds, (viewObject: ViewObject) => {
             const changed = (viewObject.visible !== visible);
             viewObject.visible = visible;
+            if (changed) {
+                this.onObjectVisibility.dispatch(this, viewObject);
+            }
             return changed;
         });
     }
@@ -903,12 +924,13 @@ class ViewLayer extends Component {
                    this.objects[viewObject.id] = viewObject;
                    this.#numObjects++;
                    this.#objectIds = null; // Lazy regenerate
+                   this.onObjectCreated.dispatch(this, viewObject);
                }
             }
         }
     }
 
-    #destroyViewObjects(model: SceneModel) {
+    #destroyViewObjectsForModel(model: SceneModel) {
         const viewerObjects = model.objects;
         for (let id in viewerObjects) {
             const viewerObject = viewerObjects[id];
@@ -917,6 +939,7 @@ class ViewLayer extends Component {
                 viewObject._destroy();
                 this.#numObjects--;
                 this.#objectIds = null; // Lazy regenerate
+                this.onObjectDestroyed.dispatch(this, viewObject);
             }
         }
     }
@@ -927,7 +950,20 @@ class ViewLayer extends Component {
      * Causes {@link @xeokit/viewer!Viewer} to fire a "viewDestroyed" event.
      */
     destroy() {
+        this.#destroyViewObjects();
+        this.onObjectCreated.clear();
+        this.onObjectDestroyed.clear();
+        this.onObjectVisibility.clear();
         super.destroy();
+    }
+
+    #destroyViewObjects() {
+        const objects = this.objects;
+        for (let id in objects) {
+            const viewObject = objects[id];
+            this.deregisterViewObject(viewObject);
+            this.onObjectDestroyed.dispatch(this, viewObject);
+        }
     }
 }
 

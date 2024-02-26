@@ -307,6 +307,20 @@ class View extends Component {
     readonly onBoundary: EventEmitter<View, IntArrayParam>;
 
     /**
+     * Emits an event each time a {@link @xeokit/viewer!ViewObject} is created in this View.
+     *
+     * @event
+     */
+    readonly onObjectCreated: EventEmitter<View, ViewObject>;
+
+    /**
+     * Emits an event each time a {@link @xeokit/viewer!ViewObject} is destroyed in this View.
+     *
+     * @event
+     */
+    readonly onObjectDestroyed: EventEmitter<View, ViewObject>;
+
+    /**
      * Emits an event each time the visibility of a {@link @xeokit/viewer!ViewObject} changes in this View.
      *
      * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link @xeokit/viewer!ViewLayer.setObjectsVisible} or {@link @xeokit/viewer!ViewObject.visible}.
@@ -638,6 +652,14 @@ class View extends Component {
         this.logarithmicDepthBufferEnabled =
             !!options.logarithmicDepthBufferEnabled;
 
+        this.onObjectCreated = new EventEmitter(
+            new EventDispatcher<View, ViewObject>()
+        );
+
+        this.onObjectDestroyed = new EventEmitter(
+            new EventDispatcher<View, ViewObject>()
+        );
+
         this.onObjectVisibility = new EventEmitter(
             new EventDispatcher<View, ViewObject>()
         );
@@ -710,6 +732,7 @@ class View extends Component {
             const viewObject = new ViewObject(viewLayer, sceneObject, rendererObject);
             viewLayer.registerViewObject(viewObject);
             this.registerViewObject(viewObject);
+            this.onObjectCreated.dispatch(this, viewObject);
         }
     }
 
@@ -1515,13 +1538,17 @@ class View extends Component {
      */
     destroy() {
         this.viewer.onTick.unsubscribe(this.#onTick);
-        super.destroy();
+        this.#destroyViewLayers();
+        this.#destroyViewObjects();
+        this.onObjectCreated.clear();
+        this.onObjectDestroyed.clear();
         this.onObjectVisibility.clear();
         this.onObjectXRayed.clear();
         this.onLayerCreated.clear();
         this.onLayerDestroyed.clear();
         this.onSectionPlaneCreated.clear();
         this.onSectionPlaneDestroyed.clear();
+        super.destroy();
     }
 
     #destroyViewObjectsForSceneModel(sceneModel: SceneModel) {
@@ -1538,6 +1565,34 @@ class View extends Component {
                     viewLayer.destroy();
                 }
             }
+            this.onObjectDestroyed.dispatch(this, viewObject);
+        }
+    }
+
+    #destroyViewLayers() {
+        const viewLayers = this.layers;
+        for (let id in viewLayers) {
+            const viewLayer = viewLayers[id];
+            viewLayer.destroy();
+        }
+    }
+
+    #destroyViewObjects() {
+        const objects = this.objects;
+        for (let id in objects) {
+            const object = objects[id];
+            const sceneObject = object.sceneObject;
+            const layerId = sceneObject.layerId || "default";
+            let viewLayer = this.layers[layerId];
+            const viewObject = this.objects[object.id];
+            this.deregisterViewObject(viewObject);
+            if (viewLayer) {
+                viewLayer.deregisterViewObject(viewObject);
+                if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
+                    viewLayer.destroy();
+                }
+            }
+            this.onObjectDestroyed.dispatch(this, viewObject);
         }
     }
 }

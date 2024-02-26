@@ -39,6 +39,11 @@
 
 <script type="module">
 
+    document.createElement(`<div id="log" style="position: absolute;font-size: 18px;left: 75px;top: 80px;pointer-events: all;"></div>`)
+    function log(msg) {
+        document.getElementById("log").innerText += msg;
+    }
+
     import * as xeokit from "./../../js/xeokit-demo-bundle.js";
 
     const scene = new xeokit.scene.Scene();

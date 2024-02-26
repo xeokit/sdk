@@ -23,8 +23,7 @@ body {
     width: 100%;
     height: 100%;
     position: absolute;
-    background: lightblue;
-    background-image: linear-gradient(lightblue, white);
+    background: black;
 }
 
 .slideout-sidebar {

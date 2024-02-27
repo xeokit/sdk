@@ -34,6 +34,7 @@ import type {WebGLTileManager} from "./WebGLTileManager";
 import {MeshCounts} from "./MeshCounts";
 import {Layer} from "./Layer";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
+import {RenderStats} from "./RenderStats";
 
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);

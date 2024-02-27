@@ -10,14 +10,19 @@ export class TrianglesFastColorRenderer extends TrianglesRenderer {
     }
 
     buildVertexShader(): string {
-        return `${this.vertHeader}   
+        return `${this.vertHeader}
+
+            //----------------------------------------------------
+            // TrianglesFastColorRenderer Vertex Shader
+            //----------------------------------------------------
+
             ${this.vertCommonDefs}
             ${this.vertTrianglesDataTextureDefs}
             ${this.vertSlicingDefs}
             ${this.vertTrianglesLightingDefs}
-            ${this.vertLogDepthBufDefs}                     
+            ${this.vertLogDepthBufDefs}
             void main(void) {
-                ${this.vertTriangleVertexPosition}                               
+                ${this.vertTriangleVertexPosition}
                 ${this.vertSlicing}
                 ${this.vertTrianglesLighting}
                 ${this.vertLogDepthBuf}
@@ -25,14 +30,19 @@ export class TrianglesFastColorRenderer extends TrianglesRenderer {
     }
 
     buildFragmentShader(): string {
-        return `${this.fragHeader}                                    
-            ${this.fragSlicingDefs} 
-            ${this.fragTrianglesLightingDefs}   
-            ${this.fragLogDepthBufDefs} 
-            void main(void) {                                                   
-                ${this.fragSlicing}                                                                                      
-                ${this.fragTrianglesLighting}                                   
-                ${this.fragLogDepthBuf}                        
+        return `${this.fragHeader}
+
+            //----------------------------------------------------
+            // TrianglesFastColorRenderer Fragment Shader
+            //----------------------------------------------------
+
+            ${this.fragSlicingDefs}
+            ${this.fragTrianglesLightingDefs}
+            ${this.fragLogDepthBufDefs}
+            void main(void) {
+                ${this.fragSlicing}
+                ${this.fragTrianglesLighting}
+                ${this.fragLogDepthBuf}
             }`;
     }
 }

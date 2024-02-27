@@ -17,19 +17,19 @@ export abstract class TrianglesRenderer extends LayerRenderer {
         const gl = this.renderContext.gl;
         const samplers = this.samplers;
 
-        if (samplers.perPrimitiveSubMeshDataTexture) {
+        if (samplers.primitiveToSubMeshLookupDataTexture) {
             if (renderState.numIndices8Bits > 0) {
-                renderState.dataTextureSet.perPrimitiveSubMesh8BitsDataTexture.bindTexture(program, samplers.perPrimitiveSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.primitiveToSubMeshLookup8BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
                 renderState.dataTextureSet.indices8BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices8Bits);
             }
             if (renderState.numIndices16Bits > 0) {
-                renderState.dataTextureSet.perPrimitiveSubMesh16BitsDataTexture.bindTexture(program, samplers.perPrimitiveSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.primitiveToSubMeshLookup16BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
                 renderState.dataTextureSet.indices16BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices16Bits);
             }
             if (renderState.numIndices32Bits > 0) {
-                renderState.dataTextureSet.perPrimitiveSubMesh32BitsDataTexture.bindTexture(program, samplers.perPrimitiveSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.primitiveToSubMeshLookup32BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
                 renderState.dataTextureSet.indices32BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices32Bits);
             }
@@ -38,13 +38,13 @@ export abstract class TrianglesRenderer extends LayerRenderer {
 
     protected get vertTrianglesLightingDefs(): string {
         const src = [];
-        src.push(`vec3 octDecode(vec2 oct) {
-            vec3 v = vec3(oct.xy, 1.0 - abs(oct.x) - abs(oct.y));
-            if (v.z < 0.0) {
-                v.xy = (1.0 - abs(v.yx)) * vec2(v.x >= 0.0 ? 1.0 : -1.0, v.y >= 0.0 ? 1.0 : -1.0);
-            }
-            return normalize(v);
-        }`);
+        // src.push(`vec3 octDecode(vec2 oct) {
+        //     vec3 v = vec3(oct.xy, 1.0 - abs(oct.x) - abs(oct.y));
+        //     if (v.z < 0.0) {
+        //         v.xy = (1.0 - abs(v.yx)) * vec2(v.x >= 0.0 ? 1.0 : -1.0, v.y >= 0.0 ? 1.0 : -1.0);
+        //     }
+        //     return normalize(v);
+        // }`);
         src.push(`uniform vec4 lightAmbient;`);
         for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
             const light = this.renderContext.view.lightsList[i];
@@ -94,49 +94,85 @@ export abstract class TrianglesRenderer extends LayerRenderer {
     }
 
     protected get vertTrianglesDataTextureDefs(): string {
-        return `uniform mediump usampler2D  perPrimitiveSubMeshDataTexture;                
-                uniform lowp    usampler2D  perSubMeshAttributesDataTexture; 
-                uniform mediump sampler2D   perSubMeshInstancingMatricesDataTexture; 
-                uniform mediump sampler2D   perSubMeshDecodeMatricesDataTexture;                
-                uniform highp   sampler2D   perSubmeshOffsetDataTexture;                           
-                uniform mediump usampler2D  positionsCompressedDataTexture; 
-                uniform highp   usampler2D  indicesDataTexture; 
-                uniform highp   usampler2D  edgeIndicesDataTexture;`;
+        return `
+                //-------------------------------------------------
+                // TrianglesRenderer.vertTrianglesDataTextureDefs()
+                //-------------------------------------------------
+
+                uniform mediump usampler2D              primitiveToSubMeshLookupDataTexture;
+                uniform lowp    usampler2D              subMeshAttributesDataTexture;
+                uniform mediump sampler2D               subMeshInstanceMatricesDataTexture;
+                uniform mediump sampler2D               subMeshDecompressMatricesDataTexture;
+                uniform highp   sampler2D               subMeshOffsetsDataTexture;
+                uniform mediump usampler2D              positionsCompressedDataTexture;
+                uniform highp   usampler2D              indicesDataTexture;
+                uniform highp   usampler2D              edgeIndicesDataTexture;`;
     }
 
     protected get vertTriangleVertexPosition() {
-        return `int     polygonIndex                = gl_VertexID / 3;
-                int     h_packed_object_id_index    = (polygonIndex >> 3) & 4095;
-                int     v_packed_object_id_index    = (polygonIndex >> 3) >> 12;
-                int     objectIndex                 = int(texelFetch(perPrimitiveSubMeshDataTexture, ivec2(h_packed_object_id_index, v_packed_object_id_index), 0).r);
-                ivec2   objectIndexCoords           = ivec2(objectIndex % 512, objectIndex / 512);
-                uvec4   flags                       = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+2, objectIndexCoords.y), 0);
-                uvec4   flags2                      = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+3, objectIndexCoords.y), 0);
-                if (int(flags.z) != renderPass) {               
-                    gl_Position = vec4(3.0, 3.0, 3.0, 1.0);
+        return `
+                //-----------------------------------------------
+                // TrianglesRenderer.vertTriangleVertexPosition()
+                //-----------------------------------------------
+
+                // Primitive -> SubMesh lookup
+
+                int     primitiveIndex                  = gl_VertexID / 3;
+                ivec2   primitiveIndexCoords            = ivec2((primitiveIndex >> 3) & 4095, (primitiveIndex >> 3) >> 12);
+
+                int     subMeshIndex                    = int( texelFetch( primitiveToSubMeshLookupDataTexture, primitiveIndexCoords, 0).r);
+                ivec2   subMeshIndexCoords              = ivec2(subMeshIndex % 512, subMeshIndex / 512);
+
+                // SubMesh Flags
+
+                uvec4   flags                           = texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x * 8 + 2, subMeshIndexCoords.y), 0);
+                uvec4   flags2                          = texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x * 8 + 3, subMeshIndexCoords.y), 0);
+
+                // Render pass masking
+
+                if (int(flags.z) != renderPass) {
+                    gl_Position = vec4(3.0, 3.0, 3.0, 1.0); // Outside clip volume
                     return;
-                } 
-                ivec4   packedVertexBase                = ivec4(texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+4, objectIndexCoords.y), 0));
-                ivec4   packedIndexBaseOffset           = ivec4(texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+5, objectIndexCoords.y), 0));
+                }
+
+                ivec4   packedVertexBase                = ivec4( texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x * 8 + 4, subMeshIndexCoords.y), 0));
+                ivec4   packedIndexBaseOffset           = ivec4( texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x * 8 + 5, subMeshIndexCoords.y), 0));
                 int     indexBaseOffset                 = (packedIndexBaseOffset.r << 24) + (packedIndexBaseOffset.g << 16) + (packedIndexBaseOffset.b << 8) + packedIndexBaseOffset.a;
-                int     h_index                         = (polygonIndex - indexBaseOffset) & 4095;
-                int     v_index                         = (polygonIndex - indexBaseOffset) >> 12;
-                ivec3   vertexIndices                   = ivec3(texelFetch(indicesDataTexture, ivec2(h_index, v_index), 0));
-                ivec3   uniqueVertexIndexes             = vertexIndices + (packedVertexBase.r << 24) + (packedVertexBase.g << 16) + (packedVertexBase.b << 8) + packedVertexBase.a;
-                ivec3   indexPositionH                  = uniqueVertexIndexes & 4095;
-                ivec3   indexPositionV                  = uniqueVertexIndexes >> 12;
-                mat4    objectInstanceMatrix            = mat4 (texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
-                mat4    objectDecodeAndInstanceMatrix   = objectInstanceMatrix * mat4 (texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
-                uint    solid                           = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+7, objectIndexCoords.y), 0).r;
-                        positions[0]                    = vec3(texelFetch(positionsCompressedDataTexture, ivec2(indexPositionH.r, indexPositionV.r), 0));
-                        positions[1]                    = vec3(texelFetch(positionsCompressedDataTexture, ivec2(indexPositionH.g, indexPositionV.g), 0));
-                        positions[2]                    = vec3(texelFetch(positionsCompressedDataTexture, ivec2(indexPositionH.b, indexPositionV.b), 0));
-                vec3    normal                          = normalize(cross(positions[2] - positions[0], positions[1] - positions[0]));
+
+                ivec2   triangleIndicesIndex            = ivec2( (primitiveIndex - indexBaseOffset) & 4095, (primitiveIndex - indexBaseOffset) >> 12 );
+                ivec3   triangleIndices                 = ivec3( texelFetch( indicesDataTexture, triangleIndicesIndex, 0));
+                ivec3   triangleIndicesUnique           = triangleIndices + (packedVertexBase.r << 24) + (packedVertexBase.g << 16) + (packedVertexBase.b << 8) + packedVertexBase.a;
+
+                ivec3   indexPositionH                  = triangleIndicesUnique & 4095;
+                ivec3   indexPositionV                  = triangleIndicesUnique >> 12;
+
+                mat4    instanceMatrix                  = mat4( texelFetch( subMeshInstanceMatricesDataTexture,   ivec2( subMeshIndexCoords.x * 4 + 0, subMeshIndexCoords.y ), 0),
+                                                                texelFetch( subMeshInstanceMatricesDataTexture,   ivec2( subMeshIndexCoords.x * 4 + 1, subMeshIndexCoords.y ), 0),
+                                                                texelFetch( subMeshInstanceMatricesDataTexture,   ivec2( subMeshIndexCoords.x * 4 + 2, subMeshIndexCoords.y ), 0),
+                                                                texelFetch( subMeshInstanceMatricesDataTexture,   ivec2( subMeshIndexCoords.x * 4 + 3, subMeshIndexCoords.y ), 0));
+
+                mat4    decodeMatrix                    = mat4( texelFetch( subMeshDecompressMatricesDataTexture,       ivec2( subMeshIndexCoords.x * 4 + 0, subMeshIndexCoords.y ), 0),
+                                                                texelFetch( subMeshDecompressMatricesDataTexture,       ivec2( subMeshIndexCoords.x * 4 + 1, subMeshIndexCoords.y ), 0),
+                                                                texelFetch( subMeshDecompressMatricesDataTexture,       ivec2( subMeshIndexCoords.x * 4 + 2, subMeshIndexCoords.y ), 0),
+                                                                texelFetch( subMeshDecompressMatricesDataTexture,       ivec2( subMeshIndexCoords.x * 4 + 3, subMeshIndexCoords.y ), 0));
+
+                mat4    decodeAndInstanceMatrix         = instanceMatrix * decodeMatrix;
+
+                uint    solid                           = texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x*8+7, subMeshIndexCoords.y), 0).r;
+
+                        positions[0]                    = vec3( texelFetch( positionsCompressedDataTexture, ivec2( indexPositionH.r, indexPositionV.r ), 0));
+                        positions[1]                    = vec3( texelFetch( positionsCompressedDataTexture, ivec2( indexPositionH.g, indexPositionV.g ), 0));
+                        positions[2]                    = vec3( texelFetch( positionsCompressedDataTexture, ivec2( indexPositionH.b, indexPositionV.b ), 0));
+
                 vec3    position                        = positions[gl_VertexID % 3];
-                vec3    viewNormal                      = -normalize((transpose(inverse(viewMatrix * objectDecodeAndInstanceMatrix)) * vec4(normal,1)).xyz);
+
                 if (solid != 1u) {
+
+                    vec3 normal     = normalize( cross( positions[2] - positions[0], positions[1] - positions[0] ) );
+                    vec3 viewNormal = -normalize( (transpose( inverse( viewMatrix * decodeAndInstanceMatrix )) * vec4( normal, 1 )).xyz);
+
                     if (isPerspectiveMatrix(projMatrix)) {
-                        vec3 uCameraEyeRtcInQuantizedSpace = (inverse(sceneModelMatrix * objectDecodeAndInstanceMatrix) * vec4(uCameraEyeRtc, 1)).xyz;
+                        vec3 uCameraEyeRtcInQuantizedSpace = (inverse(sceneModelMatrix * decodeAndInstanceMatrix) * vec4(uCameraEyeRtc, 1)).xyz;
                         if (dot(position.xyz - uCameraEyeRtcInQuantizedSpace, normal) < 0.0) {
                             position = positions[2 - (gl_VertexID % 3)];
                             viewNormal = -viewNormal;
@@ -148,39 +184,48 @@ export abstract class TrianglesRenderer extends LayerRenderer {
                         }
                     }
                }
-               vec4 worldPosition = sceneModelMatrix *  (objectDecodeAndInstanceMatrix * vec4(position, 1.0));            
-               vec4 clipPos = projMatrix * (viewMatrix * worldPosition);
-               gl_Position = clipPos;`;
+
+               vec4     worldPosition                   = sceneModelMatrix *  (decodeAndInstanceMatrix * vec4( position, 1.0 ));
+               vec4     clipPos                         = projMatrix * (viewMatrix * worldPosition);
+
+                        gl_Position                     = clipPos;`;
     }
 
     protected get vertTriangleEdgesVertexPosition() {
-        return `int     polygonIndex                = gl_VertexID / 2;
-                int     h_packed_object_id_index    = (polygonIndex >> 3) & 4095;
-                int     v_packed_object_id_index    = (polygonIndex >> 3) >> 12;
-                int     objectIndex                 = int(texelFetch(perPrimitiveSubMeshDataTexture, ivec2(h_packed_object_id_index, v_packed_object_id_index), 0).r);
-                ivec2   objectIndexCoords           = ivec2(objectIndex % 512, objectIndex / 512);
-                uvec4   flags                       = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+2, objectIndexCoords.y), 0);
-                uvec4   flags2                      = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+3, objectIndexCoords.y), 0);
-                if (int(flags.z) != renderPass) {               
+        return `
+                //----------------------------------------------------
+                // TrianglesRenderer.vertTriangleEdgesVertexPosition()
+                //----------------------------------------------------
+
+                int     primitiveIndex                  = gl_VertexID / 2;
+                int     h_packed_object_id_index        = (primitiveIndex >> 3) & 4095;
+                int     v_packed_object_id_index        = (primitiveIndex >> 3) >> 12;
+                int     subMeshIndex                    = int(texelFetch(primitiveToSubMeshLookupDataTexture, ivec2(h_packed_object_id_index, v_packed_object_id_index), 0).r);
+                ivec2   subMeshIndexCoords              = ivec2(subMeshIndex % 512, subMeshIndex / 512);
+                uvec4   flags                           = texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x * 8+2, subMeshIndexCoords.y), 0);
+                uvec4   flags2                          = texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x * 8+3, subMeshIndexCoords.y), 0);
+
+                if (int(flags.z) != renderPass) {
                     gl_Position = vec4(3.0, 3.0, 3.0, 1.0);
                     return;
-                } 
-                ivec4   packedVertexBase                = ivec4(texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+4, objectIndexCoords.y), 0));
-                ivec4   packedEdgeIndexBaseOffset       = ivec4(texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+6, objectIndexCoords.y), 0));
+                }
+
+                ivec4   packedVertexBase                = ivec4(texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x*8+4, subMeshIndexCoords.y), 0));
+                ivec4   packedEdgeIndexBaseOffset       = ivec4(texelFetch (subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x*8+6, subMeshIndexCoords.y), 0));
                 int     edgeIndexBaseOffset             = (packedEdgeIndexBaseOffset.r << 24) + (packedEdgeIndexBaseOffset.g << 16) + (packedEdgeIndexBaseOffset.b << 8) + packedEdgeIndexBaseOffset.a;
-                int     h_index                         = (polygonIndex - edgeIndexBaseOffset) & 4095;
-                int     v_index                         = (polygonIndex - edgeIndexBaseOffset) >> 12;
-                ivec3   vertexIndices                   = ivec3(texelFetch(edgeIndicesDataTexture, ivec2(h_index, v_index), 0));
-                ivec3   uniqueVertexIndexes             = vertexIndices + (packedVertexBase.r << 24) + (packedVertexBase.g << 16) + (packedVertexBase.b << 8) + packedVertexBase.a;
-                ivec3   indexPositionH                  = uniqueVertexIndexes & 4095;
-                ivec3   indexPositionV                  = uniqueVertexIndexes >> 12;
-                mat4    objectInstanceMatrix            = mat4 (texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
-                mat4    objectDecodeAndInstanceMatrix   = objectInstanceMatrix * mat4 (texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));             
+                int     h_index                         = (primitiveIndex - edgeIndexBaseOffset) & 4095;
+                int     v_index                         = (primitiveIndex - edgeIndexBaseOffset) >> 12;
+                ivec3   triangleIndices                   = ivec3(texelFetch(edgeIndicesDataTexture, ivec2(h_index, v_index), 0));
+                ivec3   triangleIndicesUnique             = triangleIndices + (packedVertexBase.r << 24) + (packedVertexBase.g << 16) + (packedVertexBase.b << 8) + packedVertexBase.a;
+                ivec3   indexPositionH                  = triangleIndicesUnique & 4095;
+                ivec3   indexPositionV                  = triangleIndicesUnique >> 12;
+                mat4    instanceMatrix            = mat4 (texelFetch (subMeshInstanceMatricesDataTexture, ivec2(subMeshIndexCoords.x*4+0, subMeshIndexCoords.y), 0), texelFetch (subMeshInstanceMatricesDataTexture, ivec2(subMeshIndexCoords.x*4+1, subMeshIndexCoords.y), 0), texelFetch (subMeshInstanceMatricesDataTexture, ivec2(subMeshIndexCoords.x*4+2, subMeshIndexCoords.y), 0), texelFetch (subMeshInstanceMatricesDataTexture, ivec2(subMeshIndexCoords.x*4+3, subMeshIndexCoords.y), 0));
+                mat4    decodeAndInstanceMatrix   = instanceMatrix * mat4 (texelFetch (subMeshDecompressMatricesDataTexture, ivec2(subMeshIndexCoords.x*4+0, subMeshIndexCoords.y), 0), texelFetch (subMeshDecompressMatricesDataTexture, ivec2(subMeshIndexCoords.x*4+1, subMeshIndexCoords.y), 0), texelFetch (subMeshDecompressMatricesDataTexture, ivec2(subMeshIndexCoords.x*4+2, subMeshIndexCoords.y), 0), texelFetch (subMeshDecompressMatricesDataTexture, ivec2(subMeshIndexCoords.x*4+3, subMeshIndexCoords.y), 0));
                 vec3    position                        = vec3(texelFetch(positionsCompressedDataTexture, ivec2(indexPositionH, indexPositionV), 0));
-                vec4    worldPosition = sceneModelMatrix *  (objectDecodeAndInstanceMatrix * vec4(position, 1.0));
-                vec4    viewPosition = viewMatrix * worldPosition;
-                vec4    clipPos = projMatrix * viewPosition;
-                        gl_Position = clipPos;`;
+                vec4    worldPosition                   = sceneModelMatrix *  (decodeAndInstanceMatrix * vec4(position, 1.0));
+                vec4    viewPosition                    = viewMatrix * worldPosition;
+                vec4    clipPos                         = projMatrix * viewPosition;
+                        gl_Position                     = clipPos;`;
     }
 
     protected get fragTrianglesLightingDefs(): string {

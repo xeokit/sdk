@@ -1,11 +1,12 @@
-import { LinesPrimitive, OrthoProjectionType, TrianglesPrimitive } from "@xeokit/constants";
-import { createMat4, createVec3, createVec4, transformPoint3 } from "@xeokit/matrix";
-import { createRTCViewMat } from "@xeokit/rtc";
-import { PerspectiveProjection, View } from "@xeokit/viewer";
-import { WebGLProgram, WebGLSampler } from "@xeokit/webglutils";
-import { Layer } from "./Layer";
-import { RENDER_PASSES } from "./RENDER_PASSES";
-import { RenderContext } from "./RenderContext";
+import {LinesPrimitive, OrthoProjectionType, TrianglesPrimitive} from "@xeokit/constants";
+import {createMat4, createVec3, createVec4, transformPoint3} from "@xeokit/matrix";
+import {createRTCViewMat} from "@xeokit/rtc";
+import {PerspectiveProjection, View} from "@xeokit/viewer";
+import {WebGLProgram, WebGLSampler} from "@xeokit/webglutils";
+import {Layer} from "./Layer";
+import {RENDER_PASSES} from "./RENDER_PASSES";
+import {RenderContext} from "./RenderContext";
+import {RenderStats} from "./RenderStats";
 
 const tempVec4 = createVec4();
 const tempVec3a = createVec3();
@@ -21,6 +22,7 @@ const identityMat4 = createMat4();
 export abstract class LayerRenderer {
 
     renderContext: RenderContext;
+    renderStats: RenderStats;
     view: View;
     errors: string[] | undefined;
 
@@ -60,10 +62,10 @@ export abstract class LayerRenderer {
         positionsCompressedDataTexture: WebGLSampler;
         indicesDataTexture: WebGLSampler;
         edgeIndices: WebGLSampler;
-        perSubMeshInstancingMatricesDataTexture: WebGLSampler;
-        perSubMeshAttributesDataTexture: WebGLSampler;
+        subMeshInstanceMatricesDataTexture: WebGLSampler;
+        subMeshAttributesDataTexture: WebGLSampler;
         eachEdgeOffset: WebGLSampler;
-        perPrimitiveSubMeshDataTexture: WebGLSampler;
+        primitiveToSubMeshLookupDataTexture: WebGLSampler;
         eachEdgeMesh: WebGLSampler;
         baseColorMap: WebGLSampler;
         metallicRoughMap: WebGLSampler;
@@ -76,8 +78,9 @@ export abstract class LayerRenderer {
     program: WebGLProgram | null;
     #needRebuild: boolean;
 
-    constructor(renderContext: RenderContext) {
+    constructor(renderContext: RenderContext, renderStats: RenderStats) {
         this.renderContext = renderContext;
+        this.renderStats = renderStats;
         this.view = renderContext.view;
         this.#needRebuild = true;
         this.build();
@@ -163,10 +166,10 @@ export abstract class LayerRenderer {
             positionsCompressedDataTexture: program.getSampler("positionsCompressedDataTexture"),
             indicesDataTexture: program.getSampler("indicesDataTexture"),
             edgeIndices: program.getSampler("edgeIndices"),
-            perSubMeshAttributesDataTexture: program.getSampler("perSubMeshAttributesDataTexture"),
-            perSubMeshInstancingMatricesDataTexture: program.getSampler("perSubMeshInstancingMatricesDataTexture"),
-            eachEdgeOffset: program.getSampler("perSubmeshOffsetDataTexture"),
-            perPrimitiveSubMeshDataTexture: program.getSampler("perPrimitiveSubMeshDataTexture"),
+            subMeshAttributesDataTexture: program.getSampler("subMeshAttributesDataTexture"),
+            subMeshInstanceMatricesDataTexture: program.getSampler("subMeshInstanceMatricesDataTexture"),
+            eachEdgeOffset: program.getSampler("subMeshOffsetsDataTexture"),
+            primitiveToSubMeshLookupDataTexture: program.getSampler("primitiveToSubMeshLookupDataTexture"),
             eachEdgeMesh: program.getSampler("eachEdgeMesh"),
             baseColorMap: program.getSampler("baseColorMap"),
             metallicRoughMap: program.getSampler("metallicRoughMap"),
@@ -216,8 +219,9 @@ export abstract class LayerRenderer {
         if (this.renderContext.lastProgramId === this.program.id) {
             return; // Already bound
         }
+        this.program.bind();
         this.renderContext.lastProgramId = this.program.id;
-
+        this.renderStats.numProgramBinds++;
         if (uniforms.renderPass) {
             gl.uniform1i(uniforms.renderPass, renderPass);
         }
@@ -363,7 +367,6 @@ export abstract class LayerRenderer {
         const rotationMatrixConjugate = identityMat4;
 
         if (renderContext.lastProgramId !== program.id) {
-            renderContext.lastProgramId = program.id;
             this.bind();
         }
 
@@ -423,7 +426,7 @@ export abstract class LayerRenderer {
                 const fillAlpha = material.fillAlpha;
                 gl.uniform4f(uniforms.color, fillColor[0], fillColor[1], fillColor[2], fillAlpha);
             } else {
-                gl.uniform4fv(uniforms.color, new Float32Array([1, 1, 1]));
+                gl.uniform4fv(uniforms.color, new Float32Array([1, 1, 1, 1]));
             }
         }
 
@@ -454,47 +457,57 @@ export abstract class LayerRenderer {
 
         if (samplers.positionsCompressedDataTexture) {
             renderState.dataTextureSet.positionsCompressedDataTexture.bindTexture(program, samplers.positionsCompressedDataTexture, renderContext.nextTextureUnit);
+            this.renderStats.numTextureBinds++;
         }
 
-        if (samplers.perSubMeshInstancingMatricesDataTexture) {
-            renderState.dataTextureSet.perSubMeshInstancingMatricesDataTexture.bindTexture(program, samplers.perSubMeshInstancingMatricesDataTexture, renderContext.nextTextureUnit);
+        if (samplers.subMeshInstanceMatricesDataTexture) {
+            renderState.dataTextureSet.subMeshInstanceMatricesDataTexture.bindTexture(program, samplers.subMeshInstanceMatricesDataTexture, renderContext.nextTextureUnit);
+            this.renderStats.numTextureBinds++;
         }
 
-        if (samplers.perSubMeshAttributesDataTexture) {
-            renderState.dataTextureSet.perSubMeshAttributesDataTexture.bindTexture(program, samplers.perSubMeshAttributesDataTexture, renderContext.nextTextureUnit);
+        if (samplers.subMeshAttributesDataTexture) {
+            renderState.dataTextureSet.subMeshAttributesDataTexture.bindTexture(program, samplers.subMeshAttributesDataTexture, renderContext.nextTextureUnit);
+            this.renderStats.numTextureBinds++;
         }
 
         const glPrimitive = (layer.primitive === TrianglesPrimitive ? gl.TRIANGLES : (layer.primitive === LinesPrimitive ? gl.LINES : gl.POINTS));
 
-        if (samplers.perPrimitiveSubMeshDataTexture) {
+        if (samplers.primitiveToSubMeshLookupDataTexture) {
             if (renderState.numIndices8Bits > 0) {
-                renderState.dataTextureSet.perPrimitiveSubMesh8BitsDataTexture.bindTexture(program, samplers.perPrimitiveSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.primitiveToSubMeshLookup8BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
                 renderState.dataTextureSet.indices8BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(glPrimitive, 0, renderState.numIndices8Bits);
+                this.renderStats.numDrawArrays++;
             }
             if (renderState.numIndices16Bits > 0) {
-                renderState.dataTextureSet.perPrimitiveSubMesh16BitsDataTexture.bindTexture(program, samplers.perPrimitiveSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.primitiveToSubMeshLookup16BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
                 renderState.dataTextureSet.indices16BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(glPrimitive, 0, renderState.numIndices16Bits);
+                this.renderStats.numDrawArrays++;
             }
             if (renderState.numIndices32Bits > 0) {
-                renderState.dataTextureSet.perPrimitiveSubMesh32BitsDataTexture.bindTexture(program, samplers.perPrimitiveSubMeshDataTexture, renderContext.nextTextureUnit);
+                renderState.dataTextureSet.primitiveToSubMeshLookup32BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
                 renderState.dataTextureSet.indices32BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
                 gl.drawArrays(glPrimitive, 0, renderState.numIndices32Bits);
+                this.renderStats.numDrawArrays++;
             }
         }
 
         if (samplers.baseColorMap) {
             samplers.baseColorMap.bindTexture(renderState.materialTextureSet.colorRendererTexture.texture2D, renderContext.nextTextureUnit);
+            this.renderStats.numTextureBinds++;
         }
         if (samplers.metallicRoughMap) {
             samplers.metallicRoughMap.bindTexture(renderState.materialTextureSet.metallicRoughnessRendererTexture.texture2D, renderContext.nextTextureUnit);
+            this.renderStats.numTextureBinds++;
         }
         if (samplers.emissiveMap) {
             samplers.emissiveMap.bindTexture(renderState.materialTextureSet.emissiveRendererTexture.texture2D, renderContext.nextTextureUnit);
+            this.renderStats.numTextureBinds++;
         }
         if (samplers.occlusionMap) {
             samplers.occlusionMap.bindTexture(renderState.materialTextureSet.occlusionRendererTexture.texture2D, renderContext.nextTextureUnit);
+            this.renderStats.numTextureBinds++;
         }
 
     }
@@ -522,25 +535,25 @@ export abstract class LayerRenderer {
     }
 
     protected get vertCommonDefs(): string {
-        return `uniform         int         renderPass;
-                uniform         mat4        sceneModelMatrix;
-                uniform         mat4        viewMatrix;
-                uniform         mat4        projMatrix;
-                uniform         vec3        uCameraEyeRtc;
-                                vec3        positions[3];              
+        return `uniform     int         renderPass;
+                uniform     mat4        sceneModelMatrix;
+                uniform     mat4        viewMatrix;
+                uniform     mat4        projMatrix;
+                uniform     vec3        uCameraEyeRtc;
+                            vec3        positions[3];
+
                 bool isPerspectiveMatrix(mat4 m) {
                     return (m[2][3] == - 1.0);
                 }`;
     }
 
     protected get vertLogDepthBufDefs(): string {
-        if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return `uniform float logDepthBufFC;
-                    out float fragDepth;
-                    out float isPerspective;`;
-        } else {
+        if (!this.renderContext.view.logarithmicDepthBufferEnabled) {
             return "";
         }
+        return `uniform     float       logDepthBufFC;
+                out         float       fragDepth;
+                out         float       isPerspective;`;
     }
 
     protected get vertLogDepthBuf(): string {
@@ -580,17 +593,17 @@ export abstract class LayerRenderer {
     protected get fragHeader(): string {
         return `#version 300 es
         #ifdef GL_FRAGMENT_PRECISION_HIGH
-        precision highp     float;
-        precision highp     int;
+        precision       highp     float;
+        precision       highp     int;
         #else
-        precision mediump   float;
-        precision mediump   int;
+        precision       mediump   float;
+        precision       mediump   int;
         #endif`;
     }
 
     protected get fragColorDefs(): string {
-        return `uniform vec4 color;
-                out vec4 outColor;`;
+        return `uniform         vec4    color;
+        out             vec4     outColor;`;
     }
 
     protected get fragLogDepthBufDefs(): string {
@@ -635,7 +648,7 @@ export abstract class LayerRenderer {
                               dist += clamp(dot(-sectionPlaneDir${i}.xyz, worldPosition.xyz - sectionPlanePos${i}.xyz), 0.0, 1000.0);
                           }`);
             }
-            src.push(`if (dist > 0.0) { 
+            src.push(`if (dist > 0.0) {
                           discard;
                       }
                   }`);

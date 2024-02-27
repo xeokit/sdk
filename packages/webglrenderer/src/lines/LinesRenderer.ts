@@ -57,11 +57,11 @@ export abstract class LinesRenderer extends LayerRenderer {
         positionsCompressedDataTexture: WebGLSampler;
         indicesDataTexture: WebGLSampler;
         edgeIndices: WebGLSampler;
-        perSubMeshInstancingMatricesDataTexture: WebGLSampler;
-        perSubMeshAttributesDataTexture: WebGLSampler;
+        subMeshInstanceMatricesDataTexture: WebGLSampler;
+        subMeshAttributesDataTexture: WebGLSampler;
         //    eachMeshOffsets: WebGLSampler;
         eachEdgeOffset: WebGLSampler;
-        perPrimitiveSubMeshDataTexture: WebGLSampler;
+        primitiveToSubMeshLookupDataTexture: WebGLSampler;
         eachEdgeMesh: WebGLSampler;
         baseColorMap: WebGLSampler;
         metallicRoughMap: WebGLSampler;
@@ -70,12 +70,12 @@ export abstract class LinesRenderer extends LayerRenderer {
         occlusionMap: WebGLSampler;
     };
 
-    protected constructor(renderContext: RenderContext) {
-        super(renderContext);
-
-        this.#needRebuild = true;
-        this.#build();
-    }
+    // protected constructor(renderContext: RenderContext) {
+    //     super(renderContext);
+    //
+    //     this.#needRebuild = true;
+    //     this.#build();
+    // }
 
     #build(): void {
 
@@ -154,10 +154,10 @@ export abstract class LinesRenderer extends LayerRenderer {
             positionsCompressedDataTexture: program.getSampler("positionsCompressedDataTexture"),
             indicesDataTexture: program.getSampler("indicesDataTexture"),
             edgeIndices: program.getSampler("edgeIndices"),
-            perSubMeshAttributesDataTexture: program.getSampler("perSubMeshAttributesDataTexture"),
-            perSubMeshInstancingMatricesDataTexture: program.getSampler("perSubMeshInstancingMatricesDataTexture"),
-            eachEdgeOffset: program.getSampler("perSubmeshOffsetDataTexture"),
-            perPrimitiveSubMeshDataTexture: program.getSampler("eachMeshTriangleMesh"),
+            subMeshAttributesDataTexture: program.getSampler("subMeshAttributesDataTexture"),
+            subMeshInstanceMatricesDataTexture: program.getSampler("subMeshInstanceMatricesDataTexture"),
+            eachEdgeOffset: program.getSampler("subMeshOffsetsDataTexture"),
+            primitiveToSubMeshLookupDataTexture: program.getSampler("eachMeshTriangleMesh"),
             eachEdgeMesh: program.getSampler("eachEdgeMesh"),
             baseColorMap: program.getSampler("baseColorMap"),
             metallicRoughMap: program.getSampler("metallicRoughMap"),
@@ -284,15 +284,15 @@ export abstract class LinesRenderer extends LayerRenderer {
     }
 
     protected get vertDataTextureDefs(): string {
-        return `uniform mediump usampler2D  perPrimitiveSubMeshDataTexture; 
-                
-                uniform lowp    usampler2D  perSubMeshAttributesDataTexture; 
-                uniform mediump sampler2D   perSubMeshInstancingMatricesDataTexture; 
-                uniform mediump sampler2D   perSubMeshDecodeMatricesDataTexture;                
-                uniform highp   sampler2D   perSubmeshOffsetDataTexture; 
-                          
-                uniform mediump usampler2D  positionsCompressedDataTexture; 
-                uniform highp   usampler2D  indicesDataTexture; 
+        return `uniform mediump usampler2D  primitiveToSubMeshLookupDataTexture;
+
+                uniform lowp    usampler2D  subMeshAttributesDataTexture;
+                uniform mediump sampler2D   subMeshInstanceMatricesDataTexture;
+                uniform mediump sampler2D   subMeshDecompressMatricesDataTexture;
+                uniform highp   sampler2D   subMeshOffsetsDataTexture;
+
+                uniform mediump usampler2D  positionsCompressedDataTexture;
+                uniform highp   usampler2D  indicesDataTexture;
                 uniform highp   usampler2D  edgeIndicesDataTexture;`;
     }
     //
@@ -300,16 +300,16 @@ export abstract class LinesRenderer extends LayerRenderer {
     //     return `int     polygonIndex                = gl_VertexID / 2;
     //             int     h_packed_object_id_index    = (polygonIndex >> 3) & 4095;
     //             int     v_packed_object_id_index    = (polygonIndex >> 3) >> 12;
-    //             int     objectIndex                 = int(texelFetch(perPrimitiveSubMeshDataTexture, ivec2(h_packed_object_id_index, v_packed_object_id_index), 0).r);
+    //             int     objectIndex                 = int(texelFetch(primitiveToSubMeshLookupDataTexture, ivec2(h_packed_object_id_index, v_packed_object_id_index), 0).r);
     //             ivec2   objectIndexCoords           = ivec2(objectIndex % 512, objectIndex / 512);
-    //             uvec4   flags                       = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+2, objectIndexCoords.y), 0);
-    //             uvec4   flags2                      = texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+3, objectIndexCoords.y), 0);
+    //             uvec4   flags                       = texelFetch (subMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+2, objectIndexCoords.y), 0);
+    //             uvec4   flags2                      = texelFetch (subMeshAttributesDataTexture, ivec2(objectIndexCoords.x * 8+3, objectIndexCoords.y), 0);
     //             if (int(flags.z) != renderPass) {
     //                 gl_Position = vec4(3.0, 3.0, 3.0, 1.0);
     //                 return;
     //             }
-    //             ivec4   packedVertexBase                = ivec4(texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+4, objectIndexCoords.y), 0));
-    //             ivec4   packedEdgeIndexBaseOffset       = ivec4(texelFetch (perSubMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+6, objectIndexCoords.y), 0));
+    //             ivec4   packedVertexBase                = ivec4(texelFetch (subMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+4, objectIndexCoords.y), 0));
+    //             ivec4   packedEdgeIndexBaseOffset       = ivec4(texelFetch (subMeshAttributesDataTexture, ivec2(objectIndexCoords.x*8+6, objectIndexCoords.y), 0));
     //             int     edgeIndexBaseOffset             = (packedEdgeIndexBaseOffset.r << 24) + (packedEdgeIndexBaseOffset.g << 16) + (packedEdgeIndexBaseOffset.b << 8) + packedEdgeIndexBaseOffset.a;
     //             int     h_index                         = (polygonIndex - edgeIndexBaseOffset) & 4095;
     //             int     v_index                         = (polygonIndex - edgeIndexBaseOffset) >> 12;
@@ -317,8 +317,8 @@ export abstract class LinesRenderer extends LayerRenderer {
     //             ivec3   uniqueVertexIndexes             = vertexIndices + (packedVertexBase.r << 24) + (packedVertexBase.g << 16) + (packedVertexBase.b << 8) + packedVertexBase.a;
     //             ivec3   indexPositionH                  = uniqueVertexIndexes & 4095;
     //             ivec3   indexPositionV                  = uniqueVertexIndexes >> 12;
-    //             mat4    objectInstanceMatrix            = mat4 (texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (perSubMeshInstancingMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
-    //             mat4    objectDecodeAndInstanceMatrix   = objectInstanceMatrix * mat4 (texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (perSubMeshDecodeMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
+    //             mat4    objectInstanceMatrix            = mat4 (texelFetch (subMeshInstanceMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (subMeshInstanceMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (subMeshInstanceMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (subMeshInstanceMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
+    //             mat4    objectDecodeAndInstanceMatrix   = objectInstanceMatrix * mat4 (texelFetch (subMeshDecompressMatricesDataTexture, ivec2(objectIndexCoords.x*4+0, objectIndexCoords.y), 0), texelFetch (subMeshDecompressMatricesDataTexture, ivec2(objectIndexCoords.x*4+1, objectIndexCoords.y), 0), texelFetch (subMeshDecompressMatricesDataTexture, ivec2(objectIndexCoords.x*4+2, objectIndexCoords.y), 0), texelFetch (subMeshDecompressMatricesDataTexture, ivec2(objectIndexCoords.x*4+3, objectIndexCoords.y), 0));
     //             vec3    position                        = vec3(texelFetch(positionsCompressedDataTexture, ivec2(indexPositionH, indexPositionV), 0));
     //             vec4    worldPosition = sceneModelMatrix *  (objectDecodeAndInstanceMatrix * vec4(position, 1.0));
     //             vec4    viewPosition = viewMatrix * worldPosition;

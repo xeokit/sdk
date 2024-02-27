@@ -7,72 +7,82 @@ import {FloatArrayParam, IntArrayParam} from "@xeokit/math";
  */
 export class DataTextureSet {
 
-     numPortions: number;
+    numPortions: number;
 
     readonly gl: WebGL2RenderingContext;
 
-    readonly positionsCompressedDataTexture: WebGLDataTexture;
-    readonly perSubMeshAttributesDataTexture: WebGLDataTexture;
-    readonly perSubMeshInstancingMatricesDataTexture: WebGLDataTexture;
-    readonly perSubMeshDecodeMatricesDataTexture: WebGLDataTexture;
+    // Prim -> SubMesh Lookup
 
-    readonly perPrimitiveSubMesh8BitsDataTexture: WebGLDataTexture;
-    readonly perPrimitiveSubMesh16BitsDataTexture: WebGLDataTexture;
-    readonly perPrimitiveSubMesh32BitsDataTexture: WebGLDataTexture;
+    readonly primitiveToSubMeshLookup8BitsDataTexture: WebGLDataTexture;
+    readonly primitiveToSubMeshLookup16BitsDataTexture: WebGLDataTexture;
+    readonly primitiveToSubMeshLookup32BitsDataTexture: WebGLDataTexture;
 
-    readonly perEdgeSubMesh8BitsDataTexture: WebGLDataTexture;
-    readonly perEdgeSubMesh16BitsDataTexture: WebGLDataTexture;
-    readonly perEdgeSubMesh32BitsDataTexture: WebGLDataTexture;
+    // Edge -> SubMesh Lookup
+
+    readonly edgeToSubMeshLookup8BitsDataTexture: WebGLDataTexture;
+    readonly edgeToSubMeshLookup16BitsDataTexture: WebGLDataTexture;
+    readonly edgeToSubMeshLookup32BitsDataTexture: WebGLDataTexture;
+
+    // SubMesh -> Attributes, Matrices, Decode Matrices Lookup
+
+    readonly subMeshAttributesDataTexture: WebGLDataTexture;
+    readonly subMeshInstanceMatricesDataTexture: WebGLDataTexture;
+    readonly subMeshDecompressMatricesDataTexture: WebGLDataTexture;
+
+    // Indices
 
     readonly indices8BitsDataTexture: WebGLDataTexture;
-    readonly  indices16BitsDataTexture: WebGLDataTexture;
-    readonly  indices32BitsDataTexture: WebGLDataTexture;
+    readonly indices16BitsDataTexture: WebGLDataTexture;
+    readonly indices32BitsDataTexture: WebGLDataTexture;
 
     readonly edgeIndices8BitsDataTexture: WebGLDataTexture;
     readonly edgeIndices16BitsDataTexture: WebGLDataTexture;
     readonly edgeIndices32BitsDataTexture: WebGLDataTexture;
+
+    // Vertex positions
+
+    readonly positionsCompressedDataTexture: WebGLDataTexture;
+
+    // Bitness selectors
 
     readonly indices: { 16: WebGLDataTexture; 8: WebGLDataTexture; 32: WebGLDataTexture; };
     readonly eachPrimitiveMesh: { 16: WebGLDataTexture; 8: WebGLDataTexture; 32: WebGLDataTexture };
     readonly edgeIndices: { 16: WebGLDataTexture; 8: WebGLDataTexture; 32: WebGLDataTexture };
     readonly eachEdgeMesh: { 16: WebGLDataTexture; 8: WebGLDataTexture; 32: WebGLDataTexture };
 
+    /**
+     * @private
+     */
     constructor(gl: WebGL2RenderingContext, dataTextureBuffer: DataTextureBuffer) {
 
         this.numPortions = 0;
         this.gl = gl;
 
-        // Primitive -> SceneMesh lookup
-        this.perPrimitiveSubMesh8BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perPrimitiveSubMesh8Bits);
-        this.perPrimitiveSubMesh16BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perPrimitiveSubMesh16Bits);
-        this.perPrimitiveSubMesh32BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perPrimitiveSubMesh32Bits);
+        this.primitiveToSubMeshLookup8BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.primitiveToSubMeshLookup8Bits);
+        this.primitiveToSubMeshLookup16BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.primitiveToSubMeshLookup16Bits);
+        this.primitiveToSubMeshLookup32BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.primitiveToSubMeshLookup32Bits);
 
-        // SceneMesh -> attributes lookup
-        this.perSubMeshAttributesDataTexture = this.#createPerSubMeshAttributesDataTexture( // Flags (except for solid) are inserted later
-            dataTextureBuffer.perSubMeshColors,
-            dataTextureBuffer.perSubMeshPickColors,
-            dataTextureBuffer.perSubMeshVertexBases,
-            dataTextureBuffer.perSubMeshIndicesBases,
-            dataTextureBuffer.perSubMeshEdgeIndicesBases,
-            dataTextureBuffer.perSubMeshSolidFlag);
+        this.subMeshAttributesDataTexture = this.#createSubMeshToAttributesLookupDataTexture( // Flags (except for solid) are inserted later
+            dataTextureBuffer.subMeshColors,
+            dataTextureBuffer.subMeshPickColors,
+            dataTextureBuffer.subMeshVertexBases,
+            dataTextureBuffer.subMeshIndicesBases,
+            dataTextureBuffer.subMeshEdgeIndicesBases,
+            dataTextureBuffer.subMeshSolidFlags);
 
-        // SceneMesh -> instancing matrix
-        this.perSubMeshInstancingMatricesDataTexture = this.#createPerSubMeshInstancingMatricesDataTexture(dataTextureBuffer.perSubMeshInstancingMatrices);
+        this.subMeshInstanceMatricesDataTexture = this.#createSubMeshToInstancingMatricesLookupDataTexture(dataTextureBuffer.subMeshInstanceMatrices);
+        this.subMeshDecompressMatricesDataTexture = this.#createSubMeshToDecompressMatricesLookupDataTexture(dataTextureBuffer.subMeshDecompressMatrices);
 
-        // SceneMesh -> positions decompress matrix
-        this.perSubMeshDecodeMatricesDataTexture = this.#createPerSubMeshDecodeMatricesDataTexture(dataTextureBuffer.perSubMeshDecodeMatrices);
-
-        // Vertex -> position
         this.positionsCompressedDataTexture = this.#createTextureForPositions(dataTextureBuffer.positionsCompressed, dataTextureBuffer.lenPositionsCompressed);
 
-        if (dataTextureBuffer.perEdgeSubMesh8Bits.length > 0) {
-            this.perEdgeSubMesh8BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perEdgeSubMesh8Bits);
+        if (dataTextureBuffer.edgeToSubMeshLookup8Bits.length > 0) {
+            this.edgeToSubMeshLookup8BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.edgeToSubMeshLookup8Bits);
         }
-        if (dataTextureBuffer.perEdgeSubMesh16Bits.length > 0) {
-            this.perEdgeSubMesh16BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perEdgeSubMesh16Bits);
+        if (dataTextureBuffer.edgeToSubMeshLookup16Bits.length > 0) {
+            this.edgeToSubMeshLookup16BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.edgeToSubMeshLookup16Bits);
         }
-        if (dataTextureBuffer.perEdgeSubMesh32Bits.length > 0) {
-            this.perEdgeSubMesh32BitsDataTexture = this.#createTextureForPackedPortionIds(dataTextureBuffer.perEdgeSubMesh32Bits);
+        if (dataTextureBuffer.edgeToSubMeshLookup32Bits.length > 0) {
+            this.edgeToSubMeshLookup32BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.edgeToSubMeshLookup32Bits);
         }
 
         if (dataTextureBuffer.lenIndices8Bits > 0) {
@@ -100,9 +110,9 @@ export class DataTextureSet {
             32: this.indices32BitsDataTexture,
         };
         this.eachPrimitiveMesh = {
-            8: this.perPrimitiveSubMesh8BitsDataTexture,
-            16: this.perPrimitiveSubMesh8BitsDataTexture,
-            32: this.perPrimitiveSubMesh8BitsDataTexture,
+            8: this.primitiveToSubMeshLookup8BitsDataTexture,
+            16: this.primitiveToSubMeshLookup8BitsDataTexture,
+            32: this.primitiveToSubMeshLookup8BitsDataTexture,
         };
         this.edgeIndices = {
             8: this.edgeIndices8BitsDataTexture,
@@ -110,13 +120,13 @@ export class DataTextureSet {
             32: this.edgeIndices32BitsDataTexture,
         };
         this.eachEdgeMesh = {
-            8: this.perEdgeSubMesh8BitsDataTexture,
-            16: this.perEdgeSubMesh16BitsDataTexture,
-            32: this.perEdgeSubMesh32BitsDataTexture,
+            8: this.edgeToSubMeshLookup8BitsDataTexture,
+            16: this.edgeToSubMeshLookup16BitsDataTexture,
+            32: this.edgeToSubMeshLookup32BitsDataTexture,
         };
     }
 
-    #createPerSubMeshAttributesDataTexture(
+    #createSubMeshToAttributesLookupDataTexture(
         colors: IntArrayParam[],
         pickColors: IntArrayParam[],
         vertexBases: IntArrayParam,
@@ -214,7 +224,7 @@ export class DataTextureSet {
         return new WebGLDataTexture({gl, texture, textureWidth, textureHeight, textureData});
     }
 
-    #createPerSubMeshInstancingMatricesDataTexture(instanceMatrices: FloatArrayParam[]): WebGLDataTexture {
+    #createSubMeshToInstancingMatricesLookupDataTexture(instanceMatrices: FloatArrayParam[]): WebGLDataTexture {
         const numMatrices = instanceMatrices.length;
         if (numMatrices === 0) {
             throw "num instance matrices===0";
@@ -223,7 +233,7 @@ export class DataTextureSet {
         const textureWidth = 512 * 4;
         const textureHeight = Math.ceil(numMatrices / (textureWidth / 4));
         const textureData = new Float32Array(4 * textureWidth * textureHeight);
-        // dataTextureRamStats.sizeDataPositionDecodeMatrices += textureData.byteLength;
+        // dataTextureRamStats.sizeDataPositionDecompressMatrices += textureData.byteLength;
         for (let i = 0; i < instanceMatrices.length; i++) {            // 4x4 values
             textureData.set(instanceMatrices[i], i * 16);
         }
@@ -240,8 +250,8 @@ export class DataTextureSet {
         return new WebGLDataTexture({gl, texture, textureWidth, textureHeight, textureData});
     }
 
-    #createPerSubMeshDecodeMatricesDataTexture(positionDecodeMatrices: FloatArrayParam[]): WebGLDataTexture {
-        const numMatrices = positionDecodeMatrices.length;
+    #createSubMeshToDecompressMatricesLookupDataTexture(positionDecompressMatrices: FloatArrayParam[]): WebGLDataTexture {
+        const numMatrices = positionDecompressMatrices.length;
         if (numMatrices === 0) {
             throw "num decode+entity matrices===0";
         }
@@ -249,8 +259,8 @@ export class DataTextureSet {
         const textureWidth = 512 * 4;
         const textureHeight = Math.ceil(numMatrices / (textureWidth / 4));
         const textureData = new Float32Array(4 * textureWidth * textureHeight);
-        for (let i = 0; i < positionDecodeMatrices.length; i++) {            // 4x4 values
-            textureData.set(positionDecodeMatrices[i], i * 16);
+        for (let i = 0; i < positionDecompressMatrices.length; i++) {            // 4x4 values
+            textureData.set(positionDecompressMatrices[i], i * 16);
         }
         const gl = this.gl;
         const texture = gl.createTexture();
@@ -466,7 +476,7 @@ export class DataTextureSet {
         return new WebGLDataTexture({gl, texture, textureWidth, textureHeight});
     }
 
-    #createTextureForPackedPortionIds(portionIdsArray: IntArrayParam): WebGLDataTexture {
+    #createPrimitiveToSubMeshLookupDataTexture(portionIdsArray: IntArrayParam): WebGLDataTexture {
         if (portionIdsArray.length === 0) {
             return null;
         }
@@ -493,35 +503,35 @@ export class DataTextureSet {
     }
 
     destroy() {
-        if (this.perSubMeshAttributesDataTexture) {
-            this.perSubMeshAttributesDataTexture.destroy();
+        if (this.subMeshAttributesDataTexture) {
+            this.subMeshAttributesDataTexture.destroy();
         }
-        if (this.perSubMeshInstancingMatricesDataTexture) {
-            this.perSubMeshInstancingMatricesDataTexture.destroy();
+        if (this.subMeshInstanceMatricesDataTexture) {
+            this.subMeshInstanceMatricesDataTexture.destroy();
         }
-        if (this.perSubMeshDecodeMatricesDataTexture) {
-            this.perSubMeshDecodeMatricesDataTexture.destroy();
+        if (this.subMeshDecompressMatricesDataTexture) {
+            this.subMeshDecompressMatricesDataTexture.destroy();
         }
         if (this.positionsCompressedDataTexture) {
             this.positionsCompressedDataTexture.destroy();
         }
-        if (this.perPrimitiveSubMesh8BitsDataTexture) {
-            this.perPrimitiveSubMesh8BitsDataTexture.destroy();
+        if (this.primitiveToSubMeshLookup8BitsDataTexture) {
+            this.primitiveToSubMeshLookup8BitsDataTexture.destroy();
         }
-        if (this.perPrimitiveSubMesh16BitsDataTexture) {
-            this.perPrimitiveSubMesh16BitsDataTexture.destroy();
+        if (this.primitiveToSubMeshLookup16BitsDataTexture) {
+            this.primitiveToSubMeshLookup16BitsDataTexture.destroy();
         }
-        if (this.perPrimitiveSubMesh32BitsDataTexture) {
-            this.perPrimitiveSubMesh32BitsDataTexture.destroy();
+        if (this.primitiveToSubMeshLookup32BitsDataTexture) {
+            this.primitiveToSubMeshLookup32BitsDataTexture.destroy();
         }
-        if (this.perEdgeSubMesh8BitsDataTexture) {
-            this.perEdgeSubMesh8BitsDataTexture.destroy();
+        if (this.edgeToSubMeshLookup8BitsDataTexture) {
+            this.edgeToSubMeshLookup8BitsDataTexture.destroy();
         }
-        if (this.perEdgeSubMesh16BitsDataTexture) {
-            this.perEdgeSubMesh16BitsDataTexture.destroy();
+        if (this.edgeToSubMeshLookup16BitsDataTexture) {
+            this.edgeToSubMeshLookup16BitsDataTexture.destroy();
         }
-        if (this.perEdgeSubMesh32BitsDataTexture) {
-            this.perEdgeSubMesh32BitsDataTexture.destroy();
+        if (this.edgeToSubMeshLookup32BitsDataTexture) {
+            this.edgeToSubMeshLookup32BitsDataTexture.destroy();
         }
         if (this.indices8BitsDataTexture) {
             this.indices8BitsDataTexture.destroy();

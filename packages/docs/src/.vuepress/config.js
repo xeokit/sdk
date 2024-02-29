@@ -13,7 +13,9 @@ export default defineUserConfig({
             },
             {
                 text: 'API',
-                link: 'https://xeokit.github.io/sdk/docs/api/'
+                link: 'https://xeokit.github.io/sdk/docs/api/',
+                target: '_self',
+                rel: false,
             },
             {
                 text: 'Overview',

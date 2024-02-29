@@ -4,6 +4,10 @@
             "cache": false,
             "persistent": true
         },
+        "docs-build": {
+            "cache": false,
+            "persistent": true
+        },
         "docs": {
             "cache": false,
             "persistent": true

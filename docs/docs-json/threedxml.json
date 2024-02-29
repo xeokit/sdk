@@ -1,0 +1,711 @@
+{
+	"id": 0,
+	"name": "@xeokit/threedxml",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2F3dxml.svg)](https://badge.fury.io/js/%40xeokit%2F3dxml)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/threedxml/badge)](https://www.jsdelivr.com/package/npm/@xeokit/threedxml)\r\n\r\n<img style=\"padding:0px; padding-top:20px; padding-bottom:30px;\" src=\"media://images/example_3DXML.png\"/>\r\n\r\n# xeokit 3DXML Importer\r\n\r\n---\r\n\r\n### *Import 3D CAD models from 3DXML format*\r\n\r\n---\r\n\r\nThe xeokit SDK allows us to import CAD models from [3DXML](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#3dxml), a proprietary 3D file\r\nformat developed by Dassault Systemes.\r\n\r\nTo import a 3DXML model into xeokit, simply use the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "load3DXML",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " function, which will load the file into both\r\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": " and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ".\r\n\r\n<br>\r\n\r\n[![](https://mermaid.ink/img/pako:eNqNkk1vgkAQhv8KmVOboAH5EIjxxFFTI5em2cvKDnUbYMmyJKXG_95dEK0eTLks78zsMx87J8gFQ0ggL2nbppx-SlqRmtSMS8wVF7W12Rs9-K0sxxq3-kZpnUht6Y-z8RSHLx3fjiKXSBW-DaaX19F26HjJJsGwVVL0Rp4NfeKnVNEB_4zeSNGgVH2Gz_KNtj2W1HTRHnlz79ndKP8qcSxwIyjz0vftZkf1oNppCqtVYzQqlOv1aCp4iaadUbXXwV3oU6N39HKi37hFVw_PYLBD5EMFBBwCs9magEsg-5PlWVx6y35NOfke7oENFcqKcqaXZKiKgDpihQQS_cuwoF2pCOjqdCjtlMj6OodEyQ5t6BrdKF7WCpKClq22IuNKyO1l8cxhQ0NrSE7wDYm7jOdh6ERL1w9c14-9yIYeEi-M5l7sBK6_COPF0o_ONvwIoanOPAiDpfZ5QeiEXuR7A-5jcJo6zr-CjvAT?type=png)](https://mermaid.live/edit#pako:eNqNkk1vgkAQhv8KmVOboAH5EIjxxFFTI5em2cvKDnUbYMmyJKXG_95dEK0eTLks78zsMx87J8gFQ0ggL2nbppx-SlqRmtSMS8wVF7W12Rs9-K0sxxq3-kZpnUht6Y-z8RSHLx3fjiKXSBW-DaaX19F26HjJJsGwVVL0Rp4NfeKnVNEB_4zeSNGgVH2Gz_KNtj2W1HTRHnlz79ndKP8qcSxwIyjz0vftZkf1oNppCqtVYzQqlOv1aCp4iaadUbXXwV3oU6N39HKi37hFVw_PYLBD5EMFBBwCs9magEsg-5PlWVx6y35NOfke7oENFcqKcqaXZKiKgDpihQQS_cuwoF2pCOjqdCjtlMj6OodEyQ5t6BrdKF7WCpKClq22IuNKyO1l8cxhQ0NrSE7wDYm7jOdh6ERL1w9c14-9yIYeEi-M5l7sBK6_COPF0o_ONvwIoanOPAiDpfZ5QeiEXuR7A-5jcJo6zr-CjvAT)\r\n\r\n<br>\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/threedxml\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Usage\r\n\r\nIn the example below, we'll import a 3DXML file into a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": "\r\nand a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ". The "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/core!SDKError"
+			},
+			{
+				"kind": "text",
+				"text": " class\r\nis used to handle errors that may occur during the process:\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\nimport { Scene } from \"@xeokit/scene\";\r\nimport { Data } from \"@xeokit/data\";\r\nimport { load3DXML } from \"@xeokit/threedxml\";\r\n\r\nconst scene = new Scene();\r\nconst data = new Data();\r\nconst dataModel = data.createModel({ id: \"myModel\" });\r\nconst sceneModel = scene.createModel({ id: \"myModel\" });\r\n\r\nif (dataModel instanceof SDKError) {\r\n     console.error(\"Error creating DataModel: \" + dataModel.message);\r\n\r\n} else if (sceneModel instanceof SDKError) {\r\n     console.error(\"Error creating SceneModel: \" + dataModel.message);\r\n\r\n} else {\r\n      fetch(\"./data/3dxml/3dpreview.3dxml\")\r\n        .then(response => response.blob())\r\n        .then(fileData => {\r\n\r\n             load3DXML({fileData, dataModel, sceneModel}).then(() => {\r\n\r\n                 sceneModel.build().then(() => {\r\n\r\n                     dataModel.build().then(() => {\r\n\r\n                         // Done!\r\n\r\n                    }).catch(sdkError => console.error(\"Error building DataModel: \" + sdkError.message));\r\n                }).catch(sdkError => console.error(\"Error building SceneModel: \" + sdkError.message));\r\n            }).catch(sdkError => console.error(\"Error parsing 3DXML file: \" + sdkError.message));\r\n        }).catch(errMsg => console.error(\"Error fetching 3DXML file: \" + errMsg));\r\n}\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "load3DXML",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "load3DXML.ts",
+					"line": 63,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L63"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2,
+					"name": "load3DXML",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Loads 3DXML into a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel | SceneModel"
+							},
+							{
+								"kind": "text",
+								"text": " and/or a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/data!DataModel | DataModel"
+							},
+							{
+								"kind": "text",
+								"text": ".\r\n\r\n* Expects "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.built | SceneModel.built"
+							},
+							{
+								"kind": "text",
+								"text": " and "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.destroyed | SceneModel.destroyed"
+							},
+							{
+								"kind": "text",
+								"text": " to be "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "\r\n* Does not call "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.build | SceneModel.build"
+							},
+							{
+								"kind": "text",
+								"text": " - we call that ourselves, when we have finished building the SceneModel\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/threedxml\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Resolves when 3DXML has been loaded into the SceneModel and/or DataModel."
+									}
+								]
+							},
+							{
+								"tag": "@throws",
+								"content": [
+									{
+										"kind": "text",
+										"text": "*"
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/core!SDKError"
+									},
+									{
+										"kind": "text",
+										"text": "*\r\n* If the SceneModel has already been destroyed.\r\n* If the SceneModel has already been built.\r\n* If the DataModel has already been destroyed.\r\n* If the DataModel has already been built.\r\n* If the DataModel has already been built."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "load3DXML.ts",
+							"line": 63,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L63"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Loading parameters."
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 7,
+											"name": "dataModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "DataModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "load3DXML.ts",
+													"line": 66,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L66"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../data/src/DataModel.ts",
+													"qualifiedName": "DataModel"
+												},
+												"name": "DataModel",
+												"package": "@xeokit/data"
+											}
+										},
+										{
+											"id": 12,
+											"name": "error",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "Error logging callback."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "load3DXML.ts",
+													"line": 68,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L68"
+												}
+											],
+											"type": {
+												"type": "reflection",
+												"declaration": {
+													"id": 13,
+													"name": "__type",
+													"variant": "declaration",
+													"kind": 65536,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "load3DXML.ts",
+															"line": 68,
+															"character": 12,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L68"
+														}
+													],
+													"signatures": [
+														{
+															"id": 14,
+															"name": "__type",
+															"variant": "signature",
+															"kind": 4096,
+															"flags": {},
+															"comment": {
+																"summary": [
+																	{
+																		"kind": "text",
+																		"text": "Error logging callback."
+																	}
+																]
+															},
+															"sources": [
+																{
+																	"fileName": "load3DXML.ts",
+																	"line": 68,
+																	"character": 12,
+																	"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L68"
+																}
+															],
+															"parameters": [
+																{
+																	"id": 15,
+																	"name": "errMsg",
+																	"variant": "param",
+																	"kind": 32768,
+																	"flags": {},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "string"
+																	}
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "void"
+															}
+														}
+													]
+												}
+											}
+										},
+										{
+											"id": 5,
+											"name": "fileData",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "3DXML file data."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "load3DXML.ts",
+													"line": 64,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L64"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.dom.d.ts",
+													"qualifiedName": "Blob"
+												},
+												"name": "Blob",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 8,
+											"name": "log",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "Logging callback."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "load3DXML.ts",
+													"line": 67,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L67"
+												}
+											],
+											"type": {
+												"type": "reflection",
+												"declaration": {
+													"id": 9,
+													"name": "__type",
+													"variant": "declaration",
+													"kind": 65536,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "load3DXML.ts",
+															"line": 67,
+															"character": 10,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L67"
+														}
+													],
+													"signatures": [
+														{
+															"id": 10,
+															"name": "__type",
+															"variant": "signature",
+															"kind": 4096,
+															"flags": {},
+															"comment": {
+																"summary": [
+																	{
+																		"kind": "text",
+																		"text": "Logging callback."
+																	}
+																]
+															},
+															"sources": [
+																{
+																	"fileName": "load3DXML.ts",
+																	"line": 67,
+																	"character": 10,
+																	"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L67"
+																}
+															],
+															"parameters": [
+																{
+																	"id": 11,
+																	"name": "msg",
+																	"variant": "param",
+																	"kind": 32768,
+																	"flags": {},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "string"
+																	}
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "void"
+															}
+														}
+													]
+												}
+											}
+										},
+										{
+											"id": 6,
+											"name": "sceneModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "SceneModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "load3DXML.ts",
+													"line": 65,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L65"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../scene/src/SceneModel.ts",
+													"qualifiedName": "SceneModel"
+												},
+												"name": "SceneModel",
+												"package": "@xeokit/scene"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												7,
+												12,
+												5,
+												8,
+												6
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "load3DXML.ts",
+											"line": 63,
+											"character": 34,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L63"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "any"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 16,
+			"name": "parseDefaultView",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "load3DXML.ts",
+					"line": 469,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L469"
+				}
+			],
+			"signatures": [
+				{
+					"id": 17,
+					"name": "parseDefaultView",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "load3DXML.ts",
+							"line": 469,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/threedxml/src/load3DXML.ts#L469"
+						}
+					],
+					"parameters": [
+						{
+							"id": 18,
+							"name": "ctx",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "src/load3DXML.ts",
+									"qualifiedName": "_3DXMLParsingContext"
+								},
+								"name": "_3DXMLParsingContext",
+								"package": "@xeokit/threedxml"
+							}
+						},
+						{
+							"id": 19,
+							"name": "node",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "void"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Functions",
+			"children": [
+				1,
+				16
+			]
+		}
+	],
+	"packageName": "@xeokit/threedxml",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/threedxml\r\n\r\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_threedxml.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "load3DXML"
+		},
+		"2": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "load3DXML"
+		},
+		"3": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "params"
+		},
+		"4": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type"
+		},
+		"5": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type.fileData"
+		},
+		"6": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type.sceneModel"
+		},
+		"7": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type.dataModel"
+		},
+		"8": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type.log"
+		},
+		"9": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type"
+		},
+		"10": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type"
+		},
+		"11": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "msg"
+		},
+		"12": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type.error"
+		},
+		"13": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type"
+		},
+		"14": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "__type"
+		},
+		"15": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "errMsg"
+		},
+		"16": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "parseDefaultView"
+		},
+		"17": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "parseDefaultView"
+		},
+		"18": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "ctx"
+		},
+		"19": {
+			"sourceFileName": "src/load3DXML.ts",
+			"qualifiedName": "node"
+		}
+	}
+}

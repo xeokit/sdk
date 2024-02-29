@@ -1,0 +1,472 @@
+{
+	"id": 0,
+	"name": "@xeokit/webifc",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%webifc.svg)](https://badge.fury.io/js/%40xeokit%webifc)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/webifc/badge)](https://www.jsdelivr.com/package/npm/@xeokit/webifc)\r\n\r\n<img style=\"width:150px; padding-top:20px; padding-bottom: 20px;\" src=\"media://images/ifc_logo.png\"/>\r\n\r\n# xeokit IFC Importer\r\n\r\n---\r\n\r\n### *Import BIM models from IFC STEP files using the web-ifc API*\r\n\r\n---\r\n\r\nThe xeokit SDK can import 3D building models from  Industry Foundation Classes ([IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc)) files,\r\na standard file format used in the field of Building Information Modeling (BIM) to exchange information between\r\ndifferent software applications used in the construction and building industries.\r\n\r\nTo import a medium-sized IFC model into xeokit, use the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "loadWebIFC",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " function, which will load the file into\r\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": " and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ". Internally, loadWebIFC\r\nuses the [web-ifc](https://github.com/IFCjs/web-ifc) API to parse geometry and data from the IFC file.\r\n\r\n<br>\r\n\r\n[![](https://mermaid.ink/img/pako:eNqNUsFqwzAM_ZWg0zY62K6hFLaVQaFlpTns4otiK6uHYwfbYYTSf58dJ03bQVkuznt6lp5kHYAbQZADV-jcUuKXxZpppoW0xL00OlvvIu7jWcFJ0ybcUNmB6Sx8UqTTlN9B7xLgltDTR0_d3SeubKUSIxDkvDVdhMeYfcy_RI99-lvZG2sasr4r6Fa9xO1IYezC7WVzGdlOWf5lMRlcGxSfVK7e37YYJuXGMcznTcTkyS4WiUJrsXttq4psItxpeEOFsdkEf6iUFb-opk7VpjpVq_t3iWXOpEn2sl31yiF07ZbBE4PHxwWDZwbFmZ2bwuXk86_uYdKdLDA9GR-D1zdhBjXZGqUIy9c3x8DvqSYGefgVVGGrPIPQSZBi603RaQ65ty3NoG3C8GhYV8grVC6wJKQ3djMsdDyOv8sQ9og?type=png)](https://mermaid.live/edit#pako:eNqNUsFqwzAM_ZWg0zY62K6hFLaVQaFlpTns4otiK6uHYwfbYYTSf58dJ03bQVkuznt6lp5kHYAbQZADV-jcUuKXxZpppoW0xL00OlvvIu7jWcFJ0ybcUNmB6Sx8UqTTlN9B7xLgltDTR0_d3SeubKUSIxDkvDVdhMeYfcy_RI99-lvZG2sasr4r6Fa9xO1IYezC7WVzGdlOWf5lMRlcGxSfVK7e37YYJuXGMcznTcTkyS4WiUJrsXttq4psItxpeEOFsdkEf6iUFb-opk7VpjpVq_t3iWXOpEn2sl31yiF07ZbBE4PHxwWDZwbFmZ2bwuXk86_uYdKdLDA9GR-D1zdhBjXZGqUIy9c3x8DvqSYGefgVVGGrPIPQSZBi603RaQ65ty3NoG3C8GhYV8grVC6wJKQ3djMsdDyOv8sQ9og)\r\n\r\n<br>\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/webifc\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Usage\r\n\r\nIn the example below, we'll import an IFC file into a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": "\r\nand a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ". The "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/core!SDKError"
+			},
+			{
+				"kind": "text",
+				"text": " class\r\nis used to handle errors that may occur during the process. Note how we initialize the\r\n[WebIFC](https://github.com/IFCjs/web-ifc) API externally and pass it in as a parameter for "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "loadWebIFC",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": ".\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\nimport {Scene} from \"@xeokit/scene\";\r\nimport {Data} from \"@xeokit/data\";\r\nimport {loadWebIFC} from \"@xeokit/webifc;\r\nimport * as WebIFC from \"web-ifc/web-ifc-api-node\";\r\n\r\nconst scene = new Scene();\r\n\r\nconst sceneModel = scene.createModel({\r\n    id: \"myModel\"\r\n});\r\n\r\nconst data = new Data();\r\n\r\nconst dataModel = data.createModel({\r\n     id: \"myModel\"\r\n});\r\n\r\nconst ifcAPI = new WebIFC.IfcAPI();\r\n\r\nifcAPI.SetWasmPath(\"path/to/wasm\");\r\n\r\nifcAPI.Init().then(() => {\r\n\r\n    fs.readFile(\"./tests/assets/IfcOpenHouse4.ifc\", (err, fileData) => {\r\n\r\n         if (err) {\r\n            console.error(err);\r\n            return;\r\n         }\r\n\r\n         loadWebIFC({\r\n             data: toArrayBuffer(fileData),\r\n             ifcAPI,\r\n             sceneModel,\r\n             dataModel\r\n         }).then(() => {\r\n\r\n             sceneModel.build();\r\n             dataModel.build();\r\n\r\n         }).catch((e) => {\r\n             console.error(e);\r\n         });\r\n     });\r\n});\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "loadWebIFC",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "loadWebIFC.ts",
+					"line": 45,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webifc/src/loadWebIFC.ts#L45"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2,
+					"name": "loadWebIFC",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Loads IFC into a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel | SceneModel"
+							},
+							{
+								"kind": "text",
+								"text": " and/or "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/data!DataModel | DataModel"
+							},
+							{
+								"kind": "text",
+								"text": ".\r\n\r\n* Expects "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.built | SceneModel.built"
+							},
+							{
+								"kind": "text",
+								"text": " and "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.destroyed | SceneModel.destroyed"
+							},
+							{
+								"kind": "text",
+								"text": " to be "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "\r\n* Does not call "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.build | SceneModel.build"
+							},
+							{
+								"kind": "text",
+								"text": " - we call that ourselves, when we have finished building the SceneModel\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/webifc"
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Resolves when IFC has been loaded into the SceneModel and/or DataModel."
+									}
+								]
+							},
+							{
+								"tag": "@throws",
+								"content": [
+									{
+										"kind": "text",
+										"text": "*"
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/core!SDKError"
+									},
+									{
+										"kind": "text",
+										"text": "*\r\n* If the SceneModel has already been destroyed.\r\n* If the SceneModel has already been built.\r\n* If the DataModel has already been destroyed.\r\n* If the DataModel has already been built."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "loadWebIFC.ts",
+							"line": 45,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webifc/src/loadWebIFC.ts#L45"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Loading parameters."
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 8,
+											"name": "dataModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "DataModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadWebIFC.ts",
+													"line": 49,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webifc/src/loadWebIFC.ts#L49"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../data/src/DataModel.ts",
+													"qualifiedName": "DataModel"
+												},
+												"name": "DataModel",
+												"package": "@xeokit/data"
+											}
+										},
+										{
+											"id": 5,
+											"name": "fileData",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "IFC file contents."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadWebIFC.ts",
+													"line": 46,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webifc/src/loadWebIFC.ts#L46"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+													"qualifiedName": "ArrayBuffer"
+												},
+												"name": "ArrayBuffer",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 6,
+											"name": "ifcAPI",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "WebIFC API."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadWebIFC.ts",
+													"line": 47,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webifc/src/loadWebIFC.ts#L47"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../../node_modules/.pnpm/web-ifc@0.0.50/node_modules/web-ifc/web-ifc-api-node.d.ts",
+													"qualifiedName": "IfcAPI"
+												},
+												"name": "IfcAPI",
+												"package": "web-ifc"
+											}
+										},
+										{
+											"id": 7,
+											"name": "sceneModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "SceneModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadWebIFC.ts",
+													"line": 48,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webifc/src/loadWebIFC.ts#L48"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../scene/src/SceneModel.ts",
+													"qualifiedName": "SceneModel"
+												},
+												"name": "SceneModel",
+												"package": "@xeokit/scene"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												8,
+												5,
+												6,
+												7
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "loadWebIFC.ts",
+											"line": 45,
+											"character": 35,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webifc/src/loadWebIFC.ts#L45"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "any"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Functions",
+			"children": [
+				1
+			]
+		}
+	],
+	"packageName": "@xeokit/webifc",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/webifc\r\n\r\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/loadWebIFC.ts",
+			"qualifiedName": "loadWebIFC"
+		},
+		"2": {
+			"sourceFileName": "src/loadWebIFC.ts",
+			"qualifiedName": "loadWebIFC"
+		},
+		"3": {
+			"sourceFileName": "src/loadWebIFC.ts",
+			"qualifiedName": "params"
+		},
+		"4": {
+			"sourceFileName": "src/loadWebIFC.ts",
+			"qualifiedName": "__type"
+		},
+		"5": {
+			"sourceFileName": "src/loadWebIFC.ts",
+			"qualifiedName": "__type.fileData"
+		},
+		"6": {
+			"sourceFileName": "src/loadWebIFC.ts",
+			"qualifiedName": "__type.ifcAPI"
+		},
+		"7": {
+			"sourceFileName": "src/loadWebIFC.ts",
+			"qualifiedName": "__type.sceneModel"
+		},
+		"8": {
+			"sourceFileName": "src/loadWebIFC.ts",
+			"qualifiedName": "__type.dataModel"
+		}
+	}
+}

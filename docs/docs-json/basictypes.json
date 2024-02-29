@@ -1,0 +1,335 @@
+{
+	"id": 0,
+	"name": "@xeokit/basictypes",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fdatatypes.svg)](https://badge.fury.io/js/%40xeokit%2Fdatatypes)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/basictypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/basictypes)\r\n\r\n<img style=\"padding:10px; width:300px\" src=\"media://images/xeokit_components_icon.png\"/>\r\n\r\n# xeokit Basic Semantic Data Types\r\n\r\n* Defines numeric constants for a basic set of entity and relationship types.\r\n* Use with "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/data\""
+			},
+			{
+				"kind": "text",
+				"text": " to assign basic types to "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataObject | DataObjects"
+			},
+			{
+				"kind": "text",
+				"text": "\r\nand "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!Relationship | Relationships"
+			},
+			{
+				"kind": "text",
+				"text": " and treat them as elements of a basic entity-relationship graph.\r\n* Use with "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/treeview\""
+			},
+			{
+				"kind": "text",
+				"text": ", to configure the appearance and behaviour of\r\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/treeview!TreeView | TreeViews"
+			},
+			{
+				"kind": "text",
+				"text": " for navigating basic element hierachies.\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/basictypes\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 2,
+			"name": "BasicAggregation",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A generic aggregation relationship between two generic entities."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 32,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/basictypes/src/index.ts#L32"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1001
+			},
+			"defaultValue": "1001"
+		},
+		{
+			"id": 1,
+			"name": "BasicEntity",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A generic entity."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 27,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/basictypes/src/index.ts#L27"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1000
+			},
+			"defaultValue": "1000"
+		},
+		{
+			"id": 7,
+			"name": "typeCodes",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Map of type codes for all basic entity type names."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 46,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/basictypes/src/index.ts#L46"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 8,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 46,
+							"character": 24,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/basictypes/src/index.ts#L46"
+						}
+					],
+					"indexSignature": {
+						"id": 9,
+						"name": "__index",
+						"variant": "signature",
+						"kind": 8192,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "index.ts",
+								"line": 46,
+								"character": 26,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/basictypes/src/index.ts#L46"
+							}
+						],
+						"parameters": [
+							{
+								"id": 10,
+								"name": "key",
+								"variant": "param",
+								"kind": 32768,
+								"flags": {},
+								"type": {
+									"type": "intrinsic",
+									"name": "string"
+								}
+							}
+						],
+						"type": {
+							"type": "intrinsic",
+							"name": "number"
+						}
+					}
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 3,
+			"name": "typeNames",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Map of names for all basic entity types."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 38,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/basictypes/src/index.ts#L38"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 4,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 38,
+							"character": 24,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/basictypes/src/index.ts#L38"
+						}
+					],
+					"indexSignature": {
+						"id": 5,
+						"name": "__index",
+						"variant": "signature",
+						"kind": 8192,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "index.ts",
+								"line": 38,
+								"character": 26,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/basictypes/src/index.ts#L38"
+							}
+						],
+						"parameters": [
+							{
+								"id": 6,
+								"name": "key",
+								"variant": "param",
+								"kind": 32768,
+								"flags": {},
+								"type": {
+									"type": "intrinsic",
+									"name": "number"
+								}
+							}
+						],
+						"type": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					}
+				}
+			},
+			"defaultValue": "..."
+		}
+	],
+	"groups": [
+		{
+			"title": "Variables",
+			"children": [
+				2,
+				1,
+				7,
+				3
+			]
+		}
+	],
+	"packageName": "@xeokit/basictypes",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/basictypes\r\n\r\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_basictypes.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BasicEntity"
+		},
+		"2": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BasicAggregation"
+		},
+		"3": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "typeNames"
+		},
+		"4": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "__type"
+		},
+		"5": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"7": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "typeCodes"
+		},
+		"8": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "__type"
+		},
+		"9": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "__type.__index"
+		}
+	}
+}

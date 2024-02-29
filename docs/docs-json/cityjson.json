@@ -1,0 +1,504 @@
+{
+	"id": 0,
+	"name": "@xeokit/cityjson",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fcityjson.svg)](https://badge.fury.io/js/%40xeokit%2Fcityjson)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/cityjson/badge)](https://www.jsdelivr.com/package/npm/@xeokit/cityjson)\r\n\r\n<img style=\"padding:0px; padding-top:20px; padding-bottom:30px;\" src=\"media://images/example_cityJSON.png\"/>\r\n\r\n# xeokit CityJSON Importer\r\n\r\n---\r\n\r\n### *Import 3D urban models from CityJSON format*\r\n\r\n---\r\n\r\nThe xeokit SDK allows us to import 3D urban models from [CityJSON](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#cityjson), a JSON-based\r\nfile format specifically designed for lightweight, user-friendly, and human-readable\r\nstorage and sharing of 3D models. CityJSON can represent both basic geometric shapes and intricate objects such as\r\nbuildings and trees, offering a simple alternative to other formats like CityGML.\r\n\r\nTo import a CityJSON model into xeokit, simply use the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/cityjson!loadCityJSON"
+			},
+			{
+				"kind": "text",
+				"text": " function, which will load\r\nthe file into both a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": " and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ".\r\n\r\n<br>\r\n\r\n[![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)\r\n\r\n<br>\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/cityjson\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Usage\r\n\r\nIn the example below, we'll import a CityJSON file into a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": "\r\nand a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ". The "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/core!SDKError"
+			},
+			{
+				"kind": "text",
+				"text": " class\r\nis used to handle errors that may occur during the process:\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\nimport { Scene } from \"@xeokit/scene\";\r\nimport { Data } from \"@xeokit/data\";\r\nimport { loadCityJSON } from \"@xeokit/cityjson\";\r\n\r\nconst scene = new Scene();\r\nconst data = new Data();\r\nconst dataModel = data.createModel({ id: \"myModel\" });\r\nconst sceneModel = scene.createModel({ id: \"myModel\" });\r\n\r\nif (dataModel instanceof SDKError) {\r\n     console.error(dataModel.message);\r\n} else if (sceneModel instanceof SDKError) {\r\n     console.error(dataModel.message);\r\n} else {\r\n     fetch(\"myModel.json\")\r\n         .then(response => response.json())\r\n         .then(jsonStr => {\r\n\r\n             const fileData = JSON.parse(jsonStr);\r\n\r\n             loadCityJSON({\r\n                 fileData,\r\n                 sceneModel,\r\n                 dataModel,\r\n                 rotateX: true\r\n             }).then(() => {\r\n                 sceneModel.build();\r\n                 dataModel.build();\r\n             }).catch((sdkError)=>{\r\n                 console.error(sdkError.message);\r\n             });\r\n}\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "loadCityJSON",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "loadCityJSON.ts",
+					"line": 46,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/cityjson/src/loadCityJSON.ts#L46"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2,
+					"name": "loadCityJSON",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Loads CityJSON into a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel | SceneModel"
+							},
+							{
+								"kind": "text",
+								"text": " and/or a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/data!DataModel | DataModel"
+							},
+							{
+								"kind": "text",
+								"text": ".\r\n\r\n* Expects "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.built | SceneModel.built"
+							},
+							{
+								"kind": "text",
+								"text": " and "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.destroyed | SceneModel.destroyed"
+							},
+							{
+								"kind": "text",
+								"text": " to be "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "\r\n* Does not call "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.build | SceneModel.build"
+							},
+							{
+								"kind": "text",
+								"text": " - we call that ourselves, when we have finished building the SceneModel\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/cityjson\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Resolves when CityJSON has been loaded into the SceneModel and/or DataModel."
+									}
+								]
+							},
+							{
+								"tag": "@throws",
+								"content": [
+									{
+										"kind": "text",
+										"text": "*"
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/core!SDKError"
+									},
+									{
+										"kind": "text",
+										"text": "*\r\n* If the SceneModel has already been destroyed.\r\n* If the SceneModel has already been built.\r\n* If the DataModel has already been destroyed.\r\n* If the DataModel has already been built."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "loadCityJSON.ts",
+							"line": 46,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/cityjson/src/loadCityJSON.ts#L46"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Loading parameters."
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 7,
+											"name": "dataModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "DataModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadCityJSON.ts",
+													"line": 49,
+													"character": 33,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/cityjson/src/loadCityJSON.ts#L49"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../data/src/DataModel.ts",
+													"qualifiedName": "DataModel"
+												},
+												"name": "DataModel",
+												"package": "@xeokit/data"
+											}
+										},
+										{
+											"id": 5,
+											"name": "fileData",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "CityJSON file data."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadCityJSON.ts",
+													"line": 47,
+													"character": 33,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/cityjson/src/loadCityJSON.ts#L47"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 6,
+											"name": "sceneModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "SceneModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadCityJSON.ts",
+													"line": 48,
+													"character": 33,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/cityjson/src/loadCityJSON.ts#L48"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../scene/src/SceneModel.ts",
+													"qualifiedName": "SceneModel"
+												},
+												"name": "SceneModel",
+												"package": "@xeokit/scene"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												7,
+												5,
+												6
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "loadCityJSON.ts",
+											"line": 46,
+											"character": 37,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/cityjson/src/loadCityJSON.ts#L46"
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 8,
+							"name": "options",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "CityJSON loading options"
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 9,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 10,
+											"name": "rotateX",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "True to rotate the model about the X-axis. Default is false."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadCityJSON.ts",
+													"line": 52,
+													"character": 33,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/cityjson/src/loadCityJSON.ts#L52"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												10
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "loadCityJSON.ts",
+											"line": 51,
+											"character": 38,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/cityjson/src/loadCityJSON.ts#L51"
+										}
+									]
+								}
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "any"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Functions",
+			"children": [
+				1
+			]
+		}
+	],
+	"packageName": "@xeokit/cityjson",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/cityjson\r\n\r\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "loadCityJSON"
+		},
+		"2": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "loadCityJSON"
+		},
+		"3": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "params"
+		},
+		"4": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "__type"
+		},
+		"5": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "__type.fileData"
+		},
+		"6": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "__type.sceneModel"
+		},
+		"7": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "__type.dataModel"
+		},
+		"8": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "options"
+		},
+		"9": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "__type"
+		},
+		"10": {
+			"sourceFileName": "src/loadCityJSON.ts",
+			"qualifiedName": "__type.rotateX"
+		}
+	}
+}

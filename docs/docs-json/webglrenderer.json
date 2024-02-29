@@ -1,0 +1,4667 @@
+{
+	"id": 0,
+	"name": "@xeokit/webglrenderer",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fwebgl.svg)](https://badge.fury.io/js/%40xeokit%2Fwebgl)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/webglrenderer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/webglrenderer)\r\n\r\n<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:100px;\" src=\"media://images/xeokit_webgl_logo.svg\"/>\r\n\r\n# xeokit WebGL2 Renderer\r\n\r\n---\r\n\r\n### *Configures a xeokit Viewer to use WebGL2 for graphics*\r\n\r\n---\r\n\r\n* Plug a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "WebGLRenderer",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " into a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " to use WebGL for model storage and rendering\r\n* Compact texture-based model representation\r\n* Fast full-precision rendering of large models\r\n* Physically-based materials\r\n* Multi-canvas\r\n* Basis-compressed textures\r\n* Compressed geometry\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/webglrenderer\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Usage\r\n\r\nConfiguring a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " with a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "WebGLRenderer",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " to use the browser's WebGL\r\ngraphics API for storing and rendering models:\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\nimport {Scene} from \"@xeokit/scene\";\r\nimport {Viewer} from \"@xeokit/viewer\";\r\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\r\n\r\nconst myViewer = new Viewer({\r\n    id: \"myViewer\",\r\n    scene: new Scene(),\r\n    renderers: new WebGLRenderer({ // Mandatory\r\n         textureTranscoder: new KTX2TextureTranscoder({ // Optional\r\n             transcoderPath: \"./../dist/basis/\" // <------ Path to BasisU transcoder module\r\n         })\r\n    })\r\n});\r\n\r\n//...\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "WebGLRenderer",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A WebGL-based rendering strategy for a "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "@xeokit/viewer!Viewer | Viewer"
+					},
+					{
+						"kind": "text",
+						"text": ".\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "@xeokit/webglrenderer"
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 2,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 71,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L71"
+						}
+					],
+					"signatures": [
+						{
+							"id": 3,
+							"name": "new WebGLRenderer",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a WebGLRenderer."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 71,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L71"
+								}
+							],
+							"parameters": [
+								{
+									"id": 4,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Configs"
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 5,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 6,
+													"name": "textureTranscoder",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"comment": {
+														"summary": [
+															{
+																"kind": "text",
+																"text": "Injects an optional transcoder that will be used internally by "
+															},
+															{
+																"kind": "inline-tag",
+																"tag": "@link",
+																"text": "rendererModel.createTexture"
+															},
+															{
+																"kind": "text",
+																"text": "\r\nto convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data\r\nto "
+															},
+															{
+																"kind": "inline-tag",
+																"tag": "@link",
+																"text": "rendererModel.createTexture"
+															},
+															{
+																"kind": "text",
+																"text": ". We assume that all transcoded texture data added to a  "
+															},
+															{
+																"kind": "code",
+																"text": "````rendererModel````"
+															},
+															{
+																"kind": "text",
+																"text": "\r\nwill then be in a format supported by this transcoder."
+															}
+														]
+													},
+													"sources": [
+														{
+															"fileName": "WebGLRenderer.ts",
+															"line": 72,
+															"character": 8,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L72"
+														}
+													],
+													"type": {
+														"type": "reference",
+														"target": {
+															"sourceFileName": "../core/src/TextureTranscoder.ts",
+															"qualifiedName": "TextureTranscoder"
+														},
+														"name": "TextureTranscoder",
+														"package": "@xeokit/core"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														6
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "WebGLRenderer.ts",
+													"line": 71,
+													"character": 24,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L71"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 1,
+								"name": "WebGLRenderer",
+								"package": "@xeokit/webglrenderer"
+							}
+						}
+					]
+				},
+				{
+					"id": 32,
+					"name": "#alphaDepthMask",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 50,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L50"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 21,
+					"name": "#backgroundColor",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 41,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L41"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				},
+				{
+					"id": 15,
+					"name": "#canvasTransparent",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 35,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L35"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 37,
+					"name": "#destroyed",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 58,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L58"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 17,
+					"name": "#edgesEnabled",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 37,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L37"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 30,
+					"name": "#extensionHandles",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 48,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L48"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				},
+				{
+					"id": 18,
+					"name": "#imageDirty",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 38,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L38"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 26,
+					"name": "#layerList",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 43,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L43"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reference",
+							"target": {
+								"sourceFileName": "src/Layer.ts",
+								"qualifiedName": "Layer"
+							},
+							"name": "Layer",
+							"package": "@xeokit/webglrenderer"
+						}
+					}
+				},
+				{
+					"id": 27,
+					"name": "#layerListDirty",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 44,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L44"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 31,
+					"name": "#logarithmicDepthBufferEnabled",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 49,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L49"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 33,
+					"name": "#occlusionTester",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 51,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L51"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				},
+				{
+					"id": 38,
+					"name": "#onViewCameraMatrix",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 60,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L60"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 39,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 60,
+									"character": 25,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L60"
+								}
+							],
+							"signatures": [
+								{
+									"id": 40,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "WebGLRenderer.ts",
+											"line": 60,
+											"character": 25,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L60"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "void"
+									}
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 20,
+					"name": "#pbrEnabled",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 40,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L40"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 29,
+					"name": "#pickIDs",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 46,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L46"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../utils/src/Map.ts",
+							"qualifiedName": "Map"
+						},
+						"name": "Map",
+						"package": "@xeokit/utils"
+					},
+					"defaultValue": "..."
+				},
+				{
+					"id": 14,
+					"name": "#renderContext",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 34,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L34"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "src/RenderContext.ts",
+							"qualifiedName": "RenderContext"
+						},
+						"name": "RenderContext",
+						"package": "@xeokit/webglrenderer"
+					}
+				},
+				{
+					"id": 22,
+					"name": "#rendererModels",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 42,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L42"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 23,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 42,
+									"character": 21,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L42"
+								}
+							],
+							"indexSignature": {
+								"id": 24,
+								"name": "__index",
+								"variant": "signature",
+								"kind": 8192,
+								"flags": {},
+								"sources": [
+									{
+										"fileName": "WebGLRenderer.ts",
+										"line": 42,
+										"character": 23,
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L42"
+									}
+								],
+								"parameters": [
+									{
+										"id": 25,
+										"name": "key",
+										"variant": "param",
+										"kind": 32768,
+										"flags": {},
+										"type": {
+											"type": "intrinsic",
+											"name": "string"
+										}
+									}
+								],
+								"type": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "src/WebGLRendererModel.ts",
+										"qualifiedName": "WebGLRendererModel"
+									},
+									"name": "WebGLRendererModel",
+									"package": "@xeokit/webglrenderer"
+								}
+							}
+						}
+					}
+				},
+				{
+					"id": 36,
+					"name": "#rendererSet",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 57,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L57"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "src/RendererSet.ts",
+							"qualifiedName": "RendererSet"
+						},
+						"name": "RendererSet",
+						"package": "@xeokit/webglrenderer"
+					}
+				},
+				{
+					"id": 19,
+					"name": "#saoEnabled",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 39,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L39"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 28,
+					"name": "#stateSortDirty",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 45,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L45"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 34,
+					"name": "#textureTranscoder",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 54,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L54"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../core/src/TextureTranscoder.ts",
+							"qualifiedName": "TextureTranscoder"
+						},
+						"name": "TextureTranscoder",
+						"package": "@xeokit/core"
+					}
+				},
+				{
+					"id": 16,
+					"name": "#transparentEnabled",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 36,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L36"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 13,
+					"name": "#view",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 33,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L33"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../viewer/src/View.ts",
+							"qualifiedName": "View"
+						},
+						"name": "View",
+						"package": "@xeokit/viewer"
+					}
+				},
+				{
+					"id": 35,
+					"name": "#viewMatrixDirty",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 56,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L56"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 12,
+					"name": "#viewer",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 32,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L32"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../viewer/src/Viewer.ts",
+							"qualifiedName": "Viewer"
+						},
+						"name": "Viewer",
+						"package": "@xeokit/viewer"
+					}
+				},
+				{
+					"id": 7,
+					"name": "rendererObjects",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 28,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L28"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 8,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 28,
+									"character": 21,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L28"
+								}
+							],
+							"indexSignature": {
+								"id": 9,
+								"name": "__index",
+								"variant": "signature",
+								"kind": 8192,
+								"flags": {},
+								"sources": [
+									{
+										"fileName": "WebGLRenderer.ts",
+										"line": 28,
+										"character": 23,
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L28"
+									}
+								],
+								"parameters": [
+									{
+										"id": 10,
+										"name": "key",
+										"variant": "param",
+										"kind": 32768,
+										"flags": {},
+										"type": {
+											"type": "intrinsic",
+											"name": "string"
+										}
+									}
+								],
+								"type": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../scene/src/RendererObject.ts",
+										"qualifiedName": "RendererObject"
+									},
+									"name": "RendererObject",
+									"package": "@xeokit/scene"
+								}
+							}
+						}
+					},
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.rendererObjects"
+					}
+				},
+				{
+					"id": 11,
+					"name": "tileManager",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 30,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L30"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "src/WebGLTileManager.ts",
+							"qualifiedName": "WebGLTileManager"
+						},
+						"name": "WebGLTileManager",
+						"package": "@xeokit/webglrenderer"
+					}
+				},
+				{
+					"id": 43,
+					"name": "textureTranscoder",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 114,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L114"
+						}
+					],
+					"getSignature": {
+						"id": 44,
+						"name": "textureTranscoder",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"comment": {
+							"summary": [
+								{
+									"kind": "text",
+									"text": "Gets the TextureTranscoder this WebGLRenderer was configured with, if any."
+								}
+							],
+							"modifierTags": [
+								"@internal"
+							]
+						},
+						"sources": [
+							{
+								"fileName": "WebGLRenderer.ts",
+								"line": 114,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L114"
+							}
+						],
+						"type": {
+							"type": "union",
+							"types": [
+								{
+									"type": "intrinsic",
+									"name": "void"
+								},
+								{
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../core/src/TextureTranscoder.ts",
+										"qualifiedName": "TextureTranscoder"
+									},
+									"name": "TextureTranscoder",
+									"package": "@xeokit/core"
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 41,
+					"name": "viewer",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 105,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L105"
+						}
+					],
+					"getSignature": {
+						"id": 42,
+						"name": "viewer",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"comment": {
+							"summary": [
+								{
+									"kind": "text",
+									"text": "The Viewer this WebGLRenderer is currently attached to, if any."
+								}
+							]
+						},
+						"sources": [
+							{
+								"fileName": "WebGLRenderer.ts",
+								"line": 105,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L105"
+							}
+						],
+						"type": {
+							"type": "reference",
+							"target": {
+								"sourceFileName": "../viewer/src/Viewer.ts",
+								"qualifiedName": "Viewer"
+							},
+							"name": "Viewer",
+							"package": "@xeokit/viewer"
+						},
+						"implementationOf": {
+							"type": "reference",
+							"target": -1,
+							"name": "Renderer.viewer"
+						}
+					},
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.viewer"
+					}
+				},
+				{
+					"id": 136,
+					"name": "#activateExtensions",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 579,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L579"
+						}
+					],
+					"signatures": [
+						{
+							"id": 137,
+							"name": "#activateExtensions",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 579,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L579"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 62,
+					"name": "#attachRendererObjects",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 336,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L336"
+						}
+					],
+					"signatures": [
+						{
+							"id": 63,
+							"name": "#attachRendererObjects",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 336,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L336"
+								}
+							],
+							"parameters": [
+								{
+									"id": 64,
+									"name": "rendererModel",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "src/WebGLRendererModel.ts",
+											"qualifiedName": "WebGLRendererModel"
+										},
+										"name": "WebGLRendererModel",
+										"package": "@xeokit/webglrenderer"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 127,
+					"name": "#buildLayerList",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 546,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L546"
+						}
+					],
+					"signatures": [
+						{
+							"id": 128,
+							"name": "#buildLayerList",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 546,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L546"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 71,
+					"name": "#detachRendererObjects",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 372,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L372"
+						}
+					],
+					"signatures": [
+						{
+							"id": 72,
+							"name": "#detachRendererObjects",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 372,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L372"
+								}
+							],
+							"parameters": [
+								{
+									"id": 73,
+									"name": "rendererModel",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "src/WebGLRendererModel.ts",
+											"qualifiedName": "WebGLRendererModel"
+										},
+										"name": "WebGLRendererModel",
+										"package": "@xeokit/webglrenderer"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 68,
+					"name": "#detachSceneModel",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 360,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L360"
+						}
+					],
+					"signatures": [
+						{
+							"id": 69,
+							"name": "#detachSceneModel",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 360,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L360"
+								}
+							],
+							"parameters": [
+								{
+									"id": 70,
+									"name": "sceneModel",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../scene/src/SceneModel.ts",
+											"qualifiedName": "SceneModel"
+										},
+										"name": "SceneModel",
+										"package": "@xeokit/scene"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 131,
+					"name": "#draw",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 569,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L569"
+						}
+					],
+					"signatures": [
+						{
+							"id": 132,
+							"name": "#draw",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 569,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L569"
+								}
+							],
+							"parameters": [
+								{
+									"id": 133,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 134,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 135,
+													"name": "clear",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "WebGLRenderer.ts",
+															"line": 570,
+															"character": 8,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L570"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "boolean"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														135
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "WebGLRenderer.ts",
+													"line": 569,
+													"character": 18,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L569"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 148,
+					"name": "#drawColor",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 653,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L653"
+						}
+					],
+					"signatures": [
+						{
+							"id": 149,
+							"name": "#drawColor",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 653,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L653"
+								}
+							],
+							"parameters": [
+								{
+									"id": 150,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 151,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 152,
+													"name": "clear",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "WebGLRenderer.ts",
+															"line": 654,
+															"character": 8,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L654"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "boolean"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														152
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "WebGLRenderer.ts",
+													"line": 653,
+													"character": 23,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L653"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 143,
+					"name": "#drawDepth",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 623,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L623"
+						}
+					],
+					"signatures": [
+						{
+							"id": 144,
+							"name": "#drawDepth",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 623,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L623"
+								}
+							],
+							"parameters": [
+								{
+									"id": 145,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 146,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 147,
+													"name": "clear",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "WebGLRenderer.ts",
+															"line": 624,
+															"character": 8,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L624"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "boolean"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														147
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "WebGLRenderer.ts",
+													"line": 623,
+													"character": 23,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L623"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 153,
+					"name": "#drawLayer",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 925,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L925"
+						}
+					],
+					"signatures": [
+						{
+							"id": 154,
+							"name": "#drawLayer",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 925,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L925"
+								}
+							],
+							"parameters": [
+								{
+									"id": 155,
+									"name": "layer",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "src/Layer.ts",
+											"qualifiedName": "Layer"
+										},
+										"name": "Layer",
+										"package": "@xeokit/webglrenderer"
+									}
+								},
+								{
+									"id": 156,
+									"name": "renderPass",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 138,
+					"name": "#drawSAOBuffers",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 591,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L591"
+						}
+					],
+					"signatures": [
+						{
+							"id": 139,
+							"name": "#drawSAOBuffers",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 591,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L591"
+								}
+							],
+							"parameters": [
+								{
+									"id": 140,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 141,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 142,
+													"name": "clear",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "WebGLRenderer.ts",
+															"line": 592,
+															"character": 8,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L592"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "boolean"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														142
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "WebGLRenderer.ts",
+													"line": 591,
+													"character": 28,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L591"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 129,
+					"name": "#sortLayerList",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 557,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L557"
+						}
+					],
+					"signatures": [
+						{
+							"id": 130,
+							"name": "#sortLayerList",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 557,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L557"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 125,
+					"name": "#updateLayerList",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 533,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L533"
+						}
+					],
+					"signatures": [
+						{
+							"id": 126,
+							"name": "#updateLayerList",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 533,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L533"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 74,
+					"name": "attachPickable",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 382,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L382"
+						}
+					],
+					"signatures": [
+						{
+							"id": 75,
+							"name": "attachPickable",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {
+								"isPrivate": true
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 382,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L382"
+								}
+							],
+							"parameters": [
+								{
+									"id": 76,
+									"name": "pickable",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "src/Pickable.ts",
+											"qualifiedName": "Pickable"
+										},
+										"name": "Pickable",
+										"package": "@xeokit/webglrenderer"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					]
+				},
+				{
+					"id": 59,
+					"name": "attachSceneModel",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 315,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L315"
+						}
+					],
+					"signatures": [
+						{
+							"id": 60,
+							"name": "attachSceneModel",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Attaches a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!SceneModel | SceneModel"
+									},
+									{
+										"kind": "text",
+										"text": " to this WebGLRenderer.\r\n\r\nThis method attaches various hooks to the elements within the SceneModel, through which they can\r\nupload state updates to the Renderer.\r\n\r\n* Sets a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!RendererModel"
+									},
+									{
+										"kind": "text",
+										"text": " on "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!SceneModel.rendererModel | SceneModel.rendererModel"
+									},
+									{
+										"kind": "text",
+										"text": "\r\n* Sets a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!RendererObject"
+									},
+									{
+										"kind": "text",
+										"text": " on each "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!SceneObject.rendererObject | SceneObject.rendererObject"
+									},
+									{
+										"kind": "text",
+										"text": "\r\n* Sets a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!RendererMesh"
+									},
+									{
+										"kind": "text",
+										"text": " on each "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh"
+									},
+									{
+										"kind": "text",
+										"text": "\r\n* Sets a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!RendererTextureSet"
+									},
+									{
+										"kind": "text",
+										"text": " on each "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet"
+									},
+									{
+										"kind": "text",
+										"text": "\r\n* Sets a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!RendererTexture"
+									},
+									{
+										"kind": "text",
+										"text": " on each "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture"
+									},
+									{
+										"kind": "text",
+										"text": "\r\n\r\nThen, when we make any state updates to those components, they will upload the updates into the Renderer.\r\n\r\nYou must first attach a View with "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/viewer!Renderer.attachView | Renderer.attachView"
+									},
+									{
+										"kind": "text",
+										"text": " before you can attach a SceneModel."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*void*\r\n* SceneModel successfully attached."
+											}
+										]
+									},
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*"
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "@xeokit/core!SDKError"
+											},
+											{
+												"kind": "text",
+												"text": "*\r\n* No View is currently attached to this WebGLRenderer.\r\n* SceneModel already attached to this WebGLRenderer, or to another Renderer."
+											}
+										]
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 315,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L315"
+								}
+							],
+							"parameters": [
+								{
+									"id": 61,
+									"name": "sceneModel",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../scene/src/SceneModel.ts",
+											"qualifiedName": "SceneModel"
+										},
+										"name": "SceneModel",
+										"package": "@xeokit/scene"
+									}
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "void"
+									},
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../core/src/SDKError.ts",
+											"qualifiedName": "SDKError"
+										},
+										"name": "SDKError",
+										"package": "@xeokit/core"
+									}
+								]
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.attachSceneModel"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.attachSceneModel"
+					}
+				},
+				{
+					"id": 53,
+					"name": "attachView",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 217,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L217"
+						}
+					],
+					"signatures": [
+						{
+							"id": 54,
+							"name": "attachView",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Attaches a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/viewer!View"
+									},
+									{
+										"kind": "text",
+										"text": " to this WebGLRenderer.\r\n\r\nThe WebGLRenderer will then begin rendering each "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!SceneModel | SceneModel"
+									},
+									{
+										"kind": "text",
+										"text": " previously or subsequently\r\ncreated with "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!Scene.createModel | Scene.createModel"
+									},
+									{
+										"kind": "text",
+										"text": ", for the new View.\r\n\r\nYou can only attach as many Views as indicated in "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/core!Capabilities.maxViews | Capabilities.maxViews"
+									},
+									{
+										"kind": "text",
+										"text": ", as returned by\r\n"
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/viewer!Renderer.getCapabilities | Renderer.getCapabilities"
+									},
+									{
+										"kind": "text",
+										"text": ".\r\n\r\nYou must attach a View before you can attach a SceneModel."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*void*\r\n* View successfully attached."
+											}
+										]
+									},
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*"
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "@xeokit/core!SDKError"
+											},
+											{
+												"kind": "text",
+												"text": "*\r\n* No Viewer is attached to this WebGLRenderer.\r\n* Caller attempted to attach too many Views.\r\n* The WebGLRenderer failed to get a WebGL2 context on the View's canvas."
+											}
+										]
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 217,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L217"
+								}
+							],
+							"parameters": [
+								{
+									"id": 55,
+									"name": "view",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The View to attach."
+											}
+										]
+									},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../viewer/src/View.ts",
+											"qualifiedName": "View"
+										},
+										"name": "View",
+										"package": "@xeokit/viewer"
+									}
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "void"
+									},
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../core/src/SDKError.ts",
+											"qualifiedName": "SDKError"
+										},
+										"name": "SDKError",
+										"package": "@xeokit/core"
+									}
+								]
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.attachView"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.attachView"
+					}
+				},
+				{
+					"id": 48,
+					"name": "attachViewer",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 155,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L155"
+						}
+					],
+					"signatures": [
+						{
+							"id": 49,
+							"name": "attachViewer",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Initializes this WebGLRenderer by attaching a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/viewer!Viewer"
+									},
+									{
+										"kind": "text",
+										"text": "."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*void*\r\n* Viewer successfully attached."
+											}
+										]
+									},
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*"
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "@xeokit/core!SDKError"
+											},
+											{
+												"kind": "text",
+												"text": "*\r\n* A Viewer is already attached to this Renderer.\r\n* The given Viewer is already attached to another Renderer."
+											}
+										]
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 155,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L155"
+								}
+							],
+							"parameters": [
+								{
+									"id": 50,
+									"name": "viewer",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Viewer to attach."
+											}
+										]
+									},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../viewer/src/Viewer.ts",
+											"qualifiedName": "Viewer"
+										},
+										"name": "Viewer",
+										"package": "@xeokit/viewer"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.attachViewer"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.attachViewer"
+					}
+				},
+				{
+					"id": 105,
+					"name": "clear",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 458,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L458"
+						}
+					],
+					"signatures": [
+						{
+							"id": 106,
+							"name": "clear",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 458,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L458"
+								}
+							],
+							"parameters": [
+								{
+									"id": 107,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.clear"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.clear"
+					}
+				},
+				{
+					"id": 157,
+					"name": "destroy",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 930,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L930"
+						}
+					],
+					"signatures": [
+						{
+							"id": 158,
+							"name": "destroy",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 930,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L930"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 77,
+					"name": "detachPickable",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 389,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L389"
+						}
+					],
+					"signatures": [
+						{
+							"id": 78,
+							"name": "detachPickable",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {
+								"isPrivate": true
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 389,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L389"
+								}
+							],
+							"parameters": [
+								{
+									"id": 79,
+									"name": "pickId",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 65,
+					"name": "detachSceneModel",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 347,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L347"
+						}
+					],
+					"signatures": [
+						{
+							"id": 66,
+							"name": "detachSceneModel",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 347,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L347"
+								}
+							],
+							"parameters": [
+								{
+									"id": 67,
+									"name": "sceneModel",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../scene/src/SceneModel.ts",
+											"qualifiedName": "SceneModel"
+										},
+										"name": "SceneModel",
+										"package": "@xeokit/scene"
+									}
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "void"
+									},
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../core/src/SDKError.ts",
+											"qualifiedName": "SDKError"
+										},
+										"name": "SDKError",
+										"package": "@xeokit/core"
+									}
+								]
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.detachSceneModel"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.detachSceneModel"
+					}
+				},
+				{
+					"id": 56,
+					"name": "detachView",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 261,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L261"
+						}
+					],
+					"signatures": [
+						{
+							"id": 57,
+							"name": "detachView",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Detaches the given "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/viewer!View"
+									},
+									{
+										"kind": "text",
+										"text": " from this Renderer.\r\n\r\nThe Renderer will then cease rendering for that View."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*void*\r\n* View successfully detached."
+											}
+										]
+									},
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*"
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "@xeokit/core!SDKError"
+											},
+											{
+												"kind": "text",
+												"text": "*\r\n* No Viewer is attached to this WebGLRenderer.\r\n* View is not currently attached to this WebGLRenderer."
+											}
+										]
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 261,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L261"
+								}
+							],
+							"parameters": [
+								{
+									"id": 58,
+									"name": "view",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The View to detach."
+											}
+										]
+									},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../viewer/src/View.ts",
+											"qualifiedName": "View"
+										},
+										"name": "View",
+										"package": "@xeokit/viewer"
+									}
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "void"
+									},
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../core/src/SDKError.ts",
+											"qualifiedName": "SDKError"
+										},
+										"name": "SDKError",
+										"package": "@xeokit/core"
+									}
+								]
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.detachView"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.detachView"
+					}
+				},
+				{
+					"id": 51,
+					"name": "detachViewer",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 175,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L175"
+						}
+					],
+					"signatures": [
+						{
+							"id": 52,
+							"name": "detachViewer",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Detaches the "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/viewer!Viewer"
+									},
+									{
+										"kind": "text",
+										"text": " that is currently attached, if any."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*void*\r\n* Viewer successfully detached."
+											}
+										]
+									},
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "*"
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "@xeokit/core!SDKError"
+											},
+											{
+												"kind": "text",
+												"text": "*\r\n* No Viewer is currently attached to this WebGLRenderer."
+											}
+										]
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 175,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L175"
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "void"
+									},
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../core/src/SDKError.ts",
+											"qualifiedName": "SDKError"
+										},
+										"name": "SDKError",
+										"package": "@xeokit/core"
+									}
+								]
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.detachViewer"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.detachViewer"
+					}
+				},
+				{
+					"id": 45,
+					"name": "getCapabilities",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 125,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L125"
+						}
+					],
+					"signatures": [
+						{
+							"id": 46,
+							"name": "getCapabilities",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Gets the capabilities of this WebGLRenderer."
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 125,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L125"
+								}
+							],
+							"parameters": [
+								{
+									"id": 47,
+									"name": "capabilities",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Returns the capabilities of this WebGLRenderer."
+											}
+										]
+									},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../core/src/Capabilities.ts",
+											"qualifiedName": "Capabilities"
+										},
+										"name": "Capabilities",
+										"package": "@xeokit/core"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.getCapabilities"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.getCapabilities"
+					}
+				},
+				{
+					"id": 95,
+					"name": "getSAOSupported",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 432,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L432"
+						}
+					],
+					"signatures": [
+						{
+							"id": 96,
+							"name": "getSAOSupported",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 432,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L432"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "boolean"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.getSAOSupported"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.getSAOSupported"
+					}
+				},
+				{
+					"id": 108,
+					"name": "needsRebuild",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 479,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L479"
+						}
+					],
+					"signatures": [
+						{
+							"id": 109,
+							"name": "needsRebuild",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 479,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L479"
+								}
+							],
+							"parameters": [
+								{
+									"id": 110,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isOptional": true
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.needsRebuild"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.needsRebuild"
+					}
+				},
+				{
+					"id": 111,
+					"name": "needsRender",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 487,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L487"
+						}
+					],
+					"signatures": [
+						{
+							"id": 112,
+							"name": "needsRender",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 487,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L487"
+								}
+							],
+							"parameters": [
+								{
+									"id": 113,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isOptional": true
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "boolean"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.needsRender"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.needsRender"
+					}
+				},
+				{
+					"id": 120,
+					"name": "pickViewObject",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 523,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L523"
+						}
+					],
+					"signatures": [
+						{
+							"id": 121,
+							"name": "pickViewObject",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 523,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L523"
+								}
+							],
+							"parameters": [
+								{
+									"id": 122,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 123,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 124,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {}
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../viewer/src/ViewObject.ts",
+									"qualifiedName": "ViewObject"
+								},
+								"name": "ViewObject",
+								"package": "@xeokit/viewer"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.pickViewObject"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.pickViewObject"
+					}
+				},
+				{
+					"id": 114,
+					"name": "render",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 495,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L495"
+						}
+					],
+					"signatures": [
+						{
+							"id": 115,
+							"name": "render",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 495,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L495"
+								}
+							],
+							"parameters": [
+								{
+									"id": 116,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 117,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 118,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 119,
+													"name": "force",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"sources": [
+														{
+															"fileName": "WebGLRenderer.ts",
+															"line": 496,
+															"character": 8,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L496"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "boolean"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														119
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "WebGLRenderer.ts",
+													"line": 495,
+													"character": 38,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L495"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.render"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.render"
+					}
+				},
+				{
+					"id": 83,
+					"name": "setBackgroundColor",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 405,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L405"
+						}
+					],
+					"signatures": [
+						{
+							"id": 84,
+							"name": "setBackgroundColor",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 405,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L405"
+								}
+							],
+							"parameters": [
+								{
+									"id": 85,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 86,
+									"name": "color",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.setBackgroundColor"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.setBackgroundColor"
+					}
+				},
+				{
+					"id": 87,
+					"name": "setEdgesEnabled",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 414,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L414"
+						}
+					],
+					"signatures": [
+						{
+							"id": 88,
+							"name": "setEdgesEnabled",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 414,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L414"
+								}
+							],
+							"parameters": [
+								{
+									"id": 89,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 90,
+									"name": "enabled",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "boolean"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.setEdgesEnabled"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.setEdgesEnabled"
+					}
+				},
+				{
+					"id": 80,
+					"name": "setImageDirty",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 397,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L397"
+						}
+					],
+					"signatures": [
+						{
+							"id": 81,
+							"name": "setImageDirty",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 397,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L397"
+								}
+							],
+							"parameters": [
+								{
+									"id": 82,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isOptional": true
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.setImageDirty"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.setImageDirty"
+					}
+				},
+				{
+					"id": 91,
+					"name": "setPBREnabled",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 423,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L423"
+						}
+					],
+					"signatures": [
+						{
+							"id": 92,
+							"name": "setPBREnabled",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 423,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L423"
+								}
+							],
+							"parameters": [
+								{
+									"id": 93,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 94,
+									"name": "enabled",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "boolean"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.setPBREnabled"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.setPBREnabled"
+					}
+				},
+				{
+					"id": 97,
+					"name": "setSAOEnabled",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 440,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L440"
+						}
+					],
+					"signatures": [
+						{
+							"id": 98,
+							"name": "setSAOEnabled",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 440,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L440"
+								}
+							],
+							"parameters": [
+								{
+									"id": 99,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 100,
+									"name": "enabled",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "boolean"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.setSAOEnabled"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.setSAOEnabled"
+					}
+				},
+				{
+					"id": 101,
+					"name": "setTransparentEnabled",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "WebGLRenderer.ts",
+							"line": 449,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L449"
+						}
+					],
+					"signatures": [
+						{
+							"id": 102,
+							"name": "setTransparentEnabled",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "TODO"
+									}
+								],
+								"modifierTags": [
+									"@internal"
+								]
+							},
+							"sources": [
+								{
+									"fileName": "WebGLRenderer.ts",
+									"line": 449,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L449"
+								}
+							],
+							"parameters": [
+								{
+									"id": 103,
+									"name": "viewIndex",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 104,
+									"name": "enabled",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "boolean"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "Renderer.setTransparentEnabled"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "Renderer.setTransparentEnabled"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						2
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						32,
+						21,
+						15,
+						37,
+						17,
+						30,
+						18,
+						26,
+						27,
+						31,
+						33,
+						38,
+						20,
+						29,
+						14,
+						22,
+						36,
+						19,
+						28,
+						34,
+						16,
+						13,
+						35,
+						12,
+						7,
+						11
+					]
+				},
+				{
+					"title": "Accessors",
+					"children": [
+						43,
+						41
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						136,
+						62,
+						127,
+						71,
+						68,
+						131,
+						148,
+						143,
+						153,
+						138,
+						129,
+						125,
+						74,
+						59,
+						53,
+						48,
+						105,
+						157,
+						77,
+						65,
+						56,
+						51,
+						45,
+						95,
+						108,
+						111,
+						120,
+						114,
+						83,
+						87,
+						80,
+						91,
+						97,
+						101
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "WebGLRenderer.ts",
+					"line": 26,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/webglrenderer/src/WebGLRenderer.ts#L26"
+				}
+			],
+			"implementedTypes": [
+				{
+					"type": "reference",
+					"target": {
+						"sourceFileName": "../viewer/src/Renderer.ts",
+						"qualifiedName": "Renderer"
+					},
+					"name": "Renderer",
+					"package": "@xeokit/viewer"
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Classes",
+			"children": [
+				1
+			]
+		}
+	],
+	"packageName": "@xeokit/webglrenderer",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/webglrenderer\r\n\r\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer"
+		},
+		"2": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.__constructor"
+		},
+		"3": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer"
+		},
+		"4": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "params"
+		},
+		"5": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"6": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type.textureTranscoder"
+		},
+		"7": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.rendererObjects"
+		},
+		"8": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"9": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"11": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.tileManager"
+		},
+		"12": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#viewer"
+		},
+		"13": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#view"
+		},
+		"14": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#renderContext"
+		},
+		"15": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#canvasTransparent"
+		},
+		"16": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#transparentEnabled"
+		},
+		"17": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#edgesEnabled"
+		},
+		"18": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#imageDirty"
+		},
+		"19": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#saoEnabled"
+		},
+		"20": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#pbrEnabled"
+		},
+		"21": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#backgroundColor"
+		},
+		"22": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#rendererModels"
+		},
+		"23": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"24": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"26": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#layerList"
+		},
+		"27": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#layerListDirty"
+		},
+		"28": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#stateSortDirty"
+		},
+		"29": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#pickIDs"
+		},
+		"30": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#extensionHandles"
+		},
+		"31": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#logarithmicDepthBufferEnabled"
+		},
+		"32": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#alphaDepthMask"
+		},
+		"33": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#occlusionTester"
+		},
+		"34": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#textureTranscoder"
+		},
+		"35": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#viewMatrixDirty"
+		},
+		"36": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#rendererSet"
+		},
+		"37": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#destroyed"
+		},
+		"38": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#onViewCameraMatrix"
+		},
+		"39": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"40": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"41": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.viewer"
+		},
+		"42": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.viewer"
+		},
+		"43": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.textureTranscoder"
+		},
+		"44": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.textureTranscoder"
+		},
+		"45": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.getCapabilities"
+		},
+		"46": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.getCapabilities"
+		},
+		"47": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "capabilities"
+		},
+		"48": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.attachViewer"
+		},
+		"49": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.attachViewer"
+		},
+		"50": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewer"
+		},
+		"51": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.detachViewer"
+		},
+		"52": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.detachViewer"
+		},
+		"53": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.attachView"
+		},
+		"54": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.attachView"
+		},
+		"55": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "view"
+		},
+		"56": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.detachView"
+		},
+		"57": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.detachView"
+		},
+		"58": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "view"
+		},
+		"59": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.attachSceneModel"
+		},
+		"60": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.attachSceneModel"
+		},
+		"61": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "sceneModel"
+		},
+		"62": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#attachRendererObjects"
+		},
+		"63": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#attachRendererObjects"
+		},
+		"64": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "rendererModel"
+		},
+		"65": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.detachSceneModel"
+		},
+		"66": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.detachSceneModel"
+		},
+		"67": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "sceneModel"
+		},
+		"68": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#detachSceneModel"
+		},
+		"69": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#detachSceneModel"
+		},
+		"70": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "sceneModel"
+		},
+		"71": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#detachRendererObjects"
+		},
+		"72": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#detachRendererObjects"
+		},
+		"73": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "rendererModel"
+		},
+		"74": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.attachPickable"
+		},
+		"75": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.attachPickable"
+		},
+		"76": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "pickable"
+		},
+		"77": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.detachPickable"
+		},
+		"78": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.detachPickable"
+		},
+		"79": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "pickId"
+		},
+		"80": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setImageDirty"
+		},
+		"81": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setImageDirty"
+		},
+		"82": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"83": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setBackgroundColor"
+		},
+		"84": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setBackgroundColor"
+		},
+		"85": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"86": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "color"
+		},
+		"87": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setEdgesEnabled"
+		},
+		"88": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setEdgesEnabled"
+		},
+		"89": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"90": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "enabled"
+		},
+		"91": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setPBREnabled"
+		},
+		"92": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setPBREnabled"
+		},
+		"93": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"94": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "enabled"
+		},
+		"95": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.getSAOSupported"
+		},
+		"96": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.getSAOSupported"
+		},
+		"97": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setSAOEnabled"
+		},
+		"98": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setSAOEnabled"
+		},
+		"99": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"100": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "enabled"
+		},
+		"101": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setTransparentEnabled"
+		},
+		"102": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.setTransparentEnabled"
+		},
+		"103": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"104": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "enabled"
+		},
+		"105": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.clear"
+		},
+		"106": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.clear"
+		},
+		"107": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"108": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.needsRebuild"
+		},
+		"109": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.needsRebuild"
+		},
+		"110": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"111": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.needsRender"
+		},
+		"112": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.needsRender"
+		},
+		"113": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"114": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.render"
+		},
+		"115": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.render"
+		},
+		"116": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"117": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "params"
+		},
+		"118": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"119": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type.force"
+		},
+		"120": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.pickViewObject"
+		},
+		"121": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.pickViewObject"
+		},
+		"122": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "viewIndex"
+		},
+		"123": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "params"
+		},
+		"124": {
+			"sourceFileName": "",
+			"qualifiedName": "__type"
+		},
+		"125": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#updateLayerList"
+		},
+		"126": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#updateLayerList"
+		},
+		"127": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#buildLayerList"
+		},
+		"128": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#buildLayerList"
+		},
+		"129": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#sortLayerList"
+		},
+		"130": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#sortLayerList"
+		},
+		"131": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#draw"
+		},
+		"132": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#draw"
+		},
+		"133": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "params"
+		},
+		"134": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"135": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type.clear"
+		},
+		"136": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#activateExtensions"
+		},
+		"137": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#activateExtensions"
+		},
+		"138": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#drawSAOBuffers"
+		},
+		"139": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#drawSAOBuffers"
+		},
+		"140": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "params"
+		},
+		"141": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"142": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type.clear"
+		},
+		"143": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#drawDepth"
+		},
+		"144": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#drawDepth"
+		},
+		"145": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "params"
+		},
+		"146": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"147": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type.clear"
+		},
+		"148": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#drawColor"
+		},
+		"149": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#drawColor"
+		},
+		"150": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "params"
+		},
+		"151": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type"
+		},
+		"152": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "__type.clear"
+		},
+		"153": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#drawLayer"
+		},
+		"154": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.#drawLayer"
+		},
+		"155": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "layer"
+		},
+		"156": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "renderPass"
+		},
+		"157": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.destroy"
+		},
+		"158": {
+			"sourceFileName": "src/WebGLRenderer.ts",
+			"qualifiedName": "WebGLRenderer.destroy"
+		}
+	}
+}

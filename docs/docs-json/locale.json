@@ -1,0 +1,1352 @@
+{
+	"id": 0,
+	"name": "@xeokit/locale",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Flocale.svg)](https://badge.fury.io/js/%40xeokit%2Flocale)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/locale/badge)](https://www.jsdelivr.com/package/npm/@xeokit/locale)\r\n\r\n<img style=\"padding:0px; padding-top:20px; padding-bottom:20px; height:150px; width:150px;\" src=\"https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F45c3a188-6ed1-4540-9f33-37af754accbd%2Fi1n8_icon.png?id=06769198-9d4e-48fe-b891-7447f85222d1&table=block&spaceId=8ed52f91-a7f1-46bf-b39b-49af46e0a158&width=1000&userId=&cache=v2\"/>\r\n\r\n# xeokit Localization Service\r\n\r\n---\r\n\r\n### Repository of locale-specific translations for words and phrases\r\n\r\n---\r\n\r\nA container of string translations (\"messages\") for various locales.\r\n\r\n<br>\r\n\r\n[![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)\r\n\r\n<br>\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/locale\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n## Usage\r\n\r\n In the example below, we'll create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/locale!LocaleService | LocaleService"
+			},
+			{
+				"kind": "text",
+				"text": " instance, configured with some English, Māori and French\r\n translations for a NavCube widget.\r\n\r\n Our LocaleServe will provide translations for the following terms:\r\n\r\n* \"NavCube.front\"\r\n* \"NavCube.back\"\r\n* \"NavCube.top\"\r\n* \"NavCube.bottom\"\r\n* \"NavCube.left\"\r\n* \"NavCube.right\"\r\n\r\n These terms are effectively paths that map to translations for the currently active locale.\r\n\r\n For example, if  the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/locale!LocaleService | LocaleService"
+			},
+			{
+				"kind": "text",
+				"text": "'s locale is set to \"fr\", then the path \"NavCube.back\" will drill down\r\n into "
+			},
+			{
+				"kind": "code",
+				"text": "````messages->fr->NavCube->front````"
+			},
+			{
+				"kind": "text",
+				"text": " and fetch \"Arrière\".\r\n\r\n "
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\n import {LocaleService} from \"@xeokit/locale\";\r\n\r\n const localeService= new LocaleService({\r\n          messages: {\r\n              \"en\": { // English\r\n                  \"NavCube\": {\r\n                      \"front\": \"Front\",\r\n                      \"back\": \"Back\",\r\n                      \"top\": \"Top\",\r\n                      \"bottom\": \"Bottom\",\r\n                      \"left\": \"Left\",\r\n                      \"right\": \"Right\"\r\n                  }\r\n              },\r\n              \"mi\": { // Māori\r\n                  \"NavCube\": {\r\n                      \"front\": \"Mua\",\r\n                      \"back\": \"Tuarā\",\r\n                      \"top\": \"Runga\",\r\n                      \"bottom\": \"Raro\",\r\n                      \"left\": \"Mauī\",\r\n                      \"right\": \"Tika\"\r\n                  }\r\n              },\r\n              \"fr\": { // Francais\r\n                  \"NavCube\": {\r\n                      \"front\": \"Avant\",\r\n                      \"back\": \"Arrière\",\r\n                      \"top\": \"Supérieur\",\r\n                      \"bottom\": \"Inférieur\",\r\n                      \"left\": \"Gauche\",\r\n                      \"right\": \"Droit\"\r\n                  }\r\n              }\r\n          },\r\n          locale: \"en\"\r\n      })\r\n  });\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n We can dynamically switch to a different locale at any time:\r\n\r\n "
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\n localeService.locale = \"mi\"; // Switch to Māori\r\n ````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n We can load new translations at any time:\r\n\r\n "
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\n localeService.loadMessages({\r\n     \"jp\": { // Japanese\r\n         \"NavCube\": {\r\n             \"front\": \"前部\",\r\n             \"back\": \"裏\",\r\n             \"top\": \"上\",\r\n             \"bottom\": \"底\",\r\n             \"left\": \"左\",\r\n             \"right\": \"右\"\r\n         }\r\n     }\r\n });\r\n ````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n And we can clear the translations if needed:\r\n\r\n "
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\n localeService.clearMessages();\r\n ````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n We can also get an event from the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/locale!LocaleService | LocaleService"
+			},
+			{
+				"kind": "text",
+				"text": " whenever we switch locales or load messages, which is useful\r\n for triggering UI elements to refresh themselves with updated translations:\r\n\r\n "
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\n localeService.onUpdated.subscribe(() => {\r\n     console.log( viewer.localeService.translate(\"NavCube.left\") );\r\n });\r\n ````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "LocaleService",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "The localization service for a "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "@xeokit/viewer!Viewer"
+					},
+					{
+						"kind": "text",
+						"text": ".\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/locale\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 2,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 28,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L28"
+						}
+					],
+					"signatures": [
+						{
+							"id": 3,
+							"name": "new LocaleService",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Constructs a LocaleService."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "LocaleService.ts",
+									"line": 28,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L28"
+								}
+							],
+							"parameters": [
+								{
+									"id": 4,
+									"name": "cfg",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "LocaleService configuration"
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 5,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 7,
+													"name": "locale",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"comment": {
+														"summary": [
+															{
+																"kind": "text",
+																"text": "Initial locale"
+															}
+														]
+													},
+													"sources": [
+														{
+															"fileName": "LocaleService.ts",
+															"line": 30,
+															"character": 8,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L30"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 6,
+													"name": "messages",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"comment": {
+														"summary": [
+															{
+																"kind": "text",
+																"text": "Set of locale translations"
+															}
+														]
+													},
+													"sources": [
+														{
+															"fileName": "LocaleService.ts",
+															"line": 29,
+															"character": 8,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L29"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														7,
+														6
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "LocaleService.ts",
+													"line": 28,
+													"character": 21,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L28"
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 1,
+								"name": "LocaleService",
+								"package": "@xeokit/locale"
+							}
+						}
+					]
+				},
+				{
+					"id": 14,
+					"name": "#locale",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 19,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L19"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"defaultValue": "\"en\""
+				},
+				{
+					"id": 13,
+					"name": "#locales",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 18,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L18"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					}
+				},
+				{
+					"id": 9,
+					"name": "#messages",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 17,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L17"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 10,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "LocaleService.ts",
+									"line": 17,
+									"character": 15,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L17"
+								}
+							],
+							"indexSignature": {
+								"id": 11,
+								"name": "__index",
+								"variant": "signature",
+								"kind": 8192,
+								"flags": {},
+								"sources": [
+									{
+										"fileName": "LocaleService.ts",
+										"line": 17,
+										"character": 17,
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L17"
+									}
+								],
+								"parameters": [
+									{
+										"id": 12,
+										"name": "key",
+										"variant": "param",
+										"kind": 32768,
+										"flags": {},
+										"type": {
+											"type": "intrinsic",
+											"name": "string"
+										}
+									}
+								],
+								"type": {
+									"type": "intrinsic",
+									"name": "any"
+								}
+							}
+						}
+					}
+				},
+				{
+					"id": 8,
+					"name": "onUpdated",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isReadonly": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Emits an event each time the locale translations have updated."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 16,
+							"character": 13,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L16"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../core/src/EventEmitter.ts",
+							"qualifiedName": "EventEmitter"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": 1,
+								"name": "LocaleService",
+								"package": "@xeokit/locale"
+							},
+							{
+								"type": "intrinsic",
+								"name": "string"
+							}
+						],
+						"name": "EventEmitter",
+						"package": "@xeokit/core"
+					}
+				},
+				{
+					"id": 23,
+					"name": "locale",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 100,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L100"
+						},
+						{
+							"fileName": "LocaleService.ts",
+							"line": 115,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L115"
+						}
+					],
+					"getSignature": {
+						"id": 24,
+						"name": "locale",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"comment": {
+							"summary": [
+								{
+									"kind": "text",
+									"text": "Gets the current locale."
+								}
+							],
+							"blockTags": [
+								{
+									"tag": "@returns",
+									"content": [
+										{
+											"kind": "text",
+											"text": "The current locale."
+										}
+									]
+								}
+							]
+						},
+						"sources": [
+							{
+								"fileName": "LocaleService.ts",
+								"line": 100,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L100"
+							}
+						],
+						"type": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					},
+					"setSignature": {
+						"id": 25,
+						"name": "locale",
+						"variant": "signature",
+						"kind": 1048576,
+						"flags": {},
+						"comment": {
+							"summary": [
+								{
+									"kind": "text",
+									"text": "Sets the current locale.\r\n\r\n* Fires an \"updated\" event when done.\r\n* The given locale does not need to be in the list of available locales returned by "
+								},
+								{
+									"kind": "inline-tag",
+									"tag": "@link",
+									"text": "LocaleService.locales",
+									"target": 21,
+									"tsLinkText": ""
+								},
+								{
+									"kind": "text",
+									"text": ", since\r\nthis method assumes that you may want to load the locales at a later point.\r\n* Automatically refreshes any plugins that depend on the translations.\r\n* We can then get translations for the locale, if translations have been loaded for it, via "
+								},
+								{
+									"kind": "inline-tag",
+									"tag": "@link",
+									"text": "LocaleService.translate",
+									"target": 35,
+									"tsLinkText": ""
+								},
+								{
+									"kind": "text",
+									"text": " and "
+								},
+								{
+									"kind": "inline-tag",
+									"tag": "@link",
+									"text": "LocaleService.translatePlurals",
+									"target": 39,
+									"tsLinkText": ""
+								},
+								{
+									"kind": "text",
+									"text": "."
+								}
+							]
+						},
+						"sources": [
+							{
+								"fileName": "LocaleService.ts",
+								"line": 115,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L115"
+							}
+						],
+						"parameters": [
+							{
+								"id": 26,
+								"name": "locale",
+								"variant": "param",
+								"kind": 32768,
+								"flags": {},
+								"comment": {
+									"summary": [
+										{
+											"kind": "text",
+											"text": "The new current locale."
+										}
+									]
+								},
+								"type": {
+									"type": "intrinsic",
+									"name": "string"
+								}
+							}
+						],
+						"type": {
+							"type": "intrinsic",
+							"name": "void"
+						}
+					}
+				},
+				{
+					"id": 21,
+					"name": "locales",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 91,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L91"
+						}
+					],
+					"getSignature": {
+						"id": 22,
+						"name": "locales",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"comment": {
+							"summary": [
+								{
+									"kind": "text",
+									"text": "Gets the list of available locales.\r\n\r\nThese are derived from the currently configured set of translations."
+								}
+							],
+							"blockTags": [
+								{
+									"tag": "@returns",
+									"content": [
+										{
+											"kind": "text",
+											"text": "The list of available locales."
+										}
+									]
+								}
+							]
+						},
+						"sources": [
+							{
+								"fileName": "LocaleService.ts",
+								"line": 91,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L91"
+							}
+						],
+						"type": {
+							"type": "array",
+							"elementType": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					}
+				},
+				{
+					"id": 15,
+					"name": "messages",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 78,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L78"
+						}
+					],
+					"setSignature": {
+						"id": 16,
+						"name": "messages",
+						"variant": "signature",
+						"kind": 1048576,
+						"flags": {},
+						"comment": {
+							"summary": [
+								{
+									"kind": "text",
+									"text": "Replaces the current set of locale translations.\r\n\r\n* Fires an \"updated\" event when done.\r\n* Automatically refreshes any plugins that depend on the translations.\r\n* Does not change the current locale.\r\n\r\n## Usage\r\n\r\n"
+								},
+								{
+									"kind": "code",
+									"text": "````javascript\r\nviewer.localeService.setMessages({\r\n    messages: {\r\n        \"en\": { // English\r\n            \"NavCube\": {\r\n                \"front\": \"Front\",\r\n                \"back\": \"Back\",\r\n                \"top\": \"Top\",\r\n                \"bottom\": \"Bottom\",\r\n                \"left\": \"Left\",\r\n                \"right\": \"Right\"\r\n            }\r\n        },\r\n        \"mi\": { // Māori\r\n            \"NavCube\": {\r\n                \"front\": \"Mua\",\r\n                \"back\": \"Tuarā\",\r\n                \"top\": \"Runga\",\r\n                \"bottom\": \"Raro\",\r\n                \"left\": \"Mauī\",\r\n                \"right\": \"Tika\"\r\n            }\r\n        }\r\n   }\r\n});\r\n````"
+								}
+							]
+						},
+						"sources": [
+							{
+								"fileName": "LocaleService.ts",
+								"line": 78,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L78"
+							}
+						],
+						"parameters": [
+							{
+								"id": 17,
+								"name": "messages",
+								"variant": "param",
+								"kind": 32768,
+								"flags": {},
+								"comment": {
+									"summary": [
+										{
+											"kind": "text",
+											"text": "The new translations."
+										}
+									]
+								},
+								"type": {
+									"type": "reflection",
+									"declaration": {
+										"id": 18,
+										"name": "__type",
+										"variant": "declaration",
+										"kind": 65536,
+										"flags": {},
+										"sources": [
+											{
+												"fileName": "LocaleService.ts",
+												"line": 78,
+												"character": 27,
+												"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L78"
+											}
+										],
+										"indexSignature": {
+											"id": 19,
+											"name": "__index",
+											"variant": "signature",
+											"kind": 8192,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "LocaleService.ts",
+													"line": 78,
+													"character": 29,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L78"
+												}
+											],
+											"parameters": [
+												{
+													"id": 20,
+													"name": "key",
+													"variant": "param",
+													"kind": 32768,
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									}
+								}
+							}
+						],
+						"type": {
+							"type": "intrinsic",
+							"name": "void"
+						}
+					}
+				},
+				{
+					"id": 33,
+					"name": "clearMessages",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 166,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L166"
+						}
+					],
+					"signatures": [
+						{
+							"id": 34,
+							"name": "clearMessages",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Clears all locale translations.\r\n\r\n* Fires an \"updated\" event when done.\r\n* Does not change the current locale.\r\n* Automatically refreshes any plugins that depend on the translations, which will cause those\r\nplugins to fall back on their internal hard-coded text values, since this method removes all\r\nour translations."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "LocaleService.ts",
+									"line": 166,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L166"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 27,
+					"name": "loadMessages",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 150,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L150"
+						}
+					],
+					"signatures": [
+						{
+							"id": 28,
+							"name": "loadMessages",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Loads a new set of locale translations, adding them to the existing translations.\r\n\r\n* Fires an \"updated\" event when done.\r\n* Automatically refreshes any plugins that depend on the translations.\r\n* Does not change the current locale.\r\n\r\n## Usage\r\n\r\n"
+									},
+									{
+										"kind": "code",
+										"text": "````javascript\r\nviewer.localeService.loadMessages({\r\n    \"jp\": { // Japanese\r\n        \"NavCube\": {\r\n            \"front\": \"前部\",\r\n            \"back\": \"裏\",\r\n            \"top\": \"上\",\r\n            \"bottom\": \"底\",\r\n            \"left\": \"左\",\r\n            \"right\": \"右\"\r\n        }\r\n    }\r\n});\r\n````"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "LocaleService.ts",
+									"line": 150,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L150"
+								}
+							],
+							"parameters": [
+								{
+									"id": 29,
+									"name": "messages",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The new translations."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 30,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "LocaleService.ts",
+													"line": 150,
+													"character": 27,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L150"
+												}
+											],
+											"indexSignature": {
+												"id": 31,
+												"name": "__index",
+												"variant": "signature",
+												"kind": 8192,
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "LocaleService.ts",
+														"line": 150,
+														"character": 29,
+														"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L150"
+													}
+												],
+												"parameters": [
+													{
+														"id": 32,
+														"name": "key",
+														"variant": "param",
+														"kind": 32768,
+														"flags": {},
+														"type": {
+															"type": "intrinsic",
+															"name": "string"
+														}
+													}
+												],
+												"type": {
+													"type": "intrinsic",
+													"name": "any"
+												}
+											}
+										}
+									},
+									"defaultValue": "{}"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 35,
+					"name": "translate",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 179,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L179"
+						}
+					],
+					"signatures": [
+						{
+							"id": 36,
+							"name": "translate",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Translates the given string according to the current locale.\r\n\r\nReturns null if no translation can be found."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "Translated string if found, else null."
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "LocaleService.ts",
+									"line": 179,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L179"
+								}
+							],
+							"parameters": [
+								{
+									"id": 37,
+									"name": "msg",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "String to translate."
+											}
+										]
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 38,
+									"name": "args",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isOptional": true
+									},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Extra parameters."
+											}
+										]
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					]
+				},
+				{
+					"id": 39,
+					"name": "translatePlurals",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "LocaleService.ts",
+							"line": 204,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L204"
+						}
+					],
+					"signatures": [
+						{
+							"id": 40,
+							"name": "translatePlurals",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Translates the given phrase according to the current locale.\r\n\r\nReturns null if no translation can be found."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "String|null Translated string if found, else null."
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "LocaleService.ts",
+									"line": 204,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L204"
+								}
+							],
+							"parameters": [
+								{
+									"id": 41,
+									"name": "msg",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Phrase to translate."
+											}
+										]
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 42,
+									"name": "count",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The plural number."
+											}
+										]
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 43,
+									"name": "args",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isOptional": true
+									},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Extra parameters."
+											}
+										]
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						2
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						14,
+						13,
+						9
+					]
+				},
+				{
+					"title": "Accessors",
+					"children": [
+						23,
+						21,
+						15
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						33,
+						27,
+						35,
+						39
+					]
+				},
+				{
+					"title": "Events",
+					"children": [
+						8
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "LocaleService.ts",
+					"line": 9,
+					"character": 6,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/locale/src/LocaleService.ts#L9"
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Classes",
+			"children": [
+				1
+			]
+		}
+	],
+	"packageName": "@xeokit/locale",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "#"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService"
+		},
+		"2": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.__constructor"
+		},
+		"3": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService"
+		},
+		"4": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "cfg"
+		},
+		"5": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type"
+		},
+		"6": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type.messages"
+		},
+		"7": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type.locale"
+		},
+		"8": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.onUpdated"
+		},
+		"9": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.#messages"
+		},
+		"10": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type"
+		},
+		"11": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"13": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.#locales"
+		},
+		"14": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.#locale"
+		},
+		"15": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.messages"
+		},
+		"16": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.messages"
+		},
+		"17": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "messages"
+		},
+		"18": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type"
+		},
+		"19": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"21": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.locales"
+		},
+		"22": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.locales"
+		},
+		"23": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.locale"
+		},
+		"24": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.locale"
+		},
+		"25": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.locale"
+		},
+		"26": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "locale"
+		},
+		"27": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.loadMessages"
+		},
+		"28": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.loadMessages"
+		},
+		"29": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "messages"
+		},
+		"30": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type"
+		},
+		"31": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"33": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.clearMessages"
+		},
+		"34": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.clearMessages"
+		},
+		"35": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.translate"
+		},
+		"36": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.translate"
+		},
+		"37": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "msg"
+		},
+		"38": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "args"
+		},
+		"39": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.translatePlurals"
+		},
+		"40": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "LocaleService.translatePlurals"
+		},
+		"41": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "msg"
+		},
+		"42": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "count"
+		},
+		"43": {
+			"sourceFileName": "src/LocaleService.ts",
+			"qualifiedName": "args"
+		}
+	}
+}

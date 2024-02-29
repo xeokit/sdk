@@ -1,0 +1,1267 @@
+{
+	"id": 0,
+	"name": "@xeokit/ktx2",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fktx2.svg)](https://badge.fury.io/js/%40xeokit%2Fktx2)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/ktx2/badge)](https://www.jsdelivr.com/package/npm/@xeokit/ktx2)\r\n\r\n<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:140px;\" src=\"media://images/xeokit_ktx_logo.svg\"/>\r\n\r\n# xeokit KTX2 SceneTexture Transcoder\r\n\r\n---\r\n\r\n### *Enables the xeokit Viewer to load KTX2-compressed textures*\r\n\r\n---\r\n\r\n* Provides "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "KTX2TextureTranscoder",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* Configure a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " with a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": " that has a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "KTX2TextureTranscoder",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* Then a Viewer is able to view a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel.createTexture | SceneModel.createTexture"
+			},
+			{
+				"kind": "text",
+				"text": " that has KTX2-encoded compressed textures\r\n* Uses the [Basis Universal GPU SceneTexture Codec](https://github.com/BinomialLLC/basis_universal) to\r\ntranscode [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures.\r\n* Loads the Basis Codec from [CDN](https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/) by default, but can\r\nalso be configured to load the Codec from local files.\r\n* We also bundle the Basis Codec with the xeokit-viewer npm package, and in the [repository](https://github.com/xeokit/sdk/tree/master/dist/basis).\r\n\r\n### What is KTX2?\r\n\r\nA [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) file stores GPU texture data in the Khronos SceneTexture 2.0 (KTX2) container format. It contains image data for\r\na texture asset compressed with Basis Universal (BasisU) supercompression that can be transcoded to different formats\r\ndepending on the support provided by the target devices. [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) provides a lightweight format for distributing texture\r\nassets to GPUs. Due to BasisU compression, [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) files can store any image format supported by GPUs.\r\n\r\n<br>\r\n\r\n[![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)\r\n\r\n<br>\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/ktx2\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Usage\r\n\r\n### Loading an DTX file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer\r\n\r\nCreate a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " with a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": " configured with a\r\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder"
+			},
+			{
+				"kind": "text",
+				"text": ". Then create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": " within the Viewer, and use "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "loadDTX"
+			},
+			{
+				"kind": "text",
+				"text": " to\r\nload a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the\r\nKTX2TextureTranscoder will transparently transcode the [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\nimport {Viewer} from \"@xeokit/viewer\";\r\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\r\nimport {KTX2TextureTranscoder} from \"@xeokit/ktx2\";\r\nimport {loadDTX} from \"@xeokit/dtx\";\r\n\r\nconst myViewer = new Viewer({\r\n    id: \"myViewer\",\r\n    renderers: new WebGLRenderer({ // Optional\r\n         textureTranscoder: new KTX2TextureTranscoder({\r\n             transcoderPath: \"./../dist/basis/\" // Optional, path to BasisU transcoder module\r\n         })\r\n    })\r\n});\r\n\r\nconst view1 = myViewer.createView({\r\n    id: \"myView\",\r\n    canvasId: \"myCanvas1\"\r\n});\r\n\r\nview1.camera.eye = [-3.933, 2.855, 27.018];\r\nview1.camera.look = [4.400, 3.724, 8.899];\r\nview1.camera.up = [-0.018, 0.999, 0.039];\r\n\r\nconst sceneModel= myViewer.scene.createModel({\r\n    id: \"myModel\"\r\n});\r\n\r\nfetch(\"myModelWithTextures.dtx\") // <<-- [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file with KTX2 textures\r\n    .then(response => {\r\n         if (response.ok) {\r\n             loadDTX(response.arrayBuffer(), sceneModel);\r\n             sceneModel.build();\r\n         }\r\n    });\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n### Loading KTX2 texture files into a Viewer\r\n\r\nAs in the previous example, create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " with a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": " configured with a\r\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/ktx2!KTX2TextureTranscoder"
+			},
+			{
+				"kind": "text",
+				"text": ", then create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": " within the Viewer.\r\n\r\nThis time, we'll build the SceneModel ourselves, using its builder methods. When we\r\ncall builder method "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel.createTexture | SceneModel.createTexture"
+			},
+			{
+				"kind": "text",
+				"text": " with a path to a KTX2-compressed texture file, the\r\nKTX2TextureTranscoder will transparently transcode that KTX2 data for us.\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\nimport {Viewer} from \"@xeokit/viewer\";\r\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\r\nimport {KTX2TextureTranscoder} from \"@xeokit/ktx2\";\r\nimport {loadDTX} from \"@xeokit/dtx\";\r\n\r\nconst myViewer = new Viewer({\r\n    id: \"myViewer\",\r\n    renderers: new WebGLRenderer({ // Optional\r\n         textureTranscoder: new KTX2TextureTranscoder({ // Optional\r\n             transcoderPath: \"./../dist/basis/\" // Optional, path to BasisU transcoder module\r\n         })\r\n    })\r\n});\r\n\r\nconst view1 = myViewer.createView({\r\n    id: \"myView\",\r\n    canvasId: \"myView1\"\r\n});\r\n\r\nview1.camera.eye = [-3.933, 2.855, 27.018];\r\nview1.camera.look = [4.400, 3.724, 8.899];\r\nview1.camera.up = [-0.018, 0.999, 0.039];\r\n\r\nconst viewerModel = myViewer.scene.createModel({\r\n     id: \"myModel\"\r\n });\r\n\r\nviewerModel.createTexture({\r\n     id: \"myColorTexture\",\r\n     src: \"sample_uastc_zstd.ktx2\" // <<----- KTX2 texture asset\r\n});\r\n\r\nviewerModel.createTexture({\r\n     id: \"myMetallicRoughnessTexture\",\r\n     src: \"crosshatchAlphaMap.jpg\" // <<----- JPEG texture asset\r\n});\r\n\r\nviewerModel.createTextureSet({\r\n     id: \"myTextureSet\",\r\n     colorTextureId: \"myColorTexture\",\r\n     metallicRoughnessTextureId: \"myMetallicRoughnessTexture\"\r\n });\r\n\r\nviewerModel.createGeometry({\r\n    id: \"myGeometry\",\r\n    primitive: TrianglesPrimitive,\r\n    positions: [1, 1, 1, ...],\r\n    normals: [0, 0, 1, 0, ...],\r\n    uv: [1, 0, 0, ...],\r\n    indices: [0, 1, 2, ...],\r\n});\r\n\r\nviewerModel.createLayerMesh({\r\n     id: \"myMesh\",\r\n     textureSetId: \"myTextureSet\",\r\n     geometryId: \"myGeometry\"\r\n });\r\n\r\nviewerModel.createObject({\r\n     id: \"myObject\",\r\n     meshIds: [\"myMesh\"]\r\n });\r\n\r\nviewerModel.build();\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n### Loading [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture ArrayBuffers into a Viewer\r\n\r\nAs in the previous two examples, create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " that has a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": " configured with a\r\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/ktx2!KTX2TextureTranscoder"
+			},
+			{
+				"kind": "text",
+				"text": ", and then create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": " within the Viewer.\r\n\r\nOnce more, build the SceneModel using its builder methods. This time, call builder method\r\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel.createTexture | SceneModel.createTexture"
+			},
+			{
+				"kind": "text",
+				"text": " with an ArrayBuffer containing the contents of a KTX2-compressed texture\r\nfile. As before, the KTX2TextureTranscoder will transparently transcode that [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\nimport {Viewer} from \"@xeokit/viewer\";\r\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\r\nimport {KTX2TextureTranscoder} from \"@xeokit/ktx2\";\r\nimport {loadDTX} from \"@xeokit/dtx\";\r\n\r\nconst myViewer = new Viewer({\r\n    id: \"myViewer\",\r\n    renderers: new WebGLRenderer({ // Optional\r\n         textureTranscoder: new KTX2TextureTranscoder({ // Optional\r\n             transcoderPath: \"./../dist/basis/\" // Optional, path to BasisU transcoder module\r\n         })\r\n    })\r\n});\r\n\r\nconst view1 = myViewer.createView({\r\n    id: \"myView\",\r\n    canvasId: \"myView1\"\r\n});\r\n\r\nview1.camera.eye = [-3.933, 2.855, 27.018];\r\nview1.camera.look = [4.400, 3.724, 8.899];\r\nview1.camera.up = [-0.018, 0.999, 0.039];\r\n\r\nconst viewerModel = myViewer.scene.createModel({\r\n     id: \"myModel\"\r\n});\r\n\r\nfetch(\"sample_uastc_zstd.ktx2\") // // <<----- KTX2 texture asset\r\n    .then(response => {\r\n         if (response.ok) {\r\n\r\n             viewerModel.createTexture({\r\n                 id: \"myColorTexture\",\r\n                 buffers: [arrayBuffer] // <<----- KTX2 texture asset\r\n             });\r\n\r\n             viewerModel.createTexture({\r\n                 id: \"myMetallicRoughnessTexture\",\r\n                 src: \"../assets/textures/alpha/crosshatchAlphaMap.jpg\" // <<----- JPEG texture asset\r\n             });\r\n\r\n             viewerModel.createTextureSet({\r\n                 id: \"myTextureSet\",\r\n                 colorTextureId: \"myColorTexture\",\r\n                 metallicRoughnessTextureId: \"myMetallicRoughnessTexture\"\r\n             });\r\n\r\n             viewerModel.createGeometry({\r\n                 id: \"myGeometry\",\r\n                 primitive: TrianglesPrimitive,\r\n                 positions: [1, 1, 1, ...],\r\n                 normals: [0, 0, 1, 0, ...],\r\n                 uv: [1, 0, 0, ...],\r\n                 indices: [0, 1, 2, ...],\r\n             });\r\n\r\n             viewerModel.createLayerMesh({\r\n                 id: \"myMesh\",\r\n                 textureSetId: \"myTextureSet\",\r\n                 geometryId: \"myGeometry\"\r\n             });\r\n\r\n             viewerModel.createObject({\r\n                 id: \"myObject\",\r\n                 meshIds: [\"myMesh\"]\r\n             });\r\n\r\n             viewerModel.build();\r\n         }\r\n    });\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "KTX2TextureTranscoder",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "[KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture decompression strategy.\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "@xeokit/ktx2"
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 2,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 88,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+						}
+					],
+					"signatures": [
+						{
+							"id": 3,
+							"name": "new KTX2TextureTranscoder",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new KTX2TextureTranscoder."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KTX2TextureTranscoder.ts",
+									"line": 88,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+								}
+							],
+							"parameters": [
+								{
+									"id": 4,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 5,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 6,
+													"name": "transcoderPath",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"comment": {
+														"summary": [
+															{
+																"kind": "text",
+																"text": "Path to the Basis\r\ntranscoder module that internally does the heavy lifting for our KTX2TextureTranscoder. If we omit this configuration,\r\nthen our KTX2TextureTranscoder will load it from "
+															},
+															{
+																"kind": "code",
+																"text": "````https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/````"
+															},
+															{
+																"kind": "text",
+																"text": " by\r\ndefault. Therefore, make sure your application is connected to the internet if you wish to use the default transcoder path."
+															}
+														]
+													},
+													"sources": [
+														{
+															"fileName": "KTX2TextureTranscoder.ts",
+															"line": 88,
+															"character": 26,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 7,
+													"name": "workerLimit",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"comment": {
+														"summary": [
+															{
+																"kind": "text",
+																"text": "The maximum number of Workers to use for transcoding."
+															}
+														]
+													},
+													"sources": [
+														{
+															"fileName": "KTX2TextureTranscoder.ts",
+															"line": 88,
+															"character": 51,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "number"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														6,
+														7
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "KTX2TextureTranscoder.ts",
+													"line": 88,
+													"character": 24,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 1,
+								"name": "KTX2TextureTranscoder",
+								"package": "@xeokit/ktx2"
+							}
+						}
+					]
+				},
+				{
+					"id": 21,
+					"name": "#supportedFileTypes",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 76,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L76"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					}
+				},
+				{
+					"id": 9,
+					"name": "#transcoderBinary",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 71,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L71"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				},
+				{
+					"id": 8,
+					"name": "#transcoderPath",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 70,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L70"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 10,
+					"name": "#transcoderPending",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 72,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L72"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "void"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				},
+				{
+					"id": 22,
+					"name": "#withCredentials",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 77,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L77"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 13,
+					"name": "#workerConfig",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 75,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 14,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 15,
+									"name": "astcSupported",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "KTX2TextureTranscoder.ts",
+											"line": 75,
+											"character": 28,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 20,
+									"name": "bptcSupported",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "KTX2TextureTranscoder.ts",
+											"line": 75,
+											"character": 128,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 19,
+									"name": "dxtSupported",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "KTX2TextureTranscoder.ts",
+											"line": 75,
+											"character": 109,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 16,
+									"name": "etc1Supported",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "KTX2TextureTranscoder.ts",
+											"line": 75,
+											"character": 48,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 18,
+									"name": "etc2Supported",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "KTX2TextureTranscoder.ts",
+											"line": 75,
+											"character": 89,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 17,
+									"name": "pvrtcSupported",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "KTX2TextureTranscoder.ts",
+											"line": 75,
+											"character": 68,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										15,
+										20,
+										19,
+										16,
+										18,
+										17
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "KTX2TextureTranscoder.ts",
+									"line": 75,
+									"character": 26,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 11,
+					"name": "#workerPool",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 73,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L73"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../utils/src/WorkerPool.ts",
+							"qualifiedName": "WorkerPool"
+						},
+						"name": "WorkerPool",
+						"package": "@xeokit/utils"
+					}
+				},
+				{
+					"id": 12,
+					"name": "#workerSourceURL",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 74,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L74"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 33,
+					"name": "#initTranscoder",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 167,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L167"
+						}
+					],
+					"signatures": [
+						{
+							"id": 34,
+							"name": "#initTranscoder",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KTX2TextureTranscoder.ts",
+									"line": 167,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L167"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "void"
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							}
+						}
+					]
+				},
+				{
+					"id": 31,
+					"name": "destroy",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 161,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
+						}
+					],
+					"signatures": [
+						{
+							"id": 32,
+							"name": "destroy",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Destroys this KTX2TextureTranscoder"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KTX2TextureTranscoder.ts",
+									"line": 161,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "TextureTranscoder.destroy"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "TextureTranscoder.destroy"
+					}
+				},
+				{
+					"id": 23,
+					"name": "init",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 110,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
+						}
+					],
+					"signatures": [
+						{
+							"id": 24,
+							"name": "init",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Initializes this transcoder."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KTX2TextureTranscoder.ts",
+									"line": 110,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
+								}
+							],
+							"parameters": [
+								{
+									"id": 25,
+									"name": "capabilities",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "A set of flags indicating the capabilities of this TextureTranscoder."
+											}
+										]
+									},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../core/src/Capabilities.ts",
+											"qualifiedName": "Capabilities"
+										},
+										"name": "Capabilities",
+										"package": "@xeokit/core"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "TextureTranscoder.init"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "TextureTranscoder.init"
+					}
+				},
+				{
+					"id": 26,
+					"name": "transcode",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KTX2TextureTranscoder.ts",
+							"line": 128,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+						}
+					],
+					"signatures": [
+						{
+							"id": 27,
+							"name": "transcode",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Transcodes texture data from transcoded buffers."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "Transcoded output texture data."
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KTX2TextureTranscoder.ts",
+									"line": 128,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+								}
+							],
+							"parameters": [
+								{
+									"id": 28,
+									"name": "buffers",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Transcoded input texture data. Given as an array of buffers so that we can support multi-image textures, such as cube maps."
+											}
+										]
+									},
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "reference",
+											"target": {
+												"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+												"qualifiedName": "ArrayBuffer"
+											},
+											"name": "ArrayBuffer",
+											"package": "typescript"
+										}
+									}
+								},
+								{
+									"id": 29,
+									"name": "config",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Transcoding options."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 30,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "KTX2TextureTranscoder.ts",
+													"line": 128,
+													"character": 47,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+												}
+											]
+										}
+									},
+									"defaultValue": "{}"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../core/src/TextureCompressedParams.ts",
+											"qualifiedName": "TextureCompressedParams"
+										},
+										"name": "TextureCompressedParams",
+										"package": "@xeokit/core"
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							},
+							"implementationOf": {
+								"type": "reference",
+								"target": -1,
+								"name": "TextureTranscoder.transcode"
+							}
+						}
+					],
+					"implementationOf": {
+						"type": "reference",
+						"target": -1,
+						"name": "TextureTranscoder.transcode"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						2
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						21,
+						9,
+						8,
+						10,
+						22,
+						13,
+						11,
+						12
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						33,
+						31,
+						23,
+						26
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KTX2TextureTranscoder.ts",
+					"line": 68,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/ktx2/src/KTX2TextureTranscoder.ts#L68"
+				}
+			],
+			"implementedTypes": [
+				{
+					"type": "reference",
+					"target": {
+						"sourceFileName": "../core/src/TextureTranscoder.ts",
+						"qualifiedName": "TextureTranscoder"
+					},
+					"name": "TextureTranscoder",
+					"package": "@xeokit/core"
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Classes",
+			"children": [
+				1
+			]
+		}
+	],
+	"packageName": "@xeokit/ktx2",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "#"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder"
+		},
+		"2": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.__constructor"
+		},
+		"3": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder"
+		},
+		"4": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "params"
+		},
+		"5": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type"
+		},
+		"6": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type.transcoderPath"
+		},
+		"7": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type.workerLimit"
+		},
+		"8": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#transcoderPath"
+		},
+		"9": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#transcoderBinary"
+		},
+		"10": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#transcoderPending"
+		},
+		"11": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#workerPool"
+		},
+		"12": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#workerSourceURL"
+		},
+		"13": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#workerConfig"
+		},
+		"14": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type"
+		},
+		"15": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type.astcSupported"
+		},
+		"16": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type.etc1Supported"
+		},
+		"17": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type.pvrtcSupported"
+		},
+		"18": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type.etc2Supported"
+		},
+		"19": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type.dxtSupported"
+		},
+		"20": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__type.bptcSupported"
+		},
+		"21": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#supportedFileTypes"
+		},
+		"22": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#withCredentials"
+		},
+		"23": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.init"
+		},
+		"24": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.init"
+		},
+		"25": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "capabilities"
+		},
+		"26": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.transcode"
+		},
+		"27": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.transcode"
+		},
+		"28": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "buffers"
+		},
+		"29": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "config"
+		},
+		"30": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "__object"
+		},
+		"31": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.destroy"
+		},
+		"32": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.destroy"
+		},
+		"33": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#initTranscoder"
+		},
+		"34": {
+			"sourceFileName": "src/KTX2TextureTranscoder.ts",
+			"qualifiedName": "KTX2TextureTranscoder.#initTranscoder"
+		}
+	}
+}

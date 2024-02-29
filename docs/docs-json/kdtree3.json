@@ -1,0 +1,4242 @@
+{
+	"id": 0,
+	"name": "@xeokit/kdtree3",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fcompression.svg)](https://badge.fury.io/js/%40xeokit%2Fcompression)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/kdtree/badge)](https://www.jsdelivr.com/package/npm/@xeokit/kdtree)\r\n\r\n<img style=\"padding:30px; padding-left: 0\" src=\"media://images/kdtree.jpeg\"/>\r\n\r\n# xeokit 3D Collision Utilities\r\n\r\n---\r\n\r\n### *Spatial searches and collision testing with 3D k-d trees, rays and boundaries*\r\n\r\n---\r\n\r\nA "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "KdTree3",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " organizes items with 3D axis-aligned boundaries into a fast spatial search index that\r\nallows us efficiently search it for items whose boundaries intersect given boundaries and volumes.\r\n\r\nThis module provides the following functions to build KdTree3s:\r\n\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "createPrimsKdTree3",
+				"target": 47
+			},
+			{
+				"kind": "text",
+				"text": ": Creates a KdTree3 containing primitives from the given set of geometry arrays, organized by their coordinate 3D boundaries.\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "createSceneObjectPrimsKdTree3",
+				"target": 24
+			},
+			{
+				"kind": "text",
+				"text": ": Creates a KdTree3 containing primitives belonging to the given SceneObjects, organized by their World-space 3D boundaries.\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "createSceneObjectsKdTree3",
+				"target": 21
+			},
+			{
+				"kind": "text",
+				"text": ": Create a KdTree3 containing the given SceneObjects, organized by their World-space 3D boundaries.\r\n\r\nThis module provides the following functions to search KdTree3s:\r\n\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "searchKdTree3WithAABB",
+				"target": 52
+			},
+			{
+				"kind": "text",
+				"text": ": Finds the items that collide with a given 3D axis-aligned boundary (AABB).\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "searchKdTree3WithFrustum",
+				"target": 58
+			},
+			{
+				"kind": "text",
+				"text": ": Finds the items that collide with a given 3D frustum volume.\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "searchKdTree3WithRay",
+				"target": 64
+			},
+			{
+				"kind": "text",
+				"text": ": Finds the items that collide with a given 3D ray.\r\n\r\nWith these components, applications can implement (at least):\r\n\r\n* Frustum3 culling for "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneObject | SceneObjects"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* Ray-picking SceneObjects\r\n* Marquee selection of SceneObjects\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/kdtree3\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Dependencies\r\n\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/scene\""
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/core\""
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/math\""
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/boundaries\""
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Usage\r\n\r\nQuerying for "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneObject | SceneObjects"
+			},
+			{
+				"kind": "text",
+				"text": " that intersect a 3D World-space boundary:\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\nimport {Scene} from \"@xeokit/scene\";\r\nimport {SDKError} from \"@xeokit/core\";\r\nimport {TrianglesPrimitive} from \"@xeokit/constants\";\r\nimport {KdTree3, searchKdTree3WithAABB} from \"@xeokit/kdtree3\";\r\n\r\nconst scene = new Scene();\r\n\r\nconst sceneModel = scene.createModel({\r\n     id: \"myModel\"\r\n});\r\n\r\nif (sceneModel instanceof SDKError) {\r\n     console.log(sceneModel.message);\r\n\r\n} else {\r\n\r\n    sceneModel.createGeometry({\r\n        id: \"theGeometry\", primitive: TrianglesPrimitive,\r\n        positions: [10.07, 0, 11.07, 9.58, 3.11, 11.07, 8.15, ..],\r\n        indices: [21, 0, 1, 1, 22, 21, 22, 1, 2, 2, 23, 22, 23, ..]\r\n    });\r\n\r\n    sceneModel.createLayerMesh({\r\n        id: \"redLegMesh\", geometryId: \"theGeometry\",\r\n        position: [-4, -6, -4], scale: [1, 3, 1], rotation: [0, 0, 0], color: [1, 0.3, 0.3]\r\n    });\r\n\r\n    sceneModel.createLayerMesh({\r\n        id: \"greenLegMesh\", geometryId: \"theGeometry\", position: [4, -6, -4], scale: [1, 3, 1],\r\n        rotation: [0, 0, 0], color: [0.3, 1.0, 0.3]\r\n    });\r\n\r\n    sceneModel.createLayerMesh({\r\n        id: \"blueLegMesh\", geometryId: \"theGeometry\", position: [4, -6, 4],  scale: [1, 3, 1],\r\n        rotation: [0, 0, 0], color: [0.3, 0.3, 1.0]\r\n    });\r\n\r\n    sceneModel.createLayerMesh({\r\n        id: \"yellowLegMesh\",  geometryId: \"theGeometry\", position: [-4, -6, 4], scale: [1, 3, 1],\r\n        rotation: [0, 0, 0], color: [1.0, 1.0, 0.0]\r\n    });\r\n\r\n    sceneModel.createLayerMesh({\r\n        id: \"tableTopMesh\", geometryId: \"theGeometry\", position: [0, -3, 0], scale: [6, 0.5, 6],\r\n        rotation: [0, 0, 0], color: [1.0, 0.3, 1.0]\r\n    });\r\n\r\n    sceneModel.createObject({ id: \"redLegSceneObject\", meshIds: [\"redLegMesh\"] });\r\n    sceneModel.createObject({ id: \"greenLegSceneObject\", meshIds: [\"greenLegMesh\"] });\r\n    sceneModel.createObject({ id: \"blueLegSceneObject\", meshIds: [\"blueLegMesh\"] });\r\n    sceneModel.createObject({ id: \"yellowLegSceneObject\", meshIds: [\"yellowLegMesh\"] });\r\n    sceneModel.createObject({ id: \"tableTopSceneObject\", meshIds: [\"tableTopMesh\"] });\r\n\r\n    sceneModel.build()\r\n\r\n        .then(() => {\r\n\r\n            const kdTree = createSceneObjectsKdTree3(Object.values(scene.objects));\r\n\r\n            const sceneObjects = searchKdTree3WithAABB({\r\n                kdTree,\r\n                aabb : [0, 0, 0, 10, 10, 10]\r\n            });\r\n\r\n            const sceneObjects2 = searchKdTree3WithFrustum({\r\n                kdTree,\r\n                frustum: new Frustum3( .. )\r\n            });\r\n\r\n            const objectMap = {};\r\n\r\n            for (let i = 0, len = sceneObjects.length; i < len; i++) {\r\n                const sceneObject = sceneObjects[i];\r\n            }\r\n\r\n            const redLegSceneObject = objectMap[\"redLegSceneObject\"];\r\n            const greenLegSceneObject = objectMap[\"greenLegSceneObject\"];\r\n            const tableTopSceneObject = objectMap[\"tableTopSceneObject\"];\r\n        });\r\n}\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "KdTree3",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A static k-d tree that organizes anything that has a boundary for\r\nefficient 3D World-space boundary and frustm searches.\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 2,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 29,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L29"
+						}
+					],
+					"signatures": [
+						{
+							"id": 3,
+							"name": "new KdTree3",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new KdTree3."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 29,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L29"
+								}
+							],
+							"parameters": [
+								{
+									"id": 4,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 133,
+										"name": "KdTree3Params",
+										"package": "@xeokit/kdtree3"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 1,
+								"name": "KdTree3",
+								"package": "@xeokit/kdtree3"
+							}
+						}
+					]
+				},
+				{
+					"id": 6,
+					"name": "#maxDepth",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 20,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L20"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				},
+				{
+					"id": 7,
+					"name": "#numNodes",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 21,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L21"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 8,
+					"name": "#numObjects",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 22,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L22"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 5,
+					"name": "#root",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 19,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L19"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 124,
+						"name": "KdNode3",
+						"package": "@xeokit/kdtree3"
+					}
+				},
+				{
+					"id": 9,
+					"name": "root",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 38,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L38"
+						}
+					],
+					"getSignature": {
+						"id": 10,
+						"name": "root",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "KdTree3.ts",
+								"line": 38,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L38"
+							}
+						],
+						"type": {
+							"type": "reference",
+							"target": 124,
+							"name": "KdNode3",
+							"package": "@xeokit/kdtree3"
+						}
+					}
+				},
+				{
+					"id": 15,
+					"name": "#insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 46,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L46"
+						}
+					],
+					"signatures": [
+						{
+							"id": 16,
+							"name": "#insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 46,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L46"
+								}
+							],
+							"parameters": [
+								{
+									"id": 17,
+									"name": "node",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 124,
+										"name": "KdNode3",
+										"package": "@xeokit/kdtree3"
+									}
+								},
+								{
+									"id": 18,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 130,
+										"name": "KdItem3D",
+										"package": "@xeokit/kdtree3"
+									}
+								},
+								{
+									"id": 19,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								},
+								{
+									"id": 20,
+									"name": "depth",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 11,
+					"name": "insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 42,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L42"
+						}
+					],
+					"signatures": [
+						{
+							"id": 12,
+							"name": "insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 42,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L42"
+								}
+							],
+							"parameters": [
+								{
+									"id": 13,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 14,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						2
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						6,
+						7,
+						8,
+						5
+					]
+				},
+				{
+					"title": "Accessors",
+					"children": [
+						9
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						15,
+						11
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdTree3.ts",
+					"line": 17,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L17"
+				}
+			],
+			"extendedBy": [
+				{
+					"type": "reference",
+					"target": 27,
+					"name": "SceneObjectsPrimsKdTree3"
+				},
+				{
+					"type": "reference",
+					"target": 84,
+					"name": "PrimsKdTree3"
+				},
+				{
+					"type": "reference",
+					"target": 104,
+					"name": "SceneObjectsKdTree3"
+				}
+			]
+		},
+		{
+			"id": 84,
+			"name": "PrimsKdTree3",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "k-d tree built by "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "createPrimsKdTree3",
+						"target": 47
+					},
+					{
+						"kind": "text",
+						"text": " that contains "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "KdTriangle3"
+					},
+					{
+						"kind": "text",
+						"text": ", "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "KdLine3"
+					},
+					{
+						"kind": "text",
+						"text": " and "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "KdPoint3"
+					},
+					{
+						"kind": "text",
+						"text": " item types.\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 85,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 29,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L29"
+						}
+					],
+					"signatures": [
+						{
+							"id": 86,
+							"name": "new PrimsKdTree3",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new KdTree3."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 29,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L29"
+								}
+							],
+							"parameters": [
+								{
+									"id": 87,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 133,
+										"name": "KdTree3Params",
+										"package": "@xeokit/kdtree3"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 84,
+								"name": "PrimsKdTree3",
+								"package": "@xeokit/kdtree3"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 3,
+								"name": "KdTree3.constructor"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 2,
+						"name": "KdTree3.constructor"
+					}
+				},
+				{
+					"id": 89,
+					"name": "#maxDepth",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 20,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L20"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 6,
+						"name": "KdTree3.#maxDepth"
+					}
+				},
+				{
+					"id": 90,
+					"name": "#numNodes",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 21,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L21"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 7,
+						"name": "KdTree3.#numNodes"
+					}
+				},
+				{
+					"id": 91,
+					"name": "#numObjects",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 22,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L22"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 8,
+						"name": "KdTree3.#numObjects"
+					}
+				},
+				{
+					"id": 88,
+					"name": "#root",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 19,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L19"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 124,
+						"name": "KdNode3",
+						"package": "@xeokit/kdtree3"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 5,
+						"name": "KdTree3.#root"
+					}
+				},
+				{
+					"id": 92,
+					"name": "root",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 38,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L38"
+						}
+					],
+					"getSignature": {
+						"id": 93,
+						"name": "root",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "KdTree3.ts",
+								"line": 38,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L38"
+							}
+						],
+						"type": {
+							"type": "reference",
+							"target": 124,
+							"name": "KdNode3",
+							"package": "@xeokit/kdtree3"
+						},
+						"inheritedFrom": {
+							"type": "reference",
+							"target": -1,
+							"name": "KdTree3.root"
+						}
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 9,
+						"name": "KdTree3.root"
+					}
+				},
+				{
+					"id": 98,
+					"name": "#insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 46,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L46"
+						}
+					],
+					"signatures": [
+						{
+							"id": 99,
+							"name": "#insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 46,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L46"
+								}
+							],
+							"parameters": [
+								{
+									"id": 100,
+									"name": "node",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 124,
+										"name": "KdNode3",
+										"package": "@xeokit/kdtree3"
+									}
+								},
+								{
+									"id": 101,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 130,
+										"name": "KdItem3D",
+										"package": "@xeokit/kdtree3"
+									}
+								},
+								{
+									"id": 102,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								},
+								{
+									"id": 103,
+									"name": "depth",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 16,
+								"name": "KdTree3.#insertItem"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 15,
+						"name": "KdTree3.#insertItem"
+					}
+				},
+				{
+					"id": 94,
+					"name": "insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 42,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L42"
+						}
+					],
+					"signatures": [
+						{
+							"id": 95,
+							"name": "insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 42,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L42"
+								}
+							],
+							"parameters": [
+								{
+									"id": 96,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 97,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 12,
+								"name": "KdTree3.insertItem"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 11,
+						"name": "KdTree3.insertItem"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						85
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						89,
+						90,
+						91,
+						88
+					]
+				},
+				{
+					"title": "Accessors",
+					"children": [
+						92
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						98,
+						94
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "PrimsKdTree3.ts",
+					"line": 8,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/PrimsKdTree3.ts#L8"
+				}
+			],
+			"extendedTypes": [
+				{
+					"type": "reference",
+					"target": 1,
+					"name": "KdTree3",
+					"package": "@xeokit/kdtree3"
+				}
+			]
+		},
+		{
+			"id": 104,
+			"name": "SceneObjectsKdTree3",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "k-d tree built by "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "createSceneObjectsKdTree3",
+						"target": 21
+					},
+					{
+						"kind": "text",
+						"text": " that contains "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "@xeokit/scene!SceneObject | SceneObject"
+					},
+					{
+						"kind": "text",
+						"text": " item types.\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 105,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 29,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L29"
+						}
+					],
+					"signatures": [
+						{
+							"id": 106,
+							"name": "new SceneObjectsKdTree3",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new KdTree3."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 29,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L29"
+								}
+							],
+							"parameters": [
+								{
+									"id": 107,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 133,
+										"name": "KdTree3Params",
+										"package": "@xeokit/kdtree3"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 104,
+								"name": "SceneObjectsKdTree3",
+								"package": "@xeokit/kdtree3"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 3,
+								"name": "KdTree3.constructor"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 2,
+						"name": "KdTree3.constructor"
+					}
+				},
+				{
+					"id": 109,
+					"name": "#maxDepth",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 20,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L20"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 6,
+						"name": "KdTree3.#maxDepth"
+					}
+				},
+				{
+					"id": 110,
+					"name": "#numNodes",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 21,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L21"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 7,
+						"name": "KdTree3.#numNodes"
+					}
+				},
+				{
+					"id": 111,
+					"name": "#numObjects",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 22,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L22"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 8,
+						"name": "KdTree3.#numObjects"
+					}
+				},
+				{
+					"id": 108,
+					"name": "#root",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 19,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L19"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 124,
+						"name": "KdNode3",
+						"package": "@xeokit/kdtree3"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 5,
+						"name": "KdTree3.#root"
+					}
+				},
+				{
+					"id": 112,
+					"name": "root",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 38,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L38"
+						}
+					],
+					"getSignature": {
+						"id": 113,
+						"name": "root",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "KdTree3.ts",
+								"line": 38,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L38"
+							}
+						],
+						"type": {
+							"type": "reference",
+							"target": 124,
+							"name": "KdNode3",
+							"package": "@xeokit/kdtree3"
+						},
+						"inheritedFrom": {
+							"type": "reference",
+							"target": -1,
+							"name": "KdTree3.root"
+						}
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 9,
+						"name": "KdTree3.root"
+					}
+				},
+				{
+					"id": 118,
+					"name": "#insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 46,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L46"
+						}
+					],
+					"signatures": [
+						{
+							"id": 119,
+							"name": "#insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 46,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L46"
+								}
+							],
+							"parameters": [
+								{
+									"id": 120,
+									"name": "node",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 124,
+										"name": "KdNode3",
+										"package": "@xeokit/kdtree3"
+									}
+								},
+								{
+									"id": 121,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 130,
+										"name": "KdItem3D",
+										"package": "@xeokit/kdtree3"
+									}
+								},
+								{
+									"id": 122,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								},
+								{
+									"id": 123,
+									"name": "depth",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 16,
+								"name": "KdTree3.#insertItem"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 15,
+						"name": "KdTree3.#insertItem"
+					}
+				},
+				{
+					"id": 114,
+					"name": "insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 42,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L42"
+						}
+					],
+					"signatures": [
+						{
+							"id": 115,
+							"name": "insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 42,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L42"
+								}
+							],
+							"parameters": [
+								{
+									"id": 116,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 117,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 12,
+								"name": "KdTree3.insertItem"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 11,
+						"name": "KdTree3.insertItem"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						105
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						109,
+						110,
+						111,
+						108
+					]
+				},
+				{
+					"title": "Accessors",
+					"children": [
+						112
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						118,
+						114
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "sceneObjectsKdTree3.ts",
+					"line": 8,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/sceneObjectsKdTree3.ts#L8"
+				}
+			],
+			"extendedTypes": [
+				{
+					"type": "reference",
+					"target": 1,
+					"name": "KdTree3",
+					"package": "@xeokit/kdtree3"
+				}
+			]
+		},
+		{
+			"id": 27,
+			"name": "SceneObjectsPrimsKdTree3",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "k-d tree built by "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "createSceneObjectPrimsKdTree3",
+						"target": 24,
+						"tsLinkText": ""
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 28,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 29,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L29"
+						}
+					],
+					"signatures": [
+						{
+							"id": 29,
+							"name": "new SceneObjectsPrimsKdTree3",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new KdTree3."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 29,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L29"
+								}
+							],
+							"parameters": [
+								{
+									"id": 30,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 133,
+										"name": "KdTree3Params",
+										"package": "@xeokit/kdtree3"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 27,
+								"name": "SceneObjectsPrimsKdTree3",
+								"package": "@xeokit/kdtree3"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 3,
+								"name": "KdTree3.constructor"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 2,
+						"name": "KdTree3.constructor"
+					}
+				},
+				{
+					"id": 32,
+					"name": "#maxDepth",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 20,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L20"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 6,
+						"name": "KdTree3.#maxDepth"
+					}
+				},
+				{
+					"id": 33,
+					"name": "#numNodes",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 21,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L21"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 7,
+						"name": "KdTree3.#numNodes"
+					}
+				},
+				{
+					"id": 34,
+					"name": "#numObjects",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 22,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L22"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 8,
+						"name": "KdTree3.#numObjects"
+					}
+				},
+				{
+					"id": 31,
+					"name": "#root",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 19,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L19"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 124,
+						"name": "KdNode3",
+						"package": "@xeokit/kdtree3"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 5,
+						"name": "KdTree3.#root"
+					}
+				},
+				{
+					"id": 35,
+					"name": "root",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 38,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L38"
+						}
+					],
+					"getSignature": {
+						"id": 36,
+						"name": "root",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "KdTree3.ts",
+								"line": 38,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L38"
+							}
+						],
+						"type": {
+							"type": "reference",
+							"target": 124,
+							"name": "KdNode3",
+							"package": "@xeokit/kdtree3"
+						},
+						"inheritedFrom": {
+							"type": "reference",
+							"target": -1,
+							"name": "KdTree3.root"
+						}
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 9,
+						"name": "KdTree3.root"
+					}
+				},
+				{
+					"id": 41,
+					"name": "#insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 46,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L46"
+						}
+					],
+					"signatures": [
+						{
+							"id": 42,
+							"name": "#insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 46,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L46"
+								}
+							],
+							"parameters": [
+								{
+									"id": 43,
+									"name": "node",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 124,
+										"name": "KdNode3",
+										"package": "@xeokit/kdtree3"
+									}
+								},
+								{
+									"id": 44,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 130,
+										"name": "KdItem3D",
+										"package": "@xeokit/kdtree3"
+									}
+								},
+								{
+									"id": 45,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								},
+								{
+									"id": 46,
+									"name": "depth",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 16,
+								"name": "KdTree3.#insertItem"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 15,
+						"name": "KdTree3.#insertItem"
+					}
+				},
+				{
+					"id": 37,
+					"name": "insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree3.ts",
+							"line": 42,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L42"
+						}
+					],
+					"signatures": [
+						{
+							"id": 38,
+							"name": "insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree3.ts",
+									"line": 42,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3.ts#L42"
+								}
+							],
+							"parameters": [
+								{
+									"id": 39,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 40,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "FloatArrayParam"
+										},
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": 12,
+								"name": "KdTree3.insertItem"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 11,
+						"name": "KdTree3.insertItem"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						28
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						32,
+						33,
+						34,
+						31
+					]
+				},
+				{
+					"title": "Accessors",
+					"children": [
+						35
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						41,
+						37
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "createSceneObjectPrimsKdTree3.ts",
+					"line": 11,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L11"
+				}
+			],
+			"extendedTypes": [
+				{
+					"type": "reference",
+					"target": 1,
+					"name": "KdTree3",
+					"package": "@xeokit/kdtree3"
+				}
+			]
+		},
+		{
+			"id": 130,
+			"name": "KdItem3D",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Binds an item to a "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "KdNode3",
+						"target": 124
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 131,
+					"name": "index",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "A unique, sequential numeric ID for this KDItem within its KdTree3."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdItem3.ts",
+							"line": 9,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdItem3.ts#L9"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 132,
+					"name": "item",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The item stored in this KDItem."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdItem3.ts",
+							"line": 14,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdItem3.ts#L14"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						131,
+						132
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdItem3.ts",
+					"line": 4,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdItem3.ts#L4"
+				}
+			]
+		},
+		{
+			"id": 79,
+			"name": "KdLinePrim",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "See "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 80,
+					"name": "a",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdLinePrim.ts",
+							"line": 5,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdLinePrim.ts#L5"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 81,
+					"name": "b",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdLinePrim.ts",
+							"line": 6,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdLinePrim.ts#L6"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						80,
+						81
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdLinePrim.ts",
+					"line": 4,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdLinePrim.ts#L4"
+				}
+			]
+		},
+		{
+			"id": 124,
+			"name": "KdNode3",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A node in a "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "KdTree3",
+						"target": 1
+					},
+					{
+						"kind": "text",
+						"text": ".\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 126,
+					"name": "aabb",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The axis-aligned World-space 3D boundary of this kd-tree node."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdNode3.ts",
+							"line": 21,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdNode3.ts#L21"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				},
+				{
+					"id": 125,
+					"name": "index",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "A unique, sequential numeric ID for this KDNode within its KdTree3.\r\n\r\nThis is used by queries that cache intersection results for KDNodes."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdNode3.ts",
+							"line": 16,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdNode3.ts#L16"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 129,
+					"name": "items",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KDItems",
+								"target": 130,
+								"tsLinkText": "KDItems"
+							},
+							{
+								"kind": "text",
+								"text": " stored in this KDNode."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdNode3.ts",
+							"line": 36,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdNode3.ts#L36"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reference",
+							"target": 130,
+							"name": "KdItem3D",
+							"package": "@xeokit/kdtree3"
+						}
+					}
+				},
+				{
+					"id": 127,
+					"name": "left",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The left KDNode."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdNode3.ts",
+							"line": 26,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdNode3.ts#L26"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 124,
+						"name": "KdNode3",
+						"package": "@xeokit/kdtree3"
+					}
+				},
+				{
+					"id": 128,
+					"name": "right",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The right KDNode."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdNode3.ts",
+							"line": 31,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdNode3.ts#L31"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 124,
+						"name": "KdNode3",
+						"package": "@xeokit/kdtree3"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						126,
+						125,
+						129,
+						127,
+						128
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdNode3.ts",
+					"line": 9,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdNode3.ts#L9"
+				}
+			]
+		},
+		{
+			"id": 82,
+			"name": "KdPointPrim",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "See "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 83,
+					"name": "a",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdPointPrim.ts",
+							"line": 5,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdPointPrim.ts#L5"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						83
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdPointPrim.ts",
+					"line": 4,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdPointPrim.ts#L4"
+				}
+			]
+		},
+		{
+			"id": 71,
+			"name": "KdSceneObjectPrim",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "See "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 73,
+					"name": "geometryBucket",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdSceneObjectPrim.ts",
+							"line": 12,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdSceneObjectPrim.ts#L12"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../scene/src/SceneGeometryBucket.ts",
+							"qualifiedName": "SceneGeometryBucket"
+						},
+						"name": "SceneGeometryBucket",
+						"package": "@xeokit/scene"
+					}
+				},
+				{
+					"id": 74,
+					"name": "prim",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdSceneObjectPrim.ts",
+							"line": 13,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdSceneObjectPrim.ts#L13"
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": 79,
+								"name": "KdLinePrim",
+								"package": "@xeokit/kdtree3"
+							},
+							{
+								"type": "reference",
+								"target": 82,
+								"name": "KdPointPrim",
+								"package": "@xeokit/kdtree3"
+							},
+							{
+								"type": "reference",
+								"target": 75,
+								"name": "KdTrianglePrim",
+								"package": "@xeokit/kdtree3"
+							}
+						]
+					}
+				},
+				{
+					"id": 72,
+					"name": "sceneObject",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdSceneObjectPrim.ts",
+							"line": 11,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdSceneObjectPrim.ts#L11"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../scene/src/SceneObject.ts",
+							"qualifiedName": "SceneObject"
+						},
+						"name": "SceneObject",
+						"package": "@xeokit/scene"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						73,
+						74,
+						72
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdSceneObjectPrim.ts",
+					"line": 10,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdSceneObjectPrim.ts#L10"
+				}
+			]
+		},
+		{
+			"id": 133,
+			"name": "KdTree3Params",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Parameters for creating a "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "KdTree3",
+						"target": 1
+					},
+					{
+						"kind": "text",
+						"text": ".\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 134,
+					"name": "aabb",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The boundary of all the "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KDNodes",
+								"target": 124
+							},
+							{
+								"kind": "text",
+								"text": " we'll add to this KdTree3."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3Params.ts",
+							"line": 13,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3Params.ts#L13"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				},
+				{
+					"id": 135,
+					"name": "maxDepth",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Maximum depth of the kd-tree. This is "
+							},
+							{
+								"kind": "code",
+								"text": "`10`"
+							},
+							{
+								"kind": "text",
+								"text": " by default."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree3Params.ts",
+							"line": 18,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3Params.ts#L18"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						134,
+						135
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdTree3Params.ts",
+					"line": 8,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTree3Params.ts#L8"
+				}
+			]
+		},
+		{
+			"id": 75,
+			"name": "KdTrianglePrim",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "See "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree3\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 76,
+					"name": "a",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTrianglePrim.ts",
+							"line": 5,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTrianglePrim.ts#L5"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 77,
+					"name": "b",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTrianglePrim.ts",
+							"line": 6,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTrianglePrim.ts#L6"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 78,
+					"name": "c",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTrianglePrim.ts",
+							"line": 7,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTrianglePrim.ts#L7"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						76,
+						77,
+						78
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdTrianglePrim.ts",
+					"line": 4,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/KdTrianglePrim.ts#L4"
+				}
+			]
+		},
+		{
+			"id": 47,
+			"name": "createPrimsKdTree3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "createPrimsKdTree3.ts",
+					"line": 21,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/createPrimsKdTree3.ts#L21"
+				}
+			],
+			"signatures": [
+				{
+					"id": 48,
+					"name": "createPrimsKdTree3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Creates a KdTree3 that indexes the 3D primitives in the given arrays.\r\n\r\nThis function does not care which coordinate space the primitives are in (ie. Local, World, View etc).\r\n\r\nThis function also works for coordinates of any precision (ie. Float32Array, Float64Array, Int16Array, Int32Array etc).\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/kdtree3\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "createPrimsKdTree3.ts",
+							"line": 21,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/createPrimsKdTree3.ts#L21"
+						}
+					],
+					"parameters": [
+						{
+							"id": 49,
+							"name": "primitiveType",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 50,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 51,
+							"name": "indices",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "IntArrayParam"
+								},
+								"name": "IntArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 84,
+						"name": "PrimsKdTree3",
+						"package": "@xeokit/kdtree3"
+					}
+				}
+			]
+		},
+		{
+			"id": 24,
+			"name": "createSceneObjectPrimsKdTree3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "createSceneObjectPrimsKdTree3.ts",
+					"line": 20,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L20"
+				}
+			],
+			"signatures": [
+				{
+					"id": 25,
+					"name": "createSceneObjectPrimsKdTree3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Creates a KdTree3 that indexes the primitives belonging to the given SceneObjects in 3D World-space.\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/kdtree3\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "createSceneObjectPrimsKdTree3.ts",
+							"line": 20,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L20"
+						}
+					],
+					"parameters": [
+						{
+							"id": 26,
+							"name": "sceneObjects",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../scene/src/SceneObject.ts",
+										"qualifiedName": "SceneObject"
+									},
+									"name": "SceneObject",
+									"package": "@xeokit/scene"
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 27,
+						"name": "SceneObjectsPrimsKdTree3",
+						"package": "@xeokit/kdtree3"
+					}
+				}
+			]
+		},
+		{
+			"id": 21,
+			"name": "createSceneObjectsKdTree3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "createSceneObjectsKdTree3.ts",
+					"line": 10,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/createSceneObjectsKdTree3.ts#L10"
+				}
+			],
+			"signatures": [
+				{
+					"id": 22,
+					"name": "createSceneObjectsKdTree3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Indexes the given SceneObjects in a k-d tree for efficient collision detection.\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/kdtree3\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "createSceneObjectsKdTree3.ts",
+							"line": 10,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/createSceneObjectsKdTree3.ts#L10"
+						}
+					],
+					"parameters": [
+						{
+							"id": 23,
+							"name": "sceneObjects",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../scene/src/SceneObject.ts",
+										"qualifiedName": "SceneObject"
+									},
+									"name": "SceneObject",
+									"package": "@xeokit/scene"
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 104,
+						"name": "SceneObjectsKdTree3",
+						"package": "@xeokit/kdtree3"
+					}
+				}
+			]
+		},
+		{
+			"id": 52,
+			"name": "searchKdTree3WithAABB",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "searchKdTree3WithAABB.ts",
+					"line": 14,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
+				}
+			],
+			"signatures": [
+				{
+					"id": 53,
+					"name": "searchKdTree3WithAABB",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Queries a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KdTree3",
+								"target": 1,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": " for "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KDItems",
+								"target": 130,
+								"tsLinkText": "KDItems"
+							},
+							{
+								"kind": "text",
+								"text": " that intersect\r\na 3D axis-aligned bounding box (AABB).\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/kdtree3\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "searchKdTree3WithAABB.ts",
+							"line": 14,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
+						}
+					],
+					"parameters": [
+						{
+							"id": 54,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 55,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 57,
+											"name": "aabb",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree3WithAABB.ts",
+													"line": 16,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithAABB.ts#L16"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../math/src/index.ts",
+													"qualifiedName": "FloatArrayParam"
+												},
+												"name": "FloatArrayParam",
+												"package": "@xeokit/math"
+											}
+										},
+										{
+											"id": 56,
+											"name": "kdTree",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree3WithAABB.ts",
+													"line": 15,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithAABB.ts#L15"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": 1,
+												"name": "KdTree3",
+												"package": "@xeokit/kdtree3"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												57,
+												56
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "searchKdTree3WithAABB.ts",
+											"line": 14,
+											"character": 46,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reference",
+							"target": 130,
+							"name": "KdItem3D",
+							"package": "@xeokit/kdtree3"
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 58,
+			"name": "searchKdTree3WithFrustum",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "searchKdTree3WithFrustum.ts",
+					"line": 12,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
+				}
+			],
+			"signatures": [
+				{
+					"id": 59,
+					"name": "searchKdTree3WithFrustum",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Queries a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KdTree3",
+								"target": 1,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": " for "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KDItems",
+								"target": 130,
+								"tsLinkText": "KDItems"
+							},
+							{
+								"kind": "text",
+								"text": " that intersect\r\na 3D "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/boundaries!Frustum3"
+							},
+							{
+								"kind": "text",
+								"text": ".\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/kdtree3\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "searchKdTree3WithFrustum.ts",
+							"line": 12,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
+						}
+					],
+					"parameters": [
+						{
+							"id": 60,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 61,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 63,
+											"name": "frustum",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree3WithFrustum.ts",
+													"line": 14,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L14"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../boundaries/src/index.ts",
+													"qualifiedName": "Frustum3"
+												},
+												"name": "Frustum3",
+												"package": "@xeokit/boundaries"
+											}
+										},
+										{
+											"id": 62,
+											"name": "kdTree",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree3WithFrustum.ts",
+													"line": 13,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L13"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": 1,
+												"name": "KdTree3",
+												"package": "@xeokit/kdtree3"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												63,
+												62
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "searchKdTree3WithFrustum.ts",
+											"line": 12,
+											"character": 49,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reference",
+							"target": 130,
+							"name": "KdItem3D",
+							"package": "@xeokit/kdtree3"
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 64,
+			"name": "searchKdTree3WithRay",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "searchKdTree3WithRay.ts",
+					"line": 14,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
+				}
+			],
+			"signatures": [
+				{
+					"id": 65,
+					"name": "searchKdTree3WithRay",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Queries a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KdTree3",
+								"target": 1,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": " for "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KDItems",
+								"target": 130,
+								"tsLinkText": "KDItems"
+							},
+							{
+								"kind": "text",
+								"text": " that intersect\r\na 3D ray.\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/kdtree3\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "searchKdTree3WithRay.ts",
+							"line": 14,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
+						}
+					],
+					"parameters": [
+						{
+							"id": 66,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 67,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 70,
+											"name": "dir",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree3WithRay.ts",
+													"line": 17,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithRay.ts#L17"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../math/src/index.ts",
+													"qualifiedName": "FloatArrayParam"
+												},
+												"name": "FloatArrayParam",
+												"package": "@xeokit/math"
+											}
+										},
+										{
+											"id": 68,
+											"name": "kdTree",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree3WithRay.ts",
+													"line": 15,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithRay.ts#L15"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": 1,
+												"name": "KdTree3",
+												"package": "@xeokit/kdtree3"
+											}
+										},
+										{
+											"id": 69,
+											"name": "origin",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree3WithRay.ts",
+													"line": 16,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithRay.ts#L16"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../math/src/index.ts",
+													"qualifiedName": "FloatArrayParam"
+												},
+												"name": "FloatArrayParam",
+												"package": "@xeokit/math"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												70,
+												68,
+												69
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "searchKdTree3WithRay.ts",
+											"line": 14,
+											"character": 45,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reference",
+							"target": 130,
+							"name": "KdItem3D",
+							"package": "@xeokit/kdtree3"
+						}
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Classes",
+			"children": [
+				1,
+				84,
+				104,
+				27
+			]
+		},
+		{
+			"title": "Interfaces",
+			"children": [
+				130,
+				79,
+				124,
+				82,
+				71,
+				133,
+				75
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				47,
+				24,
+				21,
+				52,
+				58,
+				64
+			]
+		}
+	],
+	"packageName": "@xeokit/kdtree3",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/kdtree3\r\n\r\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_kdtree3.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3"
+		},
+		"2": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.__constructor"
+		},
+		"3": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3"
+		},
+		"4": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "params"
+		},
+		"5": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#root"
+		},
+		"6": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#maxDepth"
+		},
+		"7": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#numNodes"
+		},
+		"8": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#numObjects"
+		},
+		"9": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.root"
+		},
+		"10": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.root"
+		},
+		"11": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.insertItem"
+		},
+		"12": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.insertItem"
+		},
+		"13": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "item"
+		},
+		"14": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "aabb"
+		},
+		"15": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#insertItem"
+		},
+		"16": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#insertItem"
+		},
+		"17": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "node"
+		},
+		"18": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "item"
+		},
+		"19": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "aabb"
+		},
+		"20": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "depth"
+		},
+		"21": {
+			"sourceFileName": "src/createSceneObjectsKdTree3.ts",
+			"qualifiedName": "createSceneObjectsKdTree3"
+		},
+		"22": {
+			"sourceFileName": "src/createSceneObjectsKdTree3.ts",
+			"qualifiedName": "createSceneObjectsKdTree3"
+		},
+		"23": {
+			"sourceFileName": "src/createSceneObjectsKdTree3.ts",
+			"qualifiedName": "sceneObjects"
+		},
+		"24": {
+			"sourceFileName": "src/createSceneObjectPrimsKdTree3.ts",
+			"qualifiedName": "createSceneObjectPrimsKdTree3"
+		},
+		"25": {
+			"sourceFileName": "src/createSceneObjectPrimsKdTree3.ts",
+			"qualifiedName": "createSceneObjectPrimsKdTree3"
+		},
+		"26": {
+			"sourceFileName": "src/createSceneObjectPrimsKdTree3.ts",
+			"qualifiedName": "sceneObjects"
+		},
+		"27": {
+			"sourceFileName": "src/createSceneObjectPrimsKdTree3.ts",
+			"qualifiedName": "SceneObjectsPrimsKdTree3"
+		},
+		"28": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.__constructor"
+		},
+		"29": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "SceneObjectsPrimsKdTree3"
+		},
+		"30": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "params"
+		},
+		"31": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#root"
+		},
+		"32": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#maxDepth"
+		},
+		"33": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#numNodes"
+		},
+		"34": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#numObjects"
+		},
+		"35": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.root"
+		},
+		"36": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.root"
+		},
+		"37": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.insertItem"
+		},
+		"38": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.insertItem"
+		},
+		"39": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "item"
+		},
+		"40": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "aabb"
+		},
+		"41": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#insertItem"
+		},
+		"42": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#insertItem"
+		},
+		"43": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "node"
+		},
+		"44": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "item"
+		},
+		"45": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "aabb"
+		},
+		"46": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "depth"
+		},
+		"47": {
+			"sourceFileName": "src/createPrimsKdTree3.ts",
+			"qualifiedName": "createPrimsKdTree3"
+		},
+		"48": {
+			"sourceFileName": "src/createPrimsKdTree3.ts",
+			"qualifiedName": "createPrimsKdTree3"
+		},
+		"49": {
+			"sourceFileName": "src/createPrimsKdTree3.ts",
+			"qualifiedName": "primitiveType"
+		},
+		"50": {
+			"sourceFileName": "src/createPrimsKdTree3.ts",
+			"qualifiedName": "positions"
+		},
+		"51": {
+			"sourceFileName": "src/createPrimsKdTree3.ts",
+			"qualifiedName": "indices"
+		},
+		"52": {
+			"sourceFileName": "src/searchKdTree3WithAABB.ts",
+			"qualifiedName": "searchKdTree3WithAABB"
+		},
+		"53": {
+			"sourceFileName": "src/searchKdTree3WithAABB.ts",
+			"qualifiedName": "searchKdTree3WithAABB"
+		},
+		"54": {
+			"sourceFileName": "src/searchKdTree3WithAABB.ts",
+			"qualifiedName": "params"
+		},
+		"55": {
+			"sourceFileName": "src/searchKdTree3WithAABB.ts",
+			"qualifiedName": "__type"
+		},
+		"56": {
+			"sourceFileName": "src/searchKdTree3WithAABB.ts",
+			"qualifiedName": "__type.kdTree"
+		},
+		"57": {
+			"sourceFileName": "src/searchKdTree3WithAABB.ts",
+			"qualifiedName": "__type.aabb"
+		},
+		"58": {
+			"sourceFileName": "src/searchKdTree3WithFrustum.ts",
+			"qualifiedName": "searchKdTree3WithFrustum"
+		},
+		"59": {
+			"sourceFileName": "src/searchKdTree3WithFrustum.ts",
+			"qualifiedName": "searchKdTree3WithFrustum"
+		},
+		"60": {
+			"sourceFileName": "src/searchKdTree3WithFrustum.ts",
+			"qualifiedName": "params"
+		},
+		"61": {
+			"sourceFileName": "src/searchKdTree3WithFrustum.ts",
+			"qualifiedName": "__type"
+		},
+		"62": {
+			"sourceFileName": "src/searchKdTree3WithFrustum.ts",
+			"qualifiedName": "__type.kdTree"
+		},
+		"63": {
+			"sourceFileName": "src/searchKdTree3WithFrustum.ts",
+			"qualifiedName": "__type.frustum"
+		},
+		"64": {
+			"sourceFileName": "src/searchKdTree3WithRay.ts",
+			"qualifiedName": "searchKdTree3WithRay"
+		},
+		"65": {
+			"sourceFileName": "src/searchKdTree3WithRay.ts",
+			"qualifiedName": "searchKdTree3WithRay"
+		},
+		"66": {
+			"sourceFileName": "src/searchKdTree3WithRay.ts",
+			"qualifiedName": "params"
+		},
+		"67": {
+			"sourceFileName": "src/searchKdTree3WithRay.ts",
+			"qualifiedName": "__type"
+		},
+		"68": {
+			"sourceFileName": "src/searchKdTree3WithRay.ts",
+			"qualifiedName": "__type.kdTree"
+		},
+		"69": {
+			"sourceFileName": "src/searchKdTree3WithRay.ts",
+			"qualifiedName": "__type.origin"
+		},
+		"70": {
+			"sourceFileName": "src/searchKdTree3WithRay.ts",
+			"qualifiedName": "__type.dir"
+		},
+		"71": {
+			"sourceFileName": "src/KdSceneObjectPrim.ts",
+			"qualifiedName": "KdSceneObjectPrim"
+		},
+		"72": {
+			"sourceFileName": "src/KdSceneObjectPrim.ts",
+			"qualifiedName": "KdSceneObjectPrim.sceneObject"
+		},
+		"73": {
+			"sourceFileName": "src/KdSceneObjectPrim.ts",
+			"qualifiedName": "KdSceneObjectPrim.geometryBucket"
+		},
+		"74": {
+			"sourceFileName": "src/KdSceneObjectPrim.ts",
+			"qualifiedName": "KdSceneObjectPrim.prim"
+		},
+		"75": {
+			"sourceFileName": "src/KdTrianglePrim.ts",
+			"qualifiedName": "KdTrianglePrim"
+		},
+		"76": {
+			"sourceFileName": "src/KdTrianglePrim.ts",
+			"qualifiedName": "KdTrianglePrim.a"
+		},
+		"77": {
+			"sourceFileName": "src/KdTrianglePrim.ts",
+			"qualifiedName": "KdTrianglePrim.b"
+		},
+		"78": {
+			"sourceFileName": "src/KdTrianglePrim.ts",
+			"qualifiedName": "KdTrianglePrim.c"
+		},
+		"79": {
+			"sourceFileName": "src/KdLinePrim.ts",
+			"qualifiedName": "KdLinePrim"
+		},
+		"80": {
+			"sourceFileName": "src/KdLinePrim.ts",
+			"qualifiedName": "KdLinePrim.a"
+		},
+		"81": {
+			"sourceFileName": "src/KdLinePrim.ts",
+			"qualifiedName": "KdLinePrim.b"
+		},
+		"82": {
+			"sourceFileName": "src/KdPointPrim.ts",
+			"qualifiedName": "KdPointPrim"
+		},
+		"83": {
+			"sourceFileName": "src/KdPointPrim.ts",
+			"qualifiedName": "KdPointPrim.a"
+		},
+		"84": {
+			"sourceFileName": "src/PrimsKdTree3.ts",
+			"qualifiedName": "PrimsKdTree3"
+		},
+		"85": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.__constructor"
+		},
+		"86": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "PrimsKdTree3"
+		},
+		"87": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "params"
+		},
+		"88": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#root"
+		},
+		"89": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#maxDepth"
+		},
+		"90": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#numNodes"
+		},
+		"91": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#numObjects"
+		},
+		"92": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.root"
+		},
+		"93": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.root"
+		},
+		"94": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.insertItem"
+		},
+		"95": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.insertItem"
+		},
+		"96": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "item"
+		},
+		"97": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "aabb"
+		},
+		"98": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#insertItem"
+		},
+		"99": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#insertItem"
+		},
+		"100": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "node"
+		},
+		"101": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "item"
+		},
+		"102": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "aabb"
+		},
+		"103": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "depth"
+		},
+		"104": {
+			"sourceFileName": "src/sceneObjectsKdTree3.ts",
+			"qualifiedName": "SceneObjectsKdTree3"
+		},
+		"105": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.__constructor"
+		},
+		"106": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "SceneObjectsKdTree3"
+		},
+		"107": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "params"
+		},
+		"108": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#root"
+		},
+		"109": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#maxDepth"
+		},
+		"110": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#numNodes"
+		},
+		"111": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#numObjects"
+		},
+		"112": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.root"
+		},
+		"113": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.root"
+		},
+		"114": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.insertItem"
+		},
+		"115": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.insertItem"
+		},
+		"116": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "item"
+		},
+		"117": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "aabb"
+		},
+		"118": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#insertItem"
+		},
+		"119": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "KdTree3.#insertItem"
+		},
+		"120": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "node"
+		},
+		"121": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "item"
+		},
+		"122": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "aabb"
+		},
+		"123": {
+			"sourceFileName": "src/KdTree3.ts",
+			"qualifiedName": "depth"
+		},
+		"124": {
+			"sourceFileName": "src/KdNode3.ts",
+			"qualifiedName": "KdNode3"
+		},
+		"125": {
+			"sourceFileName": "src/KdNode3.ts",
+			"qualifiedName": "KdNode3.index"
+		},
+		"126": {
+			"sourceFileName": "src/KdNode3.ts",
+			"qualifiedName": "KdNode3.aabb"
+		},
+		"127": {
+			"sourceFileName": "src/KdNode3.ts",
+			"qualifiedName": "KdNode3.left"
+		},
+		"128": {
+			"sourceFileName": "src/KdNode3.ts",
+			"qualifiedName": "KdNode3.right"
+		},
+		"129": {
+			"sourceFileName": "src/KdNode3.ts",
+			"qualifiedName": "KdNode3.items"
+		},
+		"130": {
+			"sourceFileName": "src/KdItem3.ts",
+			"qualifiedName": "KdItem3D"
+		},
+		"131": {
+			"sourceFileName": "src/KdItem3.ts",
+			"qualifiedName": "KdItem3D.index"
+		},
+		"132": {
+			"sourceFileName": "src/KdItem3.ts",
+			"qualifiedName": "KdItem3D.item"
+		},
+		"133": {
+			"sourceFileName": "src/KdTree3Params.ts",
+			"qualifiedName": "KdTree3Params"
+		},
+		"134": {
+			"sourceFileName": "src/KdTree3Params.ts",
+			"qualifiedName": "KdTree3Params.aabb"
+		},
+		"135": {
+			"sourceFileName": "src/KdTree3Params.ts",
+			"qualifiedName": "KdTree3Params.maxDepth"
+		}
+	}
+}

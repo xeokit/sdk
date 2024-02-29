@@ -1,0 +1,4425 @@
+{
+	"id": 0,
+	"name": "@xeokit/core",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fcore.svg)](https://badge.fury.io/js/%40xeokit%2Fcore)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/core/badge)](https://www.jsdelivr.com/package/npm/@xeokit/core)\r\n\r\n<img style=\"padding:10px\" src=\"media://images/xeokit_components_icon.png\"/>\r\n\r\n## xeokit SDK Core Components\r\n\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/core!Component"
+			},
+			{
+				"kind": "text",
+				"text": " base class\r\n* Various interfaces that are implemented throughout the SDK.\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/core\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "Component",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Common base class for xeokit SDK components.\r\n\r\n## Summary\r\n\r\n* Unique ID\r\n* Logging methods\r\n* Manages lifecycle of child Components"
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 2,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 57,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L57"
+						}
+					],
+					"signatures": [
+						{
+							"id": 3,
+							"name": "new Component",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new component."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 57,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L57"
+								}
+							],
+							"parameters": [
+								{
+									"id": 4,
+									"name": "owner",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 1,
+										"name": "Component",
+										"package": "@xeokit/core"
+									}
+								},
+								{
+									"id": 5,
+									"name": "cfg",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 6,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 7,
+													"name": "id",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"sources": [
+														{
+															"fileName": "packages/core/src/Component.ts",
+															"line": 57,
+															"character": 48,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L57"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														7
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "packages/core/src/Component.ts",
+													"line": 57,
+													"character": 46,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L57"
+												}
+											],
+											"indexSignature": {
+												"id": 8,
+												"name": "__index",
+												"variant": "signature",
+												"kind": 8192,
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "packages/core/src/Component.ts",
+														"line": 57,
+														"character": 61,
+														"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L57"
+													}
+												],
+												"parameters": [
+													{
+														"id": 9,
+														"name": "key",
+														"variant": "param",
+														"kind": 32768,
+														"flags": {},
+														"type": {
+															"type": "intrinsic",
+															"name": "string"
+														}
+													}
+												],
+												"type": {
+													"type": "intrinsic",
+													"name": "any"
+												}
+											}
+										}
+									},
+									"defaultValue": "{}"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 1,
+								"name": "Component",
+								"package": "@xeokit/core"
+							}
+						}
+					]
+				},
+				{
+					"id": 14,
+					"name": "#ownedComponents",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 45,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L45"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 15,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 45,
+									"character": 29,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L45"
+								}
+							],
+							"indexSignature": {
+								"id": 16,
+								"name": "__index",
+								"variant": "signature",
+								"kind": 8192,
+								"flags": {},
+								"sources": [
+									{
+										"fileName": "packages/core/src/Component.ts",
+										"line": 45,
+										"character": 31,
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L45"
+									}
+								],
+								"parameters": [
+									{
+										"id": 17,
+										"name": "key",
+										"variant": "param",
+										"kind": 32768,
+										"flags": {},
+										"type": {
+											"type": "intrinsic",
+											"name": "string"
+										}
+									}
+								],
+								"type": {
+									"type": "reference",
+									"target": 1,
+									"name": "Component",
+									"package": "@xeokit/core"
+								}
+							}
+						}
+					}
+				},
+				{
+					"id": 13,
+					"name": "#owner",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true,
+						"isOptional": true,
+						"isReadonly": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 43,
+							"character": 13,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L43"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 1,
+						"name": "Component",
+						"package": "@xeokit/core"
+					}
+				},
+				{
+					"id": 11,
+					"name": "destroyed",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPublic": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "True once this Component has been destroyed.\r\n\r\nDon't use this Component if this is "
+							},
+							{
+								"kind": "code",
+								"text": "````true````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 39,
+							"character": 11,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L39"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 12,
+					"name": "dirty",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isProtected": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 41,
+							"character": 14,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L41"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 10,
+					"name": "id",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPublic": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Unique ID of this Component."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 32,
+							"character": 11,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L32"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 18,
+					"name": "onDestroyed",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Emits an event when the "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/core!Component"
+							},
+							{
+								"kind": "text",
+								"text": " has been destroyed."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 52,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L52"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 59,
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": 1,
+								"name": "Component",
+								"package": "@xeokit/core"
+							},
+							{
+								"type": "literal",
+								"value": null
+							}
+						],
+						"name": "EventEmitter",
+						"package": "@xeokit/core"
+					}
+				},
+				{
+					"id": 39,
+					"name": "#own",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 164,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L164"
+						}
+					],
+					"signatures": [
+						{
+							"id": 40,
+							"name": "#own",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 164,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L164"
+								}
+							],
+							"parameters": [
+								{
+									"id": 41,
+									"name": "component",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 1,
+										"name": "Component",
+										"package": "@xeokit/core"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 36,
+					"name": "#prefixMessageWithID",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 160,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L160"
+						}
+					],
+					"signatures": [
+						{
+							"id": 37,
+							"name": "#prefixMessageWithID",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 160,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L160"
+								}
+							],
+							"parameters": [
+								{
+									"id": 38,
+									"name": "message",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					]
+				},
+				{
+					"id": 32,
+					"name": "clean",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isProtected": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 128,
+							"character": 14,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L128"
+						}
+					],
+					"signatures": [
+						{
+							"id": 33,
+							"name": "clean",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Forces this component to action any deferred state updates."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 128,
+									"character": 14,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L128"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 30,
+					"name": "cleanIfDirty",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isProtected": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 118,
+							"character": 14,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L118"
+						}
+					],
+					"signatures": [
+						{
+							"id": 31,
+							"name": "cleanIfDirty",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Gives this component an opportunity to action any defered state updates."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 118,
+									"character": 14,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L118"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 34,
+					"name": "destroy",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 140,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L140"
+						}
+					],
+					"signatures": [
+						{
+							"id": 35,
+							"name": "destroy",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Destroys this component.\r\n\r\nAlso destroys any components owned by this one.\r\n\r\nSets "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "Component.destroyed",
+										"target": 11,
+										"tsLinkText": ""
+									},
+									{
+										"kind": "text",
+										"text": " "
+									},
+									{
+										"kind": "code",
+										"text": "````true````"
+									},
+									{
+										"kind": "text",
+										"text": ".\r\n\r\nCancels any deferred state updates."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 140,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L140"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 25,
+					"name": "error",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isProtected": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 101,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L101"
+						}
+					],
+					"signatures": [
+						{
+							"id": 26,
+							"name": "error",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {
+								"isProtected": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Logs an error for this component to the JavaScript console.\r\n\r\nThe console message will have this format: *"
+									},
+									{
+										"kind": "code",
+										"text": "````[ERROR] [<component type> =<component id>: <message>````"
+									},
+									{
+										"kind": "text",
+										"text": "*"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 101,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L101"
+								}
+							],
+							"parameters": [
+								{
+									"id": 27,
+									"name": "message",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The error message to log"
+											}
+										]
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 19,
+					"name": "log",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isProtected": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 77,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L77"
+						}
+					],
+					"signatures": [
+						{
+							"id": 20,
+							"name": "log",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {
+								"isProtected": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Logs a message for this component.\r\n\r\nThe message will have this format: *"
+									},
+									{
+										"kind": "code",
+										"text": "````[LOG] [<component type> <component id>: <message>````"
+									},
+									{
+										"kind": "text",
+										"text": "*"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 77,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L77"
+								}
+							],
+							"parameters": [
+								{
+									"id": 21,
+									"name": "message",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The message to log"
+											}
+										]
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 28,
+					"name": "setDirty",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isProtected": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 108,
+							"character": 14,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L108"
+						}
+					],
+					"signatures": [
+						{
+							"id": 29,
+							"name": "setDirty",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Flags this component as having a defered state updates it needs to perform."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 108,
+									"character": 14,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L108"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 22,
+					"name": "warn",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isProtected": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Component.ts",
+							"line": 89,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L89"
+						}
+					],
+					"signatures": [
+						{
+							"id": 23,
+							"name": "warn",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {
+								"isProtected": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Logs a warning for this component to the JavaScript console.\r\n\r\nThe console message will have this format: *"
+									},
+									{
+										"kind": "code",
+										"text": "````[WARN] [<component type> =<component id>: <message>````"
+									},
+									{
+										"kind": "text",
+										"text": "*"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/Component.ts",
+									"line": 89,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L89"
+								}
+							],
+							"parameters": [
+								{
+									"id": 24,
+									"name": "message",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The warning message to log"
+											}
+										]
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						2
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						14,
+						13,
+						11,
+						12,
+						10
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						39,
+						36,
+						32,
+						30,
+						34,
+						25,
+						19,
+						28,
+						22
+					]
+				},
+				{
+					"title": "Events",
+					"children": [
+						18
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "packages/core/src/Component.ts",
+					"line": 27,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Component.ts#L27"
+				}
+			]
+		},
+		{
+			"id": 59,
+			"name": "EventEmitter",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Event emitter."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 60,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 13,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L13"
+						}
+					],
+					"signatures": [
+						{
+							"id": 61,
+							"name": "new EventEmitter",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 13,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L13"
+								}
+							],
+							"typeParameter": [
+								{
+									"id": 62,
+									"name": "TSender",
+									"variant": "typeParam",
+									"kind": 131072,
+									"flags": {}
+								},
+								{
+									"id": 63,
+									"name": "TArgs",
+									"variant": "typeParam",
+									"kind": 131072,
+									"flags": {}
+								}
+							],
+							"parameters": [
+								{
+									"id": 64,
+									"name": "ievent",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../../node_modules/.pnpm/ste-events@3.0.11/node_modules/ste-events/dist/IEvent.d.ts",
+											"qualifiedName": "IEvent"
+										},
+										"typeArguments": [
+											{
+												"type": "reference",
+												"target": 62,
+												"name": "TSender",
+												"package": "@xeokit/core",
+												"qualifiedName": "EventEmitter.TSender",
+												"refersToTypeParameter": true
+											},
+											{
+												"type": "reference",
+												"target": 63,
+												"name": "TArgs",
+												"package": "@xeokit/core",
+												"qualifiedName": "EventEmitter.TArgs",
+												"refersToTypeParameter": true
+											}
+										],
+										"name": "IEvent",
+										"package": "ste-events"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 59,
+								"typeArguments": [
+									{
+										"type": "reference",
+										"target": 62,
+										"name": "TSender",
+										"package": "@xeokit/core",
+										"qualifiedName": "EventEmitter.TSender",
+										"refersToTypeParameter": true
+									},
+									{
+										"type": "reference",
+										"target": 63,
+										"name": "TArgs",
+										"package": "@xeokit/core",
+										"qualifiedName": "EventEmitter.TArgs",
+										"refersToTypeParameter": true
+									}
+								],
+								"name": "EventEmitter",
+								"package": "@xeokit/core"
+							}
+						}
+					]
+				},
+				{
+					"id": 65,
+					"name": "#ievent",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 11,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L11"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				},
+				{
+					"id": 66,
+					"name": "count",
+					"variant": "declaration",
+					"kind": 262144,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 20,
+							"character": 8,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L20"
+						}
+					],
+					"getSignature": {
+						"id": 67,
+						"name": "count",
+						"variant": "signature",
+						"kind": 524288,
+						"flags": {},
+						"comment": {
+							"summary": [
+								{
+									"kind": "text",
+									"text": "Returns the number of subscriptions."
+								}
+							]
+						},
+						"sources": [
+							{
+								"fileName": "packages/core/src/EventEmitter.ts",
+								"line": 20,
+								"character": 8,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L20"
+							}
+						],
+						"type": {
+							"type": "intrinsic",
+							"name": "number"
+						}
+					}
+				},
+				{
+					"id": 120,
+					"name": "clear",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 86,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L86"
+						}
+					],
+					"signatures": [
+						{
+							"id": 121,
+							"name": "clear",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Clears all the subscriptions."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 86,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L86"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 77,
+					"name": "dispatch",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 38,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L38"
+						}
+					],
+					"signatures": [
+						{
+							"id": 78,
+							"name": "dispatch",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {
+								"isPrivate": true
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 38,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L38"
+								}
+							],
+							"parameters": [
+								{
+									"id": 79,
+									"name": "sender",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 62,
+										"name": "TSender",
+										"package": "@xeokit/core",
+										"qualifiedName": "EventEmitter.TSender",
+										"refersToTypeParameter": true
+									}
+								},
+								{
+									"id": 80,
+									"name": "args",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 63,
+										"name": "TArgs",
+										"package": "@xeokit/core",
+										"qualifiedName": "EventEmitter.TArgs",
+										"refersToTypeParameter": true
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 113,
+					"name": "has",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 79,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L79"
+						}
+					],
+					"signatures": [
+						{
+							"id": 114,
+							"name": "has",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Checks if the event has a subscription for the specified handler."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 79,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L79"
+								}
+							],
+							"parameters": [
+								{
+									"id": 115,
+									"name": "func",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The event handler."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 116,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 79,
+													"character": 14,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L79"
+												}
+											],
+											"signatures": [
+												{
+													"id": 117,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/core/src/EventEmitter.ts",
+															"line": 79,
+															"character": 14,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L79"
+														}
+													],
+													"parameters": [
+														{
+															"id": 118,
+															"name": "a",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 62,
+																"name": "TSender",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TSender",
+																"refersToTypeParameter": true
+															}
+														},
+														{
+															"id": 119,
+															"name": "b",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 63,
+																"name": "TArgs",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TArgs",
+																"refersToTypeParameter": true
+															}
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "boolean"
+							}
+						}
+					]
+				},
+				{
+					"id": 104,
+					"name": "one",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 71,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L71"
+						}
+					],
+					"signatures": [
+						{
+							"id": 105,
+							"name": "one",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Subscribes to the event only once."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "A function that unsubscribes the event handler from the event."
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 71,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L71"
+								}
+							],
+							"parameters": [
+								{
+									"id": 106,
+									"name": "func",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The event handler that is called when the event is dispatched."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 107,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 71,
+													"character": 14,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L71"
+												}
+											],
+											"signatures": [
+												{
+													"id": 108,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/core/src/EventEmitter.ts",
+															"line": 71,
+															"character": 14,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L71"
+														}
+													],
+													"parameters": [
+														{
+															"id": 109,
+															"name": "a",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 62,
+																"name": "TSender",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TSender",
+																"refersToTypeParameter": true
+															}
+														},
+														{
+															"id": 110,
+															"name": "b",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 63,
+																"name": "TArgs",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TArgs",
+																"refersToTypeParameter": true
+															}
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 111,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/EventEmitter.ts",
+											"line": 71,
+											"character": 47,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L71"
+										}
+									],
+									"signatures": [
+										{
+											"id": 112,
+											"name": "__type",
+											"variant": "signature",
+											"kind": 4096,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 71,
+													"character": 47,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L71"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"id": 81,
+					"name": "sub",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 47,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L47"
+						}
+					],
+					"signatures": [
+						{
+							"id": 82,
+							"name": "sub",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Subscribe to the event."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "A function that unsubscribes the event handler from the event."
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 47,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L47"
+								}
+							],
+							"parameters": [
+								{
+									"id": 83,
+									"name": "func",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The event handler that is called when the event is dispatched."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 84,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 47,
+													"character": 14,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L47"
+												}
+											],
+											"signatures": [
+												{
+													"id": 85,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/core/src/EventEmitter.ts",
+															"line": 47,
+															"character": 14,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L47"
+														}
+													],
+													"parameters": [
+														{
+															"id": 86,
+															"name": "a",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 62,
+																"name": "TSender",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TSender",
+																"refersToTypeParameter": true
+															}
+														},
+														{
+															"id": 87,
+															"name": "b",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 63,
+																"name": "TArgs",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TArgs",
+																"refersToTypeParameter": true
+															}
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 88,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/EventEmitter.ts",
+											"line": 47,
+											"character": 47,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L47"
+										}
+									],
+									"signatures": [
+										{
+											"id": 89,
+											"name": "__type",
+											"variant": "signature",
+											"kind": 4096,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 47,
+													"character": 47,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L47"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"id": 68,
+					"name": "subscribe",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 29,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L29"
+						}
+					],
+					"signatures": [
+						{
+							"id": 69,
+							"name": "subscribe",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Subscribe to the event."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "Function that unsubscribes the event handler from the event."
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 29,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L29"
+								}
+							],
+							"parameters": [
+								{
+									"id": 70,
+									"name": "func",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The event handler that is called when the event is dispatched."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 71,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 29,
+													"character": 20,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L29"
+												}
+											],
+											"signatures": [
+												{
+													"id": 72,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/core/src/EventEmitter.ts",
+															"line": 29,
+															"character": 20,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L29"
+														}
+													],
+													"parameters": [
+														{
+															"id": 73,
+															"name": "a",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 62,
+																"name": "TSender",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TSender",
+																"refersToTypeParameter": true
+															}
+														},
+														{
+															"id": 74,
+															"name": "b",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 63,
+																"name": "TArgs",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TArgs",
+																"refersToTypeParameter": true
+															}
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 75,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/EventEmitter.ts",
+											"line": 29,
+											"character": 53,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L29"
+										}
+									],
+									"signatures": [
+										{
+											"id": 76,
+											"name": "__type",
+											"variant": "signature",
+											"kind": 4096,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 29,
+													"character": 53,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L29"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"id": 97,
+					"name": "unsub",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 62,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L62"
+						}
+					],
+					"signatures": [
+						{
+							"id": 98,
+							"name": "unsub",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Unsubscribe from the event."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 62,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L62"
+								}
+							],
+							"parameters": [
+								{
+									"id": 99,
+									"name": "func",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The event handler that will be unsubsribed from the event."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 100,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 62,
+													"character": 16,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L62"
+												}
+											],
+											"signatures": [
+												{
+													"id": 101,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/core/src/EventEmitter.ts",
+															"line": 62,
+															"character": 16,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L62"
+														}
+													],
+													"parameters": [
+														{
+															"id": 102,
+															"name": "a",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 62,
+																"name": "TSender",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TSender",
+																"refersToTypeParameter": true
+															}
+														},
+														{
+															"id": 103,
+															"name": "b",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 63,
+																"name": "TArgs",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TArgs",
+																"refersToTypeParameter": true
+															}
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 90,
+					"name": "unsubscribe",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/EventEmitter.ts",
+							"line": 54,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L54"
+						}
+					],
+					"signatures": [
+						{
+							"id": 91,
+							"name": "unsubscribe",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Unsubscribe from the event."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/EventEmitter.ts",
+									"line": 54,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L54"
+								}
+							],
+							"parameters": [
+								{
+									"id": 92,
+									"name": "func",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "The event handler that will be unsubsribed from the event."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 93,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/core/src/EventEmitter.ts",
+													"line": 54,
+													"character": 22,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L54"
+												}
+											],
+											"signatures": [
+												{
+													"id": 94,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/core/src/EventEmitter.ts",
+															"line": 54,
+															"character": 22,
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L54"
+														}
+													],
+													"parameters": [
+														{
+															"id": 95,
+															"name": "a",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 62,
+																"name": "TSender",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TSender",
+																"refersToTypeParameter": true
+															}
+														},
+														{
+															"id": 96,
+															"name": "b",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "reference",
+																"target": 63,
+																"name": "TArgs",
+																"package": "@xeokit/core",
+																"qualifiedName": "EventEmitter.TArgs",
+																"refersToTypeParameter": true
+															}
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						60
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						65
+					]
+				},
+				{
+					"title": "Accessors",
+					"children": [
+						66
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						120,
+						77,
+						113,
+						104,
+						81,
+						68,
+						97,
+						90
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "packages/core/src/EventEmitter.ts",
+					"line": 9,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/EventEmitter.ts#L9"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 122,
+					"name": "TSender",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Type of the event sender"
+							}
+						]
+					}
+				},
+				{
+					"id": 123,
+					"name": "TArgs",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Type of the event argument"
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"id": 42,
+			"name": "SDKError",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Basic xeokit SDK error type."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 53,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {
+						"isExternal": true
+					},
+					"sources": [
+						{
+							"fileName": "node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"line": 1059,
+							"character": 4
+						}
+					],
+					"signatures": [
+						{
+							"id": 54,
+							"name": "new SDKError",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {
+								"isExternal": true
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1059,
+									"character": 4
+								}
+							],
+							"parameters": [
+								{
+									"id": 55,
+									"name": "message",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isExternal": true,
+										"isOptional": true
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 42,
+								"name": "SDKError",
+								"package": "@xeokit/core"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": -1,
+								"name": "Error.constructor"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": -1,
+						"name": "Error.constructor"
+					}
+				},
+				{
+					"id": 57,
+					"name": "message",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isExternal": true
+					},
+					"sources": [
+						{
+							"fileName": "node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"line": 1054,
+							"character": 4
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": -1,
+						"name": "Error.message"
+					}
+				},
+				{
+					"id": 56,
+					"name": "name",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isExternal": true
+					},
+					"sources": [
+						{
+							"fileName": "node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"line": 1053,
+							"character": 4
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": -1,
+						"name": "Error.name"
+					}
+				},
+				{
+					"id": 58,
+					"name": "stack",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isExternal": true,
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"line": 1055,
+							"character": 4
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": -1,
+						"name": "Error.stack"
+					}
+				},
+				{
+					"id": 47,
+					"name": "prepareStackTrace",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isStatic": true,
+						"isExternal": true,
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Optional override for formatting stack traces"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@see",
+								"content": [
+									{
+										"kind": "text",
+										"text": "https://v8.dev/docs/stack-trace-api#customizing-stack-traces"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+							"line": 11,
+							"character": 4
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 48,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {
+								"isExternal": true
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+									"line": 11,
+									"character": 25
+								}
+							],
+							"signatures": [
+								{
+									"id": 49,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {
+										"isExternal": true
+									},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Optional override for formatting stack traces"
+											}
+										],
+										"blockTags": [
+											{
+												"tag": "@see",
+												"content": [
+													{
+														"kind": "text",
+														"text": "https://v8.dev/docs/stack-trace-api#customizing-stack-traces"
+													}
+												]
+											}
+										]
+									},
+									"sources": [
+										{
+											"fileName": "node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+											"line": 11,
+											"character": 25
+										}
+									],
+									"parameters": [
+										{
+											"id": 50,
+											"name": "err",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {
+												"isExternal": true
+											},
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+													"qualifiedName": "Error"
+												},
+												"name": "Error",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 51,
+											"name": "stackTraces",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {
+												"isExternal": true
+											},
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "reference",
+													"target": {
+														"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+														"qualifiedName": "NodeJS.CallSite"
+													},
+													"name": "CallSite",
+													"package": "@types/node",
+													"qualifiedName": "NodeJS.CallSite"
+												}
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								}
+							]
+						}
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": -1,
+						"name": "Error.prepareStackTrace"
+					}
+				},
+				{
+					"id": 52,
+					"name": "stackTraceLimit",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isStatic": true,
+						"isExternal": true
+					},
+					"sources": [
+						{
+							"fileName": "node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+							"line": 13,
+							"character": 4
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": -1,
+						"name": "Error.stackTraceLimit"
+					}
+				},
+				{
+					"id": 43,
+					"name": "captureStackTrace",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isStatic": true,
+						"isExternal": true
+					},
+					"sources": [
+						{
+							"fileName": "node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+							"line": 4,
+							"character": 4
+						}
+					],
+					"signatures": [
+						{
+							"id": 44,
+							"name": "captureStackTrace",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {
+								"isExternal": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Create .stack property on a target object"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+									"line": 4,
+									"character": 4
+								}
+							],
+							"parameters": [
+								{
+									"id": 45,
+									"name": "targetObject",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isExternal": true
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "object"
+									}
+								},
+								{
+									"id": 46,
+									"name": "constructorOpt",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isExternal": true,
+										"isOptional": true
+									},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+											"qualifiedName": "Function"
+										},
+										"name": "Function",
+										"package": "typescript"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"target": -1,
+								"name": "Error.captureStackTrace"
+							}
+						}
+					],
+					"inheritedFrom": {
+						"type": "reference",
+						"target": -1,
+						"name": "Error.captureStackTrace"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						53
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						57,
+						56,
+						58,
+						47,
+						52
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						43
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "packages/core/src/SDKError.ts",
+					"line": 4,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/SDKError.ts#L4"
+				}
+			],
+			"extendedTypes": [
+				{
+					"type": "reference",
+					"target": {
+						"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+						"qualifiedName": "Error"
+					},
+					"name": "Error",
+					"package": "typescript"
+				}
+			]
+		},
+		{
+			"id": 124,
+			"name": "Capabilities",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A set of capability flags."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 127,
+					"name": "astcSupported",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Support for ASTC texture compression?"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Capabilities.ts",
+							"line": 21,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L21"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 132,
+					"name": "bptcSupported",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Support for BPTC texture format(s)?"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Capabilities.ts",
+							"line": 46,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L46"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 131,
+					"name": "dxtSupported",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Support for DXT texture compression?"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Capabilities.ts",
+							"line": 41,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L41"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 128,
+					"name": "etc1Supported",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Support for ETC1 texture compression?"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Capabilities.ts",
+							"line": 26,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L26"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 130,
+					"name": "etc2Supported",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Support for ETC2 texture compression?"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Capabilities.ts",
+							"line": 36,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L36"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 126,
+					"name": "headless",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Does the renderers run headless?\r\n\r\nThis is "
+							},
+							{
+								"kind": "code",
+								"text": "`true`"
+							},
+							{
+								"kind": "text",
+								"text": " when the renderers is a \"mock renderers\", that works without rendering anything."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Capabilities.ts",
+							"line": 16,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L16"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 125,
+					"name": "maxViews",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Maximum number of Views allowed."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Capabilities.ts",
+							"line": 9,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L9"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 129,
+					"name": "pvrtcSupported",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Support for PVRTC texture compression?"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "packages/core/src/Capabilities.ts",
+							"line": 31,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L31"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						127,
+						132,
+						131,
+						128,
+						130,
+						126,
+						125,
+						129
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "packages/core/src/Capabilities.ts",
+					"line": 4,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/Capabilities.ts#L4"
+				}
+			]
+		},
+		{
+			"id": 144,
+			"name": "TextureCompressedParams",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Compressed texture data.\r\n\r\n* Created by a "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "@xeokit/core!TextureTranscoder.transcode | TextureTranscoder.transcode"
+					},
+					{
+						"kind": "text",
+						"text": " from transcoded texture data."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 145,
+					"name": "mipmaps",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/TextureCompressedParams.ts",
+							"line": 7,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L7"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reflection",
+							"declaration": {
+								"id": 146,
+								"name": "__type",
+								"variant": "declaration",
+								"kind": 65536,
+								"flags": {},
+								"children": [
+									{
+										"id": 147,
+										"name": "data",
+										"variant": "declaration",
+										"kind": 1024,
+										"flags": {},
+										"sources": [
+											{
+												"fileName": "packages/core/src/TextureCompressedParams.ts",
+												"line": 8,
+												"character": 8,
+												"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L8"
+											}
+										],
+										"type": {
+											"type": "reference",
+											"target": {
+												"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+												"qualifiedName": "Uint8Array"
+											},
+											"name": "Uint8Array",
+											"package": "typescript"
+										}
+									},
+									{
+										"id": 149,
+										"name": "height",
+										"variant": "declaration",
+										"kind": 1024,
+										"flags": {},
+										"sources": [
+											{
+												"fileName": "packages/core/src/TextureCompressedParams.ts",
+												"line": 10,
+												"character": 8,
+												"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L10"
+											}
+										],
+										"type": {
+											"type": "intrinsic",
+											"name": "number"
+										}
+									},
+									{
+										"id": 148,
+										"name": "width",
+										"variant": "declaration",
+										"kind": 1024,
+										"flags": {},
+										"sources": [
+											{
+												"fileName": "packages/core/src/TextureCompressedParams.ts",
+												"line": 9,
+												"character": 8,
+												"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L9"
+											}
+										],
+										"type": {
+											"type": "intrinsic",
+											"name": "number"
+										}
+									}
+								],
+								"groups": [
+									{
+										"title": "Properties",
+										"children": [
+											147,
+											149,
+											148
+										]
+									}
+								],
+								"sources": [
+									{
+										"fileName": "packages/core/src/TextureCompressedParams.ts",
+										"line": 7,
+										"character": 13,
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L7"
+									}
+								]
+							}
+						}
+					}
+				},
+				{
+					"id": 150,
+					"name": "props",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/TextureCompressedParams.ts",
+							"line": 12,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L12"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 151,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 162,
+									"name": "encoding",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 23,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L23"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 156,
+									"name": "flipY",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 17,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L17"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "boolean"
+									}
+								},
+								{
+									"id": 159,
+									"name": "format",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 20,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L20"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 158,
+									"name": "internalFormat",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 19,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L19"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 161,
+									"name": "magFilter",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 22,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L22"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 160,
+									"name": "minFilter",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 21,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L21"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 163,
+									"name": "premultiplyAlpha",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 24,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L24"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "boolean"
+									}
+								},
+								{
+									"id": 157,
+									"name": "type",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 18,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L18"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 155,
+									"name": "unpackAlignment",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 16,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L16"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 154,
+									"name": "wrapR",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 15,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L15"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 152,
+									"name": "wrapS",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 13,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L13"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 153,
+									"name": "wrapT",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "packages/core/src/TextureCompressedParams.ts",
+											"line": 14,
+											"character": 8,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L14"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										162,
+										156,
+										159,
+										158,
+										161,
+										160,
+										163,
+										157,
+										155,
+										154,
+										152,
+										153
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "packages/core/src/TextureCompressedParams.ts",
+									"line": 12,
+									"character": 11,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L12"
+								}
+							]
+						}
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						145,
+						150
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "packages/core/src/TextureCompressedParams.ts",
+					"line": 6,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureCompressedParams.ts#L6"
+				}
+			]
+		},
+		{
+			"id": 133,
+			"name": "TextureTranscoder",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Defines the interface for xeokit texture decompression strategies."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 142,
+					"name": "destroy",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/TextureTranscoder.ts",
+							"line": 33,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureTranscoder.ts#L33"
+						}
+					],
+					"signatures": [
+						{
+							"id": 143,
+							"name": "destroy",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Destroys this transcoder."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/TextureTranscoder.ts",
+									"line": 33,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureTranscoder.ts#L33"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 134,
+					"name": "init",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/TextureTranscoder.ts",
+							"line": 18,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureTranscoder.ts#L18"
+						}
+					],
+					"signatures": [
+						{
+							"id": 135,
+							"name": "init",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Initializes this transcoder."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/TextureTranscoder.ts",
+									"line": 18,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureTranscoder.ts#L18"
+								}
+							],
+							"parameters": [
+								{
+									"id": 136,
+									"name": "capabilities",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "A set of flags indicating the capabilities of this TextureTranscoder."
+											}
+										]
+									},
+									"type": {
+										"type": "reference",
+										"target": 124,
+										"name": "Capabilities",
+										"package": "@xeokit/core"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 137,
+					"name": "transcode",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/core/src/TextureTranscoder.ts",
+							"line": 28,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureTranscoder.ts#L28"
+						}
+					],
+					"signatures": [
+						{
+							"id": 138,
+							"name": "transcode",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Transcodes texture data from transcoded buffers."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "Transcoded output texture data."
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "packages/core/src/TextureTranscoder.ts",
+									"line": 28,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureTranscoder.ts#L28"
+								}
+							],
+							"parameters": [
+								{
+									"id": 139,
+									"name": "buffers",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Transcoded input texture data. Given as an array of buffers so that we can\r\nsupport multi-image textures, such as cube maps."
+											}
+										]
+									},
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "reference",
+											"target": {
+												"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+												"qualifiedName": "ArrayBuffer"
+											},
+											"name": "ArrayBuffer",
+											"package": "typescript"
+										}
+									}
+								},
+								{
+									"id": 140,
+									"name": "config",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isOptional": true
+									},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Transcoding options."
+											}
+										]
+									},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 141,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {}
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "reference",
+										"target": 144,
+										"name": "TextureCompressedParams",
+										"package": "@xeokit/core"
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Methods",
+					"children": [
+						142,
+						134,
+						137
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "packages/core/src/TextureTranscoder.ts",
+					"line": 11,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/core/src/TextureTranscoder.ts#L11"
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Classes",
+			"children": [
+				1,
+				59,
+				42
+			]
+		},
+		{
+			"title": "Interfaces",
+			"children": [
+				124,
+				144,
+				133
+			]
+		}
+	],
+	"packageName": "@xeokit/core",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/core\r\n\r\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_core.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component"
+		},
+		"2": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.__constructor"
+		},
+		"3": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component"
+		},
+		"4": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "owner"
+		},
+		"5": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "cfg"
+		},
+		"6": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "__type"
+		},
+		"7": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "__type.id"
+		},
+		"8": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"10": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.id"
+		},
+		"11": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.destroyed"
+		},
+		"12": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.dirty"
+		},
+		"13": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.#owner"
+		},
+		"14": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.#ownedComponents"
+		},
+		"15": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "__type"
+		},
+		"16": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"18": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.onDestroyed"
+		},
+		"19": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.log"
+		},
+		"20": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.log"
+		},
+		"21": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "message"
+		},
+		"22": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.warn"
+		},
+		"23": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.warn"
+		},
+		"24": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "message"
+		},
+		"25": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.error"
+		},
+		"26": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.error"
+		},
+		"27": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "message"
+		},
+		"28": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.setDirty"
+		},
+		"29": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.setDirty"
+		},
+		"30": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.cleanIfDirty"
+		},
+		"31": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.cleanIfDirty"
+		},
+		"32": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.clean"
+		},
+		"33": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.clean"
+		},
+		"34": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.destroy"
+		},
+		"35": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.destroy"
+		},
+		"36": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.#prefixMessageWithID"
+		},
+		"37": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.#prefixMessageWithID"
+		},
+		"38": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "message"
+		},
+		"39": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.#own"
+		},
+		"40": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "Component.#own"
+		},
+		"41": {
+			"sourceFileName": "src/Component.ts",
+			"qualifiedName": "component"
+		},
+		"42": {
+			"sourceFileName": "src/SDKError.ts",
+			"qualifiedName": "SDKError"
+		},
+		"43": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "ErrorConstructor.captureStackTrace"
+		},
+		"44": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "ErrorConstructor.captureStackTrace"
+		},
+		"45": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "targetObject"
+		},
+		"46": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "constructorOpt"
+		},
+		"47": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "ErrorConstructor.prepareStackTrace"
+		},
+		"48": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "__type"
+		},
+		"49": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "__type"
+		},
+		"50": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "err"
+		},
+		"51": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "stackTraces"
+		},
+		"52": {
+			"sourceFileName": "../../node_modules/.pnpm/@types+node@18.11.10/node_modules/@types/node/globals.d.ts",
+			"qualifiedName": "ErrorConstructor.stackTraceLimit"
+		},
+		"53": {
+			"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+			"qualifiedName": "ErrorConstructor.__new"
+		},
+		"54": {
+			"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+			"qualifiedName": "SDKError"
+		},
+		"55": {
+			"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+			"qualifiedName": "message"
+		},
+		"56": {
+			"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+			"qualifiedName": "Error.name"
+		},
+		"57": {
+			"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+			"qualifiedName": "Error.message"
+		},
+		"58": {
+			"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+			"qualifiedName": "Error.stack"
+		},
+		"59": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter"
+		},
+		"60": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.__constructor"
+		},
+		"61": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter"
+		},
+		"62": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.TSender"
+		},
+		"63": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.TArgs"
+		},
+		"64": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "ievent"
+		},
+		"65": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.#ievent"
+		},
+		"66": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.count"
+		},
+		"67": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.count"
+		},
+		"68": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.subscribe"
+		},
+		"69": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.subscribe"
+		},
+		"70": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "func"
+		},
+		"71": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"72": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"73": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "a"
+		},
+		"74": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "b"
+		},
+		"75": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"76": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"77": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.dispatch"
+		},
+		"78": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.dispatch"
+		},
+		"79": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "sender"
+		},
+		"80": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "args"
+		},
+		"81": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.sub"
+		},
+		"82": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.sub"
+		},
+		"83": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "func"
+		},
+		"84": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"85": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"86": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "a"
+		},
+		"87": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "b"
+		},
+		"88": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"89": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"90": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.unsubscribe"
+		},
+		"91": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.unsubscribe"
+		},
+		"92": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "func"
+		},
+		"93": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"94": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"95": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "a"
+		},
+		"96": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "b"
+		},
+		"97": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.unsub"
+		},
+		"98": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.unsub"
+		},
+		"99": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "func"
+		},
+		"100": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"101": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"102": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "a"
+		},
+		"103": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "b"
+		},
+		"104": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.one"
+		},
+		"105": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.one"
+		},
+		"106": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "func"
+		},
+		"107": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"108": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"109": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "a"
+		},
+		"110": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "b"
+		},
+		"111": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"112": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"113": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.has"
+		},
+		"114": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.has"
+		},
+		"115": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "func"
+		},
+		"116": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"117": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "__type"
+		},
+		"118": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "a"
+		},
+		"119": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "b"
+		},
+		"120": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.clear"
+		},
+		"121": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.clear"
+		},
+		"122": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.TSender"
+		},
+		"123": {
+			"sourceFileName": "src/EventEmitter.ts",
+			"qualifiedName": "EventEmitter.TArgs"
+		},
+		"124": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities"
+		},
+		"125": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities.maxViews"
+		},
+		"126": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities.headless"
+		},
+		"127": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities.astcSupported"
+		},
+		"128": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities.etc1Supported"
+		},
+		"129": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities.pvrtcSupported"
+		},
+		"130": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities.etc2Supported"
+		},
+		"131": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities.dxtSupported"
+		},
+		"132": {
+			"sourceFileName": "src/Capabilities.ts",
+			"qualifiedName": "Capabilities.bptcSupported"
+		},
+		"133": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "TextureTranscoder"
+		},
+		"134": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "TextureTranscoder.init"
+		},
+		"135": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "TextureTranscoder.init"
+		},
+		"136": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "capabilities"
+		},
+		"137": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "TextureTranscoder.transcode"
+		},
+		"138": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "TextureTranscoder.transcode"
+		},
+		"139": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "buffers"
+		},
+		"140": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "config"
+		},
+		"141": {
+			"sourceFileName": "",
+			"qualifiedName": "__type"
+		},
+		"142": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "TextureTranscoder.destroy"
+		},
+		"143": {
+			"sourceFileName": "src/TextureTranscoder.ts",
+			"qualifiedName": "TextureTranscoder.destroy"
+		},
+		"144": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "TextureCompressedParams"
+		},
+		"145": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "TextureCompressedParams.mipmaps"
+		},
+		"146": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type"
+		},
+		"147": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.data"
+		},
+		"148": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.width"
+		},
+		"149": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.height"
+		},
+		"150": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "TextureCompressedParams.props"
+		},
+		"151": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type"
+		},
+		"152": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.wrapS"
+		},
+		"153": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.wrapT"
+		},
+		"154": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.wrapR"
+		},
+		"155": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.unpackAlignment"
+		},
+		"156": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.flipY"
+		},
+		"157": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.type"
+		},
+		"158": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.internalFormat"
+		},
+		"159": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.format"
+		},
+		"160": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.minFilter"
+		},
+		"161": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.magFilter"
+		},
+		"162": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.encoding"
+		},
+		"163": {
+			"sourceFileName": "src/TextureCompressedParams.ts",
+			"qualifiedName": "__type.premultiplyAlpha"
+		}
+	}
+}

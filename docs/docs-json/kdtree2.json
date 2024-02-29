@@ -1,0 +1,1446 @@
+{
+	"id": 0,
+	"name": "@xeokit/kdtree2",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fcompression.svg)](https://badge.fury.io/js/%40xeokit%2Fcompression)\r\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/kdtree/badge)](https://www.jsdelivr.com/package/npm/@xeokit/kdtree)\r\n\r\n<img style=\"padding:30px; height=200px;\" src=\"media://images/kdtree2d.png\"/>\r\n\r\n# xeokit 2D Collision Utilities\r\n\r\n---\r\n\r\n### *Tools for spatial searches and collision tests with 2D k-d trees and boundaries*\r\n\r\n---\r\n\r\n## Installation\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\r\nnpm install @xeokit/kdtree2\r\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Dependencies\r\n\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/scene\""
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/core\""
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/math\""
+			},
+			{
+				"kind": "text",
+				"text": "\r\n* "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/boundaries\""
+			},
+			{
+				"kind": "text",
+				"text": "\r\n\r\n## Usage\r\n\r\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\r\n\r\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 17,
+			"name": "KdTree2",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A static 2D k-d tree.\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree2\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 18,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 88,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L88"
+						}
+					],
+					"signatures": [
+						{
+							"id": 19,
+							"name": "new KdTree2",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new 2D k-d tree."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KdTree2.ts",
+									"line": 88,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L88"
+								}
+							],
+							"parameters": [
+								{
+									"id": 20,
+									"name": "params",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {
+										"isOptional": true
+									},
+									"type": {
+										"type": "reference",
+										"target": 14,
+										"name": "KdTree2DParams",
+										"package": "@xeokit/kdtree2"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 17,
+								"name": "KdTree2",
+								"package": "@xeokit/kdtree2"
+							}
+						}
+					]
+				},
+				{
+					"id": 22,
+					"name": "maxDepth",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isReadonly": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The maximum allowed depth of this 2D k-d tree."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 81,
+							"character": 13,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L81"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 21,
+					"name": "root",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isReadonly": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The root node in this k-d tree."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 76,
+							"character": 13,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L76"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 9,
+						"name": "KdNode2D",
+						"package": "@xeokit/kdtree2"
+					}
+				},
+				{
+					"id": 27,
+					"name": "#insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isPrivate": true
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 107,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L107"
+						}
+					],
+					"signatures": [
+						{
+							"id": 28,
+							"name": "#insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "KdTree2.ts",
+									"line": 107,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L107"
+								}
+							],
+							"parameters": [
+								{
+									"id": 29,
+									"name": "node",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 9,
+										"name": "KdNode2D",
+										"package": "@xeokit/kdtree2"
+									}
+								},
+								{
+									"id": 30,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": 7,
+										"name": "KdItem2D",
+										"package": "@xeokit/kdtree2"
+									}
+								},
+								{
+									"id": 31,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "IntArrayParam"
+										},
+										"name": "IntArrayParam",
+										"package": "@xeokit/math"
+									}
+								},
+								{
+									"id": 32,
+									"name": "depth",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				},
+				{
+					"id": 23,
+					"name": "insertItem",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 103,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L103"
+						}
+					],
+					"signatures": [
+						{
+							"id": 24,
+							"name": "insertItem",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Inserts a bounded item into this 2D k-d tree."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "KdTree2.ts",
+									"line": 103,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L103"
+								}
+							],
+							"parameters": [
+								{
+									"id": 25,
+									"name": "item",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 26,
+									"name": "aabb",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../math/src/index.ts",
+											"qualifiedName": "IntArrayParam"
+										},
+										"name": "IntArrayParam",
+										"package": "@xeokit/math"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						18
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						22,
+						21
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						27,
+						23
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdTree2.ts",
+					"line": 71,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L71"
+				}
+			]
+		},
+		{
+			"id": 1,
+			"name": "KdVertex2",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "TODO"
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 2,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"signatures": [
+						{
+							"id": 3,
+							"name": "new KdVertex2",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 1,
+								"name": "KdVertex2",
+								"package": "@xeokit/kdtree2"
+							}
+						}
+					]
+				},
+				{
+					"id": 6,
+					"name": "canvasPos",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdVertex2.ts",
+							"line": 10,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdVertex2.ts#L10"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "IntArrayParam"
+						},
+						"name": "IntArrayParam",
+						"package": "@xeokit/math"
+					}
+				},
+				{
+					"id": 4,
+					"name": "sceneObject",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdVertex2.ts",
+							"line": 8,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdVertex2.ts#L8"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../scene/src/SceneObject.ts",
+							"qualifiedName": "SceneObject"
+						},
+						"name": "SceneObject",
+						"package": "@xeokit/scene"
+					}
+				},
+				{
+					"id": 5,
+					"name": "worldPos",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "KdVertex2.ts",
+							"line": 9,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdVertex2.ts#L9"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						2
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						6,
+						4,
+						5
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdVertex2.ts",
+					"line": 7,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdVertex2.ts#L7"
+				}
+			]
+		},
+		{
+			"id": 7,
+			"name": "KdItem2D",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "An item stored in a 2D k-d tree.\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree2\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 8,
+					"name": "item",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The item stored in this KdItem2D."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 17,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L17"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						8
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdTree2.ts",
+					"line": 12,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L12"
+				}
+			]
+		},
+		{
+			"id": 9,
+			"name": "KdNode2D",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A 2D k-d tree node.\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree2\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 10,
+					"name": "aabb",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The axis-aligned 2D boundary of this kd-tree node."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 30,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L30"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				},
+				{
+					"id": 13,
+					"name": "items",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "KdItem2Ds",
+								"target": 7,
+								"tsLinkText": "KdItem2Ds"
+							},
+							{
+								"kind": "text",
+								"text": " stored in this KD2Node."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 45,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L45"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reference",
+							"target": 7,
+							"name": "KdItem2D",
+							"package": "@xeokit/kdtree2"
+						}
+					}
+				},
+				{
+					"id": 11,
+					"name": "left",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The left KD2Node."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 35,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L35"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 9,
+						"name": "KdNode2D",
+						"package": "@xeokit/kdtree2"
+					}
+				},
+				{
+					"id": 12,
+					"name": "right",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The right KD2Node."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 40,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L40"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 9,
+						"name": "KdNode2D",
+						"package": "@xeokit/kdtree2"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						10,
+						13,
+						11,
+						12
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdTree2.ts",
+					"line": 25,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L25"
+				}
+			]
+		},
+		{
+			"id": 14,
+			"name": "KdTree2DParams",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Parameters for creating a 2D k-d tree.\r\n\r\nSee "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "\"@xeokit/kdtree2\""
+					},
+					{
+						"kind": "text",
+						"text": " for usage."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 15,
+					"name": "aabb",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The 2D boundary of all the nodes we'll add to this k-d tree."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 58,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L58"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				},
+				{
+					"id": 16,
+					"name": "maxDepth",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Maximum depth of the 2D kd-tree."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "KdTree2.ts",
+							"line": 63,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L63"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						15,
+						16
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "KdTree2.ts",
+					"line": 53,
+					"character": 17,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/KdTree2.ts#L53"
+				}
+			]
+		},
+		{
+			"id": 33,
+			"name": "createKdTree2FromSceneObjectVerts",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "createKdTree2FromSceneObjectVerts.ts",
+					"line": 21,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
+				}
+			],
+			"signatures": [
+				{
+					"id": 34,
+					"name": "createKdTree2FromSceneObjectVerts",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "A k-d tree to accelerate intersection and nearest-neighbour tests on the projected\r\n2D canvas positions of "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneObject"
+							},
+							{
+								"kind": "text",
+								"text": " geometry vertices.\r\n\r\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/kd-canvas-verts\""
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "createKdTree2FromSceneObjectVerts.ts",
+							"line": 21,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
+						}
+					],
+					"parameters": [
+						{
+							"id": 35,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 36,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 39,
+											"name": "canvasBoundary",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "createKdTree2FromSceneObjectVerts.ts",
+													"line": 24,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L24"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../math/src/index.ts",
+													"qualifiedName": "FloatArrayParam"
+												},
+												"name": "FloatArrayParam",
+												"package": "@xeokit/math"
+											}
+										},
+										{
+											"id": 38,
+											"name": "projMatrix",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "createKdTree2FromSceneObjectVerts.ts",
+													"line": 23,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L23"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../math/src/index.ts",
+													"qualifiedName": "FloatArrayParam"
+												},
+												"name": "FloatArrayParam",
+												"package": "@xeokit/math"
+											}
+										},
+										{
+											"id": 40,
+											"name": "sceneObjects",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "createKdTree2FromSceneObjectVerts.ts",
+													"line": 25,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L25"
+												}
+											],
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "reference",
+													"target": {
+														"sourceFileName": "../scene/src/SceneObject.ts",
+														"qualifiedName": "SceneObject"
+													},
+													"name": "SceneObject",
+													"package": "@xeokit/scene"
+												}
+											}
+										},
+										{
+											"id": 37,
+											"name": "viewMatrix",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "createKdTree2FromSceneObjectVerts.ts",
+													"line": 22,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L22"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../math/src/index.ts",
+													"qualifiedName": "FloatArrayParam"
+												},
+												"name": "FloatArrayParam",
+												"package": "@xeokit/math"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												39,
+												38,
+												40,
+												37
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "createKdTree2FromSceneObjectVerts.ts",
+											"line": 21,
+											"character": 58,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 17,
+						"name": "KdTree2",
+						"package": "@xeokit/kdtree2"
+					}
+				}
+			]
+		},
+		{
+			"id": 41,
+			"name": "searchKdTree2ForNearestNeighbor",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "searchKdTree2ForNearestNeighbor.ts",
+					"line": 8,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
+				}
+			],
+			"signatures": [
+				{
+					"id": 42,
+					"name": "searchKdTree2ForNearestNeighbor",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "searchKdTree2ForNearestNeighbor.ts",
+							"line": 8,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
+						}
+					],
+					"parameters": [
+						{
+							"id": 43,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 44,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 46,
+											"name": "canvasPos",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree2ForNearestNeighbor.ts",
+													"line": 10,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L10"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../math/src/index.ts",
+													"qualifiedName": "FloatArrayParam"
+												},
+												"name": "FloatArrayParam",
+												"package": "@xeokit/math"
+											}
+										},
+										{
+											"id": 45,
+											"name": "kdTree",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "searchKdTree2ForNearestNeighbor.ts",
+													"line": 9,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L9"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": 17,
+												"name": "KdTree2",
+												"package": "@xeokit/kdtree2"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												46,
+												45
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "searchKdTree2ForNearestNeighbor.ts",
+											"line": 8,
+											"character": 56,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/cd36156bf/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reference",
+							"target": {
+								"sourceFileName": "../scene/src/SceneObject.ts",
+								"qualifiedName": "SceneObject"
+							},
+							"name": "SceneObject",
+							"package": "@xeokit/scene"
+						}
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Classes",
+			"children": [
+				17,
+				1
+			]
+		},
+		{
+			"title": "Interfaces",
+			"children": [
+				7,
+				9,
+				14
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				33,
+				41
+			]
+		}
+	],
+	"packageName": "@xeokit/kdtree2",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/kdtree2\r\n\r\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_kdtree2.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/KdVertex2.ts",
+			"qualifiedName": "KdVertex2"
+		},
+		"4": {
+			"sourceFileName": "src/KdVertex2.ts",
+			"qualifiedName": "KdVertex2.sceneObject"
+		},
+		"5": {
+			"sourceFileName": "src/KdVertex2.ts",
+			"qualifiedName": "KdVertex2.worldPos"
+		},
+		"6": {
+			"sourceFileName": "src/KdVertex2.ts",
+			"qualifiedName": "KdVertex2.canvasPos"
+		},
+		"7": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdItem2D"
+		},
+		"8": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdItem2D.item"
+		},
+		"9": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdNode2D"
+		},
+		"10": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdNode2D.aabb"
+		},
+		"11": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdNode2D.left"
+		},
+		"12": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdNode2D.right"
+		},
+		"13": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdNode2D.items"
+		},
+		"14": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2DParams"
+		},
+		"15": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2DParams.aabb"
+		},
+		"16": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2DParams.maxDepth"
+		},
+		"17": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2"
+		},
+		"18": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2.__constructor"
+		},
+		"19": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2"
+		},
+		"20": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "params"
+		},
+		"21": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2.root"
+		},
+		"22": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2.maxDepth"
+		},
+		"23": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2.insertItem"
+		},
+		"24": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2.insertItem"
+		},
+		"25": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "item"
+		},
+		"26": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "aabb"
+		},
+		"27": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2.#insertItem"
+		},
+		"28": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "KdTree2.#insertItem"
+		},
+		"29": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "node"
+		},
+		"30": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "item"
+		},
+		"31": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "aabb"
+		},
+		"32": {
+			"sourceFileName": "src/KdTree2.ts",
+			"qualifiedName": "depth"
+		},
+		"33": {
+			"sourceFileName": "src/createKdTree2FromSceneObjectVerts.ts",
+			"qualifiedName": "createKdTree2FromSceneObjectVerts"
+		},
+		"34": {
+			"sourceFileName": "src/createKdTree2FromSceneObjectVerts.ts",
+			"qualifiedName": "createKdTree2FromSceneObjectVerts"
+		},
+		"35": {
+			"sourceFileName": "src/createKdTree2FromSceneObjectVerts.ts",
+			"qualifiedName": "params"
+		},
+		"36": {
+			"sourceFileName": "src/createKdTree2FromSceneObjectVerts.ts",
+			"qualifiedName": "__type"
+		},
+		"37": {
+			"sourceFileName": "src/createKdTree2FromSceneObjectVerts.ts",
+			"qualifiedName": "__type.viewMatrix"
+		},
+		"38": {
+			"sourceFileName": "src/createKdTree2FromSceneObjectVerts.ts",
+			"qualifiedName": "__type.projMatrix"
+		},
+		"39": {
+			"sourceFileName": "src/createKdTree2FromSceneObjectVerts.ts",
+			"qualifiedName": "__type.canvasBoundary"
+		},
+		"40": {
+			"sourceFileName": "src/createKdTree2FromSceneObjectVerts.ts",
+			"qualifiedName": "__type.sceneObjects"
+		},
+		"41": {
+			"sourceFileName": "src/searchKdTree2ForNearestNeighbor.ts",
+			"qualifiedName": "searchKdTree2ForNearestNeighbor"
+		},
+		"42": {
+			"sourceFileName": "src/searchKdTree2ForNearestNeighbor.ts",
+			"qualifiedName": "searchKdTree2ForNearestNeighbor"
+		},
+		"43": {
+			"sourceFileName": "src/searchKdTree2ForNearestNeighbor.ts",
+			"qualifiedName": "params"
+		},
+		"44": {
+			"sourceFileName": "src/searchKdTree2ForNearestNeighbor.ts",
+			"qualifiedName": "__type"
+		},
+		"45": {
+			"sourceFileName": "src/searchKdTree2ForNearestNeighbor.ts",
+			"qualifiedName": "__type.kdTree"
+		},
+		"46": {
+			"sourceFileName": "src/searchKdTree2ForNearestNeighbor.ts",
+			"qualifiedName": "__type.canvasPos"
+		}
+	}
+}

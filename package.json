@@ -13,8 +13,9 @@
         "build": "turbo run build",
         "dist": "turbo run dist --concurrency 100",
         "test": "turbo run test --concurrency 100 --continue",
-        "docs-gen": "pnpm docs-all && typedoc --entryPointStrategy merge \"docs/docs-json/*.json\" --tsconfig packages/config/tsconfig.typedoc.json",
-        "docs-all": "turbo run docs --concurrency 100",
+        "docs-build": "rimraf docs && turbo run docs-build --filter=docs && pnpm typedoc-gen",
+        "typedoc-gen": "turbo run docs --concurrency 100 && typedoc --entryPointStrategy merge \"dist-docs/json/*.json\" --tsconfig packages/config/tsconfig.typedoc.json",
+        "docs-serve": "http-server ./dist-docs --port 8080",
         "publish-packages": "turbo run build lint test && changeset version && changeset publish"
     },
     "devDependencies": {
@@ -30,6 +31,7 @@
         "@typescript-eslint/parser": "5.45.0",
         "awesome-typescript-loader": "^5.2.1",
         "concurrently": "7.6.0",
+        "copyfiles": "^2.4.1",
         "esbuild": "^0.20.0",
         "eslint": "8.29.0",
         "eslint-config-prettier": "8.5.0",

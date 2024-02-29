@@ -25,6 +25,7 @@
     ],
     "keywords": [],
     "dependencies": {
+        "@xeokit/config": "^0.1.0",
         "@xeokit/basictypes": "^0.1.0",
         "@xeokit/bcf": "^0.1.0",
         "@xeokit/boundaries": "^0.1.0",

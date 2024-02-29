@@ -8,7 +8,8 @@
     "module": "dist/index.js",
     "scripts": {
         "test": "jest --passWithNoTests",
-        "dist": "tsc"
+        "dist": "tsc",
+        "docs": "typedoc --json ../../docs/docs-json/bcf.json --options typedoc.json --validation.invalidLink false"
     },
     "repository": {
         "type": "git",
@@ -28,6 +29,7 @@
     ],
     "keywords": [],
     "dependencies": {
+        "@xeokit/config": "^0.1.0",
         "@xeokit/testutils": "^0.1.0",
         "@xeokit/core": "^0.1.0",
         "@xeokit/scene": "^0.1.0",

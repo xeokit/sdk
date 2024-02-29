@@ -1,35 +1,37 @@
 {
-  "name": "@xeokit/boundaries",
-  "private": false,
-  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_boundaries.html",
-  "version": "0.1.0",
-  "description": "xeokit Boundaries Math Library",
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "scripts": {
-    "dist": "tsc",
-    "publish": "npm publish --access public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xeokit/sdk.git"
-  },
-  "author": "Lindsay Kay",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "bugs": {
-    "url": "https://github.com/xeokit/sdk/issues"
-  },
-  "files": [
-    "src/",
-    "dist/",
-    "README.md",
-    "package.json"
-  ],
-  "keywords": [],
-  "dependencies": {
-    "@xeokit/compression": "^0.1.0",
-    "@xeokit/math": "^0.1.0",
-    "@xeokit/matrix": "^0.1.0"
-  }
+    "name": "@xeokit/boundaries",
+    "private": false,
+    "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_boundaries.html",
+    "version": "0.1.0",
+    "description": "xeokit Boundaries Math Library",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "scripts": {
+        "dist": "tsc",
+        "docs": "typedoc --json ../../docs/docs-json/boundaries.json --options typedoc.json --validation.invalidLink false",
+        "publish": "npm publish --access public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xeokit/sdk.git"
+    },
+    "author": "Lindsay Kay",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/xeokit/sdk/issues"
+    },
+    "files": [
+        "src/",
+        "dist/",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [],
+    "dependencies": {
+        "@xeokit/config": "^0.1.0",
+        "@xeokit/compression": "^0.1.0",
+        "@xeokit/math": "^0.1.0",
+        "@xeokit/matrix": "^0.1.0"
+    }
 }

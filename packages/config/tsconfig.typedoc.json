@@ -1,0 +1,116 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "packages/core"
+        },
+        {
+            "path": "packages/data"
+        },
+        {
+            "path": "packages/math"
+        },
+        {
+            "path": "packages/matrix"
+        },
+        {
+            "path": "packages/basictypes"
+        },
+        {
+            "path": "packages/boundaries"
+        },
+        {
+            "path": "packages/compression"
+        },
+        {
+            "path": "packages/rtc"
+        },
+        {
+            "path": "packages/locale"
+        },
+        {
+            "path": "packages/constants"
+        },
+        {
+            "path": "packages/bcf"
+        },
+        {
+            "path": "packages/curves"
+        },
+        {
+            "path": "packages/ifctypes"
+        },
+        {
+            "path": "packages/procgen"
+        },
+        {
+            "path": "packages/utils"
+        },
+        {
+            "path": "packages/cameraControl"
+        },
+        {
+            "path": "packages/cityjson"
+        },
+        {
+            "path": "packages/cityjsontypes_1_1_3"
+        },
+        {
+            "path": "packages/dotbim"
+        },
+        {
+            "path": "packages/gltf"
+        },
+        {
+            "path": "packages/kdtree2"
+        },
+        {
+            "path": "packages/kdtree3"
+        },
+        {
+            "path": "packages/ktx2"
+        },
+        {
+            "path": "packages/las"
+        },
+        {
+            "path": "packages/dtx"
+        },
+        {
+            "path": "packages/pick"
+        },
+        {
+            "path": "packages/scene"
+        },
+        {
+            "path": "packages/threedxml"
+        },
+        {
+            "path": "packages/treeview"
+        },
+        {
+            "path": "packages/viewer"
+        },
+        {
+            "path": "packages/webglutils"
+        },
+        {
+            "path": "packages/webglrenderer"
+        },
+        {
+            "path": "packages/webifc"
+        },
+        {
+            "path": "packages/las2dtx"
+        },
+        {
+            "path": "packages/gltf2dtx"
+        },
+        {
+            "path": "packages/ifc2dtx"
+        },
+        {
+            "path": "packages/testutils"
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+// This is a base TS config for the individual packages, mainly for building .d.ts files
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "build": true,
+        "esModuleInterop": true,
+        "declaration": true,
+        "declarationMap": true,
+        "noEmit": false,
+        "emitDeclarationOnly": false,
+        // Uncomment to debug
+        "listEmittedFiles": true
+    }
+}

@@ -3,3 +3,5 @@ tsconfig.tsbuildinfo
 dist
 .turbo
 test-report.html
+.temp
+.cache

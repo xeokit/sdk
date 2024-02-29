@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.package.json",
+  "extends": "@xeokit/config/tsconfig.package.json",
   "include": [
     "src/**/*",
     "../global.d.ts"

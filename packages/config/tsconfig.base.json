@@ -1,0 +1,43 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "lib": [
+            "es6",
+            "dom"
+        ],
+        "types": [
+            "node"
+        ],
+        "skipLibCheck": true, // https://stackoverflow.com/questions/66956030/apache-arrow-does-not-compile-with-typescript
+        "target": "esnext",
+        "module": "esnext",
+        "stripInternal": false,
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "alwaysStrict": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": false,
+        "noImplicitThis": true,
+        "declaration": true,
+        "sourceMap": true,
+        "baseUrl": ".",
+        "build": true,
+        "declarationMap": true,
+        "noEmit": false,
+        "emitDeclarationOnly": true
+    },
+    "include": [
+        "../*/src/**/*.ts",
+        "../../docs/*.ts" // Included to allow TypeDoc to find `pages.ts` content.
+    ],
+    "exclude": [
+        "dist",
+        "node_modules"
+    ],
+    "typeRoots": [
+        "node_modules/@types"
+    ],
+}

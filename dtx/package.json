@@ -1,7 +1,6 @@
 {
   "name": "@xeokit/dtx",
   "private": false,
-  "type": "module",
   "version": "0.1.0",
   "description": "Import and export models as xeokit's native binary DTX format",
   "main": "src/index.ts",

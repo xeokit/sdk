@@ -9,7 +9,7 @@
     "scripts": {
         "test": "jest --passWithNoTests",
         "dist": "tsc",
-        "docs": "typedoc --json ../../docs/docs-json/curves.json --options typedoc.json --validation.invalidLink false",
+        "docs": "typedoc --json ../../docs/json/curves.json --options typedoc.json --validation.invalidLink false",
         "publish": "npm publish --access public"
     },
     "repository": {

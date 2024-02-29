@@ -1,8 +1,8 @@
-import {View, Viewer} from "@xeokit/viewer";
-import {Scene, SceneModel} from "@xeokit/scene";
-import {sampleSceneModelParams} from "@xeokit/testutils";
-import {WebGLRenderer} from "@xeokit/webglrenderer";
-import {SDKError} from "@xeokit/core";
+import { SDKError } from "@xeokit/core";
+import { Scene, SceneModel } from "@xeokit/scene";
+import { sampleSceneModelParams } from "@xeokit/testutils";
+import { WebGLRenderer } from "../../webglrenderer";
+import { View, Viewer } from "../src";
 
 document.body.innerHTML = '<canvas id="myCanvas" />';
 
@@ -20,7 +20,7 @@ describe('Viewer', () => {
         viewer = new Viewer({
             id: "myViewer",
             scene,
-            renderer
+            renderer: renderer as any
         });
         expect(viewer.destroyed).toEqual(false);
         expect(viewer.numViews).toEqual(0);
@@ -56,7 +56,7 @@ describe('Viewer', () => {
 
     it("View creates a `default` ViewLayer when SceneModel created in Scene", async () => {
         let eventViewLayer;
-        view.onLayerCreated.subscribe((view, viewLayer) =>{
+        view.onLayerCreated.subscribe((view, viewLayer) => {
             eventViewLayer = viewLayer;
         });
 
@@ -124,8 +124,8 @@ describe('Viewer', () => {
         const redLegViewObject = viewLayer.objects["redLeg"];
         expect(viewLayer.visibleObjectIds.sort()).toEqual(["redLeg", "greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
         redLegViewObject.visible = false;
-        expect(viewLayer.visibleObjectIds.sort()).toEqual([ "greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
-        expect(view.visibleObjectIds.sort()).toEqual([ "greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
+        expect(viewLayer.visibleObjectIds.sort()).toEqual(["greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
+        expect(view.visibleObjectIds.sort()).toEqual(["greenLeg", "blueLeg", "yellowLeg", "tableTop"].sort());
         redLegViewObject.visible = true;
         expect(viewLayer.visibleObjectIds.sort()).toEqual(["greenLeg", "blueLeg", "yellowLeg", "tableTop", "redLeg"].sort());
         expect(view.visibleObjectIds.sort()).toEqual(["greenLeg", "blueLeg", "yellowLeg", "tableTop", "redLeg"].sort());
@@ -133,7 +133,7 @@ describe('Viewer', () => {
 
     it('ViewLayer.onObjectVisibility fires on change to ViewObject.visible', () => {
         let eventViewObject;
-        viewLayer.onObjectVisibility.subscribe((viewLayer, viewObject) =>{
+        viewLayer.onObjectVisibility.subscribe((viewLayer, viewObject) => {
             eventViewObject = viewObject;
         });
         const redLegViewObject = viewLayer.objects["redLeg"];
@@ -145,7 +145,7 @@ describe('Viewer', () => {
 
     it('View.onObjectVisibility fires on change to ViewObject.visible', () => {
         let eventViewObject;
-        view.onObjectVisibility.subscribe((view, viewObject) =>{
+        view.onObjectVisibility.subscribe((view, viewObject) => {
             eventViewObject = viewObject;
         });
         const redLegViewObject = view.objects["redLeg"];

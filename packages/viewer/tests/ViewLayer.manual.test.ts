@@ -1,7 +1,7 @@
-import {View, Viewer, ViewLayer} from "@xeokit/viewer";
-import {Scene, SceneModel} from "@xeokit/scene";
-import {sampleSceneModelParams_multipleViewLayers} from "@xeokit/testutils";
-import {WebGLRenderer} from "@xeokit/webglrenderer";
+import { Scene, SceneModel } from "@xeokit/scene";
+import { sampleSceneModelParams_multipleViewLayers } from "@xeokit/testutils";
+import { WebGLRenderer } from "../../webglrenderer";
+import { View, ViewLayer, Viewer } from "../src";
 
 document.body.innerHTML = '<canvas id="myCanvas" />';
 
@@ -20,7 +20,7 @@ describe('Viewer with autoLayers:false', () => {
         viewer = new Viewer({
             id: "myViewer",
             scene,
-            renderer
+            renderer: renderer as any
         });
     });
 

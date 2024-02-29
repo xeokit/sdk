@@ -1,15 +1,14 @@
 {
   "name": "@xeokit/core",
   "private": false,
-  "type": "module",
   "version": "0.1.0",
   "description": "Core xeokit SDK classes and types",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose ",
-    "dist":"tsc",
+    "test": "jest --passWithNoTests",
+    "dist": "tsc",
     "publish": "npm publish --access public"
   },
   "repository": {

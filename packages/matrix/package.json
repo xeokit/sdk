@@ -1,14 +1,13 @@
 {
   "name": "@xeokit/matrix",
   "private": false,
-  "type": "module",
   "version": "0.1.0",
   "description": "xeokit Matrix and Vector Math Library",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose",
+    "test": "jest --passWithNoTests",
     "dist": "tsc",
     "publish": "npm publish --access public"
   },

@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose",
+    "test": "jest --passWithNoTests",
     "dist": "tsc",
     "publish": "npm publish --access public"
   },
@@ -31,7 +31,6 @@
   "dependencies": {
     "@loaders.gl/images": "^3.4.1",
     "@loaders.gl/textures": "^3.4.1",
-
     "@xeokit/boundaries": "^0.1.0",
     "@xeokit/compression": "^0.1.0",
     "@xeokit/constants": "^0.1.0",
@@ -40,7 +39,5 @@
     "@xeokit/matrix": "^0.1.0",
     "strongly-typed-events": "3.0.7"
   },
-  "devDependencies": {
-
-  }
+  "devDependencies": {}
 }

@@ -1,11 +1,9 @@
 {
   "name": "@xeokit/gltf2dtx",
   "private": true,
-  "type": "module",
   "version": "0.1.0",
   "description": "Node CLI script to convert glTF files to DTX.",
   "source": "src/gltf2dtx.ts",
-
   "bin": {
     "gltf2dtx": "dist/gltf2dtx.js"
   },
@@ -13,7 +11,7 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose",
+    "test": "jest --passWithNoTests",
     "dist": "tsc"
   },
   "repository": {
@@ -33,7 +31,6 @@
     "package.json"
   ],
   "keywords": [],
-
   "dependencies": {
     "@xeokit/dtx": "^0.1.0",
     "@xeokit/constants": "^0.1.0",
@@ -43,7 +40,6 @@
     "@xeokit/scene": "^0.1.0",
     "strongly-typed-events": "3.0.7"
   },
-
   "devDependencies": {
     "@swc/core": "^1.3.26",
     "@swc/jest": "^0.2.24",

@@ -1,15 +1,14 @@
 {
   "name": "@xeokit/cameracontrol",
   "private": false,
-  "type": "module",
   "version": "0.1.0",
   "description": "Camera navigation controls for a xeokit Viewer",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose ",
-    "dist":"tsc"
+    "test": "jest --passWithNoTests",
+    "dist": "tsc"
   },
   "repository": {
     "type": "git",

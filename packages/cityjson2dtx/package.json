@@ -1,7 +1,6 @@
 {
   "name": "@xeokit/cityjson2dtx",
   "private": false,
-  "type": "module",
   "version": "0.1.0",
   "description": "NodeJS CLI tool to convert CityJSON to DTX.",
   "bin": {
@@ -11,8 +10,8 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose ",
-    "dist":"tsc"
+    "test": "jest --passWithNoTests",
+    "dist": "tsc"
   },
   "repository": {
     "type": "git",

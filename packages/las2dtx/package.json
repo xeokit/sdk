@@ -1,14 +1,13 @@
 {
   "name": "@xeokit/las2dtx",
   "private": true,
-  "type": "module",
   "version": "0.1.0",
   "description": "CLI tool to convert CityJSON files into DTX format.",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "test": "jest --verbose",
+    "test": "jest --passWithNoTests",
     "dist": "tsc"
   },
   "repository": {

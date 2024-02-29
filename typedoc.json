@@ -3,38 +3,15 @@
         "packages/*"
     ],
     "entryPointStrategy": "packages",
-    "out": "./docs/api",
+    "out": "./dist-docs/api",
     "excludePrivate": true,
     "excludeNotDocumented": true,
-    "media": "./assets",
+    "media": "./packages/docs/src/assets",
     "includes": "docs",
     "includeVersion": true,
     "titleLink": "https://xeokit.io",
     "navigationLinks": {
+        "Home": "https://xeokit.github.io/sdk/docs/",
         "GitHub": "https://github.com/xeokit/sdk"
-    },
-    "plugin": {
-        "pages": [
-            {
-                "title": "Introduction",
-                "source": "INTRODUCTION.md"
-            },
-            {
-                "title": "Overview",
-                "source": "OVERVIEW.md"
-            },
-            {
-                "title": "Quickstart",
-                "source": "QUICKSTART.md"
-            },
-            {
-                "title": "Contributing",
-                "source": "CONTRIBUTING.md"
-            },
-            {
-                "title": "Glossary",
-                "source": "GLOSSARY.md"
-            }
-        ]
     }
 }

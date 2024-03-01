@@ -30,8 +30,7 @@
         "emitDeclarationOnly": true
     },
     "include": [
-        "../*/src/**/*.ts",
-        "../../docs/*.ts" // Included to allow TypeDoc to find `pages.ts` content.
+        "../*/src/**/*.ts"
     ],
     "exclude": [
         "dist",

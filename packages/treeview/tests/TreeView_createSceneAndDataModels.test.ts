@@ -5,7 +5,7 @@ import { Scene } from "@xeokit/scene";
 import { View, Viewer } from "@xeokit/viewer";
 import { JSDOM } from "jsdom";
 import * as testUtils from "./testUtils";
-1
+
 describe('DataModel', function () {
 
     const data = new Data();

@@ -1,0 +1,4748 @@
+{
+	"id": 0,
+	"name": "@xeokit/boundaries",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fsvg)](https://badge.fury.io/js/%40xeokit%2Fmath)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math)\n\n<img src=\"http://xeokit.io/img/kdtree.jpeg\" />\n\n# xeokit Boundaries Math Library\n\n---\n\n### *Tools for 2D and 3D boundary analysis, boundary transformation, and collision detection*\n\n---\n\n* Axis-aligned boundaries (AABB2 and AABB3)\n* Object-aligned boundaries (OBB)\n* Transformable OOBs\n* Create boundaries from positions\n* Find center of positions\n* FrustumProjection-boundary intersection tests\n\n## Installation\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nnpm install @xeokit/boundaries\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\n\n## Usage\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\nimport * as boundaries from \"@xeokit/boundaries\";\n\n//..TODO\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 176,
+			"name": "Frustum3",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A 3D frustum defined as six planes."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 177,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 804,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L804"
+						}
+					],
+					"signatures": [
+						{
+							"id": 178,
+							"name": "new Frustum3",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new FrustumProjection"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 804,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L804"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 176,
+								"name": "Frustum3",
+								"package": "@xeokit/boundaries"
+							}
+						}
+					]
+				},
+				{
+					"id": 179,
+					"name": "planes",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPublic": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The six planes that comprise the frustum boundary."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 799,
+							"character": 11,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L799"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "reference",
+							"target": 161,
+							"name": "FrustumPlane3",
+							"package": "@xeokit/boundaries"
+						}
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						177
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						179
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 794,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L794"
+				}
+			]
+		},
+		{
+			"id": 161,
+			"name": "FrustumPlane3",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A plane within a "
+					},
+					{
+						"kind": "inline-tag",
+						"tag": "@link",
+						"text": "Frustum3",
+						"target": 176,
+						"tsLinkText": ""
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 162,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 751,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L751"
+						}
+					],
+					"signatures": [
+						{
+							"id": 163,
+							"name": "new FrustumPlane3",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Creates a new frustum plane."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 751,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L751"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 161,
+								"name": "FrustumPlane3",
+								"package": "@xeokit/boundaries"
+							}
+						}
+					]
+				},
+				{
+					"id": 166,
+					"name": "normal",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPublic": true
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 746,
+							"character": 11,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L746"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				},
+				{
+					"id": 165,
+					"name": "offset",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPublic": true
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 745,
+							"character": 11,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L745"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 164,
+					"name": "testVertex",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isPublic": true
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 744,
+							"character": 11,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L744"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				},
+				{
+					"id": 167,
+					"name": "set",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 764,
+							"character": 4,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L764"
+						}
+					],
+					"signatures": [
+						{
+							"id": 168,
+							"name": "set",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Sets the position and direction of the frustum plane."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 764,
+									"character": 4,
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L764"
+								}
+							],
+							"parameters": [
+								{
+									"id": 169,
+									"name": "nx",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 170,
+									"name": "ny",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 171,
+									"name": "nz",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								},
+								{
+									"id": 172,
+									"name": "offset",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						162
+					]
+				},
+				{
+					"title": "Properties",
+					"children": [
+						166,
+						165,
+						164
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						167
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 742,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L742"
+				}
+			]
+		},
+		{
+			"id": 173,
+			"name": "INSIDE",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Intersection state in which first boundary is completely inside the second."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 779,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L779"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "1"
+		},
+		{
+			"id": 174,
+			"name": "INTERSECT",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Intersection state in which two boundaries partially intersect."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 784,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L784"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "2"
+		},
+		{
+			"id": 175,
+			"name": "OUTSIDE",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Intersection state in which two boundaries do not intersect."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 789,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L789"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "3"
+		},
+		{
+			"id": 151,
+			"name": "getAABB3Diag",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Gets the diagonal size of an createAABB3 given as minima and maxima."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 176,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L176"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+					"qualifiedName": "Function"
+				},
+				"name": "Function",
+				"package": "typescript"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 52,
+			"name": "AABB3ToOBB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {
+				"isPrivate": true
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 295,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L295"
+				}
+			],
+			"signatures": [
+				{
+					"id": 53,
+					"name": "AABB3ToOBB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {
+						"isPrivate": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Converts an axis-aligned 3D boundary into an oriented boundary consisting of\nan array of eight 3D positions, one for each corner of the boundary."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 295,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L295"
+						}
+					],
+					"parameters": [
+						{
+							"id": 54,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						},
+						{
+							"id": 55,
+							"name": "obb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 76,
+			"name": "ABB3ToOBB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 476,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L476"
+				}
+			],
+			"signatures": [
+				{
+					"id": 77,
+					"name": "ABB3ToOBB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Converts an axis-aligned 3D boundary into an oriented boundary consisting of\nan array of eight 3D positions, one for each corner of the boundary."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 476,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L476"
+						}
+					],
+					"parameters": [
+						{
+							"id": 78,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 79,
+							"name": "obb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 80,
+			"name": "OBB3ToAABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 603,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L603"
+				}
+			],
+			"signatures": [
+				{
+					"id": 81,
+					"name": "OBB3ToAABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Finds the minimum axis-aligned 3D boundary enclosing the homogeneous 3D points (x,y,z,w) given in a flattened array."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 603,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L603"
+						}
+					],
+					"parameters": [
+						{
+							"id": 82,
+							"name": "obb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 83,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 46,
+			"name": "collapseAABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 265,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L265"
+				}
+			],
+			"signatures": [
+				{
+					"id": 47,
+					"name": "collapseAABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Collapses a 3D axis-aligned boundary, ready to expand to fit 3D points.\nCreates new AABB if none supplied."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 265,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L265"
+						}
+					],
+					"parameters": [
+						{
+							"id": 48,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 49,
+			"name": "collapseAABB3Int16",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 279,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L279"
+				}
+			],
+			"signatures": [
+				{
+					"id": 50,
+					"name": "collapseAABB3Int16",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Collapses a 3D axis-aligned boundary, ready to expand to fit 3D points.\nCreates new AABB if none supplied."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 279,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L279"
+						}
+					],
+					"parameters": [
+						{
+							"id": 51,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "IntArrayParam"
+								},
+								"name": "IntArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "IntArrayParam"
+						},
+						"name": "IntArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 27,
+			"name": "containsAABB2",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 147,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L147"
+				}
+			],
+			"signatures": [
+				{
+					"id": 28,
+					"name": "containsAABB2",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Returns true if the first AABB2 contains the second AABB2."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 147,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L147"
+						}
+					],
+					"parameters": [
+						{
+							"id": 29,
+							"name": "aabb1",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 30,
+							"name": "aabb2",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 147,
+			"name": "containsAABB2Point2",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 1060,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L1060"
+				}
+			],
+			"signatures": [
+				{
+					"id": 148,
+					"name": "containsAABB2Point2",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tets if the given 2D AABB contains the given 2D position."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 1060,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L1060"
+						}
+					],
+					"parameters": [
+						{
+							"id": 149,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 150,
+							"name": "p",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 31,
+			"name": "containsAABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 159,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L159"
+				}
+			],
+			"signatures": [
+				{
+					"id": 32,
+					"name": "containsAABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Returns true if the first AABB3 contains the second AABB3."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 159,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L159"
+						}
+					],
+					"parameters": [
+						{
+							"id": 33,
+							"name": "aabb1",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 34,
+							"name": "aabb2",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 143,
+			"name": "containsAABB3Point3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 1048,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L1048"
+				}
+			],
+			"signatures": [
+				{
+					"id": 144,
+					"name": "containsAABB3Point3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tets if the given 3D AABB contains the given 3D position."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 1048,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L1048"
+						}
+					],
+					"parameters": [
+						{
+							"id": 145,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 146,
+							"name": "p",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 7,
+			"name": "createAABB2",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 67,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L67"
+				}
+			],
+			"signatures": [
+				{
+					"id": 8,
+					"name": "createAABB2",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Returns a new, uninitialized 2D axis-aligned bounding box."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 67,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L67"
+						}
+					],
+					"parameters": [
+						{
+							"id": 9,
+							"name": "values",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 1,
+			"name": "createAABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 51,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L51"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2,
+					"name": "createAABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Returns a new, uninitialized 3D axis-aligned bounding box."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 51,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L51"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3,
+							"name": "values",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Float64Array"
+						},
+						"name": "Float64Array",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 4,
+			"name": "createAABB3Int16",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 59,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L59"
+				}
+			],
+			"signatures": [
+				{
+					"id": 5,
+					"name": "createAABB3Int16",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Returns a new, uninitialized 3D axis-aligned bounding box."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 59,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L59"
+						}
+					],
+					"parameters": [
+						{
+							"id": 6,
+							"name": "values",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "IntArrayParam"
+								},
+								"name": "IntArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Int16Array"
+						},
+						"name": "Int16Array",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 13,
+			"name": "createOBB2",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 83,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L83"
+				}
+			],
+			"signatures": [
+				{
+					"id": 14,
+					"name": "createOBB2",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Returns a new, uninitialized 2D oriented bounding box (OBB)."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 83,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L83"
+						}
+					],
+					"parameters": [
+						{
+							"id": 15,
+							"name": "values",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 10,
+			"name": "createOBB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 75,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L75"
+				}
+			],
+			"signatures": [
+				{
+					"id": 11,
+					"name": "createOBB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Returns a new, uninitialized 3D oriented bounding box (OBB)."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 75,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L75"
+						}
+					],
+					"parameters": [
+						{
+							"id": 12,
+							"name": "values",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 16,
+			"name": "createSphere3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 89,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L89"
+				}
+			],
+			"signatures": [
+				{
+					"id": 17,
+					"name": "createSphere3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Returns a new 3D bounding sphere"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 89,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L89"
+						}
+					],
+					"parameters": [
+						{
+							"id": 18,
+							"name": "x",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 19,
+							"name": "y",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 20,
+							"name": "z",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 21,
+							"name": "r",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 60,
+			"name": "expandAABB2",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 367,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L367"
+				}
+			],
+			"signatures": [
+				{
+					"id": 61,
+					"name": "expandAABB2",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Expands the first axis-aligned 2D boundary to enclose the second, if required."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 367,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L367"
+						}
+					],
+					"parameters": [
+						{
+							"id": 62,
+							"name": "aabb1",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 63,
+							"name": "aabb2",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 68,
+			"name": "expandAABB2Point2",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 418,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L418"
+				}
+			],
+			"signatures": [
+				{
+					"id": 69,
+					"name": "expandAABB2Point2",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Expands an axis-aligned 2D boundary to enclose the given point, if needed."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 418,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L418"
+						}
+					],
+					"parameters": [
+						{
+							"id": 70,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 71,
+							"name": "p",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 56,
+			"name": "expandAABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 342,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L342"
+				}
+			],
+			"signatures": [
+				{
+					"id": 57,
+					"name": "expandAABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Expands the first axis-aligned 3D boundary to enclose the second, if required."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 342,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L342"
+						}
+					],
+					"parameters": [
+						{
+							"id": 58,
+							"name": "aabb1",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 59,
+							"name": "aabb2",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 64,
+			"name": "expandAABB3Point3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 386,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L386"
+				}
+			],
+			"signatures": [
+				{
+					"id": 65,
+					"name": "expandAABB3Point3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Expands an axis-aligned 3D boundary to enclose the given point, if needed."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 386,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L386"
+						}
+					],
+					"parameters": [
+						{
+							"id": 66,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 67,
+							"name": "p",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 72,
+			"name": "expandAABB3Points3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 442,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L442"
+				}
+			],
+			"signatures": [
+				{
+					"id": 73,
+					"name": "expandAABB3Points3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Expands an axis-aligned 3D boundary to enclose the given points, if needed."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 442,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L442"
+						}
+					],
+					"parameters": [
+						{
+							"id": 74,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 75,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 42,
+			"name": "getAABB2Center",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 252,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L252"
+				}
+			],
+			"signatures": [
+				{
+					"id": 43,
+					"name": "getAABB2Center",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Gets the center of a 2D AABB."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 252,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L252"
+						}
+					],
+					"parameters": [
+						{
+							"id": 44,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 45,
+							"name": "dest",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 35,
+			"name": "getAABB3Area",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 229,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L229"
+				}
+			],
+			"signatures": [
+				{
+					"id": 36,
+					"name": "getAABB3Area",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Gets the area of an AABB."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 229,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L229"
+						}
+					],
+					"parameters": [
+						{
+							"id": 37,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			]
+		},
+		{
+			"id": 38,
+			"name": "getAABB3Center",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 239,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L239"
+				}
+			],
+			"signatures": [
+				{
+					"id": 39,
+					"name": "getAABB3Center",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Gets the center of an AABB."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 239,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L239"
+						}
+					],
+					"parameters": [
+						{
+							"id": 40,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 41,
+							"name": "dest",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 152,
+			"name": "getAABB3DiagPoint",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 195,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L195"
+				}
+			],
+			"signatures": [
+				{
+					"id": 153,
+					"name": "getAABB3DiagPoint",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Get a diagonal boundary size that is symmetrical about the given point."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 200,
+							"character": 11,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L200"
+						}
+					],
+					"parameters": [
+						{
+							"id": 154,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 155,
+							"name": "p",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			]
+		},
+		{
+			"id": 88,
+			"name": "getPositions3Center",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 719,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L719"
+				}
+			],
+			"signatures": [
+				{
+					"id": 89,
+					"name": "getPositions3Center",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Gets the 3D center of the given flat array of 3D positions."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 719,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L719"
+						}
+					],
+					"parameters": [
+						{
+							"id": 90,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 91,
+							"name": "center",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 134,
+			"name": "intersectAABB3Lines3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 1009,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L1009"
+				}
+			],
+			"signatures": [
+				{
+					"id": 135,
+					"name": "intersectAABB3Lines3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests if the given AABB intersects the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/constants!LinesPrimitive | LinesPrimitive"
+							},
+							{
+								"kind": "text",
+								"text": " geometry.\n\nReturns "
+							},
+							{
+								"kind": "code",
+								"text": "```` true````"
+							},
+							{
+								"kind": "text",
+								"text": " if intersection else "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 1009,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L1009"
+						}
+					],
+					"parameters": [
+						{
+							"id": 136,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 137,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 138,
+							"name": "indices",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "IntArrayParam"
+								},
+								"name": "IntArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 139,
+			"name": "intersectAABB3Positions3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 1021,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L1021"
+				}
+			],
+			"signatures": [
+				{
+					"id": 140,
+					"name": "intersectAABB3Positions3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests if the given AABB intersects the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/constants!PointsPrimitive | PointsPrimitive"
+							},
+							{
+								"kind": "text",
+								"text": " vertex positions.\n\nReturns "
+							},
+							{
+								"kind": "code",
+								"text": "```` true````"
+							},
+							{
+								"kind": "text",
+								"text": " if intersection else "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 1021,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L1021"
+						}
+					],
+					"parameters": [
+						{
+							"id": 141,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 142,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 129,
+			"name": "intersectAABB3Triangles3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 990,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L990"
+				}
+			],
+			"signatures": [
+				{
+					"id": 130,
+					"name": "intersectAABB3Triangles3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests if the given AABB intersects the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/constants!TrianglesPrimitive | TrianglesPrimitive"
+							},
+							{
+								"kind": "text",
+								"text": " geometry.\n\nReturns "
+							},
+							{
+								"kind": "code",
+								"text": "```` true````"
+							},
+							{
+								"kind": "text",
+								"text": " if intersection else "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 990,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L990"
+						}
+					],
+					"parameters": [
+						{
+							"id": 131,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 132,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 133,
+							"name": "indices",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "IntArrayParam"
+								},
+								"name": "IntArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 101,
+			"name": "intersectAABB3s",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 883,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L883"
+				}
+			],
+			"signatures": [
+				{
+					"id": 102,
+					"name": "intersectAABB3s",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests for intersection between two axis-aligned 3D boundaries."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 883,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L883"
+						}
+					],
+					"parameters": [
+						{
+							"id": 103,
+							"name": "aabb1",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 104,
+							"name": "aabb2",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			]
+		},
+		{
+			"id": 97,
+			"name": "intersectFrustum3AABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 849,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L849"
+				}
+			],
+			"signatures": [
+				{
+					"id": 98,
+					"name": "intersectFrustum3AABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests for intersection between a frustum and an axis-aligned 3D boundary."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 849,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L849"
+						}
+					],
+					"parameters": [
+						{
+							"id": 99,
+							"name": "frustum",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 176,
+								"name": "Frustum3",
+								"package": "@xeokit/boundaries"
+							}
+						},
+						{
+							"id": 100,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			]
+		},
+		{
+			"id": 116,
+			"name": "intersectFrustum3Lines3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 952,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L952"
+				}
+			],
+			"signatures": [
+				{
+					"id": 117,
+					"name": "intersectFrustum3Lines3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests if the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/boundaries!Frustum3 | Frustum3"
+							},
+							{
+								"kind": "text",
+								"text": " intersects the given\n"
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/constants!LinesPrimitive | LinesPrimitive"
+							},
+							{
+								"kind": "text",
+								"text": " geometry.\n\nReturns "
+							},
+							{
+								"kind": "code",
+								"text": "```` true````"
+							},
+							{
+								"kind": "text",
+								"text": " if intersection else "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 952,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L952"
+						}
+					],
+					"parameters": [
+						{
+							"id": 118,
+							"name": "frustum",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 176,
+								"name": "Frustum3",
+								"package": "@xeokit/boundaries"
+							}
+						},
+						{
+							"id": 119,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 120,
+							"name": "indices",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "IntArrayParam"
+								},
+								"name": "IntArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 125,
+			"name": "intersectFrustum3Point3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 977,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L977"
+				}
+			],
+			"signatures": [
+				{
+					"id": 126,
+					"name": "intersectFrustum3Point3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests if the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/boundaries!Frustum3 | Frustum3"
+							},
+							{
+								"kind": "text",
+								"text": " intersects the given position.\n\nReturns "
+							},
+							{
+								"kind": "code",
+								"text": "```` true````"
+							},
+							{
+								"kind": "text",
+								"text": " if intersection else "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 977,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L977"
+						}
+					],
+					"parameters": [
+						{
+							"id": 127,
+							"name": "frustum",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 176,
+								"name": "Frustum3",
+								"package": "@xeokit/boundaries"
+							}
+						},
+						{
+							"id": 128,
+							"name": "position",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 121,
+			"name": "intersectFrustum3Positions3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 965,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L965"
+				}
+			],
+			"signatures": [
+				{
+					"id": 122,
+					"name": "intersectFrustum3Positions3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests if the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/boundaries!Frustum3 | Frustum3"
+							},
+							{
+								"kind": "text",
+								"text": " intersects the\ngiven "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/constants!PointsPrimitive | PointsPrimitive"
+							},
+							{
+								"kind": "text",
+								"text": " geometry.\n\nReturns "
+							},
+							{
+								"kind": "code",
+								"text": "```` true````"
+							},
+							{
+								"kind": "text",
+								"text": " if intersection else "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 965,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L965"
+						}
+					],
+					"parameters": [
+						{
+							"id": 123,
+							"name": "frustum",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 176,
+								"name": "Frustum3",
+								"package": "@xeokit/boundaries"
+							}
+						},
+						{
+							"id": 124,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 110,
+			"name": "intersectFrustum3Triangle3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 938,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L938"
+				}
+			],
+			"signatures": [
+				{
+					"id": 111,
+					"name": "intersectFrustum3Triangle3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests if the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/boundaries!Frustum3 | Frustum3"
+							},
+							{
+								"kind": "text",
+								"text": " intersects the given triangle primitive.\n\nReturns "
+							},
+							{
+								"kind": "code",
+								"text": "```` true````"
+							},
+							{
+								"kind": "text",
+								"text": " if intersection else "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 938,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L938"
+						}
+					],
+					"parameters": [
+						{
+							"id": 112,
+							"name": "frustum",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 176,
+								"name": "Frustum3",
+								"package": "@xeokit/boundaries"
+							}
+						},
+						{
+							"id": 113,
+							"name": "a",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 114,
+							"name": "b",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 115,
+							"name": "c",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 105,
+			"name": "intersectFrustum3Triangles3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 924,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L924"
+				}
+			],
+			"signatures": [
+				{
+					"id": 106,
+					"name": "intersectFrustum3Triangles3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Tests if the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/boundaries!Frustum3 | Frustum3"
+							},
+							{
+								"kind": "text",
+								"text": " intersects the given "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/constants!TrianglesPrimitive | TrianglesPrimitive"
+							},
+							{
+								"kind": "text",
+								"text": " geometry.\n\nReturns "
+							},
+							{
+								"kind": "code",
+								"text": "```` true````"
+							},
+							{
+								"kind": "text",
+								"text": " if intersection else "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 924,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L924"
+						}
+					],
+					"parameters": [
+						{
+							"id": 107,
+							"name": "frustum",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 176,
+								"name": "Frustum3",
+								"package": "@xeokit/boundaries"
+							}
+						},
+						{
+							"id": 108,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 109,
+							"name": "indices",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "IntArrayParam"
+								},
+								"name": "IntArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 84,
+			"name": "points3ToAABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 661,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L661"
+				}
+			],
+			"signatures": [
+				{
+					"id": 85,
+					"name": "points3ToAABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Finds the minimum axis-aligned 3D boundary enclosing the given 3D points."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 661,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L661"
+						}
+					],
+					"parameters": [
+						{
+							"id": 86,
+							"name": "points",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "array",
+									"elementType": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							}
+						},
+						{
+							"id": 87,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 156,
+			"name": "positions3ToAABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 526,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L526"
+				}
+			],
+			"signatures": [
+				{
+					"id": 157,
+					"name": "positions3ToAABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Finds the minimum axis-aligned 3D boundary enclosing the homogeneous 3D points (x,y,z,w) given in a flattened array."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 529,
+							"character": 11,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L529"
+						}
+					],
+					"parameters": [
+						{
+							"id": 158,
+							"name": "positions",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 159,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 160,
+							"name": "positionsDecompressMatrix",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 92,
+			"name": "setFrustum3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 816,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L816"
+				}
+			],
+			"signatures": [
+				{
+					"id": 93,
+					"name": "setFrustum3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Sets the extents of a frustum to the World-space volume defined by view and projection matrices.\nCreates the frustum first if not given."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 816,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L816"
+						}
+					],
+					"parameters": [
+						{
+							"id": 94,
+							"name": "viewMat",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 95,
+							"name": "projMat",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 96,
+							"name": "frustum",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": 176,
+								"name": "Frustum3",
+								"package": "@xeokit/boundaries"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 176,
+						"name": "Frustum3",
+						"package": "@xeokit/boundaries"
+					}
+				}
+			]
+		},
+		{
+			"id": 22,
+			"name": "transformOBB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 101,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L101"
+				}
+			],
+			"signatures": [
+				{
+					"id": 23,
+					"name": "transformOBB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Transforms an createOBB3 by a 4x4"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 101,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/boundaries/src/index.ts#L101"
+						}
+					],
+					"parameters": [
+						{
+							"id": 24,
+							"name": "m",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 25,
+							"name": "p",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 26,
+							"name": "p2",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "p"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Classes",
+			"children": [
+				176,
+				161
+			]
+		},
+		{
+			"title": "Variables",
+			"children": [
+				173,
+				174,
+				175,
+				151
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				52,
+				76,
+				80,
+				46,
+				49,
+				27,
+				147,
+				31,
+				143,
+				7,
+				1,
+				4,
+				13,
+				10,
+				16,
+				60,
+				68,
+				56,
+				64,
+				72,
+				42,
+				35,
+				38,
+				152,
+				88,
+				134,
+				139,
+				129,
+				101,
+				97,
+				116,
+				125,
+				121,
+				110,
+				105,
+				84,
+				156,
+				92,
+				22
+			]
+		}
+	],
+	"packageName": "@xeokit/boundaries",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "#"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createAABB3"
+		},
+		"2": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createAABB3"
+		},
+		"3": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "values"
+		},
+		"4": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createAABB3Int16"
+		},
+		"5": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createAABB3Int16"
+		},
+		"6": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "values"
+		},
+		"7": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createAABB2"
+		},
+		"8": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createAABB2"
+		},
+		"9": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "values"
+		},
+		"10": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createOBB3"
+		},
+		"11": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createOBB3"
+		},
+		"12": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "values"
+		},
+		"13": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createOBB2"
+		},
+		"14": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createOBB2"
+		},
+		"15": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "values"
+		},
+		"16": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createSphere3"
+		},
+		"17": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createSphere3"
+		},
+		"18": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "x"
+		},
+		"19": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "y"
+		},
+		"20": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "z"
+		},
+		"21": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "r"
+		},
+		"22": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "transformOBB3"
+		},
+		"23": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "transformOBB3"
+		},
+		"24": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "m"
+		},
+		"25": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "p"
+		},
+		"26": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "p2"
+		},
+		"27": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "containsAABB2"
+		},
+		"28": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "containsAABB2"
+		},
+		"29": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb1"
+		},
+		"30": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb2"
+		},
+		"31": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "containsAABB3"
+		},
+		"32": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "containsAABB3"
+		},
+		"33": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb1"
+		},
+		"34": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb2"
+		},
+		"35": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB3Area"
+		},
+		"36": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB3Area"
+		},
+		"37": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"38": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB3Center"
+		},
+		"39": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB3Center"
+		},
+		"40": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"41": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "dest"
+		},
+		"42": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB2Center"
+		},
+		"43": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB2Center"
+		},
+		"44": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"45": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "dest"
+		},
+		"46": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "collapseAABB3"
+		},
+		"47": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "collapseAABB3"
+		},
+		"48": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"49": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "collapseAABB3Int16"
+		},
+		"50": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "collapseAABB3Int16"
+		},
+		"51": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"52": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "AABB3ToOBB3"
+		},
+		"53": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "AABB3ToOBB3"
+		},
+		"54": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"55": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "obb"
+		},
+		"56": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB3"
+		},
+		"57": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB3"
+		},
+		"58": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb1"
+		},
+		"59": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb2"
+		},
+		"60": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB2"
+		},
+		"61": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB2"
+		},
+		"62": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb1"
+		},
+		"63": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb2"
+		},
+		"64": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB3Point3"
+		},
+		"65": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB3Point3"
+		},
+		"66": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"67": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "p"
+		},
+		"68": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB2Point2"
+		},
+		"69": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB2Point2"
+		},
+		"70": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"71": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "p"
+		},
+		"72": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB3Points3"
+		},
+		"73": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "expandAABB3Points3"
+		},
+		"74": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"75": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"76": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "ABB3ToOBB3"
+		},
+		"77": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "ABB3ToOBB3"
+		},
+		"78": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"79": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "obb"
+		},
+		"80": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "OBB3ToAABB3"
+		},
+		"81": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "OBB3ToAABB3"
+		},
+		"82": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "obb"
+		},
+		"83": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"84": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "points3ToAABB3"
+		},
+		"85": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "points3ToAABB3"
+		},
+		"86": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "points"
+		},
+		"87": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"88": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getPositions3Center"
+		},
+		"89": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getPositions3Center"
+		},
+		"90": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"91": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "center"
+		},
+		"92": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "setFrustum3"
+		},
+		"93": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "setFrustum3"
+		},
+		"94": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "viewMat"
+		},
+		"95": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "projMat"
+		},
+		"96": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "frustum"
+		},
+		"97": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3AABB3"
+		},
+		"98": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3AABB3"
+		},
+		"99": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "frustum"
+		},
+		"100": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"101": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectAABB3s"
+		},
+		"102": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectAABB3s"
+		},
+		"103": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb1"
+		},
+		"104": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb2"
+		},
+		"105": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Triangles3"
+		},
+		"106": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Triangles3"
+		},
+		"107": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "frustum"
+		},
+		"108": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"109": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "indices"
+		},
+		"110": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Triangle3"
+		},
+		"111": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Triangle3"
+		},
+		"112": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "frustum"
+		},
+		"113": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "a"
+		},
+		"114": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "b"
+		},
+		"115": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "c"
+		},
+		"116": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Lines3"
+		},
+		"117": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Lines3"
+		},
+		"118": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "frustum"
+		},
+		"119": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"120": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "indices"
+		},
+		"121": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Positions3"
+		},
+		"122": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Positions3"
+		},
+		"123": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "frustum"
+		},
+		"124": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"125": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Point3"
+		},
+		"126": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectFrustum3Point3"
+		},
+		"127": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "frustum"
+		},
+		"128": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "position"
+		},
+		"129": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectAABB3Triangles3"
+		},
+		"130": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectAABB3Triangles3"
+		},
+		"131": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"132": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"133": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "indices"
+		},
+		"134": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectAABB3Lines3"
+		},
+		"135": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectAABB3Lines3"
+		},
+		"136": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"137": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"138": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "indices"
+		},
+		"139": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectAABB3Positions3"
+		},
+		"140": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "intersectAABB3Positions3"
+		},
+		"141": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"142": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"143": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "containsAABB3Point3"
+		},
+		"144": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "containsAABB3Point3"
+		},
+		"145": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"146": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "p"
+		},
+		"147": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "containsAABB2Point2"
+		},
+		"148": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "containsAABB2Point2"
+		},
+		"149": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"150": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "p"
+		},
+		"151": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB3Diag"
+		},
+		"152": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB3DiagPoint"
+		},
+		"153": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "getAABB3DiagPoint"
+		},
+		"154": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"155": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "p"
+		},
+		"156": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions3ToAABB3"
+		},
+		"157": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions3ToAABB3"
+		},
+		"158": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positions"
+		},
+		"159": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "aabb"
+		},
+		"160": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "positionsDecompressMatrix"
+		},
+		"161": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumPlane3"
+		},
+		"162": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumPlane3.__constructor"
+		},
+		"163": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumPlane3"
+		},
+		"164": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumPlane3.testVertex"
+		},
+		"165": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumPlane3.offset"
+		},
+		"166": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumPlane3.normal"
+		},
+		"167": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumPlane3.set"
+		},
+		"168": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumPlane3.set"
+		},
+		"169": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "nx"
+		},
+		"170": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "ny"
+		},
+		"171": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "nz"
+		},
+		"172": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "offset"
+		},
+		"173": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "INSIDE"
+		},
+		"174": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "INTERSECT"
+		},
+		"175": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "OUTSIDE"
+		},
+		"176": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Frustum3"
+		},
+		"177": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Frustum3.__constructor"
+		},
+		"178": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Frustum3"
+		},
+		"179": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Frustum3.planes"
+		}
+	}
+}

@@ -10,29 +10,39 @@ export class TrianglesQualityColorRenderer extends TrianglesRenderer {
     }
 
     buildVertexShader(): string {
-        return `${this.vertHeader}   
+        return `${this.vertHeader}
+
+            //----------------------------------------------------
+            // TrianglesQualityColorRenderer Vertex Shader
+            //----------------------------------------------------
+
             ${this.vertCommonDefs}
             ${this.vertTrianglesDataTextureDefs}
             ${this.vertSlicingDefs}
             ${this.vertTrianglesLightingDefs}
-            ${this.vertLogDepthBufDefs}                  
+            ${this.vertLogDepthBufDefs}
             void main(void) {
-                ${this.vertTriangleVertexPosition}                               
+                ${this.vertTriangleVertexPosition}
                 ${this.vertSlicing}
                 ${this.vertTrianglesLighting}
-                ${this.vertLogDepthBuf} 
+                ${this.vertLogDepthBuf}
             }`;
     }
 
     buildFragmentShader(): string {
-        return `${this.fragHeader}                                    
-            ${this.fragSlicingDefs} 
-            ${this.fragTrianglesLightingDefs}   
-            ${this.fragLogDepthBufDefs} 
-            void main(void) {                                                   
-                ${this.fragSlicing}                                                                                      
-                ${this.fragTrianglesLighting}                                   
-                ${this.fragLogDepthBuf}                        
+        return `${this.fragHeader}
+
+            //----------------------------------------------------
+            // TrianglesQualityColorRenderer Fragment Shader
+            //----------------------------------------------------
+
+            ${this.fragSlicingDefs}
+            ${this.fragTrianglesLightingDefs}
+            ${this.fragLogDepthBufDefs}
+            void main(void) {
+                ${this.fragSlicing}
+                ${this.fragTrianglesLighting}
+                ${this.fragLogDepthBuf}
             }`;
     }
 }

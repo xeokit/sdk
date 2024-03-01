@@ -8,7 +8,7 @@ import {RENDER_PASSES} from "../RENDER_PASSES";
 export class TrianglesLayer extends Layer {
 
     draw(rendererSet: RendererSet) {
-        switch (this.renderContext.renderPass) {
+        switch (rendererSet.renderContext.renderPass) {
             case RENDER_PASSES.COLOR_OPAQUE:
             case RENDER_PASSES.COLOR_TRANSPARENT:
                 rendererSet.trianglesFastColorRenderer.draw(this);

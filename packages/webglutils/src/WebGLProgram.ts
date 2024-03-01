@@ -87,7 +87,17 @@ export class WebGLProgram {
      * @param gl
      * @param shaderSource
      */
-    constructor(gl: WebGL2RenderingContext, shaderSource: any) {
+    constructor(gl: WebGL2RenderingContext,
+                shaderSource: {
+                    vertex: string,
+                    fragment: string
+                }) {
+
+        console.log("-----------------------------------------------------")
+        console.log(shaderSource.vertex);
+        console.log(shaderSource.fragment);
+
+        console.log("-----------------------------------------------------")
 
         // @ts-ignore
         this.id = ids.addItem({});
@@ -97,7 +107,7 @@ export class WebGLProgram {
         this.compiled = false;
         this.linked = false;
         this.validated = false;
-        this.errors = [];
+        this.errors = undefined;
         this.uniforms = {};
         this.samplers = {};
         this.attributes = {};

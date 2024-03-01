@@ -14,6 +14,7 @@ import type {RendererObject, SceneModel} from "@xeokit/scene";
 import {WebGLTileManager} from "./WebGLTileManager";
 import {Layer} from "./Layer";
 import {RendererSet} from "./RendererSet";
+import {RenderStats} from "./RenderStats";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
@@ -26,6 +27,8 @@ const isSafari = (ua && ua[1].toLowerCase() === "safari");
 export class WebGLRenderer implements Renderer {
 
     rendererObjects: { [key: string]: RendererObject };
+
+    renderStats: RenderStats;
 
     tileManager: WebGLTileManager | null;
 
@@ -71,7 +74,7 @@ export class WebGLRenderer implements Renderer {
     constructor(params: {
         textureTranscoder?: TextureTranscoder
     }) {
-
+        this.renderStats = new RenderStats();
         this.rendererObjects = {};
         this.tileManager = null;
         this.#renderContext = null;
@@ -238,7 +241,7 @@ export class WebGLRenderer implements Renderer {
         gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
         this.#renderContext = new RenderContext(this.#viewer, this.#view, gl);
         this.tileManager = new WebGLTileManager({camera: view.camera, gl});
-        this.#rendererSet = new RendererSet(this.#renderContext);
+        this.#rendererSet = new RendererSet(this.#renderContext, this.renderStats);
         view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {
             this.#viewMatrixDirty = true;
         });
@@ -501,6 +504,7 @@ export class WebGLRenderer implements Renderer {
         if (!this.#view) {
             throw new SDKError("Can't render with WebGLRenderer - no View is attached");
         }
+        this.renderStats.reset();
         params = params || {};
         if (params.force) {
             this.#imageDirty = true;

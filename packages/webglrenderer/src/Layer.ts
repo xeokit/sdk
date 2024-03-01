@@ -17,6 +17,7 @@ import {SCENE_OBJECT_FLAGS} from "./SCENE_OBJECT_FLAGS";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import {SDKError} from "@xeokit/core";
 import {RendererSet} from "./RendererSet";
+import {RenderStats} from "./RenderStats";
 
 const tempMat4a = <Float64Array>identityMat4();
 const tempUint8Array4 = new Uint8Array(4);
@@ -62,7 +63,6 @@ export abstract class Layer {
     primitive: number;
     view: View;
     rendererModel: WebGLRendererModel;
-    renderContext: RenderContext;
     layerIndex: number;
     meshCounts: MeshCounts;
     renderState: RenderState;
@@ -76,10 +76,10 @@ export abstract class Layer {
     #built: boolean;
     #aabb: FloatArrayParam;
     aabbDirty: boolean;
-    #meshes: any[];
+    #meshes: any[];                 // A Mesh has multiple SubMeshes
     layerGeometryBuckets: {};
     #meshToSubMeshLookup: any[];
-    #subMeshs: any[];
+    #subMeshs: any[];               // A SubMesh has a single GeometryBucket
     #numSubMeshes: number;
     #layerNumber: number;
     #numUpdatesInFrame: number;
@@ -171,6 +171,7 @@ export abstract class Layer {
         if (this.#built) {
             throw new SDKError("Already built");
         }
+        console.log(`Layer.createLayerMesh( ${JSON.stringify(layerMeshParams)}, ${JSON.stringify(sceneMesh.getJSON())} )`);
         const subMeshIndices = [];
         const sceneGeometry = sceneMesh.geometry;
         sceneGeometry.geometryBuckets.forEach((sceneGeometryBucket, bucketIndex) => {
@@ -188,6 +189,7 @@ export abstract class Layer {
         const meshIndex = this.#meshToSubMeshLookup.length;
         this.#meshToSubMeshLookup.push(subMeshIndices);
         this.#meshes.push(sceneMesh);
+        this.meshCounts.numMeshes++;
         return meshIndex;
     }
 
@@ -295,18 +297,18 @@ export abstract class Layer {
         const dataTextureBuffer = this.#dataTextureBuffer;
         const renderState = this.renderState;
 
-        dataTextureBuffer.perSubMeshDecodeMatrices.push(sceneGeometry.positionsDecompressMatrix);
-        dataTextureBuffer.perSubMeshInstancingMatrices.push(meshMatrix || DEFAULT_MATRIX);
-        dataTextureBuffer.perSubMeshSolidFlag.push(sceneGeometry.primitive === SolidPrimitive);
+        dataTextureBuffer.subMeshDecompressMatrices.push(sceneGeometry.positionsDecompressMatrix);
+        dataTextureBuffer.subMeshInstanceMatrices.push(meshMatrix || DEFAULT_MATRIX);
+        dataTextureBuffer.subMeshSolidFlags.push(sceneGeometry.primitive === SolidPrimitive);
 
         if (colors) {
-            dataTextureBuffer.perSubMeshColors.push([colors[0] * 255, colors[1] * 255, colors[2] * 255, 255]);
+            dataTextureBuffer.subMeshColors.push([colors[0] * 255, colors[1] * 255, colors[2] * 255, 255]);
         } else if (color) { // Color is pre-quantized by SceneModel
-            dataTextureBuffer.perSubMeshColors.push([color[0], color[1], color[2], opacity]);
+            dataTextureBuffer.subMeshColors.push([color[0], color[1], color[2], opacity]);
         }
 
-        dataTextureBuffer.perSubMeshPickColors.push(pickColor);
-        dataTextureBuffer.perSubMeshVertexBases.push(geometryBucketHandle.vertexBase);
+        dataTextureBuffer.subMeshPickColors.push(pickColor);
+        dataTextureBuffer.subMeshVertexBases.push(geometryBucketHandle.vertexBase);
 
         {
             let currentNumIndices;
@@ -317,7 +319,7 @@ export abstract class Layer {
             } else {
                 currentNumIndices = renderState.numIndices32Bits;
             }
-            dataTextureBuffer.perSubMeshIndicesBases.push(currentNumIndices / indicesPerPrimitive - geometryBucketHandle.indicesBase);
+            dataTextureBuffer.subMeshIndicesBases.push(currentNumIndices / indicesPerPrimitive - geometryBucketHandle.indicesBase);
         }
 
         {
@@ -329,7 +331,7 @@ export abstract class Layer {
             } else {
                 currentNumEdgeIndices = renderState.numEdgeIndices32Bits;
             }
-            dataTextureBuffer.perSubMeshEdgeIndicesBases.push(currentNumEdgeIndices / 2 - geometryBucketHandle.edgeIndicesBase);
+            dataTextureBuffer.subMeshEdgeIndicesBases.push(currentNumEdgeIndices / 2 - geometryBucketHandle.edgeIndicesBase);
         }
 
         const subMeshIndex = this.#subMeshs.length;
@@ -337,13 +339,13 @@ export abstract class Layer {
             let numIndices = geometryBucketHandle.numPrimitives * indicesPerPrimitive;
             let indicesPortionIdBuffer;
             if (geometryBucketHandle.numVertices <= (1 << 8)) {
-                indicesPortionIdBuffer = dataTextureBuffer.perPrimitiveSubMesh8Bits;
+                indicesPortionIdBuffer = dataTextureBuffer.primitiveToSubMeshLookup8Bits;
                 renderState.numIndices8Bits += numIndices;
             } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
-                indicesPortionIdBuffer = dataTextureBuffer.perPrimitiveSubMesh16Bits;
+                indicesPortionIdBuffer = dataTextureBuffer.primitiveToSubMeshLookup16Bits;
                 renderState.numIndices16Bits += numIndices;
             } else {
-                indicesPortionIdBuffer = dataTextureBuffer.perPrimitiveSubMesh32Bits;
+                indicesPortionIdBuffer = dataTextureBuffer.primitiveToSubMeshLookup32Bits;
                 renderState.numIndices32Bits += numIndices;
             }
             for (let i = 0; i < geometryBucketHandle.numPrimitives; i += INDICES_EDGE_INDICES_ALIGNEMENT_SIZE) {
@@ -355,13 +357,13 @@ export abstract class Layer {
             let numEdgeIndices = geometryBucketHandle.numEdges * 2;
             let edgeIndicesPortionIdBuffer;
             if (geometryBucketHandle.numVertices <= (1 << 8)) {
-                edgeIndicesPortionIdBuffer = dataTextureBuffer.perEdgeSubMesh8Bits;
+                edgeIndicesPortionIdBuffer = dataTextureBuffer.edgeToSubMeshLookup8Bits;
                 renderState.numEdgeIndices8Bits += numEdgeIndices;
             } else if (geometryBucketHandle.numVertices <= (1 << 16)) {
-                edgeIndicesPortionIdBuffer = dataTextureBuffer.perEdgeSubMesh16Bits;
+                edgeIndicesPortionIdBuffer = dataTextureBuffer.edgeToSubMeshLookup16Bits;
                 renderState.numEdgeIndices16Bits += numEdgeIndices;
             } else {
-                edgeIndicesPortionIdBuffer = dataTextureBuffer.perEdgeSubMesh32Bits;
+                edgeIndicesPortionIdBuffer = dataTextureBuffer.edgeToSubMeshLookup32Bits;
                 renderState.numEdgeIndices32Bits += numEdgeIndices;
             }
             for (let i = 0; i < geometryBucketHandle.numEdges; i += INDICES_EDGE_INDICES_ALIGNEMENT_SIZE) {
@@ -401,7 +403,7 @@ export abstract class Layer {
     }
 
     isEmpty() {
-        return this.meshCounts.numMeshes == 0;
+        return this.meshCounts.numMeshes === 0;
     }
 
     setLayerMeshFlags(meshIndex: number, flags: number, meshTransparent: boolean) {
@@ -568,29 +570,29 @@ export abstract class Layer {
         this.#deferredSetFlagsDirty = false;
         const gl = this.gl;
         const dataTextureSet = this.renderState.dataTextureSet;
-        gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.perSubMeshAttributesDataTexture.texture);
+        gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.subMeshAttributesDataTexture.texture);
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
             0, // xoffset
             0, // yoffset
-            dataTextureSet.perSubMeshAttributesDataTexture.textureWidth, // width
-            dataTextureSet.perSubMeshAttributesDataTexture.textureHeight, // width
+            dataTextureSet.subMeshAttributesDataTexture.textureWidth, // width
+            dataTextureSet.subMeshAttributesDataTexture.textureHeight, // width
             gl.RGBA_INTEGER,
             gl.UNSIGNED_BYTE,
-            dataTextureSet.perSubMeshAttributesDataTexture.textureData
+            dataTextureSet.subMeshAttributesDataTexture.textureData
         );
-        // gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.perSubMeshInstancingMatricesDataTexture._texture);
+        // gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.subMeshInstanceMatricesDataTexture._texture);
         // gl.texSubImage2D(
         //     gl.TEXTURE_2D,
         //     0, // level
         //     0, // xoffset
         //     0, // yoffset
-        //     dataTextureSet.perSubMeshInstancingMatricesDataTexture._textureWidth, // width
-        //     dataTextureSet.perSubMeshInstancingMatricesDataTexture._textureHeight, // width
+        //     dataTextureSet.subMeshInstanceMatricesDataTexture._textureWidth, // width
+        //     dataTextureSet.subMeshInstanceMatricesDataTexture._textureHeight, // width
         //     gl.RGB,
         //     gl.FLOAT,
-        //     dataTextureSet.perSubMeshInstancingMatricesDataTexture._textureData
+        //     dataTextureSet.subMeshInstanceMatricesDataTexture._textureData
         // );
     }
 
@@ -645,7 +647,7 @@ export abstract class Layer {
         tempUint8Array4 [1] = color[1];
         tempUint8Array4 [2] = color[2];
         tempUint8Array4 [3] = color[3];
-        textureState.perSubMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32);
+        textureState.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32);
         if (this.#deferredSetFlagsActive) {
            // console.info("_setSubMeshColor defer");
             this.#deferredSetFlagsDirty = true;
@@ -655,7 +657,7 @@ export abstract class Layer {
             this.#beginDeferredFlags(); // Subsequent flags updates now deferred
         }
        // console.info("_setSubMeshColor write through");
-        gl.bindTexture(gl.TEXTURE_2D, textureState.perSubMeshAttributesDataTexture.texture);
+        gl.bindTexture(gl.TEXTURE_2D, textureState.subMeshAttributesDataTexture.texture);
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
@@ -760,7 +762,7 @@ export abstract class Layer {
         tempUint8Array4 [2] = f2;
         tempUint8Array4 [3] = f3;
         // sceneMesh flags
-        dataTextureSet.perSubMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32 + 8);
+        dataTextureSet.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32 + 8);
         if (this.#deferredSetFlagsActive || deferred) {
             this.#deferredSetFlagsDirty = true;
             return;
@@ -768,7 +770,7 @@ export abstract class Layer {
         if (++this.#numUpdatesInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
             this.#beginDeferredFlags(); // Subsequent flags updates now deferred
         }
-        gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.perSubMeshAttributesDataTexture.texture);
+        gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.subMeshAttributesDataTexture.texture);
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
@@ -805,7 +807,7 @@ export abstract class Layer {
         tempUint8Array4 [2] = 1;
         tempUint8Array4 [3] = 2;
         // sceneMesh flags2
-        textureState.perSubMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32 + 12);
+        textureState.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32 + 12);
         if (this.#deferredSetFlagsActive || deferred) {
             // console.log("_setSubMeshFlags2 set flags defer");
             this.#deferredSetFlagsDirty = true;
@@ -814,7 +816,7 @@ export abstract class Layer {
         if (++this.#numUpdatesInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
             this.#beginDeferredFlags(); // Subsequent flags updates now deferred
         }
-        gl.bindTexture(gl.TEXTURE_2D, textureState.perSubMeshAttributesDataTexture.texture);
+        gl.bindTexture(gl.TEXTURE_2D, textureState.subMeshAttributesDataTexture.texture);
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
@@ -897,7 +899,7 @@ export abstract class Layer {
         const textureState = this.renderState.dataTextureSet;
         const gl = this.gl;
         tempMat4a.set(matrix);
-        textureState.perSubMeshInstancingMatricesDataTexture.textureData.set(tempMat4a, subMeshIndex * 16);
+        textureState.subMeshInstanceMatricesDataTexture.textureData.set(tempMat4a, subMeshIndex * 16);
         if (this.#deferredSetFlagsActive) {
             this.#deferredSetFlagsDirty = true;
             return;
@@ -905,7 +907,7 @@ export abstract class Layer {
         if (++this.#numUpdatesInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
             this.#beginDeferredFlags(); // Subsequent flags updates now deferred
         }
-        gl.bindTexture(gl.TEXTURE_2D, textureState.perSubMeshInstancingMatricesDataTexture.texture);
+        gl.bindTexture(gl.TEXTURE_2D, textureState.subMeshInstanceMatricesDataTexture.texture);
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
@@ -922,7 +924,7 @@ export abstract class Layer {
     }
 
     abstract draw(rendererSet: RendererSet) : void;
-    
+
     destroy() {
         this.rendererModel.viewer.onTick.unsubscribe(this.#onViewerTick);
         this.renderState.dataTextureSet.destroy();

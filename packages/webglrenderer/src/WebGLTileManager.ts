@@ -141,7 +141,7 @@ export class WebGLTileManager implements TileManager {
         const textureWidth = 512 * 4;
         const textureHeight = Math.ceil(numMatrices / (textureWidth / 4));
         const textureData = new Float32Array(4 * textureWidth * textureHeight);
-        // dataTextureRamStats.sizeDataPositionDecodeMatrices += textureData.byteLength;
+        // dataTextureRamStats.sizeDataPositionDecompressMatrices += textureData.byteLength;
         const gl = this.#gl;
         const texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);

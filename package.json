@@ -14,8 +14,8 @@
         "dist": "turbo run dist --concurrency 100",
         "test": "turbo run test --concurrency 100 --continue",
         "docs-build": "rimraf docs && turbo run docs-build --filter=docs && pnpm typedoc-gen",
-        "typedoc-gen": "turbo run docs --concurrency 100 && typedoc --entryPointStrategy merge \"dist-docs/json/*.json\" --tsconfig packages/config/tsconfig.typedoc.json",
-        "docs-serve": "http-server ./dist-docs --port 8080",
+        "typedoc-gen": "turbo run docs --concurrency 100 && typedoc --entryPointStrategy merge \"docs/json/*.json\" --tsconfig packages/config/tsconfig.typedoc.json",
+        "docs-serve": "http-server ./docs --port 8080",
         "publish-packages": "turbo run build lint test && changeset version && changeset publish"
     },
     "devDependencies": {

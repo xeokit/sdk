@@ -3,7 +3,7 @@
         "packages/*"
     ],
     "entryPointStrategy": "packages",
-    "out": "./dist-docs/api",
+    "out": "./docs/api",
     "excludePrivate": true,
     "excludeNotDocumented": true,
     "media": "./packages/docs/src/assets",

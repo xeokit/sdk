@@ -52,6 +52,8 @@
         renderer
     });
 
+    log(`Viewer instantiated.`);
+
     viewer.onDestroyed.subscribe((viewer) => {
         log(`Viewer.onDestroyed( viewer.id="${viewer.id}" )`);
     });
@@ -78,18 +80,18 @@
     });
 
     view.onLayerCreated.subscribe((view, viewLayer) => {
-        log(`ViewLayer "${viewLayer.id}" created in View "${view.id}"`);
+        log(`ViewLayer.onLayerCreated( view.id="${view.id}", viewLayer.id="${viewLayer.id}" )`);
 
         viewLayer.onObjectCreated.subscribe((viewLayer, viewObject) => {
-            log(`ViewObject "${viewObject.id}" created in ViewLayer "${viewLayer.id}"`);
+            log(`ViewLayer.onObjectCreated( viewLayer.id="${viewLayer.id}, viewObject.id="${viewObject.id}" )`);
         });
 
         viewLayer.onObjectDestroyed.subscribe((viewLayer, viewObject) => {
-            log(`ViewObject "${viewObject.id}" destroyed in ViewLayer "${viewLayer.id}"`);
+            log(`ViewLayer.onObjectDestroyed( viewLayer.id="${viewLayer.id}, viewObject.id="${viewObject.id}" )`);
         });
 
         viewLayer.onObjectVisibility.subscribe((viewLayer, viewObject) => {
-            log(`ViewObject "${viewObject.id}" set visible = ${viewObject.visible ? "true" : "false"} in ViewLayer "${viewLayer.id}"`);
+            log(`ViewLayer.onObjectVisibility( viewLayer.id="${viewLayer.id}", viewObject.id="${viewObject.id}", visible=${viewObject.visible ? "true" : false}`);
         });
 
         // viewLayer.onObjectXRayed.subscribe((viewLayer, viewObject) => {
@@ -98,23 +100,23 @@
     });
 
     view.onLayerDestroyed.subscribe((view, viewLayer) => {
-        log(`ViewLayer "${viewLayer.id}" destroyed in View "${view.id}"`);
+        log(`View.onLayerDestroyed( view.id="${view.id}", viewLayer.id="${viewLayer.id}" )`);
     });
 
     view.onObjectCreated.subscribe((view, viewObject) => {
-        log(`ViewObject "${viewObject.id}" created in View "${view.id}"`);
+        log(`View.onObjectCreated( view.id="${view.id}", viewObject.id="${viewObject.id}" )`);
     });
 
     view.onObjectDestroyed.subscribe((view, viewObject) => {
-        log(`ViewObject "${viewObject.id}" destroyed in View "${view.id}"`);
+        log(`View.onObjectDestroyed( view.id="${view.id}", viewObject.id="${viewObject.id}" )`);
     });
 
     view.onObjectVisibility.subscribe((view, viewObject) => {
-        log(`ViewObject "${viewObject.id}" set visible = ${viewObject.visible ? "true" : "false"} in View "${view.id}"`);
+        log(`View.onObjectVisibility( view.id="${view.id}", viewObject.id="${viewObject.id}", visible=${viewObject.visible ? "true" : false}`);
     });
 
     view.onObjectXRayed.subscribe((view, viewObject) => {
-        log(`ViewObject "${viewObject.id}" set xrayed = ${viewObject.xrayed ? "true" : "false"} in View "${view.id}"`);
+        log(`View.onObjectXRayed( view.id="${view.id}", viewObject.id="${viewObject.id}", xrayed=${viewObject.xrayed ? "true" : false}`);
     });
 
     const sceneModel = scene.createModel({

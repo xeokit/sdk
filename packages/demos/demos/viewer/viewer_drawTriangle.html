@@ -57,6 +57,10 @@
         canvasId: "myCanvas"
     });
 
+    view.camera.eye = [0, 0, -20];
+    view.camera.look = [0, 0, 0];
+    view.camera.up = [0, 1, 0];
+
     const sceneModel = scene.createModel({
         id: "myModel"
     });
@@ -81,9 +85,9 @@
         sceneModel.createMesh({
             id: "triangleMesh",
             geometryId: "boxGeometry",
-            position: [0, 0, 0],
-            scale: [1, 1, 1],
-            rotation: [0, 0, 0],
+            // position: [0, 0, 0],
+            // scale: [1, 1, 1],
+            // //rotation: [0, 0, 0],
             color: [1, 0.3, 0.3]
         });
 

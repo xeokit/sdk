@@ -368,6 +368,7 @@ export abstract class LayerRenderer {
 
         if (renderContext.lastProgramId !== program.id) {
             this.bind();
+            renderContext.textureUnit=0;
         }
 
         let rtcViewMatrix;
@@ -536,9 +537,11 @@ export abstract class LayerRenderer {
 
     protected get vertCommonDefs(): string {
         return `uniform     int         renderPass;
+
                 uniform     mat4        sceneModelMatrix;
                 uniform     mat4        viewMatrix;
                 uniform     mat4        projMatrix;
+
                 uniform     vec3        uCameraEyeRtc;
                             vec3        positions[3];
 
@@ -603,7 +606,7 @@ export abstract class LayerRenderer {
 
     protected get fragColorDefs(): string {
         return `uniform         vec4    color;
-        out             vec4     outColor;`;
+                out             vec4     outColor;`;
     }
 
     protected get fragLogDepthBufDefs(): string {

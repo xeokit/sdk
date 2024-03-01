@@ -76,10 +76,10 @@ export abstract class Layer {
     #built: boolean;
     #aabb: FloatArrayParam;
     aabbDirty: boolean;
-    #meshes: any[];
+    #meshes: any[];                 // A Mesh has multiple SubMeshes
     layerGeometryBuckets: {};
     #meshToSubMeshLookup: any[];
-    #subMeshs: any[];
+    #subMeshs: any[];               // A SubMesh has a single GeometryBucket
     #numSubMeshes: number;
     #layerNumber: number;
     #numUpdatesInFrame: number;

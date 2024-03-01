@@ -1,46 +1,45 @@
 {
-  "name": "@xeokit/scene",
-  "private": false,
-  "version": "0.1.0",
-  "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "scripts": {
-    "test": "jest --verbose",
-    "dist": "tsc",
-    "publish": "npm publish --access public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xeokit/sdk.git"
-  },
-  "author": "Lindsay Kay",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "bugs": {
-    "url": "https://github.com/xeokit/sdk/issues"
-  },
-  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html",
-  "files": [
-    "src/",
-    "dist/",
-    "README.md",
-    "package.json"
-  ],
-  "keywords": [],
-  "dependencies": {
-    "@loaders.gl/images": "^3.4.1",
-    "@loaders.gl/textures": "^3.4.1",
-
-    "@xeokit/boundaries": "^0.1.0",
-    "@xeokit/compression": "^0.1.0",
-    "@xeokit/constants": "^0.1.0",
-    "@xeokit/core": "^0.1.0",
-    "@xeokit/math": "^0.1.0",
-    "@xeokit/matrix": "^0.1.0",
-    "strongly-typed-events": "3.0.7"
-  },
-  "devDependencies": {
-
-  }
+    "name": "@xeokit/scene",
+    "private": false,
+    "version": "0.1.0",
+    "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "scripts": {
+        "test": "jest --passWithNoTests",
+        "dist": "tsc",
+        "docs": "typedoc --json ../../docs/json/scene.json --options typedoc.json --validation.invalidLink false",
+        "publish": "npm publish --access public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xeokit/sdk.git"
+    },
+    "author": "Lindsay Kay",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/xeokit/sdk/issues"
+    },
+    "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html",
+    "files": [
+        "src/",
+        "dist/",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [],
+    "dependencies": {
+        "@xeokit/config": "^0.1.0",
+        "@loaders.gl/images": "^3.4.1",
+        "@loaders.gl/textures": "^3.4.1",
+        "@xeokit/boundaries": "^0.1.0",
+        "@xeokit/compression": "^0.1.0",
+        "@xeokit/constants": "^0.1.0",
+        "@xeokit/core": "^0.1.0",
+        "@xeokit/math": "^0.1.0",
+        "@xeokit/matrix": "^0.1.0",
+        "strongly-typed-events": "3.0.7"
+    },
+    "devDependencies": {}
 }

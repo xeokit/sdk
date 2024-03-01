@@ -1,0 +1,619 @@
+{
+	"id": 0,
+	"name": "@xeokit/math",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fmath.svg)](https://badge.fury.io/js/%40xeokit%2Fmath)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/badge)](https://www.jsdelivr.com/package/npm/@xeokit/math)\n\n<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:140px;\" src=\"media://images/math_icon.png\"/>\n\n# xeokit Core Math Utilities\n\n---\n\n### *Basic math types and constants*\n\n---\n\n## Installation\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nnpm install @xeokit/math\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\n\n## Usage\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\nimport * as math from \"@xeokit/math\";\n\n//..\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 9,
+			"name": "FloatArrayParam",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "An array of floating-point numbers."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 35,
+					"character": 12,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L35"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint8Array"
+						},
+						"name": "Uint8Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Int8Array"
+						},
+						"name": "Int8Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint16Array"
+						},
+						"name": "Uint16Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint32Array"
+						},
+						"name": "Uint32Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Int16Array"
+						},
+						"name": "Int16Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Float32Array"
+						},
+						"name": "Float32Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Float64Array"
+						},
+						"name": "Float64Array",
+						"package": "typescript"
+					},
+					{
+						"type": "array",
+						"elementType": {
+							"type": "intrinsic",
+							"name": "number"
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": 10,
+			"name": "IntArrayParam",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "An array of integer numbers."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 40,
+					"character": 12,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L40"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint32Array"
+						},
+						"name": "Uint32Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint8Array"
+						},
+						"name": "Uint8Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Int8Array"
+						},
+						"name": "Int8Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint16Array"
+						},
+						"name": "Uint16Array",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Int16Array"
+						},
+						"name": "Int16Array",
+						"package": "typescript"
+					},
+					{
+						"type": "array",
+						"elementType": {
+							"type": "intrinsic",
+							"name": "number"
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": 13,
+			"name": "DEGTORAD",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "The number of radiians in a degree (0.0174532925)."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 55,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L55"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "0.0174532925"
+		},
+		{
+			"id": 12,
+			"name": "MAX_DOUBLE",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Maximum safe double-precision value."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 50,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L50"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "Number.MAX_SAFE_INTEGER"
+		},
+		{
+			"id": 11,
+			"name": "MIN_DOUBLE",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Minimum safe double-precision value."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 45,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L45"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "-Number.MAX_SAFE_INTEGER"
+		},
+		{
+			"id": 14,
+			"name": "RADTODEG",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "The number of degrees in a radian."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 60,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L60"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "57.295779513"
+		},
+		{
+			"id": 1,
+			"name": "clamp",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 69,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L69"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2,
+					"name": "clamp",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Clamps a value to the given range."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Clamped result."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 69,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L69"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3,
+							"name": "value",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Value to clamp."
+									}
+								]
+							},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 4,
+							"name": "min",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Lower bound."
+									}
+								]
+							},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 5,
+							"name": "max",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Upper bound."
+									}
+								]
+							},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				}
+			]
+		},
+		{
+			"id": 6,
+			"name": "newFloatArray",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 76,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L76"
+				}
+			],
+			"signatures": [
+				{
+					"id": 7,
+					"name": "newFloatArray",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Creates a new "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "FloatArrayParam",
+								"target": 9,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 76,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L76"
+						}
+					],
+					"parameters": [
+						{
+							"id": 8,
+							"name": "values",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "number"
+									},
+									{
+										"type": "reference",
+										"target": 9,
+										"name": "FloatArrayParam",
+										"package": "@xeokit/math"
+									}
+								]
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 9,
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Type Aliases",
+			"children": [
+				9,
+				10
+			]
+		},
+		{
+			"title": "Variables",
+			"children": [
+				13,
+				12,
+				11,
+				14
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				1,
+				6
+			]
+		}
+	],
+	"packageName": "@xeokit/math",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/math\n\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_math.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "clamp"
+		},
+		"2": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "clamp"
+		},
+		"3": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "value"
+		},
+		"4": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "min"
+		},
+		"5": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "max"
+		},
+		"6": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "newFloatArray"
+		},
+		"7": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "newFloatArray"
+		},
+		"8": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "values"
+		},
+		"9": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FloatArrayParam"
+		},
+		"10": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "IntArrayParam"
+		},
+		"11": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "MIN_DOUBLE"
+		},
+		"12": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "MAX_DOUBLE"
+		},
+		"13": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "DEGTORAD"
+		},
+		"14": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RADTODEG"
+		}
+	}
+}

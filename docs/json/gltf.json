@@ -1,0 +1,474 @@
+{
+	"id": 0,
+	"name": "@xeokit/gltf",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fgltf.svg)](https://badge.fury.io/js/%40xeokit%2Fgltf)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/gltf/badge)](https://www.jsdelivr.com/package/npm/@xeokit/gltf)\n\n<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:130px;\" src=\"media://images/xeokit_gltf_logo.svg\"/>\n\n# xeokit glTF Importer\n\n---\n\n### *Import models from the industry standard glTF model file format*\n\n---\n\nThe xeokit SDK allows us to import 3D models from [glTF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#gltf) (GL Transmission Format), a\nfile format that is a runtime asset delivery format for 3D scenes and models.\n\nglTF is a compact and efficient format for 3D content, allowing fast loading and rendering in apps and web\nbrowsers. It stores geometry, materials, textures, animations, and scene hierarchy, and is open and royalty-free,\nmaking it a popular choice for 3D content distribution and exchange.\n\nTo import a glTF model into xeokit, use the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "loadGLTF",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " function, which will load the file into\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": " and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)\n\n<br>\n\n## Installation\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nnpm install @xeokit/gltf\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\n\n## Usage\n\nIn the example below, we'll import a glTF file into a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": "\nand a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ". The "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/core!SDKError"
+			},
+			{
+				"kind": "text",
+				"text": " class\nis used to handle errors that may occur during the process:\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\nimport {Data} from \"@xeokit/data\";\nimport {Scene} from \"@xeokit/scene\";\nimport {loadGLTF} from \"@xeokit/gltf\";\n\nconst data = new Data();\nconst scene = new Scene();\n\nconst dataModel = data.createModel({\n    id: \"myModel\n});\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\n});\n\nif (dataModel instanceof SDKError) {\n     console.error(dataModel.message);\n\n} else if (sceneModel instanceof SDKError) {\n     console.error(dataModel.message);\n\n} else {\n\n     fetch(\"myModel.glb\").then(response => {\n\n         response.arrayBuffer().then(fileData => {\n\n             loadGLTF({ fileData, dataModel, sceneModel }).then(()=>{\n\n                 dataModel.build();\n                 sceneModel.build();\n\n             }).catch(error=>{\n\n                 dataModel.destroy();\n                 sceneModel.destroy();\n\n                 console.log(error.message);\n             });\n        });\n    });\n}\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "loadGLTF",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "loadGLTF.ts",
+					"line": 57,
+					"character": 16,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/gltf/src/loadGLTF.ts#L57"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2,
+					"name": "loadGLTF",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Loads glTF file data from an ArrayBuffer into a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel | SceneModel"
+							},
+							{
+								"kind": "text",
+								"text": " and/or\na "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/data!DataModel | DataModel"
+							},
+							{
+								"kind": "text",
+								"text": ".\n\n* Expects "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.built | SceneModel.built"
+							},
+							{
+								"kind": "text",
+								"text": " and "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.destroyed | SceneModel.destroyed"
+							},
+							{
+								"kind": "text",
+								"text": " to be "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "\n* Does not call "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.build | SceneModel.build"
+							},
+							{
+								"kind": "text",
+								"text": " - we call that ourselves, when we have finished building the SceneModel\n\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/gltf"
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Resolves when glTF has been loaded."
+									}
+								]
+							},
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Resolves when glTF has been loaded into the SceneModel and/or DataModel."
+									}
+								]
+							},
+							{
+								"tag": "@throws",
+								"content": [
+									{
+										"kind": "text",
+										"text": "*"
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/core!SDKError"
+									},
+									{
+										"kind": "text",
+										"text": "*\n* If the SceneModel has already been destroyed.\n* If the SceneModel has already been built.\n* If the DataModel has already been destroyed.\n* If the DataModel has already been built."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "loadGLTF.ts",
+							"line": 57,
+							"character": 16,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/gltf/src/loadGLTF.ts#L57"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Loading parameters."
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 7,
+											"name": "dataModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "DataModel to load into. For glTF, this will create a basic aggregation hierarchy (see "
+													},
+													{
+														"kind": "inline-tag",
+														"tag": "@link",
+														"text": "\"@xeokit/basictypes/basicTypes\""
+													},
+													{
+														"kind": "text",
+														"text": ")."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadGLTF.ts",
+													"line": 60,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/gltf/src/loadGLTF.ts#L60"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../data/src/DataModel.ts",
+													"qualifiedName": "DataModel"
+												},
+												"name": "DataModel",
+												"package": "@xeokit/data"
+											}
+										},
+										{
+											"id": 5,
+											"name": "fileData",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "glTF file data"
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadGLTF.ts",
+													"line": 58,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/gltf/src/loadGLTF.ts#L58"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+													"qualifiedName": "ArrayBuffer"
+												},
+												"name": "ArrayBuffer",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 8,
+											"name": "log",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"sources": [
+												{
+													"fileName": "loadGLTF.ts",
+													"line": 61,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/gltf/src/loadGLTF.ts#L61"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+													"qualifiedName": "Function"
+												},
+												"name": "Function",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 6,
+											"name": "sceneModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "SceneModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadGLTF.ts",
+													"line": 59,
+													"character": 4,
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/gltf/src/loadGLTF.ts#L59"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../scene/src/SceneModel.ts",
+													"qualifiedName": "SceneModel"
+												},
+												"name": "SceneModel",
+												"package": "@xeokit/scene"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												7,
+												5,
+												8,
+												6
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "loadGLTF.ts",
+											"line": 57,
+											"character": 33,
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/gltf/src/loadGLTF.ts#L57"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "any"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Functions",
+			"children": [
+				1
+			]
+		}
+	],
+	"packageName": "@xeokit/gltf",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/gltf\n\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/loadGLTF.ts",
+			"qualifiedName": "loadGLTF"
+		},
+		"2": {
+			"sourceFileName": "src/loadGLTF.ts",
+			"qualifiedName": "loadGLTF"
+		},
+		"3": {
+			"sourceFileName": "src/loadGLTF.ts",
+			"qualifiedName": "params"
+		},
+		"4": {
+			"sourceFileName": "src/loadGLTF.ts",
+			"qualifiedName": "__type"
+		},
+		"5": {
+			"sourceFileName": "src/loadGLTF.ts",
+			"qualifiedName": "__type.fileData"
+		},
+		"6": {
+			"sourceFileName": "src/loadGLTF.ts",
+			"qualifiedName": "__type.sceneModel"
+		},
+		"7": {
+			"sourceFileName": "src/loadGLTF.ts",
+			"qualifiedName": "__type.dataModel"
+		},
+		"8": {
+			"sourceFileName": "src/loadGLTF.ts",
+			"qualifiedName": "__type.log"
+		}
+	}
+}

@@ -1,0 +1,3519 @@
+{
+	"id": 0,
+	"name": "@xeokit/constants",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "## xeokit SDK Constant Definitions\n\n## Installation\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nnpm install @xeokit/constants\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 25,
+			"name": "AlphaFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that discards the "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " components and just reads the "
+					},
+					{
+						"kind": "code",
+						"text": "````A````"
+					},
+					{
+						"kind": "text",
+						"text": " component."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 145,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L145"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1021
+			},
+			"defaultValue": "1021"
+		},
+		{
+			"id": 15,
+			"name": "ByteType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Signed 8-bit integer type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 95,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L95"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1010
+			},
+			"defaultValue": "1010"
+		},
+		{
+			"id": 76,
+			"name": "CentimetersUnit",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Centimeters unit of measurement."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 432,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L432"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 400001
+			},
+			"defaultValue": "400001"
+		},
+		{
+			"id": 2,
+			"name": "ClampToEdgeWrapping",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture wrapping mode in which the last pixel of the texture stretches to the edge of the mesh."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 21,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L21"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1001
+			},
+			"defaultValue": "1001"
+		},
+		{
+			"id": 84,
+			"name": "CustomProjectionType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Custom projection type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 472,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L472"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 500003
+			},
+			"defaultValue": "500003"
+		},
+		{
+			"id": 30,
+			"name": "DepthFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that reads each element as a single depth value, converts it to a float and clamps to "
+					},
+					{
+						"kind": "code",
+						"text": "````[0,1]````"
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 171,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L171"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1026
+			},
+			"defaultValue": "1026"
+		},
+		{
+			"id": 31,
+			"name": "DepthStencilFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 176,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L176"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1027
+			},
+			"defaultValue": "1027"
+		},
+		{
+			"id": 73,
+			"name": "FastRender",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Fast rendering mode."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 417,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L417"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 300001
+			},
+			"defaultValue": "300001"
+		},
+		{
+			"id": 79,
+			"name": "FeetUnit",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Feet unit of measurement."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 447,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L447"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 400004
+			},
+			"defaultValue": "400004"
+		},
+		{
+			"id": 86,
+			"name": "FirstPersonNavigationMode",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "First-person navigation mode."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 482,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L482"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 600002
+			},
+			"defaultValue": "600002"
+		},
+		{
+			"id": 20,
+			"name": "FloatType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Signed 32-bit floating-point type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 120,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L120"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1015
+			},
+			"defaultValue": "1015"
+		},
+		{
+			"id": 83,
+			"name": "FrustumProjectionType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Frustum3 projection type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 467,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L467"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 500002
+			},
+			"defaultValue": "500002"
+		},
+		{
+			"id": 65,
+			"name": "GIFMediaType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Media type for GIF images."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 368,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L368"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 10000
+			},
+			"defaultValue": "10000"
+		},
+		{
+			"id": 21,
+			"name": "HalfFloatType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Signed 16-bit half-precision floating-point type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 125,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L125"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1016
+			},
+			"defaultValue": "1016"
+		},
+		{
+			"id": 80,
+			"name": "InchesUnit",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Inches unit of measurement."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 452,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L452"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 400005
+			},
+			"defaultValue": "400005"
+		},
+		{
+			"id": 18,
+			"name": "IntType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Signed 32-bit integer type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 110,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L110"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1013
+			},
+			"defaultValue": "1013"
+		},
+		{
+			"id": 66,
+			"name": "JPEGMediaType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Media type for JPEG images."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 373,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L373"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 10001
+			},
+			"defaultValue": "10001"
+		},
+		{
+			"id": 63,
+			"name": "LinearEncoding",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture encoding mode in which the texture image is in linear color space."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 358,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L358"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 3000
+			},
+			"defaultValue": "3000"
+		},
+		{
+			"id": 9,
+			"name": "LinearFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture magnification and minification filter that returns the weighted average of the four nearest texels to the given sample coordinates."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 59,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L59"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1006
+			},
+			"defaultValue": "1006"
+		},
+		{
+			"id": 13,
+			"name": "LinearMipMapLinearFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured,\nfinds within each mipmap the weighted average of the nearest texel to the center of the pixel, then returns the\nweighted average of those two values."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 85,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L85"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1008
+			},
+			"defaultValue": "1008"
+		},
+		{
+			"id": 11,
+			"name": "LinearMipMapNearestFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and\nreturns the weighted average of the four nearest texels to the given sample coordinates."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 71,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L71"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1007
+			},
+			"defaultValue": "1007"
+		},
+		{
+			"id": 12,
+			"name": "LinearMipmapLinearFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured,\nfinds within each mipmap the weighted average of the nearest texel to the center of the pixel, then returns the\nweighted average of those two values."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 78,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L78"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1008
+			},
+			"defaultValue": "1008"
+		},
+		{
+			"id": 10,
+			"name": "LinearMipmapNearestFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and\nreturns the weighted average of the four nearest texels to the given sample coordinates."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 65,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L65"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1007
+			},
+			"defaultValue": "1007"
+		},
+		{
+			"id": 69,
+			"name": "LinesPrimitive",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Line segments primitive type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 388,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L388"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 20001
+			},
+			"defaultValue": "20001"
+		},
+		{
+			"id": 29,
+			"name": "LuminanceAlphaFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that reads each of the "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " texture components as a luminance/alpha value, converted to a float and clamped to "
+					},
+					{
+						"kind": "code",
+						"text": "````[0,1]````"
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 166,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L166"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1025
+			},
+			"defaultValue": "1025"
+		},
+		{
+			"id": 28,
+			"name": "LuminanceFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that reads each "
+					},
+					{
+						"kind": "code",
+						"text": "````RGB````"
+					},
+					{
+						"kind": "text",
+						"text": " texture component as a luminance value, converted to a float and clamped\nto "
+					},
+					{
+						"kind": "code",
+						"text": "````[0,1]````"
+					},
+					{
+						"kind": "text",
+						"text": ", while always reading the "
+					},
+					{
+						"kind": "code",
+						"text": "````A````"
+					},
+					{
+						"kind": "text",
+						"text": " channel as "
+					},
+					{
+						"kind": "code",
+						"text": "````1.0````"
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 161,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L161"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1024
+			},
+			"defaultValue": "1024"
+		},
+		{
+			"id": 75,
+			"name": "MetersUnit",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Meters unit of measurement."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 427,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L427"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 400000
+			},
+			"defaultValue": "400000"
+		},
+		{
+			"id": 77,
+			"name": "MillimetersUnit",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Millimeters unit of measurement."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 437,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L437"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 400002
+			},
+			"defaultValue": "400002"
+		},
+		{
+			"id": 3,
+			"name": "MirroredRepeatWrapping",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture wrapping mode in which the texture repeats to infinity, mirroring on each repeat."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 26,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L26"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1002
+			},
+			"defaultValue": "1002"
+		},
+		{
+			"id": 4,
+			"name": "NearestFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture magnification and minification filter that returns the nearest texel to the given sample coordinates."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 31,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L31"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1003
+			},
+			"defaultValue": "1003"
+		},
+		{
+			"id": 8,
+			"name": "NearestMipMapLinearFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured\nand returns the nearest texel to the center of the pixel at the given sample coordinates."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 54,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L54"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1005
+			},
+			"defaultValue": "1005"
+		},
+		{
+			"id": 5,
+			"name": "NearestMipMapNearestFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured and returns the nearest texel to the given sample coordinates."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 36,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L36"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1004
+			},
+			"defaultValue": "1004"
+		},
+		{
+			"id": 7,
+			"name": "NearestMipmapLinearFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture minification filter that chooses two mipmaps that most closely match the size of the pixel being textured\nand returns the nearest texel to the center of the pixel at the given sample coordinates."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 48,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L48"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1005
+			},
+			"defaultValue": "1005"
+		},
+		{
+			"id": 6,
+			"name": "NearestMipmapNearestFilter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture minification filter that chooses the mipmap that most closely matches the size of the pixel being textured\nand returns the nearest texel to the given sample coordinates."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 42,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L42"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1004
+			},
+			"defaultValue": "1004"
+		},
+		{
+			"id": 85,
+			"name": "OrbitNavigationMode",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Orbit navigation mode."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 477,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L477"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 600001
+			},
+			"defaultValue": "600001"
+		},
+		{
+			"id": 82,
+			"name": "OrthoProjectionType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Orthographic projection type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 462,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L462"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 500001
+			},
+			"defaultValue": "500001"
+		},
+		{
+			"id": 67,
+			"name": "PNGMediaType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Media type for PNG images."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 378,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L378"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 10002
+			},
+			"defaultValue": "10002"
+		},
+		{
+			"id": 81,
+			"name": "PerspectiveProjectionType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Perspective projection type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 457,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L457"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 500000
+			},
+			"defaultValue": "500000"
+		},
+		{
+			"id": 87,
+			"name": "PlanViewNavigationMode",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Plan view navigation mode."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 487,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L487"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 600003
+			},
+			"defaultValue": "600003"
+		},
+		{
+			"id": 68,
+			"name": "PointsPrimitive",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Points primitive type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 383,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L383"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 20000
+			},
+			"defaultValue": "20000"
+		},
+		{
+			"id": 74,
+			"name": "QualityRender",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Quality rendering mode."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 422,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L422"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 30000
+			},
+			"defaultValue": "30000"
+		},
+		{
+			"id": 27,
+			"name": "RGBAFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that reads the "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " components."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 155,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L155"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1023
+			},
+			"defaultValue": "1023"
+		},
+		{
+			"id": 36,
+			"name": "RGBAIntegerFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that reads the "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " components as integers instead of floats."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 201,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L201"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1033
+			},
+			"defaultValue": "1033"
+		},
+		{
+			"id": 59,
+			"name": "RGBA_ASTC_10x10_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 335,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L335"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37819
+			},
+			"defaultValue": "37819"
+		},
+		{
+			"id": 56,
+			"name": "RGBA_ASTC_10x5_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 317,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L317"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37816
+			},
+			"defaultValue": "37816"
+		},
+		{
+			"id": 57,
+			"name": "RGBA_ASTC_10x6_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 323,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L323"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37817
+			},
+			"defaultValue": "37817"
+		},
+		{
+			"id": 58,
+			"name": "RGBA_ASTC_10x8_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 329,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L329"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37818
+			},
+			"defaultValue": "37818"
+		},
+		{
+			"id": 60,
+			"name": "RGBA_ASTC_12x10_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 341,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L341"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37820
+			},
+			"defaultValue": "37820"
+		},
+		{
+			"id": 61,
+			"name": "RGBA_ASTC_12x12_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 347,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L347"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37821
+			},
+			"defaultValue": "37821"
+		},
+		{
+			"id": 48,
+			"name": "RGBA_ASTC_4x4_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 269,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L269"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37808
+			},
+			"defaultValue": "37808"
+		},
+		{
+			"id": 49,
+			"name": "RGBA_ASTC_5x4_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 275,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L275"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37809
+			},
+			"defaultValue": "37809"
+		},
+		{
+			"id": 50,
+			"name": "RGBA_ASTC_5x5_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 281,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L281"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37810
+			},
+			"defaultValue": "37810"
+		},
+		{
+			"id": 51,
+			"name": "RGBA_ASTC_6x5_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 287,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L287"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37811
+			},
+			"defaultValue": "37811"
+		},
+		{
+			"id": 52,
+			"name": "RGBA_ASTC_6x6_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 293,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L293"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37812
+			},
+			"defaultValue": "37812"
+		},
+		{
+			"id": 53,
+			"name": "RGBA_ASTC_8x5_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 299,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L299"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37813
+			},
+			"defaultValue": "37813"
+		},
+		{
+			"id": 54,
+			"name": "RGBA_ASTC_8x6_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 305,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L305"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37814
+			},
+			"defaultValue": "37814"
+		},
+		{
+			"id": 55,
+			"name": "RGBA_ASTC_8x8_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/\">ATSC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 311,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L311"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37815
+			},
+			"defaultValue": "37815"
+		},
+		{
+			"id": 62,
+			"name": "RGBA_BPTC_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://www.khronos.org/opengl/wiki/BPTC_Texture_Compression\">BPTC compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 353,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L353"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 36492
+			},
+			"defaultValue": "36492"
+		},
+		{
+			"id": 47,
+			"name": "RGBA_ETC2_EAC_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc2/\">ETC2 compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 263,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L263"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37496
+			},
+			"defaultValue": "37496"
+		},
+		{
+			"id": 44,
+			"name": "RGBA_PVRTC_2BPPV1_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as a <a href=\"https://en.wikipedia.org/wiki/PVRTC\">PVRTC compressed</a>\nimage, with "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " compression in 2-bit mode and one block for each 8×4 pixels."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 245,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L245"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 35843
+			},
+			"defaultValue": "35843"
+		},
+		{
+			"id": 43,
+			"name": "RGBA_PVRTC_4BPPV1_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as a <a href=\"https://en.wikipedia.org/wiki/PVRTC\">PVRTC compressed</a>\nimage, with "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " compression in 4-bit mode and one block for each 4×4 pixels."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 239,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L239"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 35842
+			},
+			"defaultValue": "35842"
+		},
+		{
+			"id": 38,
+			"name": "RGBA_S3TC_DXT1_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as a <a href=\"https://en.wikipedia.org/wiki/S3_Texture_Compression\">DXT1 compressed</a> "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 211,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L211"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 33777
+			},
+			"defaultValue": "33777"
+		},
+		{
+			"id": 39,
+			"name": "RGBA_S3TC_DXT3_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as a <a href=\"https://en.wikipedia.org/wiki/S3_Texture_Compression\">DXT3 compressed</a> "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 216,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L216"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 33778
+			},
+			"defaultValue": "33778"
+		},
+		{
+			"id": 40,
+			"name": "RGBA_S3TC_DXT5_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as a <a href=\"https://en.wikipedia.org/wiki/S3_Texture_Compression\">DXT5 compressed</a> "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 221,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L221"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 33779
+			},
+			"defaultValue": "33779"
+		},
+		{
+			"id": 26,
+			"name": "RGBFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that discards the "
+					},
+					{
+						"kind": "code",
+						"text": "````A````"
+					},
+					{
+						"kind": "text",
+						"text": " component and reads the "
+					},
+					{
+						"kind": "code",
+						"text": "````RGB````"
+					},
+					{
+						"kind": "text",
+						"text": " components."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 150,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L150"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1022
+			},
+			"defaultValue": "1022"
+		},
+		{
+			"id": 45,
+			"name": "RGB_ETC1_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc1/\">ETC1 compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGB````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 251,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L251"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 36196
+			},
+			"defaultValue": "36196"
+		},
+		{
+			"id": 46,
+			"name": "RGB_ETC2_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as an <a href=\"https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_etc2/\">ETC2 compressed</a>\n"
+					},
+					{
+						"kind": "code",
+						"text": "````RGB````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 257,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L257"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 37492
+			},
+			"defaultValue": "37492"
+		},
+		{
+			"id": 42,
+			"name": "RGB_PVRTC_2BPPV1_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as a <a href=\"https://en.wikipedia.org/wiki/PVRTC\">PVRTC compressed</a>\nimage, with "
+					},
+					{
+						"kind": "code",
+						"text": "````RGB````"
+					},
+					{
+						"kind": "text",
+						"text": " compression in 2-bit mode and one block for each 8×4 pixels."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 233,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L233"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 35841
+			},
+			"defaultValue": "35841"
+		},
+		{
+			"id": 41,
+			"name": "RGB_PVRTC_4BPPV1_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as a <a href=\"https://en.wikipedia.org/wiki/PVRTC\">PVRTC compressed</a>\nimage, with "
+					},
+					{
+						"kind": "code",
+						"text": "````RGB````"
+					},
+					{
+						"kind": "text",
+						"text": " compression in 4-bit mode and one block for each 4×4 pixels."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 227,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L227"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 35840
+			},
+			"defaultValue": "35840"
+		},
+		{
+			"id": 37,
+			"name": "RGB_S3TC_DXT1_Format",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture format mode in which the texture is formatted as a <a href=\"https://en.wikipedia.org/wiki/S3_Texture_Compression\">DXT1 compressed</a> "
+					},
+					{
+						"kind": "code",
+						"text": "````RGB````"
+					},
+					{
+						"kind": "text",
+						"text": " image."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 206,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L206"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 33776
+			},
+			"defaultValue": "33776"
+		},
+		{
+			"id": 34,
+			"name": "RGFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that discards the "
+					},
+					{
+						"kind": "code",
+						"text": "````A````"
+					},
+					{
+						"kind": "text",
+						"text": " and "
+					},
+					{
+						"kind": "code",
+						"text": "````B````"
+					},
+					{
+						"kind": "text",
+						"text": " components and just reads the "
+					},
+					{
+						"kind": "code",
+						"text": "````R````"
+					},
+					{
+						"kind": "text",
+						"text": " and "
+					},
+					{
+						"kind": "code",
+						"text": "````G````"
+					},
+					{
+						"kind": "text",
+						"text": " components."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 191,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L191"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1030
+			},
+			"defaultValue": "1030"
+		},
+		{
+			"id": 35,
+			"name": "RGIntegerFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that discards the "
+					},
+					{
+						"kind": "code",
+						"text": "````A````"
+					},
+					{
+						"kind": "text",
+						"text": " and "
+					},
+					{
+						"kind": "code",
+						"text": "````B````"
+					},
+					{
+						"kind": "text",
+						"text": " components and just reads the "
+					},
+					{
+						"kind": "code",
+						"text": "````R````"
+					},
+					{
+						"kind": "text",
+						"text": " and "
+					},
+					{
+						"kind": "code",
+						"text": "````G````"
+					},
+					{
+						"kind": "text",
+						"text": " components, as integers instead of floats."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 196,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L196"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1031
+			},
+			"defaultValue": "1031"
+		},
+		{
+			"id": 32,
+			"name": "RedFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that discards the "
+					},
+					{
+						"kind": "code",
+						"text": "````GBA````"
+					},
+					{
+						"kind": "text",
+						"text": " components and just reads the "
+					},
+					{
+						"kind": "code",
+						"text": "````R````"
+					},
+					{
+						"kind": "text",
+						"text": " component."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 181,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L181"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1028
+			},
+			"defaultValue": "1028"
+		},
+		{
+			"id": 33,
+			"name": "RedIntegerFormat",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture sampling mode that discards the "
+					},
+					{
+						"kind": "code",
+						"text": "````GBA````"
+					},
+					{
+						"kind": "text",
+						"text": " components and just reads the "
+					},
+					{
+						"kind": "code",
+						"text": "````R````"
+					},
+					{
+						"kind": "text",
+						"text": " component, as an integer instead of as a float."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 186,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L186"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1029
+			},
+			"defaultValue": "1029"
+		},
+		{
+			"id": 1,
+			"name": "RepeatWrapping",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture wrapping mode in which the texture repeats to infinity."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 16,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L16"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1000
+			},
+			"defaultValue": "1000"
+		},
+		{
+			"id": 16,
+			"name": "ShortType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Signed 16-bit integer type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 100,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L100"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1011
+			},
+			"defaultValue": "1011"
+		},
+		{
+			"id": 71,
+			"name": "SolidPrimitive",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Closed triangle mesh primitive type.\n\nSince we normally can't see the backfaces inside closed surfaces, these primitive types are normally rendered\nwith backfaces disabled, for extra performance."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 404,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L404"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 20003
+			},
+			"defaultValue": "20003"
+		},
+		{
+			"id": 72,
+			"name": "SurfacePrimitive",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Non-closed triangle mesh primitive type.\n\nSince we are able to look inside non-closed surfaces and see their backfaces, these primitive types are always\nrendered with backfaces enabled."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 412,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L412"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 20004
+			},
+			"defaultValue": "20004"
+		},
+		{
+			"id": 70,
+			"name": "TrianglesPrimitive",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Non-closed triangle mesh primitive type.\n\n> Since we are able to look inside non-closed surfaces and see their backfaces, these primitive types are always\nrendered with backfaces enabled."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 396,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L396"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 20002
+			},
+			"defaultValue": "20002"
+		},
+		{
+			"id": 14,
+			"name": "UnsignedByteType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Unsigned 8-bit integer type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 90,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L90"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1009
+			},
+			"defaultValue": "1009"
+		},
+		{
+			"id": 24,
+			"name": "UnsignedInt248Type",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Unsigned integer type for 24-bit depth texture data."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 140,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L140"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1020
+			},
+			"defaultValue": "1020"
+		},
+		{
+			"id": 19,
+			"name": "UnsignedIntType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Unsigned 32-bit integer type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 115,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L115"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1014
+			},
+			"defaultValue": "1014"
+		},
+		{
+			"id": 22,
+			"name": "UnsignedShort4444Type",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture packing mode in which each "
+					},
+					{
+						"kind": "code",
+						"text": "````RGBA````"
+					},
+					{
+						"kind": "text",
+						"text": " channel is packed into 4 bits, for a combined total of 16 bits."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 130,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L130"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1017
+			},
+			"defaultValue": "1017"
+		},
+		{
+			"id": 23,
+			"name": "UnsignedShort5551Type",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture packing mode in which the "
+					},
+					{
+						"kind": "code",
+						"text": "````RGB````"
+					},
+					{
+						"kind": "text",
+						"text": " channels are each packed into 5 bits, and the "
+					},
+					{
+						"kind": "code",
+						"text": "````A````"
+					},
+					{
+						"kind": "text",
+						"text": " channel is packed into 1 bit, for a combined total of 16 bits."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 135,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L135"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1018
+			},
+			"defaultValue": "1018"
+		},
+		{
+			"id": 17,
+			"name": "UnsignedShortType",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Unsigned 16-bit integer type."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 105,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L105"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 1012
+			},
+			"defaultValue": "1012"
+		},
+		{
+			"id": 78,
+			"name": "YardsUnit",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Yards unit of measurement."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 442,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L442"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 400003
+			},
+			"defaultValue": "400003"
+		},
+		{
+			"id": 64,
+			"name": "sRGBEncoding",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "SceneTexture encoding mode in which the texture image is in sRGB color space."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 363,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/constants/src/index.ts#L363"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 3001
+			},
+			"defaultValue": "3001"
+		}
+	],
+	"groups": [
+		{
+			"title": "Variables",
+			"children": [
+				25,
+				15,
+				76,
+				2,
+				84,
+				30,
+				31,
+				73,
+				79,
+				86,
+				20,
+				83,
+				65,
+				21,
+				80,
+				18,
+				66,
+				63,
+				9,
+				13,
+				11,
+				12,
+				10,
+				69,
+				29,
+				28,
+				75,
+				77,
+				3,
+				4,
+				8,
+				5,
+				7,
+				6,
+				85,
+				82,
+				67,
+				81,
+				87,
+				68,
+				74,
+				27,
+				36,
+				59,
+				56,
+				57,
+				58,
+				60,
+				61,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				62,
+				47,
+				44,
+				43,
+				38,
+				39,
+				40,
+				26,
+				45,
+				46,
+				42,
+				41,
+				37,
+				34,
+				35,
+				32,
+				33,
+				1,
+				16,
+				71,
+				72,
+				70,
+				14,
+				24,
+				19,
+				22,
+				23,
+				17,
+				78,
+				64
+			]
+		}
+	],
+	"packageName": "@xeokit/constants",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/constants\n\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_constants.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RepeatWrapping"
+		},
+		"2": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "ClampToEdgeWrapping"
+		},
+		"3": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "MirroredRepeatWrapping"
+		},
+		"4": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "NearestFilter"
+		},
+		"5": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "NearestMipMapNearestFilter"
+		},
+		"6": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "NearestMipmapNearestFilter"
+		},
+		"7": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "NearestMipmapLinearFilter"
+		},
+		"8": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "NearestMipMapLinearFilter"
+		},
+		"9": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LinearFilter"
+		},
+		"10": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LinearMipmapNearestFilter"
+		},
+		"11": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LinearMipMapNearestFilter"
+		},
+		"12": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LinearMipmapLinearFilter"
+		},
+		"13": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LinearMipMapLinearFilter"
+		},
+		"14": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "UnsignedByteType"
+		},
+		"15": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "ByteType"
+		},
+		"16": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "ShortType"
+		},
+		"17": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "UnsignedShortType"
+		},
+		"18": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "IntType"
+		},
+		"19": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "UnsignedIntType"
+		},
+		"20": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FloatType"
+		},
+		"21": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "HalfFloatType"
+		},
+		"22": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "UnsignedShort4444Type"
+		},
+		"23": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "UnsignedShort5551Type"
+		},
+		"24": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "UnsignedInt248Type"
+		},
+		"25": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "AlphaFormat"
+		},
+		"26": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBFormat"
+		},
+		"27": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBAFormat"
+		},
+		"28": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LuminanceFormat"
+		},
+		"29": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LuminanceAlphaFormat"
+		},
+		"30": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "DepthFormat"
+		},
+		"31": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "DepthStencilFormat"
+		},
+		"32": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RedFormat"
+		},
+		"33": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RedIntegerFormat"
+		},
+		"34": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGFormat"
+		},
+		"35": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGIntegerFormat"
+		},
+		"36": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBAIntegerFormat"
+		},
+		"37": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGB_S3TC_DXT1_Format"
+		},
+		"38": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_S3TC_DXT1_Format"
+		},
+		"39": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_S3TC_DXT3_Format"
+		},
+		"40": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_S3TC_DXT5_Format"
+		},
+		"41": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGB_PVRTC_4BPPV1_Format"
+		},
+		"42": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGB_PVRTC_2BPPV1_Format"
+		},
+		"43": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_PVRTC_4BPPV1_Format"
+		},
+		"44": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_PVRTC_2BPPV1_Format"
+		},
+		"45": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGB_ETC1_Format"
+		},
+		"46": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGB_ETC2_Format"
+		},
+		"47": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ETC2_EAC_Format"
+		},
+		"48": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_4x4_Format"
+		},
+		"49": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_5x4_Format"
+		},
+		"50": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_5x5_Format"
+		},
+		"51": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_6x5_Format"
+		},
+		"52": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_6x6_Format"
+		},
+		"53": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_8x5_Format"
+		},
+		"54": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_8x6_Format"
+		},
+		"55": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_8x8_Format"
+		},
+		"56": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_10x5_Format"
+		},
+		"57": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_10x6_Format"
+		},
+		"58": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_10x8_Format"
+		},
+		"59": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_10x10_Format"
+		},
+		"60": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_12x10_Format"
+		},
+		"61": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_ASTC_12x12_Format"
+		},
+		"62": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RGBA_BPTC_Format"
+		},
+		"63": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LinearEncoding"
+		},
+		"64": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "sRGBEncoding"
+		},
+		"65": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "GIFMediaType"
+		},
+		"66": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "JPEGMediaType"
+		},
+		"67": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "PNGMediaType"
+		},
+		"68": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "PointsPrimitive"
+		},
+		"69": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LinesPrimitive"
+		},
+		"70": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "TrianglesPrimitive"
+		},
+		"71": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "SolidPrimitive"
+		},
+		"72": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "SurfacePrimitive"
+		},
+		"73": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FastRender"
+		},
+		"74": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "QualityRender"
+		},
+		"75": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "MetersUnit"
+		},
+		"76": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "CentimetersUnit"
+		},
+		"77": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "MillimetersUnit"
+		},
+		"78": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "YardsUnit"
+		},
+		"79": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FeetUnit"
+		},
+		"80": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "InchesUnit"
+		},
+		"81": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "PerspectiveProjectionType"
+		},
+		"82": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "OrthoProjectionType"
+		},
+		"83": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FrustumProjectionType"
+		},
+		"84": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "CustomProjectionType"
+		},
+		"85": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "OrbitNavigationMode"
+		},
+		"86": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "FirstPersonNavigationMode"
+		},
+		"87": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "PlanViewNavigationMode"
+		}
+	}
+}

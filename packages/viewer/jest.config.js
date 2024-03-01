@@ -1,6 +1,7 @@
 module.exports = {
-    ...require('../../jest.config.common'),
-    displayName: '@xeokit/treeview Tests',
+    ...require('@xeokit/config/jest.config.base'),
+    displayName: '@xeokit/viewer Tests',
+
     resolver: undefined,
     silent: false,
 

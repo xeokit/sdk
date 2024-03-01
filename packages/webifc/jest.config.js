@@ -1,5 +1,5 @@
 
 module.exports = {
-    ...require('../../jest.config.common'),
+    ...require('@xeokit/config/jest.config.base'),
     displayName: '@xeokit/webifc Tests'
 };

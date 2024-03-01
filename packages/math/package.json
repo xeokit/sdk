@@ -1,32 +1,35 @@
 {
-  "name": "@xeokit/math",
-  "private": false,
-  "type": "module",
-  "version": "0.1.0",
-  "description": "Common xeokit math types and utilities",
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "scripts": {
-    "test": "jest --verbose",
-    "dist": "tsc",
-    "publish": "npm publish --access public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xeokit/sdk.git"
-  },
-  "author": "Lindsay Kay",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "bugs": {
-    "url": "https://github.com/xeokit/sdk/issues"
-  },
-  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_math.html",
-  "files": [
-    "src/",
-    "dist/",
-    "README.md",
-    "package.json"
-  ],
-  "keywords": []
+    "name": "@xeokit/math",
+    "private": false,
+    "version": "0.1.0",
+    "description": "Common xeokit math types and utilities",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "scripts": {
+        "test": "jest --passWithNoTests",
+        "dist": "tsc",
+        "docs": "typedoc --json ../../docs/json/math.json --options typedoc.json --validation.invalidLink false",
+        "publish": "npm publish --access public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xeokit/sdk.git"
+    },
+    "author": "Lindsay Kay",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/xeokit/sdk/issues"
+    },
+    "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_math.html",
+    "files": [
+        "src/",
+        "dist/",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [],
+    "dependencies": {
+        "@xeokit/config": "^0.1.0"
+    }
 }

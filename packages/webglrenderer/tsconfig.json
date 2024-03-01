@@ -1,21 +1,43 @@
 {
-  "extends": "../../tsconfig.package.json",
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"],
+  "extends": "@xeokit/config/tsconfig.package.json",
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
   "compilerOptions": {
     "composite": true,
     "rootDir": "src",
     "outDir": "dist"
   },
   "references": [
-    {"path": "../core"},
-    {"path": "../boundaries"},
-    {"path": "../constants"},
-    {"path": "../math"},
-    {"path": "../matrix"},
-    {"path": "../scene"},
-    {"path": "../utils"},
-    {"path": "../viewer"},
-    {"path": "../webglutils"}
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../boundaries"
+    },
+    {
+      "path": "../constants"
+    },
+    {
+      "path": "../math"
+    },
+    {
+      "path": "../matrix"
+    },
+    {
+      "path": "../scene"
+    },
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../viewer"
+    },
+    {
+      "path": "../webglutils"
+    }
   ]
 }

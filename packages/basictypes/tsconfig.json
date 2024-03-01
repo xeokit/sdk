@@ -1,13 +1,15 @@
 {
-  "extends": "../../tsconfig.package.json",
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "composite": true,
-    "rootDir": "src",
-    "outDir": "dist"
-  },
-  "references": [
-
-  ]
+    "extends": "@xeokit/config/tsconfig.package",
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "compilerOptions": {
+        "composite": true,
+        "rootDir": "src",
+        "outDir": "dist"
+    },
+    "references": []
 }

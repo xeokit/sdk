@@ -1,0 +1,41 @@
+{
+	"id": 0,
+	"name": "@xeokit/las2dtx",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fifcviewer.svg)](https://badge.fury.io/js/%40xeokit%2Fifcviewer)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/las2dtx/badge)](https://www.jsdelivr.com/package/npm/@xeokit/ifcviewer)\n\n<img style=\"padding:0px; padding-top:30px; padding-bottom:30px;\" src=\"media://images/tree_view_icon.png\"/>\n\n<br>\n\n## las2dtx\n\nNode CLI tool to convert LAS files into [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) files.\n\n## Features\n\n* fff\n\n## Installation\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nnpm install @xeokit/las2dtx\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\n\n## Usage\n\nTODO\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nlas2dtx -i model.json -o model.dtx\n````"
+			}
+		]
+	},
+	"packageName": "@xeokit/las2dtx",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "#"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		}
+	}
+}

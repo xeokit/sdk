@@ -1,43 +1,49 @@
 {
-  "name": "@xeokit/bcf",
-  "private": false,
-  "version": "0.1.0",
-  "description": "Loads and saves xeokit Viewer snapshots as JSON-encoded BIM Collaboration Format (BCF) Viewpoints",
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "scripts": {
-    "test": "jest --verbose ",
-    "dist":"tsc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xeokit/sdk.git"
-  },
-  "author": "Lindsay Kay",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "bugs": {
-    "url": "https://github.com/xeokit/sdk/issues"
-  },
-  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html",
-  "files": [
-    "src/",
-    "dist/",
-    "README.md",
-    "package.json"
-  ],
-  "keywords": [],
-  "dependencies": {
-    "@xeokit/matrix": "^0.1.0",
-    "@xeokit/data": "^0.1.0",
-    "@xeokit/constants": "^0.1.0",
-    "@xeokit/math": "^0.1.0",
-    "@xeokit/ifctypes": "^0.1.0",
-    "@xeokit/basictypes": "^0.1.0",
-    "@xeokit/viewer": "^0.1.0"
-  },
-  "devDependencies": {
-    "jest-electron": "^0.1.12",
-    "@kayahr/jest-electron-runner": "^29.11.0"
-  }
+    "name": "@xeokit/bcf",
+    "private": false,
+    "version": "0.1.0",
+    "description": "Loads and saves xeokit Viewer snapshots as JSON-encoded BIM Collaboration Format (BCF) Viewpoints",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "scripts": {
+        "test": "jest --passWithNoTests",
+        "dist": "tsc",
+        "docs": "typedoc --json ../../docs/json/bcf.json --options typedoc.json --validation.invalidLink false"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xeokit/sdk.git"
+    },
+    "author": "Lindsay Kay",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/xeokit/sdk/issues"
+    },
+    "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html",
+    "files": [
+        "src/",
+        "dist/",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [],
+    "dependencies": {
+        "@xeokit/config": "^0.1.0",
+        "@xeokit/testutils": "^0.1.0",
+        "@xeokit/core": "^0.1.0",
+        "@xeokit/scene": "^0.1.0",
+        "@xeokit/webglrenderer": "^0.1.0",
+        "@xeokit/matrix": "^0.1.0",
+        "@xeokit/data": "^0.1.0",
+        "@xeokit/constants": "^0.1.0",
+        "@xeokit/math": "^0.1.0",
+        "@xeokit/ifctypes": "^0.1.0",
+        "@xeokit/basictypes": "^0.1.0",
+        "@xeokit/viewer": "^0.1.0"
+    },
+    "devDependencies": {
+        "jest-electron": "^0.1.12",
+        "@kayahr/jest-electron-runner": "^29.11.0"
+    }
 }

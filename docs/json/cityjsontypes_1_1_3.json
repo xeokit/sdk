@@ -1,0 +1,1412 @@
+{
+	"id": 0,
+	"name": "@xeokit/cityjsontypes_1_1_3",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fdatatypes.svg)](https://badge.fury.io/js/%40xeokit%2Fdatatypes)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/basictypes/badge)](https://www.jsdelivr.com/package/npm/@xeokit/basictypes)\n\n<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:130px;\" src=\"media://images/cityJSONLogo.svg\"/>\n\n# xeokit CityJSON 1.1.3 Data Types\n\n* Defines numeric constants for the set of [CityJSON](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#cityjson) 1.1.3 entity and relationship types.\n* Use with "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/data\""
+			},
+			{
+				"kind": "text",
+				"text": " to assign CityJSON types to "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataObject | DataObjects"
+			},
+			{
+				"kind": "text",
+				"text": "\nand "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!Relationship | Relationships"
+			},
+			{
+				"kind": "text",
+				"text": " and treat them as elements of a basic entity-relationship graph.\n* Use with "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "\"@xeokit/treeview\""
+			},
+			{
+				"kind": "text",
+				"text": ", to configure the appearance and behaviour of\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/treeview!TreeView | TreeViews"
+			},
+			{
+				"kind": "text",
+				"text": " for navigating CityJSON objects.\n\n## Installation\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nnpm install @xeokit/cityjsontypes1x1x3\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "BasicAggregation",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "A generic aggregation relationship between two generic entities."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 27,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L27"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2001
+			},
+			"defaultValue": "2001"
+		},
+		{
+			"id": 2,
+			"name": "Bridge",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a bridge, which can have attributes such as the length, height, and type of bridge."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 32,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L32"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2000
+			},
+			"defaultValue": "2000"
+		},
+		{
+			"id": 5,
+			"name": "BridgeConstructiveElement",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents an element of a bridge which is essential from a structural point of view. Examples are pylons,\nanchorages, slabs, beams."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 50,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L50"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2003
+			},
+			"defaultValue": "2003"
+		},
+		{
+			"id": 7,
+			"name": "BridgeFurniture",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents equipment for occupant use, usually not fixed to the bridge. [cf. ISO 6707-1]"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 62,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L62"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2005
+			},
+			"defaultValue": "2005"
+		},
+		{
+			"id": 4,
+			"name": "BridgeInstallation",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents a permanent part of a Bridge (inside and/or outside) which does not have the significance of a\nBridgePart. In contrast to BridgeConstructiveElements, a BridgeInstallation is not essential from a structural point of view.\nExamples are stairs, antennas or railways."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 44,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L44"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2002
+			},
+			"defaultValue": "2002"
+		},
+		{
+			"id": 3,
+			"name": "BridgePart",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON object represents a physical or functional subdivision of a Bridge."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 37,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L37"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2001
+			},
+			"defaultValue": "2001"
+		},
+		{
+			"id": 6,
+			"name": "BridgeRoom",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents  a space within a Bridge or BridgePart intended for human occupancy (e.g. a place of work or\nrecreation) and/or containment (storage) of animals or things. A BridgeRoom is bounded physically and/or virtually (e.g. by\nClosureSurfaces or GenericSurfaces)."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 57,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L57"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2004
+			},
+			"defaultValue": "2004"
+		},
+		{
+			"id": 8,
+			"name": "Building",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a building, which can contain one or more \"BuildingPart\" objects. The Building object can\n have attributes such as the building height, number of floors, and the year of construction."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 68,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L68"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2006
+			},
+			"defaultValue": "2006"
+		},
+		{
+			"id": 11,
+			"name": "BuildingConstructiveElement",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents an element of a Building which is essential from a structural point of view. Examples are walls,\nslabs, staircases, beams."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 86,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L86"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2009
+			},
+			"defaultValue": "2009"
+		},
+		{
+			"id": 12,
+			"name": "BuildingFurniture",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents equipment for occupant use, usually not fixed to the building. [cf. ISO 6707-1]"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 91,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L91"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2010
+			},
+			"defaultValue": "2010"
+		},
+		{
+			"id": 10,
+			"name": "BuildingInstallation",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents a permanent part of a Building (inside and/or outside) which has not the significance of a\nBuildingPart. Examples are stairs, antennas, balconies or small roofs."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 80,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L80"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2008
+			},
+			"defaultValue": "2008"
+		},
+		{
+			"id": 9,
+			"name": "BuildingPart",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a part of a building, such as a wing or a tower. Building parts can have attributes such\nas the building part height and the material used in its construction."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 74,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L74"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2007
+			},
+			"defaultValue": "2007"
+		},
+		{
+			"id": 14,
+			"name": "BuildingRoom",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents a space within a Building or BuildingPart intended for human occupancy (e.g. a place of work or recreation)\nand/or containment of animals or things. A BuildingRoom is bounded physically and/or virtually (e.g. by ClosureSurfaces or GenericSurfaces)."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 103,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L103"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2012
+			},
+			"defaultValue": "2012"
+		},
+		{
+			"id": 13,
+			"name": "BuildingStorey",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents  a horizontal section of a Building. BuildingStorey are not always defined according to the\nbuilding structure, but can also be defined according to logical considerations."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 97,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L97"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2011
+			},
+			"defaultValue": "2011"
+		},
+		{
+			"id": 15,
+			"name": "BuildingUnit",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents a logical subdivision of a Building. BuildingUnits are formed according to some homogeneous\nproperty like function, ownership, management, or accessibility. They may be separately sold, rented out, inherited, managed, etc."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 109,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L109"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2013
+			},
+			"defaultValue": "2013"
+		},
+		{
+			"id": 16,
+			"name": "CityFurniture",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents outdoor furniture, such as benches, trash cans, and street lamps. CityFurniture objects can\nhave attributes such as the type of furniture and its location."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 115,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L115"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2014
+			},
+			"defaultValue": "2014"
+		},
+		{
+			"id": 17,
+			"name": "CityObjectGroup",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a group of other CityObjects. CityObjectGroup objects can have attributes such as the name\nof the group and the CityObjects it contains."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 121,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L121"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2015
+			},
+			"defaultValue": "2015"
+		},
+		{
+			"id": 18,
+			"name": "LandUse",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents the land use of a particular area, such as residential, commercial, or industrial. LandUse\nobjects can have attributes such as the name of the land use and the area it covers."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 127,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L127"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2016
+			},
+			"defaultValue": "2016"
+		},
+		{
+			"id": 19,
+			"name": "OtherConstruction",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "this CityObject type represents an unclassified, generic element of construction."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 132,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L132"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2017
+			},
+			"defaultValue": "2017"
+		},
+		{
+			"id": 20,
+			"name": "PlantCover",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents vegetation, such as trees, bushes, and grass. PlantCover objects can have attributes such\nas the type of vegetation and its location."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 138,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L138"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2018
+			},
+			"defaultValue": "2018"
+		},
+		{
+			"id": 24,
+			"name": "Railway",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a railway, which can have attributes such as the type of railway and the tracks' location."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 156,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L156"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2022
+			},
+			"defaultValue": "2022"
+		},
+		{
+			"id": 25,
+			"name": "Road",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a road, which can have attributes such as the road type and the road's location."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 161,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L161"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2023
+			},
+			"defaultValue": "2023"
+		},
+		{
+			"id": 21,
+			"name": "SolitaryVegetationObject",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents individual vegetation objects, e.g. trees or bushes."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 143,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L143"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2019
+			},
+			"defaultValue": "2019"
+		},
+		{
+			"id": 22,
+			"name": "TINRelief",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityJSON type represents a terrain component as a triangulated irregular network."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 148,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L148"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2020
+			},
+			"defaultValue": "2020"
+		},
+		{
+			"id": 23,
+			"name": "TransportationSquare",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 151,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L151"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2021
+			},
+			"defaultValue": "2021"
+		},
+		{
+			"id": 26,
+			"name": "Tunnel",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type  is used to represent any type of underground or underwater structure designed for passage or transportation,\nsuch as a subway or water tunnel. It is defined by its geometry and other attributes."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 167,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L167"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2024
+			},
+			"defaultValue": "2024"
+		},
+		{
+			"id": 29,
+			"name": "TunnelConstructiveElement",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents an element of a Tunnel which is essential from a structural point of view. Examples are walls, slabs, beams."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 185,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L185"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2027
+			},
+			"defaultValue": "2027"
+		},
+		{
+			"id": 31,
+			"name": "TunnelFurniture",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents equipment for occupant use, usually not fixed to the tunnel. [cf. ISO 6707-1]"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 195,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L195"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2029
+			},
+			"defaultValue": "2029"
+		},
+		{
+			"id": 30,
+			"name": "TunnelHollowSpace",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a hollow space within a Tunnel."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 190,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L190"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2028
+			},
+			"defaultValue": "2028"
+		},
+		{
+			"id": 28,
+			"name": "TunnelInstallation",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents  a permanent part of a Tunnel (inside and/or outside) which does not have the significance of a\nTunnelPart. In contrast to TunnelConstructiveElement, a TunnelInstallation is not essential from a structural point of view. Examples\nare stairs, antennas or railings."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 180,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L180"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2026
+			},
+			"defaultValue": "2026"
+		},
+		{
+			"id": 27,
+			"name": "TunnelPart",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a physical or functional subdivision of a Tunnel. It would be considered a Tunnel, if it were\nnot part of a collection of other TunnelParts."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 173,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L173"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2025
+			},
+			"defaultValue": "2025"
+		},
+		{
+			"id": 32,
+			"name": "WaterBody",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type represents a body of water, such as a river, lake, or ocean. It is defined by its geometry and other attributes,\nand can be used to model and analyze hydrological features."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 201,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L201"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2030
+			},
+			"defaultValue": "2030"
+		},
+		{
+			"id": 33,
+			"name": "Waterway",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "This CityObject type  is used to represent a natural or man-made channel that carries water, such as a river, canal, or stormwater drain.\nIt is defined by its geometry and other attributes, and can be used to model and analyze hydrological features."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 207,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L207"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2031
+			},
+			"defaultValue": "2031"
+		},
+		{
+			"id": 38,
+			"name": "typeCodes",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Map of type codes for all CityObject type names."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 250,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L250"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 39,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 250,
+							"character": 24,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L250"
+						}
+					],
+					"indexSignature": {
+						"id": 40,
+						"name": "__index",
+						"variant": "signature",
+						"kind": 8192,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "index.ts",
+								"line": 250,
+								"character": 26,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L250"
+							}
+						],
+						"parameters": [
+							{
+								"id": 41,
+								"name": "key",
+								"variant": "param",
+								"kind": 32768,
+								"flags": {},
+								"type": {
+									"type": "intrinsic",
+									"name": "string"
+								}
+							}
+						],
+						"type": {
+							"type": "intrinsic",
+							"name": "number"
+						}
+					}
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 34,
+			"name": "typeNames",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Map of names for all supported CityObject types."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 212,
+					"character": 13,
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L212"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 35,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 212,
+							"character": 24,
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L212"
+						}
+					],
+					"indexSignature": {
+						"id": 36,
+						"name": "__index",
+						"variant": "signature",
+						"kind": 8192,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "index.ts",
+								"line": 212,
+								"character": 26,
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/cityjsontypes_1_1_3/src/index.ts#L212"
+							}
+						],
+						"parameters": [
+							{
+								"id": 37,
+								"name": "key",
+								"variant": "param",
+								"kind": 32768,
+								"flags": {},
+								"type": {
+									"type": "intrinsic",
+									"name": "number"
+								}
+							}
+						],
+						"type": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					}
+				}
+			},
+			"defaultValue": "..."
+		}
+	],
+	"groups": [
+		{
+			"title": "Variables",
+			"children": [
+				1,
+				2,
+				5,
+				7,
+				4,
+				3,
+				6,
+				8,
+				11,
+				12,
+				10,
+				9,
+				14,
+				13,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				24,
+				25,
+				21,
+				22,
+				23,
+				26,
+				29,
+				31,
+				30,
+				28,
+				27,
+				32,
+				33,
+				38,
+				34
+			]
+		}
+	],
+	"packageName": "@xeokit/cityjsontypes_1_1_3",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/cityjsontypes_1_1_3\n\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/cityjsontypes_1_1_3.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BasicAggregation"
+		},
+		"2": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Bridge"
+		},
+		"3": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BridgePart"
+		},
+		"4": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BridgeInstallation"
+		},
+		"5": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BridgeConstructiveElement"
+		},
+		"6": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BridgeRoom"
+		},
+		"7": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BridgeFurniture"
+		},
+		"8": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Building"
+		},
+		"9": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BuildingPart"
+		},
+		"10": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BuildingInstallation"
+		},
+		"11": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BuildingConstructiveElement"
+		},
+		"12": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BuildingFurniture"
+		},
+		"13": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BuildingStorey"
+		},
+		"14": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BuildingRoom"
+		},
+		"15": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "BuildingUnit"
+		},
+		"16": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "CityFurniture"
+		},
+		"17": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "CityObjectGroup"
+		},
+		"18": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "LandUse"
+		},
+		"19": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "OtherConstruction"
+		},
+		"20": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "PlantCover"
+		},
+		"21": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "SolitaryVegetationObject"
+		},
+		"22": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "TINRelief"
+		},
+		"23": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "TransportationSquare"
+		},
+		"24": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Railway"
+		},
+		"25": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Road"
+		},
+		"26": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Tunnel"
+		},
+		"27": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "TunnelPart"
+		},
+		"28": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "TunnelInstallation"
+		},
+		"29": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "TunnelConstructiveElement"
+		},
+		"30": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "TunnelHollowSpace"
+		},
+		"31": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "TunnelFurniture"
+		},
+		"32": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "WaterBody"
+		},
+		"33": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "Waterway"
+		},
+		"34": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "typeNames"
+		},
+		"35": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "__type"
+		},
+		"36": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"38": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "typeCodes"
+		},
+		"39": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "__type"
+		},
+		"40": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "__type.__index"
+		}
+	}
+}

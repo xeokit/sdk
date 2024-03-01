@@ -2,3 +2,6 @@ node_modules
 tsconfig.tsbuildinfo
 dist
 .turbo
+test-report.html
+.temp
+.cache

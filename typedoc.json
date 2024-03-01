@@ -1,74 +1,17 @@
 {
-  "entryPoints": [
-    "packages/basictypes/src/index.ts",
-    "packages/bcf/src/index.ts",
-    "packages/boundaries/src/index.ts",
-    "packages/cameracontrol/src/index.ts",
-    "packages/cityjson/src/index.ts",
-    "packages/cityjson2dtx/src/index.ts",
-    "packages/cityjsontypes_1_2_3/src/index.ts",
-    "packages/compression/src/index.ts",
-    "packages/constants/src/index.ts",
-    "packages/core/src/index.ts",
-    "packages/curves/src/index.ts",
-    "packages/data/src/index.ts",
-    "packages/dotbim/src/index.ts",
-    "packages/gltf/src/index.ts",
-    "packages/gltf2dtx/src/index.ts",
-    "packages/ifc2dtx/src/index.ts",
-    "packages/ifctypes/src/index.ts",
-    "packages/ifcviewer/src/index.ts",
-    "packages/kdtree2/src/index.ts",
-    "packages/kdtree3/src/index.ts",
-    "packages/ktx2/src/index.ts",
-    "packages/las/src/index.ts",
-    "packages/las2dtx/src/index.ts",
-    "packages/locale/src/index.ts",
-    "packages/math/src/index.ts",
-    "packages/matrix/src/index.ts",
-    "packages/mockrenderer/src/index.ts",
-    "packages/pick/src/index.ts",
-    "packages/procgen/src/index.ts",
-    "packages/rtc/src/index.ts",
-    "packages/scene/src/index.ts",
-    "packages/threedxml/src/index.ts",
-    "packages/treeview/src/index.ts",
-    "packages/utils/src/index.ts",
-    "packages/viewer/src/index.ts",
-    "packages/webglrenderer/src/index.ts",
-    "packages/webglutils/src/index.ts",
-    "packages/webifc/src/index.ts",
-    "packages/dtx/src/index.ts"
-  ],
-  "out": "./docs",
-  "excludePrivate": true,
-  "excludeNotDocumented": true,
-  "media": "./assets",
-  "includes": "docs",
-  "includeVersion": true,
-  "titleLink": "https://xeokit.io",
-  "pluginPages": {
-    "pages": [
-      {
-        "title": "Introduction",
-        "source": "INTRODUCTION.md"
-      },
-      {
-        "title": "Overview",
-        "source": "OVERVIEW.md"
-      },
-      {
-        "title": "Quickstart",
-        "source": "QUICKSTART.md"
-      },
-      {
-        "title": "Contributing",
-        "source": "CONTRIBUTING.md"
-      },
-      {
-        "title": "Glossary",
-        "source": "GLOSSARY.md"
-      }
-    ]
-  }
+    "entryPoints": [
+        "packages/*"
+    ],
+    "entryPointStrategy": "packages",
+    "out": "./docs/api",
+    "excludePrivate": true,
+    "excludeNotDocumented": true,
+    "media": "./packages/docs/src/assets",
+    "includes": "docs",
+    "includeVersion": true,
+    "titleLink": "https://xeokit.io",
+    "navigationLinks": {
+        "Home": "https://xeokit.github.io/sdk/docs/",
+        "GitHub": "https://github.com/xeokit/sdk"
+    }
 }

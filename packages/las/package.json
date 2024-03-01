@@ -1,48 +1,49 @@
 {
-  "name": "@xeokit/las",
-  "private": false,
-  "version": "0.1.0",
-  "description": "LAS tools for xeokit",
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "scripts": {
-    "test": "jest --verbose",
-    "dist": "tsc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xeokit/sdk.git",
-    "publish": "npm publish --access public"
-  },
-  "author": "Lindsay Kay",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "bugs": {
-    "url": "https://github.com/xeokit/sdk/issues"
-  },
-  "homepage": "https://xeokit.io",
-  "files": [
-    "src/",
-    "dist/",
-    "README.md",
-    "package.json"
-  ],
-  "keywords": [],
-  "dependencies": {
-    "@jest/globals": "^29.5.0",
-    "@loaders.gl/core": "^4.0.4",
-    "@loaders.gl/math": "^4.0.4",
-    "@loaders.gl/las": "^4.0.4",
-    "@loaders.gl/polyfills": "^4.0.4",
-    "@loaders.gl/textures": "^4.0.4",
-
-    "@xeokit/basictypes": "^0.1.0",
-    "@xeokit/utils": "^0.1.0",
-    "@xeokit/constants": "^0.1.0",
-    "@xeokit/core": "^0.1.0",
-    "@xeokit/data": "^0.1.0",
-    "@xeokit/math": "^0.1.0",
-    "@xeokit/matrix": "^0.1.0",
-    "@xeokit/scene": "^0.1.0"
-  }
+    "name": "@xeokit/las",
+    "private": false,
+    "version": "0.1.0",
+    "description": "LAS tools for xeokit",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "scripts": {
+        "test": "jest --passWithNoTests",
+        "dist": "tsc",
+        "docs": "typedoc --json ../../docs/json/las.json --options typedoc.json --validation.invalidLink false"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xeokit/sdk.git",
+        "publish": "npm publish --access public"
+    },
+    "author": "Lindsay Kay",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/xeokit/sdk/issues"
+    },
+    "homepage": "https://xeokit.io",
+    "files": [
+        "src/",
+        "dist/",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [],
+    "dependencies": {
+        "@xeokit/config": "^0.1.0",
+        "@jest/globals": "^29.5.0",
+        "@loaders.gl/core": "^4.0.4",
+        "@loaders.gl/math": "^4.0.4",
+        "@loaders.gl/las": "^4.0.4",
+        "@loaders.gl/polyfills": "^4.0.4",
+        "@loaders.gl/textures": "^4.0.4",
+        "@xeokit/basictypes": "^0.1.0",
+        "@xeokit/utils": "^0.1.0",
+        "@xeokit/constants": "^0.1.0",
+        "@xeokit/core": "^0.1.0",
+        "@xeokit/data": "^0.1.0",
+        "@xeokit/math": "^0.1.0",
+        "@xeokit/matrix": "^0.1.0",
+        "@xeokit/scene": "^0.1.0"
+    }
 }

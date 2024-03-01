@@ -1,9 +1,10 @@
-import {Data} from "../src";
+import { ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive } from "@xeokit/constants";
+import { SDKError } from "@xeokit/core";
+import { Data } from "@xeokit/data";
+import { Scene } from "@xeokit/scene";
+import { View, Viewer } from "@xeokit/viewer";
+import { JSDOM } from "jsdom";
 import * as testUtils from "./testUtils";
-import {Scene} from "@xeokit/scene";
-import {View, Viewer} from "@xeokit/viewer";
-import {SDKError} from "@xeokit/core";
-import {ClampToEdgeWrapping, LinearEncoding, LinearFilter, TrianglesPrimitive} from "@xeokit/constants";
 
 describe('DataModel', function () {
 
@@ -16,7 +17,7 @@ describe('DataModel', function () {
         it('Create and Destroy a Viewer', () => {
 
             const dom = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
-            console.log(dom.window.document.querySelector("p").textContent); // "Hello world"
+            console.log(dom.window._document.querySelector("p").textContent); // "Hello world"
 
             const scene = new Scene();
 
@@ -161,12 +162,14 @@ describe('DataModel', function () {
 
             sceneModel.build();
 
-    it('it supports creating objects, property sets and relations from JSON', () => {
+            it('it supports creating objects, property sets and relations from JSON', () => {
 
-        dataModel = data.createModel(testUtils.sampleDataModelJSON);
-        dataModel.build();
-        expect(dataModel.built).toBe(true);
+                dataModel = data.createModel(testUtils.sampleDataModelJSON);
+                dataModel.build();
+                expect(dataModel.built).toBe(true);
 
-    });
+            });
 
+        });
+    })
 });

@@ -1,42 +1,43 @@
 {
-  "name": "@xeokit/cityjson2dtx",
-  "private": false,
-  "type": "module",
-  "version": "0.1.0",
-  "description": "NodeJS CLI tool to convert CityJSON to DTX.",
-  "bin": {
-    "cityjson2dtx": "dist/index.cjs"
-  },
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "scripts": {
-    "test": "jest --verbose ",
-    "dist":"tsc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xeokit/sdk.git"
-  },
-  "author": "Lindsay Kay",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "bugs": {
-    "url": "https://github.com/xeokit/sdk/issues"
-  },
-  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson2dtx.html",
-  "files": [
-    "src/",
-    "dist/",
-    "README.md",
-    "package.json"
-  ],
-  "keywords": [],
-  "dependencies": {
-    "@xeokit/cityjson": "^0.1.0",
-    "@xeokit/core": "^0.1.0",
-    "@xeokit/data": "^0.1.0",
-    "@xeokit/scene": "^0.1.0",
-    "@xeokit/dtx": "^0.1.0",
-    "strongly-typed-events": "3.0.7"
-  }
+    "name": "@xeokit/cityjson2dtx",
+    "private": false,
+    "version": "0.1.0",
+    "description": "NodeJS CLI tool to convert CityJSON to DTX.",
+    "bin": {
+        "cityjson2dtx": "dist/index.cjs"
+    },
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "scripts": {
+        "test": "jest --passWithNoTests",
+        "dist": "tsc",
+        "docs": "typedoc --json ../../docs/json/cityjson2dtx.json --options typedoc.json --validation.invalidLink false"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xeokit/sdk.git"
+    },
+    "author": "Lindsay Kay",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/xeokit/sdk/issues"
+    },
+    "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson2dtx.html",
+    "files": [
+        "src/",
+        "dist/",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [],
+    "dependencies": {
+        "@xeokit/config": "^0.1.0",
+        "@xeokit/cityjson": "^0.1.0",
+        "@xeokit/core": "^0.1.0",
+        "@xeokit/data": "^0.1.0",
+        "@xeokit/scene": "^0.1.0",
+        "@xeokit/dtx": "^0.1.0",
+        "strongly-typed-events": "3.0.7"
+    }
 }

@@ -28,7 +28,7 @@ const destination = './test-report.html';
 
         if (!reportHtmlFile) {
             htmlWithoutTests += `<div class="jesthtml-content"><header><h2>No test-report.html found in <mark>${folder}</mark></h2></header></div>`;
-            console.log('\x1b[33m%s\x1b[0m', `No test-report.html found in ${folder}`);
+            console.log('\x1b[33m%s\x1b[0m', '\u26a0  No test-report.html found in', `\x1b[35m${folder}`);
             continue;
         }
 
@@ -42,7 +42,7 @@ const destination = './test-report.html';
         jestContent.querySelector('header').insertAdjacentHTML('afterbegin', `<h2 id="${folder}">Test Report for <mark>${folder}</mark></h2>`);
 
         templateRoot.querySelector('body').insertAdjacentHTML('beforeend', jestContent.outerHTML);
-        console.log('\x1b[32m%s\x1b[0m', `Included test-report.html from the ${folder}`);
+        console.log('\x1b[32m%s\x1b[0m', `\u2713  Included test-report.html from`, `\x1b[35m${folder}`);
     }
 
     templateRoot.querySelector('body').insertAdjacentHTML('beforeend', htmlWithoutTests);

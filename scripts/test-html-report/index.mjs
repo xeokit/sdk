@@ -5,8 +5,6 @@ const source = './packages';
 const templateSource = './scripts/test-html-report/template.html';
 const destination = './test-report.html';
 
-let html = '';
-let htmlWithoutTests = '';
 
 (async () => {
     console.log('\x1b[36m%s\x1b[0m', `\nGenerating summary!\n`);
@@ -14,7 +12,16 @@ let htmlWithoutTests = '';
     console.log('\x1b[36m%s\x1b[0m', `Template: ${templateSource}`);
     console.log('\x1b[36m%s\x1b[0m', `Destination: ${destination}\n`);
 
+    const templateHtmlFile = await readFile(templateSource, 'utf8').catch(() => null);
+
+    if (!templateHtmlFile) {
+        console.log('No template.html found');
+        return;
+    }
+
+    const templateRoot = parse(templateHtmlFile);
     const folders = await readdir(source);
+    let htmlWithoutTests = '';
 
     for (const folder of folders) {
         const reportHtmlFile = await readFile(`${source}/${folder}/test-report.html`, 'utf8').catch(() => null);
@@ -25,25 +32,20 @@ let htmlWithoutTests = '';
             continue;
         }
 
+        const templateMenu = templateRoot.querySelector('nav ul');
+        templateMenu.insertAdjacentHTML('beforeend', `<li><a href="#${folder}">${folder}</a></li>`);
+
         const jestRoot = parse(reportHtmlFile);
         const jestContent = jestRoot.querySelector('.jesthtml-content');
 
         jestContent.querySelector('h1').remove();
-        jestContent.querySelector('header').insertAdjacentHTML('afterbegin', `<h2>Test Report for <mark>${folder}</mark></h2>`);
+        jestContent.querySelector('header').insertAdjacentHTML('afterbegin', `<h2 id="${folder}">Test Report for <mark>${folder}</mark></h2>`);
 
-        html += jestContent.outerHTML;
+        templateRoot.querySelector('body').insertAdjacentHTML('beforeend', jestContent.outerHTML);
         console.log('\x1b[32m%s\x1b[0m', `Included test-report.html from the ${folder}`);
     }
 
-    const templateHtmlFile = await readFile(templateSource, 'utf8').catch(() => null);
-
-    if (!templateHtmlFile) {
-        console.log('No template.html found');
-        return;
-    }
-
-    const templateRoot = parse(templateHtmlFile);
-    templateRoot.querySelector('body').insertAdjacentHTML('afterbegin', html + htmlWithoutTests);
+    templateRoot.querySelector('body').insertAdjacentHTML('beforeend', htmlWithoutTests);
 
     await writeFile(destination, templateRoot.outerHTML);
 

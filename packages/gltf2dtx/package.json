@@ -13,6 +13,7 @@
     "scripts": {
         "test": "jest --passWithNoTests",
         "dist": "tsc",
+        "lint": "eslint . --fix",
         "docs": "typedoc --json ../../docs/json/gltf2dtx.json --options typedoc.json --validation.invalidLink false"
     },
     "repository": {

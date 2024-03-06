@@ -12,6 +12,10 @@
             "cache": false,
             "persistent": true
         },
+        "lint": {
+            "cache": false,
+            "persistent": true
+        },
         "dist": {
             "dependsOn": [
                 "^dist"

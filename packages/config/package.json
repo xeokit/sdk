@@ -4,5 +4,23 @@
     "private": false,
     "publishConfig": {
         "access": "public"
+    },
+    "scripts": {
+        "lint": "eslint . --fix"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^7.0.1",
+        "@typescript-eslint/parser": "^7.0.1",
+        "@vue/eslint-config-prettier": "^9.0.0",
+        "@vue/eslint-config-typescript": "^12.0.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-import": "^2.29.1",
+        "eslint-plugin-prettier": "^5.1.3",
+        "eslint-plugin-vue": "^9.21.1",
+        "vite-plugin-eslint": "^1.8.1",
+        "vue-eslint-parser": "^9.4.2",
+        "prettier-eslint": "^16.3.0",
+        "eslint": "^8.56.0",
+        "prettier": "^3.2.5"
     }
 }

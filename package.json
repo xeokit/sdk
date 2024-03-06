@@ -12,6 +12,7 @@
         "dev": "turbo run dev",
         "build": "turbo run build",
         "dist": "turbo run dist --concurrency 100",
+        "lint": "turbo run lint --concurrency 100",
         "test": "turbo run test --concurrency 100 --continue || node scripts/test-html-report/index.mjs",
         "docs-build": "rimraf docs && turbo run docs-build --filter=docs && pnpm typedoc-gen",
         "typedoc-gen": "turbo run docs --concurrency 100 && typedoc --entryPointStrategy merge \"docs/json/*.json\" --tsconfig packages/config/tsconfig.typedoc.json",

@@ -6,9 +6,11 @@
         "access": "public"
     },
     "scripts": {
-        "docs-build": "vuepress build src && copyfiles -u 3 \"src/.vuepress/dist/**/*\" \"../../docs\""
+        "docs-build": "vuepress build src && copyfiles -u 3 \"src/.vuepress/dist/**/*\" \"../../docs\"",
+        "lint": "eslint . --fix"
     },
     "devDependencies": {
+        "@xeokit/config": "^0.1.0",
         "copyfiles": "^2.4.1",
         "@vuepress/bundler-vite": "2.0.0-rc.8",
         "@vuepress/theme-default": "2.0.0-rc.18",

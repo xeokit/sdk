@@ -6,7 +6,7 @@
     "main": "src/index.ts",
     "scripts": {
         "XXtest": "jest",
-        "lint": "eslint ."
+        "lint": "eslint . --fix"
     },
     "repository": {
         "type": "git",

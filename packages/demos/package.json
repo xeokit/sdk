@@ -11,7 +11,7 @@
     "main": "src/index.ts",
     "scripts": {
         "dist": "node build-xeokit-demo-bundle.js",
-        "lint": "eslint ."
+        "lint": "eslint . --fix"
     },
     "author": "Lindsay Kay",
     "license": "SEE LICENSE IN LICENSE.md",

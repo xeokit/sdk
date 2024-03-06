@@ -7,7 +7,7 @@
     },
     "scripts": {
         "docs-build": "vuepress build src && copyfiles -u 3 \"src/.vuepress/dist/**/*\" \"../../docs\"",
-        "lint": "eslint ."
+        "lint": "eslint . --fix"
     },
     "devDependencies": {
         "@xeokit/config": "^0.1.0",

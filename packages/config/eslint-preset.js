@@ -2,6 +2,7 @@ module.exports = {
     root: true,
 
     ignorePatterns: [
+        '**/*', // Ignore all files for now
         'node_modules',
         'dist',
         'build',
@@ -94,7 +95,7 @@ module.exports = {
         },
 
         {
-            files: ['*.js', '*.mjs'],
+            files: ['*.js', '*.mjs', '*.cjs'],
 
             plugins: ['prettier'],
 

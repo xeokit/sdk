@@ -10,7 +10,8 @@
     "description": "xeokit SDK bundle",
     "main": "src/index.ts",
     "scripts": {
-        "dist": "node build-xeokit-demo-bundle.js"
+        "dist": "node build-xeokit-demo-bundle.js",
+        "lint": "eslint ."
     },
     "author": "Lindsay Kay",
     "license": "SEE LICENSE IN LICENSE.md",

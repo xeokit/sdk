@@ -5,6 +5,9 @@
     "publishConfig": {
         "access": "public"
     },
+    "scripts": {
+        "lint": "eslint ."
+    },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^7.0.1",
         "@typescript-eslint/parser": "^7.0.1",

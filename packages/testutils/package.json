@@ -1,33 +1,34 @@
 {
-  "name": "@xeokit/testutils",
-  "private": false,
-  "version": "0.1.0",
-  "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
-  "main": "src/index.ts",
-  "scripts": {
-    "XXtest": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xeokit/sdk.git"
-  },
-  "author": "Lindsay Kay",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "bugs": {
-    "url": "https://github.com/xeokit/sdk/issues"
-  },
-  "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html",
-  "files": [
-    "src/",
-    "README.md",
-    "package.json"
-  ],
-  "keywords": [],
-  "dependencies": {
-    "@xeokit/config": "^0.1.0",
-    "@xeokit/scene": "^0.1.0",
-    "@xeokit/matrix": "^0.1.0",
-    "@xeokit/basictypes": "^0.1.0",
-    "@xeokit/constants": "^0.1.0"
-  }
+    "name": "@xeokit/testutils",
+    "private": false,
+    "version": "0.1.0",
+    "description": "The xeokit SDK's buildable, viewable, importable and exportable 3D scene representation.",
+    "main": "src/index.ts",
+    "scripts": {
+        "XXtest": "jest",
+        "lint": "eslint ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xeokit/sdk.git"
+    },
+    "author": "Lindsay Kay",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/xeokit/sdk/issues"
+    },
+    "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html",
+    "files": [
+        "src/",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [],
+    "dependencies": {
+        "@xeokit/config": "^0.1.0",
+        "@xeokit/scene": "^0.1.0",
+        "@xeokit/matrix": "^0.1.0",
+        "@xeokit/basictypes": "^0.1.0",
+        "@xeokit/constants": "^0.1.0"
+    }
 }

@@ -9,6 +9,7 @@
     "scripts": {
         "test": "jest --passWithNoTests",
         "dist": "tsc",
+        "lint": "eslint .",
         "docs": "typedoc --json ../../docs/json/pick.json --options typedoc.json --validation.invalidLink false",
         "publish": "npm publish --access public"
     },

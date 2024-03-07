@@ -586,7 +586,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 72,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L72"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L72"
 						}
 					],
 					"signatures": [
@@ -618,7 +618,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 72,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L72"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L72"
 								}
 							],
 							"type": {
@@ -653,7 +653,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 65,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L65"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L65"
 						}
 					],
 					"type": {
@@ -679,7 +679,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 64,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L64"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L64"
 						}
 					],
 					"type": {
@@ -700,7 +700,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 63,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L63"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L63"
 						}
 					],
 					"type": {
@@ -726,7 +726,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L61"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L61"
 						}
 					],
 					"type": {
@@ -742,7 +742,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 61,
 									"character": 20,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L61"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L61"
 								}
 							],
 							"indexSignature": {
@@ -756,7 +756,7 @@
 										"fileName": "scene/src/Scene.ts",
 										"line": 61,
 										"character": 22,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L61"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L61"
 									}
 								],
 								"parameters": [
@@ -793,7 +793,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 62,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L62"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L62"
 						}
 					],
 					"type": {
@@ -809,7 +809,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 62,
 									"character": 22,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L62"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L62"
 								}
 							],
 							"indexSignature": {
@@ -823,7 +823,7 @@
 										"fileName": "scene/src/Scene.ts",
 										"line": 62,
 										"character": 24,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L62"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L62"
 									}
 								],
 								"parameters": [
@@ -1007,7 +1007,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 21,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L21"
 						}
 					],
 					"type": {
@@ -1023,7 +1023,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 21,
 									"character": 28,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L21"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L21"
 								}
 							],
 							"indexSignature": {
@@ -1037,7 +1037,7 @@
 										"fileName": "scene/src/Scene.ts",
 										"line": 21,
 										"character": 30,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L21"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L21"
 									}
 								],
 								"parameters": [
@@ -1103,7 +1103,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 26,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L26"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L26"
 						}
 					],
 					"type": {
@@ -1119,7 +1119,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 26,
 									"character": 29,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L26"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L26"
 								}
 							],
 							"indexSignature": {
@@ -1133,7 +1133,7 @@
 										"fileName": "scene/src/Scene.ts",
 										"line": 26,
 										"character": 31,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L26"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L26"
 									}
 								],
 								"parameters": [
@@ -1250,7 +1250,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 38,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L38"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L38"
 						}
 					],
 					"type": {
@@ -1308,7 +1308,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 45,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L45"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L45"
 						}
 					],
 					"type": {
@@ -1366,7 +1366,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 52,
 							"character": 21,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L52"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L52"
 						}
 					],
 					"type": {
@@ -1427,7 +1427,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 59,
 							"character": 21,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L59"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L59"
 						}
 					],
 					"type": {
@@ -1488,7 +1488,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 31,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L31"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L31"
 						}
 					],
 					"type": {
@@ -1504,7 +1504,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 31,
 									"character": 27,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L31"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L31"
 								}
 							],
 							"indexSignature": {
@@ -1518,7 +1518,7 @@
 										"fileName": "scene/src/Scene.ts",
 										"line": 31,
 										"character": 29,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L31"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L31"
 									}
 								],
 								"parameters": [
@@ -1558,7 +1558,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 107,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L107"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L107"
 						}
 					],
 					"getSignature": {
@@ -1597,7 +1597,7 @@
 								"fileName": "scene/src/Scene.ts",
 								"line": 107,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L107"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L107"
 							}
 						],
 						"type": {
@@ -1622,7 +1622,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 92,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L92"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L92"
 						}
 					],
 					"getSignature": {
@@ -1653,7 +1653,7 @@
 								"fileName": "scene/src/Scene.ts",
 								"line": 92,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L92"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L92"
 							}
 						],
 						"type": {
@@ -1680,7 +1680,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 267,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L267"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L267"
 						}
 					],
 					"signatures": [
@@ -1695,7 +1695,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 267,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L267"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L267"
 								}
 							],
 							"parameters": [
@@ -1733,7 +1733,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 276,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L276"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L276"
 						}
 					],
 					"signatures": [
@@ -1748,7 +1748,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 276,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L276"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L276"
 								}
 							],
 							"parameters": [
@@ -1794,7 +1794,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 290,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L290"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L290"
 						}
 					],
 					"signatures": [
@@ -1809,7 +1809,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 290,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L290"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L290"
 								}
 							],
 							"parameters": [
@@ -1850,7 +1850,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 258,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L258"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L258"
 						}
 					],
 					"signatures": [
@@ -1865,7 +1865,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 258,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L258"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L258"
 								}
 							],
 							"parameters": [
@@ -2009,7 +2009,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 226,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L226"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L226"
 						}
 					],
 					"signatures": [
@@ -2097,7 +2097,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 226,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L226"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L226"
 								}
 							],
 							"type": {
@@ -2132,7 +2132,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 182,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L182"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L182"
 						}
 					],
 					"signatures": [
@@ -2238,7 +2238,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 182,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L182"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L182"
 								}
 							],
 							"parameters": [
@@ -2307,7 +2307,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 249,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L249"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L249"
 						}
 					],
 					"signatures": [
@@ -2422,7 +2422,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 249,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L249"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L249"
 								}
 							],
 							"type": {
@@ -2639,7 +2639,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 207,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L207"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L207"
 						}
 					],
 					"signatures": [
@@ -2656,7 +2656,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 207,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L207"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L207"
 								}
 							],
 							"type": {
@@ -2872,7 +2872,7 @@
 					"fileName": "scene/src/Scene.ts",
 					"line": 15,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/Scene.ts#L15"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/Scene.ts#L15"
 				}
 			],
 			"extendedTypes": [
@@ -2967,7 +2967,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 74,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L74"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L74"
 						}
 					],
 					"signatures": [
@@ -2982,7 +2982,7 @@
 									"fileName": "scene/src/SceneGeometry.ts",
 									"line": 74,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L74"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L74"
 								}
 							],
 							"parameters": [
@@ -3030,7 +3030,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L41"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L41"
 						}
 					],
 					"type": {
@@ -3078,7 +3078,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 60,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L60"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L60"
 						}
 					],
 					"type": {
@@ -3110,7 +3110,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L22"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L22"
 						}
 					],
 					"type": {
@@ -3146,7 +3146,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 72,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L72"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L72"
 						}
 					],
 					"type": {
@@ -3182,7 +3182,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L36"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L36"
 						}
 					],
 					"type": {
@@ -3259,7 +3259,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L31"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L31"
 						}
 					],
 					"type": {
@@ -3289,7 +3289,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 67,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L67"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L67"
 						}
 					],
 					"type": {
@@ -3320,7 +3320,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L46"
 						}
 					],
 					"type": {
@@ -3344,7 +3344,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 88,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L88"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L88"
 						}
 					],
 					"signatures": [
@@ -3367,7 +3367,7 @@
 									"fileName": "scene/src/SceneGeometry.ts",
 									"line": 88,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L88"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L88"
 								}
 							],
 							"type": {
@@ -3412,7 +3412,7 @@
 					"fileName": "scene/src/SceneGeometry.ts",
 					"line": 17,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometry.ts#L17"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometry.ts#L17"
 				}
 			]
 		},
@@ -3451,7 +3451,7 @@
 							"fileName": "scene/src/SceneGeometryBucket.ts",
 							"line": 49,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucket.ts#L49"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucket.ts#L49"
 						}
 					],
 					"signatures": [
@@ -3466,7 +3466,7 @@
 									"fileName": "scene/src/SceneGeometryBucket.ts",
 									"line": 49,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucket.ts#L49"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucket.ts#L49"
 								}
 							],
 							"parameters": [
@@ -3514,7 +3514,7 @@
 							"fileName": "scene/src/SceneGeometryBucket.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucket.ts#L33"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucket.ts#L33"
 						}
 					],
 					"type": {
@@ -3548,7 +3548,7 @@
 							"fileName": "scene/src/SceneGeometryBucket.ts",
 							"line": 47,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucket.ts#L47"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucket.ts#L47"
 						}
 					],
 					"type": {
@@ -3582,7 +3582,7 @@
 							"fileName": "scene/src/SceneGeometryBucket.ts",
 							"line": 40,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucket.ts#L40"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucket.ts#L40"
 						}
 					],
 					"type": {
@@ -3623,7 +3623,7 @@
 							"fileName": "scene/src/SceneGeometryBucket.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucket.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucket.ts#L21"
 						}
 					],
 					"type": {
@@ -3666,7 +3666,7 @@
 							"fileName": "scene/src/SceneGeometryBucket.ts",
 							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucket.ts#L28"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucket.ts#L28"
 						}
 					],
 					"type": {
@@ -3703,7 +3703,7 @@
 					"fileName": "scene/src/SceneGeometryBucket.ts",
 					"line": 12,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucket.ts#L12"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucket.ts#L12"
 				}
 			]
 		},
@@ -3780,7 +3780,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 63,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L63"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L63"
 						}
 					],
 					"signatures": [
@@ -3797,7 +3797,7 @@
 									"fileName": "scene/src/SceneMesh.ts",
 									"line": 63,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L63"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L63"
 								}
 							],
 							"parameters": [
@@ -3829,7 +3829,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 68,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L68"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L68"
 														}
 													],
 													"type": {
@@ -3853,7 +3853,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 65,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L65"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L65"
 														}
 													],
 													"type": {
@@ -3874,7 +3874,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 64,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L64"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L64"
 														}
 													],
 													"type": {
@@ -3895,7 +3895,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 67,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L67"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L67"
 														}
 													],
 													"type": {
@@ -3921,7 +3921,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 71,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L71"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L71"
 														}
 													],
 													"type": {
@@ -3942,7 +3942,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 69,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L69"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L69"
 														}
 													],
 													"type": {
@@ -3963,7 +3963,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 72,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L72"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L72"
 														}
 													],
 													"type": {
@@ -3989,7 +3989,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 70,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L70"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L70"
 														}
 													],
 													"type": {
@@ -4010,7 +4010,7 @@
 															"fileName": "scene/src/SceneMesh.ts",
 															"line": 66,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L66"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L66"
 														}
 													],
 													"type": {
@@ -4042,7 +4042,7 @@
 													"fileName": "scene/src/SceneMesh.ts",
 													"line": 63,
 													"character": 28,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L63"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L63"
 												}
 											]
 										}
@@ -4071,7 +4071,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 52,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L52"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L52"
 						}
 					],
 					"type": {
@@ -4097,7 +4097,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 53,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L53"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L53"
 						}
 					],
 					"type": {
@@ -4123,7 +4123,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 54,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L54"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L54"
 						}
 					],
 					"type": {
@@ -4144,7 +4144,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L56"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L56"
 						}
 					],
 					"type": {
@@ -4165,7 +4165,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 55,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L55"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L55"
 						}
 					],
 					"type": {
@@ -4197,7 +4197,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 30,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L30"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L30"
 						}
 					],
 					"type": {
@@ -4235,7 +4235,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 25,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L25"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L25"
 						}
 					],
 					"type": {
@@ -4271,7 +4271,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 50,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L50"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L50"
 						}
 					],
 					"type": {
@@ -4294,7 +4294,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 58,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L58"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L58"
 						}
 					],
 					"type": {
@@ -4356,7 +4356,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 45,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L45"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L45"
 						}
 					],
 					"type": {
@@ -4392,7 +4392,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 35,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L35"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L35"
 						}
 					],
 					"type": {
@@ -4413,13 +4413,13 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 91,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L91"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L91"
 						},
 						{
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 100,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L100"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L100"
 						}
 					],
 					"getSignature": {
@@ -4449,7 +4449,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 91,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L91"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L91"
 							}
 						],
 						"type": {
@@ -4489,7 +4489,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 100,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L100"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L100"
 							}
 						],
 						"parameters": [
@@ -4527,13 +4527,13 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 127,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L127"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L127"
 						},
 						{
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 138,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L138"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L138"
 						}
 					],
 					"getSignature": {
@@ -4563,7 +4563,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 127,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L127"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L127"
 							}
 						],
 						"type": {
@@ -4603,7 +4603,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 138,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L138"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L138"
 							}
 						],
 						"parameters": [
@@ -4641,13 +4641,13 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 162,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L162"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L162"
 						},
 						{
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 175,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L175"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L175"
 						}
 					],
 					"getSignature": {
@@ -4701,7 +4701,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 162,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L162"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L162"
 							}
 						],
 						"type": {
@@ -4760,7 +4760,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 175,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L175"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L175"
 							}
 						],
 						"parameters": [
@@ -4793,13 +4793,13 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 220,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L220"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L220"
 						},
 						{
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 229,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L229"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L229"
 						}
 					],
 					"getSignature": {
@@ -4829,7 +4829,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 220,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L220"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L220"
 							}
 						],
 						"type": {
@@ -4864,7 +4864,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 229,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L229"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L229"
 							}
 						],
 						"parameters": [
@@ -4897,13 +4897,13 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 193,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L193"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L193"
 						},
 						{
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 204,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L204"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L204"
 						}
 					],
 					"getSignature": {
@@ -4957,7 +4957,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 193,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L193"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L193"
 							}
 						],
 						"type": {
@@ -5016,7 +5016,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 204,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L204"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L204"
 							}
 						],
 						"parameters": [
@@ -5049,7 +5049,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 243,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L243"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L243"
 						}
 					],
 					"signatures": [
@@ -5072,7 +5072,7 @@
 									"fileName": "scene/src/SceneMesh.ts",
 									"line": 243,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L243"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L243"
 								}
 							],
 							"type": {
@@ -5130,7 +5130,7 @@
 					"fileName": "scene/src/SceneMesh.ts",
 					"line": 18,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMesh.ts#L18"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMesh.ts#L18"
 				}
 			]
 		},
@@ -5270,7 +5270,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 212,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L212"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L212"
 						}
 					],
 					"signatures": [
@@ -5287,7 +5287,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 212,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L212"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L212"
 								}
 							],
 							"parameters": [
@@ -5350,7 +5350,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 207,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L207"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L207"
 						}
 					],
 					"type": {
@@ -5366,7 +5366,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 207,
 									"character": 23,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L207"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L207"
 								}
 							],
 							"indexSignature": {
@@ -5380,7 +5380,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 207,
 										"character": 25,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L207"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L207"
 									}
 								],
 								"parameters": [
@@ -5417,7 +5417,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 206,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L206"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L206"
 						}
 					],
 					"type": {
@@ -5463,7 +5463,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 205,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L205"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L205"
 						}
 					],
 					"type": {
@@ -5507,7 +5507,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 173,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L173"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L173"
 						}
 					],
 					"type": {
@@ -5576,7 +5576,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 117,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L117"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L117"
 						}
 					],
 					"type": {
@@ -5622,7 +5622,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 125,
 							"character": 21,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L125"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L125"
 						}
 					],
 					"type": {
@@ -5682,7 +5682,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 130,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L130"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L130"
 						}
 					],
 					"type": {
@@ -5735,7 +5735,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 137,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L137"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L137"
 						}
 					],
 					"type": {
@@ -5751,7 +5751,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 137,
 									"character": 32,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L137"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L137"
 								}
 							],
 							"indexSignature": {
@@ -5765,7 +5765,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 137,
 										"character": 34,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L137"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L137"
 									}
 								],
 								"parameters": [
@@ -5822,7 +5822,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 101,
 							"character": 28,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L101"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L101"
 						}
 					],
 					"type": {
@@ -5876,7 +5876,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 107,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L107"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L107"
 						}
 					],
 					"type": {
@@ -5929,7 +5929,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 159,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L159"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L159"
 						}
 					],
 					"type": {
@@ -5945,7 +5945,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 159,
 									"character": 28,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L159"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L159"
 								}
 							],
 							"indexSignature": {
@@ -5959,7 +5959,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 159,
 										"character": 30,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L159"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L159"
 									}
 								],
 								"parameters": [
@@ -6029,7 +6029,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 166,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L166"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L166"
 						}
 					],
 					"type": {
@@ -6045,7 +6045,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 166,
 									"character": 22,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L166"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L166"
 								}
 							],
 							"indexSignature": {
@@ -6059,7 +6059,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 166,
 										"character": 24,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L166"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L166"
 									}
 								],
 								"parameters": [
@@ -6125,7 +6125,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 182,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L182"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L182"
 						}
 					],
 					"type": {
@@ -6190,7 +6190,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 191,
 							"character": 28,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L191"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L191"
 						}
 					],
 					"type": {
@@ -6244,7 +6244,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 198,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L198"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L198"
 						}
 					],
 					"type": {
@@ -6285,7 +6285,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 94,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L94"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L94"
 						}
 					],
 					"type": {
@@ -6317,7 +6317,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 203,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L203"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L203"
 						}
 					],
 					"type": {
@@ -6372,7 +6372,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 152,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L152"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L152"
 						}
 					],
 					"type": {
@@ -6388,7 +6388,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 152,
 									"character": 33,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L152"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L152"
 								}
 							],
 							"indexSignature": {
@@ -6402,7 +6402,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 152,
 										"character": 35,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L152"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L152"
 									}
 								],
 								"parameters": [
@@ -6482,7 +6482,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 145,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L145"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L145"
 						}
 					],
 					"type": {
@@ -6498,7 +6498,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 145,
 									"character": 30,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L145"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L145"
 								}
 							],
 							"indexSignature": {
@@ -6512,7 +6512,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 145,
 										"character": 32,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L145"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L145"
 									}
 								],
 								"parameters": [
@@ -6551,7 +6551,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 916,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L916"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L916"
 						}
 					],
 					"signatures": [
@@ -6566,7 +6566,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 916,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L916"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L916"
 								}
 							],
 							"type": {
@@ -6587,7 +6587,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 897,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L897"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L897"
 						}
 					],
 					"signatures": [
@@ -6691,7 +6691,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 897,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L897"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L897"
 								}
 							],
 							"type": {
@@ -6833,7 +6833,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 541,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L541"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L541"
 						}
 					],
 					"signatures": [
@@ -6947,7 +6947,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 541,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L541"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L541"
 								}
 							],
 							"parameters": [
@@ -7007,7 +7007,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 663,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L663"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L663"
 						}
 					],
 					"signatures": [
@@ -7148,7 +7148,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 663,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L663"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L663"
 								}
 							],
 							"parameters": [
@@ -7208,7 +7208,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 726,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L726"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L726"
 						}
 					],
 					"signatures": [
@@ -7340,7 +7340,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 726,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L726"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L726"
 								}
 							],
 							"parameters": [
@@ -7400,7 +7400,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 815,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L815"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L815"
 						}
 					],
 					"signatures": [
@@ -7541,7 +7541,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 815,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L815"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L815"
 								}
 							],
 							"parameters": [
@@ -7601,7 +7601,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 373,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L373"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L373"
 						}
 					],
 					"signatures": [
@@ -7715,7 +7715,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 373,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L373"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L373"
 								}
 							],
 							"parameters": [
@@ -7775,7 +7775,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 431,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L431"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L431"
 						}
 					],
 					"signatures": [
@@ -7880,7 +7880,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 431,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L431"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L431"
 								}
 							],
 							"parameters": [
@@ -7940,7 +7940,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 326,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L326"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L326"
 						}
 					],
 					"signatures": [
@@ -8045,7 +8045,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 326,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L326"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L326"
 								}
 							],
 							"parameters": [
@@ -8259,7 +8259,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 268,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L268"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L268"
 						}
 					],
 					"signatures": [
@@ -8356,7 +8356,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 268,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L268"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L268"
 								}
 							],
 							"parameters": [
@@ -8406,7 +8406,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 946,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L946"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L946"
 						}
 					],
 					"signatures": [
@@ -8429,7 +8429,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 946,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L946"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L946"
 								}
 							],
 							"type": {
@@ -8733,7 +8733,7 @@
 					"fileName": "scene/src/SceneModel.ts",
 					"line": 89,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModel.ts#L89"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModel.ts#L89"
 				}
 			],
 			"extendedTypes": [
@@ -8821,7 +8821,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 63,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L63"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L63"
 						}
 					],
 					"signatures": [
@@ -8838,7 +8838,7 @@
 									"fileName": "scene/src/SceneObject.ts",
 									"line": 63,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L63"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L63"
 								}
 							],
 							"parameters": [
@@ -8868,7 +8868,7 @@
 															"fileName": "scene/src/SceneObject.ts",
 															"line": 66,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L66"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L66"
 														}
 													],
 													"type": {
@@ -8889,7 +8889,7 @@
 															"fileName": "scene/src/SceneObject.ts",
 															"line": 68,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L68"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L68"
 														}
 													],
 													"type": {
@@ -8908,7 +8908,7 @@
 															"fileName": "scene/src/SceneObject.ts",
 															"line": 65,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L65"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L65"
 														}
 													],
 													"type": {
@@ -8932,7 +8932,7 @@
 															"fileName": "scene/src/SceneObject.ts",
 															"line": 64,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L64"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L64"
 														}
 													],
 													"type": {
@@ -8955,7 +8955,7 @@
 															"fileName": "scene/src/SceneObject.ts",
 															"line": 67,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L67"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L67"
 														}
 													],
 													"type": {
@@ -8981,7 +8981,7 @@
 													"fileName": "scene/src/SceneObject.ts",
 													"line": 63,
 													"character": 21,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L63"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L63"
 												}
 											]
 										}
@@ -9010,7 +9010,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 57,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L57"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L57"
 						}
 					],
 					"type": {
@@ -9036,7 +9036,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 58,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L58"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L58"
 						}
 					],
 					"type": {
@@ -9084,7 +9084,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 25,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L25"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L25"
 						}
 					],
 					"type": {
@@ -9115,7 +9115,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 45,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L45"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L45"
 						}
 					],
 					"type": {
@@ -9154,7 +9154,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 40,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L40"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L40"
 						}
 					],
 					"type": {
@@ -9198,7 +9198,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 30,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L30"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L30"
 						}
 					],
 					"type": {
@@ -9230,7 +9230,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 35,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L35"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L35"
 						}
 					],
 					"type": {
@@ -9296,7 +9296,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 55,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L55"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L55"
 						}
 					],
 					"type": {
@@ -9317,7 +9317,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 82,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L82"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L82"
 						}
 					],
 					"getSignature": {
@@ -9339,7 +9339,7 @@
 								"fileName": "scene/src/SceneObject.ts",
 								"line": 82,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L82"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L82"
 							}
 						],
 						"type": {
@@ -9364,7 +9364,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 104,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L104"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L104"
 						}
 					],
 					"signatures": [
@@ -9387,7 +9387,7 @@
 									"fileName": "scene/src/SceneObject.ts",
 									"line": 104,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L104"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L104"
 								}
 							],
 							"type": {
@@ -9412,7 +9412,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 97,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L97"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L97"
 						}
 					],
 					"signatures": [
@@ -9429,7 +9429,7 @@
 									"fileName": "scene/src/SceneObject.ts",
 									"line": 97,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L97"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L97"
 								}
 							],
 							"type": {
@@ -9479,7 +9479,7 @@
 					"fileName": "scene/src/SceneObject.ts",
 					"line": 17,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObject.ts#L17"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObject.ts#L17"
 				}
 			]
 		},
@@ -9583,7 +9583,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 163,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L163"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L163"
 						}
 					],
 					"signatures": [
@@ -9600,7 +9600,7 @@
 									"fileName": "scene/src/SceneTexture.ts",
 									"line": 163,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L163"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L163"
 								}
 							],
 							"parameters": [
@@ -9648,7 +9648,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 63,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L63"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L63"
 						}
 					],
 					"type": {
@@ -9677,7 +9677,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 158,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L158"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L158"
 						}
 					],
 					"type": {
@@ -9704,7 +9704,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 83,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L83"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L83"
 						}
 					],
 					"type": {
@@ -9749,7 +9749,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 148,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L148"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L148"
 						}
 					],
 					"type": {
@@ -9784,7 +9784,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 141,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L141"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L141"
 						}
 					],
 					"type": {
@@ -9811,7 +9811,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 73,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L73"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L73"
 						}
 					],
 					"type": {
@@ -9838,7 +9838,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 48,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L48"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L48"
 						}
 					],
 					"type": {
@@ -9867,7 +9867,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 68,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L68"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L68"
 						}
 					],
 					"type": {
@@ -9901,7 +9901,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 58,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L58"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L58"
 						}
 					],
 					"type": {
@@ -9946,7 +9946,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 99,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L99"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L99"
 						}
 					],
 					"type": {
@@ -10002,7 +10002,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 92,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L92"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L92"
 						}
 					],
 					"type": {
@@ -10074,7 +10074,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 109,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L109"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L109"
 						}
 					],
 					"type": {
@@ -10101,7 +10101,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 153,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L153"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L153"
 						}
 					],
 					"type": {
@@ -10163,7 +10163,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 43,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L43"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L43"
 						}
 					],
 					"type": {
@@ -10194,7 +10194,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 53,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L53"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L53"
 						}
 					],
 					"type": {
@@ -10221,7 +10221,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 78,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L78"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L78"
 						}
 					],
 					"type": {
@@ -10275,7 +10275,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 136,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L136"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L136"
 						}
 					],
 					"type": {
@@ -10329,7 +10329,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 118,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L118"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L118"
 						}
 					],
 					"type": {
@@ -10383,7 +10383,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 127,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L127"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L127"
 						}
 					],
 					"type": {
@@ -10429,7 +10429,7 @@
 					"fileName": "scene/src/SceneTexture.ts",
 					"line": 34,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTexture.ts#L34"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTexture.ts#L34"
 				}
 			]
 		},
@@ -10515,7 +10515,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 53,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L53"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L53"
 						}
 					],
 					"signatures": [
@@ -10532,7 +10532,7 @@
 									"fileName": "scene/src/SceneTextureSet.ts",
 									"line": 53,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L53"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L53"
 								}
 							],
 							"parameters": [
@@ -10577,7 +10577,7 @@
 															"fileName": "scene/src/SceneTextureSet.ts",
 															"line": 58,
 															"character": 20,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L58"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L58"
 														}
 													],
 													"type": {
@@ -10600,7 +10600,7 @@
 															"fileName": "scene/src/SceneTextureSet.ts",
 															"line": 55,
 															"character": 20,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L55"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L55"
 														}
 													],
 													"type": {
@@ -10623,7 +10623,7 @@
 															"fileName": "scene/src/SceneTextureSet.ts",
 															"line": 57,
 															"character": 20,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L57"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L57"
 														}
 													],
 													"type": {
@@ -10646,7 +10646,7 @@
 															"fileName": "scene/src/SceneTextureSet.ts",
 															"line": 56,
 															"character": 20,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L56"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L56"
 														}
 													],
 													"type": {
@@ -10673,7 +10673,7 @@
 													"fileName": "scene/src/SceneTextureSet.ts",
 													"line": 54,
 													"character": 26,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L54"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L54"
 												}
 											]
 										}
@@ -10719,7 +10719,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L24"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L24"
 						}
 					],
 					"type": {
@@ -10759,7 +10759,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 39,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L39"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L39"
 						}
 					],
 					"type": {
@@ -10788,7 +10788,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L19"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L19"
 						}
 					],
 					"type": {
@@ -10826,7 +10826,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L29"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L29"
 						}
 					],
 					"type": {
@@ -10866,7 +10866,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 34,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L34"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L34"
 						}
 					],
 					"type": {
@@ -10916,7 +10916,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 48,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L48"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L48"
 						}
 					],
 					"type": {
@@ -10951,7 +10951,7 @@
 					"fileName": "scene/src/SceneTextureSet.ts",
 					"line": 14,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSet.ts#L14"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSet.ts#L14"
 				}
 			]
 		},
@@ -11018,7 +11018,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L37"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L37"
 						}
 					],
 					"type": {
@@ -11056,7 +11056,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L42"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L42"
 						}
 					],
 					"type": {
@@ -11103,7 +11103,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 47,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L47"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L47"
 						}
 					],
 					"type": {
@@ -11139,7 +11139,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 27,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L27"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L27"
 						}
 					],
 					"type": {
@@ -11186,7 +11186,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 32,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L32"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L32"
 						}
 					],
 					"type": {
@@ -11224,7 +11224,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 57,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L57"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L57"
 						}
 					],
 					"type": {
@@ -11260,7 +11260,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L22"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L22"
 						}
 					],
 					"type": {
@@ -11291,7 +11291,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 62,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L62"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L62"
 						}
 					],
 					"type": {
@@ -11325,7 +11325,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 67,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L67"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L67"
 						}
 					],
 					"type": {
@@ -11377,7 +11377,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 52,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L52"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L52"
 						}
 					],
 					"type": {
@@ -11406,7 +11406,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 72,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L72"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L72"
 						}
 					],
 					"type": {
@@ -11443,7 +11443,7 @@
 					"fileName": "scene/src/getSceneObjectGeometry.ts",
 					"line": 17,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L17"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L17"
 				}
 			]
 		},
@@ -11478,7 +11478,7 @@
 					"fileName": "scene/src/RendererGeometry.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererGeometry.ts#L6"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererGeometry.ts#L6"
 				}
 			]
 		},
@@ -11565,7 +11565,7 @@
 							"fileName": "scene/src/RendererMesh.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L31"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L31"
 						}
 					],
 					"signatures": [
@@ -11618,7 +11618,7 @@
 									"fileName": "scene/src/RendererMesh.ts",
 									"line": 31,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L31"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L31"
 								}
 							],
 							"parameters": [
@@ -11657,7 +11657,7 @@
 							"fileName": "scene/src/RendererMesh.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L22"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L22"
 						}
 					],
 					"signatures": [
@@ -11719,7 +11719,7 @@
 									"fileName": "scene/src/RendererMesh.ts",
 									"line": 22,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L22"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L22"
 								}
 							],
 							"parameters": [
@@ -11758,7 +11758,7 @@
 							"fileName": "scene/src/RendererMesh.ts",
 							"line": 40,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L40"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L40"
 						}
 					],
 					"signatures": [
@@ -11811,7 +11811,7 @@
 									"fileName": "scene/src/RendererMesh.ts",
 									"line": 40,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L40"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L40"
 								}
 							],
 							"parameters": [
@@ -11845,7 +11845,7 @@
 							"fileName": "scene/src/RendererMesh.ts",
 							"line": 49,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L49"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L49"
 						}
 					],
 					"signatures": [
@@ -11898,7 +11898,7 @@
 									"fileName": "scene/src/RendererMesh.ts",
 									"line": 49,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L49"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L49"
 								}
 							],
 							"parameters": [
@@ -11938,7 +11938,7 @@
 					"fileName": "scene/src/RendererMesh.ts",
 					"line": 13,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererMesh.ts#L13"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererMesh.ts#L13"
 				}
 			]
 		},
@@ -12063,7 +12063,7 @@
 							"fileName": "scene/src/RendererModel.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererModel.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererModel.ts#L21"
 						}
 					],
 					"type": {
@@ -12079,7 +12079,7 @@
 									"fileName": "scene/src/RendererModel.ts",
 									"line": 21,
 									"character": 21,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererModel.ts#L21"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererModel.ts#L21"
 								}
 							],
 							"indexSignature": {
@@ -12093,7 +12093,7 @@
 										"fileName": "scene/src/RendererModel.ts",
 										"line": 21,
 										"character": 23,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererModel.ts#L21"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererModel.ts#L21"
 									}
 								],
 								"parameters": [
@@ -12133,7 +12133,7 @@
 					"fileName": "scene/src/RendererModel.ts",
 					"line": 11,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererModel.ts#L11"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererModel.ts#L11"
 				}
 			]
 		},
@@ -12296,7 +12296,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 42,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L42"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L42"
 						}
 					],
 					"type": {
@@ -12333,7 +12333,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 30,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L30"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L30"
 						}
 					],
 					"type": {
@@ -12383,7 +12383,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 48,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L48"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L48"
 						}
 					],
 					"type": {
@@ -12424,7 +12424,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 36,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L36"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L36"
 						}
 					],
 					"type": {
@@ -12445,7 +12445,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 139,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L139"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L139"
 						}
 					],
 					"signatures": [
@@ -12527,7 +12527,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 139,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L139"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L139"
 								}
 							],
 							"parameters": [
@@ -12638,7 +12638,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 152,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L152"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L152"
 						}
 					],
 					"signatures": [
@@ -12720,7 +12720,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 152,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L152"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L152"
 								}
 							],
 							"parameters": [
@@ -12831,7 +12831,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 178,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L178"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L178"
 						}
 					],
 					"signatures": [
@@ -12913,7 +12913,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 178,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L178"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L178"
 								}
 							],
 							"parameters": [
@@ -13031,7 +13031,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 126,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L126"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L126"
 						}
 					],
 					"signatures": [
@@ -13113,7 +13113,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 126,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L126"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L126"
 								}
 							],
 							"parameters": [
@@ -13224,7 +13224,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 113,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L113"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L113"
 						}
 					],
 					"signatures": [
@@ -13306,7 +13306,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 113,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L113"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L113"
 								}
 							],
 							"parameters": [
@@ -13417,7 +13417,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 74,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L74"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L74"
 						}
 					],
 					"signatures": [
@@ -13499,7 +13499,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 74,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L74"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L74"
 								}
 							],
 							"parameters": [
@@ -13601,7 +13601,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 204,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L204"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L204"
 						}
 					],
 					"signatures": [
@@ -13683,7 +13683,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 204,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L204"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L204"
 								}
 							],
 							"parameters": [
@@ -13799,7 +13799,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 191,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L191"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L191"
 						}
 					],
 					"signatures": [
@@ -13881,7 +13881,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 191,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L191"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L191"
 								}
 							],
 							"parameters": [
@@ -13994,7 +13994,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 165,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L165"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L165"
 						}
 					],
 					"signatures": [
@@ -14076,7 +14076,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 165,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L165"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L165"
 								}
 							],
 							"parameters": [
@@ -14187,7 +14187,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 100,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L100"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L100"
 						}
 					],
 					"signatures": [
@@ -14269,7 +14269,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 100,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L100"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L100"
 								}
 							],
 							"parameters": [
@@ -14371,7 +14371,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L61"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L61"
 						}
 					],
 					"signatures": [
@@ -14453,7 +14453,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 61,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L61"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L61"
 								}
 							],
 							"parameters": [
@@ -14555,7 +14555,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 87,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L87"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L87"
 						}
 					],
 					"signatures": [
@@ -14637,7 +14637,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 87,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L87"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L87"
 								}
 							],
 							"parameters": [
@@ -14762,7 +14762,7 @@
 					"fileName": "scene/src/RendererObject.ts",
 					"line": 24,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererObject.ts#L24"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererObject.ts#L24"
 				}
 			]
 		},
@@ -14842,7 +14842,7 @@
 					"fileName": "scene/src/RendererTexture.ts",
 					"line": 12,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererTexture.ts#L12"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererTexture.ts#L12"
 				}
 			]
 		},
@@ -14975,7 +14975,7 @@
 							"fileName": "scene/src/RendererTextureSet.ts",
 							"line": 21,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererTextureSet.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererTextureSet.ts#L21"
 						}
 					],
 					"type": {
@@ -15033,7 +15033,7 @@
 							"fileName": "scene/src/RendererTextureSet.ts",
 							"line": 33,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererTextureSet.ts#L33"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererTextureSet.ts#L33"
 						}
 					],
 					"type": {
@@ -15091,7 +15091,7 @@
 							"fileName": "scene/src/RendererTextureSet.ts",
 							"line": 27,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererTextureSet.ts#L27"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererTextureSet.ts#L27"
 						}
 					],
 					"type": {
@@ -15149,7 +15149,7 @@
 							"fileName": "scene/src/RendererTextureSet.ts",
 							"line": 39,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererTextureSet.ts#L39"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererTextureSet.ts#L39"
 						}
 					],
 					"type": {
@@ -15176,7 +15176,7 @@
 					"fileName": "scene/src/RendererTextureSet.ts",
 					"line": 14,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/RendererTextureSet.ts#L14"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/RendererTextureSet.ts#L14"
 				}
 			]
 		},
@@ -15231,7 +15231,7 @@
 							"fileName": "scene/src/SceneGeometryBucketParams.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucketParams.ts#L36"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucketParams.ts#L36"
 						}
 					],
 					"type": {
@@ -15265,7 +15265,7 @@
 							"fileName": "scene/src/SceneGeometryBucketParams.ts",
 							"line": 50,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucketParams.ts#L50"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucketParams.ts#L50"
 						}
 					],
 					"type": {
@@ -15299,7 +15299,7 @@
 							"fileName": "scene/src/SceneGeometryBucketParams.ts",
 							"line": 43,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucketParams.ts#L43"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucketParams.ts#L43"
 						}
 					],
 					"type": {
@@ -15340,7 +15340,7 @@
 							"fileName": "scene/src/SceneGeometryBucketParams.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucketParams.ts#L23"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucketParams.ts#L23"
 						}
 					],
 					"type": {
@@ -15383,7 +15383,7 @@
 							"fileName": "scene/src/SceneGeometryBucketParams.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucketParams.ts#L31"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucketParams.ts#L31"
 						}
 					],
 					"type": {
@@ -15414,7 +15414,7 @@
 					"fileName": "scene/src/SceneGeometryBucketParams.ts",
 					"line": 13,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryBucketParams.ts#L13"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryBucketParams.ts#L13"
 				}
 			]
 		},
@@ -15508,7 +15508,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryCompressedParams.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryCompressedParams.ts#L46"
 						}
 					],
 					"type": {
@@ -15556,7 +15556,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 65,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryCompressedParams.ts#L65"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryCompressedParams.ts#L65"
 						}
 					],
 					"type": {
@@ -15588,7 +15588,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryCompressedParams.ts#L26"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryCompressedParams.ts#L26"
 						}
 					],
 					"type": {
@@ -15617,7 +15617,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 70,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryCompressedParams.ts#L70"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryCompressedParams.ts#L70"
 						}
 					],
 					"type": {
@@ -15667,7 +15667,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryCompressedParams.ts#L41"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryCompressedParams.ts#L41"
 						}
 					],
 					"type": {
@@ -15744,7 +15744,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 34,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryCompressedParams.ts#L34"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryCompressedParams.ts#L34"
 						}
 					],
 					"type": {
@@ -15773,7 +15773,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryCompressedParams.ts#L51"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryCompressedParams.ts#L51"
 						}
 					],
 					"type": {
@@ -15806,7 +15806,7 @@
 					"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 					"line": 21,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryCompressedParams.ts#L21"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryCompressedParams.ts#L21"
 				}
 			]
 		},
@@ -15897,7 +15897,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 49,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryParams.ts#L49"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryParams.ts#L49"
 						}
 					],
 					"type": {
@@ -15929,7 +15929,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 25,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryParams.ts#L25"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryParams.ts#L25"
 						}
 					],
 					"type": {
@@ -15967,7 +15967,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryParams.ts#L56"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryParams.ts#L56"
 						}
 					],
 					"type": {
@@ -15999,7 +15999,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 39,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryParams.ts#L39"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryParams.ts#L39"
 						}
 					],
 					"type": {
@@ -16076,7 +16076,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 34,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryParams.ts#L34"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryParams.ts#L34"
 						}
 					],
 					"type": {
@@ -16097,7 +16097,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 44,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryParams.ts#L44"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryParams.ts#L44"
 						}
 					],
 					"type": {
@@ -16129,7 +16129,7 @@
 					"fileName": "scene/src/SceneGeometryParams.ts",
 					"line": 20,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneGeometryParams.ts#L20"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneGeometryParams.ts#L20"
 				}
 			]
 		},
@@ -16200,7 +16200,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L33"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L33"
 						}
 					],
 					"type": {
@@ -16259,7 +16259,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L21"
 						}
 					],
 					"type": {
@@ -16304,7 +16304,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L11"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L11"
 						}
 					],
 					"type": {
@@ -16369,7 +16369,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 94,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L94"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L94"
 						}
 					],
 					"type": {
@@ -16420,7 +16420,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L56"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L56"
 						}
 					],
 					"type": {
@@ -16458,7 +16458,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 47,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L47"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L47"
 						}
 					],
 					"type": {
@@ -16496,7 +16496,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 99,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L99"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L99"
 						}
 					],
 					"type": {
@@ -16548,7 +16548,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 40,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L40"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L40"
 						}
 					],
 					"type": {
@@ -16582,7 +16582,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 70,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L70"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L70"
 						}
 					],
 					"type": {
@@ -16616,7 +16616,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 80,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L80"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L80"
 						}
 					],
 					"type": {
@@ -16650,7 +16650,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 85,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L85"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L85"
 						}
 					],
 					"type": {
@@ -16701,7 +16701,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 65,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L65"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L65"
 						}
 					],
 					"type": {
@@ -16730,7 +16730,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 75,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L75"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L75"
 						}
 					],
 					"type": {
@@ -16782,7 +16782,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L16"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L16"
 						}
 					],
 					"type": {
@@ -16829,7 +16829,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L26"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L26"
 						}
 					],
 					"type": {
@@ -16865,7 +16865,7 @@
 					"fileName": "scene/src/SceneMeshParams.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneMeshParams.ts#L6"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneMeshParams.ts#L6"
 				}
 			]
 		},
@@ -16933,7 +16933,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L56"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L56"
 						}
 					],
 					"type": {
@@ -16972,7 +16972,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L61"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L61"
 						}
 					],
 					"type": {
@@ -17009,7 +17009,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L24"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L24"
 						}
 					],
 					"type": {
@@ -17056,7 +17056,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 89,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L89"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L89"
 						}
 					],
 					"type": {
@@ -17085,7 +17085,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L29"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L29"
 						}
 					],
 					"type": {
@@ -17124,7 +17124,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 76,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L76"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L76"
 						}
 					],
 					"type": {
@@ -17163,7 +17163,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 81,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L81"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L81"
 						}
 					],
 					"type": {
@@ -17197,7 +17197,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L51"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L51"
 						}
 					],
 					"type": {
@@ -17231,7 +17231,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L41"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L41"
 						}
 					],
 					"type": {
@@ -17265,7 +17265,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L46"
 						}
 					],
 					"type": {
@@ -17307,7 +17307,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L36"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L36"
 						}
 					],
 					"type": {
@@ -17346,7 +17346,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 71,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L71"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L71"
 						}
 					],
 					"type": {
@@ -17385,7 +17385,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 66,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L66"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L66"
 						}
 					],
 					"type": {
@@ -17424,7 +17424,7 @@
 					"fileName": "scene/src/SceneModelParams.ts",
 					"line": 17,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelParams.ts#L17"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelParams.ts#L17"
 				}
 			]
 		},
@@ -17489,7 +17489,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L21"
 						}
 					],
 					"type": {
@@ -17525,7 +17525,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L41"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L41"
 						}
 					],
 					"type": {
@@ -17570,7 +17570,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L16"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L16"
 						}
 					],
 					"type": {
@@ -17615,7 +17615,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L11"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L11"
 						}
 					],
 					"type": {
@@ -17651,7 +17651,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L46"
 						}
 					],
 					"type": {
@@ -17696,7 +17696,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L31"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L31"
 						}
 					],
 					"type": {
@@ -17741,7 +17741,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L26"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L26"
 						}
 					],
 					"type": {
@@ -17777,7 +17777,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L36"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L36"
 						}
 					],
 					"type": {
@@ -17813,7 +17813,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L51"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L51"
 						}
 					],
 					"type": {
@@ -17849,7 +17849,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L56"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L56"
 						}
 					],
 					"type": {
@@ -17880,7 +17880,7 @@
 					"fileName": "scene/src/SceneModelStats.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneModelStats.ts#L6"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneModelStats.ts#L6"
 				}
 			]
 		},
@@ -17932,7 +17932,7 @@
 							"fileName": "scene/src/SceneObjectParams.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObjectParams.ts#L9"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObjectParams.ts#L9"
 						}
 					],
 					"type": {
@@ -18033,7 +18033,7 @@
 							"fileName": "scene/src/SceneObjectParams.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObjectParams.ts#L33"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObjectParams.ts#L33"
 						}
 					],
 					"type": {
@@ -18069,7 +18069,7 @@
 							"fileName": "scene/src/SceneObjectParams.ts",
 							"line": 20,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObjectParams.ts#L20"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObjectParams.ts#L20"
 						}
 					],
 					"type": {
@@ -18110,7 +18110,7 @@
 							"fileName": "scene/src/SceneObjectParams.ts",
 							"line": 15,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObjectParams.ts#L15"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObjectParams.ts#L15"
 						}
 					],
 					"type": {
@@ -18135,7 +18135,7 @@
 					"fileName": "scene/src/SceneObjectParams.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneObjectParams.ts#L4"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneObjectParams.ts#L4"
 				}
 			]
 		},
@@ -18189,7 +18189,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 27,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L27"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L27"
 						}
 					],
 					"type": {
@@ -18244,7 +18244,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 89,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L89"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L89"
 						}
 					],
 					"type": {
@@ -18281,7 +18281,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 82,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L82"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L82"
 						}
 					],
 					"type": {
@@ -18308,7 +18308,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L12"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L12"
 						}
 					],
 					"type": {
@@ -18337,7 +18337,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 32,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L32"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L32"
 						}
 					],
 					"type": {
@@ -18371,7 +18371,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L22"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L22"
 						}
 					],
 					"type": {
@@ -18418,7 +18418,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 44,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L44"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L44"
 						}
 					],
 					"type": {
@@ -18447,7 +18447,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L37"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L37"
 						}
 					],
 					"type": {
@@ -18521,7 +18521,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 53,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L53"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L53"
 						}
 					],
 					"type": {
@@ -18550,7 +18550,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 94,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L94"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L94"
 						}
 					],
 					"type": {
@@ -18584,7 +18584,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L17"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L17"
 						}
 					],
 					"type": {
@@ -18640,7 +18640,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 77,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L77"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L77"
 						}
 					],
 					"type": {
@@ -18696,7 +18696,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L61"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L61"
 						}
 					],
 					"type": {
@@ -18752,7 +18752,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 69,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L69"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L69"
 						}
 					],
 					"type": {
@@ -18787,7 +18787,7 @@
 					"fileName": "scene/src/SceneTextureParams.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureParams.ts#L7"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureParams.ts#L7"
 				}
 			]
 		},
@@ -18850,7 +18850,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSetParams.ts#L16"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSetParams.ts#L16"
 						}
 					],
 					"type": {
@@ -18888,7 +18888,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 44,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSetParams.ts#L44"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSetParams.ts#L44"
 						}
 					],
 					"type": {
@@ -18915,7 +18915,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSetParams.ts#L9"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSetParams.ts#L9"
 						}
 					],
 					"type": {
@@ -18953,7 +18953,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSetParams.ts#L23"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSetParams.ts#L23"
 						}
 					],
 					"type": {
@@ -18991,7 +18991,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSetParams.ts#L37"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSetParams.ts#L37"
 						}
 					],
 					"type": {
@@ -19029,7 +19029,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 30,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSetParams.ts#L30"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSetParams.ts#L30"
 						}
 					],
 					"type": {
@@ -19056,7 +19056,7 @@
 					"fileName": "scene/src/SceneTextureSetParams.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTextureSetParams.ts#L4"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTextureSetParams.ts#L4"
 				}
 			]
 		},
@@ -19108,7 +19108,7 @@
 							"fileName": "scene/src/SceneTransformParams.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTransformParams.ts#L11"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTransformParams.ts#L11"
 						}
 					],
 					"type": {
@@ -19135,7 +19135,7 @@
 							"fileName": "scene/src/SceneTransformParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTransformParams.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTransformParams.ts#L21"
 						}
 					],
 					"type": {
@@ -19169,7 +19169,7 @@
 							"fileName": "scene/src/SceneTransformParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTransformParams.ts#L16"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTransformParams.ts#L16"
 						}
 					],
 					"type": {
@@ -19193,7 +19193,7 @@
 					"fileName": "scene/src/SceneTransformParams.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/SceneTransformParams.ts#L6"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/SceneTransformParams.ts#L6"
 				}
 			]
 		},
@@ -19208,7 +19208,7 @@
 					"fileName": "scene/src/compressGeometryParams.ts",
 					"line": 23,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/compressGeometryParams.ts#L23"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/compressGeometryParams.ts#L23"
 				}
 			],
 			"signatures": [
@@ -19269,7 +19269,7 @@
 							"fileName": "scene/src/compressGeometryParams.ts",
 							"line": 23,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/compressGeometryParams.ts#L23"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/compressGeometryParams.ts#L23"
 						}
 					],
 					"parameters": [
@@ -19315,7 +19315,7 @@
 					"fileName": "scene/src/getSceneObjectGeometry.ts",
 					"line": 151,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L151"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L151"
 				}
 			],
 			"signatures": [
@@ -19390,7 +19390,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 151,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L151"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L151"
 						}
 					],
 					"parameters": [
@@ -19426,7 +19426,7 @@
 											"fileName": "scene/src/getSceneObjectGeometry.ts",
 											"line": 151,
 											"character": 83,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L151"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L151"
 										}
 									],
 									"signatures": [
@@ -19441,7 +19441,7 @@
 													"fileName": "scene/src/getSceneObjectGeometry.ts",
 													"line": 151,
 													"character": 83,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/scene/src/getSceneObjectGeometry.ts#L151"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/scene/src/getSceneObjectGeometry.ts#L151"
 												}
 											],
 											"parameters": [

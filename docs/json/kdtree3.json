@@ -184,7 +184,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L29"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L29"
 						}
 					],
 					"signatures": [
@@ -207,7 +207,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 29,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L29"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L29"
 								}
 							],
 							"parameters": [
@@ -247,7 +247,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 20,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L20"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L20"
 						}
 					],
 					"type": {
@@ -268,7 +268,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L21"
 						}
 					],
 					"type": {
@@ -289,7 +289,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L22"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L22"
 						}
 					],
 					"type": {
@@ -310,7 +310,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L19"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L19"
 						}
 					],
 					"type": {
@@ -331,7 +331,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 38,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L38"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L38"
 						}
 					],
 					"getSignature": {
@@ -345,7 +345,7 @@
 								"fileName": "KdTree3.ts",
 								"line": 38,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L38"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L38"
 							}
 						],
 						"type": {
@@ -369,7 +369,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L46"
 						}
 					],
 					"signatures": [
@@ -384,7 +384,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 46,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L46"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L46"
 								}
 							],
 							"parameters": [
@@ -460,7 +460,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L42"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L42"
 						}
 					],
 					"signatures": [
@@ -475,7 +475,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 42,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L42"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L42"
 								}
 							],
 							"parameters": [
@@ -550,7 +550,7 @@
 					"fileName": "KdTree3.ts",
 					"line": 17,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L17"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L17"
 				}
 			],
 			"extendedBy": [
@@ -643,7 +643,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L29"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L29"
 						}
 					],
 					"signatures": [
@@ -666,7 +666,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 29,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L29"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L29"
 								}
 							],
 							"parameters": [
@@ -716,7 +716,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 20,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L20"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L20"
 						}
 					],
 					"type": {
@@ -742,7 +742,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L21"
 						}
 					],
 					"type": {
@@ -768,7 +768,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L22"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L22"
 						}
 					],
 					"type": {
@@ -794,7 +794,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L19"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L19"
 						}
 					],
 					"type": {
@@ -820,7 +820,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 38,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L38"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L38"
 						}
 					],
 					"getSignature": {
@@ -834,7 +834,7 @@
 								"fileName": "KdTree3.ts",
 								"line": 38,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L38"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L38"
 							}
 						],
 						"type": {
@@ -868,7 +868,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L46"
 						}
 					],
 					"signatures": [
@@ -883,7 +883,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 46,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L46"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L46"
 								}
 							],
 							"parameters": [
@@ -969,7 +969,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L42"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L42"
 						}
 					],
 					"signatures": [
@@ -984,7 +984,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 42,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L42"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L42"
 								}
 							],
 							"parameters": [
@@ -1069,7 +1069,7 @@
 					"fileName": "PrimsKdTree3.ts",
 					"line": 8,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/PrimsKdTree3.ts#L8"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/PrimsKdTree3.ts#L8"
 				}
 			],
 			"extendedTypes": [
@@ -1135,7 +1135,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L29"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L29"
 						}
 					],
 					"signatures": [
@@ -1158,7 +1158,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 29,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L29"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L29"
 								}
 							],
 							"parameters": [
@@ -1208,7 +1208,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 20,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L20"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L20"
 						}
 					],
 					"type": {
@@ -1234,7 +1234,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L21"
 						}
 					],
 					"type": {
@@ -1260,7 +1260,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L22"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L22"
 						}
 					],
 					"type": {
@@ -1286,7 +1286,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L19"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L19"
 						}
 					],
 					"type": {
@@ -1312,7 +1312,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 38,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L38"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L38"
 						}
 					],
 					"getSignature": {
@@ -1326,7 +1326,7 @@
 								"fileName": "KdTree3.ts",
 								"line": 38,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L38"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L38"
 							}
 						],
 						"type": {
@@ -1360,7 +1360,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L46"
 						}
 					],
 					"signatures": [
@@ -1375,7 +1375,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 46,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L46"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L46"
 								}
 							],
 							"parameters": [
@@ -1461,7 +1461,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L42"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L42"
 						}
 					],
 					"signatures": [
@@ -1476,7 +1476,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 42,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L42"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L42"
 								}
 							],
 							"parameters": [
@@ -1561,7 +1561,7 @@
 					"fileName": "sceneObjectsKdTree3.ts",
 					"line": 8,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/sceneObjectsKdTree3.ts#L8"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/sceneObjectsKdTree3.ts#L8"
 				}
 			],
 			"extendedTypes": [
@@ -1610,7 +1610,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L29"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L29"
 						}
 					],
 					"signatures": [
@@ -1633,7 +1633,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 29,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L29"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L29"
 								}
 							],
 							"parameters": [
@@ -1683,7 +1683,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 20,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L20"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L20"
 						}
 					],
 					"type": {
@@ -1709,7 +1709,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L21"
 						}
 					],
 					"type": {
@@ -1735,7 +1735,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L22"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L22"
 						}
 					],
 					"type": {
@@ -1761,7 +1761,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L19"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L19"
 						}
 					],
 					"type": {
@@ -1787,7 +1787,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 38,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L38"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L38"
 						}
 					],
 					"getSignature": {
@@ -1801,7 +1801,7 @@
 								"fileName": "KdTree3.ts",
 								"line": 38,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L38"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L38"
 							}
 						],
 						"type": {
@@ -1835,7 +1835,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L46"
 						}
 					],
 					"signatures": [
@@ -1850,7 +1850,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 46,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L46"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L46"
 								}
 							],
 							"parameters": [
@@ -1936,7 +1936,7 @@
 							"fileName": "KdTree3.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L42"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L42"
 						}
 					],
 					"signatures": [
@@ -1951,7 +1951,7 @@
 									"fileName": "KdTree3.ts",
 									"line": 42,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3.ts#L42"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3.ts#L42"
 								}
 							],
 							"parameters": [
@@ -2036,7 +2036,7 @@
 					"fileName": "createSceneObjectPrimsKdTree3.ts",
 					"line": 11,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L11"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L11"
 				}
 			],
 			"extendedTypes": [
@@ -2092,7 +2092,7 @@
 							"fileName": "KdItem3.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdItem3.ts#L9"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdItem3.ts#L9"
 						}
 					],
 					"type": {
@@ -2119,7 +2119,7 @@
 							"fileName": "KdItem3.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdItem3.ts#L14"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdItem3.ts#L14"
 						}
 					],
 					"type": {
@@ -2142,7 +2142,7 @@
 					"fileName": "KdItem3.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdItem3.ts#L4"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdItem3.ts#L4"
 				}
 			]
 		},
@@ -2181,7 +2181,7 @@
 							"fileName": "KdLinePrim.ts",
 							"line": 5,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdLinePrim.ts#L5"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdLinePrim.ts#L5"
 						}
 					],
 					"type": {
@@ -2200,7 +2200,7 @@
 							"fileName": "KdLinePrim.ts",
 							"line": 6,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdLinePrim.ts#L6"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdLinePrim.ts#L6"
 						}
 					],
 					"type": {
@@ -2223,7 +2223,7 @@
 					"fileName": "KdLinePrim.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdLinePrim.ts#L4"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdLinePrim.ts#L4"
 				}
 			]
 		},
@@ -2280,7 +2280,7 @@
 							"fileName": "KdNode3.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdNode3.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdNode3.ts#L21"
 						}
 					],
 					"type": {
@@ -2312,7 +2312,7 @@
 							"fileName": "KdNode3.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdNode3.ts#L16"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdNode3.ts#L16"
 						}
 					],
 					"type": {
@@ -2352,7 +2352,7 @@
 							"fileName": "KdNode3.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdNode3.ts#L36"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdNode3.ts#L36"
 						}
 					],
 					"type": {
@@ -2386,7 +2386,7 @@
 							"fileName": "KdNode3.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdNode3.ts#L26"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdNode3.ts#L26"
 						}
 					],
 					"type": {
@@ -2417,7 +2417,7 @@
 							"fileName": "KdNode3.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdNode3.ts#L31"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdNode3.ts#L31"
 						}
 					],
 					"type": {
@@ -2445,7 +2445,7 @@
 					"fileName": "KdNode3.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdNode3.ts#L9"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdNode3.ts#L9"
 				}
 			]
 		},
@@ -2484,7 +2484,7 @@
 							"fileName": "KdPointPrim.ts",
 							"line": 5,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdPointPrim.ts#L5"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdPointPrim.ts#L5"
 						}
 					],
 					"type": {
@@ -2506,7 +2506,7 @@
 					"fileName": "KdPointPrim.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdPointPrim.ts#L4"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdPointPrim.ts#L4"
 				}
 			]
 		},
@@ -2545,7 +2545,7 @@
 							"fileName": "KdSceneObjectPrim.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdSceneObjectPrim.ts#L12"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdSceneObjectPrim.ts#L12"
 						}
 					],
 					"type": {
@@ -2569,7 +2569,7 @@
 							"fileName": "KdSceneObjectPrim.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdSceneObjectPrim.ts#L13"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdSceneObjectPrim.ts#L13"
 						}
 					],
 					"type": {
@@ -2607,7 +2607,7 @@
 							"fileName": "KdSceneObjectPrim.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdSceneObjectPrim.ts#L11"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdSceneObjectPrim.ts#L11"
 						}
 					],
 					"type": {
@@ -2636,7 +2636,7 @@
 					"fileName": "KdSceneObjectPrim.ts",
 					"line": 10,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdSceneObjectPrim.ts#L10"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdSceneObjectPrim.ts#L10"
 				}
 			]
 		},
@@ -2703,7 +2703,7 @@
 							"fileName": "KdTree3Params.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3Params.ts#L13"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3Params.ts#L13"
 						}
 					],
 					"type": {
@@ -2745,7 +2745,7 @@
 							"fileName": "KdTree3Params.ts",
 							"line": 18,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3Params.ts#L18"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3Params.ts#L18"
 						}
 					],
 					"type": {
@@ -2768,7 +2768,7 @@
 					"fileName": "KdTree3Params.ts",
 					"line": 8,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTree3Params.ts#L8"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTree3Params.ts#L8"
 				}
 			]
 		},
@@ -2807,7 +2807,7 @@
 							"fileName": "KdTrianglePrim.ts",
 							"line": 5,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTrianglePrim.ts#L5"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTrianglePrim.ts#L5"
 						}
 					],
 					"type": {
@@ -2826,7 +2826,7 @@
 							"fileName": "KdTrianglePrim.ts",
 							"line": 6,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTrianglePrim.ts#L6"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTrianglePrim.ts#L6"
 						}
 					],
 					"type": {
@@ -2845,7 +2845,7 @@
 							"fileName": "KdTrianglePrim.ts",
 							"line": 7,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTrianglePrim.ts#L7"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTrianglePrim.ts#L7"
 						}
 					],
 					"type": {
@@ -2869,7 +2869,7 @@
 					"fileName": "KdTrianglePrim.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/KdTrianglePrim.ts#L4"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/KdTrianglePrim.ts#L4"
 				}
 			]
 		},
@@ -2884,7 +2884,7 @@
 					"fileName": "createPrimsKdTree3.ts",
 					"line": 21,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/createPrimsKdTree3.ts#L21"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/createPrimsKdTree3.ts#L21"
 				}
 			],
 			"signatures": [
@@ -2916,7 +2916,7 @@
 							"fileName": "createPrimsKdTree3.ts",
 							"line": 21,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/createPrimsKdTree3.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/createPrimsKdTree3.ts#L21"
 						}
 					],
 					"parameters": [
@@ -2986,7 +2986,7 @@
 					"fileName": "createSceneObjectPrimsKdTree3.ts",
 					"line": 20,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L20"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L20"
 				}
 			],
 			"signatures": [
@@ -3018,7 +3018,7 @@
 							"fileName": "createSceneObjectPrimsKdTree3.ts",
 							"line": 20,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L20"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/createSceneObjectPrimsKdTree3.ts#L20"
 						}
 					],
 					"parameters": [
@@ -3062,7 +3062,7 @@
 					"fileName": "createSceneObjectsKdTree3.ts",
 					"line": 10,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/createSceneObjectsKdTree3.ts#L10"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/createSceneObjectsKdTree3.ts#L10"
 				}
 			],
 			"signatures": [
@@ -3094,7 +3094,7 @@
 							"fileName": "createSceneObjectsKdTree3.ts",
 							"line": 10,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/createSceneObjectsKdTree3.ts#L10"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/createSceneObjectsKdTree3.ts#L10"
 						}
 					],
 					"parameters": [
@@ -3138,7 +3138,7 @@
 					"fileName": "searchKdTree3WithAABB.ts",
 					"line": 14,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
 				}
 			],
 			"signatures": [
@@ -3192,7 +3192,7 @@
 							"fileName": "searchKdTree3WithAABB.ts",
 							"line": 14,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
 						}
 					],
 					"parameters": [
@@ -3222,7 +3222,7 @@
 													"fileName": "searchKdTree3WithAABB.ts",
 													"line": 16,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithAABB.ts#L16"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithAABB.ts#L16"
 												}
 											],
 											"type": {
@@ -3246,7 +3246,7 @@
 													"fileName": "searchKdTree3WithAABB.ts",
 													"line": 15,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithAABB.ts#L15"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithAABB.ts#L15"
 												}
 											],
 											"type": {
@@ -3271,7 +3271,7 @@
 											"fileName": "searchKdTree3WithAABB.ts",
 											"line": 14,
 											"character": 46,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithAABB.ts#L14"
 										}
 									]
 								}
@@ -3301,7 +3301,7 @@
 					"fileName": "searchKdTree3WithFrustum.ts",
 					"line": 12,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
 				}
 			],
 			"signatures": [
@@ -3364,7 +3364,7 @@
 							"fileName": "searchKdTree3WithFrustum.ts",
 							"line": 12,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
 						}
 					],
 					"parameters": [
@@ -3394,7 +3394,7 @@
 													"fileName": "searchKdTree3WithFrustum.ts",
 													"line": 14,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L14"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L14"
 												}
 											],
 											"type": {
@@ -3418,7 +3418,7 @@
 													"fileName": "searchKdTree3WithFrustum.ts",
 													"line": 13,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L13"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L13"
 												}
 											],
 											"type": {
@@ -3443,7 +3443,7 @@
 											"fileName": "searchKdTree3WithFrustum.ts",
 											"line": 12,
 											"character": 49,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithFrustum.ts#L12"
 										}
 									]
 								}
@@ -3473,7 +3473,7 @@
 					"fileName": "searchKdTree3WithRay.ts",
 					"line": 14,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
 				}
 			],
 			"signatures": [
@@ -3527,7 +3527,7 @@
 							"fileName": "searchKdTree3WithRay.ts",
 							"line": 14,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
 						}
 					],
 					"parameters": [
@@ -3557,7 +3557,7 @@
 													"fileName": "searchKdTree3WithRay.ts",
 													"line": 17,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithRay.ts#L17"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithRay.ts#L17"
 												}
 											],
 											"type": {
@@ -3581,7 +3581,7 @@
 													"fileName": "searchKdTree3WithRay.ts",
 													"line": 15,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithRay.ts#L15"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithRay.ts#L15"
 												}
 											],
 											"type": {
@@ -3602,7 +3602,7 @@
 													"fileName": "searchKdTree3WithRay.ts",
 													"line": 16,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithRay.ts#L16"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithRay.ts#L16"
 												}
 											],
 											"type": {
@@ -3631,7 +3631,7 @@
 											"fileName": "searchKdTree3WithRay.ts",
 											"line": 14,
 											"character": 45,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/kdtree3/src/searchKdTree3WithRay.ts#L14"
 										}
 									]
 								}

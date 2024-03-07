@@ -52,7 +52,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 57,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L57"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L57"
 						}
 					],
 					"signatures": [
@@ -75,7 +75,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 57,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L57"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L57"
 								}
 							],
 							"parameters": [
@@ -120,7 +120,7 @@
 															"fileName": "packages/core/src/Component.ts",
 															"line": 57,
 															"character": 48,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L57"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L57"
 														}
 													],
 													"type": {
@@ -142,7 +142,7 @@
 													"fileName": "packages/core/src/Component.ts",
 													"line": 57,
 													"character": 46,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L57"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L57"
 												}
 											],
 											"indexSignature": {
@@ -156,7 +156,7 @@
 														"fileName": "packages/core/src/Component.ts",
 														"line": 57,
 														"character": 61,
-														"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L57"
+														"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L57"
 													}
 												],
 												"parameters": [
@@ -204,7 +204,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 45,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L45"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L45"
 						}
 					],
 					"type": {
@@ -220,7 +220,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 45,
 									"character": 29,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L45"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L45"
 								}
 							],
 							"indexSignature": {
@@ -234,7 +234,7 @@
 										"fileName": "packages/core/src/Component.ts",
 										"line": 45,
 										"character": 31,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L45"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L45"
 									}
 								],
 								"parameters": [
@@ -275,7 +275,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 43,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L43"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L43"
 						}
 					],
 					"type": {
@@ -314,7 +314,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 39,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L39"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L39"
 						}
 					],
 					"type": {
@@ -335,7 +335,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 41,
 							"character": 14,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L41"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L41"
 						}
 					],
 					"type": {
@@ -364,7 +364,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 32,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L32"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L32"
 						}
 					],
 					"type": {
@@ -400,7 +400,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 52,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L52"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L52"
 						}
 					],
 					"type": {
@@ -435,7 +435,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 164,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L164"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L164"
 						}
 					],
 					"signatures": [
@@ -450,7 +450,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 164,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L164"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L164"
 								}
 							],
 							"parameters": [
@@ -488,7 +488,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 160,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L160"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L160"
 						}
 					],
 					"signatures": [
@@ -503,7 +503,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 160,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L160"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L160"
 								}
 							],
 							"parameters": [
@@ -539,7 +539,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 128,
 							"character": 14,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L128"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L128"
 						}
 					],
 					"signatures": [
@@ -562,7 +562,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 128,
 									"character": 14,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L128"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L128"
 								}
 							],
 							"type": {
@@ -585,7 +585,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 118,
 							"character": 14,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L118"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L118"
 						}
 					],
 					"signatures": [
@@ -608,7 +608,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 118,
 									"character": 14,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L118"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L118"
 								}
 							],
 							"type": {
@@ -629,7 +629,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 140,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L140"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L140"
 						}
 					],
 					"signatures": [
@@ -671,7 +671,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 140,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L140"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L140"
 								}
 							],
 							"type": {
@@ -694,7 +694,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 101,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L101"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L101"
 						}
 					],
 					"signatures": [
@@ -727,7 +727,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 101,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L101"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L101"
 								}
 							],
 							"parameters": [
@@ -771,7 +771,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 77,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L77"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L77"
 						}
 					],
 					"signatures": [
@@ -804,7 +804,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 77,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L77"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L77"
 								}
 							],
 							"parameters": [
@@ -848,7 +848,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 108,
 							"character": 14,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L108"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L108"
 						}
 					],
 					"signatures": [
@@ -871,7 +871,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 108,
 									"character": 14,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L108"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L108"
 								}
 							],
 							"type": {
@@ -894,7 +894,7 @@
 							"fileName": "packages/core/src/Component.ts",
 							"line": 89,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L89"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L89"
 						}
 					],
 					"signatures": [
@@ -927,7 +927,7 @@
 									"fileName": "packages/core/src/Component.ts",
 									"line": 89,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L89"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L89"
 								}
 							],
 							"parameters": [
@@ -1002,7 +1002,7 @@
 					"fileName": "packages/core/src/Component.ts",
 					"line": 27,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Component.ts#L27"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Component.ts#L27"
 				}
 			]
 		},
@@ -1032,7 +1032,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L13"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L13"
 						}
 					],
 					"signatures": [
@@ -1047,7 +1047,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 13,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L13"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L13"
 								}
 							],
 							"typeParameter": [
@@ -1142,7 +1142,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L11"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L11"
 						}
 					],
 					"type": {
@@ -1161,7 +1161,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 20,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L20"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L20"
 						}
 					],
 					"getSignature": {
@@ -1183,7 +1183,7 @@
 								"fileName": "packages/core/src/EventEmitter.ts",
 								"line": 20,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L20"
+								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L20"
 							}
 						],
 						"type": {
@@ -1203,7 +1203,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 86,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L86"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L86"
 						}
 					],
 					"signatures": [
@@ -1226,7 +1226,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 86,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L86"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L86"
 								}
 							],
 							"type": {
@@ -1249,7 +1249,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 38,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L38"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L38"
 						}
 					],
 					"signatures": [
@@ -1266,7 +1266,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 38,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L38"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L38"
 								}
 							],
 							"parameters": [
@@ -1319,7 +1319,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 79,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L79"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L79"
 						}
 					],
 					"signatures": [
@@ -1342,7 +1342,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 79,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L79"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L79"
 								}
 							],
 							"parameters": [
@@ -1373,7 +1373,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 79,
 													"character": 14,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L79"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L79"
 												}
 											],
 											"signatures": [
@@ -1388,7 +1388,7 @@
 															"fileName": "packages/core/src/EventEmitter.ts",
 															"line": 79,
 															"character": 14,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L79"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L79"
 														}
 													],
 													"parameters": [
@@ -1451,7 +1451,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 71,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L71"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L71"
 						}
 					],
 					"signatures": [
@@ -1485,7 +1485,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 71,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L71"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L71"
 								}
 							],
 							"parameters": [
@@ -1516,7 +1516,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 71,
 													"character": 14,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L71"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L71"
 												}
 											],
 											"signatures": [
@@ -1531,7 +1531,7 @@
 															"fileName": "packages/core/src/EventEmitter.ts",
 															"line": 71,
 															"character": 14,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L71"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L71"
 														}
 													],
 													"parameters": [
@@ -1589,7 +1589,7 @@
 											"fileName": "packages/core/src/EventEmitter.ts",
 											"line": 71,
 											"character": 47,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L71"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L71"
 										}
 									],
 									"signatures": [
@@ -1604,7 +1604,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 71,
 													"character": 47,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L71"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L71"
 												}
 											],
 											"type": {
@@ -1629,7 +1629,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 47,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L47"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L47"
 						}
 					],
 					"signatures": [
@@ -1663,7 +1663,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 47,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L47"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L47"
 								}
 							],
 							"parameters": [
@@ -1694,7 +1694,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 47,
 													"character": 14,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L47"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L47"
 												}
 											],
 											"signatures": [
@@ -1709,7 +1709,7 @@
 															"fileName": "packages/core/src/EventEmitter.ts",
 															"line": 47,
 															"character": 14,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L47"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L47"
 														}
 													],
 													"parameters": [
@@ -1767,7 +1767,7 @@
 											"fileName": "packages/core/src/EventEmitter.ts",
 											"line": 47,
 											"character": 47,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L47"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L47"
 										}
 									],
 									"signatures": [
@@ -1782,7 +1782,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 47,
 													"character": 47,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L47"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L47"
 												}
 											],
 											"type": {
@@ -1807,7 +1807,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L29"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L29"
 						}
 					],
 					"signatures": [
@@ -1841,7 +1841,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 29,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L29"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L29"
 								}
 							],
 							"parameters": [
@@ -1872,7 +1872,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 29,
 													"character": 20,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L29"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L29"
 												}
 											],
 											"signatures": [
@@ -1887,7 +1887,7 @@
 															"fileName": "packages/core/src/EventEmitter.ts",
 															"line": 29,
 															"character": 20,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L29"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L29"
 														}
 													],
 													"parameters": [
@@ -1945,7 +1945,7 @@
 											"fileName": "packages/core/src/EventEmitter.ts",
 											"line": 29,
 											"character": 53,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L29"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L29"
 										}
 									],
 									"signatures": [
@@ -1960,7 +1960,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 29,
 													"character": 53,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L29"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L29"
 												}
 											],
 											"type": {
@@ -1985,7 +1985,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 62,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L62"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L62"
 						}
 					],
 					"signatures": [
@@ -2008,7 +2008,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 62,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L62"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L62"
 								}
 							],
 							"parameters": [
@@ -2039,7 +2039,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 62,
 													"character": 16,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L62"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L62"
 												}
 											],
 											"signatures": [
@@ -2054,7 +2054,7 @@
 															"fileName": "packages/core/src/EventEmitter.ts",
 															"line": 62,
 															"character": 16,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L62"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L62"
 														}
 													],
 													"parameters": [
@@ -2117,7 +2117,7 @@
 							"fileName": "packages/core/src/EventEmitter.ts",
 							"line": 54,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L54"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L54"
 						}
 					],
 					"signatures": [
@@ -2140,7 +2140,7 @@
 									"fileName": "packages/core/src/EventEmitter.ts",
 									"line": 54,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L54"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L54"
 								}
 							],
 							"parameters": [
@@ -2171,7 +2171,7 @@
 													"fileName": "packages/core/src/EventEmitter.ts",
 													"line": 54,
 													"character": 22,
-													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L54"
+													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L54"
 												}
 											],
 											"signatures": [
@@ -2186,7 +2186,7 @@
 															"fileName": "packages/core/src/EventEmitter.ts",
 															"line": 54,
 															"character": 22,
-															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L54"
+															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L54"
 														}
 													],
 													"parameters": [
@@ -2277,7 +2277,7 @@
 					"fileName": "packages/core/src/EventEmitter.ts",
 					"line": 9,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/EventEmitter.ts#L9"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/EventEmitter.ts#L9"
 				}
 			],
 			"typeParameters": [
@@ -2761,7 +2761,7 @@
 					"fileName": "packages/core/src/SDKError.ts",
 					"line": 4,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/SDKError.ts#L4"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/SDKError.ts#L4"
 				}
 			],
 			"extendedTypes": [
@@ -2810,7 +2810,7 @@
 							"fileName": "packages/core/src/Capabilities.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L21"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L21"
 						}
 					],
 					"type": {
@@ -2837,7 +2837,7 @@
 							"fileName": "packages/core/src/Capabilities.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L46"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L46"
 						}
 					],
 					"type": {
@@ -2864,7 +2864,7 @@
 							"fileName": "packages/core/src/Capabilities.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L41"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L41"
 						}
 					],
 					"type": {
@@ -2891,7 +2891,7 @@
 							"fileName": "packages/core/src/Capabilities.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L26"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L26"
 						}
 					],
 					"type": {
@@ -2918,7 +2918,7 @@
 							"fileName": "packages/core/src/Capabilities.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L36"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L36"
 						}
 					],
 					"type": {
@@ -2953,7 +2953,7 @@
 							"fileName": "packages/core/src/Capabilities.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L16"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L16"
 						}
 					],
 					"type": {
@@ -2980,7 +2980,7 @@
 							"fileName": "packages/core/src/Capabilities.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L9"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L9"
 						}
 					],
 					"type": {
@@ -3007,7 +3007,7 @@
 							"fileName": "packages/core/src/Capabilities.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L31"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L31"
 						}
 					],
 					"type": {
@@ -3036,7 +3036,7 @@
 					"fileName": "packages/core/src/Capabilities.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/Capabilities.ts#L4"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/Capabilities.ts#L4"
 				}
 			]
 		},
@@ -3075,7 +3075,7 @@
 							"fileName": "packages/core/src/TextureCompressedParams.ts",
 							"line": 7,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L7"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L7"
 						}
 					],
 					"type": {
@@ -3100,7 +3100,7 @@
 												"fileName": "packages/core/src/TextureCompressedParams.ts",
 												"line": 8,
 												"character": 8,
-												"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L8"
+												"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L8"
 											}
 										],
 										"type": {
@@ -3124,7 +3124,7 @@
 												"fileName": "packages/core/src/TextureCompressedParams.ts",
 												"line": 10,
 												"character": 8,
-												"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L10"
+												"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L10"
 											}
 										],
 										"type": {
@@ -3143,7 +3143,7 @@
 												"fileName": "packages/core/src/TextureCompressedParams.ts",
 												"line": 9,
 												"character": 8,
-												"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L9"
+												"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L9"
 											}
 										],
 										"type": {
@@ -3167,7 +3167,7 @@
 										"fileName": "packages/core/src/TextureCompressedParams.ts",
 										"line": 7,
 										"character": 13,
-										"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L7"
+										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L7"
 									}
 								]
 							}
@@ -3185,7 +3185,7 @@
 							"fileName": "packages/core/src/TextureCompressedParams.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L12"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L12"
 						}
 					],
 					"type": {
@@ -3208,7 +3208,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 23,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L23"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L23"
 										}
 									],
 									"type": {
@@ -3227,7 +3227,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 17,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L17"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L17"
 										}
 									],
 									"type": {
@@ -3246,7 +3246,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 20,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L20"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L20"
 										}
 									],
 									"type": {
@@ -3265,7 +3265,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 19,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L19"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L19"
 										}
 									],
 									"type": {
@@ -3284,7 +3284,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 22,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L22"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L22"
 										}
 									],
 									"type": {
@@ -3303,7 +3303,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 21,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L21"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L21"
 										}
 									],
 									"type": {
@@ -3322,7 +3322,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 24,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L24"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L24"
 										}
 									],
 									"type": {
@@ -3341,7 +3341,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 18,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L18"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L18"
 										}
 									],
 									"type": {
@@ -3360,7 +3360,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 16,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L16"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L16"
 										}
 									],
 									"type": {
@@ -3379,7 +3379,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 15,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L15"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L15"
 										}
 									],
 									"type": {
@@ -3398,7 +3398,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 13,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L13"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L13"
 										}
 									],
 									"type": {
@@ -3417,7 +3417,7 @@
 											"fileName": "packages/core/src/TextureCompressedParams.ts",
 											"line": 14,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L14"
+											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L14"
 										}
 									],
 									"type": {
@@ -3450,7 +3450,7 @@
 									"fileName": "packages/core/src/TextureCompressedParams.ts",
 									"line": 12,
 									"character": 11,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L12"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L12"
 								}
 							]
 						}
@@ -3471,7 +3471,7 @@
 					"fileName": "packages/core/src/TextureCompressedParams.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureCompressedParams.ts#L6"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureCompressedParams.ts#L6"
 				}
 			]
 		},
@@ -3501,7 +3501,7 @@
 							"fileName": "packages/core/src/TextureTranscoder.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureTranscoder.ts#L33"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureTranscoder.ts#L33"
 						}
 					],
 					"signatures": [
@@ -3524,7 +3524,7 @@
 									"fileName": "packages/core/src/TextureTranscoder.ts",
 									"line": 33,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureTranscoder.ts#L33"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureTranscoder.ts#L33"
 								}
 							],
 							"type": {
@@ -3545,7 +3545,7 @@
 							"fileName": "packages/core/src/TextureTranscoder.ts",
 							"line": 18,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureTranscoder.ts#L18"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureTranscoder.ts#L18"
 						}
 					],
 					"signatures": [
@@ -3568,7 +3568,7 @@
 									"fileName": "packages/core/src/TextureTranscoder.ts",
 									"line": 18,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureTranscoder.ts#L18"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureTranscoder.ts#L18"
 								}
 							],
 							"parameters": [
@@ -3612,7 +3612,7 @@
 							"fileName": "packages/core/src/TextureTranscoder.ts",
 							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureTranscoder.ts#L28"
+							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureTranscoder.ts#L28"
 						}
 					],
 					"signatures": [
@@ -3646,7 +3646,7 @@
 									"fileName": "packages/core/src/TextureTranscoder.ts",
 									"line": 28,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureTranscoder.ts#L28"
+									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureTranscoder.ts#L28"
 								}
 							],
 							"parameters": [
@@ -3741,7 +3741,7 @@
 					"fileName": "packages/core/src/TextureTranscoder.ts",
 					"line": 11,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/core/src/TextureTranscoder.ts#L11"
+					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/core/src/TextureTranscoder.ts#L11"
 				}
 			]
 		}

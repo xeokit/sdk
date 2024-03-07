@@ -23,26 +23,26 @@ describe('loadCityJSON', () => {
     const fileData = JSON.parse(fs.readFileSync("./tests/assets/LoD3_Railway.json", 'utf8'));
 
 
-    test("the CityJSON data loads into a SceneModel and DataModel without error", async () => {
+    test("LoD3_Railway.json loads into SceneModel and DataModel without error", async () => {
         await loadCityJSON({fileData, sceneModel, dataModel});
     });
 
-    test("the SceneModel builds without error", async () => {
+    test("SceneModel builds without error", async () => {
         await sceneModel.build();
         expect(sceneModel.built).toBe(true);
     });
 
-    test("the DataModel builds without error", () => {
+    test("DataModel builds without error", () => {
         dataModel.build();
         expect(dataModel.built).toBe(true);
     });
 
-    test("the SceneModel has the expected components", () => {
+    test("SceneModel has expected content", () => {
         const sceneModelJSON = JSON.parse(fs.readFileSync("./tests/assets/LoD3_Railway.SceneModel.json", 'utf8'));
         expect(sceneModel.getJSON()).toEqual(sceneModelJSON);
     });
 
-    test("the DataModel has the expected components", () => {
+    test("DataModel has expected content", () => {
         const dataModelJSON = JSON.parse(fs.readFileSync("./tests/assets/LoD3_Railway.DataModel.json", 'utf8'));
         expect(dataModel.getJSON()).toEqual(dataModelJSON);
     });

@@ -1,6 +1,7 @@
 import * as utils from "@xeokit/utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "@xeokit/constants";
+import {SDKError} from "@xeokit/core";
 
 /**
  * Creates box-shaped geometry arrays.
@@ -32,24 +33,21 @@ export function buildBoxGeometry(cfg: {
     xSize: 1,
     ySize: 1,
     zSize: 1
-}): GeometryArrays {
+}): GeometryArrays | SDKError {
 
     let xSize = cfg.xSize || 1;
     if (xSize < 0) {
-        console.error("negative xSize not allowed - will invert");
-        xSize *= -1;
+        return new SDKError("Negative xSize not allowed");
     }
 
     let ySize = cfg.ySize || 1;
     if (ySize < 0) {
-        console.error("negative ySize not allowed - will invert");
-        ySize *= -1;
+        return new SDKError("Negative ySize not allowed");
     }
 
     let zSize = cfg.zSize || 1;
     if (zSize < 0) {
-        console.error("negative zSize not allowed - will invert");
-        zSize *= -1;
+        return new SDKError("Negative zSize not allowed");
     }
 
     const center = cfg.center;

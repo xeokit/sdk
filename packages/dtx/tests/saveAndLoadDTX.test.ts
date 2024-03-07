@@ -13,14 +13,14 @@ describe('saveAndLoadDTX', () => {
     let dataModel;
     let sceneModel;
 
-    test("the SceneModel builds without error", async () => {
+    test("Create SceneModel from SceneModelParams", async () => {
         sceneModel = scene.createModel(testUtils.sampleSceneModelJSON);
         expect(scene.models["myModel"]).toBeDefined();
         await sceneModel.build();
         expect(sceneModel.built).toBe(true);
     });
 
-    test("the DataModel builds without error", () => {
+    test("Create DataModel from DataModelParams", () => {
         dataModel = data.createModel(testUtils.sampleDataModelJSON);
         expect(data.models["myModel"]).toBeDefined();
         dataModel.build();
@@ -31,7 +31,7 @@ describe('saveAndLoadDTX', () => {
     let sceneModelJSON;
     let dataModelJSON;
 
-    test("saveDTX saves the DataModel and SceneModel to a DTX arraybuffer", () => {
+    test("Save DataModel and SceneModel to DTX with saveDTX", () => {
         fileData = saveDTX({sceneModel, dataModel});
 
         sceneModelJSON = roundSceneModelParams(sceneModel.getJSON());
@@ -45,7 +45,7 @@ describe('saveAndLoadDTX', () => {
     let sceneModel2;
     let dataModel2;
 
-    test("loadDTX loads the arrayBuffer into a second DataModel and SceneModel", async () => {
+    test("Load DTX into second DataModel and SceneModel with loadDTX", async () => {
 
         sceneModel2 = scene.createModel({id: "myModel"});
         if (sceneModel2 instanceof SDKError) {
@@ -64,12 +64,12 @@ describe('saveAndLoadDTX', () => {
         dataModel2.build();
     });
 
-    test("the second SceneModel has the same components as the first SceneModel", () => {
+    test("Second SceneModel matches first SceneModel", () => {
         const sceneModel2JSON = roundSceneModelParams(sceneModel2.getJSON());
         expect(sceneModelJSON).toEqual(sceneModel2JSON);
     });
 
-    test("the second DataModel has the same components as the first DataModel", () => {
+    test("Second DataModel matches first DataModel", () => {
         const dataModel2JSON = dataModel2.getJSON();
         expect(dataModelJSON).toEqual(dataModel2JSON);
     });

@@ -12,14 +12,14 @@ describe('saveAndLoadDotBIM', () => {
     let dataModel;
     let sceneModel;
 
-    test("the SceneModel creates from SceneModelParams", async () => {
+    test("Create SceneModel from SceneModelParams", async () => {
         sceneModel = scene.createModel(sampleSceneModelParams);
         expect(scene.models["myModel"]).toBeDefined();
         await sceneModel.build();
         expect(sceneModel.built).toBe(true);
     });
 
-    test("the DataModel creates from DataModelParams", () => {
+    test("Create DataModel from DataModelParams", () => {
         dataModel = data.createModel(sampleDataModelParams);
         expect(data.models["myModel"]).toBeDefined();
         dataModel.build();
@@ -30,7 +30,7 @@ describe('saveAndLoadDotBIM', () => {
     let sceneModelParams;
     let dataModelParams;
 
-    test("saveDotBIM saves the DataModel and SceneModel to DotBIM", () => {
+    test("Save DataModel and SceneModel to DotBIM with saveDotBIM", () => {
         dotBIM = saveDotBIM({
             sceneModel,
             dataModel
@@ -44,7 +44,7 @@ describe('saveAndLoadDotBIM', () => {
     let sceneModel2;
     let dataModel2;
 
-    test("loadDotBIM loads the DotBIM into a second DataModel and SceneModel", async () => {
+    test("Load DotBIM into second DataModel and SceneModel with loadDotBIM", async () => {
         sceneModel2 = scene.createModel({id: "myModel"});
         dataModel2 = data.createModel({id: "myModel"});
         await loadDotBIM({
@@ -56,7 +56,7 @@ describe('saveAndLoadDotBIM', () => {
         dataModel2.build();
     });
 
-    test("the second SceneModel matches the first SceneModel", () => {
+    test("Second SceneModel matches first SceneModel", () => {
         const sceneModel2Params = roundSceneModelParams(sceneModel2.getJSON(), {stripMeshMatrices: true});
         expect(sceneModelParams).toEqual(sceneModel2Params);
     });

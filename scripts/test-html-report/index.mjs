@@ -27,7 +27,7 @@ const destination = './test-report.html';
         const reportHtmlFile = await readFile(`${source}/${folder}/test-report.html`, 'utf8').catch(() => null);
 
         if (!reportHtmlFile) {
-            htmlWithoutTests += `<div class="jesthtml-content"><header><h2>No test-report.html found in <mark>${folder}</mark></h2></header></div>`;
+            htmlWithoutTests += `<div class="jesthtml-content"><header><h2>No test-report.html found in <a href="${source}/${folder}/"><mark>@xeokit/${folder}</mark></a></h2></header></div>`;
             console.log('\x1b[33m%s\x1b[0m', '\u26a0  No test-report.html found in', `\x1b[35m${folder}`);
             continue;
         }
@@ -39,7 +39,7 @@ const destination = './test-report.html';
         const jestContent = jestRoot.querySelector('.jesthtml-content');
 
         jestContent.querySelector('h1').remove();
-        jestContent.querySelector('header').insertAdjacentHTML('afterbegin', `<h2 id="${folder}">Test Report for <mark>${folder}</mark></h2>`);
+        jestContent.querySelector('header').insertAdjacentHTML('afterbegin', `<h2 id="${folder}"><mark><a href="${source}/${folder}/">@xeokit/${folder}</a></mark> Tests</h2>`);
 
         templateRoot.querySelector('body').insertAdjacentHTML('beforeend', jestContent.outerHTML);
         console.log('\x1b[32m%s\x1b[0m', `\u2713  Included test-report.html from`, `\x1b[35m${folder}`);

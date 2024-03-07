@@ -44,7 +44,7 @@
 					"fileName": "index.ts",
 					"line": 35,
 					"character": 12,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L35"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L35"
 				}
 			],
 			"type": {
@@ -142,7 +142,7 @@
 					"fileName": "index.ts",
 					"line": 40,
 					"character": 12,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L40"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L40"
 				}
 			],
 			"type": {
@@ -224,7 +224,7 @@
 					"fileName": "index.ts",
 					"line": 55,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L55"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L55"
 				}
 			],
 			"type": {
@@ -254,7 +254,7 @@
 					"fileName": "index.ts",
 					"line": 50,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L50"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L50"
 				}
 			],
 			"type": {
@@ -284,7 +284,7 @@
 					"fileName": "index.ts",
 					"line": 45,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L45"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L45"
 				}
 			],
 			"type": {
@@ -314,7 +314,7 @@
 					"fileName": "index.ts",
 					"line": 60,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L60"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L60"
 				}
 			],
 			"type": {
@@ -334,7 +334,7 @@
 					"fileName": "index.ts",
 					"line": 69,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L69"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L69"
 				}
 			],
 			"signatures": [
@@ -368,7 +368,7 @@
 							"fileName": "index.ts",
 							"line": 69,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L69"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L69"
 						}
 					],
 					"parameters": [
@@ -448,7 +448,7 @@
 					"fileName": "index.ts",
 					"line": 76,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L76"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L76"
 				}
 			],
 			"signatures": [
@@ -482,7 +482,7 @@
 							"fileName": "index.ts",
 							"line": 76,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/math/src/index.ts#L76"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/math/src/index.ts#L76"
 						}
 					],
 					"parameters": [

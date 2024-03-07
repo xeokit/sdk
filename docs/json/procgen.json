@@ -44,7 +44,7 @@
 					"fileName": "GeometryArrays.ts",
 					"line": 9,
 					"character": 12,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/GeometryArrays.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/GeometryArrays.ts#L9"
 				}
 			],
 			"type": {
@@ -69,7 +69,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 14,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/GeometryArrays.ts#L14"
+									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/GeometryArrays.ts#L14"
 								}
 							],
 							"type": {
@@ -95,7 +95,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 12,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/GeometryArrays.ts#L12"
+									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/GeometryArrays.ts#L12"
 								}
 							],
 							"type": {
@@ -119,7 +119,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 11,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/GeometryArrays.ts#L11"
+									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/GeometryArrays.ts#L11"
 								}
 							],
 							"type": {
@@ -143,7 +143,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 10,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/GeometryArrays.ts#L10"
+									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/GeometryArrays.ts#L10"
 								}
 							],
 							"type": {
@@ -164,7 +164,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 13,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/GeometryArrays.ts#L13"
+									"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/GeometryArrays.ts#L13"
 								}
 							],
 							"type": {
@@ -195,7 +195,7 @@
 							"fileName": "GeometryArrays.ts",
 							"line": 9,
 							"character": 29,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/GeometryArrays.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/GeometryArrays.ts#L9"
 						}
 					]
 				}
@@ -210,9 +210,9 @@
 			"sources": [
 				{
 					"fileName": "buildBoxGeometry.ts",
-					"line": 25,
+					"line": 26,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxGeometry.ts#L25"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxGeometry.ts#L26"
 				}
 			],
 			"signatures": [
@@ -275,9 +275,9 @@
 					"sources": [
 						{
 							"fileName": "buildBoxGeometry.ts",
-							"line": 25,
+							"line": 26,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxGeometry.ts#L25"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxGeometry.ts#L26"
 						}
 					],
 					"parameters": [
@@ -323,9 +323,9 @@
 											"sources": [
 												{
 													"fileName": "buildBoxGeometry.ts",
-													"line": 26,
+													"line": 27,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxGeometry.ts#L26"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxGeometry.ts#L27"
 												}
 											],
 											"type": {
@@ -355,9 +355,9 @@
 											"sources": [
 												{
 													"fileName": "buildBoxGeometry.ts",
-													"line": 28,
+													"line": 29,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxGeometry.ts#L28"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxGeometry.ts#L29"
 												}
 											],
 											"type": {
@@ -384,9 +384,9 @@
 											"sources": [
 												{
 													"fileName": "buildBoxGeometry.ts",
-													"line": 27,
+													"line": 28,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxGeometry.ts#L27"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxGeometry.ts#L28"
 												}
 											],
 											"type": {
@@ -413,9 +413,9 @@
 											"sources": [
 												{
 													"fileName": "buildBoxGeometry.ts",
-													"line": 29,
+													"line": 30,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxGeometry.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxGeometry.ts#L30"
 												}
 											],
 											"type": {
@@ -438,9 +438,9 @@
 									"sources": [
 										{
 											"fileName": "buildBoxGeometry.ts",
-											"line": 25,
+											"line": 26,
 											"character": 38,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxGeometry.ts#L25"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxGeometry.ts#L26"
 										}
 									]
 								}
@@ -449,10 +449,24 @@
 						}
 					],
 					"type": {
-						"type": "reference",
-						"target": 61,
-						"name": "GeometryArrays",
-						"package": "@xeokit/procgen"
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": 61,
+								"name": "GeometryArrays",
+								"package": "@xeokit/procgen"
+							},
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../core/src/SDKError.ts",
+									"qualifiedName": "SDKError"
+								},
+								"name": "SDKError",
+								"package": "@xeokit/core"
+							}
+						]
 					}
 				}
 			]
@@ -468,7 +482,7 @@
 					"fileName": "buildBoxLinesGeometry.ts",
 					"line": 27,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
 				}
 			],
 			"signatures": [
@@ -542,7 +556,7 @@
 							"fileName": "buildBoxLinesGeometry.ts",
 							"line": 27,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
 						}
 					],
 					"parameters": [
@@ -590,7 +604,7 @@
 													"fileName": "buildBoxLinesGeometry.ts",
 													"line": 28,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxLinesGeometry.ts#L28"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxLinesGeometry.ts#L28"
 												}
 											],
 											"type": {
@@ -645,7 +659,7 @@
 													"fileName": "buildBoxLinesGeometry.ts",
 													"line": 30,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxLinesGeometry.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxLinesGeometry.ts#L30"
 												}
 											],
 											"type": {
@@ -674,7 +688,7 @@
 													"fileName": "buildBoxLinesGeometry.ts",
 													"line": 29,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxLinesGeometry.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxLinesGeometry.ts#L29"
 												}
 											],
 											"type": {
@@ -703,7 +717,7 @@
 													"fileName": "buildBoxLinesGeometry.ts",
 													"line": 31,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxLinesGeometry.ts#L31"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxLinesGeometry.ts#L31"
 												}
 											],
 											"type": {
@@ -728,7 +742,7 @@
 											"fileName": "buildBoxLinesGeometry.ts",
 											"line": 27,
 											"character": 43,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
 										}
 									]
 								}
@@ -756,7 +770,7 @@
 					"fileName": "buildCylinderGeometry.ts",
 					"line": 28,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L28"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L28"
 				}
 			],
 			"signatures": [
@@ -830,7 +844,7 @@
 							"fileName": "buildCylinderGeometry.ts",
 							"line": 28,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L28"
 						}
 					],
 					"parameters": [
@@ -876,7 +890,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 30,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L30"
 												}
 											],
 											"type": {
@@ -929,7 +943,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 35,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L35"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L35"
 												}
 											],
 											"type": {
@@ -956,7 +970,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 32,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L32"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L32"
 												}
 											],
 											"type": {
@@ -983,7 +997,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 33,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L33"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L33"
 												}
 											],
 											"type": {
@@ -1010,7 +1024,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 31,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L31"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L31"
 												}
 											],
 											"type": {
@@ -1037,7 +1051,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 29,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L29"
 												}
 											],
 											"type": {
@@ -1064,7 +1078,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 34,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L34"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L34"
 												}
 											],
 											"type": {
@@ -1092,7 +1106,7 @@
 											"fileName": "buildCylinderGeometry.ts",
 											"line": 28,
 											"character": 43,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildCylinderGeometry.ts#L28"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildCylinderGeometry.ts#L28"
 										}
 									]
 								}
@@ -1120,7 +1134,7 @@
 					"fileName": "buildPlaneGeometry.ts",
 					"line": 48,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildPlaneGeometry.ts#L48"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildPlaneGeometry.ts#L48"
 				}
 			],
 			"signatures": [
@@ -1203,7 +1217,7 @@
 							"fileName": "buildPlaneGeometry.ts",
 							"line": 48,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildPlaneGeometry.ts#L48"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildPlaneGeometry.ts#L48"
 						}
 					],
 					"parameters": [
@@ -1249,7 +1263,7 @@
 													"fileName": "buildPlaneGeometry.ts",
 													"line": 52,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildPlaneGeometry.ts#L52"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildPlaneGeometry.ts#L52"
 												}
 											],
 											"type": {
@@ -1280,7 +1294,7 @@
 													"fileName": "buildPlaneGeometry.ts",
 													"line": 51,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildPlaneGeometry.ts#L51"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildPlaneGeometry.ts#L51"
 												}
 											],
 											"type": {
@@ -1308,7 +1322,7 @@
 													"fileName": "buildPlaneGeometry.ts",
 													"line": 49,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildPlaneGeometry.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildPlaneGeometry.ts#L49"
 												}
 											],
 											"type": {
@@ -1336,7 +1350,7 @@
 													"fileName": "buildPlaneGeometry.ts",
 													"line": 50,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildPlaneGeometry.ts#L50"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildPlaneGeometry.ts#L50"
 												}
 											],
 											"type": {
@@ -1362,7 +1376,7 @@
 											"fileName": "buildPlaneGeometry.ts",
 											"line": 48,
 											"character": 41,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildPlaneGeometry.ts#L48"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildPlaneGeometry.ts#L48"
 										}
 									]
 								}
@@ -1390,7 +1404,7 @@
 					"fileName": "buildSphereGeometry.ts",
 					"line": 47,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildSphereGeometry.ts#L47"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildSphereGeometry.ts#L47"
 				}
 			],
 			"signatures": [
@@ -1473,7 +1487,7 @@
 							"fileName": "buildSphereGeometry.ts",
 							"line": 47,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildSphereGeometry.ts#L47"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildSphereGeometry.ts#L47"
 						}
 					],
 					"parameters": [
@@ -1519,7 +1533,7 @@
 													"fileName": "buildSphereGeometry.ts",
 													"line": 48,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildSphereGeometry.ts#L48"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildSphereGeometry.ts#L48"
 												}
 											],
 											"type": {
@@ -1549,7 +1563,7 @@
 													"fileName": "buildSphereGeometry.ts",
 													"line": 49,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildSphereGeometry.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildSphereGeometry.ts#L49"
 												}
 											],
 											"type": {
@@ -1576,7 +1590,7 @@
 													"fileName": "buildSphereGeometry.ts",
 													"line": 50,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildSphereGeometry.ts#L50"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildSphereGeometry.ts#L50"
 												}
 											],
 											"type": {
@@ -1603,7 +1617,7 @@
 													"fileName": "buildSphereGeometry.ts",
 													"line": 51,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildSphereGeometry.ts#L51"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildSphereGeometry.ts#L51"
 												}
 											],
 											"type": {
@@ -1628,7 +1642,7 @@
 											"fileName": "buildSphereGeometry.ts",
 											"line": 47,
 											"character": 41,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildSphereGeometry.ts#L47"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildSphereGeometry.ts#L47"
 										}
 									]
 								}
@@ -1656,7 +1670,7 @@
 					"fileName": "buildTorusGeometry.ts",
 					"line": 52,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L52"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L52"
 				}
 			],
 			"signatures": [
@@ -1739,7 +1753,7 @@
 							"fileName": "buildTorusGeometry.ts",
 							"line": 52,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L52"
 						}
 					],
 					"parameters": [
@@ -1787,7 +1801,7 @@
 													"fileName": "buildTorusGeometry.ts",
 													"line": 54,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L54"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L54"
 												}
 											],
 											"type": {
@@ -1816,7 +1830,7 @@
 													"fileName": "buildTorusGeometry.ts",
 													"line": 55,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L55"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L55"
 												}
 											],
 											"type": {
@@ -1848,7 +1862,7 @@
 													"fileName": "buildTorusGeometry.ts",
 													"line": 56,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L56"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L56"
 												}
 											],
 											"type": {
@@ -1877,7 +1891,7 @@
 													"fileName": "buildTorusGeometry.ts",
 													"line": 57,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L57"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L57"
 												}
 											],
 											"type": {
@@ -1906,7 +1920,7 @@
 													"fileName": "buildTorusGeometry.ts",
 													"line": 53,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L53"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L53"
 												}
 											],
 											"type": {
@@ -1935,7 +1949,7 @@
 													"fileName": "buildTorusGeometry.ts",
 													"line": 58,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L58"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L58"
 												}
 											],
 											"type": {
@@ -1962,7 +1976,7 @@
 											"fileName": "buildTorusGeometry.ts",
 											"line": 52,
 											"character": 40,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildTorusGeometry.ts#L52"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildTorusGeometry.ts#L52"
 										}
 									]
 								}
@@ -1990,7 +2004,7 @@
 					"fileName": "buildVectorTextGeometry.ts",
 					"line": 1622,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
 				}
 			],
 			"signatures": [
@@ -2073,7 +2087,7 @@
 							"fileName": "buildVectorTextGeometry.ts",
 							"line": 1622,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
 						}
 					],
 					"parameters": [
@@ -2119,7 +2133,7 @@
 													"fileName": "buildVectorTextGeometry.ts",
 													"line": 1624,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildVectorTextGeometry.ts#L1624"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildVectorTextGeometry.ts#L1624"
 												}
 											],
 											"type": {
@@ -2149,7 +2163,7 @@
 													"fileName": "buildVectorTextGeometry.ts",
 													"line": 1623,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildVectorTextGeometry.ts#L1623"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildVectorTextGeometry.ts#L1623"
 												}
 											],
 											"type": {
@@ -2176,7 +2190,7 @@
 													"fileName": "buildVectorTextGeometry.ts",
 													"line": 1625,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildVectorTextGeometry.ts#L1625"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildVectorTextGeometry.ts#L1625"
 												}
 											],
 											"type": {
@@ -2200,7 +2214,7 @@
 											"fileName": "buildVectorTextGeometry.ts",
 											"line": 1622,
 											"character": 45,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
 										}
 									]
 								}

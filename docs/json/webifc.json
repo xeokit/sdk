@@ -101,7 +101,7 @@
 					"fileName": "loadWebIFC.ts",
 					"line": 45,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/webifc/src/loadWebIFC.ts#L45"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/webifc/src/loadWebIFC.ts#L45"
 				}
 			],
 			"signatures": [
@@ -215,7 +215,7 @@
 							"fileName": "loadWebIFC.ts",
 							"line": 45,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/webifc/src/loadWebIFC.ts#L45"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/webifc/src/loadWebIFC.ts#L45"
 						}
 					],
 					"parameters": [
@@ -263,7 +263,7 @@
 													"fileName": "loadWebIFC.ts",
 													"line": 49,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/webifc/src/loadWebIFC.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/webifc/src/loadWebIFC.ts#L49"
 												}
 											],
 											"type": {
@@ -295,7 +295,7 @@
 													"fileName": "loadWebIFC.ts",
 													"line": 46,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/webifc/src/loadWebIFC.ts#L46"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/webifc/src/loadWebIFC.ts#L46"
 												}
 											],
 											"type": {
@@ -327,7 +327,7 @@
 													"fileName": "loadWebIFC.ts",
 													"line": 47,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/webifc/src/loadWebIFC.ts#L47"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/webifc/src/loadWebIFC.ts#L47"
 												}
 											],
 											"type": {
@@ -359,7 +359,7 @@
 													"fileName": "loadWebIFC.ts",
 													"line": 48,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/webifc/src/loadWebIFC.ts#L48"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/webifc/src/loadWebIFC.ts#L48"
 												}
 											],
 											"type": {
@@ -389,7 +389,7 @@
 											"fileName": "loadWebIFC.ts",
 											"line": 45,
 											"character": 35,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/webifc/src/loadWebIFC.ts#L45"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/webifc/src/loadWebIFC.ts#L45"
 										}
 									]
 								}

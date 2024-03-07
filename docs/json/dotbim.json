@@ -91,7 +91,7 @@
 					"fileName": "loadDotBIM.ts",
 					"line": 29,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L29"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L29"
 				}
 			],
 			"signatures": [
@@ -205,7 +205,7 @@
 							"fileName": "loadDotBIM.ts",
 							"line": 29,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L29"
 						}
 					],
 					"parameters": [
@@ -253,7 +253,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 32,
 													"character": 31,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L32"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L32"
 												}
 											],
 											"type": {
@@ -285,7 +285,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 30,
 													"character": 31,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L30"
 												}
 											],
 											"type": {
@@ -312,7 +312,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 31,
 													"character": 31,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L31"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L31"
 												}
 											],
 											"type": {
@@ -341,7 +341,7 @@
 											"fileName": "loadDotBIM.ts",
 											"line": 29,
 											"character": 35,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L29"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L29"
 										}
 									]
 								}
@@ -391,7 +391,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 35,
 													"character": 31,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L35"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L35"
 												}
 											],
 											"type": {
@@ -407,7 +407,7 @@
 															"fileName": "loadDotBIM.ts",
 															"line": 35,
 															"character": 39,
-															"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L35"
+															"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L35"
 														}
 													],
 													"signatures": [
@@ -430,7 +430,7 @@
 																	"fileName": "loadDotBIM.ts",
 																	"line": 35,
 																	"character": 39,
-																	"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L35"
+																	"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L35"
 																}
 															],
 															"parameters": [
@@ -469,7 +469,7 @@
 											"fileName": "loadDotBIM.ts",
 											"line": 34,
 											"character": 36,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/loadDotBIM.ts#L34"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/loadDotBIM.ts#L34"
 										}
 									]
 								}
@@ -506,7 +506,7 @@
 					"fileName": "saveDotBIM.ts",
 					"line": 26,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/saveDotBIM.ts#L26"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/saveDotBIM.ts#L26"
 				}
 			],
 			"signatures": [
@@ -623,7 +623,7 @@
 							"fileName": "saveDotBIM.ts",
 							"line": 26,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/saveDotBIM.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/saveDotBIM.ts#L26"
 						}
 					],
 					"parameters": [
@@ -663,7 +663,7 @@
 													"fileName": "saveDotBIM.ts",
 													"line": 28,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/saveDotBIM.ts#L28"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/saveDotBIM.ts#L28"
 												}
 											],
 											"type": {
@@ -687,7 +687,7 @@
 													"fileName": "saveDotBIM.ts",
 													"line": 27,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/saveDotBIM.ts#L27"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/saveDotBIM.ts#L27"
 												}
 											],
 											"type": {
@@ -715,7 +715,7 @@
 											"fileName": "saveDotBIM.ts",
 											"line": 26,
 											"character": 35,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/dotbim/src/saveDotBIM.ts#L26"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/dotbim/src/saveDotBIM.ts#L26"
 										}
 									]
 								}

@@ -91,7 +91,7 @@
 					"fileName": "loadLAS.ts",
 					"line": 40,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L40"
+					"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L40"
 				}
 			],
 			"signatures": [
@@ -205,7 +205,7 @@
 							"fileName": "loadLAS.ts",
 							"line": 40,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L40"
+							"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L40"
 						}
 					],
 					"parameters": [
@@ -253,7 +253,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 44,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L44"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L44"
 												}
 											],
 											"type": {
@@ -282,7 +282,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 48,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L48"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L48"
 												}
 											],
 											"type": {
@@ -320,7 +320,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 43,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L43"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L43"
 												}
 											],
 											"type": {
@@ -352,7 +352,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 41,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L41"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L41"
 												}
 											],
 											"type": {
@@ -386,7 +386,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 47,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L47"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L47"
 												}
 											],
 											"type": {
@@ -407,7 +407,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 49,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L49"
 												}
 											],
 											"type": {
@@ -439,7 +439,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 42,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L42"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L42"
 												}
 											],
 											"type": {
@@ -473,7 +473,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 46,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L46"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L46"
 												}
 											],
 											"type": {
@@ -502,7 +502,7 @@
 													"fileName": "loadLAS.ts",
 													"line": 45,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L45"
+													"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L45"
 												}
 											],
 											"type": {
@@ -537,7 +537,7 @@
 											"fileName": "loadLAS.ts",
 											"line": 40,
 											"character": 32,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/08a7e30c8/packages/las/src/loadLAS.ts#L40"
+											"url": "https://github.com/xeokit/sdk/blob/1dcf40fc4/packages/las/src/loadLAS.ts#L40"
 										}
 									]
 								}

@@ -1,0 +1,335 @@
+<html>
+
+<head>
+    <meta charset="utf-8" >
+    <title>Summary Test Report</title>
+    <style type="text/css">
+        html,
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1rem;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        body {
+            padding: 2rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .jesthtml-content {
+            margin: 0 auto;
+            max-width: 70rem;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+        }
+
+        #title {
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        #logo {
+            height: 4rem;
+        }
+
+        #timestamp {
+            color: #777;
+            margin-top: 0.5rem;
+        }
+
+        /** SUMMARY */
+        #summary {
+            color: #333;
+            margin: 2rem 0;
+            display: flex;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        #summary>div {
+            margin-right: 2rem;
+            background: #eee;
+            padding: 1rem;
+            min-width: 15rem;
+        }
+
+        #summary>div:last-child {
+            margin-right: 0;
+        }
+
+        @media only screen and (max-width: 720px) {
+            #summary {
+                flex-direction: column;
+            }
+
+            #summary>div {
+                margin-right: 0;
+                margin-top: 2rem;
+            }
+
+            #summary>div:first-child {
+                margin-top: 0;
+            }
+        }
+
+        .summary-total {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-passed {
+            color: #4f8a10;
+            border-left: 0.4rem solid #4f8a10;
+            padding-left: 0.5rem;
+        }
+
+        .summary-failed,
+        .summary-obsolete-snapshots {
+            color: #d8000c;
+            border-left: 0.4rem solid #d8000c;
+            padding-left: 0.5rem;
+        }
+
+        .summary-pending {
+            color: #9f6000;
+            border-left: 0.4rem solid #9f6000;
+            padding-left: 0.5rem;
+        }
+
+        .summary-empty {
+            color: #999;
+            border-left: 0.4rem solid #999;
+        }
+
+        .test-result {
+            padding: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .test-result:last-child {
+            border: 0;
+        }
+
+        .test-result.passed {
+            background-color: #dff2bf;
+            color: #4f8a10;
+        }
+
+        .test-result.failed {
+            background-color: #ffbaba;
+            color: #d8000c;
+        }
+
+        .test-result.pending {
+            background-color: #ffdf61;
+            color: #9f6000;
+        }
+
+        .test-info {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .test-suitename {
+            width: 20%;
+            text-align: left;
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        .test-title {
+            width: 40%;
+            text-align: left;
+            font-style: italic;
+        }
+
+        .test-status {
+            width: 20%;
+            text-align: right;
+        }
+
+        .test-duration {
+            width: 10%;
+            text-align: right;
+            font-size: 0.75rem;
+        }
+
+        .failureMessages {
+            padding: 0 1rem;
+            margin-top: 1rem;
+            border-top: 1px dashed #d8000c;
+        }
+
+        .failureMessages.suiteFailure {
+            border-top: none;
+        }
+
+        .failureMsg {
+            white-space: pre-wrap;
+            white-space: -moz-pre-wrap;
+            white-space: -pre-wrap;
+            white-space: -o-pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .suite-container {
+            margin-bottom: 2rem;
+        }
+
+        .suite-container>input[type="checkbox"] {
+            position: absolute;
+            left: -100vw;
+        }
+
+        .suite-container label {
+            display: block;
+        }
+
+        .suite-container .suite-tests {
+            overflow-y: hidden;
+            height: 0;
+        }
+
+        .suite-container>input[type="checkbox"]:checked~.suite-tests {
+            height: auto;
+            overflow: visible;
+        }
+
+        .suite-info {
+            padding: 1rem;
+            background-color: #eee;
+            color: #777;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .suite-info:hover {
+            background-color: #ddd;
+            cursor: pointer;
+        }
+
+        .suite-info .suite-path {
+            word-break: break-all;
+            flex-grow: 1;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        .suite-info .suite-time {
+            margin-left: 0.5rem;
+            padding: 0.2rem 0.3rem;
+            font-size: 0.75rem;
+        }
+
+        .suite-info .suite-time.warn {
+            background-color: #d8000c;
+            color: #fff;
+        }
+
+        .suite-info:before {
+            content: "\2303";
+            display: inline-block;
+            margin-right: 0.5rem;
+            transform: rotate(0deg);
+        }
+
+        .suite-container>input[type="checkbox"]:checked~label .suite-info:before {
+            transform: rotate(180deg);
+        }
+
+        /* CONSOLE LOGS */
+        .suite-consolelog {
+            margin-bottom: 0.25rem;
+            padding: 1rem;
+            background-color: #efefef;
+        }
+
+        .suite-consolelog-header {
+            font-weight: bold;
+        }
+
+        .suite-consolelog-item {
+            padding: 0.5rem;
+        }
+
+        .suite-consolelog-item pre {
+            margin: 0.5rem 0;
+            white-space: pre-wrap;
+            white-space: -moz-pre-wrap;
+            white-space: -pre-wrap;
+            white-space: -o-pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .suite-consolelog-item-origin {
+            color: #777;
+            font-weight: bold;
+        }
+
+        .suite-consolelog-item-message {
+            color: #000;
+            font-size: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        /* OBSOLETE SNAPSHOTS */
+        .suite-obsolete-snapshots {
+            margin-bottom: 0.25rem;
+            padding: 1rem;
+            background-color: #ffbaba;
+            color: #d8000c;
+        }
+
+        .suite-obsolete-snapshots-header {
+            font-weight: bold;
+        }
+
+        .suite-obsolete-snapshots-item {
+            padding: 0.5rem;
+        }
+
+        .suite-obsolete-snapshots-item pre {
+            margin: 0.5rem 0;
+            white-space: pre-wrap;
+            white-space: -moz-pre-wrap;
+            white-space: -pre-wrap;
+            white-space: -o-pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .suite-obsolete-snapshots-item-message {
+            color: #000;
+            font-size: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        mark {
+            color: #0f6c94;
+            background: none;
+        }
+
+        ul li {
+            text-decoration: none;
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="jesthtml-content">
+        <header>
+            <h1>@xeokit/sdk Summary Test Report</h1>
+        </header>
+        <nav>
+            <ul><li><a href="#basictypes">basictypes</a></li><li><a href="#cityjson">cityjson</a></li><li><a href="#compression">compression</a></li><li><a href="#data">data</a></li><li><a href="#dotbim">dotbim</a></li><li><a href="#dtx">dtx</a></li><li><a href="#gltf">gltf</a></li><li><a href="#kdtree3">kdtree3</a></li><li><a href="#las">las</a></li><li><a href="#locale">locale</a></li><li><a href="#pick">pick</a></li><li><a href="#procgen">procgen</a></li><li><a href="#rtc">rtc</a></li><li><a href="#scene">scene</a></li><li><a href="#threedxml">threedxml</a></li><li><a href="#treeview">treeview</a></li><li><a href="#webifc">webifc</a></li></ul>
+        </nav>
+    </div>
+<div class="jesthtml-content"><header><h2 id="basictypes"><mark><a href="./packages/basictypes/">@xeokit/basictypes</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div></div><div class="jesthtml-content"><header><h2 id="cityjson"><mark><a href="./packages/cityjson/">@xeokit/cityjson</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:46</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (5)</div><div class="summary-passed ">5 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/cityjson/tests/load_LoD3_Railway.test.ts</div><div class="suite-time warn">9.293s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">loadCityJSON</div><div class="test-title">LoD3_Railway.json loads into SceneModel and DataModel without error</div><div class="test-status">passed</div><div class="test-duration">3.023s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">loadCityJSON</div><div class="test-title">SceneModel builds without error</div><div class="test-status">passed</div><div class="test-duration">0.012s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">loadCityJSON</div><div class="test-title">DataModel builds without error</div><div class="test-status">passed</div><div class="test-duration">0s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">loadCityJSON</div><div class="test-title">SceneModel has expected content</div><div class="test-status">passed</div><div class="test-duration">5.927s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">loadCityJSON</div><div class="test-title">DataModel has expected content</div><div class="test-status">passed</div><div class="test-duration">0.008s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="compression"><mark><a href="./packages/compression/">@xeokit/compression</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div></div><div class="jesthtml-content"><header><h2 id="data"><mark><a href="./packages/data/">@xeokit/data</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (3)</div><div class="summary-passed ">3 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (4)</div><div class="summary-passed ">4 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/data/tests/createDataModelIPiecesFromJSON.test.ts</div><div class="suite-time">0.322s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">DataModel</div><div class="test-title">supports adding objects, property sets and relationships in separate JSON parts</div><div class="test-status">passed</div><div class="test-duration">0.026s</div></div></div></div></div><div id="suite-2" class="suite-container"><input id="collapsible-1" type="checkbox" class="toggle" checked="checked"><label for="collapsible-1"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/data/tests/createDataModelUsingBuilderMethods.test.ts</div><div class="suite-time">0.158s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">DataModel</div><div class="test-title">it supports creation of objects, property sets and relations using builder methods</div><div class="test-status">passed</div><div class="test-duration">0.017s</div></div></div></div></div><div id="suite-3" class="suite-container"><input id="collapsible-2" type="checkbox" class="toggle" checked="checked"><label for="collapsible-2"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/data/tests/DataModel_createQueryDestroy.test.ts</div><div class="suite-time">0.152s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">DataModel</div><div class="test-title">it supports creating objects, property sets and relations from JSON</div><div class="test-status">passed</div><div class="test-duration">0.017s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">DataModel</div><div class="test-title">it supports search by traversal along the given relationship types</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="dotbim"><mark><a href="./packages/dotbim/">@xeokit/dotbim</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (5)</div><div class="summary-passed ">5 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/dotbim/tests/saveAndLoadDotBIM.test.ts</div><div class="suite-time">0.387s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDotBIM</div><div class="test-title">Create SceneModel from SceneModelParams</div><div class="test-status">passed</div><div class="test-duration">0.008s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDotBIM</div><div class="test-title">Create DataModel from DataModelParams</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDotBIM</div><div class="test-title">Save DataModel and SceneModel to DotBIM with saveDotBIM</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDotBIM</div><div class="test-title">Load DotBIM into second DataModel and SceneModel with loadDotBIM</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDotBIM</div><div class="test-title">Second SceneModel matches first SceneModel</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="dtx"><mark><a href="./packages/dtx/">@xeokit/dtx</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:45</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (6)</div><div class="summary-passed ">6 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/dtx/tests/saveAndLoadDTX.test.ts</div><div class="suite-time">0.353s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDTX</div><div class="test-title">Create SceneModel from SceneModelParams</div><div class="test-status">passed</div><div class="test-duration">0.009s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDTX</div><div class="test-title">Create DataModel from DataModelParams</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDTX</div><div class="test-title">Save DataModel and SceneModel to DTX with saveDTX</div><div class="test-status">passed</div><div class="test-duration">0.024s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDTX</div><div class="test-title">Load DTX into second DataModel and SceneModel with loadDTX</div><div class="test-status">passed</div><div class="test-duration">0.007s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDTX</div><div class="test-title">Second SceneModel matches first SceneModel</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">saveAndLoadDTX</div><div class="test-title">Second DataModel matches first DataModel</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="gltf"><mark><a href="./packages/gltf/">@xeokit/gltf</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/gltf/tests/loadGLTF.test.ts</div><div class="suite-time">0.627s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">loadGLTF Test</div><div class="test-title">loadGLTF Test</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="kdtree3"><mark><a href="./packages/kdtree3/">@xeokit/kdtree3</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-05 13:05:51</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed ">1 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/kdtree3/tests/KDTreeAABBQuery.test.ts</div><div class="suite-time">0s</div></div></label><div class="suite-tests"></div></div></div><div class="jesthtml-content"><header><h2 id="las"><mark><a href="./packages/las/">@xeokit/las</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/las/tests/loadLAS.test.ts</div><div class="suite-time">0.516s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">loadLAS Test</div><div class="test-title">loadLAS Test</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="locale"><mark><a href="./packages/locale/">@xeokit/locale</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (1)</div><div class="summary-passed ">1 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/locale/tests/LocaleService.test.ts</div><div class="suite-time">0.284s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">Test LocaleService</div><div class="test-title">Test LocaleService</div><div class="test-status">passed</div><div class="test-duration">0.007s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="pick"><mark><a href="./packages/pick/">@xeokit/pick</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-05 13:05:51</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed ">1 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/pick/tests/KDTreeAABBQuery.test.ts</div><div class="suite-time">0s</div></div></label><div class="suite-tests"></div></div></div><div class="jesthtml-content"><header><h2 id="procgen"><mark><a href="./packages/procgen/">@xeokit/procgen</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:45</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (5)</div><div class="summary-passed ">5 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (24)</div><div class="summary-passed ">24 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/procgen/tests/buildTorusGeometry.test.ts</div><div class="suite-time">0.337s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildTorusGeometry</div><div class="test-title">Build geometry without error</div><div class="test-status">passed</div><div class="test-duration">0.01s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildTorusGeometry</div><div class="test-title">Geometry has correct primitive type</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildTorusGeometry</div><div class="test-title">Geometry has expected positions</div><div class="test-status">passed</div><div class="test-duration">0.009s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildTorusGeometry</div><div class="test-title">Geometry has correct UV coordinates</div><div class="test-status">passed</div><div class="test-duration">0.006s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildTorusGeometry</div><div class="test-title">Geometry has correct indices</div><div class="test-status">passed</div><div class="test-duration">0.013s</div></div></div></div></div><div id="suite-2" class="suite-container"><input id="collapsible-1" type="checkbox" class="toggle" checked="checked"><label for="collapsible-1"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/procgen/tests/buildSphereGeometry.test.ts</div><div class="suite-time">0.18s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildSphereGeometry</div><div class="test-title">Build geometry without error</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildSphereGeometry</div><div class="test-title">Geometry has correct primitive type</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildSphereGeometry</div><div class="test-title">Geometry has expected positions</div><div class="test-status">passed</div><div class="test-duration">0.009s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildSphereGeometry</div><div class="test-title">Geometry has correct UV coordinates</div><div class="test-status">passed</div><div class="test-duration">0.006s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildSphereGeometry</div><div class="test-title">Geometry has correct indices</div><div class="test-status">passed</div><div class="test-duration">0.014s</div></div></div></div></div><div id="suite-3" class="suite-container"><input id="collapsible-2" type="checkbox" class="toggle" checked="checked"><label for="collapsible-2"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/procgen/tests/buildCylinderGeometry.test.ts</div><div class="suite-time">0.141s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildCylinderGeometry</div><div class="test-title">Build geometry without error</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildCylinderGeometry</div><div class="test-title">Geometry has correct primitive type</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildCylinderGeometry</div><div class="test-title">Geometry has expected positions</div><div class="test-status">passed</div><div class="test-duration">0.005s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildCylinderGeometry</div><div class="test-title">Geometry has correct UV coordinates</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildCylinderGeometry</div><div class="test-title">Geometry has correct indices</div><div class="test-status">passed</div><div class="test-duration">0.005s</div></div></div></div></div><div id="suite-4" class="suite-container"><input id="collapsible-3" type="checkbox" class="toggle" checked="checked"><label for="collapsible-3"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/procgen/tests/buildVectorTextGeometry.test.ts</div><div class="suite-time">0.13s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildVectorTextGeometry</div><div class="test-title">Build geometry without error</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildVectorTextGeometry</div><div class="test-title">Geometry has correct primitive type</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildVectorTextGeometry</div><div class="test-title">Geometry has expected positions</div><div class="test-status">passed</div><div class="test-duration">0.006s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildVectorTextGeometry</div><div class="test-title">Geometry has correct indices</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div></div></div><div id="suite-5" class="suite-container"><input id="collapsible-4" type="checkbox" class="toggle" checked="checked"><label for="collapsible-4"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/procgen/tests/buildBoxGeometry.test.ts</div><div class="suite-time">0.107s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildBoxGeometry</div><div class="test-title">Build geometry without error</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildBoxGeometry</div><div class="test-title">Geometry has correct primitive type</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildBoxGeometry</div><div class="test-title">Geometry has expected positions</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildBoxGeometry</div><div class="test-title">Geometry has correct UV coordinates</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">buildBoxGeometry</div><div class="test-title">Geometry has correct indices</div><div class="test-status">passed</div><div class="test-duration">0s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="rtc"><mark><a href="./packages/rtc/">@xeokit/rtc</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div></div><div class="jesthtml-content"><header><h2 id="scene"><mark><a href="./packages/scene/">@xeokit/scene</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (2)</div><div class="summary-passed ">1 passed</div><div class="summary-failed ">1 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (2)</div><div class="summary-passed ">1 passed</div><div class="summary-failed ">1 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/scene/tests/SceneModel.test.ts</div><div class="suite-time">0.428s</div></div></label><div class="suite-tests"><div class="test-result failed"><div class="test-info"><div class="test-suitename">Create and Destroy a SceneModel</div><div class="test-title">Create and Destroy a SceneModel</div><div class="test-status">failed</div><div class="test-duration">0.021s</div></div></div></div></div><div id="suite-2" class="suite-container"><input id="collapsible-1" type="checkbox" class="toggle" checked="checked"><label for="collapsible-1"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/scene/tests/compressGeometryParams.test.ts</div><div class="suite-time">0.252s</div></div></label><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">Test SceneGeometry Compression</div><div class="test-title">compressGeometryParams</div><div class="test-status">passed</div><div class="test-duration">0.07s</div></div></div></div></div></div><div class="jesthtml-content"><header><h2 id="threedxml"><mark><a href="./packages/threedxml/">@xeokit/threedxml</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed ">1 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/threedxml/tests/load3DXML.test.ts</div><div class="suite-time">0s</div></div></label><div class="suite-tests"></div></div></div><div class="jesthtml-content"><header><h2 id="treeview"><mark><a href="./packages/treeview/">@xeokit/treeview</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:45</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div></div><div class="jesthtml-content"><header><h2 id="webifc"><mark><a href="./packages/webifc/">@xeokit/webifc</a></mark> Tests</h2></header><div id="metadata-container"><div id="timestamp">Started: 2024-03-07 01:29:44</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (1)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed ">1 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (0)</div><div class="summary-passed  summary-empty">0 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></div><div id="suite-1" class="suite-container"><input id="collapsible-0" type="checkbox" class="toggle" checked="checked"><label for="collapsible-0"><div class="suite-info"><div class="suite-path">/home/lindsay/xeolabs/sdk-feb25/packages/webifc/tests/loadWebIFC.test.ts</div><div class="suite-time">0s</div></div></label><div class="suite-tests"></div></div></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/bcf/"><mark>@xeokit/bcf</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/boundaries/"><mark>@xeokit/boundaries</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/cameracontrol/"><mark>@xeokit/cameracontrol</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/cityjson2dtx/"><mark>@xeokit/cityjson2dtx</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/cityjsontypes_1_1_3/"><mark>@xeokit/cityjsontypes_1_1_3</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/config/"><mark>@xeokit/config</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/constants/"><mark>@xeokit/constants</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/core/"><mark>@xeokit/core</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/curves/"><mark>@xeokit/curves</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/demos/"><mark>@xeokit/demos</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/docs/"><mark>@xeokit/docs</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/gltf2dtx/"><mark>@xeokit/gltf2dtx</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/ifc2dtx/"><mark>@xeokit/ifc2dtx</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/ifctypes/"><mark>@xeokit/ifctypes</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/kdtree2/"><mark>@xeokit/kdtree2</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/ktx2/"><mark>@xeokit/ktx2</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/las2dtx/"><mark>@xeokit/las2dtx</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/math/"><mark>@xeokit/math</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/matrix/"><mark>@xeokit/matrix</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/testutils/"><mark>@xeokit/testutils</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/utils/"><mark>@xeokit/utils</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/viewer/"><mark>@xeokit/viewer</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/webglrenderer/"><mark>@xeokit/webglrenderer</mark></a></h2></header></div><div class="jesthtml-content"><header><h2>No test-report.html found in <a href="./packages/webglutils/"><mark>@xeokit/webglutils</mark></a></h2></header></div></body>
+
+</html>

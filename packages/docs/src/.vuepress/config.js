@@ -3,6 +3,7 @@ import { defaultTheme } from '@vuepress/theme-default';
 import { defineUserConfig } from 'vuepress';
 
 export default defineUserConfig({
+    base: '/sdk/docs/',
     bundler: viteBundler(),
     theme: defaultTheme({
         logo: './api/media/images/xeokit_logo.png',

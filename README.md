@@ -29,6 +29,7 @@ via BCF Viewpoints and bring your AECO models to life with xeokit.
 4. [Project development](#project-development)
    - [Preparing](#preparing)
    - [Building](#building)
+   - [Testing](#testing)
 5. [License](#license)
 6. [Credits](#credits)
 
@@ -397,6 +398,20 @@ pnpm dist
 ```
 
 This will automatically start all project building processes, a ```dist``` directory will be created in each package, this is a representation of the package's built source and its dependencies.
+
+## Testing:
+
+To run all tests:
+
+```bash
+pnpm test
+```
+
+To run tests for specific package:
+
+```bash
+turbo run test --filter=nameOfSelectedPackage  
+```
 
 # License
 

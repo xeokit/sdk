@@ -14,7 +14,7 @@ import {DataModelContentParams} from "./DataModelContentParams";
 /**
  * xeokit Semantic Data Model.
  *
- * See {@link "@xeokit/data"} for usage.
+ * See {@link "@xeokit/data" | @xeokit/data}  for usage.
  */
 export class DataModel extends Component {
 
@@ -169,7 +169,7 @@ export class DataModel extends Component {
     /**
      * Adds the given components to this DataModel.
      *
-     * See {@link "@xeokit/data"} for usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *
      * @param dataModelParams
      * @returns *void*
@@ -242,7 +242,7 @@ export class DataModel extends Component {
      * }
      * ````
      *
-     * See {@link "@xeokit/data"} for more usage info.
+     * See {@link "@xeokit/data" | @xeokit/data}  for more usage info.
      *
      * @param propertySetCfg - PropertySet creation parameters.
      * @returns *{@link PropertySet}*
@@ -314,7 +314,7 @@ export class DataModel extends Component {
      * }
      * ````
      *
-     * See {@link "@xeokit/data"} for more usage info.
+     * See {@link "@xeokit/data" | @xeokit/data}  for more usage info.
      *
      * @param dataObjectParams - DataObject creation parameters.
      * @returns *{@link DataObject}*
@@ -429,7 +429,7 @@ export class DataModel extends Component {
      * }
      * ````
      *
-     * See {@link "@xeokit/data"} for more usage info.
+     * See {@link "@xeokit/data" | @xeokit/data}  for more usage info.
      *
      * @param relationshipParams - Relationship creation parameters.
      * @returns *{@link @xeokit/data!Relationship}*
@@ -494,7 +494,7 @@ export class DataModel extends Component {
      * }
      * ````
      *
-     * See {@link "@xeokit/data"} for usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *
      * @throws *{@link @xeokit/core!SDKError}*
      * * If DataModel has already been built or destroyed.
@@ -588,7 +588,7 @@ export class DataModel extends Component {
      * * Once destroyed, no more components can be created in a DataModel.
      * * Does not matter if the DataModel has not yet been built.
      *
-     * See {@link "@xeokit/data"} for usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *
      * @returns *void*
      * * On success.

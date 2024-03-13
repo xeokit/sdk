@@ -13,7 +13,7 @@ import {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEvent";
  * {@link @xeokit/data!Data | Data}, while controlling the visibility of their corresponding
  * {@link @xeokit/viewer!ViewObject | ViewObjects} in the given {@link @xeokit/viewer!View | View}.
  *
- * See {@link "@xeokit/treeview"} for usage.
+ * See {@link "@xeokit/treeview" | @xeokit/treeview}  for usage.
  */
 export class TreeView extends Component {
 

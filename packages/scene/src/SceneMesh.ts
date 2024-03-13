@@ -13,7 +13,7 @@ import type {SceneMeshParams} from "./SceneMeshParams";
  * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
  * * Referenced by {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}
  *
- * See {@link "@xeokit/scene"} for usage.
+ * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export class SceneMesh {
 

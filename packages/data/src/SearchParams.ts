@@ -6,7 +6,7 @@ import type {DataObject} from "./DataObject";
  * These parameters configure the way that {@link @xeokit/data!Data.searchObjects | Data.searchObjects} performs its depth-first
  * search to find our {@link @xeokit/data!DataObject | DataObjects}.
  *
- * See {@link "@xeokit/data"} for usage.
+ * See {@link "@xeokit/data" | @xeokit/data}  for usage.
  */
 export interface SearchParams {
 

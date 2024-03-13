@@ -84,7 +84,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  * * Exportable to [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format using {@link @xeokit/dtx!saveDTX}
  * * Programmatically buildable using builder methods
  *
- * See {@link "@xeokit/scene"} for usage.
+ * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export class SceneModel extends Component {
 
@@ -254,7 +254,7 @@ export class SceneModel extends Component {
     /**
      * Adds components to this SceneModel.
      *
-     * See {@link "@xeokit/scene"} for usage.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
      *
      * @param sceneModelParams
      * @returns *void*
@@ -315,7 +315,7 @@ export class SceneModel extends Component {
      * const spinningTransformAgain = sceneModel.transforms["spinningTransform"];
      * ````
      *
-     * See {@link "@xeokit/scene"} for more usage info.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @param transformParams Transform creation parameters.
      * @returns *{@link Transform}*
@@ -360,7 +360,7 @@ export class SceneModel extends Component {
      * const textureAgain = sceneModel.textures["myColorTexture"];
      * ````
      *
-     * See {@link "@xeokit/scene"} for more usage info.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @param textureParams - SceneTexture creation parameters.
      * @returns *{@link @xeokit/scene!SceneTexture}*
@@ -416,7 +416,7 @@ export class SceneModel extends Component {
      * const textureSetAgain = sceneModel.textureSets["myTextureSet"];
      * ````
      *
-     * See {@link "@xeokit/scene"} for more usage info.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @param textureSetParams SceneTextureSet creation parameters.
      *
@@ -521,7 +521,7 @@ export class SceneModel extends Component {
      * }
      * ````
      *
-     * See {@link "@xeokit/scene"} for more usage info.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @param geometryParams Non-compressed geometry parameters.
      * @returns *{@link @xeokit/scene!SceneGeometry}*
@@ -643,7 +643,7 @@ export class SceneModel extends Component {
      * }
      * ````
      *
-     * See {@link "@xeokit/scene"} for more usage info.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @param geometryCompressedParams Pre-compressed geometry parameters.
      * @returns *{@link @xeokit/scene!SceneGeometry}*
@@ -710,7 +710,7 @@ export class SceneModel extends Component {
      * }
      * ````
      *
-     * See {@link "@xeokit/scene"} for more usage info.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @param meshParams Pre-compressed mesh parameters.
      * @returns *{@link @xeokit/scene!SceneMesh}*
@@ -798,7 +798,7 @@ export class SceneModel extends Component {
      * }
      * ````
      *
-     * See {@link "@xeokit/scene"} for more usage info.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @param objectParams SceneObject parameters.
      * @returns *{@link @xeokit/scene!SceneObject}*
@@ -888,7 +888,7 @@ export class SceneModel extends Component {
      * };
      * ````
      *
-     * See {@link "@xeokit/scene"} for more usage info.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @throws *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.

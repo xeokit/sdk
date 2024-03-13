@@ -20,10 +20,10 @@
  *
  * ## Dependencies
  *
- * * {@link "@xeokit/scene"}
- * * {@link "@xeokit/core"}
- * * {@link "@xeokit/math"}
- * * {@link "@xeokit/boundaries"}
+ * * {@link "@xeokit/scene" | @xeokit/scene}
+ * * {@link "@xeokit/core" | @xeokit/core}
+ * * {@link "@xeokit/math" | @xeokit/math}
+ * * {@link "@xeokit/boundaries" | @xeokit/boundaries}
  *
  * ## Usage
  *

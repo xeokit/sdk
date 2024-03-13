@@ -67,7 +67,7 @@ export class Scene extends Component {
     /**
      * Creates a new Scene.
      *
-     * See {@link "@xeokit/scene"} for usage.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
      */
     constructor() {
 
@@ -170,7 +170,7 @@ export class Scene extends Component {
      * fire events via {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated} and {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt}, to
      * indicate to any subscribers that the SceneModel is built and ready for use.
      *
-     * See {@link "@xeokit/scene"} for more details on usage.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for more details on usage.
      *
      * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
      * @returns *{@link @xeokit/scene!SceneModel}*
@@ -217,7 +217,7 @@ export class Scene extends Component {
      * * Fires {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and
      * {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
      *
-     * See {@link "@xeokit/scene"} for usage.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
      * @returns *void*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError}*
@@ -239,7 +239,7 @@ export class Scene extends Component {
      * for each existing SceneModels in this Data.
      * * Unsubscribes all subscribers to {@link @xeokit/scene!Scene.onModelCreated | Scene.onModelCreated}, {@link @xeokit/scene!Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link @xeokit/scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
      *
-     * See {@link "@xeokit/scene"} for usage.
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
      *
      * @returns *void*
      * * On success.

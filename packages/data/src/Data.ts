@@ -10,7 +10,7 @@ import type {SearchParams} from "./SearchParams";
 /**
  * An entity-relationship semantic data model.
  *
- * See {@link "@xeokit/data"} for usage.
+ * See {@link "@xeokit/data" | @xeokit/data}  for usage.
  */
 export class Data extends Component {
 
@@ -81,7 +81,7 @@ export class Data extends Component {
     /**
      * Creates a new Data.
      *
-     * See {@link "@xeokit/data"} for usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      */
     constructor() {
 
@@ -114,7 +114,7 @@ export class Data extends Component {
      * only when we've received the {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated} and {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt}
      * events can we actually consider the DataModel to be fully constructed.
      *
-     * See {@link "@xeokit/data"} for more details on usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for more details on usage.
      *
      * @param  dataModelParams Creation parameters for the new {@link @xeokit/data!DataModel}.
      * @param [options] Options for creating the {@link @xeokit/data!DataModel}.
@@ -156,7 +156,7 @@ export class Data extends Component {
     /**
      * Gets the {@link @xeokit/data!DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
      *
-     * See {@link "@xeokit/data"} for usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *
      * @param type The type.
      * @returns {string[]}
@@ -178,7 +178,7 @@ export class Data extends Component {
      * Usually we use this method to recursively find DataObjects of specific {@link DataObject.type | types} within
      * a hierarchy.
      *
-     * See {@link "@xeokit/data"} for usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *
      * @param searchParams Search parameters.
      * @returns *void*
@@ -269,7 +269,7 @@ export class Data extends Component {
      * * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
      * for each existing DataModel in this Data.
      *
-     * See {@link "@xeokit/data"} for usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *
      * @returns *void*
      * * On success.
@@ -292,7 +292,7 @@ export class Data extends Component {
      * for each existing DataModels in this Data.
      * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.onModelCreated}, {@link Data.onModelDestroyed | Data.onModelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
      *
-     * See {@link "@xeokit/data"} for usage.
+     * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *
      * @returns *void*
      * * On success.

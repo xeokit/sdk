@@ -4,7 +4,7 @@ import type {PropertyParams} from "./PropertyParams";
 /**
  * A property in a {@link @xeokit/data!PropertySet}.
  *
- * See {@link "@xeokit/data"} for usage.
+ * See {@link "@xeokit/data" | @xeokit/data}  for usage.
  */
 export class Property {
 

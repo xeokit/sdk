@@ -7,9 +7,9 @@
  * # xeokit IFC Data Types
  *
  * * Defines numeric constants for [IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc) entity and relationship types.
- * * Use with {@link "@xeokit/data"} to assign IFC types to {@link @xeokit/data!DataObject | DataObjects} and
+ * * Use with {@link "@xeokit/data" | @xeokit/data}  to assign IFC types to {@link @xeokit/data!DataObject | DataObjects} and
  * {@link @xeokit/data!Relationship | Relationships} and treat them as IFC elements.
- * * Use with {@link "@xeokit/treeview"} to configure the appearance and behaviour of
+ * * Use with {@link "@xeokit/treeview" | @xeokit/treeview}  to configure the appearance and behaviour of
  * {@link @xeokit/treeview!TreeView | TreeViews} for navigating IFC element hierachies.
  * * Supports IFC versions 2x3 and 4.
  *

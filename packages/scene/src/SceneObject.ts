@@ -12,7 +12,7 @@ import {SceneObjectParams} from "./SceneObjectParams";
  * * Stored in {@link @xeokit/scene!SceneModel.objects | SceneModel.objects} and {@link @xeokit/scene!Scene.objects | Scene.objects}
  * * Created with {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}
  *
- * See {@link "@xeokit/scene"} for usage.
+ * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export class SceneObject {
 

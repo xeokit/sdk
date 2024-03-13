@@ -29,7 +29,7 @@ import {createVec4} from "@xeokit/matrix";
  * {@link @xeokit/scene!SceneTextureSet.metallicRoughnessTexture | SceneTextureSet.metallicRoughnessTexture},
  * {@link @xeokit/scene!SceneTextureSet.occlusionTexture | SceneTextureSet.occlusionTexture} and {@link @xeokit/scene!SceneTextureSet.emissiveTexture | SceneTextureSet.emissiveTexture}
  *
- * See {@link "@xeokit/scene"} for usage.
+ * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export class SceneTexture {
 

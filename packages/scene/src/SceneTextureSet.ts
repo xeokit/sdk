@@ -9,7 +9,7 @@ import type {RendererTextureSet} from "./RendererTextureSet";
  * * Created with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}
  * * Referenced by {@link @xeokit/scene!SceneMesh.textureSet | SceneMesh.textureSet}
  *
- * See {@link "@xeokit/scene"} for usage.
+ * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export class SceneTextureSet {
 

@@ -12,7 +12,7 @@ import type {SceneObjectParams} from "./SceneObjectParams";
 /**
  * {@link @xeokit/scene!SceneModel | SceneModel} creation parameters for {@link @xeokit/scene!Scene.createModel | Scene.createModel}.
  *
- * See {@link "@xeokit/scene"} for usage.
+ * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export interface SceneModelParams {
 

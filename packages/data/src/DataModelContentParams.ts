@@ -6,7 +6,7 @@ import type {RelationshipParams} from "./RelationshipParams";
 /**
  * Parameters for creating content within a {@link @xeokit/data!DataModel}.
  *
- * See {@link "@xeokit/data"} for usage.
+ * See {@link "@xeokit/data" | @xeokit/data}  for usage.
  */
 export interface DataModelContentParams {
 

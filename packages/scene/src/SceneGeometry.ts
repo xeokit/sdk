@@ -12,7 +12,7 @@ import {SceneMesh} from "./SceneMesh";
  * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Referenced by {@link @xeokit/scene!SceneMesh.geometry | SceneMesh.geometry}
  *
- * See {@link "@xeokit/scene"} for usage.
+ * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export class SceneGeometry {
 

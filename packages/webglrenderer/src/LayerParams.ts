@@ -13,5 +13,5 @@ export interface LayerParams { // Params for RendererLayer constructor
     primitive: number;
     layerIndex: number;
     textureSet?: RendererTextureSet;
-    origin?:FloatArrayParam;
+    origin:FloatArrayParam;
 }

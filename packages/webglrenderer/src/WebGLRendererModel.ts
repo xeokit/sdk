@@ -342,7 +342,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         if (!rendererTextureSet) {
             throw new SDKError("SceneTextureSet not found");
         }
-        const layer = this.#getLayer(textureSetId, mesh.geometry);
+        const layer = this.#getLayer(textureSetId, mesh);
         if (!layer) {
             return; // TODO
         }
@@ -381,11 +381,13 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.#numMeshes++;
     }
 
-    #getLayer(textureSetId: string, geometryCompressedParams: SceneGeometryCompressedParams): Layer | undefined {
-        const layerId = `${textureSetId}_${geometryCompressedParams.primitive}`;
+    #getLayer(textureSetId: string, mesh: SceneMesh): Layer | undefined {
+        const geometry = mesh.geometry;
+        const origin = mesh.origin;
+        const layerId = `${textureSetId}.${geometry.primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {
-            if (layer.canCreateLayerMesh(geometryCompressedParams)) {
+            if (layer.canCreateLayerMesh(geometry)) {
                 return layer;
             } else {
                 layer.build();
@@ -400,7 +402,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
                 return;
             }
         }
-        switch (geometryCompressedParams.primitive) {
+        switch (geometry.primitive) {
             case TrianglesPrimitive:
             case SolidPrimitive:
             case SurfacePrimitive:
@@ -408,14 +410,15 @@ export class WebGLRendererModel extends Component implements RendererModel {
                     gl: this.#renderContext.gl,
                     view: this.#view,
                     rendererModel: this,
-                    primitive: geometryCompressedParams.primitive,
+                    primitive: geometry.primitive,
                     textureSet,
-                    layerIndex: 0
+                    layerIndex: 0,
+                    origin
                 });
                 this.log(`Creating new TrianglesLayer`);
                 break;
             default:
-                this.error(`Primitive type not supported: ${geometryCompressedParams.primitive}`);
+                this.error(`Primitive type not supported: ${geometry.primitive}`);
                 return;
         }
         this.#layers[layerId] = layer;

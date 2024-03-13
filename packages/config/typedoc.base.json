@@ -1,4 +1,13 @@
 {
     "$schema": "https://typedoc.org/schema.json",
-    "includeVersion": true
+    "includeVersion": true,
+    "excludePrivate": true,
+    "visibilityFilters": {
+        "protected": false,
+        "private": false,
+        "inherited": true,
+        "external": false,
+        "@alpha": false,
+        "@beta": false
+    }
 }

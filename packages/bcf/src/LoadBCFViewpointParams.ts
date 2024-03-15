@@ -5,7 +5,7 @@ import {Data} from "@xeokit/data";
 /**
  * Options for {@link @xeokit/bcf!loadBCFViewpoint}.
  *
- * See {@link "@xeokit/bcf"} for usage.
+ * See {@link "@xeokit/bcf" | @xeokit/bcf} for usage.
  */
 export interface LoadBCFViewpointParams {
 

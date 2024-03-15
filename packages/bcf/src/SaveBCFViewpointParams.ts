@@ -3,7 +3,7 @@ import type {View} from "@xeokit/viewer";
 /**
  * Options for {@link @xeokit/bcf!saveBCFViewpoint}.
  *
- * See {@link @xeokit/bcf} for usage.
+ * See {@link "@xeokit/bcf" | @xeokit/bcf} for usage.
  */
 export interface SaveBCFViewpointParams {
 

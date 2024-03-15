@@ -8,7 +8,7 @@ import {ViewObject} from "@xeokit/viewer";
 /**
  * Saves a {@link @xeokit/viewer!View | View} or a {@link @xeokit/viewer!ViewLayer | ViewLayer} to a {@link @xeokit/bcf!BCFViewpoint}.
  *
- * See {@link @xeokit/bcf} for usage.
+ * See {@link "@xeokit/bcf" | @xeokit/bcf} for usage.
  *
  * @param params BCF saving parameers.
  * @returns The BCF viewpoint.

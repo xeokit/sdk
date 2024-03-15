@@ -11,7 +11,7 @@ import {typeCodes} from "@xeokit/ifctypes";
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
- * See {@link "@xeokit/dotbim"} for usage.
+ * See {@link "@xeokit/dotbim" | @xeokit/dotbim} for usage.
  *
  * @param params - Loading parameters.
  * @param params.fileData - .BIM file data.

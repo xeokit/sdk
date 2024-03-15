@@ -40,7 +40,7 @@ interface ParsingContext {
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
- * See {@link @xeokit/gltf} for usage.
+ * See {@link "@xeokit/gltf" | @xeokit/gltf} for usage.
  *
  * @param params - Loading parameters.
  * @param params.fileData - glTF file data

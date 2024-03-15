@@ -28,7 +28,7 @@ interface ParsingContext {
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
- * See {@link @xeokit/webifc} for usage.
+ * See {@link "@xeokit/webifc" | @xeokit/webifc} for usage.
  *
  * @param params - Loading parameters.
  * @param params.fileData - IFC file contents.

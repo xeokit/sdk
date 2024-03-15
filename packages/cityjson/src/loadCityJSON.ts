@@ -28,7 +28,7 @@ const tempVec3c = createVec3();
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
- * See {@link "@xeokit/cityjson"} for usage.
+ * See {@link "@xeokit/cityjson" | @xeokit/cityjson} for usage.
  *
  * @param params - Loading parameters.
  * @param params.fileData - CityJSON file data.

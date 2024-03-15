@@ -15,7 +15,7 @@ import type {TickParams} from "./TickParams";
 /**
  * A Browser-based 2D/3D model viewer.
  *
- * See {@link @xeokit/viewer} for usage.
+ * See {@link "@xeokit/viewer" | @xeokit/viewer} for usage.
  */
 export class Viewer extends Component {
 

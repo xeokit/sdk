@@ -22,7 +22,7 @@ const isSafari = (ua && ua[1].toLowerCase() === "safari");
 /**
  * A WebGL-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
  *
- * See {@link @xeokit/webglrenderer} for usage.
+ * See {@link "@xeokit/webglrenderer" | @xeokit/webglrenderer} for usage.
  */
 export class WebGLRenderer implements Renderer {
 

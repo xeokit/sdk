@@ -9,7 +9,7 @@ import {packDTX} from "./packDTX";
  * Exports a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel} to an ArrayBuffer
  * containing [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data.
  *
- * See {@link "@xeokit/dtx"} for usage.
+ * See {@link "@xeokit/dtx" | @xeokit/dtx} for usage.
  *
  * See {@link @xeokit/dtx!DTXData} for insights into the structure of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
  *

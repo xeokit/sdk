@@ -379,6 +379,10 @@
  * const buffers = thetexture.buffers; // ArrayBuffer[]
  * ````
  *
+ * ### Preparing a SceneModel for Progressive Loading
+ *
+ * TODO: Create in separate tutorial - too complex for here
+ *
  * @module @xeokit/scene
  */
 
@@ -411,3 +415,6 @@ export * from "./SceneModelParams";
 export * from "./compressGeometryParams";
 
 export * from "./getSceneObjectGeometry";
+
+export * from "./SceneModelStreamParams";
+export * from "./SceneModelStreamLayerParams";

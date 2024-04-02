@@ -80,7 +80,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     }
 
     commitRendererState() {
-        this.layer.commitLayerMeshFlags();
+        this.layer.commitRendererState();
     }
 
     setVisible(flags: any) {

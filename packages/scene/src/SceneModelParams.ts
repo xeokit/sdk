@@ -3,10 +3,11 @@ import type {FloatArrayParam} from "@xeokit/math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
-import type {SceneObject} from "./SceneObject";
+
 import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneGeometryParams} from "./SceneGeometryParams";
 import type {SceneObjectParams} from "./SceneObjectParams";
+import {SceneModelStreamParams} from "./SceneModelStreamParams";
 
 
 /**
@@ -15,6 +16,13 @@ import type {SceneObjectParams} from "./SceneObjectParams";
  * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export interface SceneModelParams {
+
+
+    /**
+     * Indicates what renderer resources will need to be allocated in a {@link @xeokit/viewer!Viewer | Viewer's}
+     * {@link @xeokit/viewer!Renderer | Renderer} to support progressive loading for a {@link @xeokit/scene!SceneModel | SceneModel}.
+     */
+    streamParams?: SceneModelStreamParams;
 
     /**
      * Unique ID for the SceneModel.

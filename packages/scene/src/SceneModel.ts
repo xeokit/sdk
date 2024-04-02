@@ -22,6 +22,7 @@ import type {SceneModelParams} from "./SceneModelParams";
 import type {Scene} from "./Scene";
 import type {SceneModelStats} from "./SceneModelStats";
 import {composeMat4, eulerToQuat, identityMat4, identityQuat} from "@xeokit/matrix";
+import {SceneModelStreamParams} from "./SceneModelStreamParams";
 
 // DTX texture types
 
@@ -87,6 +88,14 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
 export class SceneModel extends Component {
+
+    /**
+     * Indicates what renderer resources will need to be allocated in a {@link @xeokit/viewer!Viewer | Viewer's}
+     * {@link @xeokit/viewer!Renderer | Renderer} to support progressive loading for the {@link @xeokit/scene!SceneModel | SceneModel}.
+     *
+     * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
+     */
+   public  streamParams?: SceneModelStreamParams;
 
     /**
      * The {@link @xeokit/scene!Scene} that contains this SceneModel.
@@ -222,6 +231,7 @@ export class SceneModel extends Component {
         this.#numObjects = 0;
         this.#meshUsedByObject = {};
 
+        this.streamParams = sceneModelParams.streamParams;
         this.id = sceneModelParams.id || "default";
         this.layerId = sceneModelParams.layerId;
         this.edgeThreshold = 10;
@@ -952,7 +962,9 @@ export class SceneModel extends Component {
             meshes: [],
             objects: []
         };
-
+        if (this.streamParams) {
+            sceneModelParams.streamParams = this.streamParams;
+        }
         Object.entries(this.geometries).forEach(([key, value]) => {
             sceneModelParams.geometriesCompressed.push((<SceneGeometry>value).getJSON());
         });

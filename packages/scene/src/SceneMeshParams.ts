@@ -6,6 +6,11 @@ import type {FloatArrayParam} from "@xeokit/math";
 export interface SceneMeshParams {
 
     /**
+     * TODO
+     */
+    streamLayerIndex?: number;
+
+    /**
      * ID for the new {@link @xeokit/scene!SceneMesh}, unique within the {@link @xeokit/scene!SceneModel}.
      */
     id: string;
@@ -21,7 +26,7 @@ export interface SceneMeshParams {
     geometryId: string;
 
     /**
-     * Optional ID of a {@link Transform} previously created with {@link @xeokit/scene!SceneModel.createTransform | SceneModel.createTransform}.
+     * Optional ID of a {@link SceneTransform} previously created with {@link @xeokit/scene!SceneModel.createTransform | SceneModel.createTransform}.
      */
     transformId?: string;
 

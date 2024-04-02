@@ -49,6 +49,11 @@ export class SceneMesh {
      */
     object: SceneObject | null;
 
+    /**
+     * TODO
+     */
+    streamLayerIndex: number;
+
     #color: FloatArrayParam;
     #matrix: FloatArrayParam;
     #metallic: number;
@@ -70,6 +75,7 @@ export class SceneMesh {
         roughness?: number;
         metallic?: number;
         origin?: FloatArrayParam;
+        streamLayerIndex?: number;
     }) {
         this.id = meshParams.id;
         this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
@@ -81,6 +87,7 @@ export class SceneMesh {
         this.roughness = (meshParams.roughness !== null && meshParams.roughness !== undefined) ? meshParams.roughness : 1;
         this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
         this.origin = new Float32Array(meshParams.origin !== undefined ? meshParams.origin : [0, 0, 0]);
+        this.streamLayerIndex = meshParams.streamLayerIndex !== undefined ? meshParams.streamLayerIndex : 0;
     }
 
     /**
@@ -242,6 +249,7 @@ export class SceneMesh {
      */
     getJSON(): SceneMeshParams {
         const meshParams = <SceneMeshParams>{
+            streamLayerIndex: this.streamLayerIndex || 0,
             id: this.id,
             geometryId: this.geometry.id,
             color: Array.from(this.#color),

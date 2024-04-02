@@ -344,8 +344,14 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * TODO
+     * Detaches a {@link @xeokit/scene!SceneModel | SceneModel} from this WebGLRenderer.
+     *
      * @internal
+     * @returns *void*
+     * * SceneModel successfully detached.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No View is currently attached to this WebGLRenderer.
+     * * SceneModel is not attached to this WebGLRenderer.
      */
     detachSceneModel(sceneModel: SceneModel): SDKError | void {
         if (!this.#viewer) {
@@ -355,7 +361,7 @@ export class WebGLRenderer implements Renderer {
             throw new SDKError("Can't detach SceneModel from WebGLRenderer - no View is attached");
         }
         if (this.#rendererModels[sceneModel.id] == undefined) {
-            return new SDKError(`Can't detach SceneModel from WebGLRenderer -no SceneModel with this ID ("${sceneModel.id}") has been attached to this WebGLRenderer`);
+            return new SDKError(`Can't detach SceneModel from WebGLRenderer - no SceneModel with this ID ("${sceneModel.id}") has been attached to this WebGLRenderer`);
         }
         this.#detachSceneModel(sceneModel);
     }

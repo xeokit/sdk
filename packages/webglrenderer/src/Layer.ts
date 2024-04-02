@@ -3,7 +3,6 @@ import {MeshCounts} from "./MeshCounts";
 import {SceneGeometry, SceneGeometryBucket, SceneMesh} from "@xeokit/scene";
 import type {LayerParams} from "./LayerParams";
 import {LayerMeshParams} from "./LayerMeshParams";
-import {RenderContext} from "./RenderContext";
 import {WebGLRendererModel} from "./WebGLRendererModel";
 import {RenderState} from "./RenderState";
 import {TickParams, View, Viewer} from "@xeokit/viewer";
@@ -17,7 +16,6 @@ import {SCENE_OBJECT_FLAGS} from "./SCENE_OBJECT_FLAGS";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import {SDKError} from "@xeokit/core";
 import {RendererSet} from "./RendererSet";
-import {RenderStats} from "./RenderStats";
 
 const tempMat4a = <Float64Array>identityMat4();
 const tempUint8Array4 = new Uint8Array(4);
@@ -71,8 +69,7 @@ export abstract class Layer {
 
     #dataTextureBuffer: DataTextureBuffer;
     #geometryHandles: { [key: string]: any };
-    #deferredSetFlagsActive: boolean;
-    #deferredSetFlagsDirty: boolean;
+
     #built: boolean;
     #aabb: FloatArrayParam;
     aabbDirty: boolean;
@@ -82,7 +79,15 @@ export abstract class Layer {
     #subMeshs: any[];               // A SubMesh has a single GeometryBucket
     #numSubMeshes: number;
     #layerNumber: number;
-    #numUpdatesInFrame: number;
+
+    #deferredSetAttributesActive: boolean;
+    #deferredSetMatricesActive: boolean;
+
+    #needCommitDeferredAttributes: boolean;
+    #needCommitDeferedMatrices: boolean;
+
+    #countAttributesUpdateInFrame: number;
+    #countMatricesUpdateInFrame: number;
 
     #onViewerTick: () => void;
 
@@ -99,7 +104,10 @@ export abstract class Layer {
         this.#layerNumber = numLayers++;
         this.#dataTextureBuffer = new DataTextureBuffer();
         this.#built = false;
-        this.#numUpdatesInFrame = 0;
+
+        this.#countAttributesUpdateInFrame = 0;
+        this.#countMatricesUpdateInFrame = 0;
+
         this.#meshes = [];
         this.#subMeshs = [];
         this.#numSubMeshes = 0;
@@ -122,7 +130,8 @@ export abstract class Layer {
             numVertices: 0
         };
 
-        this.#beginDeferredFlags(); // For faster initialization
+        this.#beginDeferredAttributes(); // For faster initialization; commit happens in build()
+        this.#beginDeferredMatrices(); // For faster initialization; commit happens in build()
     }
 
     get hash() {
@@ -389,12 +398,18 @@ export abstract class Layer {
             throw new SDKError("Already built");
         }
         this.renderState.dataTextureSet = new DataTextureSet(this.gl, this.#dataTextureBuffer);
-        this.#deferredSetFlagsDirty = false;
+        this.#needCommitDeferredAttributes = false;
+        this.#needCommitDeferedMatrices = false;
         this.#onViewerTick = this.rendererModel.viewer.onTick.subscribe((viewer: Viewer, tickParams: TickParams) => {
-            if (this.#deferredSetFlagsDirty) {
-                this.#uploadDeferredFlags();
+            console.log("@xeokit/webglrenderer!Layer.build() onViewerTick");
+            if (this.#needCommitDeferredAttributes) {
+                this.#commitDeferredAttributes();
             }
-            this.#numUpdatesInFrame = 0;
+            if (this.#needCommitDeferedMatrices) {
+                this.#commitDeferredMatrices();
+            }
+            this.#countAttributesUpdateInFrame = 0;
+            this.#countMatricesUpdateInFrame = 0;
         });
         this.#dataTextureBuffer = null;
         this.#geometryHandles = {};
@@ -404,6 +419,25 @@ export abstract class Layer {
 
     isEmpty() {
         return this.meshCounts.numMeshes === 0;
+    }
+
+    /**
+     * This will _start_ a "set-flags transaction".
+     *
+     * After invoking this method, calling meshSetFlags/setMeshFlags2 will not update
+     * the colors+flags texture but only store the new flags/flag2 in the
+     * colors+flags texture data array.
+     *
+     * After invoking this method, and when all desired meshSetFlags/setMeshFlags2 have
+     * been called on needed portions of the layer, invoke `#commitDeferredAttributes`
+     * to actually commit the data array to the texture.
+     *
+     * In massive "set-flags" scenarios like VFC or LOD mechanisms, the combination of
+     * `_beginDeferredAttributes` + `#commitDeferredAttributes`brings a speed-up of
+     * up to 80x when e.g. objects are massively (un)culled 🚀.
+     */
+    #beginDeferredAttributes() {
+        this.#deferredSetAttributesActive = true;
     }
 
     setLayerMeshFlags(meshIndex: number, flags: number, meshTransparent: boolean) {
@@ -448,9 +482,9 @@ export abstract class Layer {
         this.#setMeshFlags2(meshIndex, flags, deferred);
     }
 
-    commitLayerMeshFlags() {
-        this.#commitDeferredFlags();
-        this.#commitDeferredFlags2();
+    commitRendererState() {
+        this.#commitDeferredAttributes();
+        this.#commitDeferredMatrices();
     }
 
     setLayerMeshVisible(meshIndex: number, flags: number, transparent: boolean) {
@@ -537,65 +571,6 @@ export abstract class Layer {
         this.#setMeshFlags2(meshIndex, flags);
     }
 
-    /**
-     * This will _start_ a "set-flags transaction".
-     *
-     * After invoking this method, calling meshSetFlags/setMeshFlags2 will not update
-     * the colors+flags texture but only store the new flags/flag2 in the
-     * colors+flags texture data array.
-     *
-     * After invoking this method, and when all desired meshSetFlags/setMeshFlags2 have
-     * been called on needed portions of the layer, invoke `#uploadDeferredFlags`
-     * to actually upload the data array into the texture.
-     *
-     * In massive "set-flags" scenarios like VFC or LOD mechanisms, the combination of
-     * `_beginDeferredFlags` + `#uploadDeferredFlags`brings a speed-up of
-     * up to 80x when e.g. objects are massively (un)culled 🚀.
-     */
-    #beginDeferredFlags() {
-        this.#deferredSetFlagsActive = true;
-    }
-
-    /**
-     * This will _commit_ a "set-flags transaction".
-     *
-     * Invoking this method will update the colors+flags texture data with new
-     * flags/flags2 set since the previous invocation of `_beginDeferredFlags`.
-     */
-    #uploadDeferredFlags() {
-        this.#deferredSetFlagsActive = false;
-        if (!this.#deferredSetFlagsDirty) {
-            return;
-        }
-        this.#deferredSetFlagsDirty = false;
-        const gl = this.gl;
-        const dataTextureSet = this.renderState.dataTextureSet;
-        gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.subMeshAttributesDataTexture.texture);
-        gl.texSubImage2D(
-            gl.TEXTURE_2D,
-            0, // level
-            0, // xoffset
-            0, // yoffset
-            dataTextureSet.subMeshAttributesDataTexture.textureWidth, // width
-            dataTextureSet.subMeshAttributesDataTexture.textureHeight, // width
-            gl.RGBA_INTEGER,
-            gl.UNSIGNED_BYTE,
-            dataTextureSet.subMeshAttributesDataTexture.textureData
-        );
-        // gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.subMeshInstanceMatricesDataTexture._texture);
-        // gl.texSubImage2D(
-        //     gl.TEXTURE_2D,
-        //     0, // level
-        //     0, // xoffset
-        //     0, // yoffset
-        //     dataTextureSet.subMeshInstanceMatricesDataTexture._textureWidth, // width
-        //     dataTextureSet.subMeshInstanceMatricesDataTexture._textureHeight, // width
-        //     gl.RGB,
-        //     gl.FLOAT,
-        //     dataTextureSet.subMeshInstanceMatricesDataTexture._textureData
-        // );
-    }
-
     setLayerMeshCulled(meshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
@@ -648,15 +623,14 @@ export abstract class Layer {
         tempUint8Array4 [2] = color[2];
         tempUint8Array4 [3] = color[3];
         textureState.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32);
-        if (this.#deferredSetFlagsActive) {
-           // console.info("_setSubMeshColor defer");
-            this.#deferredSetFlagsDirty = true;
+        if (this.#deferredSetAttributesActive) {
+            this.#needCommitDeferredAttributes = true;
             return;
         }
-        if (++this.#numUpdatesInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
-            this.#beginDeferredFlags(); // Subsequent flags updates now deferred
+        if (++this.#countAttributesUpdateInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
+            this.#beginDeferredAttributes(); // Subsequent flags updates now deferred
         }
-       // console.info("_setSubMeshColor write through");
+        // console.info("_setSubMeshColor write through");
         gl.bindTexture(gl.TEXTURE_2D, textureState.subMeshAttributesDataTexture.texture);
         gl.texSubImage2D(
             gl.TEXTURE_2D,
@@ -763,12 +737,12 @@ export abstract class Layer {
         tempUint8Array4 [3] = f3;
         // sceneMesh flags
         dataTextureSet.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32 + 8);
-        if (this.#deferredSetFlagsActive || deferred) {
-            this.#deferredSetFlagsDirty = true;
+        if (this.#deferredSetAttributesActive || deferred) {
+            this.#needCommitDeferredAttributes = true;
             return;
         }
-        if (++this.#numUpdatesInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
-            this.#beginDeferredFlags(); // Subsequent flags updates now deferred
+        if (++this.#countAttributesUpdateInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
+            this.#beginDeferredAttributes(); // Subsequent flags updates now deferred
         }
         gl.bindTexture(gl.TEXTURE_2D, dataTextureSet.subMeshAttributesDataTexture.texture);
         gl.texSubImage2D(
@@ -783,9 +757,6 @@ export abstract class Layer {
             tempUint8Array4
         );
         // gl.bindTexture (gl.TEXTURE_2D, null);
-    }
-
-    #commitDeferredFlags() {
     }
 
     #setMeshFlags2(meshIndex: number, flags: number, deferred = false) {
@@ -808,13 +779,12 @@ export abstract class Layer {
         tempUint8Array4 [3] = 2;
         // sceneMesh flags2
         textureState.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32 + 12);
-        if (this.#deferredSetFlagsActive || deferred) {
-            // console.log("_setSubMeshFlags2 set flags defer");
-            this.#deferredSetFlagsDirty = true;
+        if (this.#deferredSetAttributesActive || deferred) {
+            this.#needCommitDeferredAttributes = true;
             return;
         }
-        if (++this.#numUpdatesInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
-            this.#beginDeferredFlags(); // Subsequent flags updates now deferred
+        if (++this.#countAttributesUpdateInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
+            this.#beginDeferredAttributes(); // Subsequent flags updates now deferred
         }
         gl.bindTexture(gl.TEXTURE_2D, textureState.subMeshAttributesDataTexture.texture);
         gl.texSubImage2D(
@@ -831,7 +801,27 @@ export abstract class Layer {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    #commitDeferredFlags2() {
+    #commitDeferredAttributes() {
+        console.log("@xeokit/webglrenderer!Layer.commitDeferredAttributes()");
+        this.#deferredSetAttributesActive = false;
+        if (!this.#needCommitDeferredAttributes) {
+            return;
+        }
+        this.#needCommitDeferredAttributes = false;
+        const gl = this.gl;
+        const subMeshAttributesDataTexture = this.renderState.dataTextureSet.subMeshAttributesDataTexture;
+        gl.bindTexture(gl.TEXTURE_2D, subMeshAttributesDataTexture.texture);
+        gl.texSubImage2D(
+            gl.TEXTURE_2D,
+            0, // level
+            0, // xoffset
+            0, // yoffset
+            subMeshAttributesDataTexture.textureWidth, // width
+            subMeshAttributesDataTexture.textureHeight, // width
+            gl.RGBA_INTEGER,
+            gl.UNSIGNED_BYTE,
+            subMeshAttributesDataTexture.textureData
+        );
     }
 
     setLayerMeshOffset(meshIndex: number, offset: FloatArrayParam) {
@@ -840,11 +830,11 @@ export abstract class Layer {
         }
         const subMeshIndices = this.#meshToSubMeshLookup[meshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
-            this.#subMeshSetOffset(subMeshIndices[i], offset);
+            this.#setSubMeshOffset(subMeshIndices[i], offset);
         }
     }
 
-    #subMeshSetOffset(subMeshIndex: number, offset: FloatArrayParam) {
+    #setSubMeshOffset(subMeshIndex: number, offset: FloatArrayParam) {
         // if (!this.#built) {
         //     throw new SDKError("Not finalized");
         // }
@@ -859,12 +849,12 @@ export abstract class Layer {
         // tempFloat32Array3 [2] = offset[2];
         // // sceneMesh offset
         // textureState.texturePerObjectOffsets._textureData.set(tempFloat32Array3, subMeshIndex * 3);
-        // if (this.#deferredSetFlagsActive) {
-        //     this.#deferredSetFlagsDirty = true;
+        // if (this.#deferredSetAttributesActive) {
+        //     this.#needCommitDeferredAttributes = true;
         //     return;
         // }
-        // if (++this.#numUpdatesInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
-        //     this.#beginDeferredFlags(); // Subsequent flags updates now deferred
+        // if (++this.#countAttributesUpdateInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
+        //     this.#beginDeferredAttributes(); // Subsequent flags updates now deferred
         // }
         // gl.bindTexture(gl.TEXTURE_2D, textureState.texturePerObjectOffsets._texture);
         // gl.texSubImage2D(
@@ -881,17 +871,26 @@ export abstract class Layer {
         // // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
+
+    //----------------------------------------------------------------------------------
+    // Mesh Matrices
+    //----------------------------------------------------------------------------------
+
+    #beginDeferredMatrices() {
+        this.#deferredSetMatricesActive = true;
+    }
+
     setLayerMeshMatrix(meshIndex: number, matrix: FloatArrayParam) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
         const subMeshIndices = this.#meshToSubMeshLookup[meshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
-            this.#subMeshSetMatrix(subMeshIndices[i], matrix);
+            this.#setSubMeshMatrix(subMeshIndices[i], matrix);
         }
     }
 
-    #subMeshSetMatrix(subMeshIndex: number, matrix: FloatArrayParam) {
+    #setSubMeshMatrix(subMeshIndex: number, matrix: FloatArrayParam) {
         // if (!this.model.scene.entityMatrixsEnabled) {
         //     this.model.error("Entity#matrix not enabled for this Viewer"); // See Viewer entityMatrixsEnabled
         //     return;
@@ -900,12 +899,12 @@ export abstract class Layer {
         const gl = this.gl;
         tempMat4a.set(matrix);
         textureState.subMeshInstanceMatricesDataTexture.textureData.set(tempMat4a, subMeshIndex * 16);
-        if (this.#deferredSetFlagsActive) {
-            this.#deferredSetFlagsDirty = true;
+        if (this.#deferredSetMatricesActive) {
+            this.#needCommitDeferedMatrices = true;
             return;
         }
-        if (++this.#numUpdatesInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
-            this.#beginDeferredFlags(); // Subsequent flags updates now deferred
+        if (++this.#countMatricesUpdateInFrame >= MAX_MESH_UPDATES_PER_FRAME_WITHOUT_BATCHED_UPDATE) {
+            this.#beginDeferredMatrices(); // Subsequent flags updates now deferred
         }
         gl.bindTexture(gl.TEXTURE_2D, textureState.subMeshInstanceMatricesDataTexture.texture);
         gl.texSubImage2D(
@@ -923,7 +922,28 @@ export abstract class Layer {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    abstract draw(rendererSet: RendererSet) : void;
+    #commitDeferredMatrices() {
+        console.log("@xeokit/webglrenderer!Layer.commitDeferredMatrices()");
+        if (this.#needCommitDeferedMatrices) {
+            const subMeshInstanceMatricesDataTexture = this.renderState.dataTextureSet.subMeshInstanceMatricesDataTexture;
+            const gl = this.gl;
+            gl.bindTexture(gl.TEXTURE_2D, subMeshInstanceMatricesDataTexture.texture);
+            gl.texSubImage2D(
+                gl.TEXTURE_2D,
+                0, // level
+                0, // xoffset
+                0, // yoffset
+                subMeshInstanceMatricesDataTexture.textureWidth, // width
+                subMeshInstanceMatricesDataTexture.textureHeight, // width
+                gl.RGBA,
+                gl.FLOAT,
+                subMeshInstanceMatricesDataTexture.textureData
+            );
+            this.#needCommitDeferedMatrices = false;
+        }
+    }
+
+    abstract draw(rendererSet: RendererSet): void;
 
     destroy() {
         this.rendererModel.viewer.onTick.unsubscribe(this.#onViewerTick);

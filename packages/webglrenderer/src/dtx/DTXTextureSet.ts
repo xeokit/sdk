@@ -1,11 +1,11 @@
 import {WebGLDataTexture} from "@xeokit/webglutils";
-import {DataTextureBuffer} from "./DataTextureBuffer";
+import {DTXBuffer} from "./DTXBuffer";
 import {FloatArrayParam, IntArrayParam} from "@xeokit/math";
 
 /**
  * @private
  */
-export class DataTextureSet {
+export class DTXTextureSet {
 
     numPortions: number;
 
@@ -53,55 +53,55 @@ export class DataTextureSet {
     /**
      * @private
      */
-    constructor(gl: WebGL2RenderingContext, dataTextureBuffer: DataTextureBuffer) {
+    constructor(gl: WebGL2RenderingContext, dtxBuffer: DTXBuffer) {
 
         this.numPortions = 0;
         this.gl = gl;
 
-        this.primitiveToSubMeshLookup8BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.primitiveToSubMeshLookup8Bits);
-        this.primitiveToSubMeshLookup16BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.primitiveToSubMeshLookup16Bits);
-        this.primitiveToSubMeshLookup32BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.primitiveToSubMeshLookup32Bits);
+        this.primitiveToSubMeshLookup8BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dtxBuffer.primitiveToSubMeshLookup8Bits);
+        this.primitiveToSubMeshLookup16BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dtxBuffer.primitiveToSubMeshLookup16Bits);
+        this.primitiveToSubMeshLookup32BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dtxBuffer.primitiveToSubMeshLookup32Bits);
 
         this.subMeshAttributesDataTexture = this.#createSubMeshToAttributesLookupDataTexture( // Flags (except for solid) are inserted later
-            dataTextureBuffer.subMeshColors,
-            dataTextureBuffer.subMeshPickColors,
-            dataTextureBuffer.subMeshVertexBases,
-            dataTextureBuffer.subMeshIndicesBases,
-            dataTextureBuffer.subMeshEdgeIndicesBases,
-            dataTextureBuffer.subMeshSolidFlags);
+            dtxBuffer.subMeshColors,
+            dtxBuffer.subMeshPickColors,
+            dtxBuffer.subMeshVertexBases,
+            dtxBuffer.subMeshIndicesBases,
+            dtxBuffer.subMeshEdgeIndicesBases,
+            dtxBuffer.subMeshSolidFlags);
 
-        this.subMeshInstanceMatricesDataTexture = this.#createSubMeshToInstancingMatricesLookupDataTexture(dataTextureBuffer.subMeshInstanceMatrices);
-        this.subMeshDecompressMatricesDataTexture = this.#createSubMeshToDecompressMatricesLookupDataTexture(dataTextureBuffer.subMeshDecompressMatrices);
+        this.subMeshInstanceMatricesDataTexture = this.#createSubMeshToInstancingMatricesLookupDataTexture(dtxBuffer.subMeshInstanceMatrices);
+        this.subMeshDecompressMatricesDataTexture = this.#createSubMeshToDecompressMatricesLookupDataTexture(dtxBuffer.subMeshDecompressMatrices);
 
-        this.positionsCompressedDataTexture = this.#createTextureForPositions(dataTextureBuffer.positionsCompressed, dataTextureBuffer.lenPositionsCompressed);
+        this.positionsCompressedDataTexture = this.#createTextureForPositions(dtxBuffer.positionsCompressed, dtxBuffer.lenPositionsCompressed);
 
-        if (dataTextureBuffer.edgeToSubMeshLookup8Bits.length > 0) {
-            this.edgeToSubMeshLookup8BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.edgeToSubMeshLookup8Bits);
+        if (dtxBuffer.edgeToSubMeshLookup8Bits.length > 0) {
+            this.edgeToSubMeshLookup8BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dtxBuffer.edgeToSubMeshLookup8Bits);
         }
-        if (dataTextureBuffer.edgeToSubMeshLookup16Bits.length > 0) {
-            this.edgeToSubMeshLookup16BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.edgeToSubMeshLookup16Bits);
+        if (dtxBuffer.edgeToSubMeshLookup16Bits.length > 0) {
+            this.edgeToSubMeshLookup16BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dtxBuffer.edgeToSubMeshLookup16Bits);
         }
-        if (dataTextureBuffer.edgeToSubMeshLookup32Bits.length > 0) {
-            this.edgeToSubMeshLookup32BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dataTextureBuffer.edgeToSubMeshLookup32Bits);
+        if (dtxBuffer.edgeToSubMeshLookup32Bits.length > 0) {
+            this.edgeToSubMeshLookup32BitsDataTexture = this.#createPrimitiveToSubMeshLookupDataTexture(dtxBuffer.edgeToSubMeshLookup32Bits);
         }
 
-        if (dataTextureBuffer.lenIndices8Bits > 0) {
-            this.indices8BitsDataTexture = this.#createIndices8BitDataTexture(dataTextureBuffer.indices8Bits, dataTextureBuffer.lenIndices8Bits);
+        if (dtxBuffer.lenIndices8Bits > 0) {
+            this.indices8BitsDataTexture = this.#createIndices8BitDataTexture(dtxBuffer.indices8Bits, dtxBuffer.lenIndices8Bits);
         }
-        if (dataTextureBuffer.lenIndices16Bits > 0) {
-            this.indices16BitsDataTexture = this.#createIndices16BitDataTexture(dataTextureBuffer.indices16Bits, dataTextureBuffer.lenIndices16Bits);
+        if (dtxBuffer.lenIndices16Bits > 0) {
+            this.indices16BitsDataTexture = this.#createIndices16BitDataTexture(dtxBuffer.indices16Bits, dtxBuffer.lenIndices16Bits);
         }
-        if (dataTextureBuffer.lenIndices32Bits > 0) {
-            this.indices32BitsDataTexture = this.#createIndices32BitDataTexture(dataTextureBuffer.indices32Bits, dataTextureBuffer.lenIndices32Bits);
+        if (dtxBuffer.lenIndices32Bits > 0) {
+            this.indices32BitsDataTexture = this.#createIndices32BitDataTexture(dtxBuffer.indices32Bits, dtxBuffer.lenIndices32Bits);
         }
-        if (dataTextureBuffer.lenEdgeIndices8Bits > 0) {
-            this.edgeIndices8BitsDataTexture = this.#createEdgeIndices8BitDataTexture(dataTextureBuffer.edgeIndices8Bits, dataTextureBuffer.lenEdgeIndices8Bits);
+        if (dtxBuffer.lenEdgeIndices8Bits > 0) {
+            this.edgeIndices8BitsDataTexture = this.#createEdgeIndices8BitDataTexture(dtxBuffer.edgeIndices8Bits, dtxBuffer.lenEdgeIndices8Bits);
         }
-        if (dataTextureBuffer.lenEdgeIndices16Bits > 0) {
-            this.edgeIndices16BitsDataTexture = this.#createEdgeIndices16BitDataTexture(dataTextureBuffer.edgeIndices16Bits, dataTextureBuffer.lenEdgeIndices16Bits);
+        if (dtxBuffer.lenEdgeIndices16Bits > 0) {
+            this.edgeIndices16BitsDataTexture = this.#createEdgeIndices16BitDataTexture(dtxBuffer.edgeIndices16Bits, dtxBuffer.lenEdgeIndices16Bits);
         }
-        if (dataTextureBuffer.lenEdgeIndices32Bits > 0) {
-            this.edgeIndices32BitsDataTexture = this.#createEdgeIndices32BitDataTexture(dataTextureBuffer.edgeIndices32Bits, dataTextureBuffer.lenEdgeIndices32Bits);
+        if (dtxBuffer.lenEdgeIndices32Bits > 0) {
+            this.edgeIndices32BitsDataTexture = this.#createEdgeIndices32BitDataTexture(dtxBuffer.edgeIndices32Bits, dtxBuffer.lenEdgeIndices32Bits);
         }
 
         this.indices = {

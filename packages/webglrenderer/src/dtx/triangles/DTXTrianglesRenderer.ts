@@ -1,15 +1,15 @@
 import {AmbientLight, DirLight, PointLight} from "@xeokit/viewer";
-import {LayerRenderer} from "../LayerRenderer";
-import {Layer} from "../Layer";
+import {DTXLayerRenderer} from "./../DTXLayerRenderer";
+import {DTXTrianglesLayer} from "./DTXTrianglesLayer";
 
 /**
  * @private
  */
-export abstract class TrianglesRenderer extends LayerRenderer {
+export abstract class DTXTrianglesRenderer extends DTXLayerRenderer {
 
-    drawTriangles(layer: Layer) {
+    draw( layer: DTXTrianglesLayer, renderPass: number) {
 
-        super.draw(layer);
+        super.draw(layer, renderPass);
 
         const renderState = layer.renderState;
         const program = this.program;
@@ -36,6 +36,10 @@ export abstract class TrianglesRenderer extends LayerRenderer {
         }
     }
 
+    /**
+     * Vertex shader lighting definitions.
+     * @protected
+     */
     protected get vertTrianglesLightingDefs(): string {
         const src = [];
         // src.push(`vec3 octDecode(vec2 oct) {
@@ -45,7 +49,11 @@ export abstract class TrianglesRenderer extends LayerRenderer {
         //     }
         //     return normalize(v);
         // }`);
-        src.push(`uniform vec4 lightAmbient;`);
+        src.push(`
+
+            // TrianglesRenderer.vertTrianglesLightingDefs()
+
+            uniform vec4 lightAmbient;`);
         for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
             const light = this.renderContext.view.lightsList[i];
             if (light instanceof AmbientLight) {
@@ -59,16 +67,21 @@ export abstract class TrianglesRenderer extends LayerRenderer {
                 src.push(`uniform vec3 lightPos${i};`);
             }
         }
-        src.push("uniform vec4 color;");
-        src.push("out vec4 vColor;");
+        src.push(`
+            uniform vec4 color;
+            out vec4 vColor;
+             `);
         return src.join("\n");
     }
 
+    /**
+     * Vertex shader triangle rendering samplers.
+     * @protected
+     */
     protected get vertTrianglesDataTextureDefs(): string {
         return `
-                //-------------------------------------------------
+
                 // TrianglesRenderer.vertTrianglesDataTextureDefs()
-                //-------------------------------------------------
 
                 uniform mediump usampler2D              primitiveToSubMeshLookupDataTexture;    // Maps primitive -> SubMesh index
                 uniform lowp    usampler2D              subMeshAttributesDataTexture;           // Per SubMesh flags, color, pick color
@@ -80,11 +93,14 @@ export abstract class TrianglesRenderer extends LayerRenderer {
                 uniform highp   usampler2D              edgeIndicesDataTexture;                 // All edge indices`
     }
 
+    /**
+     * Vertex shader triangles clip space position and view space normal.
+     * @protected
+     */
     protected get vertTriangleVertexPosition() {
         return `
-                //-----------------------------------------------
+
                 // TrianglesRenderer.vertTriangleVertexPosition()
-                //-----------------------------------------------
 
                 // Primitive -> SubMesh lookup
 
@@ -165,13 +181,16 @@ export abstract class TrianglesRenderer extends LayerRenderer {
                         gl_Position                     = clipPos;`;
     }
 
+    /**
+     * Vertex shader lighting calculation.
+     * @protected
+     */
     protected get vertTrianglesLighting(): string {
 
         const src = [`
-                //-----------------------------------------------
+
                 // TrianglesRenderer.vertTrianglesLighting()
-                //-----------------------------------------------
-`       ];
+`];
 
         src.push("vec4      viewPosition    = viewMatrix * worldPosition; ");
         // src.push("vec4      modelNormal     = vec4(octDecode(normal.xy), 0.0); ");
@@ -198,15 +217,18 @@ export abstract class TrianglesRenderer extends LayerRenderer {
         }
         src.push("vec3 rgb = (vec3(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0));");
         //src.push("vColor =  vec4((lightAmbient.rgb * lightAmbient.a * rgb) + (reflectedColor * rgb), float(color.a) / 255.0);");
-        src.push("vColor =  vec4(1.0, 1.0, 1.0, 1.0);");
+        src.push("vColor =  vec4(rgb, 1.0);");
         return src.join("\n");
     }
 
+    /**
+     * Vertex shader edges gl_Position.
+     * @protected
+     */
     protected get vertTriangleEdgesVertexPosition() {
         return `
-                //----------------------------------------------------
+
                 // TrianglesRenderer.vertTriangleEdgesVertexPosition()
-                //----------------------------------------------------
 
                 int     primitiveIndex                  = gl_VertexID / 2;
                 int     h_packed_object_id_index        = (primitiveIndex >> 3) & 4095;
@@ -239,11 +261,19 @@ export abstract class TrianglesRenderer extends LayerRenderer {
                         gl_Position                     = clipPos;`;
     }
 
+    /**
+     * Fragment shader triangles color input and output definitions.
+     * @protected
+     */
     protected get fragTrianglesLightingDefs(): string {
         return `in vec4 vColor;
                 out vec4 outColor;`;
     }
 
+    /**
+     * Fragment shader triangles ambient shadows.
+     * @protected
+     */
     protected get fragSAOOutput(): string {
         if (this.renderContext.view.sao.enabled) {
             // Doing SAO blend in the main solid fill draw shader just so that edge lines can be drawn over the top
@@ -260,6 +290,10 @@ export abstract class TrianglesRenderer extends LayerRenderer {
         }
     }
 
+    /**
+     * Fragment shader triangles color output.
+     * @protected
+     */
     protected get fragTrianglesLighting(): string {
         return `outColor = vColor;`;
     }

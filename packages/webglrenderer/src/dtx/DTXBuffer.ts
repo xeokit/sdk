@@ -1,30 +1,32 @@
+import {FloatArrayParam, IntArrayParam} from "@xeokit/math";
+
 /**
  * @private
  */
-export class DataTextureBuffer {
-     positionsCompressed: any[];
+export class DTXBuffer {
+     positionsCompressed: IntArrayParam[];
      lenPositionsCompressed: number;
-     metallicRoughness: any[];
-     indices8Bits: any[];
+     metallicRoughness: number[];
+     indices8Bits: IntArrayParam[];
      lenIndices8Bits: number;
-     indices16Bits: any[];
+     indices16Bits: IntArrayParam[];
      lenIndices16Bits: number;
-     indices32Bits: any[];
+     indices32Bits: IntArrayParam[];
      lenIndices32Bits: number;
-     edgeIndices8Bits: any[];
+     edgeIndices8Bits: IntArrayParam[];
      lenEdgeIndices8Bits: number;
-     edgeIndices16Bits: any[];
+     edgeIndices16Bits: IntArrayParam[];
      lenEdgeIndices16Bits: number;
-     edgeIndices32Bits: any[];
+     edgeIndices32Bits: IntArrayParam[];
      lenEdgeIndices32Bits: number;
-     subMeshColors: any[];
-     subMeshPickColors: any[];
+     subMeshColors: number[][];
+     subMeshPickColors: IntArrayParam[];
      subMeshSolidFlags: boolean[];
-     perObjectOffsets: any[];
-     subMeshDecompressMatrices: any[];
-     subMeshInstanceMatrices: any[];
-     subMeshVertexBases: any[];
-     subMeshIndicesBases: any[];
+     perObjectOffsets: IntArrayParam;
+     subMeshDecompressMatrices: FloatArrayParam[];
+     subMeshInstanceMatrices: FloatArrayParam[];
+     subMeshVertexBases: number[];
+     subMeshIndicesBases: number[];
      subMeshEdgeIndicesBases: number[];
      primitiveToSubMeshLookup8Bits: number[];
      primitiveToSubMeshLookup16Bits: number[];

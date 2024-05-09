@@ -1,9 +1,9 @@
-import {TrianglesRenderer} from "./TrianglesRenderer";
+import {DTXTrianglesRenderer} from "./DTXTrianglesRenderer";
 
 /**
  * @private
  */
-export class TrianglesQualityColorRenderer extends TrianglesRenderer {
+export class DTXTrianglesFastColorRenderer extends DTXTrianglesRenderer {
 
     getHash(): string {
         return `${this.renderContext.view.getSectionPlanesHash()}-${this.renderContext.view.getLightsHash()}`;
@@ -12,9 +12,7 @@ export class TrianglesQualityColorRenderer extends TrianglesRenderer {
     buildVertexShader(): string {
         return `${this.vertHeader}
 
-            //----------------------------------------------------
-            // TrianglesQualityColorRenderer Vertex Shader
-            //----------------------------------------------------
+            // TrianglesFastColorRenderer Vertex Shader
 
             ${this.vertCommonDefs}
             ${this.vertTrianglesDataTextureDefs}
@@ -32,9 +30,7 @@ export class TrianglesQualityColorRenderer extends TrianglesRenderer {
     buildFragmentShader(): string {
         return `${this.fragHeader}
 
-            //----------------------------------------------------
-            // TrianglesQualityColorRenderer Fragment Shader
-            //----------------------------------------------------
+            // TrianglesFastColorRenderer Fragment Shader
 
             ${this.fragSlicingDefs}
             ${this.fragTrianglesLightingDefs}

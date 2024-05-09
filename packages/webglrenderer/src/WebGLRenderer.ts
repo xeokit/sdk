@@ -9,12 +9,14 @@ import {RENDER_PASSES} from "./RENDER_PASSES";
 import type {Pickable} from "./Pickable";
 import {WebGLRendererModel} from "./WebGLRendererModel";
 import type {Capabilities, TextureTranscoder} from "@xeokit/core";
-import {SDKError} from "@xeokit/core";
+import {EventEmitter, SDKError} from "@xeokit/core";
 import type {RendererObject, SceneModel} from "@xeokit/scene";
 import {WebGLTileManager} from "./WebGLTileManager";
-import {Layer} from "./Layer";
-import {RendererSet} from "./RendererSet";
+import {DTXTrianglesLayer} from "./dtx/triangles/DTXTrianglesLayer";
+import {DTXTrianglesRendererSet} from "./dtx/triangles/DTXTrianglesRendererSet";
 import {RenderStats} from "./RenderStats";
+import {EventDispatcher} from "strongly-typed-events";
+import {TickParams} from "@xeokit/viewer";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
@@ -34,7 +36,7 @@ export class WebGLRenderer implements Renderer {
 
     #viewer: Viewer;
     #view: View;
-    #renderContext: RenderContext;
+    renderContext: RenderContext;
     #canvasTransparent: boolean;
     #transparentEnabled: boolean;
     #edgesEnabled: boolean;
@@ -43,7 +45,7 @@ export class WebGLRenderer implements Renderer {
     #pbrEnabled: boolean;
     #backgroundColor: FloatArrayParam;
     #rendererModels: { [key: string]: WebGLRendererModel };
-    #layerList: Layer[];
+    #layerList: DTXTrianglesLayer[];
     #layerListDirty: boolean;
     #stateSortDirty: boolean;
     #pickIDs = new Map({});
@@ -55,12 +57,22 @@ export class WebGLRenderer implements Renderer {
     // #saoOcclusionRenderer: null | SAOOcclusionRenderer;
     // #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
     #textureTranscoder: TextureTranscoder;
-    //  #rendererSet: RendererSet;
+    //  #rendererSet: DTXTrianglesRendererSet;
     #viewMatrixDirty: boolean;
-    #rendererSet: RendererSet;
+    #rendererSet: DTXTrianglesRendererSet;
     #destroyed: boolean;
 
     #onViewCameraMatrix: () => void | null;
+
+    /**
+     * @event
+     */
+    readonly onCompiled: EventEmitter<WebGLRenderer, boolean>;
+
+    /**
+     * @event
+     */
+    readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
     /**
      Creates a WebGLRenderer.
@@ -77,7 +89,7 @@ export class WebGLRenderer implements Renderer {
         this.renderStats = new RenderStats();
         this.rendererObjects = {};
         this.tileManager = null;
-        this.#renderContext = null;
+        this.renderContext = null;
         this.#textureTranscoder = params.textureTranscoder || new KTX2TextureTranscoder({});
         this.#canvasTransparent = false;
         this.#alphaDepthMask = false;
@@ -100,6 +112,9 @@ export class WebGLRenderer implements Renderer {
         this.#rendererModels = {};
         this.#viewMatrixDirty = true;
         this.#destroyed = false;
+
+        this.onCompiled = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
+        this.onDestroyed = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
     }
 
     /**
@@ -191,7 +206,7 @@ export class WebGLRenderer implements Renderer {
         this.#view = null;
         this.#rendererSet.destroy();
         this.#rendererSet = null;
-        this.#renderContext = null;
+        this.renderContext = null;
         this.#layerList = [];
         this.rendererObjects = {};
         this.tileManager = null;
@@ -239,9 +254,9 @@ export class WebGLRenderer implements Renderer {
             return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.canvasElement.id}")`);
         }
         gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
-        this.#renderContext = new RenderContext(this.#viewer, this.#view, gl);
+        this.renderContext = new RenderContext(this.#viewer, this.#view, gl);
         this.tileManager = new WebGLTileManager({camera: view.camera, gl});
-        this.#rendererSet = new RendererSet(this.#renderContext, this.renderStats);
+        this.#rendererSet = new DTXTrianglesRendererSet(this.renderContext, this.renderStats);
         view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {
             this.#viewMatrixDirty = true;
         });
@@ -285,7 +300,7 @@ export class WebGLRenderer implements Renderer {
         this.#view = null;
         this.#rendererSet.destroy();
         this.#rendererSet = null;
-        this.#renderContext = null;
+        this.renderContext = null;
         this.#layerList = [];
         this.rendererObjects = {};
         this.tileManager = null;
@@ -328,7 +343,7 @@ export class WebGLRenderer implements Renderer {
             view: this.#view,
             textureTranscoder: this.#textureTranscoder,
             webglRenderer: this,
-            renderContext: this.#renderContext
+            renderContext: this.renderContext
         });
         this.#rendererModels[rendererModel.id] = rendererModel;
         this.#attachRendererObjects(rendererModel);
@@ -471,7 +486,7 @@ export class WebGLRenderer implements Renderer {
         if (!this.#view) {
             throw new SDKError("Can't clear canvas with WebGLRenderer - no View is attached");
         }
-        const gl = this.#renderContext.gl;
+        const gl = this.renderContext.gl;
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         if (this.#canvasTransparent) {
             gl.clearColor(1, 1, 1, 1);
@@ -588,13 +603,13 @@ export class WebGLRenderer implements Renderer {
 
     #activateExtensions() {
         if (WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_element_index_uint"]) {
-            this.#extensionHandles.OES_element_index_uint = this.#renderContext.gl.getExtension("OES_element_index_uint");
+            this.#extensionHandles.OES_element_index_uint = this.renderContext.gl.getExtension("OES_element_index_uint");
         }
         if (this.#logarithmicDepthBufferEnabled && WEBGL_INFO.SUPPORTED_EXTENSIONS["EXT_frag_depth"]) {
-            this.#extensionHandles.EXT_frag_depth = this.#renderContext.gl.getExtension('EXT_frag_depth');
+            this.#extensionHandles.EXT_frag_depth = this.renderContext.gl.getExtension('EXT_frag_depth');
         }
         if (WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]) {
-            this.#extensionHandles.WEBGL_depth_texture = this.#renderContext.gl.getExtension('WEBGL_depth_texture');
+            this.#extensionHandles.WEBGL_depth_texture = this.renderContext.gl.getExtension('WEBGL_depth_texture');
         }
     }
 
@@ -633,8 +648,8 @@ export class WebGLRenderer implements Renderer {
     #drawDepth(params: {
         clear: boolean
     }) {
-        this.#renderContext.reset();
-        const gl = this.#renderContext.gl;
+        this.renderContext.reset();
+        const gl = this.renderContext.gl;
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.clearColor(0, 0, 0, 0);
         gl.enable(gl.DEPTH_TEST);
@@ -651,7 +666,7 @@ export class WebGLRenderer implements Renderer {
         //     //     continue;
         //     // }
         //     // if (layer.drawFlags.colorOpaque) {
-        //     //     //    layer.drawDepth(this.#renderContext);
+        //     //     //    layer.drawDepth(this.renderContext);
         //     // }
         // }
         // const numVertexAttribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; // Fixes https://github.com/xeokit/xeokit-sdk/issues/174
@@ -665,25 +680,25 @@ export class WebGLRenderer implements Renderer {
     }) {
 
         const view = this.#view;
-        const renderContext = this.#renderContext;
+        const renderContext = this.renderContext;
         const gl = renderContext.gl;
 
-        const normalDrawSAOBin: Layer[] = [];
-        const edgesColorOpaqueBin: Layer[] = [];
-        const normalFillTransparentBin: Layer[] = [];
-        const edgesColorTransparentBin: Layer[] = [];
-        const xrayedSilhouetteOpaqueBin: Layer[] = [];
-        const xrayEdgesOpaqueBin: Layer[] = [];
-        const xrayedSilhouetteTransparentBin: Layer[] = [];
-        const xrayEdgesTransparentBin: Layer[] = [];
-        const highlightedSilhouetteOpaqueBin: Layer[] = [];
-        const highlightedEdgesOpaqueBin: Layer[] = [];
-        const highlightedSilhouetteTransparentBin: Layer[] = [];
-        const highlightedEdgesTransparentBin: Layer[] = [];
-        const selectedSilhouetteOpaqueBin: Layer[] = [];
-        const selectedEdgesOpaqueBin: Layer[] = [];
-        const selectedSilhouetteTransparentBin: Layer[] = [];
-        const selectedEdgesTransparentBin: Layer[] = [];
+        const normalDrawSAOBin: DTXTrianglesLayer[] = [];
+        const edgesColorOpaqueBin: DTXTrianglesLayer[] = [];
+        const normalFillTransparentBin: DTXTrianglesLayer[] = [];
+        const edgesColorTransparentBin: DTXTrianglesLayer[] = [];
+        const xrayedSilhouetteOpaqueBin: DTXTrianglesLayer[] = [];
+        const xrayEdgesOpaqueBin: DTXTrianglesLayer[] = [];
+        const xrayedSilhouetteTransparentBin: DTXTrianglesLayer[] = [];
+        const xrayEdgesTransparentBin: DTXTrianglesLayer[] = [];
+        const highlightedSilhouetteOpaqueBin: DTXTrianglesLayer[] = [];
+        const highlightedEdgesOpaqueBin: DTXTrianglesLayer[] = [];
+        const highlightedSilhouetteTransparentBin: DTXTrianglesLayer[] = [];
+        const highlightedEdgesTransparentBin: DTXTrianglesLayer[] = [];
+        const selectedSilhouetteOpaqueBin: DTXTrianglesLayer[] = [];
+        const selectedEdgesOpaqueBin: DTXTrianglesLayer[] = [];
+        const selectedSilhouetteTransparentBin: DTXTrianglesLayer[] = [];
+        const selectedEdgesTransparentBin: DTXTrianglesLayer[] = [];
 
         renderContext.reset();
         renderContext.withSAO = false;
@@ -932,8 +947,8 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
-    #drawLayer(layer: Layer, renderPass: number): void {
-        this.#renderContext.renderPass = renderPass;
+    #drawLayer(layer: DTXTrianglesLayer, renderPass: number): void {
+        this.renderContext.renderPass = renderPass;
         layer.draw(this.#rendererSet);
     }
 
@@ -945,5 +960,6 @@ export class WebGLRenderer implements Renderer {
             this.detachViewer();
         }
         this.#destroyed = true;
+        this.onDestroyed.dispatch(this, true);
     }
 }

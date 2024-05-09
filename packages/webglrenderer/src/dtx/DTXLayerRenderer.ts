@@ -3,10 +3,10 @@ import {createMat4, createVec3, createVec4, transformPoint3} from "@xeokit/matri
 import {createRTCViewMat} from "@xeokit/rtc";
 import {PerspectiveProjection, View} from "@xeokit/viewer";
 import {WebGLProgram, WebGLSampler} from "@xeokit/webglutils";
-import {Layer} from "./Layer";
-import {RENDER_PASSES} from "./RENDER_PASSES";
-import {RenderContext} from "./RenderContext";
-import {RenderStats} from "./RenderStats";
+import {DTXLayer} from "./DTXLayer";
+import {RENDER_PASSES} from "./../RENDER_PASSES";
+import {RenderContext} from "./../RenderContext";
+import {RenderStats} from "./../RenderStats";
 
 const tempVec4 = createVec4();
 const tempVec3a = createVec3();
@@ -19,9 +19,9 @@ const identityMat4 = createMat4();
 /**
  * @private
  */
-export abstract class LayerRenderer {
+export abstract class DTXLayerRenderer {
 
-    renderContext: RenderContext;
+    public renderContext: RenderContext;
     renderStats: RenderStats;
     view: View;
     errors: string[] | undefined;
@@ -44,16 +44,16 @@ export abstract class LayerRenderer {
             color: WebGLUniformLocation,
             attenuation?: WebGLUniformLocation
         }[];
+        lightAmbient: WebGLUniformLocation;
         pickInvisible: WebGLUniformLocation;
-        pickZFar: WebGLUniformLocation;
         pickZNear: WebGLUniformLocation;
+        pickZFar: WebGLUniformLocation;
         pointCloudIntensityRange: WebGLUniformLocation;
         nearPlaneHeight: WebGLUniformLocation;
         pointSize: WebGLUniformLocation;
         gammaFactor: WebGLUniformLocation;
         logDepthBufFC: WebGLUniformLocation;
         sao: WebGLUniformLocation;
-        lightAmbient: WebGLUniformLocation;
         color: WebGLUniformLocation;
     }
 
@@ -282,10 +282,11 @@ export abstract class LayerRenderer {
             const logDepthBufFC = 2.0 / (Math.log((projection as PerspectiveProjection).far + 1.0) / Math.LN2);
             gl.uniform1f(uniforms.logDepthBufFC, logDepthBufFC);
         }
+        debugger;
     }
 
 
-    uploadViewTransform(layer: Layer) {
+    uploadViewTransform(layer: DTXLayer) {
         const renderState = layer.renderState;
         const origin = renderState.origin;
         const renderContext = this.renderContext;
@@ -335,7 +336,7 @@ export abstract class LayerRenderer {
         }
     }
 
-    draw(layer: Layer) {
+    draw(layer: DTXLayer, renderPass: number) {
 
         if (this.program && !this.getValid()) {
             this.program.destroy();
@@ -355,7 +356,6 @@ export abstract class LayerRenderer {
         const program = this.program;
         const renderContext = this.renderContext;
         const camera = renderContext.view.camera;
-        const renderPass = renderContext.renderPass;
         const gl = this.renderContext.gl;
         const view = this.renderContext.view;
         const uniforms = this.uniforms;
@@ -536,12 +536,13 @@ export abstract class LayerRenderer {
     }
 
     protected get vertCommonDefs(): string {
-        return `uniform     int         renderPass;
+        return `
+                // LayerRenderer.vertCommonDefs()
 
+                uniform     int         renderPass;
                 uniform     mat4        sceneModelMatrix;
                 uniform     mat4        viewMatrix;
                 uniform     mat4        projMatrix;
-
                 uniform     vec3        uCameraEyeRtc;
                             vec3        positions[3];
 
@@ -552,17 +553,28 @@ export abstract class LayerRenderer {
 
     protected get vertLogDepthBufDefs(): string {
         if (!this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return "";
+            return `
+                // LayerRenderer.vertLogDepthBufDefs()
+                `;
+
         }
-        return `uniform     float       logDepthBufFC;
+        return `
+                // LayerRenderer.vertLogDepthBufDefs()
+
+                uniform     float       logDepthBufFC;
                 out         float       fragDepth;
-                out         float       isPerspective;`;
+                out         float       isPerspective;
+                `;
     }
 
     protected get vertLogDepthBuf(): string {
         if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return `fragDepth = 1.0 + clipPos.w;
-                    isPerspective = float (isPerspectiveMatrix(projMatrix));`;
+            return `
+                    // LayerRenderer.vertLogDepthBuf()
+
+                    fragDepth = 1.0 + clipPos.w;
+                    isPerspective = float (isPerspectiveMatrix(projMatrix));
+                    `;
         } else {
             return "";
         }
@@ -605,13 +617,19 @@ export abstract class LayerRenderer {
     }
 
     protected get fragColorDefs(): string {
-        return `uniform         vec4    color;
+        return `
+                // LayerRenderer.fragColorDefs()
+
+                uniform         vec4    color;
                 out             vec4     outColor;`;
     }
 
     protected get fragLogDepthBufDefs(): string {
         if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return `in float isPerspective;
+            return `
+                    // LayerRenderer.fragLogDepthBufDefs()
+
+                    in float isPerspective;
                     uniform float logDepthBufFC;
                     in float fragDepth;`;
         } else {
@@ -621,7 +639,10 @@ export abstract class LayerRenderer {
 
     protected get fragLogDepthBuf(): string {
         if (this.renderContext.view.logarithmicDepthBufferEnabled) {
-            return "gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;";
+            return `
+                    // LayerRenderer.fragLogDepthBuf()
+
+                    gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;`;
         } else {
             return "";
         }
@@ -629,8 +650,11 @@ export abstract class LayerRenderer {
 
     protected get fragSlicingDefs(): string {
         const src = [];
-        src.push(`in vec4 worldPosition;
-                  in vec4 meshFlags2;`);
+        src.push(`
+                // LayerRenderer.fragSlicingDefs()
+
+                in vec4 worldPosition;
+                in vec4 meshFlags2;`);
         for (let i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
             src.push(`uniform bool sectionPlaneActive${i};
                       uniform vec3 sectionPlanePos${i};
@@ -643,8 +667,11 @@ export abstract class LayerRenderer {
         const src = [];
         const clipping = (this.renderContext.view.sectionPlanesList.length > 0);
         if (clipping) {
-            src.push(`bool clippable = (float(meshFlags2.x) > 0.0);
-                      if (clippable) {
+            src.push(`
+                    // LayerRenderer.fragSlicing()
+
+                    bool clippable = (float(meshFlags2.x) > 0.0);
+                    if (clippable) {
                           float dist = 0.0;`);
             for (let i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
                 src.push(`if (sectionPlaneActive${i}) {
@@ -660,19 +687,26 @@ export abstract class LayerRenderer {
     }
 
     protected get fragGammaDefs(): string {
-        return `uniform float gammaFactor;
-        vec4 linearToLinear( in vec4 value ) {
-            return value;
-        }
-        vec4 sRGBToLinear( in vec4 value ) {
-            return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.w );
-        }
-        vec4 gammaToLinear( in vec4 value) {
-            return vec4( pow( value.xyz, vec3( gammaFactor ) ), value.w );
-        }
-        vec4 linearToGamma( in vec4 value, in float gammaFactor ) {
-              return vec4( pow( value.xyz, vec3( 1.0 / gammaFactor ) ), value.w );");
-        }`;
+        return `
+            // LayerRenderer.fragSlicing()
+
+            uniform float gammaFactor;
+
+            vec4 linearToLinear( in vec4 value ) {
+                return value;
+            }
+
+            vec4 sRGBToLinear( in vec4 value ) {
+                return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.w );
+            }
+
+            vec4 gammaToLinear( in vec4 value) {
+                return vec4( pow( value.xyz, vec3( gammaFactor ) ), value.w );
+            }
+
+            vec4 linearToGamma( in vec4 value, in float gammaFactor ) {
+                return vec4( pow( value.xyz, vec3( 1.0 / gammaFactor ) ), value.w );");
+            }`;
     }
 
     protected get fragGamma(): string {

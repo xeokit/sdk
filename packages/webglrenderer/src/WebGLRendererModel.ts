@@ -21,7 +21,7 @@ import type {
     SceneTextureSet
 } from "@xeokit/scene";
 import type {WebGLRenderer} from "./WebGLRenderer";
-import {TrianglesLayer} from "./triangles/TrianglesLayer";
+import {DTXTrianglesLayer} from "./dtx/triangles/DTXTrianglesLayer";
 import type {RenderContext} from "./RenderContext";
 import {WebGLRendererGeometry} from "./WebGLRendererGeometry";
 
@@ -29,12 +29,12 @@ import {WebGLRendererTexture} from "./WebGLRendererTexture";
 import {WebGLRendererObject} from "./WebGLRendererObject";
 import {WebGLRendererMesh} from "./WebGLRendererMesh";
 import {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
-import type {LayerParams} from "./LayerParams";
+import type {LayerParams} from "./dtx/triangles/DTXLayerParams";
 import type {WebGLTileManager} from "./WebGLTileManager";
 import {MeshCounts} from "./MeshCounts";
-import {Layer} from "./Layer";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 import {RenderStats} from "./RenderStats";
+import {RenderFlags} from "./RenderFlags";
 
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);
@@ -66,8 +66,8 @@ export class WebGLRendererModel extends Component implements RendererModel {
     rendererObjects: { [key: string]: WebGLRendererObject };
     rendererObjectsList: WebGLRendererObject[];
 
-    layerList: Layer[];
-    #layers: { [key: string]: Layer };
+    layerList: DTXTrianglesLayer[];
+    #layers: { [key: string]: DTXTrianglesLayer };
     #currentLayers: { [key: string]: any };
 
     meshCounts: MeshCounts;
@@ -75,7 +75,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     declare readonly onDestroyed: EventEmitter<Component, null>;
 
     #view: View;
-    #webglRenderer: WebGLRenderer;
+    webglRenderer: WebGLRenderer;
     #renderContext: RenderContext;
     #position: FloatArrayParam;
     #rotation: FloatArrayParam;
@@ -102,6 +102,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     #layerId: string | undefined;
 
     numSubMeshes: number;
+    renderFlags: RenderFlags;
 
     constructor(params: {
         id: string;
@@ -129,7 +130,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.meshCounts = new MeshCounts();
 
         this.#view = params.view;
-        this.#webglRenderer = params.webglRenderer;
+        this.webglRenderer = params.webglRenderer;
         this.#renderContext = params.renderContext;
         this.#textureTranscoder = params.textureTranscoder;
 
@@ -196,8 +197,10 @@ export class WebGLRendererModel extends Component implements RendererModel {
         }
         this.#currentLayers = {};
         this.#build();
-        this.#webglRenderer.setImageDirty();
+        this.webglRenderer.setImageDirty();
         //     this.#view.viewer.scene.setAABBDirty();
+
+        this.renderFlags = new RenderFlags();
     }
 
     #attachSceneModel(sceneModel: SceneModel): void {
@@ -295,7 +298,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
                                 }
                                 this.#textureTranscoder.transcode([arrayBuffer]).then((compressedTextureData) => {
                                     glTexture.setCompressedData(compressedTextureData);
-                                    this.#webglRenderer.setImageDirty();
+                                    this.webglRenderer.setImageDirty();
                                 });
                             },
                             (errMsg: string) => {
@@ -310,7 +313,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             } else {
                 this.#textureTranscoder.transcode(texture.buffers).then((compressedTextureData) => {
                     glTexture.setCompressedData(compressedTextureData);
-                    this.#webglRenderer.setImageDirty();
+                    this.webglRenderer.setImageDirty();
                 });
             }
         }
@@ -354,7 +357,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const metallic = (mesh.metallic !== undefined && mesh.metallic !== null) ? Math.floor(mesh.metallic * 255) : 0;
         const roughness = (mesh.roughness !== undefined && mesh.roughness !== null) ? Math.floor(mesh.roughness * 255) : 255;
         const rendererMesh = new WebGLRendererMesh({
-            tileManager: <WebGLTileManager>this.#webglRenderer.tileManager,
+            tileManager: <WebGLTileManager>this.webglRenderer.tileManager,
             id: mesh.id,
             layer,
             color,
@@ -366,7 +369,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             rendererGeometry,
             meshIndex: 0
         });
-        rendererMesh.pickId = this.#webglRenderer.attachPickable(rendererMesh);
+        rendererMesh.pickId = this.webglRenderer.attachPickable(rendererMesh);
         const a = rendererMesh.pickId >> 24 & 0xFF;
         const b = rendererMesh.pickId >> 16 & 0xFF;
         const g = rendererMesh.pickId >> 8 & 0xFF;
@@ -381,7 +384,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.#numMeshes++;
     }
 
-    #getLayer(textureSetId: string, mesh: SceneMesh): Layer | undefined {
+    #getLayer(textureSetId: string, mesh: SceneMesh): DTXTrianglesLayer | undefined {
         const geometry = mesh.geometry;
         const origin = mesh.origin;
         const layerId = `${textureSetId}.${geometry.primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
@@ -406,7 +409,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             case TrianglesPrimitive:
             case SolidPrimitive:
             case SurfacePrimitive:
-                layer = new TrianglesLayer(<LayerParams>{
+                layer = new DTXTrianglesLayer(<LayerParams>{
                     gl: this.#renderContext.gl,
                     view: this.#view,
                     rendererModel: this,
@@ -415,7 +418,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
                     layerIndex: 0,
                     origin
                 });
-                this.log(`Creating new TrianglesLayer`);
+                this.log(`Creating new DTXTrianglesLayer`);
                 break;
             default:
                 this.error(`Primitive type not supported: ${geometry.primitive}`);
@@ -502,7 +505,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     set backfaces(backfaces: boolean) {
         backfaces = !!backfaces;
         this.#backfaces = backfaces;
-        this.#webglRenderer.setImageDirty();
+        this.webglRenderer.setImageDirty();
     }
 
     get matrix(): FloatArrayParam {
@@ -584,115 +587,125 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.#aabbDirty = false;
     }
 
-    /*
-        #getActiveSectionPlanesForLayer(layer: any) {
-            const drawFlags = this.drawFlags;
-            const sectionPlanes = this.#view.sectionPlanesList;
-            const numSectionPlanes = sectionPlanes.length;
-            const baseIndex = layer.layerIndex * numSectionPlanes;
-            if (numSectionPlanes > 0) {
-                for (let i = 0; i < numSectionPlanes; i++) {
-                    const sectionPlane = sectionPlanes[i];
-                    if (!sectionPlane.active) {
-                        drawFlags.sectionPlanesActivePerLayer[baseIndex + i] = false;
-
-                    } else {
-                        drawFlags.sectionPlanesActivePerLayer[baseIndex + i] = true;
-                        drawFlags.sectioned = true;
-                    }
-                }
-            }
-            return true;
+    /** @private */
+    rebuildRenderFlags() {
+        this.renderFlags.reset();
+        this.#updateRenderFlagsVisibleLayers();
+        if (this.renderFlags.numLayers > 0 && this.renderFlags.numVisibleLayers === 0) {
+            this.renderFlags.culled = true;
+            return;
         }
+        this.#updateRenderFlags();
+    }
 
-        #updateDrawFlagsVisibleLayers() {
-            const drawFlags = this.drawFlags;
-            drawFlags.numLayers = this.layerList.length;
-            drawFlags.numVisibleLayers = 0;
-            for (let layerIndex = 0, len = this.layerList.length; layerIndex < len; layerIndex++) {
-                const layer = this.layerList[layerIndex];
-                const layerVisible = this.#getActiveSectionPlanesForLayer(layer);
-                if (layerVisible) {
-                    drawFlags.visibleLayers[drawFlags.numVisibleLayers++] = layerIndex;
-                }
-            }
-        }
-
-        #updateDrawFlags() {
-            if (this.meshCounts.numVisible === 0) {
-                return;
-            }
-            if (this.meshCounts.numCulled === this.meshCounts.numMeshes) {
-                return;
-            }
-            const drawFlags = this.drawFlags;
-            drawFlags.colorOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
-            if (this.meshCounts.numTransparent > 0) {
-                drawFlags.colorTransparent = true;
-            }
-            if (this.meshCounts.numXRayed > 0) {
-                const xrayMaterial = this.#view.xrayMaterial.state;
-                if (xrayMaterial.fill) {
-                    if (xrayMaterial.fillAlpha < 1.0) {
-                        drawFlags.xrayedSilhouetteTransparent = true;
-                    } else {
-                        drawFlags.xrayedSilhouetteOpaque = true;
-                    }
-                }
-                if (xrayMaterial.edges) {
-                    if (xrayMaterial.edgeAlpha < 1.0) {
-                        drawFlags.xrayedEdgesTransparent = true;
-                    } else {
-                        drawFlags.xrayedEdgesOpaque = true;
-                    }
-                }
-            }
-            if (this.meshCounts.numEdges > 0) {
-                const edgeMaterial = this.#view.edgeMaterial.state;
-                if (edgeMaterial.edges) {
-                    drawFlags.edgesOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
-                    if (this.meshCounts.numTransparent > 0) {
-                        drawFlags.edgesTransparent = true;
-                    }
-                }
-            }
-            if (this.meshCounts.numSelected > 0) {
-                const selectedMaterial = this.#view.selectedMaterial.state;
-                if (selectedMaterial.fill) {
-                    if (selectedMaterial.fillAlpha < 1.0) {
-                        drawFlags.selectedSilhouetteTransparent = true;
-                    } else {
-                        drawFlags.selectedSilhouetteOpaque = true;
-                    }
-                }
-                if (selectedMaterial.edges) {
-                    if (selectedMaterial.edgeAlpha < 1.0) {
-                        drawFlags.selectedEdgesTransparent = true;
-                    } else {
-                        drawFlags.selectedEdgesOpaque = true;
-                    }
-                }
-            }
-            if (this.meshCounts.numHighlighted > 0) {
-                const highlightMaterial = this.#view.highlightMaterial.state;
-                if (highlightMaterial.fill) {
-                    if (highlightMaterial.fillAlpha < 1.0) {
-                        drawFlags.highlightedSilhouetteTransparent = true;
-                    } else {
-                        drawFlags.highlightedSilhouetteOpaque = true;
-                    }
-                }
-                if (highlightMaterial.edges) {
-                    if (highlightMaterial.edgeAlpha < 1.0) {
-                        drawFlags.highlightedEdgesTransparent = true;
-                    } else {
-                        drawFlags.highlightedEdgesOpaque = true;
-                    }
-                }
-            }
-        }
-
+    /**
+     * @private
      */
+    #updateRenderFlagsVisibleLayers() {
+        const renderFlags = this.renderFlags;
+        renderFlags.numLayers = this.layerList.length;
+        renderFlags.numVisibleLayers = 0;
+        for (let layerIndex = 0, len = this.layerList.length; layerIndex < len; layerIndex++) {
+            const layer = this.layerList[layerIndex];
+            const layerVisible = this.#getActiveSectionPlanesForLayer(layer);
+            if (layerVisible) {
+                renderFlags.visibleLayers[renderFlags.numVisibleLayers++] = layerIndex;
+            }
+        }
+    }
+
+    #getActiveSectionPlanesForLayer(layer) {
+        // const renderFlags = this.renderFlags;
+        // const sectionPlanes = this.scene._sectionPlanesState.sectionPlanes;
+        // const numSectionPlanes = sectionPlanes.length;
+        // const baseIndex = layer.layerIndex * numSectionPlanes;
+        // if (numSectionPlanes > 0) {
+        //     for (let i = 0; i < numSectionPlanes; i++) {
+        //         const sectionPlane = sectionPlanes[i];
+        //         if (!sectionPlane.active) {
+        //             renderFlags.sectionPlanesActivePerLayer[baseIndex + i] = false;
+        //         } else {
+        //             renderFlags.sectionPlanesActivePerLayer[baseIndex + i] = true;
+        //             renderFlags.sectioned = true;
+        //         }
+        //     }
+        // }
+        return true;
+    }
+
+    #updateRenderFlags() {
+        if (this.meshCounts.numVisible === 0) {
+            return;
+        }
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes) {
+            return;
+        }
+        const renderFlags = this.renderFlags;
+        renderFlags.colorOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
+        if (this.meshCounts.numTransparent > 0) {
+            renderFlags.colorTransparent = true;
+        }
+        if (this.meshCounts.numXRayed > 0) {
+            const xrayMaterial = this.#view.xrayMaterial;
+            if (xrayMaterial.fill) {
+                if (xrayMaterial.fillAlpha < 1.0) {
+                    renderFlags.xrayedSilhouetteTransparent = true;
+                } else {
+                    renderFlags.xrayedSilhouetteOpaque = true;
+                }
+            }
+            if (xrayMaterial.edges) {
+                if (xrayMaterial.edgeAlpha < 1.0) {
+                    renderFlags.xrayedEdgesTransparent = true;
+                } else {
+                    renderFlags.xrayedEdgesOpaque = true;
+                }
+            }
+        }
+        if (this.meshCounts.numEdges > 0) {
+            const edgeMaterial = this.#view.edges;
+            if (edgeMaterial.enabled) {
+                renderFlags.edgesOpaque = (this.meshCounts.numTransparent < this.meshCounts.numMeshes);
+                if (this.meshCounts.numTransparent > 0) {
+                    renderFlags.edgesTransparent = true;
+                }
+            }
+        }
+        if (this.meshCounts.numSelected > 0) {
+            const selectedMaterial = this.#view.selectedMaterial;
+            if (selectedMaterial.fill) {
+                if (selectedMaterial.fillAlpha < 1.0) {
+                    renderFlags.selectedSilhouetteTransparent = true;
+                } else {
+                    renderFlags.selectedSilhouetteOpaque = true;
+                }
+            }
+            if (selectedMaterial.edges) {
+                if (selectedMaterial.edgeAlpha < 1.0) {
+                    renderFlags.selectedEdgesTransparent = true;
+                } else {
+                    renderFlags.selectedEdgesOpaque = true;
+                }
+            }
+        }
+        if (this.meshCounts.numHighlighted > 0) {
+            const highlightMaterial = this.#view.highlightMaterial;
+            if (highlightMaterial.fill) {
+                if (highlightMaterial.fillAlpha < 1.0) {
+                    renderFlags.highlightedSilhouetteTransparent = true;
+                } else {
+                    renderFlags.highlightedSilhouetteOpaque = true;
+                }
+            }
+            if (highlightMaterial.edges) {
+                if (highlightMaterial.edgeAlpha < 1.0) {
+                    renderFlags.highlightedEdgesTransparent = true;
+                } else {
+                    renderFlags.highlightedEdgesOpaque = true;
+                }
+            }
+        }
+    }
 
     #build() {
         for (let layerId in this.#currentLayers) {
@@ -739,7 +752,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     //     }
     //     this.#currentLayers = {};
     //     this.built = true;
-    //     this.#webglRenderer.setImageDirty();
+    //     this.webglRenderer.setImageDirty();
     //     //     this.#view.viewer.scene.setAABBDirty();
     //     this.onBuilt.dispatch(this, null);
     // }
@@ -765,7 +778,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         }
         for (let meshId in this.rendererMeshes) {
             this.rendererMeshes[meshId].destroy();
-            //    this.#webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
+            //    this.webglRenderer.deregisterPickable(this.rendererMeshes[meshId].pickId);
         }
         this.#currentLayers = {};
         this.#layers = {};

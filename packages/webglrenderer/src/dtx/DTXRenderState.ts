@@ -1,16 +1,16 @@
-import {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
-import {DataTextureSet} from "./DataTextureSet";
+import {WebGLRendererTextureSet} from "./../WebGLRendererTextureSet";
+import {DTXTextureSet} from "./DTXTextureSet";
 import {FloatArrayParam} from "@xeokit/math";
 
 /**
  * @private
  */
-export interface RenderState {
+export interface DTXRenderState {
     gl: WebGL2RenderingContext,
     primitive: number;
     origin: FloatArrayParam,
     materialTextureSet: WebGLRendererTextureSet;
-    dataTextureSet: DataTextureSet | null;
+    dataTextureSet: DTXTextureSet | null;
     numIndices8Bits: number;
     numIndices16Bits: number;
     numIndices32Bits: number;

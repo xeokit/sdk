@@ -6,7 +6,6 @@ import type {SDKError} from "@xeokit/core";
 import type {ViewObject} from "./ViewObject";
 import type {RendererObject} from "@xeokit/scene/src/RendererObject";
 import type {SceneModel} from "@xeokit/scene";
-import {RendererModel} from "@xeokit/scene";
 
 /**
  * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
@@ -72,6 +71,8 @@ export interface Renderer {
 
     /**
      * Gets the capabilities of this Renderer.
+     *
+     * @param capabilities Returns the capabilities of this WebGLRenderer.
      * @internal
      */
     getCapabilities(capabilities: Capabilities): void;
@@ -95,12 +96,12 @@ export interface Renderer {
      *
      * @internal
      * @param view The View to attach.
-     * @returns *number*
+     * @returns *void*
      * * Handle to the View within this Renderer. Use this handle to update Renderer state for the View.
      * @returns *{@link @xeokit/core!SDKError}*
      * * No Viewer is attached to this Renderer.
      * * Caller attempted to attach too many Views.
-     * * The WebGLRenderer failed to create a WebGLRenderingContext for the new View.
+     * * The WebGLRenderer failed to initialize for the new View.
      */
     attachView(view: View): SDKError | void;
 
@@ -165,7 +166,7 @@ export interface Renderer {
     /**
      * Enable/disable rendering of transparent objects for the given View.
      *
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @param enabled Whether to enable or disable transparent objects for the View.
      * @internal
      * @returns *void*
@@ -174,12 +175,12 @@ export interface Renderer {
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    setTransparentEnabled(viewHandle: number, enabled: boolean): void | SDKError;
+    setTransparentEnabled(viewIndex: number, enabled: boolean): void | SDKError;
 
     /**
      * Enable/disable edge enhancement for the given View.
      *
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @param enabled Whether to enable or disable edges for the View.
      * @internal
      * @returns *void*
@@ -188,12 +189,12 @@ export interface Renderer {
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    setEdgesEnabled(viewHandle: number, enabled: boolean): void | SDKError;
+    setEdgesEnabled(viewIndex: number, enabled: boolean): void | SDKError;
 
     /**
      * Enable/disable scaleable ambient obscurrance SAO for the given View.
      *
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @param enabled Whether to enable or disable SAO for the View.
      * @internal
      * @returns *void*
@@ -202,12 +203,12 @@ export interface Renderer {
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    setSAOEnabled(viewHandle: number, enabled: boolean): void | SDKError;
+    setSAOEnabled(viewIndex: number, enabled: boolean): void | SDKError;
 
     /**
      * Enable/disable physically-based rendering (PBR) for the given View.
      *
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @param enabled Whether to enable or disable PBR for the View.
      * @internal
      * @returns *void*
@@ -216,12 +217,12 @@ export interface Renderer {
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    setPBREnabled(viewHandle: number, enabled: boolean): void | SDKError;
+    setPBREnabled(viewIndex: number, enabled: boolean): void | SDKError;
 
     /**
      * Set background color for the given View.
      *
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @param color RGB background color.
      * @internal
      * @returns *void*
@@ -230,57 +231,57 @@ export interface Renderer {
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    setBackgroundColor(viewHandle: number, color: FloatArrayParam): void | SDKError;
+    setBackgroundColor(viewIndex: number, color: FloatArrayParam): void | SDKError;
 
     /**
      * Indicates that the renderers needs to render a new frame for the given View.
      *
      * @internal
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *void*
      * * Success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    setImageDirty(viewHandle?: number): void | SDKError;
+    setImageDirty(viewIndex?: number): void | SDKError;
 
     /**
      * Clears this renderers for the given view.
      *
      * @internal
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *void*
      * * Success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    clear(viewHandle: number): void | SDKError;
+    clear(viewIndex: number): void | SDKError;
 
     /**
-     * Sets TODO.
+     * Triggers a rebuild of the shaders within this Renderer for the given View.
      * @internal
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *void*
      * * Success.
      * @returns *{@link @xeokit/core!SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    needsRebuild(viewHandle: number): void | SDKError;
+    setNeedsRebuild(viewIndex: number): void | SDKError;
 
     /**
      * Gets if a new frame needs to be rendered for the given View.
      * @internal
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *boolean*
      * * True if a new frame needs to be rendered for the View.
      * @returns *{@link @xeokit/core!SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    needsRender(viewHandle: number): SDKError | boolean;
+    getNeedsRender(viewIndex: number): SDKError | boolean;
 
     /**
      * Renders a frame for a View.
@@ -288,23 +289,23 @@ export interface Renderer {
      * @param params Rendering params.
      * @param [params.force=false] True to force a render, else only render if needed.
      * @internal
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *{@link @xeokit/core!SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    render(viewHandle: number, params: { force?: boolean; }): void | SDKError;
+    render(viewIndex: number, params: { force?: boolean; }): void | SDKError;
 
     /**
      * Picks a ViewerObject within a View.
      *
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @param params Picking params.
      * @internal
-     * @param viewHandle Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *{@link @xeokit/core!SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    pickViewObject(viewHandle: number, params: {}): SDKError | ViewObject | null;
+    pickViewObject(viewIndex: number, params: {}): SDKError | ViewObject | null;
 }

@@ -9,13 +9,18 @@ import {LayerMeshParams} from "./LayerMeshParams";
  * @private
  */
 export interface Layer {
+
     gl: WebGL2RenderingContext;
     primitive: number;
     view: View;
     rendererModel: WebGLRendererModel;
     layerIndex: number;
-    meshCounts: MeshCounts;
     sortId: string;
+    meshCounts: MeshCounts;
+
+    //---------------------------------------------------------
+    // Builder methods
+    //---------------------------------------------------------
 
     canCreateLayerMesh(sceneGeometry: SceneGeometry): boolean;
 
@@ -25,9 +30,11 @@ export interface Layer {
 
     isEmpty(): boolean;
 
-    setLayerMeshFlags(layerMeshIndex: number, flags: number, meshTransparent: boolean): void;
+    //---------------------------------------------------------
+    // State update methods
+    //---------------------------------------------------------
 
-    commitRendererState(): void;
+    setLayerMeshFlags(layerMeshIndex: number, flags: number, meshTransparent: boolean): void;
 
     setLayerMeshVisible(layerMeshIndex: number, flags: number, transparent: boolean): void;
 
@@ -55,7 +62,15 @@ export interface Layer {
 
     setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void;
 
-    drawColorTransparent(): void;
+    commitRendererState(): void;
+
+    //---------------------------------------------------------
+    // Drawing methods
+    //---------------------------------------------------------
+
+    drawColorOpaque() : void;
+
+    drawColorTranslucent(): void;
 
     drawDepth(): void;
 
@@ -69,7 +84,7 @@ export interface Layer {
 
     drawEdgesColorOpaque(): void;
 
-    drawEdgesColorTransparent(): void;
+    drawEdgesColorTranslucent(): void;
 
     drawEdgesHighlighted(): void;
 

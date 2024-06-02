@@ -4,6 +4,9 @@ import {DTXLayerParams} from "../DTXLayerParams";
 import {RENDER_PASSES} from "../../RENDER_PASSES";
 import {Layer} from "../../Layer";
 
+/**
+ * @private
+ */
 export class DTXTrianglesLayer extends DTXLayer implements Layer {
 
     #rendererSet: DTXTrianglesRendererSet;
@@ -13,8 +16,24 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
         this.#rendererSet = getRenderers(this.rendererModel.webglRenderer);
     }
 
-    drawColorTransparent() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numTransparent === 0 || this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+    drawColorOpaque() {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numTransparent === this.meshCounts.numMeshes ||
+            this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+            return;
+        }
+        this.updateBackfaceCull();
+        if (this.#rendererSet.colorRenderer) {
+            this.#rendererSet.colorRenderer.draw(this, RENDER_PASSES.COLOR_OPAQUE);
+        }
+    }
+
+    drawColorTranslucent() {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numTransparent === 0 ||
+            this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
             return;
         }
         this.updateBackfaceCull();
@@ -24,7 +43,10 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     }
 
     drawDepth() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numTransparent === this.meshCounts.numMeshes || this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numTransparent === this.meshCounts.numMeshes ||
+            this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
             return;
         }
         this.updateBackfaceCull();
@@ -34,7 +56,10 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     }
 
     drawNormals() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numTransparent === this.meshCounts.numMeshes || this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numTransparent === this.meshCounts.numMeshes ||
+            this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
             return;
         }
         this.updateBackfaceCull();
@@ -44,7 +69,9 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     }
 
     drawSilhouetteXRayed() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numXRayed === 0) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numXRayed === 0) {
             return;
         }
         this.updateBackfaceCull();
@@ -54,7 +81,9 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     }
 
     drawSilhouetteHighlighted() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numHighlighted === 0) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numHighlighted === 0) {
             return;
         }
         this.updateBackfaceCull();
@@ -64,7 +93,9 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     }
 
     drawSilhouetteSelected() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numSelected === 0) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numSelected === 0) {
             return;
         }
         this.updateBackfaceCull();
@@ -89,8 +120,11 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
         }
     }
 
-    drawEdgesColorTransparent() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numEdges === 0 || this.meshCounts.numTransparent === 0) {
+    drawEdgesColorTranslucent() {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numEdges === 0 ||
+            this.meshCounts.numTransparent === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
@@ -99,7 +133,9 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     }
 
     drawEdgesHighlighted() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numHighlighted === 0) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numHighlighted === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
@@ -108,7 +144,9 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     }
 
     drawEdgesSelected() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numSelected === 0) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numSelected === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
@@ -117,7 +155,9 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     }
 
     drawEdgesXRayed() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0 || this.meshCounts.numXRayed === 0) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0 ||
+            this.meshCounts.numXRayed === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
@@ -128,7 +168,8 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     // ---------------------- OCCLUSION CULL RENDERING -----------------------------------
 
     drawOcclusion() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0) {
             return;
         }
         // this.updateBackfaceCull();
@@ -140,7 +181,8 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
     // ---------------------- SHADOW BUFFER RENDERING -----------------------------------
 
     drawShadow() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0) {
+        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
+            this.meshCounts.numVisible === 0) {
             return;
         }
         // this.updateBackfaceCull();

@@ -1236,7 +1236,7 @@ class View extends Component {
      * @private
      */
     rebuild() {
-        this.viewer.renderer.needsRebuild(this.viewIndex);
+        this.viewer.renderer.setNeedsRebuild(this.viewIndex);
     }
 
     /**

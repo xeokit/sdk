@@ -28,7 +28,8 @@ class EmphasisMaterial extends Component {
         edgeAlpha: number;
         edges: boolean;
         fillAlpha: number;
-        fill: boolean
+        fill: boolean;
+        glowThrough: boolean;
     };
 
     /**
@@ -43,6 +44,7 @@ class EmphasisMaterial extends Component {
         edges?: boolean;
         fillAlpha?: number;
         fill?: boolean;
+        glowThrough?:boolean;
     } = {}) {
 
         super(view, options);
@@ -57,7 +59,8 @@ class EmphasisMaterial extends Component {
             edgeColor: new Float32Array(options.edgeColor || [0.2, 0.2, 0.2]),
             edgeAlpha: (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5,
             edgeWidth: (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1,
-            backfaces: !!options.backfaces
+            backfaces: !!options.backfaces,
+            glowThrough: !!options.glowThrough
         };
     }
 
@@ -248,6 +251,35 @@ class EmphasisMaterial extends Component {
      */
     get backfaces(): boolean {
         return this.#state.backfaces;
+    }
+
+    /**
+     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+     *
+     * Default is ````true````.
+     *
+     * Note: updating this property will not affect the appearance of objects that are already emphasized.
+     *
+     * @type {Boolean}
+     */
+    set glowThrough(value) {
+        value = (value !== false);
+        if (this.#state.glowThrough === value) {
+            return;
+        }
+        this.#state.glowThrough = value;
+        this.view.redraw();
+    }
+
+    /**
+     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+     *
+     * Default is ````true````.
+     *
+     * @type {Boolean}
+     */
+    get glowThrough() {
+        return this.#state.glowThrough;
     }
 
     /**

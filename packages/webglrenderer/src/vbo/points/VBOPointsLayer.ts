@@ -3,7 +3,7 @@ import {View} from "@xeokit/viewer";
 import {WebGLRendererModel} from "../../WebGLRendererModel";
 import {MeshCounts} from "../../MeshCounts";
 import {FloatArrayParam} from "@xeokit/math";
-import {createMat4, identityMat4} from "@xeokit/matrix";
+import {createMat4, createVec3, identityMat4} from "@xeokit/matrix";
 import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
 import {SDKError} from "@xeokit/core";
 import {LayerMeshParams} from "../../LayerMeshParams";
@@ -92,7 +92,7 @@ export class VBOPointsLayer implements Layer {
             colorsBuf: null,
             flagsBuf: null,
             positionsDecodeMatrix: createMat4(),
-            origin: null
+            origin: createVec3()
         };
     }
 

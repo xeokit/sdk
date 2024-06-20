@@ -7,7 +7,26 @@ import {PerspectiveProjection} from "@xeokit/viewer";
 import {OrthoProjectionType} from "@xeokit/constants";
 import {createVec4} from "@xeokit/matrix";
 import {RENDER_PASSES} from "../../RENDER_PASSES";
+import {createRTCViewMat} from "@xeokit/rtc";
+
 const tempVec4 = createVec4();
+
+function joinSansComments(srcLines) {
+    const src = [];
+    let line;
+    let n;
+    for (let i = 0, len = srcLines.length; i < len; i++) {
+        line = srcLines[i];
+        n = line.indexOf("/");
+        if (n > 0) {
+            if (line.charAt(n + 1) === "/") {
+                line = line.substring(0, n);
+            }
+        }
+        src.push(line);
+    }
+    return src.join("\n");
+}
 
 /**
  * @private
@@ -20,16 +39,13 @@ abstract class VBOBatchingPointsRenderer {
     #needRebuild: boolean;
     errors: string[];
     uniforms: {
-        sao: WebGLUniformLocation;
         pointCloudIntensityRange: WebGLUniformLocation;
         nearPlaneHeight: WebGLUniformLocation;
         color: WebGLUniformLocation;
         pickZNear: WebGLUniformLocation;
-        pickInvisible: WebGLUniformLocation;
-        gammaFactor: WebGLUniformLocation;
         logDepthBufFC: WebGLUniformLocation;
         renderPass: WebGLUniformLocation;
-        cameraEyeRtc: WebGLUniformLocation;
+        snapCameraEyeRTC: WebGLUniformLocation;
         pointSize: WebGLUniformLocation;
         intensityRange: WebGLUniformLocation;
         pickZFar: WebGLUniformLocation;
@@ -88,17 +104,14 @@ abstract class VBOBatchingPointsRenderer {
             viewMatrix: program.getLocation("viewMatrix"),
             projMatrix: program.getLocation("projMatrix"),
             worldMatrix: program.getLocation("worldMatrix"),
-            cameraEyeRtc: program.getLocation("cameraEyeRtc"),
-            sao: program.getLocation("sao"),
+            snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
             logDepthBufFC: program.getLocation("logDepthBufFC"),
-            gammaFactor: program.getLocation("gammaFactor"),
             pointSize: program.getLocation("pointSize"),
             intensityRange: program.getLocation("intensityRange"),
             nearPlaneHeight: program.getLocation("nearPlaneHeight"),
             pointCloudIntensityRange: program.getLocation("pointCloudIntensityRange"),
             pickZNear: program.getLocation("pickZNear"),
             pickZFar: program.getLocation("pickZFar"),
-            pickInvisible: program.getLocation("pickInvisible"),
             color: program.getLocation("color"),
             sectionPlanes: []
         };
@@ -169,9 +182,6 @@ abstract class VBOBatchingPointsRenderer {
         if (uniforms.projMatrix) {
             gl.uniformMatrix4fv(uniforms.projMatrix, false, <Float32Array | GLfloat[]>view.camera.projMatrix);
         }
-        if (uniforms.gammaFactor) {
-            gl.uniform1f(uniforms.gammaFactor, view.gammaFactor);
-        }
         if (uniforms.pointSize) {
             gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
         }
@@ -181,9 +191,6 @@ abstract class VBOBatchingPointsRenderer {
         if (uniforms.pickZNear) {
             gl.uniform1f(uniforms.pickZNear, this.renderContext.pickZNear);
             gl.uniform1f(uniforms.pickZFar, this.renderContext.pickZFar);
-        }
-        if (uniforms.pickInvisible) {
-            gl.uniform1i(uniforms.pickInvisible, this.renderContext.pickInvisible ? 1 : 0);
         }
         if (uniforms.logDepthBufFC) {
             const logDepthBufFC = 2.0 / (Math.log((projection as PerspectiveProjection).far + 1.0) / Math.LN2);
@@ -210,16 +217,16 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
         const pointsMaterial = view.pointsMaterial;
         const src = [];
-        src.push('#version 300 es');
+        src.push("#version 300 es");
         src.push("// Points batching color vertex shader");
         src.push("uniform int renderPass;");
         src.push("in vec3 position;");
         src.push("in vec4 color;");
         src.push("in float flags;");
-        src.push("mat4 worldMatrix;");
-        src.push("mat4 viewMatrix;");
-        src.push("mat4 projMatrix;");
-        src.push("mat4 positionsDecodeMatrix;");
+        src.push("uniform mat4 worldMatrix;");
+        src.push("uniform mat4 viewMatrix;");
+        src.push("uniform mat4 projMatrix;");
+        src.push("uniform mat4 positionsDecodeMatrix;");
         src.push("uniform float pointSize;");
         if (pointsMaterial.perspectivePoints) {
             src.push("uniform float nearPlaneHeight;");
@@ -273,7 +280,7 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
             src.push("}");
         }
         src.push("}");
-        return src.join("\n");
+        return joinSansComments(src);
     }
 
     buildFragmentShader(): string {
@@ -331,7 +338,7 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
             src.push("gl_FragDepth = log2( vFragDepth ) * logDepthBufFC * 0.5;");
         }
         src.push("}");
-        return src.join("\n");
+        return joinSansComments(src);
     }
 
     draw(vboPointsLayer: VBOPointsLayer, renderPass: number): void {
@@ -350,6 +357,7 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
             // attributes.intensity.bindArrayBuffer(renderState.intensitiesBuf);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
+        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
 }
@@ -370,10 +378,10 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingPointsRenderer {
         src.push("uniform int renderPass;");
         src.push("in vec3 position;");
         src.push("in float flags;");
-        src.push("mat4 worldMatrix;");
-        src.push("mat4 viewMatrix;");
-        src.push("mat4 projMatrix;");
-        src.push("mat4 positionsDecodeMatrix;");
+        src.push("uniform mat4 worldMatrix;");
+        src.push("uniform mat4 viewMatrix;");
+        src.push("uniform mat4 projMatrix;");
+        src.push("uniform mat4 positionsDecodeMatrix;");
         src.push("uniform vec4 color;");
         src.push("uniform float pointSize;");
         if (pointsMaterial.perspectivePoints) {
@@ -414,7 +422,7 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingPointsRenderer {
         }
         src.push("}");
         src.push("}");
-        return src.join("\n");
+        return joinSansComments(src);
     }
 
     buildFragmentShader(): string {
@@ -472,7 +480,7 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingPointsRenderer {
         }
         src.push("outColor = color;");
         src.push("}");
-        return src.join("\n");
+        return joinSansComments(src);
     }
 
     draw(vboPointsLayer: VBOPointsLayer, renderPass: number): void {
@@ -502,6 +510,7 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingPointsRenderer {
             attributes.flags.bindArrayBuffer(renderState.flagsBuf);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
+        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
 }
@@ -511,23 +520,22 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingPointsRenderer {
  */
 export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingPointsRenderer {
 
-    buildVertexShader():string {
+    buildVertexShader(): string {
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
         const pointsMaterial = view.pointsMaterial;
         const src = [];
-        src.push ('#version 300 es');
+        src.push('#version 300 es');
         src.push("// Points batching pick mesh vertex shader");
         src.push("uniform int renderPass;");
         src.push("in vec3 position;");
         src.push("in float flags;");
         src.push("in vec4 pickColor;");
-        src.push("uniform bool pickInvisible;");
-        src.push("mat4 worldMatrix;");
-        src.push("mat4 viewMatrix;");
-        src.push("mat4 projMatrix;");
-        src.push("mat4 positionsDecodeMatrix;");
+        src.push("uniform mat4 worldMatrix;");
+        src.push("uniform mat4 viewMatrix;");
+        src.push("uniform mat4 projMatrix;");
+        src.push("uniform mat4 positionsDecodeMatrix;");
         src.push("uniform float pointSize;");
         if (pointsMaterial.perspectivePoints) {
             src.push("uniform float nearPlaneHeight;");
@@ -570,15 +578,15 @@ export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingPointsRenderer
         src.push("gl_PointSize += 10.0;");
         src.push("  }");
         src.push("}");
-        return src.join("\n");
+        return joinSansComments(src);
     }
 
-    buildFragmentShader():string {
+    buildFragmentShader(): string {
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
         const src = [];
-        src.push (`#version 300 es
+        src.push(`#version 300 es
         // Points batching pick mesh vertex shader
         #ifdef GL_FRAGMENT_PRECISION_HIGH
         precision highp float;
@@ -627,7 +635,7 @@ export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingPointsRenderer
         }
         src.push("   outColor = vPickColor; ");
         src.push("}");
-        return src.join("\n");
+        return joinSansComments(src);
     }
 
     draw(vboPointsLayer: VBOPointsLayer, renderPass: number) {
@@ -643,6 +651,7 @@ export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingPointsRenderer
             attributes.flags.bindArrayBuffer(renderState.flagsBuf);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
+        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
 }

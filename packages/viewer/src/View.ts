@@ -1531,6 +1531,10 @@ class View extends Component {
         }
     }
 
+    getNumAllocatedSectionPlanes(): number {
+        return this.sectionPlanesList.length;
+    }
+
     /**
      * Destroys this View.
      *

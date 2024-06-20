@@ -29,12 +29,14 @@ import {WebGLRendererTexture} from "./WebGLRendererTexture";
 import {WebGLRendererObject} from "./WebGLRendererObject";
 import {WebGLRendererMesh} from "./WebGLRendererMesh";
 import {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
-import type {LayerParams} from "./dtx/triangles/DTXLayerParams";
+import type {LayerParams} from "./LayerParams";
 import type {WebGLTileManager} from "./WebGLTileManager";
 import {MeshCounts} from "./MeshCounts";
-import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
+import {PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 import {RenderStats} from "./RenderStats";
 import {RenderFlags} from "./RenderFlags";
+import {Layer} from "./Layer";
+import {VBOPointsLayer} from "./vbo/points/VBOPointsLayer";
 
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);
@@ -384,7 +386,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         this.#numMeshes++;
     }
 
-    #getLayer(textureSetId: string, mesh: SceneMesh): DTXTrianglesLayer | undefined {
+    #getLayer(textureSetId: string, mesh: SceneMesh): Layer | undefined {
         const geometry = mesh.geometry;
         const origin = mesh.origin;
         const layerId = `${textureSetId}.${geometry.primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
@@ -411,6 +413,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             case SurfacePrimitive:
                 layer = new DTXTrianglesLayer(<LayerParams>{
                     gl: this.#renderContext.gl,
+                    renderContext: this.#renderContext,
                     view: this.#view,
                     rendererModel: this,
                     primitive: geometry.primitive,
@@ -419,6 +422,19 @@ export class WebGLRendererModel extends Component implements RendererModel {
                     origin
                 });
                 this.log(`Creating new DTXTrianglesLayer`);
+                break;
+            case PointsPrimitive:
+                layer = new VBOPointsLayer(<LayerParams>{
+                    gl: this.#renderContext.gl,
+                    renderContext: this.#renderContext,
+                    view: this.#view,
+                    rendererModel: this,
+                    primitive: geometry.primitive,
+                    textureSet,
+                    layerIndex: 0,
+                    origin
+                });
+                this.log(`Creating new VBOPointsLayer`);
                 break;
             default:
                 this.error(`Primitive type not supported: ${geometry.primitive}`);

@@ -21,7 +21,7 @@ const identityMat4 = createMat4();
  */
 export abstract class DTXLayerRenderer {
 
-    public renderContext: RenderContext;
+    renderContext: RenderContext;
     renderStats: RenderStats;
     view: View;
     errors: string[] | undefined;

@@ -1,5 +1,7 @@
 import type {View, Viewer} from "@xeokit/viewer";
 import {type WebGLAbstractTexture, WebGLDataTexture, WEBGL_INFO} from "@xeokit/webglutils";
+import {FloatArrayParam} from "@xeokit/math";
+import {WebGLRenderer} from "./WebGLRenderer";
 
 /**
  * @private
@@ -125,10 +127,15 @@ export class RenderContext {
      */
     public occlusionTexture: WebGLAbstractTexture | null;
 
-    constructor(viewer: Viewer, view: View, gl: WebGL2RenderingContext) {
+    public pickClipPos: FloatArrayParam;
+
+    public webglRenderer: WebGLRenderer;
+
+    constructor(viewer: Viewer, view: View, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer) {
         this.viewer = viewer;
         this.view = view;
         this.gl = gl;
+        this.webglRenderer = webglRenderer;
         this.reset();
     }
 

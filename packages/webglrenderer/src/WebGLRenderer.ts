@@ -266,7 +266,7 @@ export class WebGLRenderer implements Renderer {
             return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.canvasElement.id}")`);
         }
         gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
-        this.renderContext = new RenderContext(this.#viewer, this.#view, gl);
+        this.renderContext = new RenderContext(this.#viewer, this.#view, gl, this);
         this.tileManager = new WebGLTileManager({camera: view.camera, gl});
         this.#rendererSet = new DTXTrianglesRendererSet(this.renderContext, this.renderStats);
         view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {

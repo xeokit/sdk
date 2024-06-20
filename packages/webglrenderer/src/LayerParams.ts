@@ -1,13 +1,15 @@
 import type {View} from "@xeokit/viewer";
-import type {WebGLRendererModel} from "../WebGLRendererModel";
+import type {WebGLRendererModel} from "./WebGLRendererModel";
 import type {RendererTextureSet} from "@xeokit/scene";
 import {FloatArrayParam} from "@xeokit/math";
+import {RenderContext} from "./RenderContext";
 
 /**
  * @private
  */
-export interface DTXLayerParams { // Params for RendererLayer constructor
+export interface LayerParams { // Params for RendererLayer constructor
     gl: WebGL2RenderingContext;
+    renderContext: RenderContext;
     view: View;
     rendererModel: WebGLRendererModel;
     primitive: number;

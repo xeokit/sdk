@@ -1,7 +1,7 @@
 import type {FloatArrayParam} from "@xeokit/math";
 import {MeshCounts} from "./../MeshCounts";
 import {SceneGeometry, SceneGeometryBucket, SceneMesh} from "@xeokit/scene";
-import type {DTXLayerParams} from "./DTXLayerParams";
+import type {LayerParams} from "./../LayerParams";
 import {LayerMeshParams} from "../LayerMeshParams";
 import {WebGLRendererModel} from "./../WebGLRendererModel";
 import {DTXRenderState} from "./DTXRenderState";
@@ -52,11 +52,10 @@ let numLayers = 0;
 
 const DEFAULT_MATRIX = identityMat4();
 
-
 /**
  * @private
  */
-export class DTXLayer  {
+export abstract class DTXLayer implements Layer {
 
     gl: WebGL2RenderingContext;
     primitive: number;
@@ -92,8 +91,7 @@ export class DTXLayer  {
 
     #onViewerTick: () => void;
 
-
-    constructor(layerParams: DTXLayerParams) {
+    constructor(layerParams: LayerParams) {
 
         this.gl = layerParams.gl;
         this.primitive = layerParams.primitive;
@@ -135,6 +133,44 @@ export class DTXLayer  {
         this.#enableDeferredAttributesCommit(); // For faster initialization; commit happens in build()
         this.#enableDeferredMatricesCommit(); // For faster initialization; commit happens in build()
     }
+
+    abstract drawColorOpaque(): void ;
+
+    abstract drawColorTranslucent(): void ;
+
+    abstract drawDepth(): void;
+
+    abstract drawNormals(): void ;
+
+    abstract drawSilhouetteXRayed(): void ;
+
+    abstract drawSilhouetteHighlighted(): void ;
+
+    abstract drawSilhouetteSelected(): void ;
+
+    abstract drawEdgesColorOpaque(): void ;
+
+    abstract drawEdgesColorTranslucent(): void ;
+
+    abstract drawEdgesHighlighted(): void ;
+
+    abstract drawEdgesSelected(): void ;
+
+    abstract drawEdgesXRayed(): void ;
+
+    abstract drawOcclusion(): void;
+
+    abstract drawShadow(): void ;
+
+    abstract drawPickMesh(): void;
+
+    abstract drawPickDepths(): void;
+
+    abstract drawSnapInit(): void;
+
+    abstract drawSnap(): void;
+
+    abstract drawPickNormals(): void;
 
     get hash() {
         return `${this.renderState.primitive}`;
@@ -194,14 +230,14 @@ export class DTXLayer  {
                 layerGeometryBucket = this.#createLayerGeometryBucket(sceneGeometryBucket);
                 this.layerGeometryBuckets[bucketGeometryId] = layerGeometryBucket;
             }
-            const subMeshIndex = this.#createLayerSubMesh(layerMeshParams, sceneMesh, sceneGeometry, layerGeometryBucket);
-            subMeshIndices.push(subMeshIndex);
+            const sublayerMeshIndex = this.#createLayerSubMesh(layerMeshParams, sceneMesh, sceneGeometry, layerGeometryBucket);
+            subMeshIndices.push(sublayerMeshIndex);
         });
-        const meshIndex = this.#meshToSubMeshLookup.length;
+        const layerMeshIndex = this.#meshToSubMeshLookup.length;
         this.#meshToSubMeshLookup.push(subMeshIndices);
         this.#meshes.push(sceneMesh);
         this.meshCounts.numMeshes++;
-        return meshIndex;
+        return layerMeshIndex;
     }
 
     #createLayerGeometryBucket(sceneGeometryBucket: SceneGeometryBucket): DTXLayerGeometryBucket {
@@ -345,7 +381,7 @@ export class DTXLayer  {
             dataTextureBuffer.subMeshEdgeIndicesBases.push(currentNumEdgeIndices / 2 - geometryBucketHandle.edgeIndicesBase);
         }
 
-        const subMeshIndex = this.#subMeshs.length;
+        const sublayerMeshIndex = this.#subMeshs.length;
         if (geometryBucketHandle.numPrimitives > 0) {
             let numIndices = geometryBucketHandle.numPrimitives * indicesPerPrimitive;
             let indicesPortionIdBuffer;
@@ -360,7 +396,7 @@ export class DTXLayer  {
                 renderState.numIndices32Bits += numIndices;
             }
             for (let i = 0; i < geometryBucketHandle.numPrimitives; i += INDICES_EDGE_INDICES_ALIGNEMENT_SIZE) {
-                indicesPortionIdBuffer.push(subMeshIndex);
+                indicesPortionIdBuffer.push(sublayerMeshIndex);
             }
         }
 
@@ -378,7 +414,7 @@ export class DTXLayer  {
                 renderState.numEdgeIndices32Bits += numEdgeIndices;
             }
             for (let i = 0; i < geometryBucketHandle.numEdges; i += INDICES_EDGE_INDICES_ALIGNEMENT_SIZE) {
-                edgeIndicesPortionIdBuffer.push(subMeshIndex);
+                edgeIndicesPortionIdBuffer.push(sublayerMeshIndex);
             }
         }
 
@@ -392,7 +428,7 @@ export class DTXLayer  {
         this.#numSubMeshes++;
         this.rendererModel.numSubMeshes++;
 
-        return subMeshIndex;
+        return sublayerMeshIndex;
     }
 
     build() {
@@ -427,7 +463,7 @@ export class DTXLayer  {
         this.#deferredAttributesUpdateEnabled = true;
     }
 
-    setLayerMeshFlags(meshIndex: number, flags: number, meshTransparent: boolean) {
+    setLayerMeshFlags(layerMeshIndex: number, flags: number, meshTransparent: boolean) {
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
             this.meshCounts.numVisible++;
             this.rendererModel.meshCounts.numVisible++;
@@ -465,8 +501,8 @@ export class DTXLayer  {
             this.rendererModel.meshCounts.numTransparent++;
         }
         const deferred = true;
-        this.#setMeshFlags(meshIndex, flags, meshTransparent, deferred);
-        this.#setMeshFlags2(meshIndex, flags, deferred);
+        this.#setMeshFlags(layerMeshIndex, flags, meshTransparent, deferred);
+        this.#setMeshFlags2(layerMeshIndex, flags, deferred);
     }
 
     commitRendererState() {
@@ -474,7 +510,7 @@ export class DTXLayer  {
         this.#commitDeferredMatrices();
     }
 
-    setLayerMeshVisible(meshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshVisible(layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -485,10 +521,10 @@ export class DTXLayer  {
             this.meshCounts.numVisible--;
             this.rendererModel.meshCounts.numVisible--;
         }
-        this.#setMeshFlags(meshIndex, flags, transparent);
+        this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshHighlighted(meshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshHighlighted(layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -499,10 +535,10 @@ export class DTXLayer  {
             this.meshCounts.numHighlighted--;
             this.rendererModel.meshCounts.numHighlighted--;
         }
-        this.#setMeshFlags(meshIndex, flags, transparent);
+        this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshXRayed(meshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshXRayed(layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -513,10 +549,10 @@ export class DTXLayer  {
             this.meshCounts.numXRayed--;
             this.rendererModel.meshCounts.numXRayed--;
         }
-        this.#setMeshFlags(meshIndex, flags, transparent);
+        this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshSelected(meshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshSelected(layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -527,10 +563,10 @@ export class DTXLayer  {
             this.meshCounts.numSelected--;
             this.rendererModel.meshCounts.numSelected--;
         }
-        this.#setMeshFlags(meshIndex, flags, transparent);
+        this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshEdges(meshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshEdges(layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -541,10 +577,10 @@ export class DTXLayer  {
             this.meshCounts.numEdges--;
             this.rendererModel.meshCounts.numEdges--;
         }
-        this.#setMeshFlags(meshIndex, flags, transparent);
+        this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshClippable(meshIndex: number, flags: number) {
+    setLayerMeshClippable(layerMeshIndex: number, flags: number) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -555,10 +591,10 @@ export class DTXLayer  {
             this.meshCounts.numClippable--;
             this.rendererModel.meshCounts.numClippable--;
         }
-        this.#setMeshFlags2(meshIndex, flags);
+        this.#setMeshFlags2(layerMeshIndex, flags);
     }
 
-    setLayerMeshCulled(meshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshCulled(layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -569,16 +605,16 @@ export class DTXLayer  {
             this.meshCounts.numCulled--;
             this.rendererModel.meshCounts.numCulled--;
         }
-        this.#setMeshFlags(meshIndex, flags, transparent);
+        this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshCollidable(meshIndex, flags) {
+    setLayerMeshCollidable(layerMeshIndex, flags) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
     }
 
-    setLayerMeshPickable(meshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshPickable(layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -589,27 +625,27 @@ export class DTXLayer  {
             this.meshCounts.numPickable--;
             this.rendererModel.meshCounts.numPickable--;
         }
-        this.#setMeshFlags(meshIndex, flags, transparent);
+        this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshColor(meshIndex: number, color: FloatArrayParam, setOpacity: boolean) {
+    setLayerMeshColor(layerMeshIndex: number, color: FloatArrayParam, setOpacity: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
-        const subMeshIndices = this.#meshToSubMeshLookup[meshIndex];
+        const subMeshIndices = this.#meshToSubMeshLookup[layerMeshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
             this.#setSubMeshColor(subMeshIndices[i], color);
         }
     }
 
-    #setSubMeshColor(subMeshIndex: number, color: FloatArrayParam) {
+    #setSubMeshColor(sublayerMeshIndex: number, color: FloatArrayParam) {
         const textureState = this.renderState.dataTextureSet;
         const gl = this.gl;
         tempUint8Array4 [0] = color[0];
         tempUint8Array4 [1] = color[1];
         tempUint8Array4 [2] = color[2];
         tempUint8Array4 [3] = color[3];
-        textureState.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32);
+        textureState.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, sublayerMeshIndex * 32);
         if (this.#deferredAttributesUpdateEnabled) {
             this.#deferredAttributesUpdateDirty = true;
             return;
@@ -622,8 +658,8 @@ export class DTXLayer  {
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
-            (subMeshIndex % 512) * 8, // xoffset
-            Math.floor(subMeshIndex / 512), // yoffset
+            (sublayerMeshIndex % 512) * 8, // xoffset
+            Math.floor(sublayerMeshIndex / 512), // yoffset
             1, // width
             1, //height
             gl.RGBA_INTEGER,
@@ -633,7 +669,7 @@ export class DTXLayer  {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    setLayerMeshTransparent(meshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshTransparent(layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -644,17 +680,17 @@ export class DTXLayer  {
             this.meshCounts.numTransparent--;
             this.rendererModel.meshCounts.numTransparent--;
         }
-        this.#setMeshFlags(meshIndex, flags, transparent);
+        this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    #setMeshFlags(meshIndex: number, flags: number, transparent: boolean, deferred: boolean = false) {
-        const subMeshIndices = this.#meshToSubMeshLookup[meshIndex];
+    #setMeshFlags(layerMeshIndex: number, flags: number, transparent: boolean, deferred: boolean = false) {
+        const subMeshIndices = this.#meshToSubMeshLookup[layerMeshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
             this.#setSubMeshFlags(subMeshIndices[i], flags, transparent, deferred);
         }
     }
 
-    #setSubMeshFlags(subMeshIndex: number, flags: number, transparent: boolean, deferred: boolean = false) {
+    #setSubMeshFlags(sublayerMeshIndex: number, flags: number, transparent: boolean, deferred: boolean = false) {
 
         const visible = !!(flags & SCENE_OBJECT_FLAGS.VISIBLE);
         const xrayed = !!(flags & SCENE_OBJECT_FLAGS.XRAYED);
@@ -723,7 +759,7 @@ export class DTXLayer  {
         tempUint8Array4 [2] = f2;
         tempUint8Array4 [3] = f3;
         // sceneMesh flags
-        dataTextureSet.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32 + 8);
+        dataTextureSet.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, sublayerMeshIndex * 32 + 8);
         if (this.#deferredAttributesUpdateEnabled || deferred) {
             this.#deferredAttributesUpdateDirty = true;
             return;
@@ -735,8 +771,8 @@ export class DTXLayer  {
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
-            (subMeshIndex % 512) * 8 + 2, // xoffset
-            Math.floor(subMeshIndex / 512), // yoffset
+            (sublayerMeshIndex % 512) * 8 + 2, // xoffset
+            Math.floor(sublayerMeshIndex / 512), // yoffset
             1, // width
             1, //height
             gl.RGBA_INTEGER,
@@ -746,14 +782,14 @@ export class DTXLayer  {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    #setMeshFlags2(meshIndex: number, flags: number, deferred = false) {
-        const subMeshIndices = this.#meshToSubMeshLookup[meshIndex];
+    #setMeshFlags2(layerMeshIndex: number, flags: number, deferred = false) {
+        const subMeshIndices = this.#meshToSubMeshLookup[layerMeshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
             this.#setSubMeshFlags2(subMeshIndices[i], flags, deferred);
         }
     }
 
-    #setSubMeshFlags2(subMeshIndex: number, flags: number, deferred = false) {
+    #setSubMeshFlags2(sublayerMeshIndex: number, flags: number, deferred = false) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -765,7 +801,7 @@ export class DTXLayer  {
         tempUint8Array4 [2] = 1;
         tempUint8Array4 [3] = 2;
         // sceneMesh flags2
-        textureState.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, subMeshIndex * 32 + 12);
+        textureState.subMeshAttributesDataTexture.textureData.set(tempUint8Array4, sublayerMeshIndex * 32 + 12);
         if (this.#deferredAttributesUpdateEnabled || deferred) {
             this.#deferredAttributesUpdateDirty = true;
             return;
@@ -777,8 +813,8 @@ export class DTXLayer  {
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
-            (subMeshIndex % 512) * 8 + 3, // xoffset
-            Math.floor(subMeshIndex / 512), // yoffset
+            (sublayerMeshIndex % 512) * 8 + 3, // xoffset
+            Math.floor(sublayerMeshIndex / 512), // yoffset
             1, // width
             1, //height
             gl.RGBA_INTEGER,
@@ -810,17 +846,17 @@ export class DTXLayer  {
         }
     }
 
-    setLayerMeshOffset(meshIndex: number, offset: FloatArrayParam) {
+    setLayerMeshOffset(layerMeshIndex: number, offset: FloatArrayParam) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
-        const subMeshIndices = this.#meshToSubMeshLookup[meshIndex];
+        const subMeshIndices = this.#meshToSubMeshLookup[layerMeshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
             this.#setSubMeshOffset(subMeshIndices[i], offset);
         }
     }
 
-    #setSubMeshOffset(subMeshIndex: number, offset: FloatArrayParam) {
+    #setSubMeshOffset(sublayerMeshIndex: number, offset: FloatArrayParam) {
         // if (!this.#built) {
         //     throw new SDKError("Not finalized");
         // }
@@ -834,7 +870,7 @@ export class DTXLayer  {
         // tempFloat32Array3 [1] = offset[1];
         // tempFloat32Array3 [2] = offset[2];
         // // sceneMesh offset
-        // textureState.texturePerObjectOffsets._textureData.set(tempFloat32Array3, subMeshIndex * 3);
+        // textureState.texturePerObjectOffsets._textureData.set(tempFloat32Array3, sublayerMeshIndex * 3);
         // if (this.#deferredAttributesUpdateEnabled) {
         //     this.#deferredAttributesUpdateDirty = true;
         //     return;
@@ -847,7 +883,7 @@ export class DTXLayer  {
         //     gl.TEXTURE_2D,
         //     0, // level
         //     0, // x offset
-        //     subMeshIndex, // yoffset
+        //     sublayerMeshIndex, // yoffset
         //     1, // width
         //     1, // height
         //     gl.RGB,
@@ -866,17 +902,17 @@ export class DTXLayer  {
         this.#deferredMatricesUpdateEnabled = true;
     }
 
-    setLayerMeshMatrix(meshIndex: number, matrix: FloatArrayParam) {
+    setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
-        const subMeshIndices = this.#meshToSubMeshLookup[meshIndex];
+        const subMeshIndices = this.#meshToSubMeshLookup[layerMeshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
             this.#setSubMeshMatrix(subMeshIndices[i], matrix);
         }
     }
 
-    #setSubMeshMatrix(subMeshIndex: number, matrix: FloatArrayParam) {
+    #setSubMeshMatrix(sublayerMeshIndex: number, matrix: FloatArrayParam) {
         // if (!this.model.scene.entityMatrixsEnabled) {
         //     this.model.error("Entity#matrix not enabled for this Viewer"); // See Viewer entityMatrixsEnabled
         //     return;
@@ -884,7 +920,7 @@ export class DTXLayer  {
         const textureState = this.renderState.dataTextureSet;
         const gl = this.gl;
         tempMat4a.set(matrix);
-        textureState.subMeshInstanceMatricesDataTexture.textureData.set(tempMat4a, subMeshIndex * 16);
+        textureState.subMeshInstanceMatricesDataTexture.textureData.set(tempMat4a, sublayerMeshIndex * 16);
         if (this.#deferredMatricesUpdateEnabled) {
             this.#deferredMatricesUpdateDirty = true;
             return;
@@ -896,8 +932,8 @@ export class DTXLayer  {
         gl.texSubImage2D(
             gl.TEXTURE_2D,
             0, // level
-            (subMeshIndex % 512) * 4, // xoffset
-            Math.floor(subMeshIndex / 512), // yoffset
+            (sublayerMeshIndex % 512) * 4, // xoffset
+            Math.floor(sublayerMeshIndex / 512), // yoffset
             // 1,
             4, // width
             1, // height

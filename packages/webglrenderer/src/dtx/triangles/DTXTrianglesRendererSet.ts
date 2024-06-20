@@ -41,30 +41,38 @@ export class DTXTrianglesRendererSet {
         // this.edgesColorRenderer.destroy();
         // this.qualityColorRenderer.destroy();
     }
+
+    _compile() {
+
+    }
+
+    _eagerCreate() {
+
+    }
 }
 
 
-const cachdRenderers = {};
+const rendererSets = {};
 
 /**
  * @private
  */
 export function getRenderers(webglRenderer: WebGLRenderer) {
     const viewerId = webglRenderer.viewer.id;
-    let dataTextureRenderers = cachdRenderers[viewerId];
-    if (!dataTextureRenderers) {
-        dataTextureRenderers = new DTXTrianglesRendererSet(webglRenderer.renderContext, webglRenderer.renderStats);
-        cachdRenderers[viewerId] = dataTextureRenderers;
-        dataTextureRenderers._compile();
-        dataTextureRenderers.eagerCreateRenders();
+    let rendererSet = rendererSets[viewerId];
+    if (!rendererSet) {
+        rendererSet = new DTXTrianglesRendererSet(webglRenderer.renderContext, webglRenderer.renderStats);
+        rendererSets[viewerId] = rendererSet;
+        rendererSet._compile();
+        rendererSet._eagerCreate();
         webglRenderer.onCompiled.sub(() => {
-            dataTextureRenderers._compile();
-            dataTextureRenderers.eagerCreateRenders();
+            rendererSet._compile();
+            rendererSet._eagerCreate();
         });
         webglRenderer.onDestroyed.sub(() => {
-            delete cachdRenderers[viewerId];
-            dataTextureRenderers._destroy();
+            delete rendererSets[viewerId];
+            rendererSet._destroy();
         });
     }
-    return dataTextureRenderers;
+    return rendererSet;
 }

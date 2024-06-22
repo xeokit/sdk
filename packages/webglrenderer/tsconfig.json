@@ -18,6 +18,9 @@
     {
       "path": "../boundaries"
     },
+      {
+          "path": "../compression"
+      },
     {
       "path": "../constants"
     },

@@ -19,6 +19,8 @@ import {RenderContext} from "../../RenderContext";
 import {getScratchMemory, putScratchMemory} from "../ScratchMemory";
 import {LayerParams} from "../../LayerParams";
 
+import {decompressPoint3, quantizePositions3} from "@xeokit/compression";
+
 const tempMat4a = <Float64Array>identityMat4();
 const tempUint8Array4 = new Uint8Array(4);
 
@@ -26,6 +28,8 @@ let numLayers = 0;
 
 const DEFAULT_MATRIX = identityMat4();
 
+const tempVec3a = createVec3();
+const tempVec3b = createVec3();
 
 /**
  * @private
@@ -130,6 +134,7 @@ export class VBOPointsLayer implements Layer {
         const geometry = sceneMesh.geometry;
         const geometryBucket = geometry.geometryBuckets[0];
         const positionsCompressed = geometryBucket.positionsCompressed;
+        const positionsDecompressMatrix = geometry.positionsDecompressMatrix;
         const color = sceneMesh.color;
         const colorsCompressed = geometryBucket.colorsCompressed;
 
@@ -147,8 +152,14 @@ export class VBOPointsLayer implements Layer {
             throw "positionsCompressed expected";
         }
 
-        for (let i = 0, len = positionsCompressed.length; i < len; i++) {
-            buffer.positions.push(positionsCompressed[i]);
+        for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
+            tempVec3a[0] = positionsCompressed[k];
+            tempVec3a[1] = positionsCompressed[k + 1];
+            tempVec3a[2] = positionsCompressed[k + 2];
+            decompressPoint3(tempVec3a, positionsDecompressMatrix, tempVec3b);
+            buffer.positions.push(tempVec3b[0]);
+            buffer.positions.push(tempVec3b[1]);
+            buffer.positions.push(tempVec3b[2]);
         }
 
         numVerts = positionsCompressed.length / 3;
@@ -215,14 +226,14 @@ export class VBOPointsLayer implements Layer {
         const buffer = this.#vboPointsBuffer;
 
         if (buffer.positions.length > 0) {
-            //  if (this.#preCompressedPositionsExpected) {
-            const positions = new Uint16Array(buffer.positions);
-            state.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, buffer.positions.length, 3, gl.STATIC_DRAW);
+            // if (this.#preCompressedPositionsExpected) {
+            // const positions = new Uint16Array(buffer.positions);
+            // state.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, buffer.positions.length, 3, gl.STATIC_DRAW);
             // } else {
-            //     const positions = new Float32Array(buffer.positions);
-            //     const quantizedPositions = quantizePositions(positions, this.#aabb, state.positionsDecodeMatrix);
-            //     state.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, quantizedPositions, buffer.positions.length, 3, gl.STATIC_DRAW);
-            // }
+            const positions = new Float32Array(buffer.positions);
+            const quantizedPositions = quantizePositions3(positions, this.#aabb, state.positionsDecodeMatrix);
+            state.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, quantizedPositions, buffer.positions.length, 3, gl.STATIC_DRAW);
+            //}
         }
 
         if (buffer.colors.length > 0) {

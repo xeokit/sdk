@@ -50,6 +50,7 @@ abstract class VBOBatchingPointsRenderer {
         intensityRange: WebGLUniformLocation;
         pickZFar: WebGLUniformLocation;
         worldMatrix: WebGLUniformLocation;
+        positionsDecodeMatrix: WebGLUniformLocation;
         sectionPlanes: any[];
         sceneModelMatrix: WebGLUniformLocation;
         projMatrix: WebGLUniformLocation;
@@ -104,6 +105,7 @@ abstract class VBOBatchingPointsRenderer {
             viewMatrix: program.getLocation("viewMatrix"),
             projMatrix: program.getLocation("projMatrix"),
             worldMatrix: program.getLocation("worldMatrix"),
+            positionsDecodeMatrix: program.getLocation("positionsDecodeMatrix"),
             snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
             logDepthBufFC: program.getLocation("logDepthBufFC"),
             pointSize: program.getLocation("pointSize"),
@@ -246,10 +248,10 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
         src.push("void main(void) {");
         // colorFlag = NOT_RENDERED | COLOR_OPAQUE | COLOR_TRANSPARENT
         // renderPass = COLOR_OPAQUE
-        src.push(`int colorFlag = int(flags) & 0xF;`);
-        src.push(`if (colorFlag != renderPass) {`);
-        src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("} else {");
+        // src.push(`int colorFlag = int(flags) & 0xF;`);
+        // src.push(`if (colorFlag != renderPass) {`);
+        // src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        // src.push("} else {");
         if (pointsMaterial.filterIntensity) {
             src.push("float intensity = float(color.a) / 255.0;")
             src.push("if (intensity < intensityRange[0] || intensity > intensityRange[1]) {");
@@ -275,7 +277,7 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
         } else {
             src.push("gl_PointSize = pointSize;");
         }
-        src.push("}");
+    //    src.push("}");
         if (pointsMaterial.filterIntensity) {
             src.push("}");
         }
@@ -357,6 +359,7 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
             // attributes.intensity.bindArrayBuffer(renderState.intensitiesBuf);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
+        gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
         gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
@@ -510,6 +513,7 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingPointsRenderer {
             attributes.flags.bindArrayBuffer(renderState.flagsBuf);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
+        gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
         gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
@@ -651,6 +655,7 @@ export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingPointsRenderer
             attributes.flags.bindArrayBuffer(renderState.flagsBuf);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
+        gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
         gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
